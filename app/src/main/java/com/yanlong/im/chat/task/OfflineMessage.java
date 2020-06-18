@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.task;
 
-import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils;
@@ -15,10 +14,8 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,36 +25,35 @@ import io.realm.Realm;
 import static com.yanlong.im.utils.socket.SocketData.getOfflineCount;
 
 /**
+ * 离线消息是一批一批接收，当一批接收完成后，才会请求下一批
+ *
  * @createAuthor Raleigh.Luo
  * @createDate 2020/6/11 0011
  * @description
  */
 public class OfflineMessage extends DispatchMessage {
-    //批量处理离线消息，每批消息的容量
-    private final int OFFLINE_BATCH_COUNT = getOfflineCount()+1;
+//    //批量处理离线消息，每批消息的容量
+//    private final int OFFLINE_BATCH_COUNT = getOfflineCount()+1;
 
     /**
-     * 保存requestId某批消息，保存成功消息的个数，所有接收完成、某个消息失败 后移除（1个消息失败，表示本批所有消息接收失败）
-     * 线程安全map
-     * ConcurrentHashMap
-     * 记录离线消息保存成功的requestId msg_ids，离线消息是任务并发的
+     * 记录当前批消息的已处理完成个数
      * 并发中，线程不安全的对象会出现数据丢失
      * AtomicInteger 线程安全
      */
-    private ConcurrentHashMap<String, AtomicInteger> mSuccessMessageCount = new ConcurrentHashMap<>();
+    private AtomicInteger mBatchCompletedCount = new AtomicInteger();
     //用于保存成功数据
     /**
      * 所有离线消息接收完成后释放
      */
-    private CopyOnWriteArraySet<String> mSuccessMsgIds = new CopyOnWriteArraySet<>();
+    private CopyOnWriteArraySet<String> mBatchSuccessMsgIds = new CopyOnWriteArraySet<>();
     /**
      * 等待更新sessionGid,离线批量更新session
      */
-    private CopyOnWriteArraySet<String> mToUpdateSessionGids = new CopyOnWriteArraySet<>();
+    private CopyOnWriteArraySet<String> mBatchToUpdateSessionGids = new CopyOnWriteArraySet<>();
     /**
      * 等待更新session uid好友,离线批量更新session
      */
-    private CopyOnWriteArraySet<Long> mToUpdateSessionUids = new CopyOnWriteArraySet<>();
+    private CopyOnWriteArraySet<Long> mBatchToUpdateSessionUids = new CopyOnWriteArraySet<>();
     /**
      * 它是一个数量无限多的线程池，它所有的线程都是非核心线程
      * 当线程空闲一定时间时就会被系统回收，所以理论上该线程池不会有占用系统资源的无用线程。
@@ -72,8 +68,6 @@ public class OfflineMessage extends DispatchMessage {
 
     @Override
     public void clear() {
-        mSuccessMsgIds.clear();
-        mSuccessMessageCount.clear();
         //停止离线任务，
         if (executor != null && executor.getActiveCount() > 0) {
             executor.shutdown();
@@ -88,6 +82,8 @@ public class OfflineMessage extends DispatchMessage {
             }
             executor = null;
         }
+        mBatchSuccessMsgIds.clear();
+        mBatchCompletedCount.set(0);
     }
 
     /**
@@ -105,7 +101,7 @@ public class OfflineMessage extends DispatchMessage {
         if (isBeforeHistoryCleanMessage(wrapMessage)) {
             return true;
         }
-        if (mSuccessMsgIds.contains(wrapMessage.getMsgId())) {//已经保存过了
+        if (mBatchSuccessMsgIds.contains(wrapMessage.getMsgId())) {//已经保存过了
             return true;
         } else {
             //收集gid和uid,用于最后更新session
@@ -120,79 +116,47 @@ public class OfflineMessage extends DispatchMessage {
      * @param bean
      */
     @Override
-    public void dispatch(MsgBean.UniversalMessage bean, Realm realm) {
-        try {
+    public void dispatch(MsgBean.UniversalMessage bean, Realm realm1) {
+        if (mBatchCompletedCount.get() != 0) mBatchCompletedCount.set(0);
+        if (executor == null)
+            executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+        /**开启并发异步任务******************************************/
+        executor.execute(() -> {
             List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
             if (msgList != null && msgList.size() > 0) {
-                Log.e("raleigh_test", "start recevie Offline batchCount="+msgList.size());
-                mSuccessMessageCount.put(bean.getRequestId(), new AtomicInteger());
-                int index = 0;
-                int page = OFFLINE_BATCH_COUNT;//每次处理消息的数量，可自己调整，以提高接收离线消息的速度,太小也会过慢，启动任务需要时间
-                int max = Math.min(msgList.size(), page);
-                while (index < msgList.size()) {
-                    /**开启并发任务******************************************/
-                    startConcurrentTask(msgList, index, max, bean.getRequestId(), bean.getMsgFrom());
-                    index = max;
-                    max = Math.min(msgList.size(), index + page);
+                Log.e("raleigh_test", "start recevie Offline batchCount=" + msgList.size());
+                Realm realm = DaoUtil.open();
+                String requestId = bean.getRequestId();
+                boolean isOfflineMsg = bean.getMsgFrom() == 1;
+                try {
+                    for (int i = 0; i < msgList.size(); i++) {
+                        MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
+                        //是否为本批消息的最后一条消息,并发的只能取数量
+                        boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
+                        //开始处理消息
+                        boolean toDOResult = handlerMessage(realm, wrapMessage, requestId, isOfflineMsg, msgList.size(),
+                                isLastMessage);
+                        if (toDOResult) {
+                            //临时保存
+                            mBatchSuccessMsgIds.add(wrapMessage.getMsgId());
+                        }
+                        //处理完成数量自增,需在mBatchSuccessMsgIds add后，因并发，会出现mBatchSuccessMsgIds的size少于mBatchCompletedCount，所以得放在其后
+                        mBatchCompletedCount.getAndIncrement();
+                    }
+                } catch (Exception e) {
+                    Log.e("raleigh_test", "startConcurrentTask e=" + e.getMessage());
+                    LogUtil.writeError(e);
+                } finally {//本批消息处理完成
+                    //检测本批的所有消息是否已经接收完成
+                    checkBatchMessageCompleted(realm, requestId, msgList.size(), bean.getMsgFrom());
+                    DaoUtil.close(realm);
                 }
             } else {//空消息 回执
                 SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, SocketData.isEnough(0)), null, bean.getRequestId());
             }
-        } catch (Exception e) {
-            DaoUtil.reportException(e);
-        }
-    }
-
-
-    /**
-     * 开启接收离线消息的并发任务
-     * 一个任务最多OFFLINE_BATCH_COUNT个消息处理
-     *
-     * @param msgList
-     * @param mIndex
-     * @param max
-     * @param requestId
-     * @param msgFrom
-     */
-    private void startConcurrentTask(List<MsgBean.UniversalMessage.WrapMessage> msgList, int mIndex, int max,
-                                     String requestId, int msgFrom) {
-        if (executor == null)
-            executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-        executor.execute(() -> {
-            Realm realm = DaoUtil.open();
-            try {
-                for (int i = mIndex; i < max; i++) {
-                    MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
-                    //是否为本批消息的最后一条消息,并发的只能取数量
-                    boolean isLastMessage = mSuccessMessageCount.get(requestId).get() == msgList.size();
-                    boolean toDOResult = false;
-                    //开始处理消息
-                    toDOResult = handlerMessage(realm, wrapMessage, requestId, msgFrom == 1, msgList.size(),
-                            isLastMessage);
-                    if (toDOResult) {
-                        //成功，递增成功数量
-                        pushSuccessCount(requestId);
-                        //临时保存
-                        mSuccessMsgIds.add(wrapMessage.getMsgId());
-                    } else { //有一个失败，表示接收全部失败
-                        //清除数量
-                        clearSuccessCount(requestId);
-                    }
-                }
-                //检测本批的所有消息是否已经接收完成
-                checkBatchMessageCompleted(realm, requestId, msgList.size(), msgFrom);
-            } catch (Exception e) {
-                Log.e("raleigh_test", "startConcurrentTask e=" + e.getMessage());
-                //检测所有离线消息是否接收完成
-                checkReceivedAllOfflineCompleted(realm, msgList.size(), false);
-                //清除数量
-                clearSuccessCount(requestId);
-                LogUtil.writeError(e);
-            } finally {
-                DaoUtil.close(realm);
-            }
 
         });
+
     }
 
     /**
@@ -203,21 +167,22 @@ public class OfflineMessage extends DispatchMessage {
      * @param msgFrom         离线或在线消息
      */
     private void checkBatchMessageCompleted(Realm realm, String requestId, int batchTotalCount, int msgFrom) {
-        if (mSuccessMessageCount.containsKey(requestId)) {
-            if (mSuccessMessageCount.get(requestId).get() == batchTotalCount) {
+        if (mBatchCompletedCount.get() == batchTotalCount) {//全部处理完成
+            if (mBatchSuccessMsgIds.size() >= batchTotalCount) {//全部成功
                 Log.e("raleigh_test", "checkBatchMessageCompleted Success");
                 //刷新session
                 //全部保存成功，消息回执
                 SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                 //检测所有离线消息是否接收完成
                 checkReceivedAllOfflineCompleted(realm, batchTotalCount, true);
-                //清除数量
-                clearSuccessCount(requestId);
+                //在线，表示能回执成功，清除掉MsgId
+                if (SocketUtil.getSocketUtil().getOnLineState()) mBatchSuccessMsgIds.clear();
+            } else {//说明至少有一个消息接收失败
+                Log.e("raleigh_test", "checkBatchMessageCompleted Failed");
+                //检测所有离线消息是否接收完成
+                checkReceivedAllOfflineCompleted(realm, batchTotalCount, false);
             }
-        } else {//被移除了，说明至少有一个消息接收失败
-            Log.e("raleigh_test", "checkBatchMessageCompleted Failed");
-            //检测所有离线消息是否接收完成
-            checkReceivedAllOfflineCompleted(realm, batchTotalCount, false);
+            mBatchCompletedCount.set(0);
         }
     }
 
@@ -232,7 +197,7 @@ public class OfflineMessage extends DispatchMessage {
         //本次离线消息是否接收完成
         boolean isReceivedOfflineCompleted = SocketData.isEnough(batchMsgCount);
         if (isReceivedOfflineCompleted) {//离线消息接收完了
-            Log.e("raleigh_test", "ReceivedOfflineCompleted batchMsgCount="+batchMsgCount);
+            Log.e("raleigh_test", "ReceivedOfflineCompleted batchMsgCount=" + batchMsgCount);
             //清空双向清除数据
             if (repository.historyCleanMsg.size() > 0) {
                 repository.historyCleanMsg.clear();
@@ -243,10 +208,10 @@ public class OfflineMessage extends DispatchMessage {
             if (isSuccess && SocketUtil.getSocketUtil().getOnLineState()) {
                 //有网，保存完成，且是最后一批离线，清除
                 //本次离线消息是否接收完成
-                mSuccessMsgIds.clear();
+                mBatchSuccessMsgIds.clear();
             }
         }
-        Log.e("raleigh_test", "updateSessionsWhenBatchCompleted isSuccess="+isSuccess);
+        Log.e("raleigh_test", "updateSessionsWhenBatchCompleted isSuccess=" + isSuccess);
         //更新所有的session
         updateSessionsWhenBatchCompleted(realm);
     }
@@ -265,10 +230,10 @@ public class OfflineMessage extends DispatchMessage {
                 friendUid = toUid;
             }
             if (UserAction.getMyId() != null && friendUid != UserAction.getMyId().intValue()) {
-                mToUpdateSessionUids.add(isFromSelf ? toUid : fromUid);
+                mBatchToUpdateSessionUids.add(isFromSelf ? toUid : fromUid);
             }
         } else {
-            mToUpdateSessionGids.add(gid);
+            mBatchToUpdateSessionGids.add(gid);
         }
     }
 
@@ -278,41 +243,19 @@ public class OfflineMessage extends DispatchMessage {
      * @param realm
      */
     private void updateSessionsWhenBatchCompleted(Realm realm) {
-        while (mToUpdateSessionUids.iterator().hasNext()) {
-            Long uid = mToUpdateSessionUids.iterator().next();
-            mToUpdateSessionUids.remove(uid);
+        while (mBatchToUpdateSessionUids.iterator().hasNext()) {
+            Long uid = mBatchToUpdateSessionUids.iterator().next();
+            mBatchToUpdateSessionUids.remove(uid);
             repository.offlineUpdateSession(realm, null, uid);
         }
 
-        while (mToUpdateSessionGids.iterator().hasNext()) {
-            String gid = mToUpdateSessionGids.iterator().next();
-            mToUpdateSessionGids.remove(gid);
+        while (mBatchToUpdateSessionGids.iterator().hasNext()) {
+            String gid = mBatchToUpdateSessionGids.iterator().next();
+            mBatchToUpdateSessionGids.remove(gid);
             repository.offlineUpdateSession(realm, gid, null);
         }
     }
 
-
-    /**
-     * 清除成功数-接收完一批后
-     *
-     * @param requestId
-     */
-    private synchronized void clearSuccessCount(String requestId) {
-        if (mSuccessMessageCount.containsKey(requestId)) {
-            mSuccessMessageCount.remove(requestId);
-        }
-    }
-
-    /**
-     * 递增记录成功数据 -每个消息成功时记录
-     *
-     * @param requestId
-     */
-    private synchronized void pushSuccessCount(String requestId) {
-        if (mSuccessMessageCount.containsKey(requestId)) {
-            mSuccessMessageCount.get(requestId).getAndIncrement();
-        }
-    }
 
     /**
      * 是否是双向清除之前的消息
@@ -340,4 +283,77 @@ public class OfflineMessage extends DispatchMessage {
         }
         return result;
     }
+
+
+//    /**
+//     * 处理离线消息
+//     *
+//     * @param bean
+//     */
+//    @Override
+//    public void dispatch(MsgBean.UniversalMessage bean, Realm realm) {
+//        try {
+//            clear();
+//            List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
+//            if (msgList != null && msgList.size() > 0) {
+//                Log.e("raleigh_test", "start recevie Offline batchCount=" + msgList.size());
+//                int index = 0;
+//                int page = OFFLINE_BATCH_COUNT;//每次处理消息的数量，可自己调整，以提高接收离线消息的速度,太小也会过慢，启动任务需要时间
+//                int max = Math.min(msgList.size(), page);
+//                while (index < msgList.size()) {
+//                    /**开启并发异步任务******************************************/
+//                    startConcurrentTask(msgList, index, max, bean.getRequestId(), bean.getMsgFrom());
+//                    index = max;
+//                    max = Math.min(msgList.size(), index + page);
+//                }
+//            } else {//空消息 回执
+//                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, SocketData.isEnough(0)), null, bean.getRequestId());
+//            }
+//        } catch (Exception e) {
+//            DaoUtil.reportException(e);
+//        }
+//    }
+//
+//    /**
+//     * 开启接收离线消息的并发任务
+//     * 一个任务最多OFFLINE_BATCH_COUNT个消息处理
+//     *
+//     * @param msgList
+//     * @param mIndex
+//     * @param max
+//     * @param requestId
+//     * @param msgFrom
+//     */
+//    private void startConcurrentTask(List<MsgBean.UniversalMessage.WrapMessage> msgList, int mIndex, int max,
+//                                     String requestId, int msgFrom) {
+//        if (executor == null)
+//            executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+//        executor.execute(() -> {
+//            Realm realm = DaoUtil.open();
+//            try {
+//                for (int i = mIndex; i < max; i++) {
+//                    MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
+//                    //是否为本批消息的最后一条消息,并发的只能取数量
+//                    boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
+//                    //开始处理消息
+//                    boolean toDOResult = handlerMessage(realm, wrapMessage, requestId, msgFrom == 1, msgList.size(),
+//                            isLastMessage);
+//                    if (toDOResult) {
+//                        //临时保存
+//                        mBatchSuccessMsgIds.add(wrapMessage.getMsgId());
+//                    }
+//                    //处理完成数量自增,需在mBatchSuccessMsgIds add后，因并发，会出现mBatchSuccessMsgIds的size少于mBatchCompletedCount，所以得放在其后
+//                    mBatchCompletedCount.getAndIncrement();
+//                }
+//            } catch (Exception e) {
+//                Log.e("raleigh_test", "startConcurrentTask e=" + e.getMessage());
+//                LogUtil.writeError(e);
+//            } finally {
+//                //检测本批的所有消息是否已经接收完成
+//                checkBatchMessageCompleted(realm, requestId, msgList.size(), msgFrom);
+//                DaoUtil.close(realm);
+//            }
+//
+//        });
+//    }
 }
