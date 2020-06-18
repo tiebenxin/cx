@@ -120,6 +120,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private List<CollectionInfo> LocalList;//本地离线收藏列表数据
 
     private boolean inEditMode = false;//是否处于编辑模式 (即多选删除模式，此模式下，单击只响应选中，不再响应长按，回退恢复默认模式)
+    private List<String> needDeleteIDs;//需要删除的指定收藏id
 
     //加载布局
     @Override
@@ -415,13 +416,19 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 if (fromWhere == CollectionActivity.FROM_DEFAULT) {
                     //编辑模式，点击子项仅支持选中
                     if(inEditMode){
+                        //收录需要删除的收藏消息id集
+                        if(needDeleteIDs==null){
+                            needDeleteIDs = new ArrayList<>();
+                        }
                         //勾选效果
                         if(bean.isChecked()==false){
                             bean.setChecked(true);
                             binding.ivCheck.setImageResource(R.drawable.ic_select);
+                            needDeleteIDs.add(bean.getMsgId());
                         }else {
                             bean.setChecked(false);
                             binding.ivCheck.setImageResource(R.drawable.ic_unselect);
+                            needDeleteIDs.remove(bean.getMsgId());
                         }
                     }else {
                         //默认模式，点击子项跳转到收藏详情
@@ -480,6 +487,8 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             @Override
             public void onClick(View v) {
                 //TODO 批量删除
+//                mList
+                List<CollectionInfo> removeList = new ArrayList<>();
             }
         });
     }
