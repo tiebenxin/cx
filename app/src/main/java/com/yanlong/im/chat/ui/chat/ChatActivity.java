@@ -424,7 +424,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //猜你想要发送的图片
     private PopupWindow popGuessUWant;//点击+号后展示的弹框
-    private List<GetImgUtils.ImgBean> latestImgList;//获取最新拍摄/截屏加入的图片
+    private GetImgUtils.ImgBean latestImg;//获取最新拍摄/截屏加入的图片
     private String latestUrl = "";//最新加入的图片url
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -830,12 +830,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private boolean checkCurrentImg() {
-        latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
-        if (latestImgList != null && latestImgList.size() > 0) {
-            GetImgUtils.ImgBean bean = latestImgList.get(0);
+        latestImg = GetImgUtils.getLatestPhoto(ChatActivity.this);
+        if(latestImg!=null){
             //30秒内展示，超过不显示，url直接置空
-            if (DateUtils.dateDiffer(bean.mTime) <= 30) {
-                latestUrl = bean.imgUrl;
+            if(DateUtils.dateDiffer(latestImg.mTime)<=30){
+                latestUrl = latestImg.imgUrl;
                 //未展示过需要显示，展示过则不再显示(直接用SharedPreference缓存，不再加入到数据库)
                 SharedPreferencesUtil spGuessYouLike = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.GUESS_YOU_LIKE);
                 String saveUrl = spGuessYouLike.getString("current_img_url");
@@ -6377,7 +6376,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 猜你要发送的图片
-     *
      * @param view
      */
     private void showPopupWindow(View view) {
