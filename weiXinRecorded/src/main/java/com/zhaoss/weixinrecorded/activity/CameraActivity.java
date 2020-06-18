@@ -130,14 +130,14 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             @Override
             public void recordEnd(long time) {
                 stopRecording();
-                recordView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
-                        intentPre.putExtra(INTENT_PATH, mp4FilePath);
-                        startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
-                    }
-                }, 500);
+//                recordView.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
+//                        intentPre.putExtra(INTENT_PATH, mp4FilePath);
+//                        startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
+//                    }
+//                }, 500);
 
             }
 
@@ -248,7 +248,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
                 intentMas.putExtra(CameraActivity.INTENT_PATH, data.getStringExtra(INTENT_PATH));
                 intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraView.getVideoWidth());
                 intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraView.getVideoHeight());
-                intentMas.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME, 0));
+                intentMas.putExtra(INTENT_PATH_TIME, data.getLongExtra(INTENT_PATH_TIME, 0));
                 intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intentMas);
                 finish();
@@ -297,6 +297,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         try {
             // if you record audio only, ".m4a" is also OK.
             mMuxer = new MediaMuxerWrapper(mp4FilePath);
+            mMuxer.setCameraCallBack(this);
             if (true) {
                 // for video capturing
                 new MediaVideoEncoder(mMuxer, mMediaEncoderListener, mCameraView.getVideoWidth(), mCameraView.getVideoHeight());
@@ -348,6 +349,18 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             intent.putExtra("from", 1);
             startActivityForResult(intent, 90);
         }
+    }
+
+    @Override
+    public void recordSuccess() {
+        recordView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
+                intentPre.putExtra(INTENT_PATH, mp4FilePath);
+                startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
+            }
+        }, 100);
     }
 
 

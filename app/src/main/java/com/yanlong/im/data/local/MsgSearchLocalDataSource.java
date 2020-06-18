@@ -81,16 +81,16 @@ public class MsgSearchLocalDataSource {
         }
     }
 
+
     /**
      * 搜索所有session
      *
      * @return
      */
-    public RealmResults<Session> searchSessions(Realm realm, long timeStamp, int limit) {
+    public RealmResults<Session> searchSessions() {
         return realm.where(Session.class)
-                .lessThanOrEqualTo("up_time", timeStamp)
                 .sort("up_time", Sort.DESCENDING)
-                .limit(limit).findAll();
+                .findAllAsync();
     }
 
     /**
@@ -98,11 +98,10 @@ public class MsgSearchLocalDataSource {
      *
      * @return
      */
-    public List<SessionDetail> getSessionDetails(Realm realm, String[] sids) {
-        RealmResults<SessionDetail> results = realm.where(SessionDetail.class).in("sid", sids).findAll();
+    public SessionDetail getSessionDetail(Realm realm, String sid) {
+         SessionDetail results = realm.where(SessionDetail.class).equalTo("sid", sid).findFirst();
         return results == null ? null : realm.copyFromRealm(results);
     }
-
     private RealmQuery<MsgAllBean> searchMessagesQuery(Realm realm, String key, String gid, long uid) {
         String searchKey = getKey(key);
         if (TextUtils.isEmpty(gid)) {
