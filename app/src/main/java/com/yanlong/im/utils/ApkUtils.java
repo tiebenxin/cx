@@ -119,4 +119,21 @@ public class ApkUtils {
             ToastUtil.show(context, "未安装应用，快去商店下载吧");
         }
     }
+
+    public static void goBrowsable(Context context, String downloadUrl) {
+        if (!StringUtil.isHttp(downloadUrl)) {
+            ToastUtil.show("非法网络地址");
+            return;
+        }
+        try {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            Uri content_url = Uri.parse(downloadUrl);
+            intent.setData(content_url);
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
