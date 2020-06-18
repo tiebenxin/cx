@@ -122,16 +122,16 @@ public abstract class DispatchMessage {
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
             case ASSISTANT_PROMOTION:// 小助手推广消息
-                result = repository.toDoChat(wrapMessage, requestId, realm);
+                result = repository.handlerDoChat(wrapMessage, requestId, realm);
                 break;
             case HISTORY_CLEAN://双向清除
                 repository.handlerHistoryCleanMsg(wrapMessage, isOfflineMsg, realm);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
-                result = repository.toDoP2PAUVideo(wrapMessage, realm);
+                result = repository.handlerP2PAUVideo(wrapMessage, realm);
                 break;
             case ACCEPT_BE_FRIENDS://接受成为好友,需要产生消息后面在处理
-                result = repository.toDoAcceptBeFriends(wrapMessage, realm);
+                result = repository.handlerAcceptBeFriends(wrapMessage, realm);
                 break;
             case REQUEST_FRIEND://请求添加为好友
                 repository.handlerRequestFriendMsg(wrapMessage, realm);
@@ -140,25 +140,25 @@ public abstract class DispatchMessage {
                 MessageManager.getInstance().notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                 break;
             case CHANGE_GROUP_MASTER://转让群主
-                result = repository.toDoChangeGroupMaster(wrapMessage, realm);
+                result = repository.handlerChangeGroupMaster(wrapMessage, realm);
                 break;
             case OUT_GROUP://退出群聊，如果该群是已保存群聊，需要改为未保存
-                result = repository.toDoOutGroup(wrapMessage, realm);
+                result = repository.handlerOutGroup(wrapMessage, realm);
                 break;
             case REMOVE_GROUP_MEMBER://自己被移除群聊，如果该群是已保存群聊，需要改为未保存
-                result = repository.toDoRemoveGroupMember(wrapMessage, realm);
+                result = repository.handlerRemoveGroupMember(wrapMessage, realm);
                 break;
             case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代,所以需要从服务器重新拉取数据
-                repository.toDoRemoveGroupMember2(wrapMessage, realm);
+                repository.handlerRemoveGroupMember2(wrapMessage, realm);
                 break;
             case ACCEPT_BE_GROUP://接受入群，
-                result = repository.toDoAcceptBeGroup(wrapMessage, realm);
+                result = repository.handlerAcceptBeGroup(wrapMessage, realm);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 repository.handlerRequestGroup(wrapMessage, realm);
                 break;
             case CHANGE_GROUP_META://修改群属性
-                result = repository.toDoChangeGroupMeta(wrapMessage, realm);
+                result = repository.handlerChangeGroupMeta(wrapMessage, realm);
                 break;
             case DESTROY_GROUP://销毁群
                 repository.handlerDestroyGroup(wrapMessage, realm);
@@ -168,13 +168,13 @@ public abstract class DispatchMessage {
                 break;
             case AT://@消息
             case GROUP_ANNOUNCEMENT://群公告
-                result = repository.toDoGroupAnnouncement(wrapMessage, realm);
+                result = repository.handlerGroupAnnouncement(wrapMessage, realm);
                 break;
             case ACTIVE_STAT_CHANGE://在线状态改变
                 repository.handlerActiveStatChange(wrapMessage, realm);
                 break;
             case CANCEL://撤销消息
-                result = repository.toDoCancel(wrapMessage, realm);
+                result = repository.handlerCancel(wrapMessage, realm);
                 break;
             case RESOURCE_LOCK://资源锁定
                 repository.handlerResourceLock(wrapMessage, realm);
@@ -186,7 +186,7 @@ public abstract class DispatchMessage {
                 repository.handlerRead(wrapMessage, isOfflineMsg, realm);
                 break;
             case SWITCH_CHANGE: //开关变更
-                result = repository.toDoSwitchChange(wrapMessage, realm);
+                result = repository.handlerSwitchChange(wrapMessage, realm);
                 break;
             case P2P_AU_VIDEO_DIAL:// 音视频通知
                 break;
@@ -194,10 +194,10 @@ public abstract class DispatchMessage {
                 repository.handlerPayResult(wrapMessage);
                 break;
             case TRANSFER://转账消息
-                result = repository.toDoTransfer(wrapMessage, realm);
+                result = repository.handlerTransfer(wrapMessage, realm);
                 break;
             case REPLY_SPECIFIC:// 回复消息
-                result = repository.toDoReplySpecific(wrapMessage, realm);
+                result = repository.handlerReplySpecific(wrapMessage, realm);
                 break;
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
                 repository.handlerMultiTerminalSync(wrapMessage, realm);
