@@ -170,16 +170,23 @@ public class OfflineMessage extends DispatchMessage {
     private void checkBatchMessageCompleted(Realm realm, String requestId, int batchTotalCount, int msgFrom) {
         if (mBatchCompletedCount.get() == batchTotalCount) {//全部处理完成
             if (mBatchSuccessMsgIds.size() >= batchTotalCount) {//全部成功
-                Log.e("raleigh_test", "checkBatchMessageCompleted Success");
-                //刷新session
-                //全部保存成功，消息回执
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
+                //批量保存消息对象
+                boolean result = repository.insertOfflineMessages(realm);
+                if (result) {
+                    //全部保存成功，消息回执
+//                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
+                    Log.e("raleigh_test", "checkBatchMessageCompleted Success" );
+                    //在线，表示能回执成功，清除掉MsgId
+                    if (SocketUtil.getSocketUtil().getOnLineState()) mBatchSuccessMsgIds.clear();
+                }
+                //更新所有的session
+                updateSessionsWhenBatchCompleted(realm);
                 //检测所有离线消息是否接收完成
                 checkReceivedAllOfflineCompleted(realm, batchTotalCount, true);
-                //在线，表示能回执成功，清除掉MsgId
-                if (SocketUtil.getSocketUtil().getOnLineState()) mBatchSuccessMsgIds.clear();
             } else {//说明至少有一个消息接收失败
                 Log.e("raleigh_test", "checkBatchMessageCompleted Failed");
+                //更新所有的session
+                updateSessionsWhenBatchCompleted(realm);
                 //检测所有离线消息是否接收完成
                 checkReceivedAllOfflineCompleted(realm, batchTotalCount, false);
             }
@@ -212,9 +219,6 @@ public class OfflineMessage extends DispatchMessage {
                 mBatchSuccessMsgIds.clear();
             }
         }
-        Log.e("raleigh_test", "updateSessionsWhenBatchCompleted isSuccess=" + isSuccess);
-        //更新所有的session
-        updateSessionsWhenBatchCompleted(realm);
     }
 
     /**

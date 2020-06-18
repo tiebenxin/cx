@@ -88,6 +88,24 @@ public class MessageLocalDataSource {
         }
     }
 
+    public boolean insertOfflineMessages(Realm realm, List<MsgAllBean> msgs) {
+        boolean result = false;
+        try {
+            checkInTransaction(realm);
+            realm.beginTransaction();
+            realm.insertOrUpdate(msgs);
+            realm.commitTransaction();
+            result = true;
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
+        return result;
+    }
+
 
     /***
      * 红点数量加一
