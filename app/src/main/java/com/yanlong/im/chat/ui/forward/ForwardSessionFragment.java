@@ -235,7 +235,7 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
             @Override
             public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show(getActivity(), t.getMessage());
+                ToastUtil.show(t.getMessage());
                 finalRequestNums++;
                 //如果执行到最后一次请求，即全部走完，再判断是否存在需要过滤掉的将我禁言的群
                 if(finalRequestNums == needRequestNums){
