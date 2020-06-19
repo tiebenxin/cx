@@ -13,7 +13,7 @@ import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
-import com.hm.cxpay.dailog.ChangeSelectDialog;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -54,10 +54,10 @@ public class LooseChangeActivity extends BasePayActivity {
     private LinearLayout layoutWithdrawDeposit;//提现
 
     private Activity activity;
-    private ChangeSelectDialog.Builder builder;
-    private ChangeSelectDialog dialogOne;//通用提示选择弹框：检测到未设置支付密码
-    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：没有添加过银行卡
-    private ChangeSelectDialog dialogThree;//通用提示选择弹框：是否绑定手机号
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//通用提示选择弹框：检测到未设置支付密码
+    private CommonSelectDialog dialogTwo;//通用提示选择弹框：没有添加过银行卡
+    private CommonSelectDialog dialogThree;//通用提示选择弹框：是否绑定手机号
 
     private int myCardListSize = 0;//我的银行卡个数 (判断是否添加过银行卡)
     private UserBean userBean;
@@ -127,7 +127,7 @@ public class LooseChangeActivity extends BasePayActivity {
                 startActivity(new Intent(activity, BillDetailListActivity.class));
             }
         });
-        builder = new ChangeSelectDialog.Builder(activity);
+        builder = new CommonSelectDialog.Builder(activity);
         //显示余额
         userBean = PayEnvironment.getInstance().getUser();
         if (userBean != null) {

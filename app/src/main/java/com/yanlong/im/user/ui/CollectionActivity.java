@@ -26,6 +26,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.utils.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
@@ -60,12 +61,14 @@ import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -120,7 +123,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private List<CollectionInfo> LocalList;//本地离线收藏列表数据
 
     private boolean inEditMode = false;//是否处于编辑模式 (即多选删除模式，此模式下，单击只响应选中，不再响应长按，回退恢复默认模式)
-    private List<String> needDeleteIDs;//需要删除的指定收藏id
+    private List<CollectionInfo> needDeleteData;//需要删除的指定收藏集
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//确认删除弹框
 
     //加载布局
     @Override
@@ -143,6 +148,12 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                     //是否显示编辑按钮
                     if(collectionInfo.isShowEdit()==true){
                         binding.ivCheck.setVisibility(VISIBLE);
+                        //是否选中
+                        if(collectionInfo.isChecked()==true){
+                            binding.ivCheck.setImageResource(R.drawable.ic_select);
+                        }else {
+                            binding.ivCheck.setImageResource(R.drawable.ic_unselect);
+                        }
                     }else {
                         binding.ivCheck.setVisibility(GONE);
                     }
@@ -416,19 +427,23 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 if (fromWhere == CollectionActivity.FROM_DEFAULT) {
                     //编辑模式，点击子项仅支持选中
                     if(inEditMode){
-                        //收录需要删除的收藏消息id集
-                        if(needDeleteIDs==null){
-                            needDeleteIDs = new ArrayList<>();
+                        //收录需要删除的收藏消息集
+                        if(needDeleteData==null){
+                            needDeleteData = new ArrayList<>();
                         }
                         //勾选效果
                         if(bean.isChecked()==false){
                             bean.setChecked(true);
                             binding.ivCheck.setImageResource(R.drawable.ic_select);
-                            needDeleteIDs.add(bean.getMsgId());
+                            if(!needDeleteData.contains(bean)){
+                                needDeleteData.add(bean);
+                            }
                         }else {
                             bean.setChecked(false);
                             binding.ivCheck.setImageResource(R.drawable.ic_unselect);
-                            needDeleteIDs.remove(bean.getMsgId());
+                            if(needDeleteData.contains(bean)){
+                                needDeleteData.remove(bean);
+                            }
                         }
                     }else {
                         //默认模式，点击子项跳转到收藏详情
@@ -486,9 +501,18 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         bindingView.ivDeleteMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO 批量删除
-//                mList
-                List<CollectionInfo> removeList = new ArrayList<>();
+                //批量删除
+                //有数据则弹框，无数据直接退出编辑模式
+                if(needDeleteData!=null && needDeleteData.size()>0){
+                    //弹框初始化
+                    if(builder==null){
+                        builder = new CommonSelectDialog.Builder(CollectionActivity.this);
+                    }
+                    showDialog();
+                }else {
+                    //关闭编辑模式
+                    switchEditMode(false);
+                }
             }
         });
     }
@@ -637,7 +661,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 mPopupWindow.dismiss();
             }
             //打开编辑模式
-            inEditMode = true;
             switchEditMode(true);
         });
     }
@@ -1081,9 +1104,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
     /**
      * 切换编辑模式
-     * @param open true 打开  false 关闭
+     * @param open 是否打开编辑模式
      */
     private void switchEditMode(boolean open){
+        inEditMode = open;
         if(open){
             //显示底部布局
             bindingView.layoutBottom.setVisibility(VISIBLE);
@@ -1109,12 +1133,99 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
      */
     @Override
     public void onBackPressed() {
-        if(inEditMode){
+        if (inEditMode) {
             //关闭编辑模式
-            inEditMode = false;
             switchEditMode(false);
-        }else {
+            if (needDeleteData != null) {
+                needDeleteData.clear();
+            }
+        } else {
             super.onBackPressed();
         }
+    }
+
+    /**
+     * 是否确认删除弹框
+     */
+    private void showDialog(){
+        dialogOne = builder.setTitle("确认删除所选的收藏项?")
+                .setLeftText("取消")
+                .setRightText("确定")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogOne.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //确认
+                        dialogOne.dismiss();
+                        //1 有网直接删
+                        if(NetUtil.isNetworkConnected()){
+                            List<String> msgIds = new ArrayList<>();
+                            for(int i=0; i<needDeleteData.size(); i++){
+                                msgIds.add(needDeleteData.get(i).getMsgId());
+                            }
+                            msgAction.offlineDeleteCollections(msgIds, new CallBack<ReturnBean>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                    super.onResponse(call, response);
+                                    if (response.body() == null) {
+                                        return;
+                                    }
+                                    if (response.body().isOk()) {
+                                        //实时刷新数据
+                                        mList.removeAll(needDeleteData);
+                                        checkData();
+                                        mViewAdapter.notifyDataSetChanged();
+                                        ToastUtil.showToast(CollectionActivity.this, "删除成功",1);
+                                        for(int i=0; i<needDeleteData.size(); i++){
+                                            msgDao.deleteLocalCollection(needDeleteData.get(i).getMsgId());//从本地收藏列表删除
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                    super.onFailure(call, t);
+                                    ToastUtil.showToast(CollectionActivity.this, "删除失败",1);
+                                }
+                            });
+                            //关闭编辑模式
+                            switchEditMode(false);
+                        }else {
+                            //2 无网走离线删除逻辑
+                            for(int i=0; i<needDeleteData.size(); i++){
+                                //2-1 如果本地收藏列表存在这条数据
+                                String tempId = needDeleteData.get(i).getMsgId();
+                                if(msgDao.findLocalCollection(tempId)!=null){
+                                    msgDao.deleteLocalCollection(tempId);//从本地收藏列表删除
+                                    //2-1-1 如果有这条数据的收藏操作记录，则直接抵消掉此条记录，即收藏表和删除表都不再记录此操作
+                                    if(msgDao.findOfflineCollectRecord(tempId)!=null){
+                                        msgDao.deleteOfflineCollectRecord(tempId);
+                                    }else {
+                                        //2-1-2 如果没有这条数据的收藏操作记录，代表一种场景，即卸载或换手机以后，通过接口获取了最新收藏列表，但本地无收藏操作记录
+                                        //此时如果进行离线删除，则需要记录删除操作，一旦联网通知后台，确保数据同步一致
+                                        OfflineDelete offlineDelete = new OfflineDelete();
+                                        offlineDelete.setMsgId(tempId);
+                                        msgDao.addOfflineDeleteRecord(offlineDelete);//保存到离线收藏删除记录表
+                                    }
+                                }//2-2 如果本地收藏列表不存在这条数据，无需再重复删除，不做任何操作
+                            }
+                            //实时刷新数据
+                            mList.removeAll(needDeleteData);
+                            checkData();
+                            mViewAdapter.notifyDataSetChanged();
+                            ToastUtil.showToast(CollectionActivity.this, "删除成功",1);//离线提示
+                            //关闭编辑模式
+                            switchEditMode(false);
+                        }
+                    }
+                })
+                .build();
+        dialogOne.show();
     }
 }
