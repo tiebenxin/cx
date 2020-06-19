@@ -499,6 +499,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         if(isPlayFinished){
                             mMediaPlayer.seekTo(0);
                             mMediaPlayer.start();
+                            if(mTimer==null){
+                                getProgress();
+                            }
                             isPlayFinished = false;
                         }else {
                             replay();
