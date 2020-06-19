@@ -546,7 +546,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private ImageView mImgTriangleDown;// 下箭头
     private TextView mTxtView1;//转发
     private TextView mTxtView2;//删除
-    private TextView mTxtView3;//更多
+//    private TextView mTxtView3;//更多
     private View layoutContent;
     private View mRootView;
 
@@ -564,14 +564,14 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         layoutContent = mRootView.findViewById(R.id.layout_content);
         mTxtView1 = mRootView.findViewById(R.id.txt_value1);
         mTxtView2 = mRootView.findViewById(R.id.txt_value2);
-        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
+//        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
         layoutContent.setVisibility(VISIBLE);
         mTxtView1.setVisibility(VISIBLE);
         mTxtView2.setVisibility(VISIBLE);
-        mTxtView3.setVisibility(VISIBLE);
+//        mTxtView3.setVisibility(VISIBLE);
         mTxtView1.setText("转发");
         mTxtView2.setText("删除");
-        mTxtView3.setText("更多");
+//        mTxtView3.setText("更多");
     }
 
     /***
@@ -656,13 +656,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             }
         });
         //更多
-        mTxtView3.setOnClickListener(o -> {
-            if (mPopupWindow != null) {
-                mPopupWindow.dismiss();
-            }
-            //打开编辑模式
-            switchEditMode(true);
-        });
+//        mTxtView3.setOnClickListener(o -> {
+//            if (mPopupWindow != null) {
+//                mPopupWindow.dismiss();
+//            }
+//            //打开编辑模式
+//            switchEditMode(true);
+//        });
     }
 
 
