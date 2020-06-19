@@ -126,6 +126,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private List<CollectionInfo> needDeleteData;//需要删除的指定收藏集
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//确认删除弹框
+    private boolean showBottomView = false;//最后一项View避免被遮挡
 
     //加载布局
     @Override
@@ -392,6 +393,17 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 break;
                         }
                         onEvent(binding, position, collectionInfo);
+                        //最后一项避免被遮挡
+                        if(showBottomView){
+                            if(position==(mList.size()-1)){
+                                binding.viewBottom.setVisibility(VISIBLE);
+                            }else {
+                                binding.viewBottom.setVisibility(GONE);
+                            }
+                        }else {
+                            binding.viewBottom.setVisibility(GONE);
+                        }
+
                     }
                 }
             }
@@ -546,7 +558,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private ImageView mImgTriangleDown;// 下箭头
     private TextView mTxtView1;//转发
     private TextView mTxtView2;//删除
-//    private TextView mTxtView3;//更多
+    private TextView mTxtView3;//更多
     private View layoutContent;
     private View mRootView;
 
@@ -564,14 +576,14 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         layoutContent = mRootView.findViewById(R.id.layout_content);
         mTxtView1 = mRootView.findViewById(R.id.txt_value1);
         mTxtView2 = mRootView.findViewById(R.id.txt_value2);
-//        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
+        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
         layoutContent.setVisibility(VISIBLE);
         mTxtView1.setVisibility(VISIBLE);
         mTxtView2.setVisibility(VISIBLE);
-//        mTxtView3.setVisibility(VISIBLE);
+        mTxtView3.setVisibility(VISIBLE);
         mTxtView1.setText("转发");
         mTxtView2.setText("删除");
-//        mTxtView3.setText("更多");
+        mTxtView3.setText("更多");
     }
 
     /***
@@ -656,13 +668,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             }
         });
         //更多
-//        mTxtView3.setOnClickListener(o -> {
-//            if (mPopupWindow != null) {
-//                mPopupWindow.dismiss();
-//            }
-//            //打开编辑模式
-//            switchEditMode(true);
-//        });
+        mTxtView3.setOnClickListener(o -> {
+            if (mPopupWindow != null) {
+                mPopupWindow.dismiss();
+            }
+            //打开编辑模式
+            switchEditMode(true);
+        });
     }
 
 
@@ -1115,6 +1127,8 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             for(int i=0; i<mViewAdapter.getList().size(); i++){
                 mViewAdapter.getList().get(i).setShowEdit(true);
             }
+            //显示最后一项底部View
+            showBottomView = true;
         }else {
             //关闭底部布局
             bindingView.layoutBottom.setVisibility(GONE);
@@ -1122,6 +1136,8 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             for(int i=0; i<mViewAdapter.getList().size(); i++){
                 mViewAdapter.getList().get(i).setShowEdit(false);
             }
+            //隐藏最后一项底部View
+            showBottomView = false;
         }
         //生效
         mViewAdapter.notifyDataSetChanged();
