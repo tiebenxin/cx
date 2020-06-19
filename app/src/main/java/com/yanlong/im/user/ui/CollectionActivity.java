@@ -1138,6 +1138,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             }
             //隐藏最后一项底部View
             showBottomView = false;
+            //清空选中状态
+            for(CollectionInfo info : mList){
+                info.setChecked(false);
+            }
         }
         //生效
         mViewAdapter.notifyDataSetChanged();
