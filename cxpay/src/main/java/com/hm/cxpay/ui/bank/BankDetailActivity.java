@@ -22,7 +22,7 @@ import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
-import com.hm.cxpay.dailog.ChangeSelectDialog;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.databinding.ActivityBankDetailBinding;
 import com.hm.cxpay.net.FGObserver;
@@ -49,8 +49,8 @@ public class BankDetailActivity extends BasePayActivity {
     private AlertDialog checkPaywordDialog;
     private DialogErrorPassword dialogErrorPassword;
     private PswView pswView;
-    private ChangeSelectDialog.Builder builder;
-    private ChangeSelectDialog dialogOne;
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +83,7 @@ public class BankDetailActivity extends BasePayActivity {
                 showBottomDialog();
             }
         });
-        builder = new ChangeSelectDialog.Builder(activity);
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
     /**

@@ -103,24 +103,20 @@ public class MsgSearchViewModel extends ViewModel {
     public void stopConcurrentTask() {
         //停止离线任务，
         if (executor != null && executor.getActiveCount() > 0) {
-            executor.shutdown();
-            try {   // (所有的任务都结束的时候，返回TRUE)
-                if (!executor.awaitTermination(5 * 1000, TimeUnit.MILLISECONDS)) {
-                    // 超时的时候向线程池中所有的线程发出中断(interrupted)。
-                    executor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                // awaitTermination方法被中断的时候也中止线程池中全部的线程的执行。
-                executor.shutdownNow();
-            }
+            /**向线程池中所有的线程发出中断(interrupted)。
+             * 会尝试interrupt线程池中正在执行的线程
+             * 等待执行的线程也会被取消
+             * 但是并不能保证一定能成功的interrupt线程池中的线程。可能必须要等待所有正在执行的任务都执行完成了才能退出
+             */
+            executor.shutdownNow();
             executor = null;
         }
     }
 
-    public void search(String key) {
-        if (!TextUtils.isEmpty(key)) {
+    public void search(String searchKey) {
+        if (!TextUtils.isEmpty(searchKey)) {
             /**查询好友*******************************************************************************/
-            searchFriends = repository.searchFriends(key, MIN_LIMIT);
+            searchFriends = repository.searchFriends(searchKey, MIN_LIMIT);
             searchFriends.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
                     isFriendLoadCompleted = true;
@@ -129,7 +125,7 @@ public class MsgSearchViewModel extends ViewModel {
                 }
             });
             /**查询群*******************************************************************************/
-            searchGroups = repository.searchGroups(key, MIN_LIMIT);
+            searchGroups = repository.searchGroups(searchKey, MIN_LIMIT);
             searchGroups.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
                     isGroupLoadCompleted = true;
@@ -156,7 +152,7 @@ public class MsgSearchViewModel extends ViewModel {
                                 Long uid = session.getFrom_uid();
                                 String sid = session.getSid();
                                 //开始并发查询
-                                startConcurrentTask(key, gid, uid, sid, MIN_LIMIT, sessions.size());
+                                startConcurrentTask(searchKey, gid, uid, sid, MIN_LIMIT, sessions.size());
 
                             }
                         }
@@ -165,9 +161,9 @@ public class MsgSearchViewModel extends ViewModel {
         }
     }
 
-    public void searchFriends(String key) {
-        if (!TextUtils.isEmpty(key)) {
-            searchFriends = repository.searchFriends(key, null);
+    public void searchFriends(String searchKey) {
+        if (!TextUtils.isEmpty(searchKey)) {
+            searchFriends = repository.searchFriends(searchKey, null);
             searchFriends.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
                     isFriendLoadCompleted = true;
@@ -178,9 +174,9 @@ public class MsgSearchViewModel extends ViewModel {
         }
     }
 
-    public void searchGroups(String key) {
-        if (!TextUtils.isEmpty(key)) {
-            searchGroups = repository.searchGroups(key, null);
+    public void searchGroups(String searchKey) {
+        if (!TextUtils.isEmpty(searchKey)) {
+            searchGroups = repository.searchGroups(searchKey, null);
             searchGroups.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
                     isGroupLoadCompleted = true;
@@ -191,8 +187,8 @@ public class MsgSearchViewModel extends ViewModel {
         }
     }
 
-    public void searchSessions(String key) {
-        if (!TextUtils.isEmpty(key)) {
+    public void searchSessions(String searchKey) {
+        if (!TextUtils.isEmpty(searchKey)) {
             if (executor == null) {
                 executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
             }
@@ -206,7 +202,7 @@ public class MsgSearchViewModel extends ViewModel {
                                 String gid = session.getGid();
                                 Long uid = session.getFrom_uid();
                                 String sid = session.getSid();
-                                startConcurrentTask(key, gid, uid, sid, null, sessions.size());
+                                startConcurrentTask(searchKey, gid, uid, sid, null, sessions.size());
                             }
                         }
                     }
@@ -218,37 +214,43 @@ public class MsgSearchViewModel extends ViewModel {
     /**
      * 开始并发查询-session聊天记录
      *
-     * @param key
+     * @param searchKey
      * @param gid
      * @param uid
      * @param sid
      */
-    private void startConcurrentTask(String key, String gid, Long uid, String sid, Integer maxCount, int totalSession) {
+    private void startConcurrentTask(String searchKey, String gid, Long uid, String sid, Integer maxCount, int totalSession) {
         if (executor != null) executor.execute(() -> {
             Realm realm = DaoUtil.open();
             try {
-                long count = repository.searchMessagesCount(realm, key, gid, uid);
+                long count = repository.searchMessagesCount(realm, searchKey, gid, uid);
                 //并发线程自增
-                searchCompletedCount.getAndIncrement();
-                if (count > 0) {
-                    SessionSearch result = new SessionSearch(count, gid, uid);
-                    if (count == 1) {//1个消息
-                        result.setMsgAllBean(repository.searchMessages(realm, key, gid, uid));
+                if (searchKey.equals(key.getValue())) {
+                    searchCompletedCount.getAndIncrement();
+                    if (count > 0) {
+                        //避免任务未中断成功，还在执行上一个搜索的任务，这里做下过滤
+                        SessionSearch result = new SessionSearch(count, gid, uid);
+                        if (count == 1) {//1个消息
+                            result.setMsgAllBean(repository.searchMessages(realm, searchKey, gid, uid));
+                        }
+                        SessionDetail sessionDeta = repository.getSessionDetail(realm, sid);
+                        if (searchKey.equals(key.getValue())) {
+                            //避免任务未中断成功，还在执行上一个搜索的任务，这里做下过滤
+                            sessionSearch.put(sid, result);
+                            searchSessions.add(sessionDeta);
+                            if (maxCount != null && sessionSearch.size() >= maxCount) {
+                                isSessionLoadCompleted = true;
+                                //搜索全部时，最大数量只要查4个就够了，停止并发任务
+                                stopConcurrentTask();
+                            }
+                            isLoadNewRecord.postValue(true);
+                        }
                     }
-
-                    sessionSearch.put(sid, result);
-                    searchSessions.add(repository.getSessionDetail(realm, sid));
-                    if (maxCount != null && sessionSearch.size() >= maxCount) {
-                        isSessionLoadCompleted = true;
-                        //搜索全部时，最大数量只要查4个就够了，停止并发任务
-                        stopConcurrentTask();
-                    }
-                    isLoadNewRecord.postValue(true);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                if (searchCompletedCount.get() == totalSession) {//查完了所有session
+                if (searchCompletedCount.get() >= totalSession) {//查完了所有session
                     isSessionLoadCompleted = true;
                     isLoadNewRecord.postValue(true);
                 }

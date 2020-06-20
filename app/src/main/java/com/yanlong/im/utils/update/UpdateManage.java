@@ -3,30 +3,18 @@ package com.yanlong.im.utils.update;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.TextView;
 
-import com.hm.cxpay.dailog.ChangeSelectDialog;
-import com.yanlong.im.R;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.VersionBean;
 
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -63,13 +51,13 @@ public class UpdateManage {
     private String updateURL = "";
     private boolean canUse4G = false;//是否允许4G环境下使用流量更新
 
-    private ChangeSelectDialog.Builder builder;
-    private ChangeSelectDialog dialogOne;//通用提示选择弹框：4G数据流量情况下是否确认更新
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//通用提示选择弹框：4G数据流量情况下是否确认更新
 
     public UpdateManage(Context context, Activity activity) {
         this.context = context;
         this.activity = activity;
-        builder = new ChangeSelectDialog.Builder(activity);
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
     public boolean isToDayFirst(NewVersionBean newVersionBean) {

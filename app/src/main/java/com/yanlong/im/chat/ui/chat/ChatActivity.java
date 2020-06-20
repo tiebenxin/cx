@@ -34,7 +34,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -86,10 +85,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
-import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.yalantis.ucrop.UCrop;
-import com.yalantis.ucrop.UCropMulti;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.MainActivity;
@@ -831,9 +827,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private boolean checkCurrentImg() {
         latestImg = GetImgUtils.getLatestPhoto(ChatActivity.this);
-        if(latestImg!=null){
+        if (latestImg != null) {
             //30秒内展示，超过不显示，url直接置空
-            if(DateUtils.dateDiffer(latestImg.mTime)<=30){
+            if (DateUtils.dateDiffer(latestImg.mTime) <= 30) {
                 latestUrl = latestImg.imgUrl;
                 //未展示过需要显示，展示过则不再显示(直接用SharedPreference缓存，不再加入到数据库)
                 SharedPreferencesUtil spGuessYouLike = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.GUESS_YOU_LIKE);
@@ -2196,7 +2192,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), message);
+        int sendStatus = ChatEnum.ESendStatus.PRE_SEND;
+        if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
+            sendStatus = ChatEnum.ESendStatus.NORMAL;
+        } else {
+            if (isUploadType(msgType)) {
+                sendStatus = ChatEnum.ESendStatus.PRE_SEND;
+            }
+        }
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, sendStatus, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             if (!filterMessage(message)) {
                 SocketData.sendAndSaveMessage(msgAllBean, false);
@@ -2212,7 +2216,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
     private MsgAllBean sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
-        int sendStatus = ChatEnum.ESendStatus.NORMAL;
+        int sendStatus = ChatEnum.ESendStatus.PRE_SEND;
         if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
             sendStatus = ChatEnum.ESendStatus.NORMAL;
         } else {
@@ -2241,6 +2245,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int sendStatus = ChatEnum.ESendStatus.NORMAL;
         if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
             sendStatus = ChatEnum.ESendStatus.NORMAL;
+            canSend = false;
         } else {
             if (isUploadType(msgType)) {
                 sendStatus = ChatEnum.ESendStatus.PRE_SEND;
@@ -6376,6 +6381,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 猜你要发送的图片
+     *
      * @param view
      */
     private void showPopupWindow(View view) {

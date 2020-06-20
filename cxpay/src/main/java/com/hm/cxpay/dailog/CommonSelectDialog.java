@@ -25,7 +25,7 @@ import com.hm.cxpay.R;
  * @备注：
  */
 
-public class ChangeSelectDialog extends Dialog {
+public class CommonSelectDialog extends Dialog {
 
     public Context context;
     private TextView tvContent;//标题
@@ -39,7 +39,7 @@ public class ChangeSelectDialog extends Dialog {
     private String rightText;//右侧按钮文字
 
     //重写三个构造方法，传入需要的上下文参数
-    public ChangeSelectDialog(@NonNull Builder builder) {
+    public CommonSelectDialog(@NonNull Builder builder) {
         super(builder.context);
         context = builder.context;
         title = builder.title;
@@ -124,8 +124,8 @@ public class ChangeSelectDialog extends Dialog {
             return this;
         }
 
-        public ChangeSelectDialog build(){
-            return new ChangeSelectDialog(this);
+        public CommonSelectDialog build(){
+            return new CommonSelectDialog(this);
         }
     }
 
