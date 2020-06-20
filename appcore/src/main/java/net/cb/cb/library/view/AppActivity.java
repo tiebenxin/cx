@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
@@ -217,16 +218,28 @@ public class AppActivity extends AppCompatActivity {
     }
 
     public void showLoadingDialog() {
-        if (payWaitDialog == null) {
-            payWaitDialog = new DialogLoadingProgress(this);
-        }
-        payWaitDialog.show();
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (payWaitDialog == null) {
+                    payWaitDialog = new DialogLoadingProgress(AppActivity.this);
+                }
+                payWaitDialog.show();
+            }
+        });
+
     }
 
     public void dismissLoadingDialog() {
-        if (payWaitDialog != null) {
-            payWaitDialog.dismiss();
-        }
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (payWaitDialog != null) {
+                    payWaitDialog.dismiss();
+                }
+            }
+        });
+
     }
 
     //activity 是否有效
@@ -235,5 +248,11 @@ public class AppActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    public void goWebActivity(Context context, String webUrl) {
+        Intent intent = new Intent(context, WebPageActivity.class);
+        intent.putExtra(WebPageActivity.AGM_URL, webUrl);
+        startActivity(intent);
     }
 }

@@ -4,28 +4,22 @@ import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.TransferResultBean;
+import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.BankInfo;
 import com.hm.cxpay.bean.BindBankInfo;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.OpenEnvelopeBean;
 import com.hm.cxpay.bean.RedDetailsBean;
-import com.hm.cxpay.bean.SendResultBean;
 
-import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
-import retrofit2.http.Field;
-import retrofit2.http.FieldMap;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
 /**
@@ -53,7 +47,7 @@ public interface PayService {
 
     //获取绑定银行卡列表
     @POST(Route.GET_BIND_BANK_CARD)
-    Observable<BaseResponse<List<BankBean>>> getBindBankCardList(@QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> getBankUrl(@QueryMap Map<String, String> map);
 
     //绑定银行卡
     @POST(Route.BIND_BANK)
@@ -76,16 +70,16 @@ public interface PayService {
     Observable<BaseResponse> checkPayword(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //解绑银行卡
-    @POST(Route.UNBIND_BANK_CARD)
-    Observable<BaseResponse> deleteBankcard(@Body RequestBody body, @QueryMap Map<String, String> map);
+//    @POST(Route.UNBIND_BANK_CARD)
+//    Observable<BaseResponse> deleteBankcard(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //充值
     @POST(Route.TO_RECHARGE)
-    Observable<BaseResponse<CommonBean>> toRecharge(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> toRecharge(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //提现
     @POST(Route.TO_WITHDRAW)
-    Observable<BaseResponse<CommonBean>> toWithdraw(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> toWithdraw(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //获取系统费率
     @POST(Route.GET_RATE)
@@ -130,7 +124,7 @@ public interface PayService {
 
     //发红包
     @POST(Route.SEND_RED_ENVELOPE)
-    Observable<BaseResponse<SendResultBean>> sendRedEnvelope(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> sendRedEnvelope(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //抢红包
     @POST(Route.SNATCH_RED_ENVELOPE)
@@ -146,7 +140,7 @@ public interface PayService {
 
     //发送转账
     @POST(Route.SEND_TRANSFER)
-    Observable<BaseResponse<SendResultBean>> sendTransfer(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> sendTransfer(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //获取转账详情
     @POST(Route.GET_TRANSFER_DETAIL)
@@ -167,5 +161,9 @@ public interface PayService {
     //商城->校验支付密码
     @POST(Route.SHOP_CHECK_PAYWORD)
     Observable<BaseResponse<CommonBean>> checkShopPayword(@Body RequestBody body,@QueryMap Map<String, String> map);
+
+    //获取支付密码管理界面
+    @POST(Route.GET_PSW_MANAGER)
+    Observable<BaseResponse<UrlBean>> getPasswordManager( @QueryMap Map<String, String> map);
 
 }

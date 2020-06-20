@@ -344,6 +344,9 @@ public class ChatInfoActivity extends AppActivity {
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            if (fUserInfo == null || fUserInfo.getUid() == null) {
+                                return;
+                            }
                             startActivity(new Intent(getContext(), UserInfoActivity.class)
                                     .putExtra(UserInfoActivity.ID, fUserInfo.getUid()));
                         }

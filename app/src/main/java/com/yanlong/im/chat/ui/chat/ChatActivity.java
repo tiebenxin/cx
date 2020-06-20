@@ -1940,13 +1940,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
             } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
-            }
+            }*/
         }
         String name = "";
         String avatar = "";
@@ -1964,12 +1964,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (user != null) {
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
-                return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
-                showBindPhoneDialog();
-                return;
-            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
-                showSettingPswDialog();
                 return;
             }
         }
@@ -2111,10 +2105,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
         list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
         if (!isSystemUser) {
-//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
         }
         if (!isGroup && !isSystemUser) {
-//            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
         }
         if (!isGroup && isVip) {
             list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
@@ -3020,8 +3014,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
-                            if (!mViewModel.isInputText.getValue())
-                                mViewModel.isInputText.setValue(true);
+                            if (!mViewModel.isInputText.getValue()) mViewModel.isInputText.setValue(true);
                         }
                     }, 100);
                     break;

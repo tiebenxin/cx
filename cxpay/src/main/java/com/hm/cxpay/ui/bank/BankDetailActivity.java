@@ -245,23 +245,23 @@ public class BankDetailActivity extends BasePayActivity {
      */
     private void httpDeleteBankcard() {
         //long直接强转int会失精度导致变负数
-        PayHttpUtils.getInstance().deleteBankcard(bankcardId+"")
-                .compose(RxSchedulers.<BaseResponse>compose())
-                .compose(RxSchedulers.<BaseResponse>handleResult())
-                .subscribe(new FGObserver<BaseResponse>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse baseResponse) {
-                        ToastUtil.show(context, "解绑成功!");
-                        setResult(RESULT_OK);
-                        checkPaywordDialog.dismiss();
-                        finish();
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        ToastUtil.show(context, baseResponse.getMessage());
-                    }
-                });
+//        PayHttpUtils.getInstance().deleteBankcard(bankcardId+"")
+//                .compose(RxSchedulers.<BaseResponse>compose())
+//                .compose(RxSchedulers.<BaseResponse>handleResult())
+//                .subscribe(new FGObserver<BaseResponse>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse baseResponse) {
+//                        ToastUtil.show(context, "解绑成功!");
+//                        setResult(RESULT_OK);
+//                        checkPaywordDialog.dismiss();
+//                        finish();
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse baseResponse) {
+//                        ToastUtil.show(context, baseResponse.getMessage());
+//                    }
+//                });
     }
 
     //显示密码错误弹窗

@@ -11,12 +11,16 @@ import net.cb.cb.library.base.BaseBean;
  * Description 发送红包结果bean
  */
 public class SendResultBean extends BaseBean implements Parcelable {
-    String actionId;
+    String actionId = "";
     int code;//1:成功 2:失败 99:处理中 客户端暂不考虑[1010:需要下一步验证
     long createTime;
-    String errMsg;
+    String errMsg = "";
     long tradeId;
-    String sign;
+    String sign = "";
+
+    public SendResultBean() {
+
+    }
 
     protected SendResultBean(Parcel in) {
         actionId = in.readString();

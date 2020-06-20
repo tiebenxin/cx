@@ -3,6 +3,7 @@ package com.hm.cxpay.ui.redenvelope;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,6 +19,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.umeng.commonsdk.debug.E;
 
 import net.cb.cb.library.utils.ToastUtil;
 
@@ -36,7 +38,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
         @Override
         public void run() {
             ToastUtil.show(getContext(), "红包发送失败");
-            dismissLoadingDialog();
+//            dismissLoadingDialog();
             setResult(RESULT_CANCELED);
             finish();
         }
@@ -134,15 +136,24 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     }
 
 
-    public CxEnvelopeBean convertToEnvelopeBean(SendResultBean bean, @PayEnum.ERedEnvelopeType int redType, String info, int count) {
-        CxEnvelopeBean envelopeBean = new CxEnvelopeBean();
-        envelopeBean.setActionId(bean.getActionId());
-        envelopeBean.setTradeId(bean.getTradeId());
-        envelopeBean.setCreateTime(bean.getCreateTime());
-        envelopeBean.setMessage(info);
-        envelopeBean.setEnvelopeType(redType);
-        envelopeBean.setEnvelopeAmount(count);
-        envelopeBean.setSign(bean.getSign());
+    public CxEnvelopeBean initEnvelopeBean(CxEnvelopeBean envelopeBean, String actionId, long tradeId, long createTime, @PayEnum.ERedEnvelopeType int redType, String info, int count, String sign) {
+        if (envelopeBean == null && !TextUtils.isEmpty(actionId)) {
+            envelopeBean = new CxEnvelopeBean();
+            envelopeBean.setActionId(actionId);
+            envelopeBean.setEnvelopeType(redType);
+            envelopeBean.setCreateTime(createTime);
+            envelopeBean.setMessage(info);
+            envelopeBean.setEnvelopeAmount(count);
+            if (tradeId > 0) {
+                envelopeBean.setTradeId(tradeId);
+            }
+            if (!TextUtils.isEmpty(sign)) {
+                envelopeBean.setSign(sign);
+            }
+        } else {
+            envelopeBean.setTradeId(tradeId);
+            envelopeBean.setSign(sign);
+        }
         return envelopeBean;
     }
 

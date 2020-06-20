@@ -99,7 +99,7 @@ public class ChatEnum {
         NOTICE(R.layout.cell_notice),
 
         //零钱助手消息
-        BALANCE_ASSISTANT(R.layout.cell_notice),
+        BALANCE_ASSISTANT(R.layout.cell_balance_assistant),
 
         //常信小助手消息
         ASSISTANT(R.layout.cell_txt_received),

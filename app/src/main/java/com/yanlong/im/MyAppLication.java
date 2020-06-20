@@ -95,7 +95,7 @@ public class MyAppLication extends MainApplication {
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
-//        initException();
+        initException();
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
             initBugly();

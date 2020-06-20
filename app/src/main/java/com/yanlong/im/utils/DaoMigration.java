@@ -160,6 +160,10 @@ public class DaoMigration implements RealmMigration {
                 updateV35(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 35) {
+                updateV36(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -589,65 +593,66 @@ public class DaoMigration implements RealmMigration {
         schema.create("CollectionInfo")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("createTime", String.class)
-                .addField("data",String.class)
-                .addField("fromGid",String.class)
-                .addField("fromGroupName",String.class)
-                .addField("fromUid",long.class)
-                .addField("fromUsername",String.class)
-                .addField("id",long.class)
-                .addField("type",int.class);
+                .addField("data", String.class)
+                .addField("fromGid", String.class)
+                .addField("fromGroupName", String.class)
+                .addField("fromUid", long.class)
+                .addField("fromUsername", String.class)
+                .addField("id", long.class)
+                .addField("type", int.class);
         schema.create("CollectAtMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("msg",String.class);
+                .addField("msg", String.class);
         schema.create("CollectChatMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("msg",String.class);
+                .addField("msg", String.class);
         schema.create("CollectImageMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("origin",String.class)
-                .addField("preview",String.class)
-                .addField("thumbnail",String.class)
-                .addField("localimg",String.class)
-                .addField("isReadOrigin",boolean.class)
-                .addField("width",long.class)
-                .addField("height",long.class)
-                .addField("size",long.class);
+                .addField("origin", String.class)
+                .addField("preview", String.class)
+                .addField("thumbnail", String.class)
+                .addField("localimg", String.class)
+                .addField("isReadOrigin", boolean.class)
+                .addField("width", long.class)
+                .addField("height", long.class)
+                .addField("size", long.class);
         schema.create("CollectLocationMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("lat",int.class)
-                .addField("lon",int.class)
-                .addField("addr",String.class)
-                .addField("addressDesc",String.class)
-                .addField("img",String.class);
+                .addField("lat", int.class)
+                .addField("lon", int.class)
+                .addField("addr", String.class)
+                .addField("addressDesc", String.class)
+                .addField("img", String.class);
         schema.create("CollectSendFileMessage")  //除了ignore本地字段，都要加上
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("fileURL",String.class)
-                .addField("fileName",String.class)
-                .addField("fileFormat",String.class)
-                .addField("fileSize",long.class)
-                .addField("collectLocalPath",String.class)
-                .addField("collectIsFromOther",boolean.class)
-                .addField("collectRealFileRename",String.class);
+                .addField("fileURL", String.class)
+                .addField("fileName", String.class)
+                .addField("fileFormat", String.class)
+                .addField("fileSize", long.class)
+                .addField("collectLocalPath", String.class)
+                .addField("collectIsFromOther", boolean.class)
+                .addField("collectRealFileRename", String.class);
         schema.create("CollectShippedExpressionMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("expression",String.class);
+                .addField("expression", String.class);
         schema.create("CollectVideoMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("videoDuration",long.class)
-                .addField("videoBgURL",String.class)
-                .addField("width",long.class)
-                .addField("height",long.class)
-                .addField("size",long.class)
-                .addField("videoURL",String.class)
-                .addField("isReadOrigin",boolean.class)
-                .addField("localUrl",String.class);
+                .addField("videoDuration", long.class)
+                .addField("videoBgURL", String.class)
+                .addField("width", long.class)
+                .addField("height", long.class)
+                .addField("size", long.class)
+                .addField("videoURL", String.class)
+                .addField("isReadOrigin", boolean.class)
+                .addField("localUrl", String.class);
         schema.create("CollectVoiceMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("voiceURL",String.class)
-                .addField("voiceDuration",int.class)
-                .addField("playStatus",int.class)
-                .addField("localUrl",String.class);
+                .addField("voiceURL", String.class)
+                .addField("voiceDuration", int.class)
+                .addField("playStatus", int.class)
+                .addField("localUrl", String.class);
     }
+
     //新增用户全拼字段
     private final void updateV33(RealmSchema schema) {
         schema.get("UserInfo")
@@ -669,6 +674,7 @@ public class DaoMigration implements RealmMigration {
         schema.get("MsgAllBean")
                 .addRealmObjectField("adMessage", schema.get("AdMessage"));
     }
+
     //新增收藏操作表、收藏删除操作表，用于支持离线收藏功能
     private final void updateV35(RealmSchema schema) {
         schema.create("OfflineCollect")
@@ -678,6 +684,13 @@ public class DaoMigration implements RealmMigration {
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY);
     }
 
+    //用户信息页面增加封锁功能
+    private final void updateV36(RealmSchema schema) {
+        schema.get("UserBean")
+                .addField("lockedFunctions", int.class);
+        schema.get("UserInfo")
+                .addField("lockedFunctions", int.class);
+    }
 
 
     @Override

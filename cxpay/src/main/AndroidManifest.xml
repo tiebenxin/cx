@@ -4,8 +4,8 @@
     <application>
         <activity
             android:name=".ui.LooseChangeActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.identification.IdentificationUserActivity"
             android:screenOrientation="portrait" />
@@ -14,15 +14,15 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.recharege.RechargeActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.recharege.RechargeSuccessActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.payword.CheckPaywordActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bank.InputPhoneActivity"
             android:screenOrientation="portrait" />
@@ -31,12 +31,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bank.BankSettingActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bank.BankDetailActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bank.BindBankFinishActivity"
             android:screenOrientation="portrait" />
@@ -69,8 +69,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.payword.ManagePaywordActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.payword.ModifyPaywordActivity"
             android:screenOrientation="portrait" />
@@ -98,9 +98,18 @@
             android:name=".ui.redenvelope.MultiRedPacketActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-        <activity android:name=".ui.transfer.TransferActivity" />
-        <activity android:name=".ui.transfer.TransferDetailActivity" />
-        <activity android:name=".ui.transfer.TransferResultActivity" />
+        <activity
+            android:name=".ui.transfer.TransferActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.transfer.TransferDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.transfer.TransferResultActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.YiBaoWebActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 </manifest>
