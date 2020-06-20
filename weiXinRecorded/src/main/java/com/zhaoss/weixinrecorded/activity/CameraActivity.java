@@ -68,6 +68,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
     private String photoPath;
     private MediaMuxerWrapper mMuxer;
     private OrientationEventListener orientationEventListener;
+    private boolean isTaking;//是否正在拍照
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +100,9 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         mCameraView.onPause();
         stopRecording();
         recordView.resetUI(true);
+        if (isTaking) {
+            isTaking = false;
+        }
         super.onPause();
     }
 
@@ -106,9 +110,10 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         recordView.setListener(new IRecordListener() {
             @Override
             public void takePictures() {
-                if (mCameraView != null) {
+                if (mCameraView != null && !isTaking) {
                     photoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".jpeg";
                     mCameraView.takePhone(photoPath, CameraActivity.this);
+                    isTaking = true;
                 }
             }
 
@@ -343,6 +348,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
 
     @Override
     public void takePhoneSuccess(String imagePath) {
+        isTaking = false;
         if (!TextUtils.isEmpty(photoPath)) {
             Intent intent = new Intent(CameraActivity.this, ImageShowActivity.class);
             intent.putExtra("imgpath", imagePath);
