@@ -55,7 +55,8 @@ public class AlertForward {
     private Context context;
     private MultiImageView imgHead;
     private TextView txtName;
-    private ImageView ivImage;
+    private ImageView ivImage;//竖图(默认)
+    private ImageView ivImageHorizontal;//横图
     private ImageView ivFaceImage;
     private TextView txtMsg;
     private EditText edContent;
@@ -71,6 +72,7 @@ public class AlertForward {
         imgHead = rootView.findViewById(R.id.img_head);
         txtName = rootView.findViewById(R.id.txt_name);
         ivImage = rootView.findViewById(R.id.iv_image);
+        ivImageHorizontal = rootView.findViewById(R.id.iv_image_horizontal);
         ivFaceImage = rootView.findViewById(R.id.iv_face_image);
         txtMsg = rootView.findViewById(R.id.txt_msg);
         edContent = rootView.findViewById(R.id.ed_content);
@@ -96,7 +98,7 @@ public class AlertForward {
     }
 
     //自动生成的控件事件
-    private void initEvent(int msgType, String head, String name, String txt, String imgurl, String btnText, String gid) {
+    private void initEvent(int msgType, String head, String name, String txt, String imgurl, String btnText, String gid,boolean isVertical) {
 
         //imgHead.setImageURI(Uri.parse(head));
         if (MsgForwardActivity.isSingleSelected) {
@@ -135,6 +137,7 @@ public class AlertForward {
         if (StringUtil.isNotNull(imgurl)) {
             if (msgType == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                 ivImage.setVisibility(View.GONE);
+                ivImageHorizontal.setVisibility(View.GONE);
                 ivFaceImage.setVisibility(View.VISIBLE);
                 if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(imgurl) != null) {
                     Glide.with(context).load(Integer.parseInt(FaceView.map_FaceEmoji.get(imgurl).toString())).listener(new RequestListener() {
@@ -150,12 +153,20 @@ public class AlertForward {
                     }).into(ivFaceImage);
                 }
             } else {
-                ivImage.setVisibility(View.VISIBLE);
                 ivFaceImage.setVisibility(View.GONE);
-                Glide.with(context).load(imgurl).into(ivImage);
+                if(isVertical){ //竖图
+                    ivImage.setVisibility(View.VISIBLE);
+                    ivImageHorizontal.setVisibility(View.GONE);
+                    Glide.with(context).load(imgurl).into(ivImage);
+                }else { //横图
+                    ivImage.setVisibility(View.GONE);
+                    ivImageHorizontal.setVisibility(View.VISIBLE);
+                    Glide.with(context).load(imgurl).into(ivImageHorizontal);
+                }
             }
         } else {
             ivImage.setVisibility(View.GONE);
+            ivImageHorizontal.setVisibility(View.GONE);
         }
 
         btnOk.setText(btnText);
@@ -178,7 +189,7 @@ public class AlertForward {
         alertDialog.dismiss();
     }
 
-    public void init(Activity activity, int msgType, String head, String name, String txt, String imgurl, String btnText, String gid, Event e) {
+    public void init(Activity activity, int msgType, String head, String name, String txt, String imgurl, String btnText, String gid,boolean isVertical, Event e) {
         event = e;
         this.context = activity;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -186,7 +197,7 @@ public class AlertForward {
         View rootView = View.inflate(context, R.layout.view_alert_forward, null);
         alertDialog.setView(rootView);
         findViews(rootView);
-        initEvent(msgType, head, name, txt, imgurl, btnText, gid);
+        initEvent(msgType, head, name, txt, imgurl, btnText, gid, isVertical);
     }
 
 
