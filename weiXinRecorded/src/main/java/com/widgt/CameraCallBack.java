@@ -6,5 +6,12 @@ package com.widgt;
  * Description
  */
 public interface CameraCallBack {
+    /*
+     * 照片拍摄成功
+     * */
     void takePhoneSuccess(String imagePath);
+
+
+    //视频录制成功
+    void recordSuccess();
 }

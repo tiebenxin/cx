@@ -90,7 +90,7 @@ public class IdentificationUserActivity extends BasePayActivity {
                         if (baseResponse.isSuccess()) {
                             EventBus.getDefault().post(new IdentifyUserEvent());
 //                            ToastUtil.show(IdentificationUserActivity.this, "认证成功!");
-                            startActivity(new Intent(IdentificationUserActivity.this,BindPhoneNumActivity.class).putExtra("from_shop",fromShop));
+//                            startActivity(new Intent(IdentificationUserActivity.this,BindPhoneNumActivity.class).putExtra("from_shop",fromShop));
                             finish();
                         } else {
                             ui.tvNext.setEnabled(true);

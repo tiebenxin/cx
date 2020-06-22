@@ -7,7 +7,7 @@ package com.hm.cxpay.net;
  */
 public class Route {
 
-    public static final String BANK = "/bank";
+    public static final String BANK = "/bank/v2";
 
     //查看支持银行url
     public static final String SUPPORT_BANK_URL = "https://changxin.zhixun6.com/bank.html";
@@ -25,8 +25,8 @@ public class Route {
     //申请绑定银行卡
     public static final String APPLY_BIND_BANK_CARD = BANK+"/user/apply_bind_bank_card";
 
-    //获取绑定银行卡
-    public static final String GET_BIND_BANK_CARD = BANK+"/user/get_my_bank_cards";
+    //获取银行卡管理页面url
+    public static final String GET_BIND_BANK_CARD = BANK+"/user/to-bank-cards-mgr";
 
     //绑定银行卡
     public static final String BIND_BANK = BANK+"/user/bind_bank_card";
@@ -47,13 +47,13 @@ public class Route {
     public static final String CHECK_PAYWORD = BANK+"/user/check_pay_pwd";
 
     //解绑银行卡
-    public static final String UNBIND_BANK_CARD = BANK+"/user/unbind_bank_card";
+//    public static final String UNBIND_BANK_CARD = BANK+"/user/unbind_bank_card";
 
     //充值
-    public static final String TO_RECHARGE = BANK+"/order/deposit";
+    public static final String TO_RECHARGE = BANK+"/order/to_deposit";
 
     //提现
-    public static final String TO_WITHDRAW = BANK+"/order/withdraw_apply";
+    public static final String TO_WITHDRAW = BANK+"/order/to_withdraw_apply";
 
     //提现
     public static final String GET_RATE = BANK+"/user/get_rate";
@@ -114,4 +114,7 @@ public class Route {
 
     //商城->校验支付密码
     public static final String SHOP_CHECK_PAYWORD = BANK+"/store/trans_validate";
+
+    //获取支付密码管理URL
+    public static final String GET_PSW_MANAGER = BANK+"/user/to-password-manage";
 }

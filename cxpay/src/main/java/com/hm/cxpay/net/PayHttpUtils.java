@@ -16,6 +16,7 @@ import com.hm.cxpay.bean.RedDetailsBean;
 import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.TransferResultBean;
+import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.rx.data.BaseResponse;
@@ -31,6 +32,7 @@ import java.util.Map;
 import io.reactivex.Observable;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import retrofit2.http.Url;
 
 /**
  * @author Liszt
@@ -141,8 +143,8 @@ public class PayHttpUtils {
 
 
     //获取已经绑定银行卡列表
-    public Observable<BaseResponse<List<BankBean>>> getBankList() {
-        return HttpChannel.getInstance().getPayService().getBindBankCardList(getAuthMap());
+    public Observable<BaseResponse<UrlBean>> getBankUrl() {
+        return HttpChannel.getInstance().getPayService().getBankUrl(getAuthMap());
     }
 
 
@@ -205,28 +207,28 @@ public class PayHttpUtils {
     }
 
     //解绑银行卡
-    public Observable<BaseResponse> deleteBankcard(String bankCardId) {
-        Map<String, String> map = new HashMap<>();
-        map.put("bankCardId", bankCardId);
-        return HttpChannel.getInstance().getPayService().deleteBankcard(getRequestBody(map), getAuthMap());
-    }
+//    public Observable<BaseResponse> deleteBankcard(String bankCardId) {
+//        Map<String, String> map = new HashMap<>();
+//        map.put("bankCardId", bankCardId);
+//        return HttpChannel.getInstance().getPayService().deleteBankcard(getRequestBody(map), getAuthMap());
+//    }
 
-    //充值
-    public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
+    //跳转充值
+    public Observable<BaseResponse<UrlBean>> toRecharge(int amt/*, long bankCardId, String payPwd*/) {
         Map<String, String> map = new HashMap<>();
         map.put("amt", UIUtils.getFen(amt + "") + "");
-        map.put("bankCardId", bankCardId + "");
-        map.put("payPwd", MD5.md5(payPwd));
+//        map.put("bankCardId", bankCardId + "");
+//        map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
         return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map), getAuthMap());
     }
 
-    //提现
-    public Observable<BaseResponse<CommonBean>> toWithdraw(String amt, long bankCardId, String payPwd) {
+    //跳转提现
+    public Observable<BaseResponse<UrlBean>> toWithdraw(String amt/*, long bankCardId, String payPwd*/) {
         Map<String, String> map = new HashMap<>();
         map.put("amt", UIUtils.getFen(amt) + "");
-        map.put("bankCardId", bankCardId + "");
-        map.put("payPwd", MD5.md5(payPwd));
+//        map.put("bankCardId", bankCardId + "");
+//        map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
         return HttpChannel.getInstance().getPayService().toWithdraw(getRequestBody(map), getAuthMap());
     }
@@ -324,15 +326,11 @@ public class PayHttpUtils {
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气 1或者普通红包 0，
      * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
      */
-    public Observable<BaseResponse<SendResultBean>> sendRedEnvelopeToUser(String actionId, long amt, int count, String payPwd, int type, long bankCardId, String note, long uid) {
+    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToUser(String actionId, long amt, int count, int type, String note, long uid) {
         Map<String, String> map = new HashMap<>();
         map.put("actionId", actionId);
         map.put("amt", amt + "");
         map.put("cnt", count + "");
-        map.put("payPwd", MD5.md5(payPwd));
-        if (bankCardId > 0) {
-            map.put("bankCardId", bankCardId + "");
-        }
         map.put("note", note);
         map.put("type", type + "");
         map.put("toUid", uid + "");
@@ -344,15 +342,11 @@ public class PayHttpUtils {
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气1或者普通红包0，
      * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
      */
-    public Observable<BaseResponse<SendResultBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count, String payPwd, int type, long bankCardId, String note, String gid) {
+    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count, int type, String note, String gid) {
         Map<String, String> map = new HashMap<>();
         map.put("actionId", actionId);
         map.put("amt", amt + "");
         map.put("cnt", count + "");
-        map.put("payPwd", MD5.md5(payPwd));
-        if (bankCardId > 0) {
-            map.put("bankCardId", bankCardId + "");
-        }
         map.put("note", note);
         map.put("type", type + "");
         map.put("toGid", gid);
@@ -408,18 +402,18 @@ public class PayHttpUtils {
      *
      * @param toUid 转账接受者id
      */
-    public Observable<BaseResponse<SendResultBean>> sendTransfer(String actionId, long money, String psw, long toUid, String note, long bankCardId) {
+    public Observable<BaseResponse<UrlBean>> sendTransfer(String actionId, long money, long toUid, String note) {
         Map<String, String> map = new HashMap<>();
         map.put("actionId", actionId);
         map.put("amt", money + "");
-        map.put("payPwd", MD5.md5(psw));
         map.put("toUid", toUid + "");
         if (!TextUtils.isEmpty(note)) {
             map.put("note", note);
         }
-        if (bankCardId > 0) {
-            map.put("bankCardId", bankCardId + "");
-        }
+        //        map.put("payPwd", MD5.md5(psw));
+//        if (bankCardId > 0) {
+//            map.put("bankCardId", bankCardId + "");
+//        }
         return HttpChannel.getInstance().getPayService().sendTransfer(getRequestBody(map), getAuthMap());
     }
 
@@ -468,11 +462,20 @@ public class PayHttpUtils {
 
 
     //商城->校验支付密码
-    public Observable<BaseResponse<CommonBean>> checkShopPayword(String pwd,String amt) {
+    public Observable<BaseResponse<CommonBean>> checkShopPayword(String pwd, String amt) {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
         map.put("amt", amt);
-        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map), getAuthMap());
+    }
+
+    /**
+     * 发送转账
+     *
+     * @param toUid 转账接受者id
+     */
+    public Observable<BaseResponse<UrlBean>> getPswManager() {
+        return HttpChannel.getInstance().getPayService().getPasswordManager(getAuthMap());
     }
 
 }

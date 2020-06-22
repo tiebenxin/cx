@@ -81,6 +81,8 @@ public class WebPageActivity extends AppActivity {
     private void initContentWeb(WebView webView, String url) {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.addJavascriptInterface(new JavascriptInterface(this), "imagelistner");
+        webView.addJavascriptInterface(new JavascriptInterface(this), "JsToAndroid");//name需要和JS一致
+        webView.addJavascriptInterface(new JavascriptInterface(this), "JsGetValue");//name需要和JS一致
         webView.setWebViewClient(new MyWebViewClient());
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -156,6 +158,22 @@ public class WebPageActivity extends AppActivity {
         @android.webkit.JavascriptInterface
         public void openImage(String img) {
             turnToPhotoScan(img);
+        }
+
+
+        @android.webkit.JavascriptInterface
+        public void callAndroidMethod(int result) {
+            doPayResult(result);
+        }
+
+        /**
+         * 处理支付结果
+         */
+        private void doPayResult(int result) {
+            Intent intent = new Intent();
+            intent.putExtra("result", result);
+            setResult(RESULT_OK, intent);
+            finish();
         }
 
         /**

@@ -1,7 +1,6 @@
 package com.yanlong.im.shop;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -14,7 +13,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -23,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -32,35 +29,23 @@ import android.widget.TextView;
 
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.UserBean;
-import com.hm.cxpay.dailog.ChangeSelectDialog;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.BindPhoneNumActivity;
-import com.hm.cxpay.ui.LooseChangeActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.widget.PswView;
-import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.TokenBean;
-import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.dialog.DialogCommon;
-import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.WebPageActivity;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
@@ -74,9 +59,9 @@ public class ShopFragemnt extends Fragment {
     private WebView webView;
     private Activity activity;
     private AlertDialog checkPaywordDialog;
-    private ChangeSelectDialog.Builder builder;
-    private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
-    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：是否绑定手机号
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//通用提示选择弹框：实名认证
+    private CommonSelectDialog dialogTwo;//通用提示选择弹框：是否绑定手机号
 
     private String url = "";//商城地址
     private String payMoney = "";//需要支付的钱
@@ -102,7 +87,7 @@ public class ShopFragemnt extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         webView = getView().findViewById(R.id.web_view);
         activity = getActivity();
-        builder = new ChangeSelectDialog.Builder(activity);
+        builder = new CommonSelectDialog.Builder(activity);
         initContentWeb(webView);
     }
 
@@ -368,7 +353,7 @@ public class ShopFragemnt extends Fragment {
         //1 已实名认证
         if (userBean.getRealNameStat() == 1) {
             //2 已完成绑定手机号
-            if (userBean.getPhoneBindStat() == 1) {
+            /*if (userBean.getPhoneBindStat() == 1) {
                 //3 已设置支付密码
                 if (userBean.getPayPwdStat() == 1) {
                     showCheckPaywordDialog();
@@ -379,7 +364,7 @@ public class ShopFragemnt extends Fragment {
             } else {
                 //未绑定手机号
                 showBindPhoneNumDialog();
-            }
+            }*/
         } else {
             //未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号->4 新增一个步骤设置支付密码)
             showIdentifyDialog();

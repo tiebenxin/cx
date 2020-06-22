@@ -34,7 +34,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -86,10 +85,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
-import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.yalantis.ucrop.UCrop;
-import com.yalantis.ucrop.UCropMulti;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.MainActivity;
@@ -424,7 +420,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //猜你想要发送的图片
     private PopupWindow popGuessUWant;//点击+号后展示的弹框
-    private List<GetImgUtils.ImgBean> latestImgList;//获取最新拍摄/截屏加入的图片
+    private GetImgUtils.ImgBean latestImg;//获取最新拍摄/截屏加入的图片
     private String latestUrl = "";//最新加入的图片url
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -830,31 +826,30 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private boolean checkCurrentImg() {
-        latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
-        if(latestImgList!=null && latestImgList.size()>0){
-            GetImgUtils.ImgBean bean = latestImgList.get(0);
+        latestImg = GetImgUtils.getLatestPhoto(ChatActivity.this);
+        if (latestImg != null) {
             //30秒内展示，超过不显示，url直接置空
-            if(DateUtils.dateDiffer(bean.mTime)<=30){
-                latestUrl = bean.imgUrl;
+            if (DateUtils.dateDiffer(latestImg.mTime) <= 30) {
+                latestUrl = latestImg.imgUrl;
                 //未展示过需要显示，展示过则不再显示(直接用SharedPreference缓存，不再加入到数据库)
                 SharedPreferencesUtil spGuessYouLike = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.GUESS_YOU_LIKE);
                 String saveUrl = spGuessYouLike.getString("current_img_url");
                 //第二次判断缓存，若存在该url，则代表展示过，不再重复显示
-                if(!TextUtils.isEmpty(saveUrl)){
-                    if(saveUrl.equals(latestUrl)){
+                if (!TextUtils.isEmpty(saveUrl)) {
+                    if (saveUrl.equals(latestUrl)) {
                         latestUrl = "";
                     }
-                }else {
+                } else {
                     //第一次判断缓存，url必定为空，则展示
                 }
-            }else {
+            } else {
                 latestUrl = "";
             }
         }
         //是否展示图片
-        if(!TextUtils.isEmpty(latestUrl)){
+        if (!TextUtils.isEmpty(latestUrl)) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -1481,7 +1476,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     mViewModel.isInputText.setValue(true);
                 } else {//未打开面板->打开功能面板
                     mViewModel.isOpenFuction.setValue(true);
-                    if(checkCurrentImg()){
+                    if (checkCurrentImg()) {
                         showPopupWindow(v);
                     }
                 }
@@ -1945,13 +1940,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
             } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
-            }
+            }*/
         }
         String name = "";
         String avatar = "";
@@ -1969,12 +1964,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (user != null) {
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
-                return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
-                showBindPhoneDialog();
-                return;
-            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
-                showSettingPswDialog();
                 return;
             }
         }
@@ -2116,10 +2105,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
         list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
         if (!isSystemUser) {
-//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
         }
         if (!isGroup && !isSystemUser) {
-//            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
         }
         if (!isGroup && isVip) {
             list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
@@ -2203,7 +2192,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), message);
+        int sendStatus = ChatEnum.ESendStatus.PRE_SEND;
+        if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
+            sendStatus = ChatEnum.ESendStatus.NORMAL;
+        } else {
+            if (isUploadType(msgType)) {
+                sendStatus = ChatEnum.ESendStatus.PRE_SEND;
+            }
+        }
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, sendStatus, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             if (!filterMessage(message)) {
                 SocketData.sendAndSaveMessage(msgAllBean, false);
@@ -2219,7 +2216,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
     private MsgAllBean sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
-        int sendStatus = ChatEnum.ESendStatus.NORMAL;
+        int sendStatus = ChatEnum.ESendStatus.PRE_SEND;
         if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
             sendStatus = ChatEnum.ESendStatus.NORMAL;
         } else {
@@ -2248,6 +2245,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int sendStatus = ChatEnum.ESendStatus.NORMAL;
         if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
             sendStatus = ChatEnum.ESendStatus.NORMAL;
+            canSend = false;
         } else {
             if (isUploadType(msgType)) {
                 sendStatus = ChatEnum.ESendStatus.PRE_SEND;
@@ -3019,8 +3017,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
-                            if (!mViewModel.isInputText.getValue())
-                                mViewModel.isInputText.setValue(true);
+                            if (!mViewModel.isInputText.getValue()) mViewModel.isInputText.setValue(true);
                         }
                     }, 100);
                     break;
@@ -4151,10 +4148,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //1 有网收藏
         if (checkNetConnectStatus(1)) {
             httpCollect(collectionInfo);
-        }else {
+        } else {
             //2 无网收藏
             //2-1 如果本地收藏列表不存在这条数据，收藏到列表，并保存收藏操作记录
-            if(msgDao.findLocalCollection(msgbean.getMsg_id())==null){
+            if (msgDao.findLocalCollection(msgbean.getMsg_id()) == null) {
                 msgDao.addLocalCollection(collectionInfo);//保存到本地收藏列表
                 OfflineCollect offlineCollect = new OfflineCollect();
                 offlineCollect.setMsgId(msgbean.getMsg_id());
@@ -4965,14 +4962,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public boolean checkNetConnectStatus(int type) {
         boolean isOk;
         if (!NetUtil.isNetworkConnected()) {
-            if(type==0){
+            if (type == 0) {
                 ToastUtil.show(this, "网络连接不可用，请稍后重试");
             }
             isOk = false;
         } else {
             isOk = SocketUtil.getSocketUtil().getOnLineState();
             if (!isOk) {
-                if(type==0){
+                if (type == 0) {
                     ToastUtil.show(this, "连接已断开，请稍后再试");
                 }
             }
@@ -5783,7 +5780,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                         }
                     } else if (!TextUtils.isEmpty(adMessage.getWebUrl())) {
-                        goBrowsable(adMessage.getWebUrl());
+                        ApkUtils.goBrowsable(ChatActivity.this, adMessage.getWebUrl());
                     }
                 }
                 break;
@@ -6387,13 +6384,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 猜你要发送的图片
+     *
      * @param view
      */
     private void showPopupWindow(View view) {
         //布局、view初始化、点击事件
-        if(popGuessUWant!=null && popGuessUWant.isShowing()){
+        if (popGuessUWant != null && popGuessUWant.isShowing()) {
             popGuessUWant.dismiss();
-        }else {
+        } else {
             View contentView = LayoutInflater.from(ChatActivity.this).inflate(
                     R.layout.layout_pop_guess_u_want_send, null);
             ImageView ivPic = contentView.findViewById(R.id.iv_want_send_pic);
@@ -6401,7 +6399,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             //显示图片，并缓存地址
             Glide.with(ChatActivity.this).load(latestUrl).apply(GlideUtil.defImageOptions1()).into(ivPic);
             SharedPreferencesUtil spGuessYouLike = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.GUESS_YOU_LIKE);
-            spGuessYouLike.saveString("current_img_url",latestUrl);
+            spGuessYouLike.saveString("current_img_url", latestUrl);
 
             popGuessUWant = new PopupWindow(contentView,
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
@@ -6422,23 +6420,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             layoutInputHeight = layoutInput.getMeasuredHeight();
 
             //右下角为原点，向上偏移距离，由于+号被顶上去了，需要包括扩展面板的高度(固定值240)+测量出的输入框的高度
-            popGuessUWant.showAtLocation(view, Gravity.RIGHT|Gravity.BOTTOM, DensityUtil.dip2px(getContext(),5),//偏移调整右侧5dp
-                    DensityUtil.dip2px(getContext(),240)+layoutInputHeight+DensityUtil.dip2px(getContext(),3));//偏移调整居下3dp
+            popGuessUWant.showAtLocation(view, Gravity.RIGHT | Gravity.BOTTOM, DensityUtil.dip2px(getContext(), 5),//偏移调整右侧5dp
+                    DensityUtil.dip2px(getContext(), 240) + layoutInputHeight + DensityUtil.dip2px(getContext(), 3));//偏移调整居下3dp
             //点击跳到预览界面
             layoutPop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    List<LocalMedia> previewList=new ArrayList<>();
+                    List<LocalMedia> previewList = new ArrayList<>();
                     LocalMedia localMedia = new LocalMedia();
                     localMedia.setPath(latestUrl);
                     previewList.add(localMedia);
                     PictureSelector.create(ChatActivity.this)
                             .openGallery(PictureMimeType.ofAll())
                             .compress(true);//复用，直接跳图片选择器的预览界面会崩溃，需要先初始化
-                    previewImage(previewList,previewList, 0);
+                    previewImage(previewList, previewList, 0);
                     overridePendingTransition(com.luck.picture.lib.R.anim.a5, 0);
                     //跳到预览后关闭弹框
-                    if(popGuessUWant!=null && popGuessUWant.isShowing()){
+                    if (popGuessUWant != null && popGuessUWant.isShowing()) {
                         popGuessUWant.dismiss();
                     }
                 }
@@ -6459,7 +6457,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override
                     public void onSure() {
-                        goBrowsable(downloadUrl);
+                        ApkUtils.goBrowsable(ChatActivity.this, downloadUrl);
                     }
 
                     @Override
@@ -6470,24 +6468,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogDownload.show();
     }
 
-    private void goBrowsable(String downloadUrl) {
-        Intent intent = new Intent();
-        intent.setAction("android.intent.action.VIEW");
-        Uri content_url = Uri.parse(downloadUrl);
-        intent.setData(content_url);
-        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-        startActivity(intent);
-    }
 
     //跳图片预览
-    private void previewImage(List<LocalMedia> previewImages,List<LocalMedia> selectedImages, int position) {
+    private void previewImage(List<LocalMedia> previewImages, List<LocalMedia> selectedImages, int position) {
         Bundle bundle = new Bundle();
         bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) previewImages);
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
-        bundle.putInt(PictureConfig.EXTRA_POSITION,position);
-        bundle.putInt(PictureConfig.FROM_WHERE,1);//跳转来源 0 默认 1 猜你想要
-        Intent intent = new Intent(ChatActivity.this,PicturePreviewActivity.class);
+        bundle.putInt(PictureConfig.EXTRA_POSITION, position);
+        bundle.putInt(PictureConfig.FROM_WHERE, 1);//跳转来源 0 默认 1 猜你想要
+        Intent intent = new Intent(ChatActivity.this, PicturePreviewActivity.class);
         intent.putExtras(bundle);
         startActivityForResult(intent, PictureConfig.PREVIEW_FROM_CHAT);
     }

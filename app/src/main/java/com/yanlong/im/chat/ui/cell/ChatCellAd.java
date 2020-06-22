@@ -49,7 +49,7 @@ public class ChatCellAd extends ChatCellBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         contentMessage = message.getAdMessage();
-        resetSize();
+//        resetSize();
         showContent(contentMessage);
     }
 
@@ -69,21 +69,16 @@ public class ChatCellAd extends ChatCellBase {
         if (StringUtil.isNotNull(message.getThumbnail())) {//url链接
             ivImage.setVisibility(View.VISIBLE);
             ivImage.setImageResource(R.mipmap.ic_image_bg);
-            Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(message.getThumbnail());
-            if (localBitmap == null) {
-                RequestOptions mRequestOptions = RequestOptions.centerCropTransform()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .skipMemoryCache(false)
-                        .centerCrop()
-                        .format(DecodeFormat.PREFER_ARGB_8888);
-                Glide.with(getContext())
-                        .asBitmap()
-                        .load(message.getThumbnail())
-                        .apply(mRequestOptions)
-                        .into(ivImage);
-            } else {
-                ivImage.setImageBitmap(localBitmap);
-            }
+            RequestOptions mRequestOptions = RequestOptions.centerCropTransform()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .skipMemoryCache(false)
+                    .centerCrop()
+                    .format(DecodeFormat.PREFER_ARGB_8888);
+            Glide.with(getContext())
+                    .asBitmap()
+                    .load(message.getThumbnail())
+                    .apply(mRequestOptions)
+                    .into(ivImage);
         } else {
             ivImage.setVisibility(View.GONE);
         }

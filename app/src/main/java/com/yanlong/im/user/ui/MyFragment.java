@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.hm.cxpay.bean.UserBean;
-import com.hm.cxpay.dailog.ChangeSelectDialog;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -84,9 +84,9 @@ public class MyFragment extends Fragment {
     private TextView tvNewVersions;
     private LinearLayout viewService;
     private Context context;
-    private ChangeSelectDialog.Builder builder;
-    private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证提示
-    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：绑定手机号
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//通用提示选择弹框：实名认证提示
+    private CommonSelectDialog dialogTwo;//通用提示选择弹框：绑定手机号
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -138,9 +138,9 @@ public class MyFragment extends Fragment {
 
     //自动生成的控件事件
     private void initEvent() {
-        viewMoney.setVisibility(View.GONE);//关闭零钱
+        viewMoney.setVisibility(View.VISIBLE);//关闭零钱
 
-        builder = new ChangeSelectDialog.Builder(context);
+        builder = new CommonSelectDialog.Builder(context);
         viewHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -454,12 +454,13 @@ public class MyFragment extends Fragment {
         //1 已实名认证
         if (userBean.getRealNameStat() == 1) {
             //1-1 已完成绑定手机号
-            if (userBean.getPhoneBindStat() == 1) {
-                startActivity(new Intent(getActivity(), LooseChangeActivity.class));
-            } else {
-                //1-2 未完成绑定手机号
-                showBindPhoneNumDialog();
-            }
+            startActivity(new Intent(getActivity(), LooseChangeActivity.class));
+//            if (userBean.getPhoneBindStat() == 1) {
+//                startActivity(new Intent(getActivity(), LooseChangeActivity.class));
+//            } else {
+//                //1-2 未完成绑定手机号
+//                showBindPhoneNumDialog();
+//            }
         } else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();

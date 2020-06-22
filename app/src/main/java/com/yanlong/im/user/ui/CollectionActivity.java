@@ -2,11 +2,9 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -24,19 +22,16 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.cx.sharelib.message.CxMediaMessage;
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.utils.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.CollectAtMessage;
 import com.yanlong.im.chat.bean.CollectChatMessage;
@@ -53,10 +48,7 @@ import com.yanlong.im.chat.bean.OfflineDelete;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
-import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.forward.MoreSessionBean;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityCollectionBinding;
@@ -68,10 +60,8 @@ import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.audio.AudioPlayManager;
-import com.yanlong.im.utils.audio.IVoicePlayListener;
-import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -84,7 +74,6 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.UpFileAction;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -121,7 +110,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
     public static final int FROM_DEFAULT = 0;//来自首页我的(默认来源)
     public static final int FROM_CHAT = 1;//来自聊天面板收藏
-    private int fromWhere = 0;//从哪里跳转过来
+    private int fromWhere = 0;//从哪里跳转过来 0 我的收藏,默认 1 聊天面板收藏项
 
     //点击转发相关数据
     private String groupHead = "";
@@ -132,6 +121,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private String userName = "";
     private boolean isGroup = false;//是单聊还是群聊
     private List<CollectionInfo> LocalList;//本地离线收藏列表数据
+
+    private boolean inEditMode = false;//是否处于编辑模式 (即多选删除模式，此模式下，单击只响应选中，不再响应长按，回退恢复默认模式)
+    private List<CollectionInfo> needDeleteData;//需要删除的指定收藏集
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//确认删除弹框
+    private boolean showBottomView = false;//最后一项View避免被遮挡
+    private boolean isVertical = true;//竖图(true)还是横图(false)  默认竖图
 
     //加载布局
     @Override
@@ -151,6 +147,18 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
                 if (mList != null && mList.size() > 0) {
                     CollectionInfo collectionInfo = mList.get(position);
+                    //是否显示编辑按钮
+                    if(collectionInfo.isShowEdit()==true){
+                        binding.ivCheck.setVisibility(VISIBLE);
+                        //是否选中
+                        if(collectionInfo.isChecked()==true){
+                            binding.ivCheck.setImageResource(R.drawable.ic_select);
+                        }else {
+                            binding.ivCheck.setImageResource(R.drawable.ic_unselect);
+                        }
+                    }else {
+                        binding.ivCheck.setVisibility(GONE);
+                    }
                     if (!TextUtils.isEmpty(collectionInfo.getData())) {
                         //显示用户名或群名
                         if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
@@ -386,6 +394,17 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 break;
                         }
                         onEvent(binding, position, collectionInfo);
+                        //最后一项避免被遮挡
+                        if(showBottomView){
+                            if(position==(mList.size()-1)){
+                                binding.viewBottom.setVisibility(VISIBLE);
+                            }else {
+                                binding.viewBottom.setVisibility(GONE);
+                            }
+                        }else {
+                            binding.viewBottom.setVisibility(GONE);
+                        }
+
                     }
                 }
             }
@@ -402,7 +421,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             @Override
             public boolean onLongClick(View view) {
                 if (fromWhere == CollectionActivity.FROM_DEFAULT) {
-                    showPop(view, bean.getMsgId(), position);
+                    //编辑模式，不响应
+                    if(inEditMode){
+                        //Do Nothing
+                    }else {
+                        //默认模式，长按弹框
+                        showPop(view, bean.getMsgId(), position);
+                    }
                     return true;
                 } else {
                     return true;
@@ -413,80 +438,39 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             @Override
             public void onClick(View v) {
                 if (fromWhere == CollectionActivity.FROM_DEFAULT) {
-                    Intent intent = new Intent(CollectionActivity.this, CollectDetailsActivity.class);
-                    intent.putExtra("json_data", new Gson().toJson(bean));//转换成json字符串再传过去
-                    intent.putExtra("position", position);//位置
-                    startActivityForResult(intent, CANCEL_COLLECT);
+                    //编辑模式，点击子项仅支持选中
+                    if(inEditMode){
+                        //收录需要删除的收藏消息集
+                        if(needDeleteData==null){
+                            needDeleteData = new ArrayList<>();
+                        }
+                        //勾选效果
+                        if(bean.isChecked()==false){
+                            bean.setChecked(true);
+                            binding.ivCheck.setImageResource(R.drawable.ic_select);
+                            if(!needDeleteData.contains(bean)){
+                                needDeleteData.add(bean);
+                            }
+                        }else {
+                            bean.setChecked(false);
+                            binding.ivCheck.setImageResource(R.drawable.ic_unselect);
+                            if(needDeleteData.contains(bean)){
+                                needDeleteData.remove(bean);
+                            }
+                        }
+                    }else {
+                        //默认模式，点击子项跳转到收藏详情
+                        Intent intent = new Intent(CollectionActivity.this, CollectDetailsActivity.class);
+                        intent.putExtra("json_data", new Gson().toJson(bean));//转换成json字符串再传过去
+                        intent.putExtra("position", position);//位置
+                        startActivityForResult(intent, CANCEL_COLLECT);
+                    }
                 } else {
                     //直接转发收藏消息到当前群或用户
                     showTransDialog(bean, CommonUtils.transformMsgType(bean.getType()));
                 }
             }
         });
-//        binding.ivPic.setOnClickListener(o->{
-//            if(bean.getMsg_type() == ChatEnum.EMessageType.IMAGE){//点击图片
-//                List<LocalMedia> selectList = new ArrayList<>();
-//                LocalMedia lc = new LocalMedia();
-//                if(!TextUtils.isEmpty(bean.getImage().getPreview())){
-//                    lc.setPath(bean.getImage().getPreview());
-//                }else if(!TextUtils.isEmpty(bean.getImage().getThumbnail())){
-//                    lc.setPath(bean.getImage().getThumbnail());
-//                }else {
-//                    lc.setPath("");
-//                    ToastUtil.show("图片路径出错!");
-//                }
-//                selectList.add(lc);
-//                PictureSelector.create(CollectionActivity.this)
-//                        .themeStyle(R.style.picture_default_style)
-//                        .isGif(false)
-//                        .openExternalPreviewImage(0, selectList);
-//            }else if(bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO){//点击视频
-//                RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<MsgAllBean>() {
-//                    @Override
-//                    public MsgAllBean doInBackground() throws Throwable {
-//                        return bean;
-//                    }
-//
-//                    @Override
-//                    public void onFinish(MsgAllBean msgbean) {
-//                        String localUrl = msgbean.getVideoMessage().getLocalUrl();
-//                        if (StringUtil.isNotNull(localUrl)) {
-//                            File file = new File(localUrl);
-//                            if (!file.exists()) {
-//                                localUrl = msgbean.getVideoMessage().getUrl();
-//                            }
-//                        } else {
-//                            localUrl = msgbean.getVideoMessage().getUrl();
-//                        }
-//                        Intent intent = new Intent(CollectionActivity.this, VideoPlayActivity.class);
-//                        intent.putExtra("videopath", localUrl);
-//                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
-//                        intent.putExtra("msg_id", msgbean.getMsg_id());
-//                        intent.putExtra("bg_url", msgbean.getVideoMessage().getBg_url());
-//                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-//                        startActivity(intent);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                    }
-//                });
-//            }else if(bean.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION){//点击表情
-//                if (ViewUtils.isFastDoubleClick()) {
-//                    return;
-//                }
-//                if(!TextUtils.isEmpty(bean.getShippedExpressionMessage().getId())){
-//                    Bundle bundle = new Bundle();
-//                    bundle.putString(Preferences.DATA, FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString());
-//                    IntentUtil.gotoActivity(CollectionActivity.this, ShowBigFaceActivity.class, bundle);
-//                }
-//            }
-//        });
-
-//        binding.voiceView.setOnClickListener(o->{
-//            MsgAllBean msgAllBean = new Gson().fromJson(collectionInfo.getMsgBean(),MsgAllBean.class);
-//            playVoice(msgAllBean,false,position);
-//        });
     }
 
     //activity点击事件
@@ -526,6 +510,24 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 return false;
             }
         });
+        //如存在底部垃圾桶标识，允许批量删除
+        bindingView.ivDeleteMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //批量删除
+                //有数据则弹框，无数据直接退出编辑模式
+                if(needDeleteData!=null && needDeleteData.size()>0){
+                    //弹框初始化
+                    if(builder==null){
+                        builder = new CommonSelectDialog.Builder(CollectionActivity.this);
+                    }
+                    showDialog();
+                }else {
+                    //关闭编辑模式
+                    switchEditMode(false);
+                }
+            }
+        });
     }
 
     //加载数据
@@ -555,8 +557,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private int popupHeight;// 气泡高
     private ImageView mImgTriangleUp;// 上箭头
     private ImageView mImgTriangleDown;// 下箭头
-    private TextView mTxtView1;
-    private TextView mTxtView2;
+    private TextView mTxtView1;//转发
+    private TextView mTxtView2;//删除
+    private TextView mTxtView3;//更多
     private View layoutContent;
     private View mRootView;
 
@@ -574,11 +577,14 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         layoutContent = mRootView.findViewById(R.id.layout_content);
         mTxtView1 = mRootView.findViewById(R.id.txt_value1);
         mTxtView2 = mRootView.findViewById(R.id.txt_value2);
+        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
         layoutContent.setVisibility(VISIBLE);
         mTxtView1.setVisibility(VISIBLE);
         mTxtView2.setVisibility(VISIBLE);
+        mTxtView3.setVisibility(VISIBLE);
         mTxtView1.setText("转发");
         mTxtView2.setText("删除");
+        mTxtView3.setText("更多");
     }
 
     /***
@@ -661,15 +667,14 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             if (mList.get(postion) != null) {
                 httpCancelCollect(mList.get(postion).getId(), postion,mList.get(postion).getMsgId());
             }
-
-//            else {
-//                //暂时本地删除
-//                ToastUtil.showLong(CollectionActivity.this, "请检查网络连接是否正常\n已为您暂时隐藏此消息");
-//                mMsgDao.deleteCollectionInfo(msgId);
-//                mList.remove(postion);
-//                checkData();
-//                mViewAdapter.notifyDataSetChanged();
-//            }
+        });
+        //更多
+        mTxtView3.setOnClickListener(o -> {
+            if (mPopupWindow != null) {
+                mPopupWindow.dismiss();
+            }
+            //打开编辑模式
+            switchEditMode(true);
         });
     }
 
@@ -948,16 +953,27 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         } else if (type == ChatEnum.EMessageType.IMAGE) {//图片
             CollectImageMessage bean2 = new Gson().fromJson(info.getData(), CollectImageMessage.class);
             imageUrl = bean2.getThumbnail() == null ? "" : bean2.getThumbnail();
+            if(bean2.getHeight()>=bean2.getWidth()){
+                isVertical = true;
+            }else {
+                isVertical = false;
+            }
         } else if (type == ChatEnum.EMessageType.AT) {//AT
             CollectAtMessage bean3 = new Gson().fromJson(info.getData(), CollectAtMessage.class);
             txt = bean3.getMsg() == null ? "" : bean3.getMsg();
         } else if (type == ChatEnum.EMessageType.MSG_VIDEO) {//视频
             CollectVideoMessage bean4 = new Gson().fromJson(info.getData(), CollectVideoMessage.class);
             imageUrl = bean4.getVideoBgURL() == null ? "" : bean4.getVideoBgURL();
+            if(bean4.getHeight()>=bean4.getWidth()){
+                isVertical = true;
+            }else {
+                isVertical = false;
+            }
         } else if (type == ChatEnum.EMessageType.LOCATION) {//位置
             CollectLocationMessage bean5 = new Gson().fromJson(info.getData(), CollectLocationMessage.class);
             txt = bean5.getAddr() == null ? "" : "[位置]" + bean5.getAddr();
             imageUrl = LocationUtils.getLocationUrl(bean5.getLat(), bean5.getLon());
+            isVertical = false;
         } else if (type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {//大表情
             CollectShippedExpressionMessage bean6 = new Gson().fromJson(info.getData(), CollectShippedExpressionMessage.class);
             imageUrl = bean6.getExpression() == null ? "" : bean6.getExpression();
@@ -976,7 +992,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             avatar = userHead;
             name = userName;
         }
-        alertForward.init(CollectionActivity.this, type, avatar, name, txt, imageUrl, "发送", groupId, new AlertForward.Event() {
+        alertForward.init(CollectionActivity.this, type, avatar, name, txt, imageUrl, "发送", groupId,isVertical, new AlertForward.Event() {
             @Override
             public void onON() {
 
@@ -1109,4 +1125,139 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         }
     }
 
+
+    /**
+     * 切换编辑模式
+     * @param open 是否打开编辑模式
+     */
+    private void switchEditMode(boolean open){
+        inEditMode = open;
+        if(open){
+            //显示底部布局
+            bindingView.layoutBottom.setVisibility(VISIBLE);
+            //显示编辑按钮
+            for(int i=0; i<mViewAdapter.getList().size(); i++){
+                mViewAdapter.getList().get(i).setShowEdit(true);
+            }
+            //显示最后一项底部View
+            showBottomView = true;
+        }else {
+            //关闭底部布局
+            bindingView.layoutBottom.setVisibility(GONE);
+            //关闭编辑按钮
+            for(int i=0; i<mViewAdapter.getList().size(); i++){
+                mViewAdapter.getList().get(i).setShowEdit(false);
+            }
+            //隐藏最后一项底部View
+            showBottomView = false;
+            //清空选中状态
+            for(CollectionInfo info : mList){
+                info.setChecked(false);
+            }
+        }
+        //生效
+        mViewAdapter.notifyDataSetChanged();
+    }
+
+
+    /**
+     * 物理回退键，响应退出编辑模式，恢复到默认模式
+     */
+    @Override
+    public void onBackPressed() {
+        if (inEditMode) {
+            //关闭编辑模式
+            switchEditMode(false);
+            if (needDeleteData != null) {
+                needDeleteData.clear();
+            }
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    /**
+     * 是否确认删除弹框
+     */
+    private void showDialog(){
+        dialogOne = builder.setTitle("确认删除所选的收藏项?")
+                .setLeftText("取消")
+                .setRightText("确定")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogOne.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //确认
+                        dialogOne.dismiss();
+                        //1 有网直接删
+                        if(NetUtil.isNetworkConnected()){
+                            List<String> msgIds = new ArrayList<>();
+                            for(int i=0; i<needDeleteData.size(); i++){
+                                msgIds.add(needDeleteData.get(i).getMsgId());
+                            }
+                            msgAction.offlineDeleteCollections(msgIds, new CallBack<ReturnBean>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                    super.onResponse(call, response);
+                                    if (response.body() == null) {
+                                        return;
+                                    }
+                                    if (response.body().isOk()) {
+                                        //实时刷新数据
+                                        mList.removeAll(needDeleteData);
+                                        checkData();
+                                        mViewAdapter.notifyDataSetChanged();
+                                        ToastUtil.showToast(CollectionActivity.this, "删除成功",1);
+                                        for(int i=0; i<needDeleteData.size(); i++){
+                                            msgDao.deleteLocalCollection(needDeleteData.get(i).getMsgId());//从本地收藏列表删除
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                    super.onFailure(call, t);
+                                    ToastUtil.showToast(CollectionActivity.this, "删除失败",1);
+                                }
+                            });
+                            //关闭编辑模式
+                            switchEditMode(false);
+                        }else {
+                            //2 无网走离线删除逻辑
+                            for(int i=0; i<needDeleteData.size(); i++){
+                                //2-1 如果本地收藏列表存在这条数据
+                                String tempId = needDeleteData.get(i).getMsgId();
+                                if(msgDao.findLocalCollection(tempId)!=null){
+                                    msgDao.deleteLocalCollection(tempId);//从本地收藏列表删除
+                                    //2-1-1 如果有这条数据的收藏操作记录，则直接抵消掉此条记录，即收藏表和删除表都不再记录此操作
+                                    if(msgDao.findOfflineCollectRecord(tempId)!=null){
+                                        msgDao.deleteOfflineCollectRecord(tempId);
+                                    }else {
+                                        //2-1-2 如果没有这条数据的收藏操作记录，代表一种场景，即卸载或换手机以后，通过接口获取了最新收藏列表，但本地无收藏操作记录
+                                        //此时如果进行离线删除，则需要记录删除操作，一旦联网通知后台，确保数据同步一致
+                                        OfflineDelete offlineDelete = new OfflineDelete();
+                                        offlineDelete.setMsgId(tempId);
+                                        msgDao.addOfflineDeleteRecord(offlineDelete);//保存到离线收藏删除记录表
+                                    }
+                                }//2-2 如果本地收藏列表不存在这条数据，无需再重复删除，不做任何操作
+                            }
+                            //实时刷新数据
+                            mList.removeAll(needDeleteData);
+                            checkData();
+                            mViewAdapter.notifyDataSetChanged();
+                            ToastUtil.showToast(CollectionActivity.this, "删除成功",1);//离线提示
+                            //关闭编辑模式
+                            switchEditMode(false);
+                        }
+                    }
+                })
+                .build();
+        dialogOne.show();
+    }
 }

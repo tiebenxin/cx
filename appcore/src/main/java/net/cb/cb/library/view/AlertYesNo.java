@@ -57,15 +57,15 @@ public class AlertYesNo {
         btnOk.setText(y);
         btnCl.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                event.onON();
                 dismiss();
+                event.onON();
             }
         });
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                event.onYes();
                 dismiss();
+                event.onYes();
             }
         });
 

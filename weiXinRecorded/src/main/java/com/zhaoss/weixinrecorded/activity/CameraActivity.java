@@ -68,12 +68,14 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
     private String photoPath;
     private MediaMuxerWrapper mMuxer;
     private OrientationEventListener orientationEventListener;
+    private boolean isTaking;//是否正在拍照
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
+        initFile();//确保video目录存在
         mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
         initUI();
         initListener();
@@ -99,6 +101,9 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         mCameraView.onPause();
         stopRecording();
         recordView.resetUI(true);
+        if (isTaking) {
+            isTaking = false;
+        }
         super.onPause();
     }
 
@@ -106,9 +111,10 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         recordView.setListener(new IRecordListener() {
             @Override
             public void takePictures() {
-                if (mCameraView != null) {
+                if (mCameraView != null && !isTaking) {
                     photoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".jpeg";
                     mCameraView.takePhone(photoPath, CameraActivity.this);
+                    isTaking = true;
                 }
             }
 
@@ -130,14 +136,14 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             @Override
             public void recordEnd(long time) {
                 stopRecording();
-                recordView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
-                        intentPre.putExtra(INTENT_PATH, mp4FilePath);
-                        startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
-                    }
-                }, 500);
+//                recordView.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
+//                        intentPre.putExtra(INTENT_PATH, mp4FilePath);
+//                        startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
+//                    }
+//                }, 500);
 
             }
 
@@ -248,7 +254,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
                 intentMas.putExtra(CameraActivity.INTENT_PATH, data.getStringExtra(INTENT_PATH));
                 intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraView.getVideoWidth());
                 intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraView.getVideoHeight());
-                intentMas.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME, 0));
+                intentMas.putExtra(INTENT_PATH_TIME, data.getLongExtra(INTENT_PATH_TIME, 0));
                 intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intentMas);
                 finish();
@@ -297,6 +303,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         try {
             // if you record audio only, ".m4a" is also OK.
             mMuxer = new MediaMuxerWrapper(mp4FilePath);
+            mMuxer.setCameraCallBack(this);
             if (true) {
                 // for video capturing
                 new MediaVideoEncoder(mMuxer, mMediaEncoderListener, mCameraView.getVideoWidth(), mCameraView.getVideoHeight());
@@ -342,12 +349,25 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
 
     @Override
     public void takePhoneSuccess(String imagePath) {
+        isTaking = false;
         if (!TextUtils.isEmpty(photoPath)) {
             Intent intent = new Intent(CameraActivity.this, ImageShowActivity.class);
             intent.putExtra("imgpath", imagePath);
             intent.putExtra("from", 1);
             startActivityForResult(intent, 90);
         }
+    }
+
+    @Override
+    public void recordSuccess() {
+        recordView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
+                intentPre.putExtra(INTENT_PATH, mp4FilePath);
+                startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
+            }
+        }, 100);
     }
 
 
@@ -411,6 +431,13 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             path = file.getAbsolutePath();
         }
         return path;
+    }
+
+    private void initFile() {
+        File file = new File(LanSongFileUtil.DEFAULT_DIR);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
     }
 
 }

@@ -74,6 +74,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
     private int needRequestNums = 0;//需要http请求的次数
     private int finalRequestNums = 0;//实际http请求的次数
     private SingleMeberInfoBean singleMeberInfoBean;// 单个群成员信息，主要查看是否被单人禁言
+    private boolean isVertical = true;//竖图(true)还是横图(false)  默认竖图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,10 +191,20 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             txt = msgAllBean.getChat().getMsg();
         } else if (msgAllBean.getImage() != null) {
             imageUrl = msgAllBean.getImage().getThumbnail();
+            if(msgAllBean.getImage().getHeight()>=msgAllBean.getImage().getWidth()){
+                isVertical = true;
+            }else {
+                isVertical = false;
+            }
         } else if (msgAllBean.getAtMessage() != null) {
             txt = msgAllBean.getAtMessage().getMsg();
         } else if (msgAllBean.getVideoMessage() != null) {
             imageUrl = msgAllBean.getVideoMessage().getBg_url();
+            if(msgAllBean.getVideoMessage().getHeight()>=msgAllBean.getVideoMessage().getWidth()){
+                isVertical = true;
+            }else {
+                isVertical = false;
+            }
         } else if (msgAllBean.getLocationMessage() != null) {
 //            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
             txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
@@ -201,7 +212,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             imageUrl = msgAllBean.getShippedExpressionMessage().getId();
         }
 
-        alertForward.init(GroupSelectActivity.this, msgAllBean.getMsg_type(), avatar, nick, txt, imageUrl, "发送", gid, new AlertForward.Event() {
+        alertForward.init(GroupSelectActivity.this, msgAllBean.getMsg_type(), avatar, nick, txt, imageUrl, "发送", gid,isVertical, new AlertForward.Event() {
             @Override
             public void onON() {
 

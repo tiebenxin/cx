@@ -125,29 +125,29 @@ public class BankSettingActivity extends BasePayActivity {
     }
 
     private void getBankList() {
-        PayHttpUtils.getInstance().getBankList()
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
-                        if (baseResponse.isSuccess()) {
-                            List<BankBean> info = baseResponse.getData();
-                            if (info != null) {
-                                adapter.bindData(info);
-                                cardNum = info.size();
-                            }
-
-                        } else {
-
-                            ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                    }
-                });
+//        PayHttpUtils.getInstance().getBankList()
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+//                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+//                        if (baseResponse.isSuccess()) {
+//                            List<BankBean> info = baseResponse.getData();
+//                            if (info != null) {
+//                                adapter.bindData(info);
+//                                cardNum = info.size();
+//                            }
+//
+//                        } else {
+//
+//                            ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse baseResponse) {
+//                    }
+//                });
     }
 
     @Override
@@ -328,23 +328,23 @@ public class BankSettingActivity extends BasePayActivity {
      */
     private void httpDeleteBankcard() {
         //long直接强转int会失精度导致变负数
-        PayHttpUtils.getInstance().deleteBankcard(bankcardId+"")
-                .compose(RxSchedulers.<BaseResponse>compose())
-                .compose(RxSchedulers.<BaseResponse>handleResult())
-                .subscribe(new FGObserver<BaseResponse>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse baseResponse) {
-                        ToastUtil.show(BankSettingActivity.this, "解绑成功!");
-                        checkPaywordDialog.dismiss();
-                        //刷新
-                        adapter.removeView(deletePosition);
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
-                    }
-                });
+//        PayHttpUtils.getInstance().deleteBankcard(bankcardId+"")
+//                .compose(RxSchedulers.<BaseResponse>compose())
+//                .compose(RxSchedulers.<BaseResponse>handleResult())
+//                .subscribe(new FGObserver<BaseResponse>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse baseResponse) {
+//                        ToastUtil.show(BankSettingActivity.this, "解绑成功!");
+//                        checkPaywordDialog.dismiss();
+//                        //刷新
+//                        adapter.removeView(deletePosition);
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse baseResponse) {
+//                        ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
+//                    }
+//                });
     }
 
     //显示密码错误弹窗

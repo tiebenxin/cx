@@ -28,6 +28,8 @@ import android.media.MediaMuxer;
 import android.os.Environment;
 import android.util.Log;
 
+import com.widgt.CameraCallBack;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,6 +49,7 @@ public class MediaMuxerWrapper {
     private int mEncoderCount, mStatredCount;
     private boolean mIsStarted;
     private MediaEncoder mVideoEncoder, mAudioEncoder;
+    private CameraCallBack cameraCallBack;
 
     /**
      * Constructor
@@ -156,6 +159,9 @@ public class MediaMuxerWrapper {
             mMediaMuxer.release();
             mIsStarted = false;
             if (DEBUG) Log.v(TAG, "MediaMuxer stopped:");
+            if (cameraCallBack != null) {
+                cameraCallBack.recordSuccess();
+            }
         }
     }
 
@@ -218,6 +224,10 @@ public class MediaMuxerWrapper {
     private static final String getDateTimeString() {
         final GregorianCalendar now = new GregorianCalendar();
         return mDateTimeFormat.format(now.getTime());
+    }
+
+    public void setCameraCallBack(CameraCallBack callBack) {
+        cameraCallBack = callBack;
     }
 
 }

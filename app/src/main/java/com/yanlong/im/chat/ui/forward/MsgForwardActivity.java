@@ -145,6 +145,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     //收藏转发
     private boolean fromCollect = false;
+    private boolean isVertical = true;//竖图(true)还是横图(false)  默认竖图
 
 
     //单条消息转发
@@ -591,18 +592,26 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             imageUrl = msgAllBean.getImage().getLocalimg();
                         }
                     }
+                    if(msgAllBean.getImage().getHeight()>=msgAllBean.getImage().getWidth()){
+                        isVertical = true;
+                    }else {
+                        isVertical = false;
+                    }
                 } else if (msgAllBean.getAtMessage() != null) {
                     txt = msgAllBean.getAtMessage().getMsg();
                 } else if (msgAllBean.getVideoMessage() != null) {
                     imageUrl = msgAllBean.getVideoMessage().getBg_url();
+                    if(msgAllBean.getVideoMessage().getHeight()>=msgAllBean.getVideoMessage().getWidth()){
+                        isVertical = true;
+                    }else {
+                        isVertical = false;
+                    }
                 } else if (msgAllBean.getLocationMessage() != null) {
                     txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
+                    imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
+                    isVertical = false;
                 } else if (msgAllBean.getShippedExpressionMessage() != null) {
                     imageUrl = msgAllBean.getShippedExpressionMessage().getId();
-                } else if (msgAllBean.getVideoMessage() != null) {
-                    imageUrl = msgAllBean.getVideoMessage().getBg_url();
-                } else if (msgAllBean.getLocationMessage() != null) {
-                    imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
                 } else if (msgAllBean.getSendFileMessage() != null) {
                     txt = "[文件]" + msgAllBean.getSendFileMessage().getFile_name();
                 } else if (msgAllBean.getWebMessage() != null) {
@@ -627,16 +636,27 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 } else if (type == ChatEnum.EMessageType.IMAGE) {
                     CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
                     imageUrl = bean2.getThumbnail();
+                    if(bean2.getHeight()>=bean2.getWidth()){
+                        isVertical = true;
+                    }else {
+                        isVertical = false;
+                    }
                 } else if (type == ChatEnum.EMessageType.AT) {
                     CollectAtMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
                     txt = bean3.getMsg();
                 } else if (type == ChatEnum.EMessageType.MSG_VIDEO) {
                     CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
                     imageUrl = bean4.getVideoBgURL();
+                    if(bean4.getHeight()>=bean4.getWidth()){
+                        isVertical = true;
+                    }else {
+                        isVertical = false;
+                    }
                 } else if (type == ChatEnum.EMessageType.LOCATION) {
                     CollectLocationMessage bean5 = new Gson().fromJson(collectionInfo.getData(), CollectLocationMessage.class);
                     txt = "[位置]" + bean5.getAddr();
                     imageUrl = LocationUtils.getLocationUrl(bean5.getLat(), bean5.getLon());
+                    isVertical = false;
                 } else if (type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                     CollectShippedExpressionMessage bean6 = new Gson().fromJson(collectionInfo.getData(), CollectShippedExpressionMessage.class);
                     imageUrl = bean6.getExpression();
@@ -658,7 +678,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             }
         }
 
-        alertForward.init(MsgForwardActivity.this, type, mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
+        alertForward.init(MsgForwardActivity.this, type, mIcon, mName, txt, imageUrl, btm, toGid,isVertical, new AlertForward.Event() {
             @Override
             public void onON() {
 

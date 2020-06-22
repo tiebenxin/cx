@@ -2,45 +2,30 @@ package com.hm.cxpay.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
-import com.hm.cxpay.eventbus.IdentifyUserEvent;
-import com.hm.cxpay.dailog.ChangeSelectDialog;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.identification.IdentificationUserActivity;
-import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
-
-import org.greenrobot.eventbus.EventBus;
 
 
 /**
@@ -59,8 +44,8 @@ public class BindPhoneNumActivity extends AppActivity {
     private EditText etCode;//验证码输入框
     private TextView tvGetCode;//点击获取验证码
     private TextView tvSubmit;
-    private ChangeSelectDialog.Builder builder;
-    private ChangeSelectDialog dialogOne;//通用提示选择弹框：确认是否退出
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//通用提示选择弹框：确认是否退出
 
     private boolean hadPhoneNum = false;//是否存在手机号码  若存在则取已存在的值，若不存在手机号则取输入框的值
 
@@ -74,7 +59,7 @@ public class BindPhoneNumActivity extends AppActivity {
         setContentView(R.layout.activity_bind_phone);
         initView();
         initData();
-        httpGetMyPhone();
+//        httpGetMyPhone();
     }
 
     private void initView() {
@@ -91,7 +76,7 @@ public class BindPhoneNumActivity extends AppActivity {
         if(getIntent()!=null){
             fromShop = getIntent().getStringExtra("from_shop");
         }
-        builder = new ChangeSelectDialog.Builder(activity);
+        builder = new CommonSelectDialog.Builder(activity);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -194,34 +179,34 @@ public class BindPhoneNumActivity extends AppActivity {
      * <p>
      * 备注：优先获取用户IM手机号，没有则自行输入，若有则直接取手机号
      */
-    private void httpGetMyPhone() {
-        PayHttpUtils.getInstance().getMyPhone()
-                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
-                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
-                        if (baseResponse.getData() != null) {
-                            if (!TextUtils.isEmpty(baseResponse.getData().getPhone())) {
-                                hadPhoneNum = true;
-                                tvPhoneNum.setVisibility(View.VISIBLE);
-                                etPhoneNum.setVisibility(View.GONE);
-                                tvPhoneNum.setText(baseResponse.getData().getPhone() + "");
-                            } else {
-                                hadPhoneNum = false;
-                                tvPhoneNum.setVisibility(View.GONE);
-                                etPhoneNum.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        ToastUtil.show(activity, baseResponse.getMessage());
-                    }
-                });
-
-    }
+//    private void httpGetMyPhone() {
+//        PayHttpUtils.getInstance().getMyPhone()
+//                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
+//                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
+//                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
+//                        if (baseResponse.getData() != null) {
+//                            if (!TextUtils.isEmpty(baseResponse.getData().getPhone())) {
+//                                hadPhoneNum = true;
+//                                tvPhoneNum.setVisibility(View.VISIBLE);
+//                                etPhoneNum.setVisibility(View.GONE);
+//                                tvPhoneNum.setText(baseResponse.getData().getPhone() + "");
+//                            } else {
+//                                hadPhoneNum = false;
+//                                tvPhoneNum.setVisibility(View.GONE);
+//                                etPhoneNum.setVisibility(View.VISIBLE);
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
+//                        ToastUtil.show(activity, baseResponse.getMessage());
+//                    }
+//                });
+//
+//    }
 
     /**
      * 请求->绑定手机号码

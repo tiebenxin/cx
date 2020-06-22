@@ -2121,6 +2121,7 @@ public class MessageManager {
         event.setTradeId(resultMessage.getTradeId());
         event.setErrMsg(resultMessage.getErrorMsg());
         event.setResult(result.getNumber());
+        event.setSign(resultMessage.getSign());
         EventBus.getDefault().post(event);
     }
 

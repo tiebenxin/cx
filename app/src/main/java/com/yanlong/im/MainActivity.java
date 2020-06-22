@@ -1214,29 +1214,6 @@ public class MainActivity extends AppActivity {
         /********通知更新sessionDetail end************************************/
     }
 
-    /**
-     * 获取 绑定的银行卡列表
-     * <p>
-     * 备注：主要用于零钱首页更新"我的银行卡" 张数，暂时仅"充值、提现、我的银行卡"返回此界面后需要刷新
-     */
-    private void getBankList() {
-        PayHttpUtils.getInstance().getBankList()
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
-                        List<BankBean> info = baseResponse.getData();
-                        if (info != null) {
-                            PayEnvironment.getInstance().setBanks(info);
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                    }
-                });
-    }
 
     /**
      * 请求零钱红包用户信息,刷新用户余额

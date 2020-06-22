@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
@@ -14,6 +16,7 @@ import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.CxTransferBean;
 import com.hm.cxpay.bean.SendResultBean;
+import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.dailog.DialogBalanceNoEnough;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogErrorPassword;
@@ -28,9 +31,11 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.YiBaoWebActivity;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
+import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
@@ -45,22 +50,21 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.List;
 
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
+import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;
+import static com.hm.cxpay.global.PayConstants.RESULT;
 import static com.hm.cxpay.global.PayConstants.TOTAL_TRANSFER_MAX_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 /**
  * @author Liszt
  * @date 2019/12/19
- * Description
+ * Description 转账界面
  */
 public class TransferActivity extends BasePayActivity {
 
     private ActivityTransferBinding ui;
-    private DialogInputTransferPassword dialogPassword;
     private long toUid;
     private String name;
-    private DialogSelectPayStyle dialogSelectPayStyle;
-    private DialogErrorPassword dialogErrorPassword;
     private long money;
     private String avatar;
     boolean isSending = false;
@@ -74,6 +78,8 @@ public class TransferActivity extends BasePayActivity {
         }
     };
     private CxTransferBean cxTransferBean;
+    private String note;
+    private String actionId;
 
 
     public static Intent newIntent(Context context, long uid, String name, String avatar) {
@@ -88,6 +94,9 @@ public class TransferActivity extends BasePayActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_transfer);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         Intent intent = getIntent();
         toUid = intent.getLongExtra("uid", 0);
         name = intent.getStringExtra("name");
@@ -95,10 +104,18 @@ public class TransferActivity extends BasePayActivity {
         initView();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         payFailed();
-        if (cxTransferBean != null && event.getTradeId() == cxTransferBean.getTradeId()) {
+        cxTransferBean = createTransferBean(actionId, money, PayEnum.ETransferOpType.TRANS_SEND, note, event.getTradeId(), event.getSign());
+        if (cxTransferBean != null && !TextUtils.isEmpty(cxTransferBean.getActionId()) && !TextUtils.isEmpty(event.getActionId())
+                && cxTransferBean.getActionId().equals(event.getActionId())) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 eventTransferSuccess();
                 toTransferResult(money);
@@ -111,7 +128,6 @@ public class TransferActivity extends BasePayActivity {
     private void initView() {
         UIUtils.loadAvatar(avatar, ui.ivAvatar);
         ui.tvName.setText(name);
-
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -127,20 +143,12 @@ public class TransferActivity extends BasePayActivity {
             public void onClick(View v) {
                 String moneyTxt = ui.edMoney.getText().toString();
                 money = UIUtils.getFen(moneyTxt);
-                if (money > MIN_AMOUNT) {
-                    if (BankUtils.isLooseEnough(money)) {
-                        showInputPasswordDialog(money, PayEnum.EPayStyle.LOOSE, null);
-                    } else {
-                        BankBean bank = PayEnvironment.getInstance().getFirstBank();
-                        if (bank != null) {
-                            showInputPasswordDialog(money, PayEnum.EPayStyle.BANK, bank);
-                        } else {
-                            if (PayEnvironment.getInstance().getUser() == null) {
-                                return;
-                            }
-                            showBalanceNoEnoughDialog(money, PayEnvironment.getInstance().getUser().getBalance());
-                        }
-                    }
+                if (money >= MIN_AMOUNT) {
+                    note = ui.etDescription.getText().toString().trim();
+                    actionId = UIUtils.getUUID();
+                    httpSendTransfer(actionId, money, toUid, note);
+                } else {
+                    ToastUtil.show("转账金额不能低于0.01元");
                 }
             }
         });
@@ -181,39 +189,23 @@ public class TransferActivity extends BasePayActivity {
     }
 
 
-    public void httpSendTransfer(String actionId, final long money, String psw, final long toUid, final String note, long banCardId) {
+    public void httpSendTransfer(String actionId, final long money, final long toUid, final String note) {
         isSending = true;
         showLoadingDialog();
         handler.postDelayed(runnable, WAIT_TIME);
-        PayHttpUtils.getInstance().sendTransfer(actionId, money, psw, toUid, note, banCardId)
-                .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
-                .compose(RxSchedulers.<BaseResponse<SendResultBean>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
+        cxTransferBean = createTransferBean(actionId, money, PayEnum.ETransferOpType.TRANS_SEND, note, -1, "");
+        PayHttpUtils.getInstance().sendTransfer(actionId, money, toUid, note)
+                .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UrlBean>>() {
                     @Override
-                    public void onHandleSuccess(BaseResponse<SendResultBean> baseResponse) {
+                    public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            SendResultBean sendBean = baseResponse.getData();
-                            if (sendBean != null) {
-                                cxTransferBean = createTransferBean(sendBean, money, PayEnum.ETransferOpType.TRANS_SEND, note);
-                                if (sendBean.getCode() == 1) {//成功
-                                    payFailed();
-                                    eventTransferSuccess();
-                                    ThreadUtil.getInstance().runMainThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            toTransferResult(money);
-                                        }
-                                    });
-                                } else if (sendBean.getCode() == 2) {//失败
-                                    payFailed();
-                                    ToastUtil.show(getContext(), sendBean.getErrMsg());
-                                } else if (sendBean.getCode() == 99) {//待处理
-
-                                } else {
-                                    payFailed();
-                                    isSending = false;
-                                    ToastUtil.show(getContext(), baseResponse.getMessage());
-                                }
+                            UrlBean urlBean = baseResponse.getData();
+                            if (urlBean != null) {
+                                Intent intent = new Intent(TransferActivity.this, YiBaoWebActivity.class);
+                                intent.putExtra(YiBaoWebActivity.AGM_URL, urlBean.getUrl());
+                                startActivityForResult(intent, REQUEST_PAY);
                             }
                         } else {
                             isSending = false;
@@ -224,13 +216,7 @@ public class TransferActivity extends BasePayActivity {
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         payFailed();
-                        if (baseResponse.getCode() == -21000) {//密码错误
-                            showPswErrorDialog();
-                        } else if (baseResponse.getCode() == 40014) {//余额不足
-                            showBalanceOfBankNoEnough();
-                        } else {
-                            ToastUtil.show(getContext(), baseResponse.getMessage());
-                        }
+                        ToastUtil.show(getContext(), baseResponse.getMessage());
                     }
                 });
     }
@@ -239,138 +225,6 @@ public class TransferActivity extends BasePayActivity {
         Intent intent = TransferResultActivity.newIntent(TransferActivity.this, money, 1, name);
         startActivity(intent);
         finish();
-    }
-
-
-    //输入密码弹窗
-    private void showInputPasswordDialog(final long money, int payStyle, BankBean bankBean) {
-        dialogPassword = new DialogInputTransferPassword(this);
-        dialogPassword.init(money, payStyle, bankBean);
-        dialogPassword.setPswListener(new DialogInputTransferPassword.IPswListener() {
-            @Override
-            public void onCompleted(String psw, long bankCardId) {
-                dialogPassword.dismiss();
-                String note = ui.etDescription.getText().toString().trim();
-                String actionId = UIUtils.getUUID();
-                httpSendTransfer(actionId, money, psw, toUid, note, bankCardId);
-            }
-
-            @Override
-            public void selectPayStyle() {
-                showSelectPayStyleDialog();
-            }
-        });
-        dialogPassword.show();
-        showSoftKeyword(dialogPassword.getPswView());
-    }
-
-    private void showSelectPayStyleDialog() {
-        dialogSelectPayStyle = new DialogSelectPayStyle(this, R.style.MyDialogTheme);
-        BankBean selectBank = null;
-        if (dialogPassword != null) {
-            selectBank = dialogPassword.getSelectedBank();
-        }
-        dialogSelectPayStyle.bindData(PayEnvironment.getInstance().getBanks(), selectBank);
-        dialogSelectPayStyle.setListener(new AdapterSelectPayStyle.ISelectPayStyleListener() {
-            @Override
-            public void onSelectPay(int style, BankBean bank) {
-                dialogSelectPayStyle.dismiss();
-                if (dialogPassword != null) {
-                    dialogPassword.init(money, style, bank);
-                    resetShowDialogPayPassword();
-                }
-            }
-
-            @Override
-            public void onAddBank() {
-                dialogSelectPayStyle.dismiss();
-                Intent intent = new Intent(TransferActivity.this, BindBankActivity.class);
-                startActivity(intent);
-            }
-
-            @Override
-            public void onBack() {
-                resetShowDialogPayPassword();
-            }
-        });
-        dialogSelectPayStyle.show();
-
-    }
-
-    private void showPswErrorDialog() {
-        dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
-        dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
-            @Override
-            public void onForget() {
-
-            }
-
-            @Override
-            public void onTry() {
-                resetShowDialogPayPassword();
-            }
-        });
-        dialogErrorPassword.show();
-    }
-
-    //重新显示输入密码弹窗
-    private void resetShowDialogPayPassword() {
-        if (dialogPassword != null) {
-            dialogPassword.clearPsw();
-            dialogPassword.show();
-            showSoftKeyword(dialogPassword.getPswView());
-        }
-    }
-
-    //银行卡余额不足弹窗
-    public void showBalanceOfBankNoEnough() {
-        DialogDefault dialogBankNoEnough = new DialogDefault(this);
-        dialogBankNoEnough.setTitleAndSure(false, true)
-                .setRight("换卡支付").setLeft("取消")
-                .setTitle("转账失败")
-                .setContent("银行卡可用余额不足，请核实后再试", true)
-                .setListener(new DialogDefault.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        List<BankBean> banks = PayEnvironment.getInstance().getBanks();
-                        if (banks != null) {
-                            if (banks.size() > 1) {
-                                showSelectPayStyleDialog();
-                            } else {
-                                toBindBankActivity();
-                            }
-                        } else {
-                            toBindBankActivity();
-                        }
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                });
-        dialogBankNoEnough.show();
-    }
-
-    /**
-     * @param money   转账金额
-     * @param balance 零钱余额
-     * @discribe 零钱余额不足弹窗, 且未绑卡
-     */
-    public void showBalanceNoEnoughDialog(long money, long balance) {
-        DialogBalanceNoEnough dialogBalanceNoEnough = new DialogBalanceNoEnough(this);
-        dialogBalanceNoEnough.initMoney(money, balance);
-        dialogBalanceNoEnough.setListener(new DialogBalanceNoEnough.IRechargeListener() {
-            @Override
-            public void onRecharge() {
-                toBindBankActivity();
-            }
-        });
-        dialogBalanceNoEnough.show();
-    }
-
-    public void toBindBankActivity() {
-        startActivity(new Intent(TransferActivity.this, BankSettingActivity.class));
     }
 
     private void payFailed() {
@@ -383,14 +237,19 @@ public class TransferActivity extends BasePayActivity {
         }
     }
 
-    public CxTransferBean createTransferBean(SendResultBean bean, long money, @PayEnum.ETransferOpType int type, String info) {
+    public CxTransferBean createTransferBean(String actionId, long money, @PayEnum.ETransferOpType int type, String info, long tradeId, String sign) {
         CxTransferBean transferBean = new CxTransferBean();
+        transferBean.setActionId(actionId);
         transferBean.setUid(toUid);
         transferBean.setAmount(money);
         transferBean.setOpType(type);
         transferBean.setInfo(info);
-        transferBean.setSign(bean.getSign());
-        transferBean.setTradeId(bean.getTradeId());
+        if (!TextUtils.isEmpty(sign)) {
+            transferBean.setSign(sign);
+        }
+        if (tradeId > 0) {
+            transferBean.setTradeId(tradeId);
+        }
         return transferBean;
     }
 
@@ -401,5 +260,20 @@ public class TransferActivity extends BasePayActivity {
         PayEnvironment.getInstance().notifyRefreshBalance();
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PAY) {
+            if (resultCode == RESULT_OK) {
+                int result = data.getIntExtra(RESULT, 0);
+                if (result == 99) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
+            } else {
+                dismissLoadingDialog();
+            }
+        }
+    }
 }

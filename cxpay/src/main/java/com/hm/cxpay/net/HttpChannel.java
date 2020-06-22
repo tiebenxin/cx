@@ -53,6 +53,17 @@ public class HttpChannel {
         payService = retrofit.create(PayService.class);
     }
 
+    public void resetHost() {
+        if (okHttpClient != null) {
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(PayHostUtils.getHttpsUrl())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) // 支持RxJava
+                    .client(okHttpClient) // 打印请求参数
+                    .build();
+        }
+    }
+
     private Retrofit createRetrofit() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
