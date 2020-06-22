@@ -393,7 +393,7 @@ public class ChatEnum {
      *聊天拓展功能id
      * */
     @IntDef({EFunctionId.GALLERY, EFunctionId.TAKE_PHOTO, EFunctionId.ENVELOPE_SYS, EFunctionId.ENVELOPE_MF, EFunctionId.STAMP, EFunctionId.TRANSFER,
-            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE, EFunctionId.COLLECT})
+            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE, EFunctionId.COLLECT,EFunctionId.GROUP_STAMP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EFunctionId {
         int GALLERY = 1; // 相册
@@ -408,6 +408,7 @@ public class ChatEnum {
         int GROUP_ASSISTANT = 10;//群助手
         int FILE = 11;//文件
         int COLLECT = 12;//收藏
+        int GROUP_STAMP = 13;//群戳一戳
     }
 
 

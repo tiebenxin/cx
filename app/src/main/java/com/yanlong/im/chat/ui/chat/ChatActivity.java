@@ -2050,6 +2050,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toLocation();
                         break;
                     case ChatEnum.EFunctionId.STAMP:
+                    case ChatEnum.EFunctionId.GROUP_STAMP:
                         toStamp();
                         break;
                     case ChatEnum.EFunctionId.CARD:
@@ -2118,8 +2119,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
-        if (!isGroup && !isSystemUser) {
-            list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
+        if (!isGroup) { //单聊，且对方不为客服小助手，显示戳一下
+            if(!isSystemUser){
+                list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
+            }
+        }else {
+            list.add(createItemMode("群戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.GROUP_STAMP));
         }
         if (isGroup) {
             //本人群主

@@ -1754,8 +1754,10 @@ public class MessageManager {
             return;
         }
         if (isGroup && SESSION_TYPE == 2 && SESSION_GID.equals(msg.getGid())) { //群
-            //当前会话是本群不提示
-
+            //当前会话是本群，仅震动
+            if (msg.getMsgType() == MsgBean.MessageType.STAMP) {
+                playVibration();
+            }
         } else if (SESSION_TYPE == 1 && SESSION_FUID != null && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
             //当前会话就是这个人
             if (msg.getMsgType() == MsgBean.MessageType.STAMP) {

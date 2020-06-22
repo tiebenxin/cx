@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -92,14 +93,16 @@ public class ChatActionActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 EventBus.getDefault().post(new EventExitChat());
-
-                startActivity(new Intent(getContext(), ChatActivity.class)
-                        .putExtra(ChatActivity.AGM_TOUID, msgAllbean.getFrom_uid()));
-
+                if(!TextUtils.isEmpty(msgAllbean.getGid())){
+                    startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOGID, msgAllbean.getGid()));
+                }else {
+                    startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOUID, msgAllbean.getFrom_uid()));
+                }
                 finish();
             }
         });
-
         playVibration();
     }
 
