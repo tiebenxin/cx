@@ -50,6 +50,7 @@ public class MediaMuxerWrapper {
     private boolean mIsStarted;
     private MediaEncoder mVideoEncoder, mAudioEncoder;
     private CameraCallBack cameraCallBack;
+    private boolean isValid = false;
 
     /**
      * Constructor
@@ -92,7 +93,8 @@ public class MediaMuxerWrapper {
             mAudioEncoder.startRecording();
     }
 
-    public void stopRecording() {
+    public void stopRecording(boolean valid) {
+        isValid = valid;
         if (mVideoEncoder != null)
             mVideoEncoder.stopRecording();
         mVideoEncoder = null;
@@ -159,7 +161,7 @@ public class MediaMuxerWrapper {
             mMediaMuxer.release();
             mIsStarted = false;
             if (DEBUG) Log.v(TAG, "MediaMuxer stopped:");
-            if (cameraCallBack != null) {
+            if (isValid && cameraCallBack != null) {
                 cameraCallBack.recordSuccess();
             }
         }
