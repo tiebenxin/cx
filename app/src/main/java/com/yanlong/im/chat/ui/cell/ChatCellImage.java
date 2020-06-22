@@ -134,19 +134,7 @@ public class ChatCellImage extends ChatCellFileBase {
                     .asBitmap()
                     .load(url)
                     .apply(rOptions)
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            if (resource != null) {
-                                imageView.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        imageView.setImageBitmap(resource);
-                                    }
-                                },100);
-                            }
-                        }
-                    });
+                    .into(imageView);
         } else {
             imageView.setImageBitmap(localBitmap);
         }
