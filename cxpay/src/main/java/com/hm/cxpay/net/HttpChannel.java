@@ -33,7 +33,7 @@ public class HttpChannel {
     OkHttpClient okHttpClient;
     private Retrofit retrofit;
     private static CompositeDisposable compositeDisposable;
-    private final PayService payService;
+    private PayService payService;
     private static HttpChannel instance;
 
     public static HttpChannel getInstance() {
@@ -61,6 +61,7 @@ public class HttpChannel {
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) // 支持RxJava
                     .client(okHttpClient) // 打印请求参数
                     .build();
+            payService = retrofit.create(PayService.class);
         }
     }
 
