@@ -127,6 +127,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//确认删除弹框
     private boolean showBottomView = false;//最后一项View避免被遮挡
+    private boolean isVertical = true;//竖图(true)还是横图(false)  默认竖图
 
     //加载布局
     @Override
@@ -952,16 +953,27 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         } else if (type == ChatEnum.EMessageType.IMAGE) {//图片
             CollectImageMessage bean2 = new Gson().fromJson(info.getData(), CollectImageMessage.class);
             imageUrl = bean2.getThumbnail() == null ? "" : bean2.getThumbnail();
+            if(bean2.getHeight()>=bean2.getWidth()){
+                isVertical = true;
+            }else {
+                isVertical = false;
+            }
         } else if (type == ChatEnum.EMessageType.AT) {//AT
             CollectAtMessage bean3 = new Gson().fromJson(info.getData(), CollectAtMessage.class);
             txt = bean3.getMsg() == null ? "" : bean3.getMsg();
         } else if (type == ChatEnum.EMessageType.MSG_VIDEO) {//视频
             CollectVideoMessage bean4 = new Gson().fromJson(info.getData(), CollectVideoMessage.class);
             imageUrl = bean4.getVideoBgURL() == null ? "" : bean4.getVideoBgURL();
+            if(bean4.getHeight()>=bean4.getWidth()){
+                isVertical = true;
+            }else {
+                isVertical = false;
+            }
         } else if (type == ChatEnum.EMessageType.LOCATION) {//位置
             CollectLocationMessage bean5 = new Gson().fromJson(info.getData(), CollectLocationMessage.class);
             txt = bean5.getAddr() == null ? "" : "[位置]" + bean5.getAddr();
             imageUrl = LocationUtils.getLocationUrl(bean5.getLat(), bean5.getLon());
+            isVertical = false;
         } else if (type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {//大表情
             CollectShippedExpressionMessage bean6 = new Gson().fromJson(info.getData(), CollectShippedExpressionMessage.class);
             imageUrl = bean6.getExpression() == null ? "" : bean6.getExpression();
@@ -980,7 +992,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             avatar = userHead;
             name = userName;
         }
-        alertForward.init(CollectionActivity.this, type, avatar, name, txt, imageUrl, "发送", groupId, new AlertForward.Event() {
+        alertForward.init(CollectionActivity.this, type, avatar, name, txt, imageUrl, "发送", groupId,isVertical, new AlertForward.Event() {
             @Override
             public void onON() {
 

@@ -28,8 +28,8 @@ public interface IPhotoView {
     /*
      * 修改缩放比 mid从1.75扩大到17.5， max 从3扩大到30
      * */
-    float DEFAULT_MAX_SCALE = 30f;
-    float DEFAULT_MID_SCALE = 17.5f;
+    float DEFAULT_MAX_SCALE = 2.3f;
+    float DEFAULT_MID_SCALE = 1.6f;//缩放比率改为中等1.6 最大2.3，测试说缩放效果过大了
     float DEFAULT_MIN_SCALE = 1.0f;
     int DEFAULT_ZOOM_DURATION = 200;
 

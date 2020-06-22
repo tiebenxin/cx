@@ -131,46 +131,31 @@ public class TimeToString {
 
     /**
      * 收藏时间显示规则
-     * @param timestamp
+     * @param timeStamp
      * @return
      */
-    public static String getTimeForCollect(Long timestamp) {
-        if (timestamp == null || timestamp == 0L) {
-            return "";
+    public static String getTimeForCollect(Long timeStamp) {
+        long curTimeMillis = System.currentTimeMillis();
+        Date curDate = new Date(curTimeMillis);
+        int todayHoursSeconds = curDate.getHours() * 60 * 60;
+        int todayMinutesSeconds = curDate.getMinutes() * 60;
+        int todaySeconds = curDate.getSeconds();
+        int todayMillis = (todayHoursSeconds + todayMinutesSeconds + todaySeconds) * 1000;
+        long todayStartMillis = curTimeMillis - todayMillis;
+        if(timeStamp >= todayStartMillis) {
+            return "今天";
         }
-        String result = "";
-        String todayTimeFormat = "今天";
-        String yesterdayTimeFormat = "昨天";
-        String bfYesterdayTimeFormat = "前天";
-        String yearFormat = "yyyy-MM-dd";
-        try {
-            Calendar todayCalendar = Calendar.getInstance();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(timestamp);
-            //同一年
-            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                //当天
-                if (todayCalendar.get(Calendar.DATE) == calendar.get(Calendar.DATE)) {
-                    result = todayTimeFormat;
-                    //昨天
-                } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 1)) {
-                    result = yesterdayTimeFormat;
-                    //前天
-                } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 2)) {
-                    result = bfYesterdayTimeFormat;
-                    //更久远的直接日期显示
-                } else {
-                    result = getTime(timestamp, yearFormat);
-                }
-            } else {
-                //不同年
-                result = getTime(timestamp, yearFormat);
-            }
-            return result;
-        } catch (Exception e) {
-
-            return "";
+        int oneDayMillis = 24 * 60 * 60 * 1000;
+        long yesterdayStartMilis = todayStartMillis - oneDayMillis;
+        if(timeStamp >= yesterdayStartMilis) {
+            return "昨天";
         }
+        long yesterdayBeforeStartMilis = yesterdayStartMilis - oneDayMillis;
+        if(timeStamp >= yesterdayBeforeStartMilis) {
+            return "前天";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return  sdf.format(new Date(timeStamp));
     }
 
 

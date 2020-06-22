@@ -3,8 +3,10 @@ package com.yanlong.im;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.webkit.WebView;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
@@ -104,6 +106,18 @@ public class MyAppLication extends MainApplication {
         initLocation();//初始化定位
         initARouter();//初始化路由
         initVolley();
+        HandleWebviewCrash();
+    }
+
+    /**
+     * TODO 处理商城shopfragment里Webview造成多进程的异常 bugly #108910 (经查证,仅努比亚 NX563J会频繁报这个异常)
+     */
+    private void HandleWebviewCrash() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            String processName = getCurrentProcessName();
+            if (!"com.yanlong.im".equals(processName)){//判断不等于默认进程名称
+                WebView.setDataDirectorySuffix(processName);}
+        }
     }
 
     /**

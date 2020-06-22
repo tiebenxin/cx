@@ -653,7 +653,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .format(DecodeFormat.PREFER_ARGB_8888);
-        Glide.with(ivZoom.getContext())
+        Glide.with(context)//TODO bugly #107911
                 .asBitmap()
                 .load(url)
                 .apply(options)
