@@ -290,13 +290,20 @@ public class MessageManager {
         return result;
     }
 
-    /*
-     * 处理接收到的消息
-     * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
-     * @param wrapMessage 接收到的消息
-     * @param isList 是否是批量消息
-     * @return 返回结果，不需要处理逻辑的消息，默认处理成功
-     * */
+
+    /** 已过期，请使用  DispatchMessage中的dealWithMsg
+     *  处理接收到的消息
+     *      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
+     *      * @param wrapMessage 接收到的消息
+     *      * @param isList 是否是批量消息
+     *      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
+     * @param wrapMessage
+     * @param isList
+     * @param canNotify
+     * @param requestId
+     * @return
+     * 已过期，请使用  DispatchMessage中的dealWithMsg
+     */
     @Deprecated
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
@@ -905,7 +912,7 @@ public class MessageManager {
         return result;
     }
 
-    /**
+    /** 已过期
      * 清除双向删除消息
      */
     @Deprecated
@@ -917,7 +924,7 @@ public class MessageManager {
         }
     }
 
-    /**
+    /**已过期
      * 更新离线接收自己PC端发送的已读消息
      */
     @Deprecated
@@ -1050,11 +1057,14 @@ public class MessageManager {
         }
     }
 
-    /*
-     * 保存消息
-     * @param msgAllBean 消息
-     * @isList 是否是批量消息
-     * */
+    /**已过期  请使用MessageRepository中的saveMessageNew
+     *
+     * @param msgAllBean
+     * @param isList
+     * @return
+     * 已过期  请使用MessageRepository中的saveMessageNew
+     */
+    @Deprecated
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
         boolean isFromSelf = false;
@@ -1162,9 +1172,10 @@ public class MessageManager {
         return result;
     }
 
-    /*
+    /*已过期
      * 网络加载用户信息,只能接受来自好友的信息
      * */
+    @Deprecated
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean, boolean isFromSelf) {
         if (UserAction.getMyId() != null && uid.equals(UserAction.getMyId())) {
             return;
@@ -1205,9 +1216,10 @@ public class MessageManager {
         });
     }
 
-    /*
+    /*已过期
      * 网络加载群信息
      * */
+    @Deprecated
     private void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean, boolean isFromSelf) {
         if (TextUtils.isEmpty(gid)) {
             return;
@@ -1264,6 +1276,7 @@ public class MessageManager {
     /*
      * 更新session未读数
      * */
+    @Deprecated
     public synchronized boolean updateSessionUnread(String gid, Long from_uid, MsgAllBean bean, String firstFlag, boolean isFromSelf) {
 //        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
         boolean canChangeUnread = true;
@@ -1284,6 +1297,7 @@ public class MessageManager {
     /*
      * 更新session未读数
      * */
+    @Deprecated
     public synchronized void updateSessionUnread(String gid, Long from_uid, int count) {
 //        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
         msgDao.sessionReadUpdate(gid, from_uid, count);
@@ -1292,6 +1306,7 @@ public class MessageManager {
     /*接收自己PC端离线消息已读消息
      * 清除session未读数
      */
+    @Deprecated
     public synchronized void clearPendingSessionUnreadCount(String gid, Long uid, String requestId) {
         if (TextUtils.isEmpty(requestId)) {
             return;
@@ -1314,6 +1329,7 @@ public class MessageManager {
      * @param isDisturb 是否免打扰
      * @param isCancel 是否是撤销消息
      * */
+    @Deprecated
     public synchronized void updatePendingSessionUnreadCount(String gid, Long uid, boolean isDisturb, boolean isCancel, String requestId, boolean isFromSelf) {
 //        LogUtil.getLog().d("a=", TAG + "--更新Session--updatePendingSessionUnreadCount--gid=" + gid + "--uid=" + uid + "--isCancel=" + isCancel);
         if (TextUtils.isEmpty(requestId)) {
@@ -1561,6 +1577,7 @@ public class MessageManager {
     /*
      * 更新用户头像和昵称
      * */
+    @Deprecated
     public boolean updateUserAvatarAndNick(long uid, String avatar, String nickName) {
         boolean hasChange = userDao.userHeadNameUpdate(uid, avatar, nickName);
         if (hasChange) {
@@ -1618,6 +1635,7 @@ public class MessageManager {
         }
     }
 
+    @Deprecated
     private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
         boolean isAt = false;
         String gid = msg.getGid();
@@ -1655,6 +1673,15 @@ public class MessageManager {
         return isAt;
     }
 
+    /**
+     * 已过期
+     * @param gid
+     * @param atType
+     * @param message
+     * @param list
+     * @return
+     */
+    @Deprecated
     private boolean updateAtMessage(String gid, int atType, String message, List<Long> list) {
         boolean isAt = false;
         if (atType == 0) {
@@ -1687,6 +1714,7 @@ public class MessageManager {
         return isAt;
     }
 
+    @Deprecated
     public void playDingDong() {
         if (System.currentTimeMillis() - playTimeOld < 500) {
             return;
@@ -1767,6 +1795,7 @@ public class MessageManager {
      * 根据接收到的消息内容，更新用户头像昵称等资料
      * @param msg
      */
+    @Deprecated
     private void updateUserAvatarAndNick(MsgBean.UniversalMessage.WrapMessage msg, boolean isList, String requestId) {
         if (msg.getMsgType() == MsgBean.MessageType.UNRECOGNIZED || msg.getMsgType().getNumber() > 100) {//通知类消息
             return;
@@ -1917,24 +1946,25 @@ public class MessageManager {
         msgDao.updateSessionTopAndDisturb(gid, uid, top, disturb);
     }
 
+    @Deprecated
     public void removeLoadGids(String gid) {
         if (loadGids != null && !TextUtils.isEmpty(gid)) {
             loadGids.remove(gid);
         }
     }
-
+    @Deprecated
     public void removeLoadUids(Long uid) {
         if (loadUids != null && uid != null) {
             loadUids.remove(uid);
         }
     }
-
+    @Deprecated
     public void addSavedGroup(List<Group> list) {
         if (list != null && list.size() > 0) {
             saveGroups.addAll(list);
         }
     }
-
+    @Deprecated
     public List<Group> getSavedGroups() {
         return saveGroups;
     }
@@ -2009,6 +2039,7 @@ public class MessageManager {
     /*
      * 检测该群是否还有效，即自己是否还在该群中,有效为true，无效为false
      * */
+    @Deprecated
     public boolean isGroupValid(Group group) {
         if (group != null) {
             if (group.getStat() != ChatEnum.EGroupStatus.NORMAL) {
@@ -2029,6 +2060,7 @@ public class MessageManager {
     /*
      * 检测该群是否还有效，即自己是否还在该群中,有效为true，无效为false
      * */
+    @Deprecated
     public boolean isGroupValid2(Group group) {
         if (group != null) {
             List<MemberUser> users = group.getUsers();
@@ -2075,6 +2107,7 @@ public class MessageManager {
     /*
      * 群成员数据变化时，更新群信息
      * */
+    @Deprecated
     public synchronized void refreshGroupInfo(final String gid) {
         new MsgAction().loadGroupMember(gid, new CallBack<ReturnBean<Group>>() {
             @Override
