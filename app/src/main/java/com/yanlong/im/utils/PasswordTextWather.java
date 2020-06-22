@@ -26,15 +26,15 @@ public class PasswordTextWather implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-//        String editable = editText.getText().toString();
-//        String regEx = "[^a-zA-Z0-9_]";
-//        Pattern p = Pattern.compile(regEx);
-//        Matcher m = p.matcher(editable);
-//        String str = m.replaceAll("").trim();
-//        if (!editable.equals(str)) {
-//            editText.setText(str);
-//            editText.setSelection(str.length());
-//        }
+        String editable = editText.getText().toString();
+        String regEx = "[\u4e00-\u9fa5]";//匹配中文
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(editable);
+        String str = m.replaceAll("").trim();
+        if (!editable.equals(str)) {
+            editText.setText(str);
+            editText.setSelection(str.length());
+        }
     }
 
     @Override
