@@ -75,6 +75,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
+        initFile();//确保video目录存在
         mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
         initUI();
         initListener();
@@ -430,6 +431,13 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             path = file.getAbsolutePath();
         }
         return path;
+    }
+
+    private void initFile() {
+        File file = new File(LanSongFileUtil.DEFAULT_DIR);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
     }
 
 }
