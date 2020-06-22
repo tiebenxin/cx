@@ -99,7 +99,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     private Call download;
     //    private IPreviewImageListener listener;
     private String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
-    private String[] newStrings = {"发送给朋友","保存图片","收藏", "识别图中二维码","编辑",  "取消"};
+    private String[] newStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "编辑", "取消"};
     private View parentView;
     private int preProgress;
 
@@ -512,19 +512,29 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (isHttp) {
             if (isOrigin) {
                 if (hasRead) {//原图已读,就显示
-                    String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), AppConfig.getContext());
-                    if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
-                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                    loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                    if (!TextUtils.isEmpty(media.getPath())) {
                         ivZoom.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                loadImage(cachePath, ivZoom, false, pbLoading);
+                                loadImage(media.getPath(), ivZoom, false, pbLoading);
                             }
                         }, 50);
-                        showZoomView(ivZoom, true);
-                    } else {
-                        loadImage(media.getCompressPath(), ivZoom, true, pbLoading);
                     }
+                    showZoomView(ivZoom, true);
+//                    String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), AppConfig.getContext());
+//                    if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
+//                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+//                        ivZoom.postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                loadImage(cachePath, ivZoom, false, pbLoading);
+//                            }
+//                        }, 50);
+//                        showZoomView(ivZoom, true);
+//                    } else {
+//                        loadImage(media.getCompressPath(), ivZoom, true, pbLoading);
+//                    }
                 } else {
                     if (!TextUtils.isEmpty(media.getCutPath())) {
                         loadImage(media.getCutPath(), ivZoom, false, pbLoading);
@@ -816,16 +826,16 @@ public class AdapterPreviewImage extends PagerAdapter {
      */
     private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp, boolean isOriginal, LinearLayout llLook) {
         final PopupSelectView popupSelectView;
-        if(media.isCanCollect()){
+        if (media.isCanCollect()) {
             popupSelectView = new PopupSelectView(context, newStrings);
-        }else {
+        } else {
             popupSelectView = new PopupSelectView(context, strings);
         }
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
                 String msgId = media.getMsg_id();
-                if(media.isCanCollect()){
+                if (media.isCanCollect()) {
                     if (postsion == 0) {//转发
                         if (!TextUtils.isEmpty(msgId)) {
                             MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
@@ -859,7 +869,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                     }
 
-                }else {
+                } else {
                     if (postsion == 0) {//转发
                         if (!TextUtils.isEmpty(msgId)) {
                             MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
