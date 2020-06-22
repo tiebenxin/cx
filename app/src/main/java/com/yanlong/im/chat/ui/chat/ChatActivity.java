@@ -5751,7 +5751,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (position >= 0) {
                             scrollChatToPosition(position);
                         } else {
-                            ToastUtil.show("消息不存在");
+                            ToastUtil.show("你需要找的消息时间太久远了，请在消息记录中继续往上翻");
                         }
                     } else {
                         ToastUtil.show("消息不存在");
