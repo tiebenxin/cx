@@ -214,7 +214,7 @@ public class PayHttpUtils {
 //    }
 
     //跳转充值
-    public Observable<BaseResponse<UrlBean>> toRecharge(int amt/*, long bankCardId, String payPwd*/) {
+    public Observable<BaseResponse<UrlBean>> toRecharge(double amt/*, long bankCardId, String payPwd*/) {
         Map<String, String> map = new HashMap<>();
         map.put("amt", UIUtils.getFen(amt + "") + "");
 //        map.put("bankCardId", bankCardId + "");

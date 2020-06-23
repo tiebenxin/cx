@@ -389,7 +389,7 @@ public class MyFragment extends Fragment {
      * 实名认证提示弹框
      */
     private void showIdentifyDialog() {
-        dialogOne = builder.setTitle("根据国家法律法规要求，你需要进行身份认证后\n，才能继续使用该功能。")
+        dialogOne = builder.setTitle("根据国家法律法规要求，你需要进行\n身份认证后，才能继续使用该功能。")
                 .setLeftText("取消")
                 .setRightText("去认证")
                 .setLeftOnClickListener(new View.OnClickListener() {

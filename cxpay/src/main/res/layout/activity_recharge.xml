@@ -16,17 +16,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_notice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="6dp"
-                android:text="充值金额不能低于10.00元"
-                android:textColor="@color/c_A7051A"
-                android:textSize="12sp"
-                android:visibility="visible" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -52,7 +42,7 @@
                     android:ellipsize="end"
                     android:gravity="right|center_vertical"
                     android:hint="最低10元，最高500元"
-                    android:inputType="number"
+                    android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:paddingRight="18dp"
                     android:textColor="@color/c_0f0f0f"
