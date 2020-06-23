@@ -107,8 +107,8 @@ public class ChatCellNotice extends ChatCellBase {
             }
         } else if (messageType == ChatEnum.EMessageType.TRANSFER_NOTICE) {
             iv_icon.setVisibility(View.GONE);
-            if (message.getMsgCancel() != null) {
-                tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
+            if (message.getTransferNoticeMessage() != null) {
+                tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent()));
             }
         }
         tv_content.setMovementMethod(LinkMovementMethod.getInstance());
