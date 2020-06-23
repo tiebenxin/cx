@@ -19,6 +19,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UrlBean;
+import com.hm.cxpay.dailog.DialogBalanceNoEnough;
+import com.hm.cxpay.dailog.DialogDefault;
+import com.hm.cxpay.dailog.DialogEnvelope;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -28,6 +31,9 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
+import net.cb.cb.library.dialog.DialogCommon;
+import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -62,8 +68,8 @@ public class RechargeActivity extends AppActivity {
     private TextView tvSelectFive;//选中200
     private TextView tvSelectSix;//选中500
     private Activity activity;
-    private TextView tvNotice;//低于10元顶部提示
     private TextView tvQuestion;//常见问题
+    private DialogCommon2 noticeDialog;//弹框提示
     private DialogErrorPassword dialogErrorPassword;
     public static final int SELECT_BANKCARD = 99;
 
@@ -104,9 +110,9 @@ public class RechargeActivity extends AppActivity {
         tvSelectFour = findViewById(R.id.tv_select_four);
         tvSelectFive = findViewById(R.id.tv_select_five);
         tvSelectSix = findViewById(R.id.tv_select_six);
-        tvNotice = findViewById(R.id.tv_notice);
         tvQuestion = findViewById(R.id.tv_question);
         actionbar = headView.getActionbar();
+        noticeDialog = new DialogCommon2(RechargeActivity.this);
     }
 
     private void initData() {
@@ -132,19 +138,48 @@ public class RechargeActivity extends AppActivity {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                showLoadingDialog();
                 //1 充值金额不能为空
                 if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
                     //2 最低充值10元
-                    int yuan = Integer.valueOf(etRecharge.getText().toString());
+                    double yuan = Double.valueOf(etRecharge.getText().toString());
                     //TODO:备注最低充值金额为10元, 开发时改为1元
-                    if (yuan >= 1) {
-                        httpRecharge(yuan);
+                    if (yuan >= 1.00) {
+                        //3 单笔充值最高不能超过500元
+                        if(yuan <= 500.00){
+                            showLoadingDialog();
+                            httpRecharge(yuan);
+                        }else {
+                            noticeDialog.setContent("单笔充值最高不能超过500元", true)
+                                    .setButtonTxt("确定")
+                                    .hasTitle(false)
+                                    .setListener(new DialogCommon2.IDialogListener() {
+                                        @Override
+                                        public void onClick() {
+                                            noticeDialog.dismiss();
+                                        }
+                                    }).show();
+                        }
                     } else {
-                        ToastUtil.show(context, "最低充值金额10元");
+                        noticeDialog.setContent("最低充值金额10元", true)
+                                .setButtonTxt("确定")
+                                .hasTitle(false)
+                                .setListener(new DialogCommon2.IDialogListener() {
+                                    @Override
+                                    public void onClick() {
+                                        noticeDialog.dismiss();
+                                    }
+                                }).show();
                     }
                 } else {
-                    ToastUtil.show(context, "充值金额不能为空");
+                    noticeDialog.setContent("充值金额不能为空", true)
+                            .setButtonTxt("确定")
+                            .hasTitle(false)
+                            .setListener(new DialogCommon2.IDialogListener() {
+                                @Override
+                                public void onClick() {
+                                    noticeDialog.dismiss();
+                                }
+                            }).show();
                 }
 
             }
@@ -224,7 +259,7 @@ public class RechargeActivity extends AppActivity {
             public void afterTextChanged(Editable s) {
                 //1 为空不参与计算
                 if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
-                    //选中状态
+                    //根据输入的数字更新选中状态
                     selectItem(etRecharge.getText().toString());
                     //2 自动过滤用户金额前乱输入0
                     String total = etRecharge.getText().toString();
@@ -236,17 +271,6 @@ public class RechargeActivity extends AppActivity {
                                 etRecharge.setSelection(total.length());
                             }
                         }
-                    }
-                    //3 金额最高限制
-                    if (Double.valueOf(total) > 500) {
-                        ToastUtil.show(activity, "单笔充值最高不能超过500元");
-                        etRecharge.setText("");
-                    }
-                    //4 低于10元顶部提示
-                    if (Double.valueOf(total) < 10) {
-                        tvNotice.setVisibility(View.VISIBLE);
-                    } else {
-                        tvNotice.setVisibility(View.INVISIBLE);
                     }
                 } else {
                     clearSelectedStatus();
@@ -318,7 +342,7 @@ public class RechargeActivity extends AppActivity {
     /**
      * 发请求->充值接口
      */
-    private void httpRecharge(int money) {
+    private void httpRecharge(double money) {
         PayHttpUtils.getInstance().toRecharge(money)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
