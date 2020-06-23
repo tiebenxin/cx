@@ -42,6 +42,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -1815,9 +1816,15 @@ public class MsgDao {
                             }
                         }
                     } else {
-                        UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
-                        if (info != null) {
-                            top = info.getIstop();
+                        Long uid = l.getFrom_uid();
+                        if (UserUtil.isSystemUser(uid)) {
+                            session = realm.copyFromRealm(l);
+                            removes.add(session);
+                        } else {
+                            UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
+                            if (info != null) {
+                                top = info.getIstop();
+                            }
                         }
                     }
                     l.setIsTop(top);
@@ -3885,6 +3892,7 @@ public class MsgDao {
 
     /**
      * 删除一条收藏消息->本地收藏列表
+     *
      * @param msgId
      */
     public void deleteLocalCollection(String msgId) {
@@ -3903,6 +3911,7 @@ public class MsgDao {
 
     /**
      * 查询某一条收藏消息->本地收藏列表
+     *
      * @param msgId
      * @return
      */
@@ -3912,7 +3921,7 @@ public class MsgDao {
         CollectionInfo info = realm.where(CollectionInfo.class).equalTo("msgId", msgId).findFirst();
         if (info != null) {
             bean = realm.copyFromRealm(info);
-        }else {
+        } else {
             bean = null;
         }
         realm.close();
@@ -3921,6 +3930,7 @@ public class MsgDao {
 
     /**
      * 查询所有收藏消息->本地收藏列表
+     *
      * @return
      */
     public List<CollectionInfo> getAllCollections() {
@@ -3941,6 +3951,7 @@ public class MsgDao {
 
     /**
      * 获取服务端的收藏列表，替换掉本地收藏列表(同步到本地/保持一致性)
+     *
      * @param list
      */
     public void updateLocalCollection(List<CollectionInfo> list) {
@@ -3977,6 +3988,7 @@ public class MsgDao {
 
     /**
      * 删除一条收藏操作记录->离线收藏记录表
+     *
      * @param msgId
      */
     public void deleteOfflineCollectRecord(String msgId) {
@@ -4010,6 +4022,7 @@ public class MsgDao {
 
     /**
      * 查询一条收藏操作记录->离线收藏记录表
+     *
      * @param msgId
      */
     public OfflineCollect findOfflineCollectRecord(String msgId) {
@@ -4018,7 +4031,7 @@ public class MsgDao {
         OfflineCollect info = realm.where(OfflineCollect.class).equalTo("msgId", msgId).findFirst();
         if (info != null) {
             bean = realm.copyFromRealm(info);
-        }else {
+        } else {
             bean = null;
         }
         realm.close();
@@ -4046,6 +4059,7 @@ public class MsgDao {
 
     /**
      * 添加一条删除操作记录->离线删除记录表
+     *
      * @param bean
      */
     public void addOfflineDeleteRecord(OfflineDelete bean) {
@@ -4098,7 +4112,6 @@ public class MsgDao {
     }
 
 
-
     /**
      * 清空所有离线收藏操作记录->离线收藏记录表/离线删除记录表
      */
@@ -4115,7 +4128,6 @@ public class MsgDao {
 //            realm.close();
 //        }
 //    }
-
 
 
 }
