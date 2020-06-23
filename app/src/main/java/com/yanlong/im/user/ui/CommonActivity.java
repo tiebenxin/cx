@@ -16,7 +16,6 @@ import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
-import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -216,8 +215,6 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private void taskExit() {
         MessageManager.getInstance().clearCache();
         PayEnvironment.getInstance().clear();
-        //销毁application数据仓库
-        MyAppLication.INSTANCE().destoryRepository();
         finish();
         if (AVChatProfile.getInstance().isAVMinimize()) {
             // 关闭不发送消息

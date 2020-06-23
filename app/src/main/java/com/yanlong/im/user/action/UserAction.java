@@ -160,6 +160,14 @@ public class UserAction {
     }
 
     /**
+     * 刷新我的个人信息
+     */
+    public static void refreshMyInfo(){
+        myInfo = null;
+        getMyInfo();
+    }
+
+    /**
      * 账号密码登录
      */
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {

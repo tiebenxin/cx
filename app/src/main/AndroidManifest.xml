@@ -128,6 +128,8 @@
         </activity>
         <!--聊天服务-->
         <service android:name=".chat.server.UpLoadService" />
+        <!--消息处理到数据库 IntentService-->
+        <service android:name=".chat.server.MessageIntentService" />
 
         <service android:name=".chat.server.ChatServer">
             <intent-filter>

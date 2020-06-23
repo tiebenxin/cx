@@ -42,7 +42,7 @@ public class ChatServer extends Service {
      * @param msgBean 要撤回的消息
      */
 //    public static void addCanceLsit(String msg_id, MsgAllBean msgBean) {
-//        cancelList.put(msg_id, msgBean);
+//        cancelList.push(msg_id, msgBean);
 //    }
     @Override
     public IBinder onBind(Intent intent) {

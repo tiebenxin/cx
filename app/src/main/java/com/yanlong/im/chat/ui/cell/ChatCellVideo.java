@@ -1,6 +1,9 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -9,13 +12,17 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
 
@@ -104,9 +111,8 @@ public class ChatCellVideo extends ChatCellImage {
         String url = video.getBg_url();
         RequestOptions rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
         rOptions.override(width, height);
+        rOptions.dontAnimate();
         String tag = (String) ivBg.getTag(R.id.tag_img);
-        rOptions.error(R.mipmap.default_image);
-        rOptions.placeholder(R.mipmap.default_image);
         if (TextUtils.isEmpty(tag) || !TextUtils.equals(tag, url)) {
             ivBg.setTag(R.id.tag_img, url);
             glide(rOptions, url);
@@ -163,5 +169,21 @@ public class ChatCellVideo extends ChatCellImage {
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.VIDEO_CLICK, model);
         }
+    }
+
+    @Override
+    public void glide(RequestOptions rOptions, String url) {
+        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
+        if (localBitmap == null) {
+            Glide.with(getContext())
+                    .asBitmap()
+                    .load(url)
+                    .apply(rOptions)
+                    .into(ivBg);
+        } else {
+            ivBg.setImageBitmap(localBitmap);
+        }
+        ivBg.setVisibility(VISIBLE);
+
     }
 }

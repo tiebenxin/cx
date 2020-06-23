@@ -241,6 +241,13 @@ public class MsgConversionBean {
                     if (isError) {
                         rbNotice.setMsgType(ENoticeType.RECEIVE_RED_ENVELOPE);
                         String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                        if(TextUtils.isEmpty(nick)){
+                            if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                                nick = bean.getMembername();
+                            }else{
+                                nick = bean.getNickname();
+                            }
+                        }
                         name = "<font color='#276baa' id='" + bean.getToUid() + "'>" + nick + "</font>";
                         rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
                     } else {
@@ -257,6 +264,13 @@ public class MsgConversionBean {
                     if (isError) {
                         rbNotice.setMsgType(ENoticeType.RECEIVE_SYS_ENVELOPE);
                         String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                        if(TextUtils.isEmpty(nick)){
+                            if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                                nick = bean.getMembername();
+                            }else{
+                                nick = bean.getNickname();
+                            }
+                        }
                         String user = "<user id='" + bean.getToUid() + "' gid= " + bean.getGid() + ">" + nick + "</user>";
                         rbNotice.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                     } else {
@@ -398,6 +412,13 @@ public class MsgConversionBean {
                 }
                 if (TextUtils.isEmpty(name)) {
                     name = new MsgDao().getUsername4Show(gid, fromUid);
+                    if(TextUtils.isEmpty(name)){
+                        if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                            name = bean.getMembername();
+                        }else{
+                            name = bean.getNickname();
+                        }
+                    }
                 }
                 goutNotice.setNote("\"<font color='#276baa' id='" + fromUid + "'>" + name + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
                 msgAllBean.setMsgNotice(goutNotice);
@@ -415,7 +436,14 @@ public class MsgConversionBean {
                         break;
                     case SHUT_UP:// 是否开启全群禁言
                     {
-                        name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
+                        name = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                        if(TextUtils.isEmpty(name)){
+                            if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                                name = bean.getMembername();
+                            }else{
+                                name = bean.getNickname();
+                            }
+                        }
                         StringBuffer stringBuffer1 = new StringBuffer();
                         msgAllBean.setGid(bean.getGid());
                         msgAllBean.setMsg_type(EMessageType.NOTICE);
@@ -447,9 +475,13 @@ public class MsgConversionBean {
                         MsgNotice screenNotice = new MsgNotice();
                         screenNotice.setMsgid(msgAllBean.getMsg_id());
                         screenNotice.setMsgType(ENoticeType.SNAPSHOT_SCREEN);
-                        name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
-                        if (TextUtils.isEmpty(name)) {
-                            name = bean.getNickname();
+                        name = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                        if(TextUtils.isEmpty(name)){
+                                if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                                name = bean.getMembername();
+                            }else{
+                                name = bean.getNickname();
+                            }
                         }
                         if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
                             if (snap) {
@@ -512,6 +544,15 @@ public class MsgConversionBean {
                 } else {//对方撤回的消息当通知处理
                     msgCel.setMsgType(9);
                     rname = "\"<font color='#276baa' id='" + fromUid + "'>" + msgDao.getUsername4Show(bean.getGid(), fromUid) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
+                    String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                    if(TextUtils.isEmpty(nick)){
+                        if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                            nick = bean.getMembername();
+                        }else{
+                            nick = bean.getNickname();
+                        }
+                    }
+                    rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick+ "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
                 }
                 msgAllBean.setMsg_type(EMessageType.MSG_CANCEL);
                 msgCel.setMsgid(msgAllBean.getMsg_id());
@@ -544,11 +585,19 @@ public class MsgConversionBean {
                 if (TextUtils.isEmpty(bean.getGid())) {
                     formName = "\"" + bean.getNickname() + "\"";
                 } else {
-                    formName = msgDao.getGroupMemberName(bean.getGid(), fromUid, null, null);//能查到群备注
+                    formName = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
                     formName = "\"" + formName + "\"";
                 }
                 if (fromUid == UserAction.getMyId().intValue()) {//自己PC 端发送的消息
                     formName = "你";
+                }
+
+                if(TextUtils.isEmpty(formName)){
+                    if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                        formName = bean.getMembername();
+                    }else{
+                        formName = bean.getNickname();
+                    }
                 }
 
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
@@ -649,10 +698,24 @@ public class MsgConversionBean {
                 } else {//移出管理员
                     if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
                         name = new MsgDao().getUsername4Show(bean.getGid(), bean.getToUid());
+                        if(TextUtils.isEmpty(name)){
+                            if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                                name = bean.getMembername();
+                            }else{
+                                name = bean.getNickname();
+                            }
+                        }
                         stringBuffer.append("你已取消\"<font color='#276baa' id='" + bean.getToUid() + "'>" + name + "</font>\"管理员身份");
                         changeViceAdminsNotice.setMsgType(ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER);
                     } else {
                         name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
+                        if(TextUtils.isEmpty(name)){
+                            if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                                name = bean.getMembername();
+                            }else{
+                                name = bean.getNickname();
+                            }
+                        }
                         stringBuffer.append("你已被\"<font color='#276baa' id='" + fromUid + "'>" + name + "</font>\"取消管理员身份");
                         changeViceAdminsNotice.setMsgType(ENoticeType.CHANGE_VICE_ADMINS_CANCEL);
                     }
@@ -676,8 +739,14 @@ public class MsgConversionBean {
                     msgNotice1.setMsgid(msgAllBean.getMsg_id());
                     msgNotice1.setMsgType(ENoticeType.FORBIDDEN_WORDS_SINGE);
                     StringBuffer sb = new StringBuffer();
-                    name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
-
+                    name = msgDao.getUsername4Show(bean.getGid(), fromUid);
+                    if(TextUtils.isEmpty(name)){
+                        if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                            name = bean.getMembername();
+                        }else{
+                            name = bean.getNickname();
+                        }
+                    }
                     if (bean.getSwitchChange().getMembersList() != null && bean.getSwitchChange().getMembersList().size() > 0) {
                         MsgBean.GroupNoticeMessage message = bean.getSwitchChange().getMembers(0);
                         long uid = message.getUid();
@@ -708,7 +777,13 @@ public class MsgConversionBean {
                     msgNotice1.setMsgType(ENoticeType.OPEN_UP_RED_ENVELOPER);
                     StringBuffer sb = new StringBuffer();
                     name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
-
+                    if(TextUtils.isEmpty(name)){
+                        if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                            name = bean.getMembername();
+                        }else{
+                            name = bean.getNickname();
+                        }
+                    }
                     if (bean.getSwitchChange().getMembersList() != null && bean.getSwitchChange().getMembersList().size() > 0) {
                         MsgBean.GroupNoticeMessage message = bean.getSwitchChange().getMembers(0);
                         long uid = message.getUid();
@@ -757,8 +832,12 @@ public class MsgConversionBean {
                     screenNotice.setMsgid(msgAllBean.getMsg_id());
                     screenNotice.setMsgType(ENoticeType.SNAPSHOT_SCREEN);
                     name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
-                    if (TextUtils.isEmpty(name)) {
-                        name = bean.getNickname();
+                    if(TextUtils.isEmpty(name)){
+                        if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                            name = bean.getMembername();
+                        }else{
+                            name = bean.getNickname();
+                        }
                     }
                     if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
                         if (switchValue == 1) {
@@ -795,6 +874,13 @@ public class MsgConversionBean {
                     } else {
                         if (!TextUtils.isEmpty(bean.getGid())) {
                             name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
+                            if(TextUtils.isEmpty(name)){
+                                if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                                    name = bean.getMembername();
+                                }else{
+                                    name = bean.getNickname();
+                                }
+                            }
                         } else {
                             if (userInfo == null) {
                                 userInfo = new UserDao().findUserInfo(fromUid);

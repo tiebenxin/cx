@@ -224,11 +224,16 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 ui.tvMoney.setText("0.00");
                 ui.tvNotice.setVisibility(View.GONE);
             } else {
-                if (memberCount > 0 && count > memberCount) {
+                if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
+                } else if (count > 100) {
+                    ui.btnCommit.setEnabled(false);
+                    ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText("单次最多发送100个红包");
                 } else {
                     if (singleMoney == 0) {
                         ui.tvNotice.setVisibility(View.VISIBLE);

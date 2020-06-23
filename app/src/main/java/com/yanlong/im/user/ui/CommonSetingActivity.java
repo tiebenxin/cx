@@ -34,6 +34,7 @@ public class CommonSetingActivity extends AppActivity {
     private EditText mEdContent;
     private TextView mTvContent;
     private int special;
+    private String setting;
 
 
     @Override
@@ -88,10 +89,10 @@ public class CommonSetingActivity extends AppActivity {
             mTvContent.setText(remark1);
         }
 
-        String seting = intent.getStringExtra(SETING);
-        if (!TextUtils.isEmpty(seting)) {
-            mEdContent.setText(seting);
-            mEdContent.setSelection(seting.length());
+        setting = intent.getStringExtra(SETING);
+        if (!TextUtils.isEmpty(setting)) {
+            mEdContent.setText(setting);
+            mEdContent.setSelection(setting.length());
         }
 
         int size = intent.getIntExtra(SIZE, 70);
@@ -100,7 +101,7 @@ public class CommonSetingActivity extends AppActivity {
         special = intent.getIntExtra(SPECIAL, 0);
         switch (special) {
             case 1:
-                mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent,this));
+                mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent, this));
                 break;
         }
     }
@@ -117,38 +118,44 @@ public class CommonSetingActivity extends AppActivity {
             public void onRight() {
                 String content = mEdContent.getText().toString();
                 //1 内容不为空
-                if (!TextUtils.isEmpty(content)){
+                if (!TextUtils.isEmpty(content)) {
                     //2-1 若为纯空格
-                    if(TextUtils.isEmpty(content.trim())){
-                        //群昵称可以为纯空格，回传""字符串取原来昵称
-                        if(mHeadView.getActionbar().getTitle().equals("我在本群的信息")){
-                            content = content.trim();
-                        }else {
-                            //用户名设置和备注不可以用纯空格
-                            ToastUtil.show(CommonSetingActivity.this, "不能全部用空格");
-                            return;
-                        }
-                    }else {
-                        content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
-                        //截取前两位判断开头是否为emoji
-                        if(content.length()>=2){
-                            String emoji = content.substring(0,2);
-                            if(StringUtil.ifContainEmoji(emoji)){
-                                content = " "+content;
+                    if (setting.equals(content.trim())) {
+                        Intent intent = new Intent();
+                        intent.putExtra(CONTENT, content);
+                        setResult(RESULT_CANCELED, intent);
+                        onBackPressed();
+                    } else {
+                        if (TextUtils.isEmpty(content.trim())) {
+                            //群昵称可以为纯空格，回传""字符串取原来昵称
+                            if (mHeadView.getActionbar().getTitle().equals("我在本群的信息")) {
+                                content = content.trim();
+                            } else {
+                                //用户名设置和备注不可以用纯空格
+                                ToastUtil.show(CommonSetingActivity.this, "不能全部用空格");
+                                return;
+                            }
+                        } else {
+                            content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
+                            //截取前两位判断开头是否为emoji
+                            if (content.length() >= 2) {
+                                String emoji = content.substring(0, 2);
+                                if (StringUtil.ifContainEmoji(emoji)) {
+                                    content = " " + content;
+                                }
                             }
                         }
                     }
-                }
-
-                if(special == 1){
-                    if(checkProduct()){
-                        return;
+                    if (special == 1) {
+                        if (checkProduct()) {
+                            return;
+                        }
                     }
+                    Intent intent = new Intent();
+                    intent.putExtra(CONTENT, content);
+                    setResult(RESULT_OK, intent);
+                    onBackPressed();
                 }
-                Intent intent = new Intent();
-                intent.putExtra(CONTENT, content);
-                setResult(RESULT_OK, intent);
-                onBackPressed();
             }
         });
     }
@@ -164,8 +171,8 @@ public class CommonSetingActivity extends AppActivity {
                 char initialChat = initial.charAt(0);
                 if ((initialChat >= 'A' && initialChat <= 'Z') || (initialChat >= 'a' && initialChat <= 'z')) {
                     isCheck = false;
-                }else{
-                    ToastUtil.show(context,"首位必须用英文字母");
+                } else {
+                    ToastUtil.show(context, "首位必须用英文字母");
                     isCheck = true;
                     return isCheck;
                 }
