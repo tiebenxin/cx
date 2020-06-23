@@ -106,7 +106,6 @@ import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -1279,6 +1278,7 @@ public class MainActivity extends AppActivity {
                     if (bdLocation != null && bdLocation.getPoiList() != null) {
                         String city = bdLocation.getCity();
                         String country = bdLocation.getCountry();
+
                         String lat = bdLocation.getLatitude() + "";
                         String lon = bdLocation.getLongitude() + "";
                         IUser user = UserAction.getMyInfo();

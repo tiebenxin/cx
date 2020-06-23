@@ -75,6 +75,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
+        initFile();//确保video目录存在
         mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
         initUI();
         initListener();
@@ -98,7 +99,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
     @Override
     protected void onPause() {
         mCameraView.onPause();
-        stopRecording();
+        stopRecording(false);
         recordView.resetUI(true);
         if (isTaking) {
             isTaking = false;
@@ -119,6 +120,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
 
             @Override
             public void recordShort(long time) {
+                stopRecording(false);
                 recordView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -134,16 +136,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
 
             @Override
             public void recordEnd(long time) {
-                stopRecording();
-//                recordView.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
-//                        intentPre.putExtra(INTENT_PATH, mp4FilePath);
-//                        startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
-//                    }
-//                }, 500);
-
+                stopRecording(true);
             }
 
             @Override
@@ -320,10 +313,12 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
 
     /**
      * request stop recording
+     *
+     * @param isValid, If recording is valid,it is true,else false
      */
-    private void stopRecording() {
+    private void stopRecording(boolean isValid) {
         if (mMuxer != null) {
-            mMuxer.stopRecording();
+            mMuxer.stopRecording(isValid);
             mMuxer = null;
             // you should not wait here
         }
@@ -430,6 +425,13 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             path = file.getAbsolutePath();
         }
         return path;
+    }
+
+    private void initFile() {
+        File file = new File(LanSongFileUtil.DEFAULT_DIR);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
     }
 
 }

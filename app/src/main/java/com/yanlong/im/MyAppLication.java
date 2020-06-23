@@ -3,6 +3,7 @@ package com.yanlong.im;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -25,6 +26,8 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.server.MessageIntentService;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.repository.ApplicationRepository;
@@ -71,6 +74,7 @@ public class MyAppLication extends MainApplication {
     //全局数据仓库
     public ApplicationRepository repository;
     public Handler handler = new Handler();
+
 
     @Override
     public void onCreate() {
@@ -120,8 +124,17 @@ public class MyAppLication extends MainApplication {
         }
     }
 
+    private Intent messageIntentService = null;
+
+    public void startMessageIntentService() {
+        if (messageIntentService == null) {
+            messageIntentService = new Intent(this, MessageIntentService.class);
+        }
+       startService(messageIntentService);
+    }
+
     /**
-     * 初始化数据仓库--已登录的用户
+     * 初始化数据仓库--已登录的户
      * 1.已登录的用户-在application onCreate中创建
      * 2.刚登录用户-在MainActivity onCreate中创建
      * 3.退出登录时，销毁数据仓库
@@ -146,6 +159,11 @@ public class MyAppLication extends MainApplication {
             repository.onDestory();
             repository = null;
         }
+        //停止消息处理service,不再接受消息
+        if (messageIntentService != null) {
+            stopService(messageIntentService);
+        }
+        MessageManager.getInstance().stopOfflineTask();
     }
 
 
@@ -191,6 +209,7 @@ public class MyAppLication extends MainApplication {
     public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener) {
         if (repository != null) repository.removeSessionChangeListener(sessionChangeListener);
     }
+
     public void addFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
         if (repository != null) repository.addFriendChangeListener(friendChangeListener);
     }
@@ -198,6 +217,7 @@ public class MyAppLication extends MainApplication {
     public void removeFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
         if (repository != null) repository.removeFriendChangeListener(friendChangeListener);
     }
+
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
@@ -415,6 +435,7 @@ public class MyAppLication extends MainApplication {
         //清除表情缓存
         EmojBitmapCache.getInstance().clear();
         ChatBitmapCache.getInstance().clear();
+
         //清除仓库对象
         destoryRepository();
         handler = null;

@@ -1213,16 +1213,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (!checkNetConnectStatus(0)) {
                     return;
                 }
-                final String imgMsgId = SocketData.getUUID();
-                ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, bean.getPath(), true);
-                MsgAllBean msgAllBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-                mAdapter.addMessage(msgAllBean);
-                // 不等于常信小助手
-                if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                    final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(bean.getPath());
-                    SocketData.send4Image(imgMsgId, toUId, toGid, bean.getServerPath(), true, img, -1);
-                }
-                notifyData2Bottom(true);
+                ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), bean.getPath(), true);
+                sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, true);
             }
         }
     }
@@ -2872,6 +2864,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 mmr.setDataSource(inputStream.getFD());
             } else {
             }
+            while (mmr.getFrameAtTime() == null) {
+                Thread.sleep(1000);
+            }
             File file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
             if (file != null) {
                 path = file.getAbsolutePath();
@@ -3019,7 +3014,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
-                            if (!mViewModel.isInputText.getValue()) mViewModel.isInputText.setValue(true);
+                            if (!mViewModel.isInputText.getValue())
+                                mViewModel.isInputText.setValue(true);
                         }
                     }, 100);
                     break;
@@ -5753,7 +5749,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (position >= 0) {
                             scrollChatToPosition(position);
                         } else {
-                            ToastUtil.show("消息不存在");
+                            ToastUtil.show("你需要找的消息时间太久远了，请在消息记录中继续往上翻");
                         }
                     } else {
                         ToastUtil.show("消息不存在");
@@ -5980,26 +5976,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mtListView.getListView().getAdapter().notifyItemRangeInserted(position, list.size());//删除刷新
         fixLastPosition(list.size());
         scrollListView(false);
-    }
-
-    //是否消息来自当前会话
-    public boolean isMsgFromCurrentChat(String gid, Long fromUid) {
-        if (!TextUtils.isEmpty(gid)) {
-            if (TextUtils.isEmpty(toGid)) {
-                return false;
-            }
-            if (gid.equals(toGid)) {
-                return true;
-            }
-        } else {
-            if (fromUid == null || toUId == null) {
-                return false;
-            }
-            if (fromUid.longValue() == toUId.longValue()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

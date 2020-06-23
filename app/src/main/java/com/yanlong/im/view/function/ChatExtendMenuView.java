@@ -153,7 +153,7 @@ public class ChatExtendMenuView extends LinearLayout {
             recyclerView.setLayoutManager(layoutManager);
             AdapterFunctionView adapterFunctionView = new AdapterFunctionView(getContext());
             if (position == 0) {
-                if (pagerCount > 8) {
+                if (pagerCount > 1) {
                     adapterFunctionView.bindData(mList.subList(0, 8));
                 } else {
                     adapterFunctionView.bindData(mList);
