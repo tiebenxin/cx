@@ -179,13 +179,13 @@ public class UserAction {
                     if (response.body().getData() != null) {
                         doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                         saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
+                        LogUtil.writeLog("账号密码登录获取token" + "--token=" + response.body().getData().getAccessToken());
+                        initDB("" + response.body().getData().getUid());
+                        setToken(response.body().getData(), true);
+                        //如果是手机号码登录，则删除上次常信号登陆的账号
+                        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
+                        getMyInfo4Web(response.body().getData().getUid(), "");
                     }
-                    LogUtil.writeLog("账号密码登录获取token" + "--token=" + response.body().getData().getAccessToken());
-                    initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
-                    //如果是手机号码登录，则删除上次常信号登陆的账号
-                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
-                    getMyInfo4Web(response.body().getData().getUid(), "");
                 }
 
                 callback.onResponse(call, response);
@@ -214,11 +214,11 @@ public class UserAction {
                     if (response.body().getData() != null) {
                         doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                         saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
+                        LogUtil.writeLog("常信号登录获取token" + "--token=" + response.body().getData().getAccessToken());
+                        initDB("" + response.body().getData().getUid());
+                        setToken(response.body().getData(), true);
+                        getMyInfo4Web(response.body().getData().getUid(), imid);
                     }
-                    LogUtil.writeLog("常信号登录获取token" + "--token=" + response.body().getData().getAccessToken());
-                    initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
-                    getMyInfo4Web(response.body().getData().getUid(), imid);
                 }
 
                 callback.onResponse(call, response);
@@ -732,6 +732,8 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     LogUtil.writeLog("手机验证码登录获取token" + "--token=" + response.body().getData().getAccessToken());
+                    doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
+                    saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData(), true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
