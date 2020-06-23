@@ -2042,7 +2042,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toLocation();
                         break;
                     case ChatEnum.EFunctionId.STAMP:
+                        toStamp();
+                        break;
                     case ChatEnum.EFunctionId.GROUP_STAMP:
+                        if (!isAdmin() && !isAdministrators()) {
+                            ToastUtil.show(context, "只有群主和管理员才能使用该功能");
+                            return;
+                        }
                         toStamp();
                         break;
                     case ChatEnum.EFunctionId.CARD:
