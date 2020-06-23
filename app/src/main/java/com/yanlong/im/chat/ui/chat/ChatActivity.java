@@ -5980,26 +5980,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         scrollListView(false);
     }
 
-    //是否消息来自当前会话
-    public boolean isMsgFromCurrentChat(String gid, Long fromUid) {
-        if (!TextUtils.isEmpty(gid)) {
-            if (TextUtils.isEmpty(toGid)) {
-                return false;
-            }
-            if (gid.equals(toGid)) {
-                return true;
-            }
-        } else {
-            if (fromUid == null || toUId == null) {
-                return false;
-            }
-            if (fromUid.longValue() == toUId.longValue()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * 更新底部未读数
      */

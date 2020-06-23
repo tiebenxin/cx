@@ -1061,7 +1061,7 @@ public class SocketData {
             return null;
         }
         boolean isGroup = false;
-        if (uid == null && !TextUtils.isEmpty(gid)) {
+        if ((uid == null || uid.longValue() < 0) && !TextUtils.isEmpty(gid)) {
             isGroup = true;
         }
 
