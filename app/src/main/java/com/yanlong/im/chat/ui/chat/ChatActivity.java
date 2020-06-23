@@ -1213,16 +1213,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (!checkNetConnectStatus(0)) {
                     return;
                 }
-                final String imgMsgId = SocketData.getUUID();
-                ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, bean.getPath(), true);
-                MsgAllBean msgAllBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-                mAdapter.addMessage(msgAllBean);
-                // 不等于常信小助手
-                if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                    final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(bean.getPath());
-                    SocketData.send4Image(imgMsgId, toUId, toGid, bean.getServerPath(), true, img, -1);
-                }
-                notifyData2Bottom(true);
+                ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), bean.getPath(), true);
+                sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, true);
             }
         }
     }
@@ -2867,7 +2859,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 mmr.setDataSource(inputStream.getFD());
             } else {
             }
-            while (mmr.getFrameAtTime()==null){
+            while (mmr.getFrameAtTime() == null) {
                 Thread.sleep(1000);
             }
             File file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
@@ -3017,7 +3009,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
-                            if (!mViewModel.isInputText.getValue()) mViewModel.isInputText.setValue(true);
+                            if (!mViewModel.isInputText.getValue())
+                                mViewModel.isInputText.setValue(true);
                         }
                     }, 100);
                     break;

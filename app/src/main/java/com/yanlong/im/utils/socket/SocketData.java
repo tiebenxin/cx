@@ -349,19 +349,6 @@ public class SocketData {
         return send4Base(isSave, true, null, toId, toGid, -1, type, value);
     }
 
-    /***
-     * 根据消息id保存发送数据
-     * @param msgId
-     * @param toId
-     * @param toGid
-     * @param type
-     * @param value
-     * @return
-     */
-    private static MsgAllBean send4BaseById(String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
-        return send4Base(true, true, msgId, toId, toGid, time, type, value);
-    }
-
     /*
      * @time time > 0
      * */
@@ -582,49 +569,7 @@ public class SocketData {
         MsgBean.P2PAuVideoDialMessage chat = MsgBean.P2PAuVideoDialMessage.newBuilder()
                 .setAvType(auVideoType)
                 .build();
-
         return send4Base(false, toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
-
-    }
-
-
-    /***
-     * 发送图片
-     * @param toId
-     * @param toGid
-     * @param url
-     * @return
-     */
-    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize, long time) {
-        MsgBean.ImageMessage.Builder msg;
-        String extTh = "/below-20k";
-        String extPv = "/below-200k";
-        if (url.toLowerCase().contains(".gif")) {
-            extTh = "";
-            extPv = "";
-        }
-        if (isOriginal) {
-            msg = MsgBean.ImageMessage.newBuilder()
-                    .setOrigin(url)
-                    .setPreview(url + extPv)
-                    .setThumbnail(url + extTh);
-
-        } else {
-            msg = MsgBean.ImageMessage.newBuilder()
-                    .setPreview(url)
-                    .setThumbnail(url + extTh);
-
-        }
-        MsgBean.ImageMessage msgb;
-        if (imageSize != null) {
-            msgb = msg.setWidth(imageSize.getWidth())
-                    .setHeight(imageSize.getHeight())
-                    .setSize(new Long(imageSize.getSize()).intValue())
-                    .build();
-        } else {
-            msgb = msg.build();
-        }
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msgb);
     }
 
     /***
@@ -635,12 +580,6 @@ public class SocketData {
      * @return
      */
     private static String videoLocalUrl = null;
-
-
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
-
-        return send4Image(getUUID(), toId, toGid, url, false, imgSize, time);
-    }
 
 
     //预发送需文件（图片，语音）上传消息,保存消息及更新session
@@ -708,6 +647,25 @@ public class SocketData {
         image.setWidth(img.getWidth());
         image.setHeight(img.getHeight());
         image.setSize(img.getSize());
+        if (isOriginal) {
+            image.setOrigin(url);
+        }
+        return image;
+    }
+
+
+    @NonNull
+    public static ImageMessage createImageMessage(String msgId, String url, ImgSizeUtil.ImageSize imageSize, boolean isOriginal) {
+        ImageMessage image = new ImageMessage();
+        image.setLocalimg(url);
+        image.setPreview(url);
+        image.setThumbnail(url);
+        image.setMsgid(msgId);
+        if (imageSize != null) {
+            image.setWidth(imageSize.getWidth());
+            image.setHeight(imageSize.getHeight());
+            image.setSize(imageSize.getSize());
+        }
         if (isOriginal) {
             image.setOrigin(url);
         }

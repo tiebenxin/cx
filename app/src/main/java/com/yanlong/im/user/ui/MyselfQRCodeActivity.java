@@ -22,6 +22,9 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -339,13 +342,19 @@ public class MyselfQRCodeActivity extends AppActivity {
             Bundle bundle = data.getExtras();
             String jsonBean = bundle.getString(SelectUserActivity.RET_JSON);
             UserInfo userInfo = new Gson().fromJson(jsonBean, UserInfo.class);
+            if (userInfo.getUid().longValue() == UserAction.getMyId().longValue()) {
+                ToastUtil.show("不能选择自己");
+                return;
+            }
+            //向服务器发送图片
+            ImageMessage message = SocketData.createImageMessage(SocketData.getUUID(), imageUrl, imgsize, false);
+            MsgAllBean msgAllBean = SocketData.createMessageBean(userInfo.getUid(), "", ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+            SocketData.sendAndSaveMessage(msgAllBean, true);
 
             Intent intent = new Intent(this, ChatActivity.class);
             intent.putExtra(ChatActivity.AGM_TOUID, userInfo.getUid());
             startActivity(intent);
-            //向服务器发送图片
-            SocketData.send4Image(userInfo.getUid(), null, imageUrl, imgsize, -1);
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, userInfo.getUid(), "", CoreEnum.ERefreshType.SINGLE, null);
+
         }
     }
 
