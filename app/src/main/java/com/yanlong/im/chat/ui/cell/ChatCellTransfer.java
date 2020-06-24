@@ -13,6 +13,8 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 
 /*
@@ -48,7 +50,18 @@ public class ChatCellTransfer extends ChatCellBase {
         int typeIcon = R.color.transparent;
         transfer = message.getTransfer();
         title = "¥" + UIUtils.getYuan(transfer.getTransaction_amount());
-        info = getTransferInfo(transfer.getComment(), transfer.getOpType(), model.isMe(), model.getTo_user().getName());
+        boolean isToMe = false;
+        if (model.getTo_uid() != null && UserAction.getMyId() != null && model.getTo_uid().longValue() == UserAction.getMyId().longValue()) {
+            isToMe = true;
+        }
+        String nick = "";
+        if (!isToMe) {
+            UserInfo user = model.getTo_user();
+            if (user != null) {
+                nick = user.getName();
+            }
+        }
+        info = getTransferInfo(transfer.getComment(), transfer.getOpType(), isMe, isToMe ? "" : nick);
         typeName = "零钱转账";
         setMessage(transfer.getOpType(), title, info, typeName, typeIcon);
     }
