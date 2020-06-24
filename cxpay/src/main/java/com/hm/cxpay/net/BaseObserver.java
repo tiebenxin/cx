@@ -70,13 +70,16 @@ public abstract class BaseObserver<T> implements Observer<T> {
 
     @Override
     public void onError(Throwable e) {
+        String message = e.getMessage();
         if (e instanceof SocketTimeoutException) {
             Log.e(TAG, "请求超时，请检查您的网络状态");
+            message = "请求超时";
             if (listener != null) {
                 listener.interruptedNetwork();
             }
         } else if (e instanceof ConnectException) {
             Log.e(TAG, "网络中断，请检查您的网络状态");
+            message = "网络中断，请检查您的网络状态";
             if (listener != null) {
                 listener.interruptedNetwork();
             }
@@ -87,7 +90,7 @@ public abstract class BaseObserver<T> implements Observer<T> {
             listener.end();
         }
         BaseResponse response = new BaseResponse();
-        response.setMessage(e.getMessage());
+        response.setMessage(message);
         response.setCode(-1);
         onNext((T) response);
     }
