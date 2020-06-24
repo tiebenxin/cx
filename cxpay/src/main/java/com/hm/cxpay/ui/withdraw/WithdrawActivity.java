@@ -289,6 +289,9 @@ public class WithdrawActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (data == null){
+            return;
+        }
         if (requestCode == REQUEST_PAY) {
             int result = data.getIntExtra(RESULT, 0);
             if (result == 99) {

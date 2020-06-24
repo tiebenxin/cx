@@ -145,10 +145,10 @@ public class RechargeActivity extends AppActivity {
                     //TODO:备注最低充值金额为10元, 开发时改为1元
                     if (yuan >= 1.00) {
                         //3 单笔充值最高不能超过500元
-                        if(yuan <= 500.00){
+                        if (yuan <= 500.00) {
                             showLoadingDialog();
                             httpRecharge(yuan);
-                        }else {
+                        } else {
                             noticeDialog.setContent("单笔充值最高不能超过500元", true)
                                     .setButtonTxt("确定")
                                     .hasTitle(false)
@@ -371,6 +371,9 @@ public class RechargeActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (data == null) {
+            return;
+        }
         if (requestCode == REQUEST_PAY) {
             int result = data.getIntExtra(RESULT, 0);
             if (result == 99) {

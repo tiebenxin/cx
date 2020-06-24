@@ -132,18 +132,19 @@ public class OfflineMessage extends DispatchMessage {
         executor.execute(() -> {
             List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
             if (msgList != null && msgList.size() > 0) {
+                int totalSize = msgList.size();
                 Realm realm = DaoUtil.open();
                 String requestId = bean.getRequestId();
                 boolean isOfflineMsg = bean.getMsgFrom() == 1;
                 try {
-                    for (int i = 0; i < msgList.size(); i++) {
+                    for (int i = 0; i < totalSize; i++) {
                         MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
                         //是否为本批消息的最后一条消息,并发的只能取数量
                         boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
                         //开始处理消息
                         boolean toDOResult = handlerMessage(realm, wrapMessage, requestId, isOfflineMsg, msgList.size(),
                                 isLastMessage);
-                        if (currentRequestId == null){
+                        if (currentRequestId == null) {
                             mBatchCompletedCount.set(0);
                             mBatchSuccessMsgIds.clear();
                             break;
