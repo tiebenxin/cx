@@ -1,9 +1,6 @@
 package com.yanlong.im.chat.task;
 
-import android.os.AsyncTask;
-import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.DaoUtil;
@@ -17,12 +14,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.realm.Realm;
-
-import static com.yanlong.im.utils.socket.SocketData.getOfflineCount;
 
 /**
  * 离线消息是一批一批接收，当一批接收完成后，才会请求下一批
@@ -94,6 +88,7 @@ public class OfflineMessage extends DispatchMessage {
         }
         mBatchSuccessMsgIds.clear();
         mBatchCompletedCount.set(0);
+        mBatchRepeatCount.set(0);
         mBatchToUpdateSessionUids.clear();
         mBatchToUpdateSessionGids.clear();
     }
