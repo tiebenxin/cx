@@ -48,7 +48,8 @@ public class ChatCellNotice extends ChatCellBase {
             if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
                     || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
                     || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR
-                    || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS) {
+                    || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS
+                    || notice.getMsgType() == ChatEnum.ENoticeType.FREEZE_ACCOUNT) {
                 tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
             } else {
                 if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
