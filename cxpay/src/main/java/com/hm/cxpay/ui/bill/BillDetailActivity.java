@@ -256,6 +256,8 @@ public class BillDetailActivity extends AppActivity {
             tvTransferSendTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             if (data.getBillType() == 1) {
                 tvTransferSendPayStyle.setText("零钱");
+            }else {
+                tvTransferSendPayStyle.setText("银行卡");
             }
             tvTransferSendOrderId.setText(data.getTradeId() + "");
 
@@ -503,6 +505,8 @@ public class BillDetailActivity extends AppActivity {
             tvPayTimeValue.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             if (data.getBillType() == 1) {
                 tvPayStyleValue.setText("零钱");
+            }else {
+                tvTransferSendPayStyle.setText("银行卡");
             }
             tvPayNumberValue.setText(data.getTradeId() + "");
         }
