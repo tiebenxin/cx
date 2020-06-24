@@ -41,6 +41,11 @@ public class OfflineMessage extends DispatchMessage {
      * AtomicInteger 线程安全
      */
     private AtomicInteger mBatchCompletedCount = new AtomicInteger();
+    /**
+     * 记录当前批消息的重复消息个数
+     * AtomicInteger 线程安全
+     */
+    private AtomicInteger mBatchRepeatCount = new AtomicInteger();
     //用于保存成功数据
     /**
      * 所有离线消息接收完成后释放
@@ -141,9 +146,13 @@ public class OfflineMessage extends DispatchMessage {
                         MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
                         //是否为本批消息的最后一条消息,并发的只能取数量
                         boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
+                        boolean toDOResult = true;
                         //开始处理消息
-                        boolean toDOResult = handlerMessage(realm, wrapMessage, requestId, isOfflineMsg, msgList.size(),
-                                isLastMessage);
+                        if (mBatchSuccessMsgIds.contains(wrapMessage.getMsgId())) {
+                            mBatchRepeatCount.getAndIncrement();
+                        } else {
+                            toDOResult = handlerMessage(realm, wrapMessage, requestId, isOfflineMsg, msgList.size(), isLastMessage);
+                        }
                         if (currentRequestId == null) {
                             mBatchCompletedCount.set(0);
                             mBatchSuccessMsgIds.clear();
@@ -151,7 +160,9 @@ public class OfflineMessage extends DispatchMessage {
                         }
                         if (toDOResult) {
                             //临时保存
-                            mBatchSuccessMsgIds.add(wrapMessage.getMsgId());
+                            if (!mBatchSuccessMsgIds.contains(wrapMessage.getMsgId())) {
+                                mBatchSuccessMsgIds.add(wrapMessage.getMsgId());
+                            }
                         }
                         //处理完成数量自增,需在mBatchSuccessMsgIds add后，因并发，会出现mBatchSuccessMsgIds的size少于mBatchCompletedCount，所以得放在其后
                         mBatchCompletedCount.getAndIncrement();
@@ -180,7 +191,7 @@ public class OfflineMessage extends DispatchMessage {
     private void checkBatchMessageCompleted(Realm realm, String requestId, int batchTotalCount, int msgFrom) {
         if (mBatchCompletedCount.get() == batchTotalCount) {//全部处理完成
             mBatchCompletedCount.set(0);
-            if (mBatchSuccessMsgIds.size() >= batchTotalCount) {//全部成功
+            if (mBatchSuccessMsgIds.size() + mBatchRepeatCount.get() >= batchTotalCount) {//全部成功
                 //批量保存消息对象
                 boolean result = repository.insertOfflineMessages(realm);
                 if (currentRequestId != null) {
@@ -202,7 +213,7 @@ public class OfflineMessage extends DispatchMessage {
                 //检测所有离线消息是否接收完成
                 checkReceivedAllOfflineCompleted(realm, batchTotalCount, false);
             }
-
+            mBatchRepeatCount.set(0);
         }
     }
 
