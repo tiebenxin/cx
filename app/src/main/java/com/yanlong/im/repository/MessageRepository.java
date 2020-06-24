@@ -11,6 +11,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -19,6 +20,7 @@ import com.yanlong.im.data.remote.MessageRemoteDataSource;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -30,6 +32,7 @@ import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -38,6 +41,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -556,23 +560,28 @@ public class MessageRepository {
             if (msgAllBean != null) {
                 result = saveMessageNew(bean, realm);
                 localDataSource.deleteMsg4Cancel(realm, wrapMessage.getMsgId(), cancelMsgId);
+                MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
+                // 处理图片撤回，在预览弹出提示
+                EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
+                event.msg_id = bean.getMsgCancel().getMsgidCancel();
+                event.name = bean.getFrom_nickname();
+                EventBus.getDefault().post(event);
+                // 处理语音撤回，对方在播放时停止播放
+                EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
+                eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
+                EventBus.getDefault().post(eventVoice);
+                // 处理视频撤回，对方在播放时停止播放
+                EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
+                eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
+                eventVideo.name = bean.getFrom_nickname();
+                EventBus.getDefault().post(eventVideo);
+            } else {
+                msgAllBean = offlineMsgAllBean.get(cancelMsgId);
+                if (msgAllBean != null) {
+                    result = saveMessageNew(bean, realm);
+                    offlineMsgAllBean.remove(cancelMsgId);
+                }
             }
-            MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
-            // 处理图片撤回，在预览弹出提示
-            EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
-            event.msg_id = bean.getMsgCancel().getMsgidCancel();
-            event.name = bean.getFrom_nickname();
-            EventBus.getDefault().post(event);
-            // 处理语音撤回，对方在播放时停止播放
-            EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
-            eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
-            EventBus.getDefault().post(eventVoice);
-            // 处理视频撤回，对方在播放时停止播放
-            EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
-            eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
-            eventVideo.name = bean.getFrom_nickname();
-            EventBus.getDefault().post(eventVideo);
-            MessageManager.getInstance().setMessageChange(true);
         }
         return result;
     }
@@ -885,8 +894,8 @@ public class MessageRepository {
                     /********通知更新或创建session end************************************/
                 }
             } else {//离线消息，先存储后批量更新
-                if (offlineMsgAllBean == null) offlineMsgAllBean = new CopyOnWriteArrayList();
-                offlineMsgAllBean.add(msgAllBean);
+                if (offlineMsgAllBean == null) offlineMsgAllBean = new ConcurrentHashMap<>();
+                offlineMsgAllBean.put(msgAllBean.getMsg_id(), msgAllBean);
             }
             result = true;
         } catch (Exception e) {
@@ -896,17 +905,23 @@ public class MessageRepository {
         return result;
     }
 
-    private List<MsgAllBean> offlineMsgAllBean = null;
+    private Map<String, MsgAllBean> offlineMsgAllBean = null;
 
     /**
      * 批量保存消息对象
+     *
      * @param realm
      * @return
      */
-    public boolean insertOfflineMessages(Realm realm){
-        boolean result=false;
-        if(offlineMsgAllBean!=null&&offlineMsgAllBean.size()>0) {
-            result=localDataSource.insertOfflineMessages(realm, offlineMsgAllBean);
+    public boolean insertOfflineMessages(Realm realm) {
+        boolean result = false;
+        if (offlineMsgAllBean != null && offlineMsgAllBean.size() > 0) {
+            List<MsgAllBean> msgList = new ArrayList<>();
+            Iterator iterator = offlineMsgAllBean.keySet().iterator();
+            while (iterator.hasNext()) {
+                msgList.add(offlineMsgAllBean.get(iterator.next().toString()));
+            }
+            result = localDataSource.insertOfflineMessages(realm, msgList);
             offlineMsgAllBean.clear();
         }
 
