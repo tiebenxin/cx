@@ -193,6 +193,7 @@ public class OfflineMessage extends DispatchMessage {
                 if (currentRequestId != null) {
                     if (result) {
                         //全部保存成功，消息回执
+                        LogUtil.writeLog("--发送回执2--requestId=" + requestId);
                         SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                         //在线，表示能回执成功，清除掉MsgId
                         if (SocketUtil.getSocketUtil().getOnLineState())
