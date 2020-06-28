@@ -111,6 +111,9 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         recordView.setListener(new IRecordListener() {
             @Override
             public void takePictures() {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
                 if (mCameraView != null && !isTaking) {
                     photoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".jpeg";
                     mCameraView.takePhone(photoPath, CameraActivity.this);

@@ -754,11 +754,11 @@ public final class CameraGLView extends GLSurfaceView {
         }
 
         private void takePhone(String photoPath, CameraCallBack callBack) {
-            if (mCamera != null) {
-                mCamera.takePicture(null, null, new Camera.PictureCallback() {
-                    @Override
-                    public void onPictureTaken(byte[] data, Camera camera) {
-                        try {
+            try {
+                if (mCamera != null) {
+                    mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                        @Override
+                        public void onPictureTaken(byte[] data, Camera camera) {
                             if (data == null) {
                                 return;
                             }
@@ -783,15 +783,19 @@ public final class CameraGLView extends GLSurfaceView {
                             }
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
-                            fos.close();
+                            try {
+                                fos.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             if (callBack != null) {
                                 callBack.takePhoneSuccess(photoPath);
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
-                    }
-                });
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
