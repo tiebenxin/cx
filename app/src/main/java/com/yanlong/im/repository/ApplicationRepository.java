@@ -380,13 +380,22 @@ public class ApplicationRepository {
     }
 
     /**
-     * 清除会话详情的内容
+     * 标记session已读未读，0已读，1已读
      */
     public void markSessionRead(String sid, int read) {
         //回主线程调用清除session详情
         //更新Detail详情
         localDataSource.markSessionRead(sid, read);
 
+    }
+
+    /**
+     * 更新msg已读未读，0未读，1已读
+     */
+    public void updateMsgRead(String sid,String msgId, int read) {
+        //回主线程调用清除session详情
+        //更新Detail详情
+        localDataSource.updateMsgRead(sid,msgId, read);
     }
 
 
