@@ -211,26 +211,29 @@ public class MsgMainFragment extends Fragment {
                                 dataList.add(list.get(i).getCollectionInfo());
                             }
                         }
-                        //批量收藏
-                        msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
-                            @Override
-                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                                super.onResponse(call, response);
-                                if (response.body() == null) {
-                                    return;
+                        if(dataList!=null && dataList.size()>0){
+                            //批量收藏
+                            msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                    super.onResponse(call, response);
+                                    if (response.body() == null) {
+                                        return;
+                                    }
+                                    if (response.body().isOk()) {
+                                        LogUtil.getLog().i("TAG","批量收藏成功!");
+                                        msgDao.deleteAllOfflineCollectRecords();//清空本地离线收藏记录
+                                    }
                                 }
-                                if (response.body().isOk()) {
-                                    LogUtil.getLog().i("TAG","批量收藏成功!");
-                                    msgDao.deleteAllOfflineCollectRecords();//清空本地离线收藏记录
-                                }
-                            }
 
-                            @Override
-                            public void onFailure(Call<ReturnBean> call, Throwable t) {
-                                super.onFailure(call, t);
-                                LogUtil.getLog().i("TAG","批量收藏失败 "+t.getMessage());
-                            }
-                        });
+                                @Override
+                                public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                    super.onFailure(call, t);
+                                    LogUtil.getLog().i("TAG","批量收藏失败 "+t.getMessage());
+                                }
+                            });
+                        }
+
                     }
                     //批量删除
                     if(msgDao.getAllOfflineDeleteRecords()!=null && msgDao.getAllOfflineDeleteRecords().size()>0){
@@ -239,25 +242,27 @@ public class MsgMainFragment extends Fragment {
                         for(int i=0; i<list.size(); i++){
                             msgIds.add(list.get(i).getMsgId());
                         }
-                        msgAction.offlineDeleteCollections(msgIds, new CallBack<ReturnBean>() {
-                            @Override
-                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                                super.onResponse(call, response);
-                                if (response.body() == null) {
-                                    return;
+                        if(msgIds!=null && msgIds.size()>0){
+                            msgAction.offlineDeleteCollections(msgIds, new CallBack<ReturnBean>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                    super.onResponse(call, response);
+                                    if (response.body() == null) {
+                                        return;
+                                    }
+                                    if (response.body().isOk()) {
+                                        LogUtil.getLog().i("TAG","批量删除成功!");
+                                        msgDao.deleteAllOfflineDeleteRecords();//清空本地离线删除记录
+                                    }
                                 }
-                                if (response.body().isOk()) {
-                                    LogUtil.getLog().i("TAG","批量删除成功!");
-                                    msgDao.deleteAllOfflineDeleteRecords();//清空本地离线删除记录
-                                }
-                            }
 
-                            @Override
-                            public void onFailure(Call<ReturnBean> call, Throwable t) {
-                                super.onFailure(call, t);
-                                LogUtil.getLog().i("TAG","批量删除失败 "+t.getMessage());
-                            }
-                        });
+                                @Override
+                                public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                    super.onFailure(call, t);
+                                    LogUtil.getLog().i("TAG","批量删除失败 "+t.getMessage());
+                                }
+                            });
+                        }
                     }
                 }
             }
