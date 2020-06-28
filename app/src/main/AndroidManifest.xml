@@ -239,6 +239,7 @@
         <!--聊天戳一下界面-->
         <activity
             android:name=".chat.ui.ChatActionActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <!--聊天字体设置-->
         <activity
