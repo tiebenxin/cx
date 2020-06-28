@@ -4,7 +4,6 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
@@ -98,50 +97,51 @@ public class MainViewModel extends ViewModel {
     }
 
 
-    /***
-     * 获取红点的值
-     * @param type
-     * @return
-     */
-    public int getRemindCount(String type) {
-        return repository.getRemindCount(type);
-    }
+//    /***
+//     * 获取红点的值
+//     * @param type
+//     * @return
+//     */
+//    public int getRemindCount(String type) {
+//        return repository.getRemindCount(type);
+//    }
+//
+//    /***
+//     * 清除红点的值
+//     * @param type
+//     * @return
+//     */
+//    public void clearRemindCount(String type) {
+//        repository.clearRemindCount(type);
+//    }
+//
+//    /****远程请求*********************************************************************************/
+//    /***
+//     * 获取单个用户信息并且缓存到数据库
+//     * @param usrid
+//     */
+//    public void requestUserInfoAndSave(Long usrid, @ChatEnum.EUserType int type) {
+//        repository.requestUserInfoAndSave(usrid, type);
+//    }
+//
+//    /**
+//     * 设置为陌生人
+//     *
+//     * @param uid
+//     */
+//    public void setToStranger(long uid) {
+//        repository.setToStranger(uid);
+//    }
+//
+//    /**
+//     * 获取通讯录好友在线状态
+//     */
+//    public void requestUsersOnlineStatus() {
+//        repository.requestUsersOnlineStatus();
+//    }
 
-    /***
-     * 清除红点的值
-     * @param type
-     * @return
-     */
-    public void clearRemindCount(String type) {
-        repository.clearRemindCount(type);
-    }
 
-    /****远程请求*********************************************************************************/
-    /***
-     * 获取单个用户信息并且缓存到数据库
-     * @param usrid
-     */
-    public void requestUserInfoAndSave(Long usrid, @ChatEnum.EUserType int type) {
-        repository.requestUserInfoAndSave(usrid, type);
-    }
-
-    /**
-     * 设置为陌生人
-     *
-     * @param uid
-     */
-    public void setToStranger(long uid) {
-        repository.setToStranger(uid);
-    }
-
-    /**
-     * 获取通讯录好友在线状态
-     */
-    public void requestUsersOnlineStatus() {
-        repository.requestUsersOnlineStatus();
-    }
-
-    public void onDestory(LifecycleOwner owner) {
+    public void onDestroy(LifecycleOwner owner) {
         currentDeleteSid.removeObservers(owner);
         onlineState.removeObservers(owner);
         isNeedCloseSwipe.removeObservers(owner);
@@ -150,6 +150,6 @@ public class MainViewModel extends ViewModel {
         sessionMoresPositions.clear();
         sessionMoresPositions = null;
         sessionMores = null;
-        repository.onDestory();
+        repository.onDestroy();
     }
 }

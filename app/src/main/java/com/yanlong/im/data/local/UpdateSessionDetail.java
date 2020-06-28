@@ -413,5 +413,37 @@ public class UpdateSessionDetail {
         return result;
     }
 
+    /**
+     * 标记session已读未读功能
+     *
+     * @param
+     */
+    public void markSessionRead(String sid, int read) {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+               Session session = realm.where(Session.class).equalTo("sid", sid).findFirst();
+                if (session != null) {
+                    //设置为陌生人
+                    session.setMarkRead(read);
+                    if (read == 0) {
+                        session.setUnread_count(0);
+                    }
+                }
+
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+
+            }
+        });
+    }
+
 
 }

@@ -156,7 +156,7 @@ public class MyAppLication extends MainApplication {
      */
     public void destoryRepository() {
         if (repository != null) {
-            repository.onDestory();
+            repository.onDestroy();
             repository = null;
         }
         //停止消息处理service,不再接受消息

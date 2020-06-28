@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainViewModel;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -256,6 +257,29 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         viewModel.currentDeleteSid.setValue(sid);
                     }
                 });
+                MsgAllBean finalMsginfo = msginfo;
+                holder.btnMarkRead.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //标记已读未读
+                        holder.swipeLayout.quickClose();
+                        if (bean != null) {
+                            int read = 0;
+                            if (bean.getIsMute() == 1) {
+                                if (finalMsginfo != null && !finalMsginfo.isRead()) {
+                                    read = 0;
+                                } else {
+                                    read = 1;
+                                }
+                            } else {
+                                read = (bean.getMarkRead() + bean.getUnread_count()) > 0 ? 0 : 1;
+                            }
+                            if (MyAppLication.INSTANCE().repository != null) {
+                                MyAppLication.INSTANCE().repository.markSessionRead(sid, read);
+                            }
+                        }
+                    }
+                });
                 holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));
                 holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.INVISIBLE : View.VISIBLE);
             } else if (viewHolder instanceof HeadViewHolder) {
@@ -270,7 +294,8 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 });
                 viewNetwork = headHolder.viewNetwork;
             }
-        }catch (Exception e){ }
+        } catch (Exception e) {
+        }
 
     }
 
@@ -281,15 +306,23 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 holder.iv_disturb_unread.setVisibility(View.VISIBLE);
                 holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
                 holder.sb.setVisibility(View.GONE);
+                holder.btnMarkRead.setText("标记已读");
             } else {
+                holder.btnMarkRead.setText("标记未读");
                 holder.iv_disturb_unread.setVisibility(View.GONE);
                 holder.sb.setVisibility(View.VISIBLE);
                 holder.sb.setNum(bean.getUnread_count(), false);
             }
         } else {
+            int count = bean.getUnread_count() + bean.getMarkRead();
             holder.iv_disturb_unread.setVisibility(View.GONE);
             holder.sb.setVisibility(View.VISIBLE);
-            holder.sb.setNum(bean.getUnread_count(), false);
+            holder.sb.setNum(count, false);
+            if (count > 0) {
+                holder.btnMarkRead.setText("标记已读");
+            } else {
+                holder.btnMarkRead.setText("标记未读");
+            }
         }
     }
 
@@ -326,6 +359,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         private final ImageView iv_disturb, iv_disturb_unread;
         //            private final TextView tv_num;
         private TextView usertype_tv;
+        private Button btnMarkRead;
 
         //自动寻找ViewHold
         public RCViewHolder(View convertView) {
@@ -342,6 +376,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 //                tv_num = convertView.findViewById(R.id.tv_num);
             iv_disturb_unread = convertView.findViewById(R.id.iv_disturb_unread);
             usertype_tv = convertView.findViewById(R.id.usertype_tv);
+            btnMarkRead = convertView.findViewById(R.id.btn_read);
         }
     }
 

@@ -257,6 +257,15 @@ public class ApplicationLocalDataSource {
         });
     }
 
+    /**
+     * 清除会话详情的内容
+     *
+     * @param
+     */
+    public void markSessionRead(String sid, int read) {
+        updateSessionDetail.markSessionRead(sid, read);
+    }
+
 
     public void beginTransaction() {
         realm.beginTransaction();
@@ -266,7 +275,7 @@ public class ApplicationLocalDataSource {
         realm.commitTransaction();
     }
 
-    public void onDestory() {
+    public void onDestroy() {
         if (realm != null) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();

@@ -307,15 +307,22 @@ public class MainActivity extends AppActivity {
      */
     private void updateUnReadCount() {
         LogUtil.getLog().i("未读数", "onChange");
-        RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().greaterThan("unread_count", 0)
+        RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().beginGroup().greaterThan("unread_count", 0).endGroup()
+                .or().beginGroup().greaterThan("markRead", 0).endGroup()
                 .limit(100).findAll();
         if (sessionList != null) {
             Number unreadCount = sessionList.where().sum("unread_count");
+            Number markCount = sessionList.where().sum("markRead");
+            int count1 = 0;
+            int count2 = 0;
             if (unreadCount != null) {
-                updateMsgUnread(unreadCount.intValue());
-            } else {
-                updateMsgUnread(0);
+                count1 = unreadCount.intValue();
             }
+            if (markCount != null) {
+                count2 = markCount.intValue();
+            }
+            updateMsgUnread(count1 + count2);
+
         } else {
             updateMsgUnread(0);
         }

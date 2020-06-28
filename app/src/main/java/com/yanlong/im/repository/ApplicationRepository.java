@@ -299,7 +299,7 @@ public class ApplicationRepository {
                 @Override
                 public void run() {
                     //更新Detail详情
-                    if(localDataSource != null)localDataSource.updateSessionDetail(gids, uids);
+                    if (localDataSource != null) localDataSource.updateSessionDetail(gids, uids);
                 }
             });
         }
@@ -377,14 +377,24 @@ public class ApplicationRepository {
                 localDataSource.deleteAllMsg(sid, uid, gid);
             }
         }
+    }
+
+    /**
+     * 清除会话详情的内容
+     */
+    public void markSessionRead(String sid, int read) {
+        //回主线程调用清除session详情
+        //更新Detail详情
+        localDataSource.markSessionRead(sid, read);
 
     }
 
-    public void onDestory() {
+
+    public void onDestroy() {
         mSessionChangeListeners.clear();
         mFriendChangeListeners.clear();
         sessions.removeAllChangeListeners();
-        localDataSource.onDestory();
+        localDataSource.onDestroy();
         friends.removeAllChangeListeners();
         sessionSidPositons.clear();
         sessions = null;

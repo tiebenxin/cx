@@ -40,7 +40,7 @@ public class MainLocalDataSource {
     }
 
     public RealmResults<SessionDetail> getSessionMore(String[] sids) {
-        return realm.where(SessionDetail.class).in("sid",sids).findAllAsync();
+        return realm.where(SessionDetail.class).in("sid", sids).findAllAsync();
     }
 
 
@@ -81,6 +81,7 @@ public class MainLocalDataSource {
         int num = remind == null ? 0 : remind.getNumber();
         return num;
     }
+
     /***
      * 清除红点的值
      * @param type
@@ -97,22 +98,24 @@ public class MainLocalDataSource {
 
     /**
      * 更新通讯录好友信息
+     *
      * @param userInfo
      */
-    public void updateFriend(UserInfo userInfo){
+    public void updateFriend(UserInfo userInfo) {
         beginTransaction();
         realm.copyToRealmOrUpdate(userInfo);
         commitTransaction();
     }
+
     /***
      * 更新好友
      * @param list
      */
     public void updateUsersOnlineStatus(List<OnlineBean> list) {
-            realm.executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    try{
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                try {
                     if (list != null && list.size() > 0) {
                         int len = list.size();
                         for (int i = 0; i < len; i++) {
@@ -135,20 +138,21 @@ public class MainLocalDataSource {
                             realm.insertOrUpdate(userInfo);
                         }
                     }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
+            }
+        });
 
 
     }
 
     /**
      * 设置为陌生人
+     *
      * @param uid
      */
-    public void setToStranger(long uid){
+    public void setToStranger(long uid) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -166,7 +170,7 @@ public class MainLocalDataSource {
                 if (session != null) {
                     session.setIsTop(0);
                 }
-              }
+            }
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
@@ -175,14 +179,15 @@ public class MainLocalDataSource {
                 List<Long> uids = new ArrayList<>();
                 uids.add(uid);
                 //回主线程调用更新session详情
-                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
                 /********通知更新sessionDetail end************************************/
             }
         });
     }
 
 
-    public void onDestory() {
+    public void onDestroy() {
         if (realm != null) {
             if (realm != null) {
                 if (realm.isInTransaction()) {

@@ -34,6 +34,8 @@ public class Session extends RealmObject implements Comparable<Session> {
     @Ignore
     private Boolean isSelect = false;//本地字段
 
+    private int markRead = 0;//标记已读0，未读1
+
     public int getMessageType() {
         return messageType;
     }
@@ -203,6 +205,13 @@ public class Session extends RealmObject implements Comparable<Session> {
         }
     }
 
+    public int getMarkRead() {
+        return markRead;
+    }
+
+    public void setMarkRead(int read) {
+        this.markRead = read;
+    }
 
     //判断该用户是否官方系统用户
     public boolean isSystemUser() {

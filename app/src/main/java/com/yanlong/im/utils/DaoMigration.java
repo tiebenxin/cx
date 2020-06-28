@@ -164,6 +164,10 @@ public class DaoMigration implements RealmMigration {
                 updateV36(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 36) {
+                updateV37(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -690,6 +694,12 @@ public class DaoMigration implements RealmMigration {
                 .addField("lockedFunctions", int.class);
         schema.get("UserInfo")
                 .addField("lockedFunctions", int.class);
+    }
+
+    //session新增标记已读未读字段
+    private final void updateV37(RealmSchema schema) {
+        schema.get("Session")
+                .addField("markRead", int.class);
     }
 
 

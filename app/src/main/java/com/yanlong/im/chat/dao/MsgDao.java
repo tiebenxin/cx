@@ -1573,6 +1573,7 @@ public class MsgDao {
     public void sessionReadClean(Session session) {
         if (session != null) {
             session.setUnread_count(0);
+            session.setMarkRead(0);
             DaoUtil.update(session);
         }
     }
@@ -1584,10 +1585,14 @@ public class MsgDao {
     public int sessionReadGetAll() {
         int sum = 0;
         Realm realm = DaoUtil.open();
-        List<Session> list = realm.where(Session.class).greaterThan("unread_count", 0).limit(100).findAll();
+        List<Session> list = realm.where(Session.class)
+                .beginGroup().greaterThan("unread_count", 0).endGroup()
+                .or()
+                .beginGroup().greaterThan("markRead", 0).endGroup()
+                .limit(100).findAll();
         if (list != null) {
             for (Session s : list) {
-                sum += s.getUnread_count();
+                sum += (s.getUnread_count() + s.getMarkRead());
             }
         }
 

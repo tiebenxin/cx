@@ -639,15 +639,19 @@ public final class CameraGLView extends GLSurfaceView {
          */
         private void stopPreview() {
             if (DEBUG) Log.v(TAG, "stopPreview:");
+            release();
+            final CameraGLView parent = mWeakParent.get();
+            if (parent == null) return;
+            parent.mCameraHandler = null;
+        }
+
+        private void release() {
             if (mCamera != null) {
                 mCamera.setPreviewCallback(null);
                 mCamera.stopPreview();
                 mCamera.release();
                 mCamera = null;
             }
-            final CameraGLView parent = mWeakParent.get();
-            if (parent == null) return;
-            parent.mCameraHandler = null;
         }
 
         /**
@@ -729,18 +733,14 @@ public final class CameraGLView extends GLSurfaceView {
         }
 
         private void switchCamera() {
-            if (mCamera != null) {
-                mCamera.release();
-            }
+            release();
             if (CAMERA_ID == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
             } else {
                 CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;
-
             }
             mCamera = Camera.open(CAMERA_ID);
             final CameraGLView parent = mWeakParent.get();
-
             if (mCamera == null || parent == null) {
                 return;
             }
