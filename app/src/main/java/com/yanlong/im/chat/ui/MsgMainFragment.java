@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.google.gson.Gson;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.MyAppLication;
@@ -31,7 +30,6 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -50,7 +48,6 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PopView;
@@ -566,7 +563,7 @@ public class MsgMainFragment extends Fragment {
             MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         super.onDestroy();
         //释放数据对象
-        viewModel.onDestory(this);
+        viewModel.onDestroy(this);
         SocketUtil.getSocketUtil().removeEvent(socketEvent);
         EventBus.getDefault().unregister(this);
     }

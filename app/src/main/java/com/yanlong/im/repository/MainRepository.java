@@ -55,8 +55,6 @@ public class MainRepository {
     }
 
 
-     
-
     /**
      * 数据库开始事务处理
      */
@@ -72,12 +70,13 @@ public class MainRepository {
     }
 
     public void onDestory() {
-        localDataSource.onDestory();
+        localDataSource.onDestroy();
     }
+
     /**
      * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
      */
-    public boolean checkRealmStatus(){
+    public boolean checkRealmStatus() {
         return localDataSource.checkRealmStatus();
     }
 
@@ -86,9 +85,10 @@ public class MainRepository {
      * @param type
      * @return
      */
-    public int getRemindCount(String type){
+    public int getRemindCount(String type) {
         return localDataSource.getRemindCount(type);
     }
+
     /***
      * 清除红点的值
      * @param type
@@ -97,18 +97,21 @@ public class MainRepository {
     public void clearRemindCount(String type) {
         localDataSource.clearRemindCount(type);
     }
+
     /**
      * 设置为陌生人
+     *
      * @param uid
      */
-    public void setToStranger(long uid){
+    public void setToStranger(long uid) {
         localDataSource.setToStranger(uid);
     }
+
     /***
      * 获取单个用户信息并且缓存到数据库
      * @param usrid
      */
-    public void requestUserInfoAndSave(Long usrid, @ChatEnum.EUserType int type){
+    public void requestUserInfoAndSave(Long usrid, @ChatEnum.EUserType int type) {
         remoteDataSource.requestUserInfoAndSave(usrid, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -139,10 +142,11 @@ public class MainRepository {
             }
         });
     }
+
     /**
      * 获取通讯录好友在线状态
      */
-    public void requestUsersOnlineStatus(){
+    public void requestUsersOnlineStatus() {
         remoteDataSource.requestUsersOnlineStatus(new CallBack<ReturnBean<List<OnlineBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<OnlineBean>>> call, Response<ReturnBean<List<OnlineBean>>> response) {
@@ -159,6 +163,15 @@ public class MainRepository {
                 super.onFailure(call, t);
             }
         });
+    }
+
+    /**
+     * 设置为陌生人
+     *
+     * @param uid
+     */
+    public void markSessionRead(String sid, int read) {
+        localDataSource.markSessionRead(sid, read);
     }
 
 

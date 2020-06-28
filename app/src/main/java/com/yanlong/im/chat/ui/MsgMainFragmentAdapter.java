@@ -270,7 +270,8 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 });
                 viewNetwork = headHolder.viewNetwork;
             }
-        }catch (Exception e){ }
+        } catch (Exception e) {
+        }
 
     }
 
@@ -287,9 +288,10 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 holder.sb.setNum(bean.getUnread_count(), false);
             }
         } else {
+            int count = bean.getUnread_count() + bean.getMarkRead();
             holder.iv_disturb_unread.setVisibility(View.GONE);
             holder.sb.setVisibility(View.VISIBLE);
-            holder.sb.setNum(bean.getUnread_count(), false);
+            holder.sb.setNum(count, false);
         }
     }
 
