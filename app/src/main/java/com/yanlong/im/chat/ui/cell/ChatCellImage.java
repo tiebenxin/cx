@@ -106,7 +106,7 @@ public class ChatCellImage extends ChatCellFileBase {
             }
         } else {
 //            rOptions.centerCrop();
-            rOptions.error(R.mipmap.default_image);
+//            rOptions.error(R.mipmap.ic_image_bg);
             rOptions.skipMemoryCache(false);
 //            rOptions.placeholder(R.mipmap.default_image);
             if (!TextUtils.equals(tag, thumbnail)) {//第一次加载
