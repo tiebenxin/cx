@@ -1588,7 +1588,7 @@ public class MsgDao {
         List<Session> list = realm.where(Session.class)
                 .beginGroup().greaterThan("unread_count", 0).endGroup()
                 .or()
-                .beginGroup().greaterThan("markRead", 0).endGroup()
+                .beginGroup().greaterThan("markRead", 0).and().equalTo("isMute", 0).endGroup()
                 .limit(100).findAll();
         if (list != null) {
             for (Session s : list) {

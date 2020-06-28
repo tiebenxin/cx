@@ -308,7 +308,7 @@ public class MainActivity extends AppActivity {
     private void updateUnReadCount() {
         LogUtil.getLog().i("未读数", "onChange");
         RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().beginGroup().greaterThan("unread_count", 0).endGroup()
-                .or().beginGroup().greaterThan("markRead", 0).endGroup()
+                .or().beginGroup().greaterThan("markRead", 0).and().equalTo("isMute", 0).endGroup()
                 .limit(100).findAll();
         if (sessionList != null) {
             Number unreadCount = sessionList.where().sum("unread_count");

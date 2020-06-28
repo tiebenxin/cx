@@ -258,12 +258,21 @@ public class ApplicationLocalDataSource {
     }
 
     /**
-     * 清除会话详情的内容
+     * 标记会话已读未读
      *
      * @param
      */
     public void markSessionRead(String sid, int read) {
         updateSessionDetail.markSessionRead(sid, read);
+    }
+
+    /**
+     * 修改消息已读，未读
+     *
+     * @param
+     */
+    public void updateMsgRead(String sid,String msgId, int read) {
+        updateSessionDetail.updateMsgRead( sid,msgId, read);
     }
 
 

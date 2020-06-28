@@ -2118,10 +2118,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
         if (!isGroup) { //单聊，且对方不为客服小助手，显示戳一下
-            if(!isSystemUser){
+            if (!isSystemUser) {
                 list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
             }
-        }else {
+        } else {
             list.add(createItemMode("群戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.GROUP_STAMP));
         }
         if (isGroup) {
@@ -4482,7 +4482,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean taskCleanRead(boolean isFirst) {
         Session session = StringUtil.isNotNull(toGid) ? DaoUtil.findOne(Session.class, "gid", toGid) :
                 DaoUtil.findOne(Session.class, "from_uid", toUId);
-        if (session != null && session.getUnread_count() > 0) {
+        if (session != null && (session.getUnread_count() > 0 || session.getMarkRead() > 0)) {
             if (isFirst) {
                 unreadCount = session.getUnread_count();
             }

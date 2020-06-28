@@ -16,6 +16,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.List;
@@ -235,7 +236,7 @@ public class UpdateSessionDetail {
                             for (int j = 0; j < i; j++) {
                                 MemberUser userInfo = group.getUsers().get(j);
                                 String userHead = userInfo.getHead();
-                                if(userInfo.getUid() == UserAction.getMyId()){
+                                if (userInfo.getUid() == UserAction.getMyId()) {
                                     //我自己，使用本地数据
                                     userHead = UserAction.getMyInfo().getHead();
                                 }
@@ -422,7 +423,7 @@ public class UpdateSessionDetail {
         DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-               Session session = realm.where(Session.class).equalTo("sid", sid).findFirst();
+                Session session = realm.where(Session.class).equalTo("sid", sid).findFirst();
                 if (session != null) {
                     //设置为陌生人
                     session.setMarkRead(read);
@@ -441,6 +442,35 @@ public class UpdateSessionDetail {
             @Override
             public void onError(Throwable error) {
 
+            }
+        });
+    }
+
+    /**
+     * 标记session已读未读功能,0未读，1已读
+     *
+     * @param
+     */
+    public void updateMsgRead(String sid, String msgId, int read) {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+                if (msg != null) {
+                    //设置为陌生人
+                    msg.setRead(read);
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 成功");
+                                update(new String[]{sid});
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 失败");
             }
         });
     }

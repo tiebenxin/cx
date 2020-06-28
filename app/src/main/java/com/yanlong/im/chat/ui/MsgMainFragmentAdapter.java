@@ -266,17 +266,23 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         if (bean != null) {
                             int read = 0;
                             if (bean.getIsMute() == 1) {
-                                if (finalMsginfo != null && !finalMsginfo.isRead()) {
-                                    read = 0;
-                                } else {
-                                    read = 1;
+                                if (finalMsginfo != null) {
+                                    if (!finalMsginfo.isRead() || bean.getMarkRead() > 0) {
+                                        read = 0;
+                                    } else {
+                                        read = 1;
+                                    }
+                                    if (MyAppLication.INSTANCE().repository != null) {
+                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read);
+                                    }
                                 }
                             } else {
                                 read = (bean.getMarkRead() + bean.getUnread_count()) > 0 ? 0 : 1;
+                                if (MyAppLication.INSTANCE().repository != null) {
+                                    MyAppLication.INSTANCE().repository.markSessionRead(sid, read);
+                                }
                             }
-                            if (MyAppLication.INSTANCE().repository != null) {
-                                MyAppLication.INSTANCE().repository.markSessionRead(sid, read);
-                            }
+
                         }
                     }
                 });
@@ -302,7 +308,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private void setUnreadCountOrDisturb(RCViewHolder holder, Session bean, MsgAllBean msg) {
         holder.sb.setButtonBackground(R.color.transparent);
         if (bean.getIsMute() == 1) {
-            if (msg != null && !msg.isRead()) {
+            if (msg != null && (!msg.isRead() || bean.getMarkRead() == 1)) {
                 holder.iv_disturb_unread.setVisibility(View.VISIBLE);
                 holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
                 holder.sb.setVisibility(View.GONE);
