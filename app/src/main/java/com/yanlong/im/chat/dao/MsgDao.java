@@ -1573,6 +1573,7 @@ public class MsgDao {
     public void sessionReadClean(Session session) {
         if (session != null) {
             session.setUnread_count(0);
+            session.setMarkRead(0);
             DaoUtil.update(session);
         }
     }

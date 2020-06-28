@@ -4,7 +4,6 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
@@ -141,6 +140,7 @@ public class MainViewModel extends ViewModel {
 //        repository.requestUsersOnlineStatus();
 //    }
 
+
     public void onDestroy(LifecycleOwner owner) {
         currentDeleteSid.removeObservers(owner);
         onlineState.removeObservers(owner);
@@ -150,6 +150,6 @@ public class MainViewModel extends ViewModel {
         sessionMoresPositions.clear();
         sessionMoresPositions = null;
         sessionMores = null;
-        repository.onDestory();
+        repository.onDestroy();
     }
 }

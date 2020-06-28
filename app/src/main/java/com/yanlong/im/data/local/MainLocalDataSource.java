@@ -186,29 +186,6 @@ public class MainLocalDataSource {
         });
     }
 
-    /**
-     * session 标记为已读或者未读, 0 已读，1 未读
-     *
-     * @param sid，SessionId
-     * @param read，0        已读，1 未读
-     */
-    public void markSessionRead(String sid, int read) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                Session session = realm.where(Session.class).equalTo("sid", sid).findFirst();
-                if (session != null) {
-                    //设置为陌生人
-                    session.setMarkRead(read);
-                }
-            }
-        }, new Realm.Transaction.OnSuccess() {
-            @Override
-            public void onSuccess() {
-            }
-        });
-    }
-
 
     public void onDestroy() {
         if (realm != null) {

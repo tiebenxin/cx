@@ -69,7 +69,7 @@ public class MainRepository {
         localDataSource.commitTransaction();
     }
 
-    public void onDestory() {
+    public void onDestroy() {
         localDataSource.onDestroy();
     }
 
@@ -164,15 +164,5 @@ public class MainRepository {
             }
         });
     }
-
-    /**
-     * 设置为陌生人
-     *
-     * @param uid
-     */
-    public void markSessionRead(String sid, int read) {
-        localDataSource.markSessionRead(sid, read);
-    }
-
 
 }

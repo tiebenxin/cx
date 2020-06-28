@@ -73,8 +73,8 @@ public class FriendViewModel extends ViewModel {
         return repository.getRemindCount(type);
     }
 
-    public void onDestory() {
-        repository.onDestory();
+    public void onDestroy() {
+        repository.onDestroy();
     }
 
 
