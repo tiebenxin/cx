@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import io.realm.Realm;
 import io.realm.Sort;
@@ -92,6 +93,10 @@ public class MessageRepository {
      */
     public Map<Long, Long> offlineFriendReadMsg = new ConcurrentHashMap<>();
     private boolean isOffline;
+    //    private Map<String, MsgAllBean> offlineMsgAllBean = null;
+    private List<MsgAllBean> offlineMsgAllBean = null;
+    private List<String> offlineMsgIds = null;
+
 
     public MessageRepository(boolean isOffline) {
         localDataSource = new MessageLocalDataSource();
@@ -105,6 +110,10 @@ public class MessageRepository {
         if (offlineMsgAllBean != null) {
             offlineMsgAllBean.clear();
             offlineMsgAllBean = null;
+        }
+        if (offlineMsgIds != null) {
+            offlineMsgIds.clear();
+            offlineMsgIds = null;
         }
     }
 
@@ -576,10 +585,18 @@ public class MessageRepository {
                 eventVideo.name = bean.getFrom_nickname();
                 EventBus.getDefault().post(eventVideo);
             } else {
-                msgAllBean = offlineMsgAllBean.get(cancelMsgId);
-                if (msgAllBean != null) {
-                    result = saveMessageNew(bean, realm);
-                    offlineMsgAllBean.remove(cancelMsgId);
+//                msgAllBean = offlineMsgAllBean.get(cancelMsgId);
+//                if (msgAllBean != null) {
+//                    result = saveMessageNew(bean, realm);
+//                    offlineMsgAllBean.remove(cancelMsgId);
+//                }
+                int position = offlineMsgIds.indexOf(cancelMsgId);
+                if (position >= 0 && position < offlineMsgAllBean.size()) {
+                    msgAllBean = offlineMsgAllBean.get(position);
+                    if (msgAllBean != null) {
+                        result = saveMessageNew(bean, realm);
+                        offlineMsgAllBean.remove(msgAllBean);
+                    }
                 }
             }
         }
@@ -894,8 +911,18 @@ public class MessageRepository {
                     /********通知更新或创建session end************************************/
                 }
             } else {//离线消息，先存储后批量更新
-                if (offlineMsgAllBean == null) offlineMsgAllBean = new ConcurrentHashMap<>();
-                offlineMsgAllBean.put(msgAllBean.getMsg_id(), msgAllBean);
+//                if (offlineMsgAllBean == null) offlineMsgAllBean = new ConcurrentHashMap<>();
+//                offlineMsgAllBean.put(msgAllBean.getMsg_id(), msgAllBean);
+                if (offlineMsgIds == null) {
+                    offlineMsgIds = new CopyOnWriteArrayList<>();
+                }
+                offlineMsgIds.add(msgAllBean.getMsg_id());
+
+                if (offlineMsgAllBean == null) {
+                    offlineMsgAllBean = new CopyOnWriteArrayList<>();
+                }
+                offlineMsgAllBean.add(msgAllBean);
+
             }
             result = true;
         } catch (Exception e) {
@@ -905,7 +932,6 @@ public class MessageRepository {
         return result;
     }
 
-    private Map<String, MsgAllBean> offlineMsgAllBean = null;
 
     /**
      * 批量保存消息对象
@@ -916,13 +942,14 @@ public class MessageRepository {
     public boolean insertOfflineMessages(Realm realm) {
         boolean result = false;
         if (offlineMsgAllBean != null && offlineMsgAllBean.size() > 0) {
-            List<MsgAllBean> msgList = new ArrayList<>();
-            Iterator iterator = offlineMsgAllBean.keySet().iterator();
-            while (iterator.hasNext()) {
-                msgList.add(offlineMsgAllBean.get(iterator.next().toString()));
-            }
-            result = localDataSource.insertOfflineMessages(realm, msgList);
+//            List<MsgAllBean> msgList = new ArrayList<>();
+//            Iterator iterator = offlineMsgAllBean.keySet().iterator();
+//            while (iterator.hasNext()) {
+//                msgList.add(offlineMsgAllBean.get(iterator.next().toString()));
+//            }
+            result = localDataSource.insertOfflineMessages(realm, offlineMsgAllBean);
             offlineMsgAllBean.clear();
+            offlineMsgIds.clear();
         }
 
         return result;
