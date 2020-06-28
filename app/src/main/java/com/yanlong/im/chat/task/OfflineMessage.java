@@ -138,20 +138,21 @@ public class OfflineMessage extends DispatchMessage {
                 boolean isOfflineMsg = bean.getMsgFrom() == 1;
                 try {
                     for (int i = 0; i < totalSize; i++) {
-                        MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
-                        //是否为本批消息的最后一条消息,并发的只能取数量
-                        boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
-                        boolean toDOResult = true;
-                        //开始处理消息
-                        if (mBatchSuccessMsgIds.contains(wrapMessage.getMsgId())) {
-                            mBatchRepeatCount.getAndIncrement();
-                        } else {
-                            toDOResult = handlerMessage(realm, wrapMessage, requestId, isOfflineMsg, msgList.size(), isLastMessage);
-                        }
                         if (currentRequestId == null) {
                             mBatchCompletedCount.set(0);
                             mBatchSuccessMsgIds.clear();
                             break;
+                        }
+                        MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
+                        //是否为本批消息的最后一条消息,并发的只能取数量
+                        boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
+                        boolean toDOResult = false;
+                        //开始处理消息
+                        if (mBatchSuccessMsgIds.contains(wrapMessage.getMsgId())) {
+                            mBatchRepeatCount.getAndIncrement();
+                            toDOResult = true;
+                        } else {
+                            toDOResult = handlerMessage(realm, wrapMessage, requestId, isOfflineMsg, msgList.size(), isLastMessage);
                         }
                         if (toDOResult) {
                             //临时保存
