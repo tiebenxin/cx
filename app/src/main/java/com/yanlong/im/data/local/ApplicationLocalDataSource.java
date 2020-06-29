@@ -262,8 +262,8 @@ public class ApplicationLocalDataSource {
      *
      * @param
      */
-    public void markSessionRead(String sid, int read) {
-        updateSessionDetail.markSessionRead(sid, read);
+    public void markSessionRead(String sid, int read,String msgId) {
+        updateSessionDetail.markSessionRead(sid, read,msgId);
     }
 
     /**

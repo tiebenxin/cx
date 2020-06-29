@@ -140,7 +140,7 @@ public class ChatViewModel extends ViewModel {
         return repository.checkRealmStatus();
     }
 
-    public void onDestory() {
+    public void onDestroy() {
         if (toAddBurnForDBMsgs != null){
             toAddBurnForDBMsgs.removeAllChangeListeners();
         }

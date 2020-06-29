@@ -769,7 +769,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void onDestroy() {
         //释放adapter资源
         mAdapter.onDestroy();
-        mViewModel.onDestory();
+        mViewModel.onDestroy();
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
@@ -1182,6 +1182,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
                 return;
             }
+            clearScrollPosition();
+            lastPosition = -1;
+            lastOffset = -1;
             mtListView.scrollToEnd();
         } else {
             taskRefreshMessage(false);
