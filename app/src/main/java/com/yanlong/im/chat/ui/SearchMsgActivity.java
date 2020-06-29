@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
@@ -55,6 +57,7 @@ public class SearchMsgActivity extends AppActivity {
     private List<Group> listDataGroup = new ArrayList<>();
     //第一次进入页面,用于弹出软键盘
     private boolean isInit = true;
+    private String searchKey;
 
 
     //自动寻找控件
@@ -94,12 +97,35 @@ public class SearchMsgActivity extends AppActivity {
                 return false;
             }
         });
-        String searchKey = getIntent().getStringExtra(AGM_SEARCH_KEY);
+        searchKey = getIntent().getStringExtra(AGM_SEARCH_KEY);
         if (!TextUtils.isEmpty(searchKey)) {//直接搜索
             edtSearch.setText(searchKey);
             edtSearch.setSelection(searchKey.length());
             taskSearch();
         }
+
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                edtSearch.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchKey = s.toString();
+                        taskSearch();
+                    }
+                }, 100);
+            }
+        });
 
     }
 
@@ -159,9 +185,9 @@ public class SearchMsgActivity extends AppActivity {
                 }
 
                 msg = SocketData.getMsg(msgbean, key);
-                String title=msgbean.getMsg_typeTitle();
+                String title = msgbean.getMsg_typeTitle();
                 //高亮显示关键字
-                hightKey(holder.txtContext, msg,title);
+                hightKey(holder.txtContext, msg, title);
                 holder.txtName.setText(name);
 
                 holder.txtTimer.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp()));
@@ -183,9 +209,9 @@ public class SearchMsgActivity extends AppActivity {
 //                    eventFindHistory.setStime(msgbean.getTimestamp());
 //                    EventBus.getDefault().post(eventFindHistory);
                         startActivity(new Intent(getContext(), ChatActivity.class)
-                                .putExtra(ChatActivity.AGM_TOGID, gid)
-                                .putExtra(ChatActivity.AGM_TOUID, fuid)
-                                .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
+                                        .putExtra(ChatActivity.AGM_TOGID, gid)
+                                        .putExtra(ChatActivity.AGM_TOUID, fuid)
+                                        .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
 //                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         );
                     }
@@ -202,27 +228,27 @@ public class SearchMsgActivity extends AppActivity {
          * @param tvContent
          * @param msg
          */
-        private void hightKey(TextView tvContent, String msg,String title) {
+        private void hightKey(TextView tvContent, String msg, String title) {
             final int index = msg.toLowerCase().indexOf(key.toLowerCase());
             if (index >= 0) {
-                int mindex=title.length()+index;
-                SpannableString style = new SpannableString(title+msg);
+                int mindex = title.length() + index;
+                SpannableString style = new SpannableString(title + msg);
                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
                 style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 showMessage(tvContent, msg, style);
             } else {
-                showMessage(tvContent, msg, new SpannableString(title+msg));
+                showMessage(tvContent, msg, new SpannableString(title + msg));
             }
             if (tvContent.getLayout() == null) {
                 //getLayout() 开始会为null,post显示后会重新加载
                 tvContent.post(new Runnable() {
                     @Override
                     public void run() {
-                        showEllipsis(tvContent, msg, key, index,title);
+                        showEllipsis(tvContent, msg, key, index, title);
                     }
                 });
             } else {
-                showEllipsis(tvContent, msg, key, index,title);
+                showEllipsis(tvContent, msg, key, index, title);
             }
         }
 
@@ -234,7 +260,7 @@ public class SearchMsgActivity extends AppActivity {
          * @param key
          * @param index
          */
-        private void showEllipsis(TextView tvContent, String msg, String key, int index,String title) {
+        private void showEllipsis(TextView tvContent, String msg, String key, int index, String title) {
             try {
                 if (tvContent.getLayout() == null) return;
                 //被隐藏的字数
@@ -242,11 +268,11 @@ public class SearchMsgActivity extends AppActivity {
                 //显示的字数
                 int showCount = msg.length() - ellipsisCount;
                 if (showCount > 0 && showCount < index) {//超出文本了
-                    title = title+"...";
+                    title = title + "...";
                     //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
                     String subMsg = msg.substring(Math.min(index - showCount / 2, msg.length() - showCount + 1));
                     //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
-                    int mindex = title.length()+subMsg.toLowerCase().indexOf(key.toLowerCase());
+                    int mindex = title.length() + subMsg.toLowerCase().indexOf(key.toLowerCase());
 
                     SpannableString style = new SpannableString(title + subMsg);
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
@@ -311,9 +337,10 @@ public class SearchMsgActivity extends AppActivity {
         if (key.length() <= 0) {
             return;
         }
-
-        listData = msgAction.searchMsg4key(key, gid, fuid);
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        if (key.equals(searchKey)) {
+            listData = msgAction.searchMsg4key(key, gid, fuid);
+            mtListView.getListView().getAdapter().notifyDataSetChanged();
+        }
     }
 
 }

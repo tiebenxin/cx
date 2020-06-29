@@ -4,6 +4,9 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
@@ -28,6 +31,8 @@ public class GroupsSearchActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
     private MsgSearchViewModel viewModel;
     private MsgSearchAdapter adapter;
+    private String searchKey;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +69,12 @@ public class GroupsSearchActivity extends AppActivity {
                 }
             }
         });
-        viewModel.key.setValue(getIntent().getStringExtra(SearchMsgActivity.AGM_SEARCH_KEY));
+        searchKey = getIntent().getStringExtra(SearchMsgActivity.AGM_SEARCH_KEY);
+        viewModel.key.setValue(searchKey);
         edtSearch.setText(viewModel.key.getValue());
+        if (!TextUtils.isEmpty(searchKey)) {
+            edtSearch.setSelection(searchKey.length());
+        }
     }
 
     private void findViews() {
@@ -108,6 +117,29 @@ public class GroupsSearchActivity extends AppActivity {
                     result = true;
                 }
                 return result;
+            }
+        });
+
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                edtSearch.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchKey = s.toString();
+                        viewModel.key.setValue(searchKey);
+                    }
+                }, 100);
             }
         });
 

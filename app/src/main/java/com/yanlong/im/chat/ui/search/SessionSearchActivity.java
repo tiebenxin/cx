@@ -4,6 +4,9 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
@@ -16,7 +19,9 @@ import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
-/**主页搜索-聊天会话搜索
+/**
+ * 主页搜索-聊天会话搜索
+ *
  * @createAuthor Raleigh.Luo
  * @createDate 2020/6/17 0017
  * @description
@@ -28,6 +33,8 @@ public class SessionSearchActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
     private MsgSearchViewModel viewModel;
     private MsgSearchAdapter adapter;
+    String searchKey;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,12 +44,15 @@ public class SessionSearchActivity extends AppActivity {
         initEvent();
         initObserver();
     }
+
     private void initObserver() {
         viewModel.key.observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                viewModel.clear();
-                viewModel.searchSessions(s);
+                if (s.equals(searchKey)) {
+                    viewModel.clear();
+                    viewModel.searchSessions(s);
+                }
             }
         });
         viewModel.isLoadNewRecord.observe(this, new Observer<Boolean>() {
@@ -57,15 +67,19 @@ public class SessionSearchActivity extends AppActivity {
                     //必须在setEvent后调用
                     mtListView.getSwipeLayout().setEnabled(true);
                 }
-                if(viewModel.isLoadCompleted(MsgSearchAdapter.SearchType.SESSIONS)){
+                if (viewModel.isLoadCompleted(MsgSearchAdapter.SearchType.SESSIONS)) {
                     mtListView.notifyDataSetChange();
-                }else{
+                } else {
                     mtListView.getListView().getAdapter().notifyDataSetChanged();
                 }
             }
         });
-        viewModel.key.setValue(getIntent().getStringExtra(SearchMsgActivity.AGM_SEARCH_KEY));
+        searchKey = getIntent().getStringExtra(SearchMsgActivity.AGM_SEARCH_KEY);
+        viewModel.key.setValue(searchKey);
         edtSearch.setText(viewModel.key.getValue());
+        if (!TextUtils.isEmpty(searchKey)) {
+            edtSearch.setSelection(searchKey.length());
+        }
     }
 
 
@@ -90,7 +104,7 @@ public class SessionSearchActivity extends AppActivity {
 
             }
         });
-        adapter = new MsgSearchAdapter(this, viewModel,MsgSearchAdapter.SearchType.SESSIONS);
+        adapter = new MsgSearchAdapter(this, viewModel, MsgSearchAdapter.SearchType.SESSIONS);
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -109,6 +123,29 @@ public class SessionSearchActivity extends AppActivity {
                     result = true;
                 }
                 return result;
+            }
+        });
+
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                edtSearch.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchKey = s.toString();
+                        viewModel.key.setValue(searchKey);
+                    }
+                }, 100);
             }
         });
 
