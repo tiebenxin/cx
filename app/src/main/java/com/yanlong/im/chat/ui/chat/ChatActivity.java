@@ -461,7 +461,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void initObserver() {
-        long delayMillis = 300;
+        long delayMillis = 100;
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
@@ -470,12 +470,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     InputUtil.showKeyboard(editChat);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isInputText);
-//                    mtListView.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            mtListView.scrollToEnd();
-//                        }
-//                    }, delayMillis);
+                    mtListView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mtListView.scrollToEnd();
+                        }
+                    }, delayMillis);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
