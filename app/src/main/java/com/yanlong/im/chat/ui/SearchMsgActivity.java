@@ -334,12 +334,10 @@ public class SearchMsgActivity extends AppActivity {
 
     private void taskSearch() {
         key = edtSearch.getText().toString();
-        if (key.length() <= 0) {
-            return;
-        }
         if (key.equals(searchKey)) {
             listData = msgAction.searchMsg4key(key, gid, fuid);
-            mtListView.getListView().getAdapter().notifyDataSetChanged();
+//            mtListView.getListView().getAdapter().notifyDataSetChanged();
+            mtListView.notifyDataSetChange();
         }
     }
 

@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -54,6 +55,9 @@ public class MsgSearchActivity extends AppActivity {
                 if (s.equals(searchKey)) {
                     viewModel.clear();
                     viewModel.search(s);
+                    if (TextUtils.isEmpty(s)) {
+                        mtListView.notifyDataSetChange();
+                    }
                 }
 
             }

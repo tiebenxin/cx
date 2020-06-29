@@ -376,6 +376,11 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(EMessageType.NOTICE);
                 MsgNotice grmvNotice = new MsgNotice();
                 grmvNotice.setMsgid(msgAllBean.getMsg_id());
+                if (!TextUtils.isEmpty(bean.getMembername())) {
+                    bean.getMembername();
+                } else {
+                    bean.getNickname();
+                }
                 if (userInfo == null) {
                     userInfo = new UserDao().findUserInfo(fromUid);
                 }
