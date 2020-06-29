@@ -297,7 +297,7 @@ public class ChatEnum {
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
-            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT})
+            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT, ENoticeType.DEFAULT_USER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int DEFAULT = 0;//默认，简单文本
@@ -329,6 +329,7 @@ public class ChatEnum {
         int CANCEL_CAN_EDIT = 26;//能重新编辑的撤销消息
         int FREEZE_ACCOUNT = 27;//冻结账号
         int CHANGE_VICE_ADMINS_CANCEL_OTHER = 28;// 群管理变更通知 自己取消其他人
+        int DEFAULT_USER = 29;//默认user标签
     }
 
     /*
@@ -393,7 +394,7 @@ public class ChatEnum {
      *聊天拓展功能id
      * */
     @IntDef({EFunctionId.GALLERY, EFunctionId.TAKE_PHOTO, EFunctionId.ENVELOPE_SYS, EFunctionId.ENVELOPE_MF, EFunctionId.STAMP, EFunctionId.TRANSFER,
-            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE, EFunctionId.COLLECT,EFunctionId.GROUP_STAMP})
+            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE, EFunctionId.COLLECT, EFunctionId.GROUP_STAMP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EFunctionId {
         int GALLERY = 1; // 相册
