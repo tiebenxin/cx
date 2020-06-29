@@ -103,21 +103,12 @@
                         android:textColor="@color/c_868686"
                         android:textSize="13sp" />
 
-                    <TextView
-                        android:id="@+id/title_tv_recharge_bank"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/title_tv_recharge_time"
-                        android:layout_marginTop="15dp"
-                        android:text="支付银行："
-                        android:textColor="@color/c_868686"
-                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/title_tv_recharge_order_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/title_tv_recharge_bank"
+                        android:layout_below="@+id/title_tv_recharge_time"
                         android:layout_marginTop="15dp"
                         android:text="交易单号："
                         android:textColor="@color/c_868686"
@@ -146,22 +137,10 @@
                         android:textSize="13sp" />
 
                     <TextView
-                        android:id="@+id/tv_recharge_bank"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/title_tv_recharge_time"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="15dp"
-                        android:layout_toRightOf="@+id/title_tv_recharge_bank"
-                        android:text=""
-                        android:textColor="@color/c_000000"
-                        android:textSize="13sp" />
-
-                    <TextView
                         android:id="@+id/tv_recharge_order_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/title_tv_recharge_bank"
+                        android:layout_below="@+id/tv_recharge_time"
                         android:layout_marginLeft="20dp"
                         android:layout_marginTop="15dp"
                         android:layout_toRightOf="@+id/title_tv_recharge_order_id"
@@ -320,22 +299,12 @@
                         android:textColor="@color/c_868686"
                         android:textSize="13sp" />
 
-                    <TextView
-                        android:id="@+id/title_tv_withdraw_bank"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/title_tv_withdraw_charge"
-                        android:layout_marginTop="15dp"
-                        android:text="提现银行："
-                        android:textColor="@color/c_868686"
-                        android:textSize="13sp" />
-
 
                     <TextView
                         android:id="@+id/title_tv_withdraw_order_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/title_tv_withdraw_bank"
+                        android:layout_below="@+id/title_tv_withdraw_charge"
                         android:layout_marginTop="15dp"
                         android:text="交易单号："
                         android:textColor="@color/c_868686"
@@ -400,22 +369,10 @@
                         android:textSize="13sp" />
 
                     <TextView
-                        android:id="@+id/tv_withdraw_bank"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/tv_withdraw_charge"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="15dp"
-                        android:layout_toRightOf="@+id/title_tv_withdraw_bank"
-                        android:text=""
-                        android:textColor="@color/c_000000"
-                        android:textSize="13sp" />
-
-                    <TextView
                         android:id="@+id/tv_withdraw_order_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/tv_withdraw_bank"
+                        android:layout_below="@+id/tv_withdraw_charge"
                         android:layout_marginLeft="20dp"
                         android:layout_marginTop="15dp"
                         android:layout_toRightOf="@+id/title_tv_withdraw_order_id"

@@ -76,7 +76,7 @@ public class BillDetailActivity extends AppActivity {
     private RelativeLayout layoutRecharge;//充值布局展示
     private TextView tvRechargeStatus;//充值-交易状态
     private TextView tvRechargeTime;//充值-充值时间
-    private TextView tvRechargeBank;//充值-支付银行
+//    private TextView tvRechargeBank;//充值-支付银行
     private TextView tvRechargeOrderId;//充值-交易单号
 
     private RelativeLayout layoutWithdrawOne;//提现布局A展示
@@ -91,7 +91,7 @@ public class BillDetailActivity extends AppActivity {
     private TextView tvWithdrawGetTime;//提现-到账时间
     private TextView tvWithdrawRealMoney;//提现-到账金额
     private TextView tvWithdrawCharge;//提现-手续费
-    private TextView tvWithdrawBank;//提现-提现银行
+//    private TextView tvWithdrawBank;//提现-提现银行
     private TextView tvWithdrawOrderId;//提现-交易单号
 
     private RelativeLayout layoutPay;//消费布局
@@ -148,7 +148,7 @@ public class BillDetailActivity extends AppActivity {
         layoutRecharge = findViewById(R.id.layout_recharge);
         tvRechargeStatus = findViewById(R.id.tv_recharge_status);
         tvRechargeTime = findViewById(R.id.tv_recharge_time);
-        tvRechargeBank = findViewById(R.id.tv_recharge_bank);
+//        tvRechargeBank = findViewById(R.id.tv_recharge_bank);
         tvRechargeOrderId = findViewById(R.id.tv_recharge_order_id);
         layoutWithdrawOne = findViewById(R.id.layout_withdraw_one);
         layoutWithdrawTwo = findViewById(R.id.layout_withdraw_two);
@@ -162,7 +162,7 @@ public class BillDetailActivity extends AppActivity {
         tvWithdrawGetTime = findViewById(R.id.tv_withdraw_get_time);
         tvWithdrawRealMoney = findViewById(R.id.tv_withdraw_real_money);
         tvWithdrawCharge = findViewById(R.id.tv_withdraw_charge);
-        tvWithdrawBank = findViewById(R.id.tv_withdraw_bank);
+//        tvWithdrawBank = findViewById(R.id.tv_withdraw_bank);
         tvWithdrawOrderId= findViewById(R.id.tv_withdraw_order_id);
         ivRedpacketImage= findViewById(R.id.iv_redpacket_image);
         titleTvRedPacketGetMoneyTime= findViewById(R.id.title_tv_red_packet_get_money_time);
@@ -368,7 +368,7 @@ public class BillDetailActivity extends AppActivity {
                 tvRechargeStatus.setText("处理中");
             }
             tvRechargeTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
-            tvRechargeBank.setText(data.getBankCardInfo());
+//            tvRechargeBank.setText(data.getBankCardInfo());
             tvRechargeOrderId.setText(data.getTradeId() + "");
 
             //4 提现 10 提现退款
@@ -423,9 +423,9 @@ public class BillDetailActivity extends AppActivity {
             BigDecimal b2 = new BigDecimal(UIUtils.getYuan(data.getFee()));
             String realMoney =  b1.subtract(b2)+"";
             tvWithdrawRealMoney.setText("¥"+realMoney+"元");
-            if(!TextUtils.isEmpty(data.getBankCardInfo())){
-                tvWithdrawBank.setText(data.getBankCardInfo());
-            }
+//            if(!TextUtils.isEmpty(data.getBankCardInfo())){
+//                tvWithdrawBank.setText(data.getBankCardInfo());
+//            }
             tvWithdrawOrderId.setText(data.getTradeId() + "");
 
 
