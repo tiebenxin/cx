@@ -461,7 +461,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void initObserver() {
-        long delayMillis = 500;
+        long delayMillis = 300;
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
@@ -470,12 +470,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     InputUtil.showKeyboard(editChat);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isInputText);
-                    mtListView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mtListView.scrollToEnd();
-                        }
-                    }, delayMillis);
+//                    mtListView.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            mtListView.scrollToEnd();
+//                        }
+//                    }, delayMillis);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
@@ -931,10 +931,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 //如果bottom小于oldBottom,说明键盘是弹起。
-                if (bottom < oldBottom) {
+                if (bottom < oldBottom && oldBottom - bottom == mKeyboardHeight) {
 //                    mViewModel.isInputText.setValue(true);
                     //滑动到底部
-//                    mtListView.scrollToEnd();
+                    mtListView.scrollToEnd();
                 } else if (bottom > oldBottom && bottom - oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
                     mViewModel.isInputText.setValue(false);
                 }
