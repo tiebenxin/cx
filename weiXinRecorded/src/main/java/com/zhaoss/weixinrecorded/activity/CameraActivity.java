@@ -2,6 +2,7 @@ package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
@@ -220,6 +221,8 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         if (orientationEventListener != null) {
             orientationEventListener.disable();
         }
+       mCameraView.CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//重置为后置摄像头，静态变量没回收
+
     }
 
     @Override
