@@ -172,6 +172,7 @@ public class OfflineMessage extends DispatchMessage {
                     DaoUtil.close(realm);
                 }
             } else {//空消息 回执
+                LogUtil.writeLog("--发送回执2离线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
                 SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, SocketData.isEnough(0)), null, bean.getRequestId());
             }
 
@@ -193,7 +194,7 @@ public class OfflineMessage extends DispatchMessage {
                 if (currentRequestId != null) {
                     if (result) {
                         //全部保存成功，消息回执
-                        LogUtil.writeLog("--发送回执2--requestId=" + requestId);
+                        LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
                         SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                         //在线，表示能回执成功，清除掉MsgId
                         if (SocketUtil.getSocketUtil().getOnLineState())
