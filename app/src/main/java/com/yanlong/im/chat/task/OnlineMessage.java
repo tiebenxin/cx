@@ -29,8 +29,10 @@ public class OnlineMessage extends DispatchMessage {
     public void clear() {
         repository.clear();
     }
+
     /**
      * 过滤消息 -不接收或不接收重复消息
+     *
      * @param wrapMessage
      * @return
      */
@@ -46,6 +48,7 @@ public class OnlineMessage extends DispatchMessage {
             return false;
         }
     }
+
     /**
      * 处理在线消息
      *
@@ -80,9 +83,9 @@ public class OnlineMessage extends DispatchMessage {
         } catch (Exception e) {
             DaoUtil.reportException(e);
         }
-        if (result)
+        if (result && bean.getWrapMsgCount() > 1) {
+            LogUtil.writeLog("--发送回执3在线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+        }
     }
-
-
 }

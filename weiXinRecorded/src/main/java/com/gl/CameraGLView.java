@@ -69,7 +69,7 @@ public final class CameraGLView extends GLSurfaceView {
     private static final boolean DEBUG = false; // TODO set false on release
     private static final String TAG = "CameraGLView";
 
-    private static int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
+    public static int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
 //    private static int CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
 

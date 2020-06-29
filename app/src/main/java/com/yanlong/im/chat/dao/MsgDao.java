@@ -991,7 +991,10 @@ public class MsgDao {
      * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
-        String searchKey = String.format("*%s*", key);
+        String searchKey = key;
+        if (!TextUtils.isEmpty(key)) {
+             searchKey = String.format("*%s*", key);
+        }
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
         try {

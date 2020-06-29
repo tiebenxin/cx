@@ -273,13 +273,15 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                                         read = 1;
                                     }
                                     if (MyAppLication.INSTANCE().repository != null) {
-                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read);
+                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read,finalMsginfo.getMsg_id());
                                     }
                                 }
                             } else {
                                 read = (bean.getMarkRead() + bean.getUnread_count()) > 0 ? 0 : 1;
-                                if (MyAppLication.INSTANCE().repository != null) {
-                                    MyAppLication.INSTANCE().repository.markSessionRead(sid, read);
+                                if (finalMsginfo != null) {
+                                    if (MyAppLication.INSTANCE().repository != null) {
+                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read,finalMsginfo.getMsg_id());
+                                    }
                                 }
                             }
 

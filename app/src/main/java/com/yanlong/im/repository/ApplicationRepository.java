@@ -382,20 +382,20 @@ public class ApplicationRepository {
     /**
      * 标记session已读未读，0已读，1已读
      */
-    public void markSessionRead(String sid, int read) {
+    public void markSessionRead(String sid, int read, String msgId) {
         //回主线程调用清除session详情
         //更新Detail详情
-        localDataSource.markSessionRead(sid, read);
+        localDataSource.markSessionRead(sid, read, msgId);
 
     }
 
     /**
      * 更新msg已读未读，0未读，1已读
      */
-    public void updateMsgRead(String sid,String msgId, int read) {
+    public void updateMsgRead(String sid, String msgId, int read) {
         //回主线程调用清除session详情
         //更新Detail详情
-        localDataSource.updateMsgRead(sid,msgId, read);
+        localDataSource.updateMsgRead(sid, msgId, read);
     }
 
 

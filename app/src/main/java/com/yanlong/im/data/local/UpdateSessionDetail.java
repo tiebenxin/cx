@@ -415,33 +415,42 @@ public class UpdateSessionDetail {
     }
 
     /**
-     * 标记session已读未读功能
+     * 标记session已读未读功能，0为已读，1为未读
      *
      * @param
      */
-    public void markSessionRead(String sid, int read) {
+    public void markSessionRead(String sid, int read, String msgId) {
         DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 Session session = realm.where(Session.class).equalTo("sid", sid).findFirst();
                 if (session != null) {
-                    //设置为陌生人
+                    //设置已读
                     session.setMarkRead(read);
                     if (read == 0) {
                         session.setUnread_count(0);
                     }
                 }
-
+                MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+                if (msg != null) {
+                    if (read == 0) {
+                        msg.setRead(true);
+                        SessionDetail sessionMore = realm.where(SessionDetail.class).equalTo("sid", session.getSid()).findFirst();
+                        if (sessionMore != null) {
+                            sessionMore.setMessage(msg);
+                        }
+                    }
+                }
             }
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-
+                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 成功");
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-
+                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 失败");
             }
         });
     }
@@ -465,7 +474,7 @@ public class UpdateSessionDetail {
             @Override
             public void onSuccess() {
                 LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 成功");
-                                update(new String[]{sid});
+                update(new String[]{sid});
             }
         }, new Realm.Transaction.OnError() {
             @Override

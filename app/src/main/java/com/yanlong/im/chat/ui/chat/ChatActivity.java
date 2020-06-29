@@ -461,7 +461,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void initObserver() {
-        long delayMillis = 500;
+        long delayMillis = 100;
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
@@ -769,7 +769,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void onDestroy() {
         //释放adapter资源
         mAdapter.onDestroy();
-        mViewModel.onDestory();
+        mViewModel.onDestroy();
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
@@ -931,10 +931,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 //如果bottom小于oldBottom,说明键盘是弹起。
-                if (bottom < oldBottom) {
+                if (bottom < oldBottom && oldBottom - bottom == mKeyboardHeight) {
 //                    mViewModel.isInputText.setValue(true);
                     //滑动到底部
-//                    mtListView.scrollToEnd();
+                    mtListView.scrollToEnd();
                 } else if (bottom > oldBottom && bottom - oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
                     mViewModel.isInputText.setValue(false);
                 }
@@ -1182,6 +1182,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
                 return;
             }
+            clearScrollPosition();
+            lastPosition = -1;
+            lastOffset = -1;
             mtListView.scrollToEnd();
         } else {
             taskRefreshMessage(false);
@@ -2112,9 +2115,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (!isGroup && isVip) {
             list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
         }
-        if (!isSystemUser) {
-            list.add(createItemMode("云红包", R.mipmap.ic_chat_rb_zfb, ChatEnum.EFunctionId.ENVELOPE_MF));
-        }
+//        if (!isSystemUser) {
+//            list.add(createItemMode("云红包", R.mipmap.ic_chat_rb_zfb, ChatEnum.EFunctionId.ENVELOPE_MF));
+//        }
         list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
         if (!isGroup) { //单聊，且对方不为客服小助手，显示戳一下

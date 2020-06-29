@@ -53,6 +53,11 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
         PayEnvironment.getInstance().notifyStampUpdate(false);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        hideSoftKeyword();
+    }
 
     @Override
     protected void onDestroy() {
