@@ -12,14 +12,18 @@ import android.webkit.WebView;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.jrmf360.tools.JrmfClient;
 import com.kye.net.NetRequestHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.util.NIMUtil;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
@@ -43,6 +47,7 @@ import com.yanlong.im.utils.MyException;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.event.EventFactory;
@@ -59,6 +64,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
@@ -107,7 +113,7 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
-        initLocation();//初始化定位
+//        initLocation();//初始化定位
         initARouter();//初始化路由
         initVolley();
         HandleWebviewCrash();
@@ -119,8 +125,9 @@ public class MyAppLication extends MainApplication {
     private void HandleWebviewCrash() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             String processName = getCurrentProcessName();
-            if (!"com.yanlong.im".equals(processName)){//判断不等于默认进程名称
-                WebView.setDataDirectorySuffix(processName);}
+            if (!"com.yanlong.im".equals(processName)) {//判断不等于默认进程名称
+                WebView.setDataDirectorySuffix(processName);
+            }
         }
     }
 
@@ -130,7 +137,7 @@ public class MyAppLication extends MainApplication {
         if (messageIntentService == null) {
             messageIntentService = new Intent(this, MessageIntentService.class);
         }
-       startService(messageIntentService);
+        startService(messageIntentService);
     }
 
     /**
@@ -383,7 +390,10 @@ public class MyAppLication extends MainApplication {
             @Override
             public void onFront() {
                 //应用切到前台处理
-                LogUtil.getLog().d(TAG, "--->应用切到前台处理");
+                LogUtil.getLog().d(TAG, "--->应用切到前台处理 " +
+                        " 是否正在拨打电话：" + AVChatProfile.getInstance().isCallIng() +
+                        " 是否显示：" + StringUtil.isForeground(getApplicationContext(), VideoActivity.class.getName()) +
+                        " 电话是否接通：" + AVChatProfile.getInstance().isCallEstablished());
                 AppConfig.setAppRuning(true);
                 EventRunState enent = new EventRunState();
                 enent.setRun(true);
@@ -398,6 +408,10 @@ public class MyAppLication extends MainApplication {
                     if (VideoActivity.returnVideoActivity) {
                         VideoActivity.returnVideoActivity = false;
                         EventBus.getDefault().post(new EventFactory.VideoActivityEvent());
+                    } else if (AVChatProfile.getInstance().isCallIng() &&
+                            !StringUtil.isForeground(getApplicationContext(), VideoActivity.class.getName())
+                            && !AVChatProfile.getInstance().isCallEstablished()) {// 正在拨打电话&没有显示音视频界面&电话没有接通
+                        gotoVideoActivity();
                     }
                 }
             }
@@ -405,7 +419,10 @@ public class MyAppLication extends MainApplication {
             @Override
             public void onBack() {
                 //应用切到后台处理
-                LogUtil.getLog().d(TAG, "--->应用切到后台处理");
+                LogUtil.getLog().d(TAG, "--->应用切到后台处理 " +
+                        " 是否正在拨打电话：" + AVChatProfile.getInstance().isCallIng() +
+                        " 是否显示：" + StringUtil.isForeground(getApplicationContext(), VideoActivity.class.getName()) +
+                        " 电话是否接通：" + AVChatProfile.getInstance().isCallEstablished());
                 AppConfig.setAppRuning(false);
 
                 EventRunState enent = new EventRunState();
@@ -450,5 +467,43 @@ public class MyAppLication extends MainApplication {
 //        mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
     }
 
+    /**
+     * 重新打开音视频接听界面
+     */
+    private void gotoVideoActivity() {
+        if (AVChatKit.getInstance().getaVChatData() != null && AVChatKit.getInstance().getUserInfo() != null) {
+            AVChatData data = AVChatKit.getInstance().getaVChatData();
+            UserInfo userInfo = AVChatKit.getInstance().getUserInfo();
+            String extra = data.getExtra();
+            LogUtil.getLog().e(TAG, "Extra Message->" + extra);
 
+            Intent intent = new Intent();
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(Preferences.AVCHATDATA, data);
+            if (userInfo != null) {
+                intent.putExtra(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                    intent.putExtra(Preferences.USER_NAME, userInfo.getMkName());
+                } else {
+                    intent.putExtra(Preferences.USER_NAME, userInfo.getName());
+                }
+            }
+            if (!TextUtils.isEmpty(extra)) {
+                try {
+                    Map<String, String> map = new Gson().fromJson(extra, Map.class);
+                    String roomId = map.get("roomId");
+                    Long friend = Long.parseLong(map.get("friend"));
+                    intent.putExtra(Preferences.ROOM_ID, roomId);
+                    intent.putExtra(Preferences.FRIEND, friend);
+                } catch (JsonSyntaxException exception) {
+
+                }
+            }
+            intent.putExtra(Preferences.VOICE_TYPE, CoreEnum.VoiceType.RECEIVE);
+            intent.putExtra(Preferences.AVCHA_TTYPE, data.getChatType().getValue());
+            intent.setClass(this, VideoActivity.class);
+            // TODO oppo 必须要改开机自启动，或开启悬浮窗权限才能生效 ，文章地址：https://www.jianshu.com/p/5f6d8379533b
+            startActivity(intent);
+        }
+    }
 }

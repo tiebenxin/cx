@@ -3,6 +3,7 @@ package com.yanlong.im.repository;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.example.nim_lib.controll.AVChatProfile;
 import com.google.common.base.Function;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
@@ -823,6 +824,8 @@ public class MessageRepository {
             } else if (bean.getP2PAuVideoMessage() != null && "interrupt".equals(bean.getP2PAuVideoMessage().getOperation())) {
                 bean.getP2PAuVideoMessage().setDesc("通话中断");
             }
+            // TODO　收到消息标记通话已结束，处理部分机型在最小化时，收到对方音视频通话，对方过了3、4秒挂断，一直提示正在通话问题 处理Bugly: 4622问题；
+            AVChatProfile.getInstance().setCallIng(false);
             result = saveMessageNew(bean, realm);
         }
         return result;

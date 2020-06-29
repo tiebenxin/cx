@@ -5,10 +5,12 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
 import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.constant.AVChatExitCode;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
@@ -18,6 +20,7 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthServiceObserver;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
+import com.netease.nimlib.sdk.avchat.model.AVChatCommonEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
@@ -25,7 +28,12 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SpUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
 
@@ -53,6 +61,26 @@ public class AVChatKit {
             INSTANCE = new AVChatKit();
         }
         return INSTANCE;
+    }
+
+    // 来电数据
+    private AVChatData aVChatData;
+    private UserInfo userInfo;
+
+    public AVChatData getaVChatData() {
+        return aVChatData;
+    }
+
+    public void setaVChatData(AVChatData aVChatData) {
+        this.aVChatData = aVChatData;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        this.userInfo = userInfo;
     }
 
     private static final String TAG = AVChatKit.class.getSimpleName();
@@ -111,8 +139,20 @@ public class AVChatKit {
      */
     private void registerAVChatIncomingCallObserver(boolean register) {
         AVChatManager.getInstance().observeIncomingCall(inComingCallObserver, register);
+        AVChatManager.getInstance().observeHangUpNotification(callHangupObserver, register);
         NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(userStatusObserver, register);
     }
+
+    /**
+     * 通话过程中，收到对方挂断电话
+     */
+    Observer<AVChatCommonEvent> callHangupObserver = new Observer<AVChatCommonEvent>() {
+        @Override
+        public void onEvent(AVChatCommonEvent avChatHangUpInfo) {
+            Log.i(TAG, "对方挂断电话");
+            AVChatProfile.getInstance().setCallIng(false);
+        }
+    };
 
     /**
      * 注册/注销网络来电.
@@ -207,6 +247,9 @@ public class AVChatKit {
                         intent.setClass(context, VideoActivity.class);
                         // TODO oppo 必须要改开机自启动，或开启悬浮窗权限才能生效 ，文章地址：https://www.jianshu.com/p/5f6d8379533b
                         context.startActivity(intent);
+                        // 记录来电数据，用于没有打开悬浮窗权限时，应用在切换到前台，需要重新打开音视频接听界面
+                        setaVChatData(data);
+                        setUserInfo(userInfo);
                         LogUtil.getLog().e(TAG, "startActivity");
                     }
                 });
