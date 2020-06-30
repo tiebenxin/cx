@@ -2,6 +2,7 @@ package com.yanlong.im.chat.task;
 
 import android.text.TextUtils;
 
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
@@ -212,6 +213,7 @@ public class OfflineMessage extends DispatchMessage {
                 checkReceivedAllOfflineCompleted(realm, batchTotalCount, false);
             }
             mBatchRepeatCount.set(0);
+            MessageManager.getInstance().notifyRefreshChat();
         }
     }
 
