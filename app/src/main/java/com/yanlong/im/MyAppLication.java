@@ -390,10 +390,6 @@ public class MyAppLication extends MainApplication {
             @Override
             public void onFront() {
                 //应用切到前台处理
-                LogUtil.getLog().d(TAG, "--->应用切到前台处理 " +
-                        " 是否正在拨打电话：" + AVChatProfile.getInstance().isCallIng() +
-                        " 是否显示：" + StringUtil.isForeground(getApplicationContext(), VideoActivity.class.getName()) +
-                        " 电话是否接通：" + AVChatProfile.getInstance().isCallEstablished());
                 AppConfig.setAppRuning(true);
                 EventRunState enent = new EventRunState();
                 enent.setRun(true);
@@ -419,10 +415,6 @@ public class MyAppLication extends MainApplication {
             @Override
             public void onBack() {
                 //应用切到后台处理
-                LogUtil.getLog().d(TAG, "--->应用切到后台处理 " +
-                        " 是否正在拨打电话：" + AVChatProfile.getInstance().isCallIng() +
-                        " 是否显示：" + StringUtil.isForeground(getApplicationContext(), VideoActivity.class.getName()) +
-                        " 电话是否接通：" + AVChatProfile.getInstance().isCallEstablished());
                 AppConfig.setAppRuning(false);
 
                 EventRunState enent = new EventRunState();
