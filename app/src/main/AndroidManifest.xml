@@ -555,10 +555,8 @@
             </intent-filter>
         </receiver>
 
-
-        <activity
-            android:name=".user.ui.image.PictureExternalPreviewActivity"
-            android:screenOrientation="portrait">
+        <!--        android:screenOrientation="portrait"  -->
+        <activity android:name=".user.ui.image.PictureExternalPreviewActivity">
             <intent-filter>
                 <!--协议部分，-->
                 <data

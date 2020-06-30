@@ -36,7 +36,7 @@ public class CursorEditText extends AppCompatEditText {
         mPaint.setColor(hintColor);
         mPaint.setTextSize(getTextSize());
         mPaint.setTextAlign(Paint.Align.RIGHT);
-        banLongClick();
+//        banLongClick();
     }
 
 
