@@ -181,7 +181,7 @@ public class TransferActivity extends BasePayActivity {
         } else if (money > TOTAL_TRANSFER_MAX_AMOUNT) {
             ui.tvTransfer.setEnabled(false);
             ui.tvNotice.setVisibility(View.VISIBLE);
-            ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
+            ui.tvNotice.setText(getString(R.string.total_transfer_max_amount_notice));
         } else {
             ui.tvTransfer.setEnabled(true);
             ui.tvNotice.setVisibility(View.GONE);

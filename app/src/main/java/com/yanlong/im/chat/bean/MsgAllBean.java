@@ -394,9 +394,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     }
                 } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE) {
                     if (isMe()) {
-                        str = "[转账]：朋友已确认收款";
-                    } else {
                         str = "[转账]：已收款";
+                    } else {
+                        str = "[转账]：朋友已确认收款";
                     }
                 } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT) {
                     if (isMe()) {
