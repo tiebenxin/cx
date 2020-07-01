@@ -102,19 +102,21 @@ public class OfflineMessage extends DispatchMessage {
      */
     @Override
     public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result = false;
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
-            return true;
+            result = true;
         }
         /******丢弃离线消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         if (isBeforeHistoryCleanMessage(wrapMessage)) {
-            return true;
+            result = true;
         }
         if (mBatchSuccessMsgIds.contains(wrapMessage.getMsgId())) {//已经保存过了
-            return true;
+            result = true;
         } else {
             //收集gid和uid,用于最后更新session
             collectBatchMessageGidAndUids(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
         }
+        LogUtil.getLog().i(TAG, "接收到消息--离线--filter=" + result);
         return false;
     }
 
@@ -124,7 +126,7 @@ public class OfflineMessage extends DispatchMessage {
      * @param bean
      */
     @Override
-    public void dispatch(MsgBean.UniversalMessage bean, Realm realm1) {
+    public synchronized void dispatch(MsgBean.UniversalMessage bean, Realm realm1) {
         currentRequestId = bean.getRequestId();
         if (mBatchCompletedCount.get() != 0) mBatchCompletedCount.set(0);
         if (executor == null)

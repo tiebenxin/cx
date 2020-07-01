@@ -137,6 +137,7 @@ public class MyAppLication extends MainApplication {
         if (messageIntentService == null) {
             messageIntentService = new Intent(this, MessageIntentService.class);
         }
+//        LogUtil.getLog().i("Liszt_test", "接收到消息-启动服务");
         startService(messageIntentService);
     }
 

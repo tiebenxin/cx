@@ -895,6 +895,7 @@ public class MessageRepository {
             //是否是对方 @所有人或@自己的消息
             if (!isOffline || localDataSource.isAtMe(msgAllBean)) {//在线消息 或@自己的消息，及时更新session，离线消息等批量结束后更新
                 localDataSource.updateObject(realm, msgAllBean);
+                LogUtil.getLog().i(TAG,"--接受到消息--存储在线消息--" + msgAllBean.getMsg_type());
                 if (MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid())) {
                     MessageManager.getInstance().notifyRefreshChat(msgAllBean, CoreEnum.ERefreshType.ADD);
                 }

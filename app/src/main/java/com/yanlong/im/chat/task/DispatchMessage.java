@@ -58,13 +58,12 @@ public abstract class DispatchMessage {
      * @param isLastMessage 是否为本批消息的最后一条消息
      * @return
      */
-    public boolean handlerMessage(Realm realm, MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg, int batchMsgCount
+    public synchronized boolean handlerMessage(Realm realm, MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg, int batchMsgCount
             , boolean isLastMessage) {
         boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         /***开始保存处理消息 保存到数据库*********************************************/
-        boolean saveDBResult = dealWithMsg(wrapMessage, requestId, isOfflineMsg,
-                realm);
+        boolean saveDBResult = dealWithMsg(wrapMessage, requestId, isOfflineMsg, realm);
         /***saveDBResult 保存结果*********************************************/
         if (!saveDBResult) {//有一个没有保存成功，则整体接收失败
             result = false;
@@ -92,11 +91,15 @@ public abstract class DispatchMessage {
      * @param isOfflineMsg 是否是离线消息
      * @return
      */
-    public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg
+    public synchronized boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg
             , Realm realm) {
         //过滤消息
-        if (filter(wrapMessage)) return true;
-        LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
+        if (filter(wrapMessage)) {
+            return true;
+        }
+        if (wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+            LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
+        }
         repository.updateUserAvatarAndNick(wrapMessage, realm);
         boolean isFromSelf = false;
         if (UserAction.getMyId() != null) {
