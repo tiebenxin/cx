@@ -73,28 +73,6 @@ public class ChatExtendMenuView extends LinearLayout {
     }
 
     private void initPager() {
-//        ArrayList<View> viewList = new ArrayList<>();
-//        int size = mList.size();
-//        for (int i = 0; i < pagerCount; i++) {
-//            FrameLayout frameLayout=new FrameLayout(getContext());
-//            RecyclerView recyclerView = new RecyclerView(getContext());
-//            GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 4);
-//            recyclerView.setLayoutManager(layoutManager);
-//            AdapterFunctionView adapterFunctionView = new AdapterFunctionView(getContext());
-//            if (i == 0) {
-//                if (size > 8) {
-//                    adapterFunctionView.bindData(mList.subList(0, 8));
-//                } else {
-//                    adapterFunctionView.bindData(mList);
-//                }
-//                recyclerView.setAdapter(adapterFunctionView);
-//            } else {
-//                adapterFunctionView.bindData(mList.subList(8, mList.size()));
-//                recyclerView.setAdapter(adapterFunctionView);
-//            }
-//            adapterFunctionView.setFunctionListner(listener);
-//            viewList.add(recyclerView);
-//        }
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getContext());
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(1);
@@ -187,6 +165,9 @@ public class ChatExtendMenuView extends LinearLayout {
                 RadioGroup.LayoutParams radioParams = new RadioGroup.LayoutParams(20, 20);
                 radioParams.leftMargin = 10;
                 radioButton.setLayoutParams(radioParams);
+                if (i == 0) {
+                    radioButton.setChecked(true);
+                }
                 rgDots.addView(radioButton);
             }
             rgDots.check(0);
