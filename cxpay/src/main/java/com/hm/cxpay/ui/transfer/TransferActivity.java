@@ -17,6 +17,7 @@ import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.CxTransferBean;
 import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.UrlBean;
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogBalanceNoEnough;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogErrorPassword;
@@ -101,6 +102,7 @@ public class TransferActivity extends BasePayActivity {
         toUid = intent.getLongExtra("uid", 0);
         name = intent.getStringExtra("name");
         avatar = intent.getStringExtra("avatar");
+        getHisInfo(toUid);
         initView();
     }
 
@@ -274,6 +276,37 @@ public class TransferActivity extends BasePayActivity {
             } else {
                 dismissLoadingDialog();
             }
+        }
+    }
+
+    private void getHisInfo(long uid) {
+        PayHttpUtils.getInstance().getUserInfo(uid)
+                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            if (baseResponse.getData() != null) {
+                                UserBean userBean = baseResponse.getData();
+                                setName(name, userBean.getRealName());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                    }
+                });
+    }
+
+    private void setName(String nick, String realName) {
+        if (!TextUtils.isEmpty(nick)) {
+            String name = nick;
+            if (!TextUtils.isEmpty(realName)) {
+                name = nick + "(" + realName + ")";
+            }
+            ui.tvName.setText(name);
         }
     }
 }

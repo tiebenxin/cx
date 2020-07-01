@@ -15,6 +15,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -809,7 +810,7 @@ public class MessageLocalDataSource {
     public boolean isAtMe(MsgAllBean bean) {
         boolean result = false;
         boolean isFromSelf = UserAction.getMyId() != null && bean.getFrom_uid() == UserAction.getMyId().intValue();
-        if (!isFromSelf && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
+        if (!isFromSelf && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000 && !MessageManager.getInstance().isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
             if (bean.getAtMessage().getAt_type() == MsgBean.AtMessage.AtType.ALL_VALUE) {//@所有人
                 result = true;
             } else if (bean.getAtMessage().getAt_type() == MsgBean.AtMessage.AtType.MULTIPLE_VALUE) {//@单人 中有我
