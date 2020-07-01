@@ -145,10 +145,13 @@ public class MessageManager {
     private boolean isDealingMsg = false;
 
 
-    //取第一个添加的消息
-    public MsgBean.UniversalMessage poll() {
+    //取第一个添加的消息,并且移除
+    public synchronized MsgBean.UniversalMessage poll() {
         if (toDoMsg.size() > 0) {
-            return toDoMsg.get(toDoMsg.size() - 1);
+            MsgBean.UniversalMessage message = toDoMsg.get(toDoMsg.size() - 1);
+            toDoMsg.remove(message);
+            isDealingMsg = false;
+            return message;
         } else {
             isDealingMsg = false;
             return null;
@@ -163,17 +166,21 @@ public class MessageManager {
      * 移除
      */
     public void pop() {
-        if (toDoMsg.size() > 0)
-            toDoMsg.remove(toDoMsg.size() - 1);
+        if (toDoMsg.size() > 0) {
+            MsgBean.UniversalMessage bean = toDoMsg.get(toDoMsg.size() - 1);
+            toDoMsg.remove(bean);
+        }
+        isDealingMsg = false;
     }
 
     /**
      * 添加
      *
-     * @param receviceMsg
+     * @param receiveMsg
      */
-    public void push(MsgBean.UniversalMessage receviceMsg) {
-        toDoMsg.add(receviceMsg);
+    public void push(MsgBean.UniversalMessage receiveMsg) {
+        toDoMsg.add(receiveMsg);
+        LogUtil.getLog().i(TAG, "接收到消息--add 队列--" + receiveMsg.getRequestId());
     }
 
     public void clear() {
@@ -195,8 +202,6 @@ public class MessageManager {
     public DispatchMessage offlineMsgDispatch = new OfflineMessage();
 
 
-
-
     /**
      * 停止离线消息处理
      */
@@ -214,9 +219,20 @@ public class MessageManager {
             if (!isDealingMsg) {//上一个处理完成，再启动处理消息sevice
                 isDealingMsg = true;
                 MyAppLication.INSTANCE().startMessageIntentService();
+            } else {
+                //在线消息线程处理不过来了，启动旧消息通道来处理
+                LogUtil.getLog().i(TAG, "接收到消息--在线--但是Dealing");
+//                LogUtil.writeLog("接收到在线消息--但是Dealing==" + bean.getRequestId());
+                try {
+                    Thread.sleep(100);
+                    MyAppLication.INSTANCE().startMessageIntentService();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    LogUtil.getLog().i(TAG, "接收到消息--在线--睡眠出错");
+                }
             }
         } else {
-            offlineMsgDispatch.dispatch(bean,null);
+            offlineMsgDispatch.dispatch(bean, null);
         }
     }
 
@@ -249,7 +265,7 @@ public class MessageManager {
         MsgBean.UniversalMessage.Builder builder = MsgBean.UniversalMessage.newBuilder();
         builder.setRequestId(SocketData.getUUID());
 //        builder.setToUid(100105);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 5; i++) {
             MsgBean.UniversalMessage.WrapMessage.Builder wrapMsg = MsgBean.UniversalMessage.WrapMessage.newBuilder();
             wrapMsg.setMsgId(SocketData.getUUID());
             wrapMsg.setFromUid(100804);
@@ -262,6 +278,7 @@ public class MessageManager {
             wrapMsg.setChat(msg.build());
             builder.addWrapMsg(wrapMsg.build());
         }
+        builder.setMsgFrom(1);
         onReceive(builder.build());
     }
 
@@ -291,18 +308,19 @@ public class MessageManager {
     }
 
 
-    /** 已过期，请使用  DispatchMessage中的dealWithMsg
-     *  处理接收到的消息
-     *      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
-     *      * @param wrapMessage 接收到的消息
-     *      * @param isList 是否是批量消息
-     *      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
+    /**
+     * 已过期，请使用  DispatchMessage中的dealWithMsg
+     * 处理接收到的消息
+     * * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
+     * * @param wrapMessage 接收到的消息
+     * * @param isList 是否是批量消息
+     * * @return 返回结果，不需要处理逻辑的消息，默认处理成功
+     *
      * @param wrapMessage
      * @param isList
      * @param canNotify
      * @param requestId
-     * @return
-     * 已过期，请使用  DispatchMessage中的dealWithMsg
+     * @return 已过期，请使用  DispatchMessage中的dealWithMsg
      */
     @Deprecated
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
@@ -335,6 +353,7 @@ public class MessageManager {
                 if (oldMsgId.size() >= 500) {
                     oldMsgId.remove(0);
                 }
+                LogUtil.getLog().e(TAG, ">>>>>接收到消息--add: " + wrapMessage.getMsgId());
                 oldMsgId.add(wrapMessage.getMsgId());
             }
         }
@@ -912,7 +931,8 @@ public class MessageManager {
         return result;
     }
 
-    /** 已过期
+    /**
+     * 已过期
      * 清除双向删除消息
      */
     @Deprecated
@@ -924,7 +944,8 @@ public class MessageManager {
         }
     }
 
-    /**已过期
+    /**
+     * 已过期
      * 更新离线接收自己PC端发送的已读消息
      */
     @Deprecated
@@ -1057,12 +1078,12 @@ public class MessageManager {
         }
     }
 
-    /**已过期  请使用MessageRepository中的saveMessageNew
+    /**
+     * 已过期  请使用MessageRepository中的saveMessageNew
      *
      * @param msgAllBean
      * @param isList
-     * @return
-     * 已过期  请使用MessageRepository中的saveMessageNew
+     * @return 已过期  请使用MessageRepository中的saveMessageNew
      */
     @Deprecated
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
@@ -1675,6 +1696,7 @@ public class MessageManager {
 
     /**
      * 已过期
+     *
      * @param gid
      * @param atType
      * @param message
@@ -1954,18 +1976,21 @@ public class MessageManager {
             loadGids.remove(gid);
         }
     }
+
     @Deprecated
     public void removeLoadUids(Long uid) {
         if (loadUids != null && uid != null) {
             loadUids.remove(uid);
         }
     }
+
     @Deprecated
     public void addSavedGroup(List<Group> list) {
         if (list != null && list.size() > 0) {
             saveGroups.addAll(list);
         }
     }
+
     @Deprecated
     public List<Group> getSavedGroups() {
         return saveGroups;

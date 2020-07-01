@@ -21,8 +21,16 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
  * @description
  */
 public class OnlineMessage extends DispatchMessage {
+    private static OnlineMessage INSTANCE;
     public OnlineMessage() {
         super(false);
+    }
+
+    public static OnlineMessage getInstance(){
+        if (INSTANCE == null){
+            INSTANCE = new OnlineMessage();
+        }
+        return INSTANCE;
     }
 
     @Override
@@ -37,16 +45,24 @@ public class OnlineMessage extends DispatchMessage {
      * @return
      */
     @Override
-    public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public synchronized boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result = false;
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
-            return true;
+            result = true;
         } else if (!TextUtils.isEmpty(wrapMessage.getMsgId()) && oldMsgId.contains(wrapMessage.getMsgId())) {
             //有已保存成功的消息，则不再处理
-            LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-            return true;
+            LogUtil.getLog().e(TAG, ">>>>>接收到消息--重复消息: " + wrapMessage.getMsgId());
+            result = true;
         } else {
-            return false;
+            if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
+                if (oldMsgId.size() >= 500) {
+                    oldMsgId.remove(0);
+                }
+                oldMsgId.add(wrapMessage.getMsgId());
+            }
         }
+        return result;
+
     }
 
     /**
@@ -55,12 +71,13 @@ public class OnlineMessage extends DispatchMessage {
      * @param bean
      */
     @Override
-    public void dispatch(MsgBean.UniversalMessage bean, Realm realm) {
+    public synchronized void dispatch(MsgBean.UniversalMessage bean, Realm realm) {
         boolean result = true;
         try {
             List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
             if (msgList != null && msgList.size() > 0) {
-                for (int i = 0; i < msgList.size(); i++) {
+                int size = msgList.size();
+                for (int i = 0; i < size; i++) {
                     MsgBean.UniversalMessage.WrapMessage msg = msgList.get(i);
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
                     //开始处理消息
@@ -68,12 +85,7 @@ public class OnlineMessage extends DispatchMessage {
                             i == msgList.size() - 1);
                     if (toDOResult) {
                         //记录已保存成功的消息,用于剔除重复消息
-                        if (result && !TextUtils.isEmpty(wrapMessage.getMsgId())) {
-                            if (oldMsgId.size() >= 500) {
-                                oldMsgId.remove(0);
-                            }
-                            oldMsgId.add(wrapMessage.getMsgId());
-                        }
+
                     } else {
                         //有一个失败，表示接收全部失败
                         result = false;
