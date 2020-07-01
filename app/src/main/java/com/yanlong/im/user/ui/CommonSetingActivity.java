@@ -117,8 +117,6 @@ public class CommonSetingActivity extends AppActivity {
             @Override
             public void onRight() {
                 String content = mEdContent.getText().toString();
-                //1 内容不为空
-                if (!TextUtils.isEmpty(content)) {
                     //2-1 若为纯空格
                     if (setting.equals(content.trim())) {
                         Intent intent = new Intent();
@@ -128,7 +126,7 @@ public class CommonSetingActivity extends AppActivity {
                     } else {
                         if (TextUtils.isEmpty(content.trim())) {
                             //群昵称可以为纯空格，回传""字符串取原来昵称
-                            if (mHeadView.getActionbar().getTitle().equals("我在本群的信息")) {
+                            if (mHeadView.getActionbar().getTitle().equals("我在本群的昵称")) {
                                 content = content.trim();
                             } else {
                                 //用户名设置和备注不可以用纯空格
@@ -155,7 +153,6 @@ public class CommonSetingActivity extends AppActivity {
                     intent.putExtra(CONTENT, content);
                     setResult(RESULT_OK, intent);
                     onBackPressed();
-                }
             }
         });
     }
