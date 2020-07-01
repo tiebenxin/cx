@@ -2125,7 +2125,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
             }
         } else {
-            list.add(createItemMode("群戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.GROUP_STAMP));
+            list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.GROUP_STAMP));
         }
         if (isGroup) {
             //本人群主

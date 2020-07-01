@@ -11,6 +11,7 @@
         android:layout_height="22dp"
         android:layout_centerVertical="true"
         android:layout_marginLeft="14dp"
+        android:visibility="visible"
         android:src="@color/c_c05042"/>
 
     <TextView
@@ -27,13 +28,17 @@
 
     <TextView
         android:id="@+id/tv_content"
-        android:layout_toRightOf="@+id/iv_image"
+        android:layout_alignLeft="@+id/tv_time"
+        android:layout_toLeftOf="@+id/layout_right"
         android:layout_below="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/c_121516"
         android:textSize="14sp"
-        android:layout_marginLeft="14dp"
+        android:layout_marginRight="10dp"
+        android:maxLines="1"
+        android:gravity="left"
+        android:ellipsize="end"
         android:text=""/>
 
     <TextView
@@ -50,34 +55,36 @@
         android:textStyle="bold"
         android:text="+0.0"/>
 
-    <TextView
-        android:id="@+id/tv_balance"
-        android:layout_toRightOf="@+id/tv_content"
+    <LinearLayout
+        android:id="@+id/layout_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/tv_cost"
         android:layout_alignParentRight="true"
         android:layout_marginRight="12dp"
-        android:layout_width="wrap_content"
-        android:gravity="right"
-        android:layout_height="wrap_content"
-        android:textColor="@color/c_878787"
-        android:textSize="12sp"
-        android:visibility="visible"
-        android:text="余额 : 0.0"/>
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_balance"
+            android:layout_width="wrap_content"
+            android:gravity="right"
+            android:layout_height="wrap_content"
+            android:textColor="@color/c_878787"
+            android:textSize="12sp"
+            android:visibility="visible"
+            android:text="余额 : 0.0"/>
 
-    <TextView
-        android:id="@+id/tv_status"
-        android:layout_toRightOf="@+id/tv_content"
-        android:layout_below="@+id/tv_cost"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="12dp"
-        android:layout_width="wrap_content"
-        android:gravity="right"
-        android:layout_height="wrap_content"
-        android:textColor="@color/c_32b053"
-        android:textSize="12sp"
-        android:visibility="gone"
-        android:text=""/>
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_toRightOf="@+id/tv_content"
+            android:layout_width="wrap_content"
+            android:gravity="right"
+            android:layout_height="wrap_content"
+            android:textColor="@color/c_32b053"
+            android:textSize="12sp"
+            android:visibility="gone"
+            android:text=""/>
 
+    </LinearLayout>
 
     <View style="@style/app_line"
         android:layout_alignParentBottom="true"/>

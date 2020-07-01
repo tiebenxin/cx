@@ -14,7 +14,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.MediaBackUtil;
@@ -37,10 +36,6 @@ public class ChatActionActivity extends AppActivity {
     private LinearLayout viewYes;
     private Vibrator vibrator;
     private MsgAllBean msgAllbean;
-    private String imgUrl = "";//头像
-    private String nickName = "";//昵称
-    private MsgDao msgDao = new MsgDao();
-
 
 
     @Override
@@ -80,20 +75,15 @@ public class ChatActionActivity extends AppActivity {
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }
-
-        //群头像/群昵称，新建群聊没有群头像和群名，需要动态获取，即自行拼凑生成
-        if(!TextUtils.isEmpty(msgAllbean.getGid())){
-            imgUrl = TextUtils.isEmpty(msgAllbean.getGroup().getAvatar()) ? msgDao.groupHeadImgGet(msgAllbean.getGid()) : msgAllbean.getGroup().getAvatar();
-            nickName = TextUtils.isEmpty(msgAllbean.getFrom_group_nickname()) ? msgDao.getGroupName(msgAllbean.getGid()) : msgAllbean.getFrom_group_nickname();
-        }else {
-            //个人头像/个人昵称
-            imgUrl = TextUtils.isEmpty(msgAllbean.getFrom_user().getHead()) ? "" : msgAllbean.getFrom_user().getHead();
-            nickName = TextUtils.isEmpty(msgAllbean.getFrom_user().getName()) ? "" : msgAllbean.getFrom_user().getName();
-        }
-        Glide.with(this).load(imgUrl)
+        //显示发起人头像
+        Glide.with(this).load(msgAllbean.getFrom_user().getHead())
                 .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-        txtName.setText(nickName);
+        //优先显示发起人群昵称，没有则显示用户昵称
+        if(!TextUtils.isEmpty(msgAllbean.getGid())){
+            txtName.setText(TextUtils.isEmpty(msgAllbean.getGroup().getMygroupName()) ? msgAllbean.getFrom_user().getName() : msgAllbean.getGroup().getMygroupName() );
+        }else {
+            txtName.setText(msgAllbean.getFrom_user().getName());
+        }
         txtMsg.setText(msgAllbean.getStamp().getComment());
         viewNo.setOnClickListener(new View.OnClickListener() {
             @Override
