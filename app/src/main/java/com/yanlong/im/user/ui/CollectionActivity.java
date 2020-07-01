@@ -22,6 +22,8 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.ui.BaseBindActivity;
@@ -201,27 +203,50 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
                                 if (bean2 != null) { //显示预览图或者缩略图
                                     String thumbnail = bean2.getThumbnailShow();
-                                    //有网情况走网络请求，无网情况拿缓存
-                                    if(NetUtil.isNetworkConnected()){
-                                        if (!TextUtils.isEmpty(bean2.getPreview())) {
-                                            Glide.with(CollectionActivity.this).load(bean2.getPreview())
-                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
-                                        } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
-                                            Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
-                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
-                                        }
-                                    }else {
-                                        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
-                                        if (localBitmap == null) {
-                                            Glide.with(CollectionActivity.this)
-                                                    .asBitmap()
-                                                    .load(thumbnail)
-                                                    .apply(GlideOptionsUtil.defaultImageOptions())
-                                                    .into(binding.ivPic);
-                                        } else {
-                                            binding.ivPic.setImageBitmap(localBitmap);
-                                        }
+                                    //缓存
+                                    Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
+                                    if(localBitmap==null){
+                                        RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                                .skipMemoryCache(false)
+                                                .centerCrop();
+                                        Glide.with(getContext())
+                                                .asBitmap()
+                                                .load(thumbnail)
+                                                .apply(mRequestOptions)
+                                                .into(new SimpleTarget<Bitmap>() {
+                                                    @Override
+                                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                        binding.ivPic.setImageBitmap(resource);
+                                                    }
+                                                });
+                                    }else{
+                                        binding.ivPic.setImageBitmap(localBitmap);
                                     }
+
+
+
+//                                    if(NetUtil.isNetworkConnected()){
+//                                        if (!TextUtils.isEmpty(bean2.getPreview())) {
+//                                            Glide.with(CollectionActivity.this).load(bean2.getPreview())
+//                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+//                                        } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
+//                                            Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
+//                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+//                                        }
+//                                    }else {
+//                                        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
+//                                        if (localBitmap == null) {
+//                                            Glide.with(CollectionActivity.this)
+//                                                    .asBitmap()
+//                                                    .load(thumbnail)
+//                                                    .apply(GlideOptionsUtil.defaultImageOptions())
+//                                                    .into(binding.ivPic);
+//                                        } else {
+//                                            binding.ivPic.setImageBitmap(localBitmap);
+//                                        }
+
+//                                    }
                                 }
                                 break;
                             case ChatEnum.EMessageType.SHIPPED_EXPRESSION: //大表情
