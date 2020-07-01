@@ -125,7 +125,7 @@ public class CommonSetingActivity extends AppActivity {
                         onBackPressed();
                     } else {
                         if (TextUtils.isEmpty(content.trim())) {
-                            //群昵称可以为纯空格，回传""字符串取原来昵称
+                            //群昵称可以为纯空格，回传""字符串改为取用户自己的昵称
                             if (mHeadView.getActionbar().getTitle().equals("我在本群的昵称")) {
                                 content = content.trim();
                             } else {
