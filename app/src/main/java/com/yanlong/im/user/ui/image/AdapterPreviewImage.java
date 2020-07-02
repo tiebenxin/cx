@@ -101,7 +101,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     //    private IPreviewImageListener listener;
     private String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
     private String[] newStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "编辑", "取消"};
-    private String[] CollectStrings = {"发送给朋友", "保存图片", "取消"};
+    private String[] collectStrings = {"发送给朋友", "保存图片", "取消"};
     private View parentView;
     private int preProgress;
     private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
@@ -833,7 +833,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         final PopupSelectView popupSelectView;
         //收藏详情需求又改为只显示3项
         if(fromWhere==PictureConfig.FROM_COLLECT_DETAIL){
-            popupSelectView = new PopupSelectView(context, CollectStrings);
+            popupSelectView = new PopupSelectView(context, collectStrings);
         }else {
             if (media.isCanCollect()) {
                 popupSelectView = new PopupSelectView(context, newStrings);
