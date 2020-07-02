@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -13,10 +14,18 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.hm.cxpay.eventbus.PayResultEvent;
+import com.hm.cxpay.global.PayEnum;
+
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 
 /***
@@ -44,6 +53,7 @@ public class YiBaoWebActivity extends AppActivity {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webpage);
+        EventBus.getDefault().register(this);
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         webView = findViewById(R.id.webView);
@@ -108,10 +118,16 @@ public class YiBaoWebActivity extends AppActivity {
         webView.loadUrl(url);
     }
 
-    private void addImageClickListner(WebView webView) {
-        webView.loadUrl("javascript:(function(){" + "var objs = document.getElementsByTagName(\"img\"); "
-                + "for(var i=0;i<objs.length;i++)  " + "{" + "    objs[i].onclick=function()  " + "    {  "
-                + "        window.imagelistner.openImage(this.src);  " + "    }  " + "}" + "})()");
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventPayResult(PayResultEvent event) {
+        YiBaoWebActivity.this.finish();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private class MyWebViewClient extends WebViewClient {
@@ -158,8 +174,6 @@ public class YiBaoWebActivity extends AppActivity {
         }
 
 
-
-
         @android.webkit.JavascriptInterface
         public void callAndroidMethod(int result) {
             doPayResult(result);
@@ -172,7 +186,7 @@ public class YiBaoWebActivity extends AppActivity {
             Intent intent = new Intent();
             intent.putExtra("result", result);
             setResult(RESULT_OK, intent);
-            finish();
+            YiBaoWebActivity.this.finish();
         }
     }
 }

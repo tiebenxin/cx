@@ -682,10 +682,10 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             case ChatEnum.EMessageType.NOTICE://通知
             case ChatEnum.EMessageType.MSG_CANCEL://撤回
             case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME://阅后即焚
-            case ChatEnum.EMessageType.TRANSFER_NOTICE://转账提醒
                 layout = ChatEnum.EChatCellLayout.NOTICE;
                 break;
             case ChatEnum.EMessageType.TEXT://文本
+            case ChatEnum.EMessageType.TRANSFER_NOTICE://转账提醒
                 if (isMe) {
                     layout = ChatEnum.EChatCellLayout.TEXT_SEND;
                 } else {

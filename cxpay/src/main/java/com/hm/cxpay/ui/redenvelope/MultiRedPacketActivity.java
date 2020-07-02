@@ -233,7 +233,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 ui.btnCommit.setEnabled(false);
                 ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                 ui.tvNotice.setVisibility(View.VISIBLE);
-                ui.tvNotice.setText("单次最多发送100个红包");
+                ui.tvNotice.setText(getString(R.string.max_count_notice));
             } else {
                 if (singleMoney == 0) {
                     if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {

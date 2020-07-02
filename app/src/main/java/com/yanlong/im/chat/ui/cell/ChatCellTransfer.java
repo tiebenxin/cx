@@ -111,13 +111,13 @@ public class ChatCellTransfer extends ChatCellBase {
         } else if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
             if (TextUtils.isEmpty(info)) {
                 if (isMe) {
-                    result = "已收款";
+                    result = "朋友已确定收款";
                 } else {
                     result = "已被领取";
                 }
             } else {
                 if (isMe) {
-                    result = "已收款-" + info;
+                    result = "朋友已确定收款-" + info;
                 } else {
                     result = "已被领取-" + info;
                 }

@@ -24,6 +24,7 @@ import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.data.remote.MessageRemoteDataSource;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
@@ -184,6 +185,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         AppHostUtil.setHostUrl(host);
         HttpChannel.getInstance().resetHost();
         userAction = new UserAction();
+        new MessageRemoteDataSource().clear();
     }
 
     private void showIPUI() {

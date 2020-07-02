@@ -930,7 +930,6 @@ public class MsgConversionBean {
                 msgAllBean.setSendFileMessage(fileMessage);
                 msgAllBean.setMsg_type(EMessageType.FILE);
                 break;
-
             case TRANS_NOTIFY:
                 TransferNoticeMessage transferNoticeMessage = new TransferNoticeMessage();
                 transferNoticeMessage.setMsgId(bean.getMsgId());

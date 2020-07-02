@@ -3,9 +3,11 @@ package com.yanlong.im.chat.ui.cell;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.view.YLinkMovementMethod;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -42,8 +45,8 @@ public class ChatCellText extends ChatCellBase {
         super.initView();
         tv_content = getView().findViewById(R.id.tv_content);
         //设置自定义文字大小
-        Integer fontSize=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
-        if(fontSize!=null){
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        if (fontSize != null) {
             tv_content.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
         }
     }
@@ -60,6 +63,10 @@ public class ChatCellText extends ChatCellBase {
             tv_content.setText(getSpan(message.getAtMessage().getMsg()));
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
             setText(message.getAssistantMessage().getMsg());
+        } else if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
+            tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent(), null,
+                    new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
+            tv_content.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
@@ -141,7 +148,7 @@ public class ChatCellText extends ChatCellBase {
         double maxWidth = 0.6 * width;
         if (maxWidth > 0 && tv_content != null) {
             tv_content.setMaxWidth((int) maxWidth);
-            LogUtil.getLog().i("ChatCellText","");
+            LogUtil.getLog().i("ChatCellText", "");
         }
     }
 }

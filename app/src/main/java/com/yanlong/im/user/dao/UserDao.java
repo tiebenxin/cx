@@ -462,9 +462,13 @@ public class UserDao {
         List<UserInfo> ret = null;
         try {
             ret = new ArrayList<>();
-            RealmResults<UserInfo> users = realm.where(UserInfo.class).equalTo("uType", 2).and()
+            RealmResults<UserInfo> users = realm.where(UserInfo.class)
+                    .equalTo("uType", 2).and()
+                    .beginGroup()
                     .contains("name", key).or()
-                    .contains("mkName", key).findAll();
+                    .contains("mkName", key).or()
+                    .contains("pinyinHead", key)
+                    .endGroup().findAll();
             if (users != null)
                 ret = realm.copyFromRealm(users);
             realm.close();

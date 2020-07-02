@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -21,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,6 +30,8 @@ import android.widget.RelativeLayout;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
@@ -50,7 +54,6 @@ import java.io.IOException;
  * @description 图片编辑
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-
 @Route(path = "/weixinrecorded/ImageShowActivity")
 public class ImageShowActivity extends BaseActivity implements View.OnClickListener {
 
@@ -73,6 +76,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         setContentView(binding.getRoot());
         init();
         initEvent();
+        setHeight();
     }
 
     private void init() {
@@ -82,7 +86,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
         Glide.with(this).load(mPath).into(binding.imgShow);
-//        binding.imgShow.setImageURI(Uri.parse(mPath));
         mManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         initColors();
@@ -131,6 +134,21 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                         binding.textureViewCut.getBottom() - binding.textureViewCut.getHeight());
             }
         });
+    }
+
+    private void setHeight() {
+        Glide.with(this)
+                .asBitmap()
+                .load(mPath)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        Log.i("1212", "Width:" + resource.getWidth() + " Height:" + resource.getHeight());
+                        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                resource.getHeight());
+                        binding.mpvView.setLayoutParams(layoutParams);
+                    }
+                });
     }
 
     private void addTextToWindow() {
@@ -193,33 +211,37 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
 //            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],activity_img_show_cut.getRectHeight()-(int)cutArr[1],(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-((int)cutArr[3]-(int)cutArr[1]));
             Log.e("TAG", cutArr[0] + "-----" + cutArr[1] + "-----" + cutArr[2] + "-----" + cutArr[3] + "-----");
             Canvas c = new Canvas(bmp);
-            c.drawColor(Color.WHITE);
+            c.drawColor(Color.BLACK);
 //            /** 如果不设置canvas画布为白色，则生成透明 */
             v.layout(0, 0, w, h);
             v.draw(c);
             int px = (int) DimenUtils.dp2px(60);
             Bitmap cutBitmap = null;
 
-            if ((30 + cutArr[2]) >= bmp.getWidth() || (px + cutArr[3]) > bmp.getHeight()) {
+            try {
+                if ((30 + cutArr[2]) >= bmp.getWidth() || (px + cutArr[3]) > bmp.getHeight()) {
 //                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
-                if ((30 + cutArr[2]) >= bmp.getWidth() && (px + cutArr[3]) > bmp.getHeight()) {
-                    cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - ((int) cutArr[1] + px));
-                } else {
-                    if ((30 + cutArr[2]) >= bmp.getWidth()) {
-                        cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - (int) cutArr[1]);
+                    if ((30 + cutArr[2]) >= bmp.getWidth() && (px + cutArr[3]) > bmp.getHeight()) {
+                        cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - ((int) cutArr[1] + px));
                     } else {
-                        cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - ((int) cutArr[1] + px));
+                        if ((30 + cutArr[2]) >= bmp.getWidth()) {
+                            cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - (int) cutArr[1]);
+                        } else {
+                            cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - ((int) cutArr[1] + px));
+                        }
                     }
+                } else {
+                    cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - (int) cutArr[1]);
                 }
-            } else {
-                cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - (int) cutArr[1]);
+            } catch (Exception e) {
+                cutBitmap = bmp;
             }
 //            if ((px+cutArr[3])>bmp.getHeight()){
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-px);
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],binding.imgShowCut.getRectHeight()-px);
 //            }else{
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-px);
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],binding.imgShowCut.getRectHeight()-px);
 //            }
-
+//
 //            if ((30+(int)cutArr[2])>=bmp.getWidth()){
 //                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,bmp.getWidth()-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
 //            }else{
@@ -238,9 +260,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(bmp);
 
-            c.drawColor(Color.WHITE);
+            c.drawColor(Color.BLACK);
 //            /** 如果不设置canvas画布为白色，则生成透明 */
-//
             v.layout(0, 0, w, h);
             v.draw(c);
             return bmp;

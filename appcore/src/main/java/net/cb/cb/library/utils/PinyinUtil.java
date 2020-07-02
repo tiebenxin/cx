@@ -2,16 +2,20 @@ package net.cb.cb.library.utils;
 
 import android.text.TextUtils;
 
+import com.huawei.hms.framework.common.StringUtils;
+
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @version V1.0
@@ -86,6 +90,7 @@ public class PinyinUtil {
 
     /**
      * 获取姓名是多音字的第一个字母
+     *
      * @param value
      * @return
      */
@@ -100,38 +105,80 @@ public class PinyinUtil {
         }
         return result;
     }
+
     /**
      * 字符串全拼,全部小写
+     *
      * @param text
      */
-    public static String toPinyin(String text){
-        String pinyin="";
-        for(int i=0;i<text.length();i++){
+    public static String toPinyin(String text) {
+        String pinyin = "";
+        for (int i = 0; i < text.length(); i++) {
             String[] charPinYin = PinyinHelper.toHanyuPinyinStringArray(text.charAt(i));
-            if(charPinYin == null){//不是拼音，存储原字符
+            if (charPinYin == null) {//不是拼音，存储原字符
                 pinyin += text.charAt(i);
-            }else{
+            } else {
                 // 判断是否为多音字
                 String value = "";//大写
                 if (charPinYin.length > 1) {
                     value = PinyinUtil.getUserName(text.charAt(0) + "");
                     if (TextUtils.isEmpty(value)) {//去掉最后一个数字
-                        pinyin += charPinYin[0].toLowerCase().substring(0,charPinYin[0].length()-1);
+                        pinyin += charPinYin[0].toLowerCase().substring(0, charPinYin[0].length() - 1);
                     } else {
-                        for(String str:charPinYin){
-                            if((""+str.charAt(0)).equalsIgnoreCase(value))
-                            pinyin += str;
+                        for (String str : charPinYin) {
+                            if (("" + str.charAt(0)).equalsIgnoreCase(value))
+                                pinyin += str;
                             break;
                         }
                     }
                 } else {//去掉最后一个数字
-                    pinyin +=  charPinYin[0].toLowerCase().substring(0,charPinYin[0].length()-1);
+                    pinyin += charPinYin[0].toLowerCase().substring(0, charPinYin[0].length() - 1);
                 }
             }
         }
         return pinyin;
     }
 
+    /**
+     * 提取每个汉字的首字母
+     *
+     * @param src
+     * @return String
+     */
+    public static String getPinYinHeadChar(String src) {
+        if (TextUtils.isEmpty(src)) {
+            return null;
+        }
+        char[] srcChar = src.toCharArray();
+        final StringBuffer buffer = new StringBuffer(srcChar.length);
+        for (char index : srcChar) {
+            if (isChinese(index)) {// 当是中文时
+                String pinyinArray[] = PinyinHelper.toHanyuPinyinStringArray(index);
+                if (pinyinArray != null) {
+                    buffer.append(pinyinArray[0].charAt(0));
+                }
+            } else {
+                buffer.append(index);
+            }
+        }
+        return buffer.toString().toLowerCase();
+    }
+
+    /**
+     * 判定输入的是否是汉字
+     *
+     * @param c 被校验的字符
+     * @return true代表是汉字
+     */
+    public static boolean isChinese(char c) {
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+        if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 汉字转换位汉语拼音首字母，英文字符不变，特殊字符丢失 支持多音字，生成方式如（长沙市长:cssc,zssz,zssc,cssz）

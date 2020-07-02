@@ -97,10 +97,10 @@
                         android:maxLines="1"
                         android:selectAllOnFocus="true"
                         android:text=""
-                        android:visibility="gone"
                         android:textColor="@color/black"
                         android:textIsSelectable="false"
-                        android:textSize="13sp" />
+                        android:textSize="13sp"
+                        android:visibility="gone" />
 
                     <Button
                         android:id="@+id/bt_go"
@@ -109,6 +109,7 @@
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_btn_green"
                         android:text=""
+                        android:textAllCaps="false"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
