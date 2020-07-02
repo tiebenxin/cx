@@ -136,7 +136,7 @@ public class AudioPlayManager implements SensorEventListener {
                     }
 
                     this._audioManager.setSpeakerphoneOn(false);
-                    this.replay();
+//                    this.replay();
                 }
             } else if ((double) range > 0.0D) {
                 if (this._audioManager.getMode() == 0) {

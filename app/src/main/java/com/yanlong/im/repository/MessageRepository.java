@@ -631,6 +631,8 @@ public class MessageRepository {
             eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//修改密码
             eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
+        } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
+            eventLoginOut4Conflict.setMsg("更换绑定手机号成功，\n请新手机号重新登录");
         }
         EventBus.getDefault().post(eventLoginOut4Conflict);
     }
