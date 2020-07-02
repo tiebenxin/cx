@@ -206,7 +206,7 @@ public class GroupSelectUserActivity extends AppActivity {
     }
 
     private void taskGetInfo() {
-        new MsgAction().groupInfo(gid,true, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo(gid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response == null) {
@@ -232,9 +232,9 @@ public class GroupSelectUserActivity extends AppActivity {
                             for (Long uid : mGinfo.getViceAdmins()) {
                                 for (int i = listData.size() - 1; i >= 0; i--) {
                                     UserInfo userInfo = listData.get(i);
-                                    if((mGinfo != null && mGinfo.getMaster().equals(userInfo.getUid() + ""))){// 移除群主
+                                    if ((mGinfo != null && mGinfo.getMaster().equals(userInfo.getUid() + ""))) {// 移除群主
                                         listData.remove(i);
-                                    }else if (userInfo.getUid() != null && userInfo.getUid().equals(uid)) {// 移除管理員
+                                    } else if (userInfo.getUid() != null && userInfo.getUid().equals(uid)) {// 移除管理員
                                         listData.remove(i);
                                     }
                                 }
@@ -608,7 +608,7 @@ public class GroupSelectUserActivity extends AppActivity {
                         List<UserInfo> filteredList = new ArrayList<>();
                         for (UserInfo userInfo : mSourceList) {
                             //这里根据需求，添加匹配规则
-                            if (userInfo.getName4Show().contains(charString)) {
+                            if (userInfo.getName4Show().contains(charString) || userInfo.getPinyinHead().contains(charString)) {
                                 filteredList.add(userInfo);
                             }
                         }

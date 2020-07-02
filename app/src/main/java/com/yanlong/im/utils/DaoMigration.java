@@ -168,6 +168,10 @@ public class DaoMigration implements RealmMigration {
                 updateV37(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 37) {
+                updateV38(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -702,6 +706,11 @@ public class DaoMigration implements RealmMigration {
                 .addField("markRead", int.class);
     }
 
+    //用户信息页面增加简拼字段
+    private final void updateV38(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("pinyinHead", String.class);
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

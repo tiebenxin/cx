@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.chat.ChatEnum;
 
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.PinyinUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -34,6 +35,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     //数据库中，数字存储的是Z1（非#） >Z，便于排序
     private String tag;
     private String pinyin;//存储的备注名/昵称全拼音，数字TODO
+    private String pinyinHead;// 存储的备注名/昵称简拼音
     @SerializedName("avatar")
     private String head;
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单,4小助手
@@ -166,6 +168,14 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
         return joinType;
     }
 
+    public String getPinyinHead() {
+        return pinyinHead;
+    }
+
+    public void setPinyinHead(String pinyinHead) {
+        this.pinyinHead = pinyinHead;
+    }
+
     public void setJoinType(int joinType) {
         this.joinType = joinType;
     }
@@ -203,7 +213,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Long getLastonline() {
-        return lastonline == null? 0L: lastonline;
+        return lastonline == null ? 0L : lastonline;
     }
 
     public String getNeteaseAccid() {
@@ -254,7 +264,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getMessagenotice() {
-        return messagenotice == null? 0: messagenotice;
+        return messagenotice == null ? 0 : messagenotice;
     }
 
     public void setMessagenotice(Integer messagenotice) {
@@ -262,7 +272,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getDisplaydetail() {
-        return displaydetail == null? 0:displaydetail;
+        return displaydetail == null ? 0 : displaydetail;
     }
 
     public void setDisplaydetail(Integer displaydetail) {
@@ -271,7 +281,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
     public Integer getStat() {
         //stat== null 一定是非好友
-        return stat == null? 1: stat;
+        return stat == null ? 1 : stat;
     }
 
     public void setStat(Integer stat) {
@@ -295,7 +305,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getPhonefind() {
-        return phonefind == null?0:phonefind;
+        return phonefind == null ? 0 : phonefind;
     }
 
     public void setPhonefind(Integer phonefind) {
@@ -303,7 +313,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getImidfind() {
-        return imidfind == null? 0:imidfind;
+        return imidfind == null ? 0 : imidfind;
     }
 
     public void setImidfind(Integer imidfind) {
@@ -311,7 +321,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getFriendvalid() {
-        return friendvalid == null?0:friendvalid;
+        return friendvalid == null ? 0 : friendvalid;
     }
 
     public void setFriendvalid(Integer friendvalid) {
@@ -319,7 +329,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getGroupvalid() {
-        return groupvalid == null? 0:groupvalid;
+        return groupvalid == null ? 0 : groupvalid;
     }
 
     public void setGroupvalid(Integer groupvalid) {
@@ -335,7 +345,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getIstop() {
-        return istop == null?0:istop;
+        return istop == null ? 0 : istop;
     }
 
     public void setIstop(Integer istop) {
@@ -361,7 +371,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单(不区分和陌生人)
     public Integer getuType() {
-        return uType == null?0:uType;
+        return uType == null ? 0 : uType;
     }
 
     public void setuType(Integer uType) {
@@ -422,10 +432,13 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
             if (TextUtils.isEmpty(name)) {
                 setTag(FRIEND_NUMBER_TAG);
                 setPinyin("");
+                setPinyinHead("");
             } else if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
                 setTag(FRIEND_NUMBER_TAG);
                 setPinyin(PinyinUtil.toPinyin(name));
+                setPinyinHead(PinyinUtil.getPinYinHeadChar(name));
             } else {
+                setPinyinHead(PinyinUtil.getPinYinHeadChar(name));
                 String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
                 if (n == null) {
                     if (StringUtil.ifContainEmoji(name)) {

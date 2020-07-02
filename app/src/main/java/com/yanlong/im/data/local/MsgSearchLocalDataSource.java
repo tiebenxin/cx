@@ -48,13 +48,21 @@ public class MsgSearchLocalDataSource {
     public RealmResults<UserInfo> searchFriends(String key, Integer limit) {
         String searchKey = getKey(key);
         if (limit == null) {//查询所有
-            return realm.where(UserInfo.class).like("name", searchKey, Case.INSENSITIVE)
+            return realm.where(UserInfo.class).equalTo("uType", 2)
+                    .beginGroup()
+                    .like("name", searchKey, Case.INSENSITIVE)
                     .or().like("mkName", searchKey, Case.INSENSITIVE)
+                    .or().like("pinyinHead", searchKey, Case.INSENSITIVE)
+                    .endGroup()
                     .findAllAsync();
         } else {//查询部分
-            return realm.where(UserInfo.class).like("name", searchKey, Case.INSENSITIVE)
+            return realm.where(UserInfo.class).equalTo("uType", 2)
+                    .beginGroup()
+                    .like("name", searchKey, Case.INSENSITIVE)
                     .or().like("mkName", searchKey, Case.INSENSITIVE)
+                    .or().like("pinyinHead", searchKey, Case.INSENSITIVE)
                     .limit(limit)
+                    .endGroup()
                     .findAllAsync();
         }
 
@@ -99,9 +107,10 @@ public class MsgSearchLocalDataSource {
      * @return
      */
     public SessionDetail getSessionDetail(Realm realm, String sid) {
-         SessionDetail results = realm.where(SessionDetail.class).equalTo("sid", sid).findFirst();
+        SessionDetail results = realm.where(SessionDetail.class).equalTo("sid", sid).findFirst();
         return results == null ? null : realm.copyFromRealm(results);
     }
+
     private RealmQuery<MsgAllBean> searchMessagesQuery(Realm realm, String key, String gid, long uid) {
         String searchKey = getKey(key);
         if (TextUtils.isEmpty(gid)) {
