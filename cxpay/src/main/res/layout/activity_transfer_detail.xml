@@ -30,6 +30,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:text="已退还"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
