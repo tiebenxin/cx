@@ -24,13 +24,11 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ChatBitmapCache;
 
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;

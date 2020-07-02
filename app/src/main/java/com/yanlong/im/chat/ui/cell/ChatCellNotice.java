@@ -106,11 +106,6 @@ public class ChatCellNotice extends ChatCellBase {
             if (message.getMsgCancel() != null) {
                 tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
             }
-        } else if (messageType == ChatEnum.EMessageType.TRANSFER_NOTICE) {
-            iv_icon.setVisibility(View.GONE);
-            if (message.getTransferNoticeMessage() != null) {
-                tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent(), null, new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
-            }
         }
         tv_content.setMovementMethod(LinkMovementMethod.getInstance());
     }

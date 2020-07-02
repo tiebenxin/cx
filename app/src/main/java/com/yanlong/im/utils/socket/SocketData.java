@@ -506,6 +506,9 @@ public class SocketData {
             case REPLY_SPECIFIC://消息回复
                 wrap.setReply((MsgBean.ReplySpecificMessage) value);
                 break;
+            case TRANS_NOTIFY://转账提醒
+                wrap.setTransNotify((MsgBean.TransNotifyMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
