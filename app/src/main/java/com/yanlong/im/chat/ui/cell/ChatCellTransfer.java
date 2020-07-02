@@ -124,9 +124,9 @@ public class ChatCellTransfer extends ChatCellBase {
             }
         } else if (opType == PayEnum.ETransferOpType.TRANS_REJECT) {
             if (isMe) {
-                result = "已退款";
+                result = "已退还";
             } else {
-                result = "已被退款";
+                result = "已退还";
             }
         } else if (opType == PayEnum.ETransferOpType.TRANS_PAST) {
             if (isMe) {
