@@ -567,7 +567,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
         bundle.putInt(PictureConfig.EXTRA_POSITION,position);
-        bundle.putInt(PictureConfig.FROM_WHERE,0);//跳转来源 0 默认 1 猜你想要
+        bundle.putInt(PictureConfig.FROM_WHERE,PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
         startActivity(PicturePreviewActivity.class, bundle,
                 config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
     }
@@ -870,7 +870,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 ImagesObservable.getInstance().saveLocalMedia(previewImages);
                 bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
                 bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-                bundle.putInt(PictureConfig.FROM_WHERE,0);//跳转来源 0 默认 1 猜你想要
+                bundle.putInt(PictureConfig.FROM_WHERE,PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
                 startActivity(PicturePreviewActivity.class, bundle,
                         config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
                 overridePendingTransition(R.anim.a5, 0);

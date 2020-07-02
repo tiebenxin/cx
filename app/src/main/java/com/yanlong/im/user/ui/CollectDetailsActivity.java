@@ -44,6 +44,7 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.google.gson.Gson;
 import com.hm.cxpay.utils.DateUtils;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.glide.CustomGlideModule;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
@@ -1027,7 +1028,7 @@ public class CollectDetailsActivity extends AppActivity {
         PictureSelector.create(CollectDetailsActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(0, selectList);
+                .openExternalPreview1(0, selectList, PictureConfig.FROM_COLLECT_DETAIL);
     }
 
     /***

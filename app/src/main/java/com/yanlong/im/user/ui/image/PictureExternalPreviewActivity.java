@@ -118,6 +118,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private LoadDataThread loadDataThread;
     //    private String[] strings = {"识别二维码", "保存图片", "取消"};
     private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
 
 
     @Override
@@ -140,6 +141,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         directory_path = "/DCIM/Camera/";
 
         images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+        fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);
         left_back.setOnClickListener(this);
         initAndPermissions();
 
@@ -341,7 +343,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             tv_title.setText(position + 1 + "/" + images.size());
 //        adapter = new SimpleFragmentAdapter();
 //        viewPager.setAdapter(adapter);
-            AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
+            AdapterPreviewImage mAdapter = new AdapterPreviewImage(this,fromWhere);
             mAdapter.setPopParentView(tv_title);
             mAdapter.bindData(images);
             viewPager.setAdapter(mAdapter);
