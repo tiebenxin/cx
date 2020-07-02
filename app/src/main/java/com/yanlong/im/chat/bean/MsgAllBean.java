@@ -388,27 +388,27 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 TransferMessage transferMessage = getTransfer();
                 if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
                     if (isMe()) {
-                        str = "[转账]：等待朋友收款";
+                        str = "[转账]等待朋友收款";
                     } else {
-                        str = "[转账]：等待你收款";
+                        str = "[转账]等待你收款";
                     }
                 } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE) {
                     if (isMe()) {
-                        str = "[转账]：已收款";
+                        str = "[转账]已收款";
                     } else {
-                        str = "[转账]：朋友已确认收款";
+                        str = "[转账]朋友已确认收款";
                     }
                 } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT) {
                     if (isMe()) {
-                        str = "[转账]：已退款";
+                        str = "[转账]你已将转账退还";
                     } else {
-                        str = "[转账]：已退款";
+                        str = "[转账]转账已被朋友退还";
                     }
                 } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
                     if (isMe()) {
-                        str = "[转账]：已过期";
+                        str = "[转账]已过期";
                     } else {
-                        str = "[转账]：已过期";
+                        str = "[转账]已过期";
                     }
                 } else {
                     if (isMe()) {
