@@ -80,7 +80,7 @@ public class ChatActionActivity extends AppActivity {
                 .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
         //优先显示发起人群昵称，没有则显示用户昵称
         if(!TextUtils.isEmpty(msgAllbean.getGid())){
-            txtName.setText(TextUtils.isEmpty(msgAllbean.getGroup().getMygroupName()) ? msgAllbean.getFrom_user().getName() : msgAllbean.getGroup().getMygroupName() );
+            txtName.setText(TextUtils.isEmpty(msgAllbean.getFrom_group_nickname()) ? msgAllbean.getFrom_nickname() : msgAllbean.getFrom_group_nickname());
         }else {
             txtName.setText(msgAllbean.getFrom_user().getName());
         }
