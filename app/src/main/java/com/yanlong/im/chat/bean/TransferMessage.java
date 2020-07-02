@@ -13,7 +13,7 @@ public class TransferMessage extends RealmObject implements IMsgContent {
     private String comment; // 备注信息
     private String sign; // 签名信息
     int opType;//操作类型, 红包状态
-    long creator;//转账创建者uid
+    long creator;//转账领取者uid
 
     public String getId() {
         return this.id;

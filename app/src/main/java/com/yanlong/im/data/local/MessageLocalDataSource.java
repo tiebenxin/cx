@@ -520,7 +520,7 @@ public class MessageLocalDataSource {
     }
 
     //更新转账状态
-    public void updateTransferStatus(@NonNull Realm realm, String tradeId, int opType) {
+    public void updateTransferStatus(@NonNull Realm realm, String tradeId, int opType,long creator) {
         try {
             checkInTransaction(realm);
 
@@ -534,6 +534,9 @@ public class MessageLocalDataSource {
             }
             realm.beginTransaction();
             transfer.setOpType(opType);
+            if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE){
+                transfer.setCreator(creator);
+            }
             realm.commitTransaction();
         } catch (Exception e) {
             if (realm.isInTransaction()) {

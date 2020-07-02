@@ -1462,17 +1462,6 @@ public class SocketData {
         return videoMessage;
     }
 
-    //转账消息
-    @NonNull
-    public static TransferMessage createTransferMessage(String msgId, String rowId, String money, String comment) {
-        TransferMessage message = new TransferMessage();
-        message.setMsgid(msgId);
-        message.setComment(comment);
-        message.setId(rowId);
-        message.setTransaction_amount(money);
-        return message;
-    }
-
     //
 
     /**
@@ -1607,6 +1596,10 @@ public class SocketData {
         message.setTransaction_amount(money + "");
         message.setSign(sign);
         message.setOpType(opType);
+        //设置转账创建者为自己
+        if (UserAction.getMyId() != null && opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+            message.setCreator(UserAction.getMyId().longValue());
+        }
         return message;
     }
 

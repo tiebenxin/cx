@@ -465,7 +465,7 @@ public class MessageRepository {
             if (transferMessage != null) {
                 //领取或退还转账,先更新历史转账消息状态，后存消息
                 if (transferMessage.getOpType() == MsgBean.TransferMessage.OpType.RECEIVE || transferMessage.getOpType() == MsgBean.TransferMessage.OpType.REJECT) {
-                    localDataSource.updateTransferStatus(realm, transferMessage.getId(), transferMessage.getOpTypeValue());
+                    localDataSource.updateTransferStatus(realm, transferMessage.getId(), transferMessage.getOpTypeValue(),wrapMessage.getFromUid());
                 }
             }
             result = saveMessageNew(bean, realm);
