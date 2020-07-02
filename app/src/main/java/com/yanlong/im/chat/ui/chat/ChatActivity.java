@@ -2723,10 +2723,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     replaceListDataAndNotify(msg);
                 }
                 long uid = 0;
-                if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE && UserAction.getMyId() != null){
+                if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE && UserAction.getMyId() != null) {
                     uid = UserAction.getMyId().longValue();
                 }
-                msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType(),uid);
+                msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType(), uid);
             }
             TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), transferBean.getOpType());
             sendMessage(message, ChatEnum.EMessageType.TRANSFER);
@@ -5252,6 +5252,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             Intent intent;
                             if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
                                 intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
+                                if (opType < detailBean.getStat()) {
+                                    int type = getTransferOpType(detailBean.getStat());
+                                    msgDao.updateTransferStatus(tradeId, type, 0);
+                                    TransferMessage preTransfer = msgBean.getTransfer();
+                                    preTransfer.setOpType(type);
+                                    replaceListDataAndNotify(msgBean);
+                                }
                             } else {
                                 intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
                             }
@@ -6473,4 +6480,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         startActivityForResult(intent, PictureConfig.PREVIEW_FROM_CHAT);
     }
 
+    @PayEnum.ETransferOpType
+    private int getTransferOpType(int stat) {
+        switch (stat) {
+            case 2:
+                return PayEnum.ETransferOpType.TRANS_RECEIVE;
+            case 3:
+                return PayEnum.ETransferOpType.TRANS_REJECT;
+            case 4:
+                return PayEnum.ETransferOpType.TRANS_PAST;
+            default:
+                return PayEnum.ETransferOpType.TRANS_SEND;
+        }
+    }
 }

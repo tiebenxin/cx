@@ -3560,7 +3560,7 @@ public class MsgDao {
                 return;
             }
             transfer.setOpType(opType);
-            if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+            if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE && uid > 0) {
                 transfer.setCreator(uid);
             }
             realm.commitTransaction();
