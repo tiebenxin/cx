@@ -61,7 +61,7 @@ public class ChatCellTransfer extends ChatCellBase {
                 nick = user.getName();
             }
         }
-        info = getTransferInfo(transfer.getComment(), transfer.getOpType(), isMe, isToMe ? "" : nick);
+        info = getTransferInfo(transfer.getComment(), transfer.getOpType(), isMe, isToMe ? "" : nick, transfer.getCreator());
         typeName = "零钱转账";
         setMessage(transfer.getOpType(), title, info, typeName, typeIcon);
     }
@@ -95,7 +95,7 @@ public class ChatCellTransfer extends ChatCellBase {
         iv_rb_icon.setImageResource(typeIcon);
     }
 
-    public String getTransferInfo(String info, int opType, boolean isMe, String nick) {
+    public String getTransferInfo(String info, int opType, boolean isMe, String nick, long creator) {
         String result = "";
         if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
             if (TextUtils.isEmpty(info)) {
@@ -109,46 +109,37 @@ public class ChatCellTransfer extends ChatCellBase {
 
             }
         } else if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
-            if (TextUtils.isEmpty(info)) {
+            if (UserAction.getMyId() != null && UserAction.getMyId().longValue() == creator) {
+                if (isMe) {
+                    result = "你已确定收款";
+                } else {
+                    result = "已收款";
+                }
+            } else {
                 if (isMe) {
                     result = "朋友已确定收款";
                 } else {
                     result = "已被领取";
                 }
-            } else {
-                if (isMe) {
-                    result = "朋友已确定收款-" + info;
-                } else {
-                    result = "已被领取-" + info;
-                }
             }
         } else if (opType == PayEnum.ETransferOpType.TRANS_REJECT) {
-            if (TextUtils.isEmpty(info)) {
-                if (isMe) {
-                    result = "已退款";
-                } else {
-                    result = "已被退款";
-                }
+            if (isMe) {
+                result = "已退还";
             } else {
-                if (isMe) {
-                    result = "已退款-" + info;
-                } else {
-                    result = "已被退款-" + info;
-                }
+                result = "已退还";
             }
         } else if (opType == PayEnum.ETransferOpType.TRANS_PAST) {
-            if (TextUtils.isEmpty(info)) {
-                if (isMe) {
-                    result = "已过期";
-                } else {
-                    result = "已过期";
-                }
+            if (isMe) {
+                result = "已过期";
             } else {
-                if (isMe) {
-                    result = "已过期-" + info;
-                } else {
-                    result = "已过期-" + info;
-                }
+                result = "已过期";
+            }
+        }
+        if (!TextUtils.isEmpty(info) && opType != PayEnum.ETransferOpType.TRANS_SEND) {
+            if (isMe) {
+                result = result + "-" + info;
+            } else {
+                result = result + "-" + info;
             }
         }
         return result;

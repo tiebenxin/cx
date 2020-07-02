@@ -2722,7 +2722,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     preTransfer.setOpType(transferBean.getOpType());
                     replaceListDataAndNotify(msg);
                 }
-                msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType());
+                long uid = 0;
+                if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE && UserAction.getMyId() != null){
+                    uid = UserAction.getMyId().longValue();
+                }
+                msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType(),uid);
             }
             TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), transferBean.getOpType());
             sendMessage(message, ChatEnum.EMessageType.TRANSFER);

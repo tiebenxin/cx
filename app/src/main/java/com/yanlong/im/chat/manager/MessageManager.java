@@ -785,7 +785,7 @@ public class MessageManager {
                     if (transferMessage != null) {
                         //领取或退还转账,先更新历史转账消息状态，后存消息
                         if (transferMessage.getOpType() == MsgBean.TransferMessage.OpType.RECEIVE || transferMessage.getOpType() == MsgBean.TransferMessage.OpType.REJECT) {
-                            msgDao.updateTransferStatus(transferMessage.getId(), transferMessage.getOpTypeValue());
+                            msgDao.updateTransferStatus(transferMessage.getId(), transferMessage.getOpTypeValue(), bean.getFrom_uid());
                         }
                     }
                     result = saveMessageNew(bean, isList);

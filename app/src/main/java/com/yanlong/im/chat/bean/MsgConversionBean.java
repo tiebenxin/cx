@@ -191,12 +191,18 @@ public class MsgConversionBean {
 //                videoMessage.setLocalUrl(bean.getShortVideo().getLocalUrl());
                 break;
             case TRANSFER:
+                if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.UNRECOGNIZED) {
+                    return null;
+                }
                 TransferMessage transferMessage = new TransferMessage();
                 transferMessage.setMsgid(msgAllBean.getMsg_id());
                 transferMessage.setId(bean.getTransfer().getId());
                 transferMessage.setComment(bean.getTransfer().getComment());
                 transferMessage.setTransaction_amount(bean.getTransfer().getTransactionAmount());
                 transferMessage.setOpType(bean.getTransfer().getOpTypeValue());
+                if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.RECEIVE) {//领取
+                    transferMessage.setCreator(fromUid);
+                }
                 msgAllBean.setTransfer(transferMessage);
                 msgAllBean.setMsg_type(EMessageType.TRANSFER);
                 break;

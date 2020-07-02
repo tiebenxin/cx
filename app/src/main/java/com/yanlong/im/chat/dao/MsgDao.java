@@ -993,7 +993,7 @@ public class MsgDao {
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
         String searchKey = key;
         if (!TextUtils.isEmpty(key)) {
-             searchKey = String.format("*%s*", key);
+            searchKey = String.format("*%s*", key);
         }
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
@@ -3547,7 +3547,7 @@ public class MsgDao {
     }
 
     //更新转账状态
-    public void updateTransferStatus(String tradeId, int opType) {
+    public void updateTransferStatus(String tradeId, int opType, long uid) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3560,6 +3560,9 @@ public class MsgDao {
                 return;
             }
             transfer.setOpType(opType);
+            if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+                transfer.setCreator(uid);
+            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
