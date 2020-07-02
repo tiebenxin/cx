@@ -710,7 +710,11 @@ public class DaoMigration implements RealmMigration {
     private final void updateV38(RealmSchema schema) {
         schema.get("UserInfo")
                 .addField("pinyinHead", String.class);
+        schema.get("TransferMessage")
+                .addField("creator", long.class);
     }
+
+
 
     @Override
     public boolean equals(@Nullable Object obj) {
