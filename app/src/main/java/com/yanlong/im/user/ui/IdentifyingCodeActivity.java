@@ -130,6 +130,8 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
                 taskGetSms(phone);
             }
         });
+        //点击获取验证码后，光标自行跳转
+        mEtIdentifyingCodeContent.requestFocus();
     }
 
 
