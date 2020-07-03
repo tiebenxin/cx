@@ -1920,7 +1920,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 sendMessage(message, ChatEnum.EMessageType.STAMP);
             }
         });
-//        alertTouch.setContent("快来聊天");
         alertTouch.show();
         alertTouch.setEdHintOrSize("快来聊天", 20);
     }

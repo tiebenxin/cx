@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.InputUtil;
 
 /***
  * 对话框
@@ -56,6 +57,8 @@ public class AlertTouch {
         mBtnOk.setText(y);
         mBtnCl.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                mEdContent.clearFocus();
+                InputUtil.hideKeyboard(mEdContent);
                 event.onON();
                 dismiss();
             }
@@ -63,8 +66,11 @@ public class AlertTouch {
 
         mBtnOk.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                mEdContent.clearFocus();
+                InputUtil.hideKeyboard(mEdContent);
                 event.onYes(mEdContent.getText().toString());
                 dismiss();
+
             }
         });
 
