@@ -38,7 +38,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
         @Override
         public void run() {
             ToastUtil.show(getContext(), "红包发送失败");
-//            dismissLoadingDialog();
+            dismissLoadingDialog();
             setResult(RESULT_CANCELED);
             finish();
         }

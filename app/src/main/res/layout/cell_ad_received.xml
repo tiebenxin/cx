@@ -74,6 +74,7 @@
                         android:maxLines="1"
                         android:selectAllOnFocus="true"
                         android:text=""
+                        android:layout_gravity="center_horizontal"
                         android:textColor="#343434"
                         android:textIsSelectable="false"
                         android:textSize="15sp"

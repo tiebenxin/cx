@@ -20,6 +20,7 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.eventbus.EventRefreshGroup;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
@@ -91,6 +92,8 @@ public class MessageManager {
     private int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
     public static Long SESSION_FUID;//单人会话id
     public static String SESSION_GID;//群会话id
+    private Long PREVIEW_UID;//预览uid
+    private String PREVIEW_GID;//预览群id
 
     private static MessageManager INSTANCE;
     private MsgDao msgDao = new MsgDao();
@@ -236,6 +239,7 @@ public class MessageManager {
         }
     }
 
+//    public synchronized void onReceive(MsgBean.UniversalMessage bean) {
 //        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 //        if (msgList != null) {
 //            int length = msgList.size();
@@ -250,16 +254,16 @@ public class MessageManager {
 //                    TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequestId());
 //                    if (taskMsgList == null) {
 //                        taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId(), bean.getMsgFrom(), length);
-////                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
-//                        taskMaps.push(bean.getRequestId(), taskMsgList);
+//                        taskMaps.put(bean.getRequestId(), taskMsgList);
 //                    } else {
 //                        taskMsgList.clearPendingList();
 //                    }
 //                    taskMsgList.execute();
-////                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
 //                }
 //            }
 //        }
+//    }
+
 
     public synchronized void testReceiveMsg() {
         MsgBean.UniversalMessage.Builder builder = MsgBean.UniversalMessage.newBuilder();
@@ -370,7 +374,7 @@ public class MessageManager {
         }
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
-            case IMAGE://图片
+
             case STAMP://戳一戳
             case VOICE://语音
             case SHORT_VIDEO://短视频
@@ -387,8 +391,14 @@ public class MessageManager {
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
             case ASSISTANT_PROMOTION:// 小助手推广消息
+
+                break;
+            case IMAGE://图片
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    if (result && !isList) {
+                        doRefreshPreviewImage(wrapMessage);
+                    }
                 }
                 break;
             case HISTORY_CLEAN://双向清除
@@ -614,12 +624,6 @@ public class MessageManager {
                 if (user != null) {
                     notifyOnlineChange(user);
                 }
-//                if (user != null) {
-//                    notifyRefreshFriend(true, user, CoreEnum.ERosterAction.UPDATE_INFO);
-//                } else {
-//                    notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
-//                }
-//                notifyOnlineChange(wrapMessage.getFromUid());
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
@@ -1110,8 +1114,6 @@ public class MessageManager {
                 if (task != null) {
                     task.getPendingMessagesMap().put(msgAllBean.getMsg_id(), msgAllBean);
                 }
-//                pendingMessages.push(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
-
             } else {
                 DaoUtil.update(msgAllBean);
                 if (isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid())) {
@@ -1182,7 +1184,6 @@ public class MessageManager {
             e.printStackTrace();
             LogUtil.getLog().d("a=", TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
-//        LogUtil.getLog().d("a=", TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         if (isFromSelf) {
             //自己PC 端发的消息刷新session
             /********通知更新或创建session ************************************/
@@ -2326,6 +2327,50 @@ public class MessageManager {
         isMicrophoneUsing = b;
         LogUtil.getLog().i(TAG, "--改变麦克风使用状态-isMicrophoneUsing=" + isMicrophoneUsing);
 
+    }
+
+    public void initPreviewID(String gid, Long toUid) {
+        PREVIEW_GID = gid;
+        PREVIEW_UID = toUid;
+    }
+
+    public void clearPreviewId() {
+        PREVIEW_GID = "";
+        PREVIEW_UID = null;
+    }
+
+    //是否图片消息来自正在预览的会话
+    public boolean isImageFromCurrent(String gid, long uid) {
+        if (!TextUtils.isEmpty(PREVIEW_GID) && !TextUtils.isEmpty(gid) && gid.equals(PREVIEW_GID)) {
+            return true;
+        } else if (PREVIEW_UID != null && PREVIEW_UID.longValue() == uid) {
+            return true;
+        }
+        return false;
+    }
+
+    //通知刷新图片消息
+    public void notifyReceiveImage(String gid, long uid) {
+        EventReceiveImage event = new EventReceiveImage(gid, uid);
+        EventBus.getDefault().post(event);
+    }
+
+    private void doRefreshPreviewImage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.IMAGE) {
+            long toUid;
+            if (!TextUtils.isEmpty(wrapMessage.getGid())) {
+                toUid = 0;
+            } else {
+                if (UserAction.getMyId() != null && UserAction.getMyId().longValue() == wrapMessage.getFromUid()) {
+                    toUid = wrapMessage.getToUid();
+                } else {
+                    toUid = wrapMessage.getFromUid();
+                }
+            }
+            if (MessageManager.getInstance().isImageFromCurrent(wrapMessage.getGid(), toUid)) {
+                MessageManager.getInstance().notifyReceiveImage(wrapMessage.getGid(), toUid);
+            }
+        }
     }
 
 }

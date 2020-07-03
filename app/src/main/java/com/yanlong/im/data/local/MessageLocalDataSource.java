@@ -443,6 +443,16 @@ public class MessageLocalDataSource {
         DB.deleteMsg4Cancel(realm, msgid, msgCancelId);
     }
 
+    /**
+     * 撤回-删除消息
+     *
+     * @param msgId       消息ID
+     */
+    public void deleteMsg(@NonNull Realm realm, String msgId) {
+        checkInTransaction(realm);
+        DB.deleteMsg(realm, msgId);
+    }
+
     /***
      * 更新阅后即焚状态
      */

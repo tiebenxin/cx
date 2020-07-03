@@ -285,8 +285,16 @@ public class MsgConversionBean {
                             rbNotice.setNote("你领取了自己的<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                             rbNotice.setMsgType(ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
                         } else {
+                            String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                            if (TextUtils.isEmpty(nick)) {
+                                if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
+                                    nick = bean.getMembername();
+                                } else {
+                                    nick = bean.getNickname();
+                                }
+                            }
                             rbNotice.setMsgType(ENoticeType.SYS_ENVELOPE_RECEIVED);
-                            String user = "<user id='" + fromUid + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
+                            String user = "<user id='" + fromUid + "' gid=" + bean.getGid() + ">" + nick + "</user>";
                             rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                         }
                     }
