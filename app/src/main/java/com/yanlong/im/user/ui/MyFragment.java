@@ -138,7 +138,7 @@ public class MyFragment extends Fragment {
 
     //自动生成的控件事件
     private void initEvent() {
-        viewMoney.setVisibility(View.VISIBLE);//关闭零钱
+        viewMoney.setVisibility(View.GONE);//关闭零钱
 
         builder = new CommonSelectDialog.Builder(context);
         viewHead.setOnClickListener(new View.OnClickListener() {
