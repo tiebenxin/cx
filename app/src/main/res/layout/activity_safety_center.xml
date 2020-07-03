@@ -112,7 +112,7 @@
                 android:id="@+id/view_freeze_account"
                 style="@style/app_layout_list2_item"
                 android:layout_marginTop="20dp"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -136,7 +136,7 @@
             <LinearLayout
                 android:id="@+id/view_appeal_account"
                 style="@style/app_layout_list2_item"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -160,7 +160,7 @@
             <LinearLayout
                 android:id="@+id/view_logout_account"
                 style="@style/app_layout_list2_item"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <TextView
                     style="@style/app_txt_title_2"

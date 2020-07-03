@@ -563,7 +563,7 @@ public class MessageRepository {
             //TODO:saveMessageNew的有更新未读数
             // 判断消息是否存在，不存在则不保存
             MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", cancelMsgId).findFirst();
-            if (filterDeleteCancel(wrapMessage)) {
+            if (filterDeleteCancel(wrapMessage.getFromUid())) {
                 if (msgAllBean != null) {
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg(realm, cancelMsgId);
@@ -575,13 +575,13 @@ public class MessageRepository {
                             offlineMsgAllBean.remove(msgAllBean);
                         }
                     }
-//                    int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
-//                    if (currentId >= 0 && currentId < offlineMsgAllBean.size()) {
-//                        msgAllBean = offlineMsgAllBean.get(position);
-//                        if (msgAllBean != null) {
-//                            offlineMsgAllBean.remove(msgAllBean);
-//                        }
-//                    }
+                    int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
+                    if (currentId >= 0 && currentId < offlineMsgAllBean.size()) {
+                        msgAllBean = offlineMsgAllBean.get(position);
+                        if (msgAllBean != null) {
+                            offlineMsgAllBean.remove(msgAllBean);
+                        }
+                    }
                 }
             } else {
                 if (msgAllBean != null) {
@@ -915,7 +915,11 @@ public class MessageRepository {
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
             //是否是对方 @所有人或@自己的消息
             if (!isOffline || localDataSource.isAtMe(msgAllBean)) {//在线消息 或@自己的消息，及时更新session，离线消息等批量结束后更新
-                localDataSource.updateObject(realm, msgAllBean);
+                if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL && filterDeleteCancel(msgAllBean.getFrom_uid())) {
+                    //来自小助手消息的撤销消息不需要存储
+                } else {
+                    localDataSource.updateObject(realm, msgAllBean);
+                }
                 LogUtil.getLog().i(TAG, "--接受到消息--存储在线消息--" + msgAllBean.getMsg_type());
                 if (MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid())) {
                     MessageManager.getInstance().notifyRefreshChat(msgAllBean, CoreEnum.ERefreshType.ADD);
@@ -1073,7 +1077,7 @@ public class MessageRepository {
     }
 
     //过滤撤销消息中只删除消息，不产生消息记录的消息
-    private boolean filterDeleteCancel(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        return wrapMessage.getFromUid() == Constants.CX_HELPER_UID;
+    private boolean filterDeleteCancel(long fromUid) {
+        return fromUid == Constants.CX_HELPER_UID;
     }
 }
