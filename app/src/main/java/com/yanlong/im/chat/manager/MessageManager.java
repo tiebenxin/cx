@@ -191,7 +191,7 @@ public class MessageManager {
 
     public void clear() {
         LogUtil.getLog().i(TAG, "消息LOG-- 队列 clear");
-//        this.toDoMsg.clear();
+        this.toDoMsg.clear();
         this.isDealingMsg = false;
     }
 
