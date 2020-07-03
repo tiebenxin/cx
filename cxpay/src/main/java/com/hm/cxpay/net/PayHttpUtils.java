@@ -23,6 +23,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.PayUtils;
 import com.hm.cxpay.utils.UIUtils;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.encrypt.MD5;
 
 import java.util.HashMap;
@@ -457,7 +458,11 @@ public class PayHttpUtils {
 
     //商城->获取免登陆商城URL
     public Observable<BaseResponse> getShopUrl() {
-        return HttpChannel.getInstance().getPayService().getShopUrl(getAuthMap());
+        if(AppConfig.DEBUG){
+            return HttpChannel.getInstance().getPayService().getShopUrlDebug(getAuthMap());
+        }else {
+            return HttpChannel.getInstance().getPayService().getShopUrlRelease(getAuthMap());
+        }
     }
 
 
