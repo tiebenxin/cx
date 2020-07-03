@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -27,6 +28,7 @@ public class CutView extends View {
     private float marginTop;
     private float marginBottom;
     private int dp1;
+    private int mHeight = 0;// 图片的高度
 
     public CutView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -47,7 +49,7 @@ public class CutView extends View {
 
         marginLeft = (int) 1;
         marginRight = (int) 1;
-        marginTop = (int)1;
+        marginTop = (int) 1;
         marginBottom = (int) 1;
 //        marginLeft = (int) getResources().getDimension(R.dimen.dp30);
 //        marginRight = (int) getResources().getDimension(R.dimen.dp30);
@@ -77,28 +79,29 @@ public class CutView extends View {
     float rectRight;
     float rectTop;
     float rectBottom;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch (event.getAction()){
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
 
                 downX = event.getX();
                 downY = event.getY();
                 //判断手指的范围在左面还是右面
-                if(Math.abs(rectLeft-downX) < cornerLength){
+                if (Math.abs(rectLeft - downX) < cornerLength) {
                     isLeft = true;
-                }else if(Math.abs(rectRight-downX) < cornerLength){
+                } else if (Math.abs(rectRight - downX) < cornerLength) {
                     isRight = true;
                 }
                 //判断手指的范围在上面还是下面
-                if(Math.abs(rectTop-downY) < cornerLength){
+                if (Math.abs(rectTop - downY) < cornerLength) {
                     isTop = true;
-                }else if(Math.abs(rectBottom-downY) < cornerLength){
+                } else if (Math.abs(rectBottom - downY) < cornerLength) {
                     isBottom = true;
                 }
                 //如果手指范围没有在任何边界位置, 那么我们就认为用户是想拖拽框体
-                if(!isLeft && !isTop && !isRight && !isBottom){
+                if (!isLeft && !isTop && !isRight && !isBottom) {
                     isMove = true;
                 }
                 break;
@@ -106,44 +109,50 @@ public class CutView extends View {
                 float moveX = event.getX();
                 float moveY = event.getY();
                 //得到手指移动距离
-                float slideX = moveX-downX+lastSlideX;
-                float slideY = moveY-downY+lastSlideY;
+                float slideX = moveX - downX + lastSlideX;
+                float slideY = moveY - downY + lastSlideY;
 
-                if(isMove){//判断是否是拖拽模式
+                if (isMove) {//判断是否是拖拽模式
                     rectLeft += slideX;
                     rectRight += slideX;
                     rectTop += slideY;
                     rectBottom += slideY;
                     //同时改变left和right值, 达到左右移动的效果
-                    if(rectLeft < marginLeft || rectRight > measuredWidth-marginRight) {//判断x轴的移动边界
+                    if (rectLeft < marginLeft || rectRight > measuredWidth - marginRight) {//判断x轴的移动边界
                         rectLeft -= slideX;
                         rectRight -= slideX;
                     }
                     //同时改变top和bottom值, 达到上下移动的效果
-                    if(rectTop < marginTop || rectBottom > measuredHeight-marginBottom){//判断y轴的移动边界
+                    if (rectTop < marginTop || rectBottom > measuredHeight - marginBottom) {//判断y轴的移动边界
                         rectTop -= slideY;
                         rectBottom -= slideY;
                     }
-                }else{//更改边框大小模式
+                } else {//更改边框大小模式
                     //改变边框的宽度
-                    if(isLeft){
+                    if (isLeft) {
                         rectLeft += slideX;
-                        if(rectLeft < marginLeft) rectLeft = marginLeft;
-                        if(rectLeft > rectRight-cornerLength*2) rectLeft = rectRight-cornerLength*2;
-                    }else if(isRight){
+                        if (rectLeft < marginLeft) rectLeft = marginLeft;
+                        if (rectLeft > rectRight - cornerLength * 2)
+                            rectLeft = rectRight - cornerLength * 2;
+                    } else if (isRight) {
                         rectRight += slideX;
-                        if(rectRight > measuredWidth-marginRight) rectRight = measuredWidth- marginRight;
-                        if(rectRight < rectLeft+cornerLength*2) rectRight = rectLeft+cornerLength*2;
+                        if (rectRight > measuredWidth - marginRight)
+                            rectRight = measuredWidth - marginRight;
+                        if (rectRight < rectLeft + cornerLength * 2)
+                            rectRight = rectLeft + cornerLength * 2;
                     }
                     //改变边框的高度, 如果两个都满足(比如手指在边角位置),那么就呈现一种缩放状态
-                    if(isTop){
+                    if (isTop) {
                         rectTop += slideY;
-                        if(rectTop < marginTop) rectTop = marginTop;
-                        if(rectTop > rectBottom-cornerLength*2) rectTop = rectBottom-cornerLength*2;
-                    }else if(isBottom){
+                        if (rectTop < marginTop) rectTop = marginTop;
+                        if (rectTop > rectBottom - cornerLength * 2)
+                            rectTop = rectBottom - cornerLength * 2;
+                    } else if (isBottom) {
                         rectBottom += slideY;
-                        if(rectBottom > measuredHeight-marginBottom) rectBottom = measuredHeight- marginBottom;
-                        if(rectBottom < rectTop+cornerLength*2) rectBottom = rectTop+cornerLength*2;
+                        if (rectBottom > measuredHeight - marginBottom)
+                            rectBottom = measuredHeight - marginBottom;
+                        if (rectBottom < rectTop + cornerLength * 2)
+                            rectBottom = rectTop + cornerLength * 2;
                     }
                 }
                 //实时触发onDraw()方法
@@ -167,29 +176,29 @@ public class CutView extends View {
     /**
      * 得到裁剪区域的margin值
      */
-    public float[] getCutArr(){
+    public float[] getCutArr() {
 
         float[] arr = new float[4];
-        arr[0] = rectLeft-marginLeft;
-        arr[1] = rectTop-marginTop;
-        arr[2] = rectRight-marginLeft;
-        arr[3] = rectBottom-marginTop;
+        arr[0] = rectLeft - marginLeft;
+        arr[1] = rectTop - marginTop;
+        arr[2] = rectRight - marginLeft;
+        arr[3] = rectBottom - marginTop;
         return arr;
     }
 
-    public int getRectWidth(){
-        return (int) (measuredWidth-marginLeft-marginRight);
+    public int getRectWidth() {
+        return (int) (measuredWidth - marginLeft - marginRight);
     }
 
-    public int getRectHeight(){
-        return (int) (measuredHeight-marginTop-marginBottom);
+    public int getRectHeight() {
+        return (int) (measuredHeight - marginTop - marginBottom);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        if(measuredWidth == 0) {
+        if (measuredWidth == 0) {
             initParams();
         }
     }
@@ -204,16 +213,32 @@ public class CutView extends View {
         invalidate();
     }
 
-    private void initParams(){
+    private void initParams() {
 
         measuredWidth = getMeasuredWidth();
-        measuredHeight = getMeasuredHeight();
+        if (mHeight != 0) {
+            measuredHeight = mHeight;
+        } else {
+            measuredHeight = getMeasuredHeight();
+        }
+        Log.i("1212", "measuredHeight:" + measuredHeight + "  width: " + measuredWidth);
         cornerLength = measuredWidth / 10;
 
         rectLeft = marginLeft;
-        rectRight = measuredWidth- marginRight;
+        rectRight = measuredWidth - marginRight;
         rectTop = marginTop;
-        rectBottom = measuredHeight- marginBottom;
+        rectBottom = measuredHeight - marginBottom;
+    }
+
+    /**
+     * 重新设置高度
+     *
+     * @param height
+     */
+    public void setHeight(int height) {
+        mHeight = height;
+        initParams();
+        invalidate();
     }
 
     @Override
@@ -229,78 +254,78 @@ public class CutView extends View {
     /**
      * 绘制四条分割线和四个角
      */
-    private void drawLine(Canvas canvas, float left, float top, float right, float bottom){
+    private void drawLine(Canvas canvas, float left, float top, float right, float bottom) {
 
         paint.setStrokeWidth(1);
         //绘制四条分割线
-        float startX = (right-left)/3+left;
+        float startX = (right - left) / 3 + left;
         float startY = top;
-        float stopX = (right-left)/3+left;
+        float stopX = (right - left) / 3 + left;
         float stopY = bottom;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
 
-        startX = (right-left)/3*2+left;
+        startX = (right - left) / 3 * 2 + left;
         startY = top;
-        stopX = (right-left)/3*2+left;
+        stopX = (right - left) / 3 * 2 + left;
         stopY = bottom;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
 
         startX = left;
-        startY = (bottom-top)/3+top;
+        startY = (bottom - top) / 3 + top;
         stopX = right;
-        stopY = (bottom-top)/3+top;
+        stopY = (bottom - top) / 3 + top;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
 
         startX = left;
-        startY = (bottom-top)/3*2+top;
+        startY = (bottom - top) / 3 * 2 + top;
         stopX = right;
-        stopY = (bottom-top)/3*2+top;
+        stopY = (bottom - top) / 3 * 2 + top;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
 
         paint.setStrokeWidth(dp3);
         //绘制四个角
-        startX = left-dp3/2;
+        startX = left - dp3 / 2;
         startY = top;
-        stopX = left+cornerLength;
+        stopX = left + cornerLength;
         stopY = top;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
         startX = left;
         startY = top;
         stopX = left;
-        stopY = top+cornerLength;
+        stopY = top + cornerLength;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
 
-        startX = right+dp3/2;
+        startX = right + dp3 / 2;
         startY = top;
-        stopX = right-cornerLength;
+        stopX = right - cornerLength;
         stopY = top;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
         startX = right;
         startY = top;
         stopX = right;
-        stopY = top+cornerLength;
+        stopY = top + cornerLength;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
 
         startX = left;
         startY = bottom;
         stopX = left;
-        stopY = bottom-cornerLength;
+        stopY = bottom - cornerLength;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
-        startX = left-dp3/2;
+        startX = left - dp3 / 2;
         startY = bottom;
-        stopX = left+cornerLength;
+        stopX = left + cornerLength;
         stopY = bottom;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
 
-        startX = right+dp3/2;
+        startX = right + dp3 / 2;
         startY = bottom;
-        stopX = right-cornerLength;
+        stopX = right - cornerLength;
         stopY = bottom;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
         startX = right;
         startY = bottom;
         stopX = right;
-        stopY = bottom-cornerLength;
+        stopY = bottom - cornerLength;
         canvas.drawLine(startX, startY, stopX, stopY, paint);
     }
 }

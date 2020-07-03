@@ -157,7 +157,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                         boolean toEqual = PictureMimeType.
                                 mimeToEqual(pictureType, image.getPictureType());
                         if (!toEqual) {
-                            ToastManage.s(mContext,getString(R.string.picture_rule));
+                            ToastManage.s(mContext, getString(R.string.picture_rule));
                             return;
                         }
                     }
@@ -212,6 +212,13 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 position = i;
                 tv_title.setText(position + 1 + "/" + images.size());
                 LocalMedia media = images.get(position);
+                String pictureType = media.getPictureType();
+                boolean isGif = PictureMimeType.isGif(pictureType);
+                if (isGif) {
+                    tvEdit.setVisibility(View.INVISIBLE);
+                } else {
+                    tvEdit.setVisibility(View.VISIBLE);
+                }
                 index = media.getPosition();
                 if (!config.previewEggs) {
                     if (config.checkNumMode) {
@@ -233,7 +240,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
                 //如果当前图片存在于已选中列表则编辑后需要更新已选列表的数据；否则不需要更新已选列表的数据
                 int editIndex = getSelectedPosition(images.get(position));
-                ARouter.getInstance().build("/weixinrecorded/ImageShowActivity").withString("imgpath",images.get(position).getPath()).withInt("index",editIndex).withInt("img_width",images.get(position).getWidth()).withInt("img_height",images.get(position).getHeight()).navigation(PicturePreviewActivity.this,EDIT_FROM_ALBUM);
+                ARouter.getInstance().build("/weixinrecorded/ImageShowActivity").withString("imgpath", images.get(position).getPath()).withInt("index", editIndex).withInt("img_width", images.get(position).getWidth()).withInt("img_height", images.get(position).getHeight()).navigation(PicturePreviewActivity.this, EDIT_FROM_ALBUM);
             }
         });
     }
@@ -295,9 +302,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         adapter.setShowEditListner(new SimpleFragmentAdapter.ShowEditListner() {
             @Override
             public void showEditItem(boolean ifShow) {
-                if(ifShow){
+                if (ifShow) {
                     tvEdit.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     tvEdit.setVisibility(View.GONE);
                 }
             }
@@ -373,12 +380,13 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
     /**
      * 获取当前图片在已选列表中的位置(方便编辑后刷新)
+     *
      * @param image
      * @return
      */
-    public int getSelectedPosition(LocalMedia image){
-        for(int i=0; i<selectImages.size(); i++){
-            if(selectImages.get(i).getPath().equals(image.getPath())){
+    public int getSelectedPosition(LocalMedia image) {
+        for (int i = 0; i < selectImages.size(); i++) {
+            if (selectImages.get(i).getPath().equals(image.getPath())) {
                 return i;
             }
         }
@@ -462,7 +470,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     boolean eqImg = pictureType.startsWith(PictureConfig.IMAGE);
                     String str = eqImg ? getString(R.string.picture_min_img_num, config.minSelectNum)
                             : getString(R.string.picture_min_video_num, config.minSelectNum);
-                    ToastManage.s(mContext,str);
+                    ToastManage.s(mContext, str);
                     return;
                 }
             }
@@ -486,9 +494,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
     @Override
     public void onResult(List<LocalMedia> images) {
-        if(fromWhere==0){//默认情况，不影响原有逻辑
+        if (fromWhere == 0) {//默认情况，不影响原有逻辑
             RxBus.getDefault().post(new EventEntity(PictureConfig.PREVIEW_DATA_FLAG, images));
-        }else {
+        } else {
             if (images.size() > 0) {
                 compressImageAndSendMsg(images);
             }
@@ -518,15 +526,15 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     finish();
                     break;
                 case EDIT_FROM_ALBUM:
-                    if(!TextUtils.isEmpty(data.getStringExtra("showPath"))){
+                    if (!TextUtils.isEmpty(data.getStringExtra("showPath"))) {
                         images.get(position).setPath(data.getStringExtra("showPath"));
 
                         adapter.notifyDataSetChanged();//刷新显示编辑后的图片
                         //不为-1，说明selectImages中存在，即已选图片编辑后，需要刷新数据
-                        if(data.getIntExtra("index",-1) != -1){
-                            int tempIndex = data.getIntExtra("index",-1);
+                        if (data.getIntExtra("index", -1) != -1) {
+                            int tempIndex = data.getIntExtra("index", -1);
                             selectImages.get(tempIndex).setPath(data.getStringExtra("showPath"));
-                        }else{//没有选中，直接选中
+                        } else {//没有选中，直接选中
                             ll_check.performClick();
                         }
                     }
@@ -534,7 +542,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             Throwable throwable = (Throwable) data.getSerializableExtra(UCrop.EXTRA_ERROR);
-            ToastManage.s(mContext,throwable.getMessage());
+            ToastManage.s(mContext, throwable.getMessage());
         }
     }
 

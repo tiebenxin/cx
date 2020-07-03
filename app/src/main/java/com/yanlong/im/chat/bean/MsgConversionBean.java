@@ -385,17 +385,45 @@ public class MsgConversionBean {
                 msgAllBean.setMsgNotice(gdelNotice);
 
                 break;
-            case REMOVE_GROUP_MEMBER:
-                //  ToastUtil.show(getApplicationContext(), "删除群成员");
+            case REMOVE_GROUP_MEMBER2:// 别人被移出群
+                msgAllBean.setGid(bean.getGid());
+                msgAllBean.setMsg_type(EMessageType.NOTICE);
+                MsgNotice grOtherNotice = new MsgNotice();
+                grOtherNotice.setMsgid(msgAllBean.getMsg_id());
+                if (userInfo == null) {
+                    userInfo = new UserDao().findUserInfo(fromUid);
+                }
+                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                    name = userInfo.getMkName();
+                }
+                if (TextUtils.isEmpty(name)) {
+                    name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
+                    if (TextUtils.isEmpty(name)) {
+                        if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
+                            name = bean.getMembername();
+                        } else {
+                            name = bean.getNickname();
+                        }
+                    }
+                }
+                MsgBean.RemoveGroupMember2Message removeGroupMember2 = bean.getRemoveGroupMember2();
+                if (removeGroupMember2.getUidList() != null && removeGroupMember2.getUidList().size() > 0) {
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (Long l : removeGroupMember2.getUidList()) {
+                        stringBuffer.append("\"<font color='#276baa' id='" + l + "'>" + l + "</font>\"、");
+                    }
+                    String removeNames = stringBuffer.substring(0, stringBuffer.length() - 1);
+                    String user = "\"<font color='#276baa' id='" + fromUid + "'>" + name + "</font>\"";
+                    grOtherNotice.setNote(removeNames + "已被" + user + "移出群" + "<div id='" + bean.getGid() + "'></div>");
+                    grOtherNotice.setMsgType(ENoticeType.GROUP_OTHER_REMOVE);
+                    msgAllBean.setMsgNotice(grOtherNotice);
+                }
+                break;
+            case REMOVE_GROUP_MEMBER:// 自己被移出群
                 msgAllBean.setGid(bean.getRemoveGroupMember().getGid());
                 msgAllBean.setMsg_type(EMessageType.NOTICE);
                 MsgNotice grmvNotice = new MsgNotice();
                 grmvNotice.setMsgid(msgAllBean.getMsg_id());
-                if (!TextUtils.isEmpty(bean.getMembername())) {
-                    bean.getMembername();
-                } else {
-                    bean.getNickname();
-                }
                 if (userInfo == null) {
                     userInfo = new UserDao().findUserInfo(fromUid);
                 }

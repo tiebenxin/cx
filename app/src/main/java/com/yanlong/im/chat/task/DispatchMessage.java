@@ -152,7 +152,7 @@ public abstract class DispatchMessage {
                 result = repository.handlerRemoveGroupMember(wrapMessage, realm);
                 break;
             case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代,所以需要从服务器重新拉取数据
-                repository.handlerRemoveGroupMember2(wrapMessage, realm);
+                result = repository.handlerRemoveGroupMember2(wrapMessage, realm);
                 break;
             case ACCEPT_BE_GROUP://接受入群，
                 result = repository.handlerAcceptBeGroup(wrapMessage, realm);

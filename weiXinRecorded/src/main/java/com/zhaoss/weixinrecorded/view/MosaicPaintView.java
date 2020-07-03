@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.zhaoss.weixinrecorded.R;
+import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 import com.zhaoss.weixinrecorded.util.BitmapUtil;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
 
@@ -109,6 +110,8 @@ public class MosaicPaintView extends View {
     private List<Path> mErasePaths;
 
     private boolean mMosaic;
+    // 点击事件回调用于处理显示与隐藏标题栏
+    private ImageShowActivity.IClickCallLister lister;
 
     public EtypeMode getEtypeMode() {
         return etypeMode;
@@ -129,6 +132,14 @@ public class MosaicPaintView extends View {
         super(context, attrs);
         initImage();
         init();
+    }
+
+    public ImageShowActivity.IClickCallLister getLister() {
+        return lister;
+    }
+
+    public void setLister(ImageShowActivity.IClickCallLister lister) {
+        this.lister = lister;
     }
 
     private void initImage() {
@@ -897,6 +908,7 @@ public class MosaicPaintView extends View {
                         mPath = new Path();
                     }
                     mPath.moveTo(x, y);
+                    onClick(false);
                     break;
                 case MotionEvent.ACTION_MOVE:
                     //这里终点设为两点的中心点的目的在于使绘制的曲线更平滑，如果终点直接设置为x,y，效果和lineto是一样的,实际是折线效果
@@ -913,16 +925,31 @@ public class MosaicPaintView extends View {
                     mLastY = y;
                     break;
                 case MotionEvent.ACTION_UP:
+                    onClick(true);
                     if (mDrwaMode == DrwaMode.DRAW || mCanEraser) {
                         saveDrawingPath();
                     }
                     mPath.reset();
                     break;
             }
+        } else {
+            int action = event.getAction() & MotionEvent.ACTION_MASK;
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                    onClick(false);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    onClick(true);
+                    break;
+            }
         }
         return true;
     }
 
-
+    private void onClick(boolean isShow) {
+        if (lister != null) {
+            lister.onClickLister(isShow);
+        }
+    }
     // ========================涂鸦======================================
 }
