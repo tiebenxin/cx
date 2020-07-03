@@ -107,7 +107,7 @@ public class SocketData {
      * @return
      */
     public static byte[] msg4ACK(String rid, List<String> msgids, int from, boolean latest, boolean isEnd) {
-        LogUtil.getLog().i(TAG, "发送ACK====" + "--from=" + from + "--latest=" + latest + "--isEnd=" + isEnd);
+        LogUtil.getLog().i(TAG, "消息LOG--发送ACK====" + "--from=" + from + "--latest=" + latest + "--isEnd=" + isEnd);
         MsgBean.AckMessage ack;
         MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder().setRequestId(rid);
         if (msgids != null) {

@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -141,7 +142,8 @@ public class MessageManager {
 
     private boolean isMicrophoneUsing = false;
 
-    private List<MsgBean.UniversalMessage> toDoMsg = new ArrayList<>();
+    //使用线程安全的
+    private List<MsgBean.UniversalMessage> toDoMsg = new CopyOnWriteArrayList<>();
 
 
     //是否正在处理消息
@@ -153,6 +155,7 @@ public class MessageManager {
         if (toDoMsg.size() > 0) {
             MsgBean.UniversalMessage message = toDoMsg.get(toDoMsg.size() - 1);
             toDoMsg.remove(message);
+            LogUtil.getLog().i(TAG, "消息LOG--poll--" + message.getRequestId() + "--剩余--size=" + toDoMsg.size());
             isDealingMsg = false;
             return message;
         } else {
@@ -181,12 +184,13 @@ public class MessageManager {
      *
      * @param receiveMsg
      */
-    public void push(MsgBean.UniversalMessage receiveMsg) {
+    public synchronized void push(MsgBean.UniversalMessage receiveMsg) {
         toDoMsg.add(receiveMsg);
-        LogUtil.getLog().i(TAG, "接收到消息--add 队列--" + receiveMsg.getRequestId());
+        LogUtil.getLog().i(TAG, "消息LOG--add 队列--" + receiveMsg.getRequestId() + "--size=" + toDoMsg.size());
     }
 
     public void clear() {
+        LogUtil.getLog().i(TAG, "消息LOG-- 队列 clear");
         this.toDoMsg.clear();
         this.isDealingMsg = false;
     }
@@ -224,14 +228,14 @@ public class MessageManager {
                 MyAppLication.INSTANCE().startMessageIntentService();
             } else {
                 //在线消息线程处理不过来了，启动旧消息通道来处理
-                LogUtil.getLog().i(TAG, "接收到消息--在线--但是Dealing");
+                LogUtil.getLog().i(TAG, "消息LOG--在线--但是Dealing");
 //                LogUtil.writeLog("接收到在线消息--但是Dealing==" + bean.getRequestId());
                 try {
                     Thread.sleep(100);
                     MyAppLication.INSTANCE().startMessageIntentService();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    LogUtil.getLog().i(TAG, "接收到消息--在线--睡眠出错");
+                    LogUtil.getLog().i(TAG, "消息LOG--在线--睡眠出错");
                 }
             }
         } else {
@@ -339,7 +343,7 @@ public class MessageManager {
             }
         }
         /******end 丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
-        LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
+        LogUtil.getLog().e(TAG, "消息LOG: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
         boolean isCancelValid = false;//是否是有效撤销信息
@@ -357,7 +361,7 @@ public class MessageManager {
                 if (oldMsgId.size() >= 500) {
                     oldMsgId.remove(0);
                 }
-                LogUtil.getLog().e(TAG, ">>>>>接收到消息--add: " + wrapMessage.getMsgId());
+                LogUtil.getLog().e(TAG, ">>>>>消息LOG--add: " + wrapMessage.getMsgId());
                 oldMsgId.add(wrapMessage.getMsgId());
             }
         }

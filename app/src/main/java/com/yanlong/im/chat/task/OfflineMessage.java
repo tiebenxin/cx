@@ -116,7 +116,7 @@ public class OfflineMessage extends DispatchMessage {
             //收集gid和uid,用于最后更新session
             collectBatchMessageGidAndUids(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
         }
-        LogUtil.getLog().i(TAG, "接收到消息--离线--filter=" + result);
+        LogUtil.getLog().i(TAG, "消息LOG--离线--filter=" + result);
         return false;
     }
 

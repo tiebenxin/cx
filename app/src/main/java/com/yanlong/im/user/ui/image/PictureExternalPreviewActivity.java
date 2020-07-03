@@ -487,7 +487,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         }
     }
 
-    //接收到消息更新图片列表
+    //消息LOG更新图片列表
     private void updateMessageList() {
         LogUtil.getLog().i("图片--test", "--updateMessageList");
         if (images != null) {
