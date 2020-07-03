@@ -200,8 +200,9 @@ public class MsgConversionBean {
                 transferMessage.setComment(bean.getTransfer().getComment());
                 transferMessage.setTransaction_amount(bean.getTransfer().getTransactionAmount());
                 transferMessage.setOpType(bean.getTransfer().getOpTypeValue());
-                if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.RECEIVE) {//领取
-                    transferMessage.setCreator(fromUid);
+                transferMessage.setCreator(fromUid);
+                if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.TRANS_SEND) {
+                    transferMessage.setPassive(1);
                 }
                 msgAllBean.setTransfer(transferMessage);
                 msgAllBean.setMsg_type(EMessageType.TRANSFER);

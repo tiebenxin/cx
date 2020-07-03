@@ -189,6 +189,20 @@ public class MsgAction {
         return dao.getMsg4UserImg(uid);
     }
 
+    /***
+     * 获取新图片消息
+     * @param gid
+     * @param uid
+
+     * @return
+     */
+    public List<MsgAllBean> getMsg4UserImgNew(String gid, Long uid,long time) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMsg4GroupImgNew(gid,time);
+        }
+        return dao.getMsg4UserImg(uid);
+    }
+
     public List<MsgAllBean> getMsg4UserHistory(String gid, Long uid, Long stime) {
         if (StringUtil.isNotNull(gid)) {
             return dao.getMsg4GroupHistory(gid, stime);

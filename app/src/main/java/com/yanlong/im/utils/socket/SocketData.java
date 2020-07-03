@@ -1597,8 +1597,12 @@ public class SocketData {
         message.setSign(sign);
         message.setOpType(opType);
         //设置转账创建者为自己
-        if (UserAction.getMyId() != null && opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+        if (UserAction.getMyId() != null) {
             message.setCreator(UserAction.getMyId().longValue());
+        }
+        //该消息只能被领取
+        if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
+            message.setPassive(1);
         }
         return message;
     }

@@ -465,9 +465,9 @@ public class PictureSelectionModel {
 
 
 
-    public void openExternalPreview1(int position, List<LocalMedia> medias) {
+    public void openExternalPreview1(int position, List<LocalMedia> medias,String gid,Long toUid) {
         if (selector != null) {
-            selector.externalPicturePreview1(position, medias);
+            selector.externalPicturePreview1(position, medias,gid,toUid);
         } else {
             throw new NullPointerException("This PictureSelector is Null");
         }

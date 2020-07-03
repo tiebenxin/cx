@@ -67,12 +67,15 @@ import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
 
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
@@ -98,7 +101,7 @@ import okhttp3.Call;
 
 /**
  * author：luck
- * project：PictureSelector
+ * project：PictureSelector  使用scheme 调用  "scheme://picture/mainDetail"
  * package：com.luck.picture.ui
  * email：邮箱->893855882@qq.com
  * data：17/01/18
@@ -111,13 +114,16 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private PreviewViewPager viewPager;
     private List<LocalMedia> images = new ArrayList<>();
     private int position = 0;
-    private String directory_path;
-    private SimpleFragmentAdapter adapter;
     private LayoutInflater inflater;
     private RxPermissions rxPermissions;
     private LoadDataThread loadDataThread;
     //    private String[] strings = {"识别二维码", "保存图片", "取消"};
     private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private MsgAction msgAction = new MsgAction();
+    private MsgDao msgDao = new MsgDao();
+    private String gid;
+    private Long toUid;
+    private AdapterPreviewImage mAdapter;
 
 
     @Override
@@ -131,15 +137,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         tv_title = (TextView) findViewById(com.luck.picture.lib.R.id.picture_title);
         left_back = (ImageButton) findViewById(com.luck.picture.lib.R.id.left_back);
         viewPager = (PreviewViewPager) findViewById(com.luck.picture.lib.R.id.preview_pager);
-        position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
-//        if (DeviceUtils.isViVoAndOppo()) {
-//            directory_path = "/Pictures/";
-//        } else {
-//            directory_path = "/DCIM/Camera/";
-//        }
-        directory_path = "/DCIM/Camera/";
-
-        images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+        Intent intent = getIntent();
+        position = intent.getIntExtra(PictureConfig.EXTRA_POSITION, 0);
+        images = (List<LocalMedia>) intent.getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+        gid = intent.getStringExtra(PictureConfig.GID);
+        toUid = intent.getLongExtra(PictureConfig.TO_UID, 0L);
         left_back.setOnClickListener(this);
         initAndPermissions();
 
@@ -334,14 +336,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     }
     //当前图片路径
 
-    private MsgDao msgDao = new MsgDao();
 
     private void initViewPageAdapterData() {
-        if(images!=null && images.size()>0){
+        if (images != null && images.size() > 0) {
             tv_title.setText(position + 1 + "/" + images.size());
-//        adapter = new SimpleFragmentAdapter();
-//        viewPager.setAdapter(adapter);
-            AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
+            mAdapter = new AdapterPreviewImage(this);
             mAdapter.setPopParentView(tv_title);
             mAdapter.bindData(images);
             viewPager.setAdapter(mAdapter);
@@ -384,6 +383,19 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     showDialog(event.name);
                     break;
                 }
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventReceiveImage event) {
+        if (images != null && event != null) {
+            String gid = event.getGid();
+            long uid = event.getToUid();
+            if (!TextUtils.isEmpty(gid) && !TextUtils.isEmpty(this.gid) && gid.equals(this.gid)) {
+                updateMessageList();
+            } else if (toUid != null && toUid.longValue() == uid) {
+                updateMessageList();
             }
         }
     }
@@ -1286,17 +1298,52 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK){
-            if(requestCode == IMG_EDIT){
-                if(data!=null){
+        if (resultCode == RESULT_OK) {
+            if (requestCode == IMG_EDIT) {
+                if (data != null) {
                     //拿到编辑后新图片的本地路径，走转发逻辑
                     String path = data.getStringExtra("showPath");
                     Bundle bundle = new Bundle();
-                    bundle.putString("edit_pic_path",path);
+                    bundle.putString("edit_pic_path", path);
                     Intent intent = MsgForwardActivity.newIntent(PictureExternalPreviewActivity.this, ChatEnum.EForwardMode.EDIT_PIC, bundle);
                     startActivity(intent);
                 }
             }
         }
+    }
+
+    //接收到消息更新图片列表
+    private void updateMessageList() {
+        if (images != null) {
+            int len = images.size();
+            LocalMedia localMedia = images.get(len - 1);
+            String msgId = localMedia.getMsg_id();
+            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+            if (msgAllBean != null) {
+                List<LocalMedia> temp = new ArrayList<>();
+                List<MsgAllBean> listdata = new MsgAction().getMsg4UserImgNew(gid, toUid, msgAllBean.getTimestamp());
+                for (int i = 0; i < listdata.size(); i++) {
+                    MsgAllBean msgl = listdata.get(i);
+                    LocalMedia lc = new LocalMedia();
+                    lc.setCutPath(msgl.getImage().getThumbnailShow());
+                    lc.setCompressPath(msgl.getImage().getPreviewShow());
+                    lc.setPath(msgl.getImage().getOriginShow());
+                    lc.setSize(msgl.getImage().getSize());
+                    lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
+                    lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+                    lc.setMsg_id(msgl.getMsg_id());
+                    //发送状态正常，且未开启阅后即焚，则允许收藏
+                    if (msgl.getSend_state() != ChatEnum.ESendStatus.ERROR && msgl.getSurvival_time() == 0) {
+                        lc.setCanCollect(true);
+                    }
+                    temp.add(lc);
+                }
+                if (temp.size() > 0) {
+                    images.addAll(temp);
+                    mAdapter.bindData(images);
+                }
+            }
+        }
+
     }
 }

@@ -355,7 +355,6 @@ public class MsgDao {
     }
 
     public List<MsgAllBean> getMsg4UserImg(Long userid) {
-
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
         try {
@@ -365,6 +364,34 @@ public class MsgDao {
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                     .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+            beans = realm.copyFromRealm(list);
+            //翻转列表
+            Collections.reverse(beans);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return beans;
+    }
+
+    public List<MsgAllBean> getMsg4UserImg(Long userid,long time) {
+        List<MsgAllBean> beans = null;
+        Realm realm = DaoUtil.open();
+        try {
+            beans = new ArrayList<>();
+
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
             beans = realm.copyFromRealm(list);
@@ -457,6 +484,31 @@ public class MsgDao {
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
 
+            beans = realm.copyFromRealm(list);
+            //翻转列表
+            Collections.reverse(beans);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return beans;
+    }
+
+    public List<MsgAllBean> getMsg4GroupImgNew(String gid, long time) {
+        List<MsgAllBean> beans = null;
+        Realm realm = DaoUtil.open();
+        try {
+            beans = new ArrayList<>();
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
             beans = realm.copyFromRealm(list);
             //翻转列表
             Collections.reverse(beans);
@@ -3560,9 +3612,9 @@ public class MsgDao {
                 return;
             }
             transfer.setOpType(opType);
-            if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE && uid > 0) {
-                transfer.setCreator(uid);
-            }
+//            if (opType != PayEnum.ETransferOpType.TRANS_SEND && uid > 0) {
+//                transfer.setCreator(uid);
+//            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {

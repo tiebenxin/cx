@@ -3385,7 +3385,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(pos, selectList);
+                .openExternalPreview1(pos, selectList,toGid,toUId);
 
     }
 
@@ -5256,7 +5256,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     int type = getTransferOpType(detailBean.getStat());
                                     msgDao.updateTransferStatus(tradeId, type, 0);
                                     TransferMessage preTransfer = msgBean.getTransfer();
-                                    preTransfer.setOpType(type);
                                     replaceListDataAndNotify(msgBean);
                                 }
                             } else {
