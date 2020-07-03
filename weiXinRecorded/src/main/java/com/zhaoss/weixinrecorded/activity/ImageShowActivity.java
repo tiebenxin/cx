@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -32,7 +31,6 @@ import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
 import com.zhaoss.weixinrecorded.util.Utils;
-import com.zhaoss.weixinrecorded.util.ViewUtils;
 import com.zhaoss.weixinrecorded.view.MosaicPaintView;
 import com.zhaoss.weixinrecorded.view.TouchView;
 
@@ -50,7 +48,6 @@ import java.io.IOException;
  * @description 图片编辑
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-
 @Route(path = "/weixinrecorded/ImageShowActivity")
 public class ImageShowActivity extends BaseActivity implements View.OnClickListener {
 
@@ -82,19 +79,38 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
         Glide.with(this).load(mPath).into(binding.imgShow);
-//        binding.imgShow.setImageURI(Uri.parse(mPath));
         mManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         initColors();
+        setHeight();
+    }
+
+    /**
+     * 设置画笔、裁剪的画布的高度
+     */
+    private void setHeight() {
+        binding.showRlBig.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        binding.showRlBig.getHeight());
+                binding.mpvView.setLayoutParams(layoutParams);
+
+                RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        binding.showRlBig.getHeight());
+                binding.imgShowCut.setLayoutParams(layoutParams2);
+                Log.i("1212", "height:" + binding.showRlBig.getMeasuredHeight() + "  " + binding.showRlBig.getHeight());
+            }
+        }, 500);// 延迟500毫秒用于获取到图片容器的高度
     }
 
     private void initEvent() {
-        //默认工具选中画笔
+        // 默认工具选中画笔
         binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
-        binding.imgShowCut.setVisibility(View.GONE);
-        binding.llColor.setVisibility(View.VISIBLE);
         binding.mpvView.setPenColor(getResources().getColor(mColors[0]));
         binding.mpvView.setVisibility(View.VISIBLE);
+        binding.imgShowCut.setVisibility(View.GONE);
+        binding.llColor.setVisibility(View.VISIBLE);
         binding.rbPen.setChecked(true);
 
         binding.etTag.addTextChangedListener(new TextWatcher() {
@@ -129,6 +145,18 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                 binding.imgShowCut.setMargin(binding.textureViewCut.getLeft(), binding.textureViewCut.getTop(),
                         binding.textureViewCut.getRight() - binding.textureViewCut.getWidth(),
                         binding.textureViewCut.getBottom() - binding.textureViewCut.getHeight());
+            }
+        });
+        binding.mpvView.setLister(new IClickCallLister() {
+            @Override
+            public void onClickLister(boolean isShow) {
+                if (isShow) {
+                    binding.layoutContent.setVisibility(View.VISIBLE);
+                    binding.layoutTitle.setVisibility(View.VISIBLE);
+                } else {
+                    binding.layoutContent.setVisibility(View.GONE);
+                    binding.layoutTitle.setVisibility(View.GONE);
+                }
             }
         });
     }
@@ -170,7 +198,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             @Override
             public void onUp(TouchView view, MotionEvent event) {
                 binding.tvHintDelete.setVisibility(View.GONE);
-//                changeMode(true);
                 if (view.isOutLimits()) {
                     binding.showRlBig.removeView(view);
                 }
@@ -189,19 +216,15 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             int h = v.getHeight();
             Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             float[] cutArr = binding.imgShowCut.getCutArr();
-//            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],(int)cutArr[1],activity_img_show_cut.getRectWidth(),activity_img_show_cut.getRectHeight());
-//            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],activity_img_show_cut.getRectHeight()-(int)cutArr[1],(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-((int)cutArr[3]-(int)cutArr[1]));
             Log.e("TAG", cutArr[0] + "-----" + cutArr[1] + "-----" + cutArr[2] + "-----" + cutArr[3] + "-----");
             Canvas c = new Canvas(bmp);
-            c.drawColor(Color.WHITE);
-//            /** 如果不设置canvas画布为白色，则生成透明 */
+            c.drawColor(Color.BLACK);
+            // 如果不设置canvas画布为白色，则生成透明
             v.layout(0, 0, w, h);
             v.draw(c);
             int px = (int) DimenUtils.dp2px(60);
             Bitmap cutBitmap = null;
-
             if ((30 + cutArr[2]) >= bmp.getWidth() || (px + cutArr[3]) > bmp.getHeight()) {
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
                 if ((30 + cutArr[2]) >= bmp.getWidth() && (px + cutArr[3]) > bmp.getHeight()) {
                     cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - ((int) cutArr[1] + px));
                 } else {
@@ -214,22 +237,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             } else {
                 cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - (int) cutArr[1]);
             }
-//            if ((px+cutArr[3])>bmp.getHeight()){
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-px);
-//            }else{
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-px);
-//            }
-
-//            if ((30+(int)cutArr[2])>=bmp.getWidth()){
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,bmp.getWidth()-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
-//            }else{
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
-//            }
-//            if ((px+(int)cutArr[3])>bmp.getHeight()){
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],bmp.getHeight()-((int)cutArr[1]+px));
-//            }else{
-//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
-//            }
             return cutBitmap;
 
         } else {
@@ -238,9 +245,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(bmp);
 
-            c.drawColor(Color.WHITE);
-//            /** 如果不设置canvas画布为白色，则生成透明 */
-//
+            c.drawColor(Color.BLACK);
+            //  如果不设置canvas画布为白色，则生成透明
             v.layout(0, 0, w, h);
             v.draw(c);
             return bmp;
@@ -400,6 +406,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
                 binding.imgShowCut.setVisibility(View.GONE);
             } else {
+                binding.imgShowCut.setHeight(binding.showRlBig.getHeight());
                 binding.imgShowCut.setVisibility(View.VISIBLE);
             }
         } else if (v.getId() == R.id.rb_mosaic) {// 马赛克
@@ -461,4 +468,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
+
+    public interface IClickCallLister {
+        void onClickLister(boolean isShow);
+    }
 }

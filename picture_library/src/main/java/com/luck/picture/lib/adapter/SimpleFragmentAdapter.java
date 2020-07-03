@@ -98,11 +98,14 @@ public class SimpleFragmentAdapter extends PagerAdapter {
         if (media != null) {
             final String pictureType = media.getPictureType();
             boolean eqVideo = pictureType.startsWith(PictureConfig.VIDEO);
+            boolean isGif = PictureMimeType.isGif(pictureType);
             iv_play.setVisibility(eqVideo ? View.VISIBLE : View.GONE);
-            if(eqVideo){
-                listner.showEditItem(false);//视频不展示编辑项
-            }else {
-                listner.showEditItem(true);//图片展示编辑项
+            if (position == 0) {// TODO onPageSelected 会重新判断是否显示编辑按钮
+                if (eqVideo || isGif) {
+                    listner.showEditItem(false);//视频、动图不展示编辑项
+                } else {
+                    listner.showEditItem(true);//图片展示编辑项
+                }
             }
             final String path;
             if (media.isCut() && !media.isCompressed()) {
@@ -114,7 +117,7 @@ public class SimpleFragmentAdapter extends PagerAdapter {
             } else {
                 path = media.getPath();
             }
-            boolean isGif = PictureMimeType.isGif(pictureType);
+
             final boolean eqLongImg = PictureMimeType.isLongImg(media);
             imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
             longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
@@ -202,7 +205,7 @@ public class SimpleFragmentAdapter extends PagerAdapter {
     }
 
     //视频不展示编辑
-    public interface ShowEditListner{
+    public interface ShowEditListner {
         void showEditItem(boolean ifShow);
     }
 }

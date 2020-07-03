@@ -87,7 +87,7 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL:
                     setType14(context, style, bean);
                     break;
-                    case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER:
+                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER:
                     setChangeAdmins(context, style, bean);
                     break;
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_OPEN:// 群禁言
@@ -108,8 +108,12 @@ public class HtmlTransitonUtils {
                     } else {
                         setType19(context, style, bean);
                     }
+                    break;
                 case ChatEnum.ENoticeType.CANCEL_CAN_EDIT://撤销能重新编辑
 
+                    break;
+                case ChatEnum.ENoticeType.GROUP_OTHER_REMOVE:// 其它人被移出群
+                    setType20(context, style, bean);
                     break;
             }
         }
@@ -182,8 +186,12 @@ public class HtmlTransitonUtils {
                     } else {
                         setType19(context, style, bean);
                     }
-                case ChatEnum.ENoticeType.CANCEL_CAN_EDIT://撤销能重新编辑
+                    break;
+                case ChatEnum.ENoticeType.CANCEL_CAN_EDIT:// 撤销能重新编辑
 
+                    break;
+                case ChatEnum.ENoticeType.GROUP_OTHER_REMOVE:// 其它人被移出群
+                    setType20(context, style, bean);
                     break;
             }
         }
@@ -342,7 +350,7 @@ public class HtmlTransitonUtils {
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        builder.delete(builder.length()-1,builder.length());
+        builder.delete(builder.length() - 1, builder.length());
         builder.append("移出群聊");
     }
 
@@ -786,7 +794,7 @@ public class HtmlTransitonUtils {
             if ("你".equals(bean.getName())) {
                 builder.append(bean.getName());
                 continue;
-            }else{
+            } else {
                 builder.append(content);
             }
             int state;
@@ -830,7 +838,7 @@ public class HtmlTransitonUtils {
                     builder.append("、");
                 }
                 continue;
-            }else{
+            } else {
                 builder.append(content);
                 if (i > 0 && i != list.size() - 1) {
                     builder.append("、");
@@ -868,6 +876,49 @@ public class HtmlTransitonUtils {
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("在本群领取零钱红包");
+    }
+
+    private void setType20(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            String content = "\"" + bean.getName() + "\"";
+            int state;
+            int end;
+            if (i != list.size() - 1) {
+                if (i != list.size() - 2) {
+                    builder.append(content + "、");
+                    state = builder.toString().length() - content.length();
+                    end = builder.toString().length() - 2;
+                } else {
+                    builder.append(content);
+                    state = builder.toString().length() - content.length() + 1;
+                    end = builder.toString().length() - 1;
+                }
+
+            } else {
+                builder.append("已被" + content);
+                state = builder.toString().length() - content.length() + 1;
+                end = builder.toString().length() - 1;
+            }
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("移出群");
     }
 
     private void goToUserInfoActivity(Context context, Long id, String gid, boolean isGroup) {
@@ -956,7 +1007,7 @@ public class HtmlTransitonUtils {
             String content = "\"" + bean.getName() + "\"";
             if ("你".equals(bean.getName())) {
                 builder.append(bean.getName());
-            }else{
+            } else {
                 builder.append(content);
             }
 
