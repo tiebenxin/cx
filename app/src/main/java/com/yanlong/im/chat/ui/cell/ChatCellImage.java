@@ -25,6 +25,7 @@ import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.io.File;
 
@@ -42,6 +43,7 @@ public class ChatCellImage extends ChatCellFileBase {
 
     private ImageView imageView;
     private ImageMessage imageMessage;
+    String currentUrl="";
 //    private ProgressBar progressBar;
 //    private TextView tv_progress;
 //    private LinearLayout ll_progress;
@@ -105,10 +107,8 @@ public class ChatCellImage extends ChatCellFileBase {
                         .into(imageView);
             }
         } else {
-//            rOptions.centerCrop();
-//            rOptions.error(R.mipmap.ic_image_bg);
+            rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
             rOptions.skipMemoryCache(false);
-//            rOptions.placeholder(R.mipmap.default_image);
             if (!TextUtils.equals(tag, thumbnail)) {//第一次加载
                 imageView.setImageResource(R.mipmap.ic_image_bg);
                 imageView.setTag(R.id.tag_img, thumbnail);
@@ -122,7 +122,11 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void glide(RequestOptions rOptions, String url) {
-//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+            return;
+        }
+        currentUrl = url;
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
 //            RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
