@@ -51,18 +51,18 @@ public class MessageIntentService extends IntentService {
 
     @SuppressLint("CheckResult")
     protected void onHandleIntent(@Nullable Intent intent) {//异步处理方法
-        LogUtil.getLog().d("Liszt_test", "接收到消息--onHandleIntent");
+        LogUtil.getLog().d("Liszt_test", "消息LOG--onHandleIntent");
         synchronized (this) {
             if (MessageManager.getInstance().getToDoMsgCount() == 0 && restartCount < 3) {
                 //TODO:不影响消息接收，两批消息共用一次onHandleIntent
-                LogUtil.getLog().d("Liszt_test", "接收到消息-无数据队列-不影响消息接收-重启动");
+                LogUtil.getLog().d("Liszt_test", "消息LOG-无数据队列-不影响消息接收-重启动");
                 restartCount++;
                 try {
                     Thread.sleep(100);
                     startService(intent);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    LogUtil.getLog().i("Liszt_test", "接收到消息--在线--睡眠出错");
+                    LogUtil.getLog().i("Liszt_test", "消息LOG--在线--睡眠出错");
                 }
                 return;
             }

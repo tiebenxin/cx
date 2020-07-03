@@ -54,7 +54,7 @@ public class OnlineMessage extends DispatchMessage {
             result = true;
         } else if (!TextUtils.isEmpty(wrapMessage.getMsgId()) && oldMsgId.contains(wrapMessage.getMsgId())) {
             //有已保存成功的消息，则不再处理
-            LogUtil.getLog().e(TAG, ">>>>>接收到消息--重复消息: " + wrapMessage.getMsgId());
+            LogUtil.getLog().e(TAG, ">>>>>消息LOG--重复消息: " + wrapMessage.getMsgId());
             result = true;
         } else {
             if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
@@ -87,16 +87,16 @@ public class OnlineMessage extends DispatchMessage {
                     boolean toDOResult = handlerMessage(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
                             i == msgList.size() - 1);
                     if (toDOResult) {
-                        if (size == 1 && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
-                            LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
-                            SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
-                        }
                         //刷新可能正在预览的图片界面
                         doRefreshPreviewImage(wrapMessage);
                     } else {
                         //有一个失败，表示接收全部失败
                         result = false;
                     }
+                }
+                if (size == 1 && bean.getWrapMsg(0) != null && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+                    LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
                 }
             }
         } catch (Exception e) {

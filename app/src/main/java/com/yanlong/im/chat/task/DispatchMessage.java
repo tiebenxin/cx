@@ -98,7 +98,7 @@ public abstract class DispatchMessage {
             return true;
         }
         if (wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
-            LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
+            LogUtil.getLog().e(TAG, "消息LOG: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         }
         repository.updateUserAvatarAndNick(wrapMessage, realm);
         boolean isFromSelf = false;
