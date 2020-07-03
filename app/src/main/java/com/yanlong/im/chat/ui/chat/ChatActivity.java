@@ -1912,21 +1912,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onYes(String content) {
-                if (!TextUtils.isEmpty(content)) {
+                if (TextUtils.isEmpty(content)) {
                     //发送戳一戳消息
-//                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
-//                            showSendObj(msgAllbean);
-//                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                    StampMessage message = SocketData.createStampMessage(SocketData.getUUID(), content);
-                    sendMessage(message, ChatEnum.EMessageType.STAMP);
-                } else {
-                    ToastUtil.show(getContext(), "戳一下内容不能为空");
+                    content = "快来聊天";
                 }
+                StampMessage message = SocketData.createStampMessage(SocketData.getUUID(), content);
+                sendMessage(message, ChatEnum.EMessageType.STAMP);
             }
         });
-        alertTouch.setContent("快来聊天");
+//        alertTouch.setContent("快来聊天");
         alertTouch.show();
-        alertTouch.setEdHintOrSize(null, 20);
+        alertTouch.setEdHintOrSize("快来聊天", 20);
     }
 
     private void toTransfer() {
