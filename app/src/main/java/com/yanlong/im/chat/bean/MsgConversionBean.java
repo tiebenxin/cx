@@ -247,7 +247,7 @@ public class MsgConversionBean {
                 if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
                     if (isError) {
                         rbNotice.setMsgType(ENoticeType.RECEIVE_RED_ENVELOPE);
-                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
                         if (TextUtils.isEmpty(nick)) {
                             if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
                                 nick = bean.getMembername();
@@ -255,7 +255,7 @@ public class MsgConversionBean {
                                 nick = bean.getNickname();
                             }
                         }
-                        name = "<font color='#276baa' id='" + bean.getToUid() + "'>" + nick + "</font>";
+                        name = "<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick + "</font>";
                         rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
                     } else {
 
@@ -285,7 +285,7 @@ public class MsgConversionBean {
                             rbNotice.setNote("你领取了自己的<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                             rbNotice.setMsgType(ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
                         } else {
-                            String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                            String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
                             if (TextUtils.isEmpty(nick)) {
                                 if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
                                     nick = bean.getMembername();

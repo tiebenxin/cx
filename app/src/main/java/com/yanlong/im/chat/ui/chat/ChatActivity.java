@@ -3381,7 +3381,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(pos, selectList,toGid,toUId,PictureConfig.FROM_DEFAULT);
+                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT);
 
     }
 
@@ -5092,7 +5092,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     if (isNormalStyle) {//普通玩法红包需要保存
                                         taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), PayEnum.EEnvelopeStatus.NORMAL);
                                     }
-                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5108,11 +5108,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
         }
     }
 
-    private void getEnvelopeDetail(long rid, String token, int envelopeStatus) {
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean) {
         PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
@@ -5122,6 +5122,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (baseResponse.isSuccess()) {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
+                                if (envelopeStatus != getOpenEnvelopeStatus(bean.getEnvelopeStatus())) {
+                                    taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean.getEnvelopeStatus()));
+                                }
                                 bean.setChatType(isGroup() ? 1 : 0);
                                 bean.setEnvelopeStatus(envelopeStatus);
                                 Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
