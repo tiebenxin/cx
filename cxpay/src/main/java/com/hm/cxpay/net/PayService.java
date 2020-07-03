@@ -154,9 +154,13 @@ public interface PayService {
     @POST(Route.RETURN_TRANSFER)
     Observable<BaseResponse<TransferResultBean>> returnTransfer(@Body RequestBody body, @QueryMap Map<String, String> map);
 
-    //商城->获取免登陆商城URL
-    @POST(Route.SHOP_GET_URL)
-    Observable<BaseResponse> getShopUrl(@QueryMap Map<String, String> map);
+    //商城->获取免登陆商城URL (测试环境)
+    @POST(Route.SHOP_GET_URL_DEBUG)
+    Observable<BaseResponse> getShopUrlDebug(@QueryMap Map<String, String> map);
+
+    //商城->获取免登陆商城URL (正式环境)
+    @POST(Route.SHOP_GET_URL_RELEASE)
+    Observable<BaseResponse> getShopUrlRelease(@QueryMap Map<String, String> map);
 
     //商城->校验支付密码
     @POST(Route.SHOP_CHECK_PAYWORD)
