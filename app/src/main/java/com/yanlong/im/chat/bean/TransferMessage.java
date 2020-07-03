@@ -14,6 +14,7 @@ public class TransferMessage extends RealmObject implements IMsgContent {
     private String sign; // 签名信息
     int opType;//操作类型, 红包状态
     long creator;//转账领取者uid
+    int passive = 0;//是否是被动，0 不是，1 是
 
     public String getId() {
         return this.id;
@@ -70,5 +71,13 @@ public class TransferMessage extends RealmObject implements IMsgContent {
 
     public void setCreator(long creator) {
         this.creator = creator;
+    }
+
+    public int getPassive() {
+        return passive;
+    }
+
+    public void setPassive(int passive) {
+        this.passive = passive;
     }
 }

@@ -200,8 +200,9 @@ public class MsgConversionBean {
                 transferMessage.setComment(bean.getTransfer().getComment());
                 transferMessage.setTransaction_amount(bean.getTransfer().getTransactionAmount());
                 transferMessage.setOpType(bean.getTransfer().getOpTypeValue());
-                if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.RECEIVE) {//领取
-                    transferMessage.setCreator(fromUid);
+                transferMessage.setCreator(fromUid);
+                if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.TRANS_SEND) {
+                    transferMessage.setPassive(1);
                 }
                 msgAllBean.setTransfer(transferMessage);
                 msgAllBean.setMsg_type(EMessageType.TRANSFER);
@@ -284,8 +285,16 @@ public class MsgConversionBean {
                             rbNotice.setNote("你领取了自己的<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                             rbNotice.setMsgType(ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
                         } else {
+                            String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                            if (TextUtils.isEmpty(nick)) {
+                                if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
+                                    nick = bean.getMembername();
+                                } else {
+                                    nick = bean.getNickname();
+                                }
+                            }
                             rbNotice.setMsgType(ENoticeType.SYS_ENVELOPE_RECEIVED);
-                            String user = "<user id='" + fromUid + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
+                            String user = "<user id='" + fromUid + "' gid=" + bean.getGid() + ">" + nick + "</user>";
                             rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                         }
                     }

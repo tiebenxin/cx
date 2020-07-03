@@ -172,6 +172,10 @@ public class DaoMigration implements RealmMigration {
                 updateV38(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 38) {
+                updateV39(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -706,7 +710,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("markRead", int.class);
     }
 
-    //用户信息页面增加简拼字段
+    //用户信息页面增加简拼字段，转账消息增加操作creator字段
     private final void updateV38(RealmSchema schema) {
         schema.get("UserInfo")
                 .addField("pinyinHead", String.class);
@@ -714,6 +718,11 @@ public class DaoMigration implements RealmMigration {
                 .addField("creator", long.class);
     }
 
+    //增加转账消息被动关系字段
+    private final void updateV39(RealmSchema schema) {
+        schema.get("TransferMessage")
+                .addField("passive", int.class);
+    }
 
 
     @Override

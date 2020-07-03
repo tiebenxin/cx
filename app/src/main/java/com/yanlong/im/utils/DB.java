@@ -46,7 +46,7 @@ public class DB {
      *
      * @param type 0:未开启,1:开启
      */
-    public static void updateFriendSnapshot(Realm realm,long uid, int type) {
+    public static void updateFriendSnapshot(Realm realm, long uid, int type) {
         try {
             UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
             if (user != null) {
@@ -55,7 +55,7 @@ public class DB {
                 realm.commitTransaction();
             }
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -84,7 +84,7 @@ public class DB {
 
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -146,7 +146,7 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -193,7 +193,7 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -231,7 +231,7 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -264,7 +264,7 @@ public class DB {
                 }
             }
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -315,7 +315,7 @@ public class DB {
             realm.commitTransaction();
             return true;
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -369,7 +369,7 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -400,7 +400,7 @@ public class DB {
                 }
             }
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -449,7 +449,7 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -494,7 +494,7 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -517,7 +517,7 @@ public class DB {
                 }
             }
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -541,7 +541,7 @@ public class DB {
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -577,8 +577,8 @@ public class DB {
                     realm.commitTransaction();
                 }
             }
-        }catch (Exception e){
-            if(realm.isInTransaction()){
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -602,7 +602,7 @@ public class DB {
             realm.copyToRealmOrUpdate(userInfo);
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -626,7 +626,7 @@ public class DB {
             realm.copyToRealmOrUpdate(userInfo);
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -655,7 +655,7 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -727,8 +727,8 @@ public class DB {
                 group.setAvatar(gicon);
             realm.insertOrUpdate(group);
             realm.commitTransaction();
-        }catch (Exception e){
-            if(realm.isInTransaction()){
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -779,6 +779,55 @@ public class DB {
             msg.getSendFileMessage().deleteFromRealm();
         if (msg.getWebMessage() != null)
             msg.getWebMessage().deleteFromRealm();
+        if (msg.getAdMessage() != null)
+            msg.getAdMessage().deleteFromRealm();
     }
+
+    /**
+     * 撤回消息
+     *
+     * @param msgid       消息ID
+     * @param msgCancelId
+     */
+    public static void deleteMsg(Realm realm, String msgId) {
+        MsgAllBean msgAllBean = null;
+        try {
+            realm.beginTransaction();
+            RealmResults<MsgAllBean> list = null;
+            list = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findAll();
+            if (list != null) {
+                for (MsgAllBean msg : list) {
+                    msgAllBean = realm.copyFromRealm(msg);
+                    deleteRealmMsg(msg);
+                }
+                list.deleteAllFromRealm();
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
+        if (msgAllBean != null) {
+            /********通知更新sessionDetail************************************/
+            //因为msg对象 uid有两个，都得添加
+            List<String> gids = new ArrayList<>();
+            List<Long> uids = new ArrayList<>();
+            //gid存在时，不取uid
+            if (TextUtils.isEmpty(msgAllBean.getGid())) {
+                uids.add(msgAllBean.getTo_uid());
+                uids.add(msgAllBean.getFrom_uid());
+            } else {
+                gids.add(msgAllBean.getGid());
+            }
+            //回主线程调用更新session详情
+            if (MyAppLication.INSTANCE().repository != null)
+                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        }
+
+    }
+
 
 }

@@ -31,6 +31,7 @@ import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -465,7 +466,7 @@ public class MessageRepository {
             if (transferMessage != null) {
                 //领取或退还转账,先更新历史转账消息状态，后存消息
                 if (transferMessage.getOpType() == MsgBean.TransferMessage.OpType.RECEIVE || transferMessage.getOpType() == MsgBean.TransferMessage.OpType.REJECT) {
-                    localDataSource.updateTransferStatus(realm, transferMessage.getId(), transferMessage.getOpTypeValue(),wrapMessage.getFromUid());
+                    localDataSource.updateTransferStatus(realm, transferMessage.getId(), transferMessage.getOpTypeValue(), wrapMessage.getFromUid());
                 }
             }
             result = saveMessageNew(bean, realm);
@@ -562,39 +563,57 @@ public class MessageRepository {
             //TODO:saveMessageNew的有更新未读数
             // 判断消息是否存在，不存在则不保存
             MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", cancelMsgId).findFirst();
-            if (msgAllBean != null) {
-                result = saveMessageNew(bean, realm);
-                localDataSource.deleteMsg4Cancel(realm, wrapMessage.getMsgId(), cancelMsgId);
-                MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
-                // 处理图片撤回，在预览弹出提示
-                EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
-                event.msg_id = bean.getMsgCancel().getMsgidCancel();
-                event.name = bean.getFrom_nickname();
-                EventBus.getDefault().post(event);
-                // 处理语音撤回，对方在播放时停止播放
-                EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
-                eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
-                EventBus.getDefault().post(eventVoice);
-                // 处理视频撤回，对方在播放时停止播放
-                EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
-                eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
-                eventVideo.name = bean.getFrom_nickname();
-                EventBus.getDefault().post(eventVideo);
+            if (filterDeleteCancel(wrapMessage)) {
+                if (msgAllBean != null) {
+                    result = saveMessageNew(bean, realm);
+                    localDataSource.deleteMsg(realm, cancelMsgId);
+                } else {
+                    int position = offlineMsgIds.indexOf(cancelMsgId);
+                    if (position >= 0 && position < offlineMsgAllBean.size()) {
+                        msgAllBean = offlineMsgAllBean.get(position);
+                        if (msgAllBean != null) {
+                            offlineMsgAllBean.remove(msgAllBean);
+                        }
+                    }
+//                    int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
+//                    if (currentId >= 0 && currentId < offlineMsgAllBean.size()) {
+//                        msgAllBean = offlineMsgAllBean.get(position);
+//                        if (msgAllBean != null) {
+//                            offlineMsgAllBean.remove(msgAllBean);
+//                        }
+//                    }
+                }
             } else {
-//                msgAllBean = offlineMsgAllBean.get(cancelMsgId);
-//                if (msgAllBean != null) {
-//                    result = saveMessageNew(bean, realm);
-//                    offlineMsgAllBean.remove(cancelMsgId);
-//                }
-                int position = offlineMsgIds.indexOf(cancelMsgId);
-                if (position >= 0 && position < offlineMsgAllBean.size()) {
-                    msgAllBean = offlineMsgAllBean.get(position);
-                    if (msgAllBean != null) {
-                        result = saveMessageNew(bean, realm);
-                        offlineMsgAllBean.remove(msgAllBean);
+                if (msgAllBean != null) {
+                    result = saveMessageNew(bean, realm);
+                    localDataSource.deleteMsg4Cancel(realm, wrapMessage.getMsgId(), cancelMsgId);
+                    MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
+                    // 处理图片撤回，在预览弹出提示
+                    EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
+                    event.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    event.name = bean.getFrom_nickname();
+                    EventBus.getDefault().post(event);
+                    // 处理语音撤回，对方在播放时停止播放
+                    EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
+                    eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    EventBus.getDefault().post(eventVoice);
+                    // 处理视频撤回，对方在播放时停止播放
+                    EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
+                    eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    eventVideo.name = bean.getFrom_nickname();
+                    EventBus.getDefault().post(eventVideo);
+                } else {
+                    int position = offlineMsgIds.indexOf(cancelMsgId);
+                    if (position >= 0 && position < offlineMsgAllBean.size()) {
+                        msgAllBean = offlineMsgAllBean.get(position);
+                        if (msgAllBean != null) {
+                            result = saveMessageNew(bean, realm);
+                            offlineMsgAllBean.remove(msgAllBean);
+                        }
                     }
                 }
             }
+
         }
         return result;
     }
@@ -897,7 +916,7 @@ public class MessageRepository {
             //是否是对方 @所有人或@自己的消息
             if (!isOffline || localDataSource.isAtMe(msgAllBean)) {//在线消息 或@自己的消息，及时更新session，离线消息等批量结束后更新
                 localDataSource.updateObject(realm, msgAllBean);
-                LogUtil.getLog().i(TAG,"--接受到消息--存储在线消息--" + msgAllBean.getMsg_type());
+                LogUtil.getLog().i(TAG, "--接受到消息--存储在线消息--" + msgAllBean.getMsg_type());
                 if (MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid())) {
                     MessageManager.getInstance().notifyRefreshChat(msgAllBean, CoreEnum.ERefreshType.ADD);
                 }
@@ -1051,5 +1070,10 @@ public class MessageRepository {
                 /********通知更新或创建session end************************************/
             }
         }
+    }
+
+    //过滤撤销消息中只删除消息，不产生消息记录的消息
+    private boolean filterDeleteCancel(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        return wrapMessage.getFromUid() == Constants.CX_HELPER_UID;
     }
 }

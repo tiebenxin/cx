@@ -443,6 +443,16 @@ public class MessageLocalDataSource {
         DB.deleteMsg4Cancel(realm, msgid, msgCancelId);
     }
 
+    /**
+     * 撤回-删除消息
+     *
+     * @param msgId       消息ID
+     */
+    public void deleteMsg(@NonNull Realm realm, String msgId) {
+        checkInTransaction(realm);
+        DB.deleteMsg(realm, msgId);
+    }
+
     /***
      * 更新阅后即焚状态
      */
@@ -520,7 +530,7 @@ public class MessageLocalDataSource {
     }
 
     //更新转账状态
-    public void updateTransferStatus(@NonNull Realm realm, String tradeId, int opType,long creator) {
+    public void updateTransferStatus(@NonNull Realm realm, String tradeId, int opType, long creator) {
         try {
             checkInTransaction(realm);
 
@@ -534,9 +544,7 @@ public class MessageLocalDataSource {
             }
             realm.beginTransaction();
             transfer.setOpType(opType);
-            if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE){
-                transfer.setCreator(creator);
-            }
+//            transfer.setCreator(creator);
             realm.commitTransaction();
         } catch (Exception e) {
             if (realm.isInTransaction()) {

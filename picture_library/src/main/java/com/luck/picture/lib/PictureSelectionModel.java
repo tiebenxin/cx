@@ -464,15 +464,10 @@ public class PictureSelectionModel {
     }
 
 
-    /**
-     * 大图预览
-     * @param position
-     * @param medias
-     * @param fromWhere 0默认 1猜你想要 2收藏
-     */
-    public void openExternalPreview1(int position, List<LocalMedia> medias,int fromWhere) {
+
+    public void openExternalPreview1(int position, List<LocalMedia> medias,String gid,Long toUid,int from) {
         if (selector != null) {
-            selector.externalPicturePreview1(position, medias,fromWhere);
+            selector.externalPicturePreview1(position, medias,gid,toUid,from);
         } else {
             throw new NullPointerException("This PictureSelector is Null");
         }

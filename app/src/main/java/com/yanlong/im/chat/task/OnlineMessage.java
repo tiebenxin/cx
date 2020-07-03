@@ -2,6 +2,8 @@ package com.yanlong.im.chat.task;
 
 import android.text.TextUtils;
 
+import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -22,12 +24,13 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
  */
 public class OnlineMessage extends DispatchMessage {
     private static OnlineMessage INSTANCE;
+
     public OnlineMessage() {
         super(false);
     }
 
-    public static OnlineMessage getInstance(){
-        if (INSTANCE == null){
+    public static OnlineMessage getInstance() {
+        if (INSTANCE == null) {
             INSTANCE = new OnlineMessage();
         }
         return INSTANCE;
@@ -84,8 +87,12 @@ public class OnlineMessage extends DispatchMessage {
                     boolean toDOResult = handlerMessage(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
                             i == msgList.size() - 1);
                     if (toDOResult) {
-                        //记录已保存成功的消息,用于剔除重复消息
-
+                        if (size == 1 && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+                            LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
+                            SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+                        }
+                        //刷新可能正在预览的图片界面
+                        doRefreshPreviewImage(wrapMessage);
                     } else {
                         //有一个失败，表示接收全部失败
                         result = false;
@@ -98,6 +105,24 @@ public class OnlineMessage extends DispatchMessage {
         if (result && bean.getWrapMsgCount() > 1) {
             LogUtil.writeLog("--发送回执3在线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+        }
+    }
+
+    private void doRefreshPreviewImage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.IMAGE) {
+            long toUid;
+            if (!TextUtils.isEmpty(wrapMessage.getGid())) {
+                toUid = 0;
+            } else {
+                if (UserAction.getMyId() != null && UserAction.getMyId().longValue() == wrapMessage.getFromUid()) {
+                    toUid = wrapMessage.getToUid();
+                } else {
+                    toUid = wrapMessage.getFromUid();
+                }
+            }
+            if (MessageManager.getInstance().isImageFromCurrent(wrapMessage.getGid(), toUid)) {
+                MessageManager.getInstance().notifyReceiveImage(wrapMessage.getGid(), toUid);
+            }
         }
     }
 }

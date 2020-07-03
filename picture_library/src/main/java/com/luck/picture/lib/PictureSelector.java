@@ -168,13 +168,15 @@ public final class PictureSelector {
     }
 
 
-    public void externalPicturePreview1(int position, List<LocalMedia> medias, int fromWhere) {
+    public void externalPicturePreview1(int position, List<LocalMedia> medias,String gid,Long toUid,int from) {
         String url = "scheme://picture/mainDetail";
         if (!DoubleUtils.isFastDoubleClick()) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.putExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) medias);
             intent.putExtra(PictureConfig.EXTRA_POSITION, position);
-            intent.putExtra(PictureConfig.FROM_WHERE, fromWhere);
+            intent.putExtra(PictureConfig.GID, gid);
+            intent.putExtra(PictureConfig.TO_UID, toUid);
+            intent.putExtra(PictureConfig.FROM_WHERE, from);
             getActivity().startActivity(intent);
             getActivity().overridePendingTransition(R.anim.a5, 0);
         }

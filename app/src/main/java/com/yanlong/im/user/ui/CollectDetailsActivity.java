@@ -297,7 +297,7 @@ public class CollectDetailsActivity extends AppActivity {
                                 String gif = bean2.getPreview();
                                 if (isGif(thumbnail)) { //动图加载
                                     //有网情况走网络请求，无网情况拿缓存
-                                    if(NetUtil.isNetworkConnected()){
+                                    if (NetUtil.isNetworkConnected()) {
                                         Glide.with(this)
                                                 .load(gif)
                                                 .listener(new RequestListener<Drawable>() {
@@ -314,7 +314,7 @@ public class CollectDetailsActivity extends AppActivity {
                                                 .apply(GlideOptionsUtil.notDefImageOptions())
                                                 .into(ivPic);
 
-                                    }else {
+                                    } else {
                                         File local = CustomGlideModule.getCacheFile(gif);
                                         if (local == null) {
                                             Glide.with(this)
@@ -341,12 +341,12 @@ public class CollectDetailsActivity extends AppActivity {
                                     }
                                 } else {
                                     //有网情况走网络请求->显示预览图，无网情况显示Glide自带缓存缩略图
-                                    if(NetUtil.isNetworkConnected()){
+                                    if (NetUtil.isNetworkConnected()) {
                                         Glide.with(this)
                                                 .load(gif)
                                                 .apply(GlideOptionsUtil.notDefImageOptions())
                                                 .into(ivPic);
-                                    }else {
+                                    } else {
                                         //TODO 无需再取缓存多余处理，既然点击大图可以正常显示，说明Glide已经缓存好了，直接复用即可
                                         Glide.with(this)
                                                 .load(thumbnail)
@@ -413,12 +413,12 @@ public class CollectDetailsActivity extends AppActivity {
                             if (bean4 != null) {
                                 String bgUrl = bean4.getVideoBgURL();
                                 //有网情况走网络请求，无网情况拿缓存
-                                if(NetUtil.isNetworkConnected()){
+                                if (NetUtil.isNetworkConnected()) {
                                     if (!TextUtils.isEmpty(bgUrl)) {
                                         Glide.with(CollectDetailsActivity.this).load(bgUrl)
                                                 .apply(GlideOptionsUtil.defaultImageOptions()).into(ivPic);
                                     }
-                                }else {
+                                } else {
                                     Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(bgUrl);
                                     if (localBitmap == null) {
                                         Glide.with(CollectDetailsActivity.this)
@@ -777,7 +777,7 @@ public class CollectDetailsActivity extends AppActivity {
             mapview.onPause();
         }
         AudioPlayManager.getInstance().stopPlay();
-        if(animationDrawable!=null){
+        if (animationDrawable != null) {
             animationDrawable.stop();
             animationDrawable.selectDrawable(0);//恢复到初始状态
         }
@@ -1028,7 +1028,7 @@ public class CollectDetailsActivity extends AppActivity {
         PictureSelector.create(CollectDetailsActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(0, selectList, PictureConfig.FROM_COLLECT_DETAIL);
+                .openExternalPreview1(0, selectList, "", 0L, PictureConfig.FROM_COLLECT_DETAIL);
     }
 
     /***

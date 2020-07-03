@@ -25,6 +25,9 @@ public final class PictureConfig {
     public final static String EXTRA_CONFIG = "PictureSelectorConfig";
     public final static String IMAGE = "image";
     public final static String VIDEO = "video";
+    public final static String GID = "gid";
+    public final static String TO_UID = "to_uid";
+
 
     public final static int UPDATE_FLAG = 2774;// 预览界面更新选中数据 标识
     public final static int CLOSE_PREVIEW_FLAG = 2770;// 关闭预览界面 标识

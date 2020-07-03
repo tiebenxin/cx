@@ -24,7 +24,6 @@ public class ChatCellTransfer extends ChatCellBase {
 
     private TextView tv_rb_title, tv_rb_info, tv_rb_type;
     private ImageView iv_rb_state, iv_rb_icon;
-    private RedEnvelopeMessage redEnvelopeMessage;
     private TransferMessage transfer;
 
     protected ChatCellTransfer(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
@@ -111,20 +110,28 @@ public class ChatCellTransfer extends ChatCellBase {
         } else if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
             if (UserAction.getMyId() != null && UserAction.getMyId().longValue() == creator) {
                 if (isMe) {
-                    result = "你已确定收款";
-                } else {
-                    result = "已收款";
+                    if (transfer.getPassive() == 1) {
+                        result = "已被领取";
+                    } else {
+                        result = "你已确定收款";
+                    }
                 }
             } else {
-                if (isMe) {
-                    result = "朋友已确定收款";
-                } else {
-                    result = "已被领取";
+                if (!isMe) {
+                    if (transfer.getPassive() == 1) {
+                        result = "已收款";
+                    } else {
+                        result = "朋友已确定收款";
+                    }
                 }
             }
         } else if (opType == PayEnum.ETransferOpType.TRANS_REJECT) {
-            if (isMe) {
-                result = "已退还";
+            if (transfer.getPassive() == 1) {
+                if (!TextUtils.isEmpty(info)) {
+                    result = "已退还" + "-" + info;
+                } else {
+                    result = "已退还";
+                }
             } else {
                 result = "已退还";
             }
@@ -135,7 +142,7 @@ public class ChatCellTransfer extends ChatCellBase {
                 result = "已过期";
             }
         }
-        if (!TextUtils.isEmpty(info) && opType != PayEnum.ETransferOpType.TRANS_SEND) {
+        if (!TextUtils.isEmpty(info) && opType != PayEnum.ETransferOpType.TRANS_SEND && opType != PayEnum.ETransferOpType.TRANS_REJECT) {
             if (isMe) {
                 result = result + "-" + info;
             } else {
