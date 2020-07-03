@@ -166,7 +166,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                 taskGetSms(phone);
             }
         });
-
+        //点击获取验证码后，光标自行跳转
+        mEtIdentifyingCodeContent.requestFocus();
     }
 
     private void register() {

@@ -3385,7 +3385,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(pos, selectList,toGid,toUId);
+                .openExternalPreview1(pos, selectList,toGid,toUId,PictureConfig.FROM_DEFAULT);
 
     }
 
@@ -6473,7 +6473,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
         bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-        bundle.putInt(PictureConfig.FROM_WHERE, 1);//跳转来源 0 默认 1 猜你想要
+        bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_GUESS_YOU_LIKE);//跳转来源 0 默认 1 猜你想要 2 收藏详情
         Intent intent = new Intent(ChatActivity.this, PicturePreviewActivity.class);
         intent.putExtras(bundle);
         startActivityForResult(intent, PictureConfig.PREVIEW_FROM_CHAT);

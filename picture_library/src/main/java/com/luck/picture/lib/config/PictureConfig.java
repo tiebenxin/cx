@@ -25,7 +25,6 @@ public final class PictureConfig {
     public final static String EXTRA_CONFIG = "PictureSelectorConfig";
     public final static String IMAGE = "image";
     public final static String VIDEO = "video";
-    public final static String FROM_WHERE = "from_where";
     public final static String GID = "gid";
     public final static String TO_UID = "to_uid";
 
@@ -51,4 +50,10 @@ public final class PictureConfig {
     public final static int REQUEST_CAMERA = 909;
     public final static int READ_EXTERNAL_STORAGE = 0x01;
     public final static int CAMERA = 0x02;
+
+
+    public final static String FROM_WHERE = "from_where";//跳转来源 0 默认 1 猜你想要 2 收藏详情
+    public final static int FROM_DEFAULT = 0;
+    public final static int FROM_GUESS_YOU_LIKE = 1;
+    public final static int FROM_COLLECT_DETAIL = 2;
 }

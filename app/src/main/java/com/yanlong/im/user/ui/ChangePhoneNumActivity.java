@@ -135,6 +135,8 @@ public class ChangePhoneNumActivity extends AppActivity {
                 });
             }
         });
+        //点击获取验证码后，光标自行跳转
+        etCode.requestFocus();
     }
 
     /**

@@ -119,6 +119,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private LoadDataThread loadDataThread;
     //    private String[] strings = {"识别二维码", "保存图片", "取消"};
     private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
     private MsgAction msgAction = new MsgAction();
     private MsgDao msgDao = new MsgDao();
     private String gid;
@@ -137,6 +138,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         tv_title = (TextView) findViewById(com.luck.picture.lib.R.id.picture_title);
         left_back = (ImageButton) findViewById(com.luck.picture.lib.R.id.left_back);
         viewPager = (PreviewViewPager) findViewById(com.luck.picture.lib.R.id.preview_pager);
+        position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
+        images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+        fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);
         Intent intent = getIntent();
         position = intent.getIntExtra(PictureConfig.EXTRA_POSITION, 0);
         images = (List<LocalMedia>) intent.getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
@@ -340,7 +344,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private void initViewPageAdapterData() {
         if (images != null && images.size() > 0) {
             tv_title.setText(position + 1 + "/" + images.size());
-            mAdapter = new AdapterPreviewImage(this);
+            mAdapter = new AdapterPreviewImage(this,fromWhere);
             mAdapter.setPopParentView(tv_title);
             mAdapter.bindData(images);
             viewPager.setAdapter(mAdapter);

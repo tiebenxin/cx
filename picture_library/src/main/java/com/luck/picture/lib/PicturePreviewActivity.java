@@ -127,7 +127,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         tv_title = (TextView) findViewById(R.id.picture_title);
         tvEdit = findViewById(R.id.tv_edit);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
-        fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, 0);
+        fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);
         tv_ok.setText(numComplete ? getString(R.string.picture_done_front_num,
                 0, config.selectionMode == PictureConfig.SINGLE ? 1 : config.maxSelectNum)
                 : getString(R.string.picture_please_select));

@@ -107,6 +107,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
                 taskGetSms(phone);
             }
         });
+        //点击获取验证码后，光标自行跳转
+        mEtIdentifyingCodeContent.requestFocus();
     }
 
     private void register() {

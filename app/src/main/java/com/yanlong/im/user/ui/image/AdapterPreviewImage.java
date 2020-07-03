@@ -43,6 +43,7 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
+import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.glide.CustomGlideModule;
@@ -100,13 +101,17 @@ public class AdapterPreviewImage extends PagerAdapter {
     //    private IPreviewImageListener listener;
     private String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
     private String[] newStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "编辑", "取消"};
+    private String[] collectStrings = {"发送给朋友", "保存图片", "取消"};
     private View parentView;
     private int preProgress;
+    private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
 
 
-    public AdapterPreviewImage(Activity c) {
+    public AdapterPreviewImage(Activity c,int fromWhere) {
         context = c;
         inflater = LayoutInflater.from(c);
+        this.fromWhere = fromWhere;
+
     }
 
     public void bindData(List<LocalMedia> l) {
@@ -826,81 +831,73 @@ public class AdapterPreviewImage extends PagerAdapter {
      */
     private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp, boolean isOriginal, LinearLayout llLook) {
         final PopupSelectView popupSelectView;
-        if (media.isCanCollect()) {
-            popupSelectView = new PopupSelectView(context, newStrings);
-        } else {
-            popupSelectView = new PopupSelectView(context, strings);
+        //收藏详情需求又改为只显示3项
+        if(fromWhere==PictureConfig.FROM_COLLECT_DETAIL){
+            popupSelectView = new PopupSelectView(context, collectStrings);
+        }else {
+            if (media.isCanCollect()) {
+                popupSelectView = new PopupSelectView(context, newStrings);
+            } else {
+                popupSelectView = new PopupSelectView(context, strings);
+            }
         }
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
                 String msgId = media.getMsg_id();
-                if (media.isCanCollect()) {
+                //收藏详情需求又改为只显示3项
+                if(fromWhere==PictureConfig.FROM_COLLECT_DETAIL){
                     if (postsion == 0) {//转发
-                        if (!TextUtils.isEmpty(msgId)) {
-                            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-                            if (msgAllBean != null) {
-                                context.startActivity(new Intent(context, MsgForwardActivity.class)
-                                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
-                            } else {
-                                ToastUtil.show("消息已被删除或者被焚毁，不能转发");
-                            }
-                        } else {
-                            //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
-
-                        }
+                        sendToFriend(msgId);
                     } else if (postsion == 1) {//保存
                         saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
-                    } else if (postsion == 2) {//收藏
-                        EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-                        eventCollectImgOrVideo.setMsgId(msgId);
-                        EventBus.getDefault().post(eventCollectImgOrVideo);
-                    } else if (postsion == 3) {//识别二维码
-                        // scanningImage(media.getPath());
-                        scanningQrImage(media.getCompressPath(), ivZoom);
-                    } else if (postsion == 4) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
-                        Intent intent = new Intent(context, ImageShowActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("imgpath", media.getCompressPath());
-                        bundle.putString("msg_id", msgId);
-                        bundle.putInt("img_width", media.getWidth());
-                        bundle.putInt("img_height", media.getHeight());
-                        intent.putExtras(bundle);
-                        context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                     }
-
-                } else {
-                    if (postsion == 0) {//转发
-                        if (!TextUtils.isEmpty(msgId)) {
-                            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-                            if (msgAllBean != null) {
-                                context.startActivity(new Intent(context, MsgForwardActivity.class)
-                                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
-                            } else {
-                                ToastUtil.show("消息已被删除或者被焚毁，不能转发");
-                            }
-                        } else {
-                            //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
-
+                }else {
+                    //含有收藏项
+                    if (media.isCanCollect()) {
+                        if (postsion == 0) {//转发
+                            sendToFriend(msgId);
+                        } else if (postsion == 1) {//保存
+                            saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
+                        } else if (postsion == 2) {//收藏
+                            EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                            eventCollectImgOrVideo.setMsgId(msgId);
+                            EventBus.getDefault().post(eventCollectImgOrVideo);
+                        } else if (postsion == 3) {//识别二维码
+                            // scanningImage(media.getPath());
+                            scanningQrImage(media.getCompressPath(), ivZoom);
+                        } else if (postsion == 4) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                            Intent intent = new Intent(context, ImageShowActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("imgpath", media.getCompressPath());
+                            bundle.putString("msg_id", msgId);
+                            bundle.putInt("img_width", media.getWidth());
+                            bundle.putInt("img_height", media.getHeight());
+                            intent.putExtras(bundle);
+                            context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                         }
-                    } else if (postsion == 1) {//保存
-                        saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
-                    } else if (postsion == 2) {//识别二维码
-                        // scanningImage(media.getPath());
-                        scanningQrImage(media.getCompressPath(), ivZoom);
-                    } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
-                        Intent intent = new Intent(context, ImageShowActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("imgpath", media.getCompressPath());
-                        bundle.putString("msg_id", msgId);
-                        bundle.putInt("img_width", media.getWidth());
-                        bundle.putInt("img_height", media.getHeight());
-                        intent.putExtras(bundle);
-                        context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
+
+                    } else {
+                        //不含有收藏项
+                        if (postsion == 0) {//转发
+                            sendToFriend(msgId);
+                        } else if (postsion == 1) {//保存
+                            saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
+                        } else if (postsion == 2) {//识别二维码
+                            // scanningImage(media.getPath());
+                            scanningQrImage(media.getCompressPath(), ivZoom);
+                        } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                            Intent intent = new Intent(context, ImageShowActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("imgpath", media.getCompressPath());
+                            bundle.putString("msg_id", msgId);
+                            bundle.putInt("img_width", media.getWidth());
+                            bundle.putInt("img_height", media.getHeight());
+                            intent.putExtras(bundle);
+                            context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
+                        }
                     }
                 }
-
-
                 popupSelectView.dismiss();
 
             }
@@ -1085,5 +1082,23 @@ public class AdapterPreviewImage extends PagerAdapter {
         return isGif;
     }
 
+
+    /**
+     * 转发
+     * @param msgId
+     */
+    private void sendToFriend(String msgId){
+        if (!TextUtils.isEmpty(msgId)) {
+            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+            if (msgAllBean != null) {
+                context.startActivity(new Intent(context, MsgForwardActivity.class)
+                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+            } else {
+                ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            }
+        } else {
+            //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
+        }
+    }
 
 }
