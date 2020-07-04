@@ -39,6 +39,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -109,8 +110,11 @@ public class MsgAction {
             ulist.add(userInfo.getUid());
             rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
         }
+        WeakHashMap<String, Object> params= new WeakHashMap<>();
+        params.put("gid",id);
+        params.put("members",ulist);
         final String finalRname = rname;
-        NetUtil.getNet().exec(server.groupRemove(id, gson.toJson(ulist)), new Callback<ReturnBean<GroupJoinBean>>() {
+        NetUtil.getNet().exec(server.groupRemove(params), new Callback<ReturnBean<GroupJoinBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 callback.onResponse(call, response);

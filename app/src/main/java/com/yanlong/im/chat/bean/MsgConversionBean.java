@@ -407,10 +407,10 @@ public class MsgConversionBean {
                     }
                 }
                 MsgBean.RemoveGroupMember2Message removeGroupMember2 = bean.getRemoveGroupMember2();
-                if (removeGroupMember2.getUidList() != null && removeGroupMember2.getUidList().size() > 0) {
+                if (removeGroupMember2.getNoticeMessageList() != null && removeGroupMember2.getNoticeMessageList().size() > 0) {
                     StringBuffer stringBuffer = new StringBuffer();
-                    for (Long l : removeGroupMember2.getUidList()) {
-                        stringBuffer.append("\"<font color='#276baa' id='" + l + "'>" + l + "</font>\"、");
+                    for (MsgBean.GroupNoticeMessage noticeMessage : removeGroupMember2.getNoticeMessageList()) {
+                        stringBuffer.append("\"<font color='#276baa' id='" + noticeMessage.getUid() + "'>" + noticeMessage.getNickname() + "</font>\"、");
                     }
                     String removeNames = stringBuffer.substring(0, stringBuffer.length() - 1);
                     String user = "\"<font color='#276baa' id='" + fromUid + "'>" + name + "</font>\"";
