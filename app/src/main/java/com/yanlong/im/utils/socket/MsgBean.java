@@ -1184,6 +1184,22 @@ public final class MsgBean {
     FRIEND_FROZEN(4),
     /**
      * <pre>
+     * 自己账号被封
+     * </pre>
+     *
+     * <code>SELF_LOCKED = 5;</code>
+     */
+    SELF_LOCKED(5),
+    /**
+     * <pre>
+     * 好友账号被封
+     * </pre>
+     *
+     * <code>FRIEND_LOCKED = 6;</code>
+     */
+    FRIEND_LOCKED(6),
+    /**
+     * <pre>
      * 服务端限流
      * </pre>
      *
@@ -1243,6 +1259,22 @@ public final class MsgBean {
     public static final int FRIEND_FROZEN_VALUE = 4;
     /**
      * <pre>
+     * 自己账号被封
+     * </pre>
+     *
+     * <code>SELF_LOCKED = 5;</code>
+     */
+    public static final int SELF_LOCKED_VALUE = 5;
+    /**
+     * <pre>
+     * 好友账号被封
+     * </pre>
+     *
+     * <code>FRIEND_LOCKED = 6;</code>
+     */
+    public static final int FRIEND_LOCKED_VALUE = 6;
+    /**
+     * <pre>
      * 服务端限流
      * </pre>
      *
@@ -1282,6 +1314,8 @@ public final class MsgBean {
         case 2: return IN_BLACKLIST;
         case 3: return WORDS_NOT_ALLOWED;
         case 4: return FRIEND_FROZEN;
+        case 5: return SELF_LOCKED;
+        case 6: return FRIEND_LOCKED;
         case 99: return RATE_LIMIT;
         case 100: return SERVICE_UNAVAILABLE;
         default: return null;
@@ -1503,6 +1537,14 @@ public final class MsgBean {
      * <code>MY_GROUP_QUIT = 4;</code>
      */
     MY_GROUP_QUIT(4),
+    /**
+     * <pre>
+     * 群消息已读
+     * </pre>
+     *
+     * <code>MY_GROUP_READ = 5;</code>
+     */
+    MY_GROUP_READ(5),
     UNRECOGNIZED(-1),
     ;
 
@@ -1546,6 +1588,14 @@ public final class MsgBean {
      * <code>MY_GROUP_QUIT = 4;</code>
      */
     public static final int MY_GROUP_QUIT_VALUE = 4;
+    /**
+     * <pre>
+     * 群消息已读
+     * </pre>
+     *
+     * <code>MY_GROUP_READ = 5;</code>
+     */
+    public static final int MY_GROUP_READ_VALUE = 5;
 
 
     public final int getNumber() {
@@ -1571,6 +1621,7 @@ public final class MsgBean {
         case 2: return MY_GROUP_CHANGED;
         case 3: return MY_FRIEND_DELETED;
         case 4: return MY_GROUP_QUIT;
+        case 5: return MY_GROUP_READ;
         default: return null;
       }
     }
@@ -1642,7 +1693,7 @@ public final class MsgBean {
     MFPAY(0),
     /**
      * <pre>
-     * 系统内红包(通联红包)
+     * 系统内红包(易宝红包)
      * </pre>
      *
      * <code>SYSTEM = 1;</code>
@@ -1661,7 +1712,7 @@ public final class MsgBean {
     public static final int MFPAY_VALUE = 0;
     /**
      * <pre>
-     * 系统内红包(通联红包)
+     * 系统内红包(易宝红包)
      * </pre>
      *
      * <code>SYSTEM = 1;</code>
@@ -12699,7 +12750,7 @@ public final class MsgBean {
      * 接收人列表，未指定则发送给所有人
      * </pre>
      *
-     * <code>repeated uint64 uid_list = 2;</code>
+     * <code>repeated uint64 uid_list = 101;</code>
      */
     java.util.List<java.lang.Long> getUidListList();
     /**
@@ -12707,7 +12758,7 @@ public final class MsgBean {
      * 接收人列表，未指定则发送给所有人
      * </pre>
      *
-     * <code>repeated uint64 uid_list = 2;</code>
+     * <code>repeated uint64 uid_list = 101;</code>
      */
     int getUidListCount();
     /**
@@ -12715,7 +12766,7 @@ public final class MsgBean {
      * 接收人列表，未指定则发送给所有人
      * </pre>
      *
-     * <code>repeated uint64 uid_list = 2;</code>
+     * <code>repeated uint64 uid_list = 101;</code>
      */
     long getUidList(int index);
   }
@@ -12777,7 +12828,7 @@ public final class MsgBean {
               msg_ = s;
               break;
             }
-            case 16: {
+            case 808: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
                 uidList_ = new java.util.ArrayList<java.lang.Long>();
                 mutable_bitField0_ |= 0x00000002;
@@ -12785,7 +12836,7 @@ public final class MsgBean {
               uidList_.add(input.readUInt64());
               break;
             }
-            case 18: {
+            case 810: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
@@ -12860,14 +12911,14 @@ public final class MsgBean {
       }
     }
 
-    public static final int UID_LIST_FIELD_NUMBER = 2;
+    public static final int UID_LIST_FIELD_NUMBER = 101;
     private java.util.List<java.lang.Long> uidList_;
     /**
      * <pre>
      * 接收人列表，未指定则发送给所有人
      * </pre>
      *
-     * <code>repeated uint64 uid_list = 2;</code>
+     * <code>repeated uint64 uid_list = 101;</code>
      */
     public java.util.List<java.lang.Long>
         getUidListList() {
@@ -12878,7 +12929,7 @@ public final class MsgBean {
      * 接收人列表，未指定则发送给所有人
      * </pre>
      *
-     * <code>repeated uint64 uid_list = 2;</code>
+     * <code>repeated uint64 uid_list = 101;</code>
      */
     public int getUidListCount() {
       return uidList_.size();
@@ -12888,7 +12939,7 @@ public final class MsgBean {
      * 接收人列表，未指定则发送给所有人
      * </pre>
      *
-     * <code>repeated uint64 uid_list = 2;</code>
+     * <code>repeated uint64 uid_list = 101;</code>
      */
     public long getUidList(int index) {
       return uidList_.get(index);
@@ -12912,7 +12963,7 @@ public final class MsgBean {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, msg_);
       }
       if (getUidListList().size() > 0) {
-        output.writeUInt32NoTag(18);
+        output.writeUInt32NoTag(810);
         output.writeUInt32NoTag(uidListMemoizedSerializedSize);
       }
       for (int i = 0; i < uidList_.size(); i++) {
@@ -12937,7 +12988,7 @@ public final class MsgBean {
         }
         size += dataSize;
         if (!getUidListList().isEmpty()) {
-          size += 1;
+          size += 2;
           size += com.google.protobuf.CodedOutputStream
               .computeInt32SizeNoTag(dataSize);
         }
@@ -13312,7 +13363,7 @@ public final class MsgBean {
        * 接收人列表，未指定则发送给所有人
        * </pre>
        *
-       * <code>repeated uint64 uid_list = 2;</code>
+       * <code>repeated uint64 uid_list = 101;</code>
        */
       public java.util.List<java.lang.Long>
           getUidListList() {
@@ -13323,7 +13374,7 @@ public final class MsgBean {
        * 接收人列表，未指定则发送给所有人
        * </pre>
        *
-       * <code>repeated uint64 uid_list = 2;</code>
+       * <code>repeated uint64 uid_list = 101;</code>
        */
       public int getUidListCount() {
         return uidList_.size();
@@ -13333,7 +13384,7 @@ public final class MsgBean {
        * 接收人列表，未指定则发送给所有人
        * </pre>
        *
-       * <code>repeated uint64 uid_list = 2;</code>
+       * <code>repeated uint64 uid_list = 101;</code>
        */
       public long getUidList(int index) {
         return uidList_.get(index);
@@ -13343,7 +13394,7 @@ public final class MsgBean {
        * 接收人列表，未指定则发送给所有人
        * </pre>
        *
-       * <code>repeated uint64 uid_list = 2;</code>
+       * <code>repeated uint64 uid_list = 101;</code>
        */
       public Builder setUidList(
           int index, long value) {
@@ -13357,7 +13408,7 @@ public final class MsgBean {
        * 接收人列表，未指定则发送给所有人
        * </pre>
        *
-       * <code>repeated uint64 uid_list = 2;</code>
+       * <code>repeated uint64 uid_list = 101;</code>
        */
       public Builder addUidList(long value) {
         ensureUidListIsMutable();
@@ -13370,7 +13421,7 @@ public final class MsgBean {
        * 接收人列表，未指定则发送给所有人
        * </pre>
        *
-       * <code>repeated uint64 uid_list = 2;</code>
+       * <code>repeated uint64 uid_list = 101;</code>
        */
       public Builder addAllUidList(
           java.lang.Iterable<? extends java.lang.Long> values) {
@@ -13385,7 +13436,7 @@ public final class MsgBean {
        * 接收人列表，未指定则发送给所有人
        * </pre>
        *
-       * <code>repeated uint64 uid_list = 2;</code>
+       * <code>repeated uint64 uid_list = 101;</code>
        */
       public Builder clearUidList() {
         uidList_ = java.util.Collections.emptyList();
@@ -13502,7 +13553,7 @@ public final class MsgBean {
 
     /**
      * <pre>
-     * 按钮文本  
+     * 按钮文本
      * </pre>
      *
      * <code>string button_txt = 4;</code>
@@ -13510,7 +13561,7 @@ public final class MsgBean {
     java.lang.String getButtonTxt();
     /**
      * <pre>
-     * 按钮文本  
+     * 按钮文本
      * </pre>
      *
      * <code>string button_txt = 4;</code>
@@ -14874,7 +14925,7 @@ public final class MsgBean {
     private volatile java.lang.Object buttonTxt_;
     /**
      * <pre>
-     * 按钮文本  
+     * 按钮文本
      * </pre>
      *
      * <code>string button_txt = 4;</code>
@@ -14893,7 +14944,7 @@ public final class MsgBean {
     }
     /**
      * <pre>
-     * 按钮文本  
+     * 按钮文本
      * </pre>
      *
      * <code>string button_txt = 4;</code>
@@ -15630,7 +15681,7 @@ public final class MsgBean {
       private java.lang.Object buttonTxt_ = "";
       /**
        * <pre>
-       * 按钮文本  
+       * 按钮文本
        * </pre>
        *
        * <code>string button_txt = 4;</code>
@@ -15649,7 +15700,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 按钮文本  
+       * 按钮文本
        * </pre>
        *
        * <code>string button_txt = 4;</code>
@@ -15669,7 +15720,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 按钮文本  
+       * 按钮文本
        * </pre>
        *
        * <code>string button_txt = 4;</code>
@@ -15686,7 +15737,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 按钮文本  
+       * 按钮文本
        * </pre>
        *
        * <code>string button_txt = 4;</code>
@@ -15699,7 +15750,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 按钮文本  
+       * 按钮文本
        * </pre>
        *
        * <code>string button_txt = 4;</code>
@@ -24913,7 +24964,7 @@ public final class MsgBean {
 
     /**
      * <pre>
-     * 被删成员uid集合
+     * 被删成员uid集合（过时的）
      * </pre>
      *
      * <code>repeated uint64 uid = 1;</code>
@@ -24921,7 +24972,7 @@ public final class MsgBean {
     java.util.List<java.lang.Long> getUidList();
     /**
      * <pre>
-     * 被删成员uid集合
+     * 被删成员uid集合（过时的）
      * </pre>
      *
      * <code>repeated uint64 uid = 1;</code>
@@ -24929,12 +24980,36 @@ public final class MsgBean {
     int getUidCount();
     /**
      * <pre>
-     * 被删成员uid集合
+     * 被删成员uid集合（过时的）
      * </pre>
      *
      * <code>repeated uint64 uid = 1;</code>
      */
     long getUid(int index);
+
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> 
+        getNoticeMessageList();
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index);
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    int getNoticeMessageCount();
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
+        getNoticeMessageOrBuilderList();
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
+        int index);
   }
   /**
    * <pre>
@@ -24954,6 +25029,7 @@ public final class MsgBean {
     }
     private RemoveGroupMember2Message() {
       uid_ = java.util.Collections.emptyList();
+      noticeMessage_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -25008,6 +25084,15 @@ public final class MsgBean {
               input.popLimit(limit);
               break;
             }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              noticeMessage_.add(
+                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.parser(), extensionRegistry));
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -25018,6 +25103,9 @@ public final class MsgBean {
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           uid_ = java.util.Collections.unmodifiableList(uid_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          noticeMessage_ = java.util.Collections.unmodifiableList(noticeMessage_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -25039,7 +25127,7 @@ public final class MsgBean {
     private java.util.List<java.lang.Long> uid_;
     /**
      * <pre>
-     * 被删成员uid集合
+     * 被删成员uid集合（过时的）
      * </pre>
      *
      * <code>repeated uint64 uid = 1;</code>
@@ -25050,7 +25138,7 @@ public final class MsgBean {
     }
     /**
      * <pre>
-     * 被删成员uid集合
+     * 被删成员uid集合（过时的）
      * </pre>
      *
      * <code>repeated uint64 uid = 1;</code>
@@ -25060,7 +25148,7 @@ public final class MsgBean {
     }
     /**
      * <pre>
-     * 被删成员uid集合
+     * 被删成员uid集合（过时的）
      * </pre>
      *
      * <code>repeated uint64 uid = 1;</code>
@@ -25069,6 +25157,41 @@ public final class MsgBean {
       return uid_.get(index);
     }
     private int uidMemoizedSerializedSize = -1;
+
+    public static final int NOTICE_MESSAGE_FIELD_NUMBER = 2;
+    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> noticeMessage_;
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getNoticeMessageList() {
+      return noticeMessage_;
+    }
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
+        getNoticeMessageOrBuilderList() {
+      return noticeMessage_;
+    }
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    public int getNoticeMessageCount() {
+      return noticeMessage_.size();
+    }
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index) {
+      return noticeMessage_.get(index);
+    }
+    /**
+     * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
+        int index) {
+      return noticeMessage_.get(index);
+    }
 
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -25089,6 +25212,9 @@ public final class MsgBean {
       }
       for (int i = 0; i < uid_.size(); i++) {
         output.writeUInt64NoTag(uid_.get(i));
+      }
+      for (int i = 0; i < noticeMessage_.size(); i++) {
+        output.writeMessage(2, noticeMessage_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -25112,6 +25238,10 @@ public final class MsgBean {
         }
         uidMemoizedSerializedSize = dataSize;
       }
+      for (int i = 0; i < noticeMessage_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, noticeMessage_.get(i));
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -25130,6 +25260,8 @@ public final class MsgBean {
       boolean result = true;
       result = result && getUidList()
           .equals(other.getUidList());
+      result = result && getNoticeMessageList()
+          .equals(other.getNoticeMessageList());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -25144,6 +25276,10 @@ public final class MsgBean {
       if (getUidCount() > 0) {
         hash = (37 * hash) + UID_FIELD_NUMBER;
         hash = (53 * hash) + getUidList().hashCode();
+      }
+      if (getNoticeMessageCount() > 0) {
+        hash = (37 * hash) + NOTICE_MESSAGE_FIELD_NUMBER;
+        hash = (53 * hash) + getNoticeMessageList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -25274,12 +25410,19 @@ public final class MsgBean {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
+          getNoticeMessageFieldBuilder();
         }
       }
       public Builder clear() {
         super.clear();
         uid_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000001);
+        if (noticeMessageBuilder_ == null) {
+          noticeMessage_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          noticeMessageBuilder_.clear();
+        }
         return this;
       }
 
@@ -25308,6 +25451,15 @@ public final class MsgBean {
           bitField0_ = (bitField0_ & ~0x00000001);
         }
         result.uid_ = uid_;
+        if (noticeMessageBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            noticeMessage_ = java.util.Collections.unmodifiableList(noticeMessage_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.noticeMessage_ = noticeMessage_;
+        } else {
+          result.noticeMessage_ = noticeMessageBuilder_.build();
+        }
         onBuilt();
         return result;
       }
@@ -25359,6 +25511,32 @@ public final class MsgBean {
           }
           onChanged();
         }
+        if (noticeMessageBuilder_ == null) {
+          if (!other.noticeMessage_.isEmpty()) {
+            if (noticeMessage_.isEmpty()) {
+              noticeMessage_ = other.noticeMessage_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureNoticeMessageIsMutable();
+              noticeMessage_.addAll(other.noticeMessage_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.noticeMessage_.isEmpty()) {
+            if (noticeMessageBuilder_.isEmpty()) {
+              noticeMessageBuilder_.dispose();
+              noticeMessageBuilder_ = null;
+              noticeMessage_ = other.noticeMessage_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              noticeMessageBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getNoticeMessageFieldBuilder() : null;
+            } else {
+              noticeMessageBuilder_.addAllMessages(other.noticeMessage_);
+            }
+          }
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -25396,7 +25574,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 被删成员uid集合
+       * 被删成员uid集合（过时的）
        * </pre>
        *
        * <code>repeated uint64 uid = 1;</code>
@@ -25407,7 +25585,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 被删成员uid集合
+       * 被删成员uid集合（过时的）
        * </pre>
        *
        * <code>repeated uint64 uid = 1;</code>
@@ -25417,7 +25595,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 被删成员uid集合
+       * 被删成员uid集合（过时的）
        * </pre>
        *
        * <code>repeated uint64 uid = 1;</code>
@@ -25427,7 +25605,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 被删成员uid集合
+       * 被删成员uid集合（过时的）
        * </pre>
        *
        * <code>repeated uint64 uid = 1;</code>
@@ -25441,7 +25619,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 被删成员uid集合
+       * 被删成员uid集合（过时的）
        * </pre>
        *
        * <code>repeated uint64 uid = 1;</code>
@@ -25454,7 +25632,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 被删成员uid集合
+       * 被删成员uid集合（过时的）
        * </pre>
        *
        * <code>repeated uint64 uid = 1;</code>
@@ -25469,7 +25647,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       * 被删成员uid集合
+       * 被删成员uid集合（过时的）
        * </pre>
        *
        * <code>repeated uint64 uid = 1;</code>
@@ -25479,6 +25657,246 @@ public final class MsgBean {
         bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
+      }
+
+      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> noticeMessage_ =
+        java.util.Collections.emptyList();
+      private void ensureNoticeMessageIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>(noticeMessage_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> noticeMessageBuilder_;
+
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getNoticeMessageList() {
+        if (noticeMessageBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(noticeMessage_);
+        } else {
+          return noticeMessageBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public int getNoticeMessageCount() {
+        if (noticeMessageBuilder_ == null) {
+          return noticeMessage_.size();
+        } else {
+          return noticeMessageBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index) {
+        if (noticeMessageBuilder_ == null) {
+          return noticeMessage_.get(index);
+        } else {
+          return noticeMessageBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder setNoticeMessage(
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
+        if (noticeMessageBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureNoticeMessageIsMutable();
+          noticeMessage_.set(index, value);
+          onChanged();
+        } else {
+          noticeMessageBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder setNoticeMessage(
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
+        if (noticeMessageBuilder_ == null) {
+          ensureNoticeMessageIsMutable();
+          noticeMessage_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          noticeMessageBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder addNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
+        if (noticeMessageBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureNoticeMessageIsMutable();
+          noticeMessage_.add(value);
+          onChanged();
+        } else {
+          noticeMessageBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder addNoticeMessage(
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
+        if (noticeMessageBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureNoticeMessageIsMutable();
+          noticeMessage_.add(index, value);
+          onChanged();
+        } else {
+          noticeMessageBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder addNoticeMessage(
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
+        if (noticeMessageBuilder_ == null) {
+          ensureNoticeMessageIsMutable();
+          noticeMessage_.add(builderForValue.build());
+          onChanged();
+        } else {
+          noticeMessageBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder addNoticeMessage(
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
+        if (noticeMessageBuilder_ == null) {
+          ensureNoticeMessageIsMutable();
+          noticeMessage_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          noticeMessageBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder addAllNoticeMessage(
+          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> values) {
+        if (noticeMessageBuilder_ == null) {
+          ensureNoticeMessageIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, noticeMessage_);
+          onChanged();
+        } else {
+          noticeMessageBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder clearNoticeMessage() {
+        if (noticeMessageBuilder_ == null) {
+          noticeMessage_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          noticeMessageBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public Builder removeNoticeMessage(int index) {
+        if (noticeMessageBuilder_ == null) {
+          ensureNoticeMessageIsMutable();
+          noticeMessage_.remove(index);
+          onChanged();
+        } else {
+          noticeMessageBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder getNoticeMessageBuilder(
+          int index) {
+        return getNoticeMessageFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
+          int index) {
+        if (noticeMessageBuilder_ == null) {
+          return noticeMessage_.get(index);  } else {
+          return noticeMessageBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
+           getNoticeMessageOrBuilderList() {
+        if (noticeMessageBuilder_ != null) {
+          return noticeMessageBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(noticeMessage_);
+        }
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addNoticeMessageBuilder() {
+        return getNoticeMessageFieldBuilder().addBuilder(
+            com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addNoticeMessageBuilder(
+          int index) {
+        return getNoticeMessageFieldBuilder().addBuilder(
+            index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .GroupNoticeMessage notice_message = 2;</code>
+       */
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder> 
+           getNoticeMessageBuilderList() {
+        return getNoticeMessageFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
+          getNoticeMessageFieldBuilder() {
+        if (noticeMessageBuilder_ == null) {
+          noticeMessageBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder>(
+                  noticeMessage_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  getParentForChildren(),
+                  isClean());
+          noticeMessage_ = null;
+        }
+        return noticeMessageBuilder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -48536,7 +48954,7 @@ public final class MsgBean {
 
       /**
        * <pre>
-       * 消息来源
+       * 发送者uid
        * </pre>
        *
        * <code>uint64 from_uid = 4;</code>
@@ -48555,7 +48973,7 @@ public final class MsgBean {
 
       /**
        * <pre>
-       *昵称
+       * 发送者昵称
        * </pre>
        *
        * <code>string nickname = 6;</code>
@@ -48563,7 +48981,7 @@ public final class MsgBean {
       java.lang.String getNickname();
       /**
        * <pre>
-       *昵称
+       * 发送者昵称
        * </pre>
        *
        * <code>string nickname = 6;</code>
@@ -48573,7 +48991,7 @@ public final class MsgBean {
 
       /**
        * <pre>
-       *头像
+       * 发送者头像
        * </pre>
        *
        * <code>string avatar = 7;</code>
@@ -48581,7 +48999,7 @@ public final class MsgBean {
       java.lang.String getAvatar();
       /**
        * <pre>
-       *头像
+       * 发送者头像
        * </pre>
        *
        * <code>string avatar = 7;</code>
@@ -48609,7 +49027,7 @@ public final class MsgBean {
 
       /**
        * <pre>
-       *阅后即焚有效时间
+       * 阅后即焚有效时间
        * </pre>
        *
        * <code>sint32 survival_time = 9;</code>
@@ -48618,7 +49036,7 @@ public final class MsgBean {
 
       /**
        * <pre>
-       *来源设备类型(0:mobile|1:pc)
+       * 来源设备类型(0:mobile|1:pc)
        * </pre>
        *
        * <code>uint32 device_type = 10;</code>
@@ -48636,7 +49054,7 @@ public final class MsgBean {
 
       /**
        * <pre>
-       * 操作人uid（系统消息）
+       * 执行者uid
        * </pre>
        *
        * <code>uint64 executor = 12;</code>
@@ -48651,6 +49069,24 @@ public final class MsgBean {
        * <code>uint64 read_ts = 13;</code>
        */
       long getReadTs();
+
+      /**
+       * <pre>
+       * 执行者昵称
+       * </pre>
+       *
+       * <code>uint64 executor_nickname = 14;</code>
+       */
+      long getExecutorNickname();
+
+      /**
+       * <pre>
+       * 执行者头像（先占位，暂没有值）
+       * </pre>
+       *
+       * <code>uint64 executor_avatar = 15;</code>
+       */
+      long getExecutorAvatar();
 
       /**
        * <code>.ChatMessage chat = 10000;</code>
@@ -49272,6 +49708,8 @@ public final class MsgBean {
         toUid_ = 0L;
         executor_ = 0L;
         readTs_ = 0L;
+        executorNickname_ = 0L;
+        executorAvatar_ = 0L;
       }
 
       @java.lang.Override
@@ -49375,6 +49813,16 @@ public final class MsgBean {
               case 104: {
 
                 readTs_ = input.readUInt64();
+                break;
+              }
+              case 112: {
+
+                executorNickname_ = input.readUInt64();
+                break;
+              }
+              case 120: {
+
+                executorAvatar_ = input.readUInt64();
                 break;
               }
               case 80002: {
@@ -50206,7 +50654,7 @@ public final class MsgBean {
       private long fromUid_;
       /**
        * <pre>
-       * 消息来源
+       * 发送者uid
        * </pre>
        *
        * <code>uint64 from_uid = 4;</code>
@@ -50253,7 +50701,7 @@ public final class MsgBean {
       private volatile java.lang.Object nickname_;
       /**
        * <pre>
-       *昵称
+       * 发送者昵称
        * </pre>
        *
        * <code>string nickname = 6;</code>
@@ -50272,7 +50720,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       *昵称
+       * 发送者昵称
        * </pre>
        *
        * <code>string nickname = 6;</code>
@@ -50295,7 +50743,7 @@ public final class MsgBean {
       private volatile java.lang.Object avatar_;
       /**
        * <pre>
-       *头像
+       * 发送者头像
        * </pre>
        *
        * <code>string avatar = 7;</code>
@@ -50314,7 +50762,7 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       *头像
+       * 发送者头像
        * </pre>
        *
        * <code>string avatar = 7;</code>
@@ -50379,7 +50827,7 @@ public final class MsgBean {
       private int survivalTime_;
       /**
        * <pre>
-       *阅后即焚有效时间
+       * 阅后即焚有效时间
        * </pre>
        *
        * <code>sint32 survival_time = 9;</code>
@@ -50392,7 +50840,7 @@ public final class MsgBean {
       private int deviceType_;
       /**
        * <pre>
-       *来源设备类型(0:mobile|1:pc)
+       * 来源设备类型(0:mobile|1:pc)
        * </pre>
        *
        * <code>uint32 device_type = 10;</code>
@@ -50418,7 +50866,7 @@ public final class MsgBean {
       private long executor_;
       /**
        * <pre>
-       * 操作人uid（系统消息）
+       * 执行者uid
        * </pre>
        *
        * <code>uint64 executor = 12;</code>
@@ -50438,6 +50886,32 @@ public final class MsgBean {
        */
       public long getReadTs() {
         return readTs_;
+      }
+
+      public static final int EXECUTOR_NICKNAME_FIELD_NUMBER = 14;
+      private long executorNickname_;
+      /**
+       * <pre>
+       * 执行者昵称
+       * </pre>
+       *
+       * <code>uint64 executor_nickname = 14;</code>
+       */
+      public long getExecutorNickname() {
+        return executorNickname_;
+      }
+
+      public static final int EXECUTOR_AVATAR_FIELD_NUMBER = 15;
+      private long executorAvatar_;
+      /**
+       * <pre>
+       * 执行者头像（先占位，暂没有值）
+       * </pre>
+       *
+       * <code>uint64 executor_avatar = 15;</code>
+       */
+      public long getExecutorAvatar() {
+        return executorAvatar_;
       }
 
       public static final int CHAT_FIELD_NUMBER = 10000;
@@ -51642,6 +52116,12 @@ public final class MsgBean {
         if (readTs_ != 0L) {
           output.writeUInt64(13, readTs_);
         }
+        if (executorNickname_ != 0L) {
+          output.writeUInt64(14, executorNickname_);
+        }
+        if (executorAvatar_ != 0L) {
+          output.writeUInt64(15, executorAvatar_);
+        }
         if (realMsgCase_ == 10000) {
           output.writeMessage(10000, (com.yanlong.im.utils.socket.MsgBean.ChatMessage) realMsg_);
         }
@@ -51825,6 +52305,14 @@ public final class MsgBean {
         if (readTs_ != 0L) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(13, readTs_);
+        }
+        if (executorNickname_ != 0L) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(14, executorNickname_);
+        }
+        if (executorAvatar_ != 0L) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(15, executorAvatar_);
         }
         if (realMsgCase_ == 10000) {
           size += com.google.protobuf.CodedOutputStream
@@ -52039,6 +52527,10 @@ public final class MsgBean {
             == other.getExecutor());
         result = result && (getReadTs()
             == other.getReadTs());
+        result = result && (getExecutorNickname()
+            == other.getExecutorNickname());
+        result = result && (getExecutorAvatar()
+            == other.getExecutorAvatar());
         result = result && getRealMsgCase().equals(
             other.getRealMsgCase());
         if (!result) return false;
@@ -52260,6 +52752,12 @@ public final class MsgBean {
         hash = (37 * hash) + READ_TS_FIELD_NUMBER;
         hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
             getReadTs());
+        hash = (37 * hash) + EXECUTOR_NICKNAME_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getExecutorNickname());
+        hash = (37 * hash) + EXECUTOR_AVATAR_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getExecutorAvatar());
         switch (realMsgCase_) {
           case 10000:
             hash = (37 * hash) + CHAT_FIELD_NUMBER;
@@ -52591,6 +53089,10 @@ public final class MsgBean {
 
           readTs_ = 0L;
 
+          executorNickname_ = 0L;
+
+          executorAvatar_ = 0L;
+
           realMsgCase_ = 0;
           realMsg_ = null;
           return this;
@@ -52628,6 +53130,8 @@ public final class MsgBean {
           result.toUid_ = toUid_;
           result.executor_ = executor_;
           result.readTs_ = readTs_;
+          result.executorNickname_ = executorNickname_;
+          result.executorAvatar_ = executorAvatar_;
           if (realMsgCase_ == 10000) {
             if (chatBuilder_ == null) {
               result.realMsg_ = realMsg_;
@@ -53014,6 +53518,12 @@ public final class MsgBean {
           }
           if (other.getReadTs() != 0L) {
             setReadTs(other.getReadTs());
+          }
+          if (other.getExecutorNickname() != 0L) {
+            setExecutorNickname(other.getExecutorNickname());
+          }
+          if (other.getExecutorAvatar() != 0L) {
+            setExecutorAvatar(other.getExecutorAvatar());
           }
           switch (other.getRealMsgCase()) {
             case CHAT: {
@@ -53428,7 +53938,7 @@ public final class MsgBean {
         private long fromUid_ ;
         /**
          * <pre>
-         * 消息来源
+         * 发送者uid
          * </pre>
          *
          * <code>uint64 from_uid = 4;</code>
@@ -53438,7 +53948,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         * 消息来源
+         * 发送者uid
          * </pre>
          *
          * <code>uint64 from_uid = 4;</code>
@@ -53451,7 +53961,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         * 消息来源
+         * 发送者uid
          * </pre>
          *
          * <code>uint64 from_uid = 4;</code>
@@ -53535,7 +54045,7 @@ public final class MsgBean {
         private java.lang.Object nickname_ = "";
         /**
          * <pre>
-         *昵称
+         * 发送者昵称
          * </pre>
          *
          * <code>string nickname = 6;</code>
@@ -53554,7 +54064,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *昵称
+         * 发送者昵称
          * </pre>
          *
          * <code>string nickname = 6;</code>
@@ -53574,7 +54084,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *昵称
+         * 发送者昵称
          * </pre>
          *
          * <code>string nickname = 6;</code>
@@ -53591,7 +54101,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *昵称
+         * 发送者昵称
          * </pre>
          *
          * <code>string nickname = 6;</code>
@@ -53604,7 +54114,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *昵称
+         * 发送者昵称
          * </pre>
          *
          * <code>string nickname = 6;</code>
@@ -53624,7 +54134,7 @@ public final class MsgBean {
         private java.lang.Object avatar_ = "";
         /**
          * <pre>
-         *头像
+         * 发送者头像
          * </pre>
          *
          * <code>string avatar = 7;</code>
@@ -53643,7 +54153,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *头像
+         * 发送者头像
          * </pre>
          *
          * <code>string avatar = 7;</code>
@@ -53663,7 +54173,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *头像
+         * 发送者头像
          * </pre>
          *
          * <code>string avatar = 7;</code>
@@ -53680,7 +54190,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *头像
+         * 发送者头像
          * </pre>
          *
          * <code>string avatar = 7;</code>
@@ -53693,7 +54203,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *头像
+         * 发送者头像
          * </pre>
          *
          * <code>string avatar = 7;</code>
@@ -53802,7 +54312,7 @@ public final class MsgBean {
         private int survivalTime_ ;
         /**
          * <pre>
-         *阅后即焚有效时间
+         * 阅后即焚有效时间
          * </pre>
          *
          * <code>sint32 survival_time = 9;</code>
@@ -53812,7 +54322,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *阅后即焚有效时间
+         * 阅后即焚有效时间
          * </pre>
          *
          * <code>sint32 survival_time = 9;</code>
@@ -53825,7 +54335,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *阅后即焚有效时间
+         * 阅后即焚有效时间
          * </pre>
          *
          * <code>sint32 survival_time = 9;</code>
@@ -53840,7 +54350,7 @@ public final class MsgBean {
         private int deviceType_ ;
         /**
          * <pre>
-         *来源设备类型(0:mobile|1:pc)
+         * 来源设备类型(0:mobile|1:pc)
          * </pre>
          *
          * <code>uint32 device_type = 10;</code>
@@ -53850,7 +54360,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *来源设备类型(0:mobile|1:pc)
+         * 来源设备类型(0:mobile|1:pc)
          * </pre>
          *
          * <code>uint32 device_type = 10;</code>
@@ -53863,7 +54373,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         *来源设备类型(0:mobile|1:pc)
+         * 来源设备类型(0:mobile|1:pc)
          * </pre>
          *
          * <code>uint32 device_type = 10;</code>
@@ -53916,7 +54426,7 @@ public final class MsgBean {
         private long executor_ ;
         /**
          * <pre>
-         * 操作人uid（系统消息）
+         * 执行者uid
          * </pre>
          *
          * <code>uint64 executor = 12;</code>
@@ -53926,7 +54436,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         * 操作人uid（系统消息）
+         * 执行者uid
          * </pre>
          *
          * <code>uint64 executor = 12;</code>
@@ -53939,7 +54449,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         * 操作人uid（系统消息）
+         * 执行者uid
          * </pre>
          *
          * <code>uint64 executor = 12;</code>
@@ -53985,6 +54495,82 @@ public final class MsgBean {
         public Builder clearReadTs() {
           
           readTs_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        private long executorNickname_ ;
+        /**
+         * <pre>
+         * 执行者昵称
+         * </pre>
+         *
+         * <code>uint64 executor_nickname = 14;</code>
+         */
+        public long getExecutorNickname() {
+          return executorNickname_;
+        }
+        /**
+         * <pre>
+         * 执行者昵称
+         * </pre>
+         *
+         * <code>uint64 executor_nickname = 14;</code>
+         */
+        public Builder setExecutorNickname(long value) {
+          
+          executorNickname_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <pre>
+         * 执行者昵称
+         * </pre>
+         *
+         * <code>uint64 executor_nickname = 14;</code>
+         */
+        public Builder clearExecutorNickname() {
+          
+          executorNickname_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        private long executorAvatar_ ;
+        /**
+         * <pre>
+         * 执行者头像（先占位，暂没有值）
+         * </pre>
+         *
+         * <code>uint64 executor_avatar = 15;</code>
+         */
+        public long getExecutorAvatar() {
+          return executorAvatar_;
+        }
+        /**
+         * <pre>
+         * 执行者头像（先占位，暂没有值）
+         * </pre>
+         *
+         * <code>uint64 executor_avatar = 15;</code>
+         */
+        public Builder setExecutorAvatar(long value) {
+          
+          executorAvatar_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <pre>
+         * 执行者头像（先占位，暂没有值）
+         * </pre>
+         *
+         * <code>uint64 executor_avatar = 15;</code>
+         */
+        public Builder clearExecutorAvatar() {
+          
+          executorAvatar_ = 0L;
           onChanged();
           return this;
         }
@@ -61245,7 +61831,7 @@ public final class MsgBean {
       " \001(\t\"j\n\tAtMessage\022\"\n\007at_type\030\001 \001(\0162\021.AtM" +
       "essage.AtType\022\013\n\003uid\030\002 \003(\004\022\013\n\003msg\030\003 \001(\t\"" +
       "\037\n\006AtType\022\014\n\010MULTIPLE\020\000\022\007\n\003ALL\020\001\"1\n\020Assi" +
-      "stantMessage\022\013\n\003msg\030\001 \001(\t\022\020\n\010uid_list\030\002 " +
+      "stantMessage\022\013\n\003msg\030\001 \001(\t\022\020\n\010uid_list\030e " +
       "\003(\004\"\250\002\n\031AssistantPromotionMessage\022\r\n\005tit" +
       "le\030\001 \001(\t\022\017\n\007summary\030\002 \001(\t\022\021\n\tcover_img\030\003" +
       " \001(\t\022\022\n\nbutton_txt\030\004 \001(\t\022\016\n\006h5_url\030\005 \001(\t" +
@@ -61275,174 +61861,178 @@ public final class MsgBean {
       "\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGroupType" +
       "\022\024\n\014inviter_name\030\004 \001(\t\"E\n\030RemoveGroupMem" +
       "berMessage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022" +
-      "\014\n\004name\030\003 \001(\t\"(\n\031RemoveGroupMember2Messa" +
-      "ge\022\013\n\003uid\030\001 \003(\004\";\n\030ChangeGroupMasterMess" +
-      "age\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"\211\001\n" +
-      "\027ChangeViceAdminsMessage\022$\n\007members\030\001 \003(" +
-      "\0132\023.GroupNoticeMessage\022)\n\003opt\030\002 \001(\0162\034.Ch" +
-      "angeViceAdminsMessage.Opt\"\035\n\003Opt\022\n\n\006REMO" +
-      "VE\020\000\022\n\n\006APPEND\020\001\"\253\001\n\026ChangeGroupMetaMess" +
-      "age\022\016\n\004name\030\001 \001(\tH\000\022\030\n\016protect_member\030\002 " +
-      "\001(\010H\000\022\020\n\006avatar\030\003 \001(\tH\000\022\021\n\007shut_up\030\004 \001(\010" +
-      "H\000\022!\n\027screenshot_notification\030\005 \001(\010H\000\022\023\n" +
-      "\tforbbiden\030\006 \001(\010H\000B\n\n\010real_msg\"@\n\023Destro" +
-      "yGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001" +
-      "(\t\022\014\n\004name\030\003 \001(\t\"2\n\031ChangeSurvivalTimeMe" +
-      "ssage\022\025\n\rsurvival_time\030\001 \001(\021\"S\n\021P2PAuVid" +
-      "eoMessage\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoType" +
-      "\022\021\n\toperation\030\002 \001(\t\022\014\n\004desc\030\003 \001(\t\"6\n\025P2P" +
-      "AuVideoDialMessage\022\035\n\007av_type\030\001 \001(\0162\014.Au" +
-      "VideoType\"H\n\023ForceOfflineMessage\0221\n\024forc" +
-      "e_offline_reason\030\001 \001(\0162\023.ForceOfflineRea" +
-      "son\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027" +
-      "ActiveStatChangeMessage\0228\n\013active_type\030\001" +
-      " \001(\0162#.ActiveStatChangeMessage.ActiveTyp" +
-      "e\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveType\022\013\n\007OF" +
-      "FLINE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023ResourceLockMess" +
-      "age\022A\n\022resource_lock_type\030\001 \001(\0162%.Resour" +
-      "ceLockMessage.ResourceLockType\022\014\n\004lock\030\002" +
-      " \001(\r\"(\n\020ResourceLockType\022\024\n\020CLOUDREDENVE" +
-      "LOPE\020\000\" \n\013ReadMessage\022\021\n\ttimestamp\030\001 \001(\004" +
-      "\"\027\n\025TakeScreenshotMessage\"\025\n\023HistoryClea" +
-      "nMessage\"\235\001\n\nRefMessage\022\021\n\ttimestamp\030\001 \001" +
-      "(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006ms" +
-      "g_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\020\n\010nickname" +
-      "\030\005 \001(\t\022\016\n\006avatar\030\006 \001(\t\022\013\n\003url\030\007 \001(\t\022\013\n\003m" +
-      "sg\030\010 \001(\t\"\200\001\n\024ReplySpecificMessage\022\034\n\007ref" +
-      "_msg\030\001 \001(\0132\013.RefMessage\022 \n\010chat_msg\030\002 \001(" +
-      "\0132\014.ChatMessageH\000\022\034\n\006at_msg\030\003 \001(\0132\n.AtMe" +
-      "ssageH\000B\n\n\010real_msg\"\200\002\n\023SwitchChangeMess" +
-      "age\0224\n\013switch_type\030\001 \001(\0162\037.SwitchChangeM" +
-      "essage.SwitchType\022\024\n\014switch_value\030\002 \001(\r\022" +
-      "$\n\007members\030\003 \003(\0132\023.GroupNoticeMessage\"w\n" +
-      "\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013MASTER" +
-      "_READ\020\002\022\013\n\007SHUT_UP\020\003\022\031\n\025OPEN_UP_RED_ENVE" +
-      "LOPER\020\004\022\016\n\nSCREENSHOT\020\005\022\r\n\tGEO_TRACK\020\006\"\265" +
-      "\001\n\020PayResultMessage\022+\n\006result\030\001 \001(\0162\033.Pa" +
-      "yResultMessage.PayResult\022\020\n\010trade_id\030\002 \001" +
-      "(\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\terror_msg\030\004 \001(\t" +
-      "\022\014\n\004sign\030\005 \001(\t\".\n\tPayResult\022\013\n\007SUCCESS\020\000" +
-      "\022\010\n\004FAIL\020\001\022\n\n\006REFUND\020\002\"&\n\022TransNotifyMes" +
-      "sage\022\020\n\010trade_id\030\001 \001(\004\".\n\016LabelValueItem" +
-      "\022\r\n\005label\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\366\001\n\027Balan" +
-      "ceAssistantMessage\022\020\n\010trade_id\030\001 \001(\004\0228\n\013" +
-      "detail_type\030\002 \001(\0162#.BalanceAssistantMess" +
-      "age.DetailType\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 " +
-      "\001(\t\022\021\n\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004i" +
-      "tem\030\007 \003(\0132\017.LabelValueItem\"3\n\nDetailType" +
-      "\022\010\n\004NONE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"" +
-      "5\n\021OfflineMsgRequest\022\020\n\010reqCount\030\001 \001(\005\022\016" +
-      "\n\006latest\030\002 \001(\010\"1\n\022ChangeOnlineStatus\022\033\n\004" +
-      "stat\030\001 \001(\0162\r.OnlineStatus\"J\n\tReportMsg\0221" +
-      "\n\022changeOnlineStatus\030d \001(\0132\023.ChangeOnlin" +
-      "eStatusH\000B\n\n\010real_msg\"H\n\tReqRspMsg\022/\n\021of" +
-      "flineMsgRequest\030d \001(\0132\022.OfflineMsgReques" +
-      "tH\000B\n\n\010real_msg\"\236\001\n\nAckMessage\022 \n\013reject" +
-      "_type\030\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002" +
-      " \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\022" +
-      "\014\n\004desc\030\005 \001(\t\022)\n\rmergedNextReq\030\006 \001(\0132\022.O" +
-      "fflineMsgRequest\"*\n\022AuthRequestMessage\022\024" +
-      "\n\014access_token\030\001 \001(\t\":\n\023AuthResponseMess" +
-      "age\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030\002 \001(\004" +
-      "\"\211\023\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(" +
-      "\t\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001(\r\022/\n\007w" +
-      "rapMsg\030\221N \003(\0132\035.UniversalMessage.WrapMes" +
-      "sage\032\215\022\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022" +
-      "\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_i" +
-      "d\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020" +
-      "\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmemb" +
-      "ername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\023\n\013d" +
-      "evice_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\020\n\010exec" +
-      "utor\030\014 \001(\004\022\017\n\007read_ts\030\r \001(\004\022\035\n\004chat\030\220N \001" +
-      "(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\0132\r.Ima" +
-      "geMessageH\000\022,\n\014red_envelope\030\222N \001(\0132\023.Red" +
-      "EnvelopeMessageH\000\022;\n\024receive_red_envelop" +
-      "e\030\223N \001(\0132\032.ReceiveRedEnvelopeMessageH\000\022%" +
-      "\n\010transfer\030\224N \001(\0132\020.TransferMessageH\000\022\037\n" +
-      "\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\rbusine" +
-      "ss_card\030\226N \001(\0132\024.BusinessCardMessageH\000\022\037" +
-      "\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002at\030\230N" +
-      " \001(\0132\n.AtMessageH\000\022\'\n\tassistant\030\231N \001(\0132\021" +
-      ".AssistantMessageH\000\022!\n\006cancel\030\232N \001(\0132\016.C" +
-      "ancelMessageH\000\022*\n\013short_video\030\233N \001(\0132\022.S" +
-      "hortVideoMessageH\000\0226\n\021snapshot_location\030" +
-      "\234N \001(\0132\030.SnapshotLocationMessageH\000\0222\n\017ta" +
-      "ke_scrennshot\030\235N \001(\0132\026.TakeScreenshotMes" +
-      "sageH\000\0228\n\022shipped_expression\030\236N \001(\0132\031.Sh" +
-      "ippedExpressionMessageH\000\022:\n\023assistant_pr" +
-      "omotion\030\237N \001(\0132\032.AssistantPromotionMessa" +
-      "geH\000\0220\n\016request_friend\030\364N \001(\0132\025.RequestF" +
-      "riendMessageH\000\0225\n\021accept_be_friends\030\365N \001" +
-      "(\0132\027.AcceptBeFriendsMessageH\000\022.\n\rremove_" +
-      "friend\030\366N \001(\0132\024.RemoveFriendMessageH\000\022.\n" +
-      "\rhistory_clean\030\367N \001(\0132\024.HistoryCleanMess" +
-      "ageH\000\022\'\n\005reply\030\370N \001(\0132\025.ReplySpecificMes" +
-      "sageH\000\022.\n\rrequest_group\030\330O \001(\0132\024.Request" +
-      "GroupMessageH\000\0221\n\017accept_be_group\030\331O \001(\013" +
-      "2\025.AcceptBeGroupMessageH\000\0229\n\023remove_grou" +
-      "p_member\030\332O \001(\0132\031.RemoveGroupMemberMessa" +
-      "geH\000\0229\n\023change_group_master\030\333O \001(\0132\031.Cha" +
-      "ngeGroupMasterMessageH\000\022.\n\rdestroy_group" +
-      "\030\336O \001(\0132\024.DestroyGroupMessageH\000\022;\n\024remov" +
-      "e_group_member2\030\337O \001(\0132\032.RemoveGroupMemb" +
-      "er2MessageH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGr" +
-      "oupMessageH\000\0225\n\021change_group_meta\030\344O \001(\013" +
-      "2\027.ChangeGroupMetaMessageH\000\022;\n\024change_su" +
-      "rvival_time\030\345O \001(\0132\032.ChangeSurvivalTimeM" +
-      "essageH\000\022+\n\014p2p_au_video\030\352O \001(\0132\022.P2PAuV" +
-      "ideoMessageH\000\0224\n\021p2p_au_video_dial\030\353O \001(" +
-      "\0132\026.P2PAuVideoDialMessageH\000\022\035\n\004read\030\354O \001" +
-      "(\0132\014.ReadMessageH\000\022&\n\tsend_file\030\355O \001(\0132\020" +
-      ".SendFileMessageH\000\0227\n\022change_vice_admins" +
-      "\030\356O \001(\0132\030.ChangeViceAdminsMessageH\000\022.\n\rf" +
-      "orce_offline\030\274P \001(\0132\024.ForceOfflineMessag" +
-      "eH\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Activ" +
-      "eStatChangeMessageH\000\022.\n\rresource_lock\030\276P" +
-      " \001(\0132\024.ResourceLockMessageH\000\022.\n\rswitch_c" +
-      "hange\030\277P \001(\0132\024.SwitchChangeMessageH\000\0222\n\023" +
-      "multi_terminal_sync\030\300P \001(\0132\022.MultiTermin" +
-      "alSyncH\000\022(\n\npay_result\030\261T \001(\0132\021.PayResul" +
-      "tMessageH\000\0226\n\021balance_assistant\030\262T \001(\0132\030" +
-      ".BalanceAssistantMessageH\000\022,\n\014trans_noti" +
-      "fy\030\263T \001(\0132\023.TransNotifyMessageH\000B\n\n\010real" +
-      "_msg*\341\006\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020" +
-      "\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVE" +
-      "LOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSI" +
-      "NESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSIST" +
-      "ANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\025\n\021SN" +
-      "APSHOT_LOCATION\020\014\022\023\n\017TAKE_SCREENSHOT\020\r\022\026" +
-      "\n\022SHIPPED_EXPRESSION\020\016\022\021\n\rHISTORY_CLEAN\020" +
-      "\017\022\022\n\016REPLY_SPECIFIC\020\020\022\027\n\023ASSISTANT_PROMO" +
-      "TION\020\021\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_" +
-      "FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_" +
-      "GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_G" +
-      "ROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030" +
-      "\n\024REMOVE_GROUP_MEMBER2\020k\022\021\n\rDESTROY_GROU" +
-      "P\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020" +
-      "p\022\030\n\024CHANGE_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_VI" +
-      "DEO\020v\022\025\n\021P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022\r" +
-      "\n\tSEND_FILE\020y\022\026\n\022CHANGE_VICE_ADMINS\020z\022\026\n" +
-      "\022GROUP_ANNOUNCEMENT\020{\022\022\n\rFORCE_OFFLINE\020\310" +
-      "\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_L" +
-      "OCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\030\n\023MULTI_TERM" +
-      "INAL_SYNC\020\314\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BALANCE" +
-      "_ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*&\n\014Onli" +
-      "neStatus\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*t\n\022Forc" +
-      "eOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED\020\001" +
-      "\022\024\n\020PASSWORD_CHANGED\020\002\022\025\n\021USER_DEACTIVAT" +
-      "ING\020\003\022\027\n\023BOUND_PHONE_CHANGED\020\004*\240\001\n\nRejec" +
-      "tType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GR" +
-      "OUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_" +
-      "NOT_ALLOWED\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\016\n\nRATE" +
-      "_LIMIT\020c\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoi" +
-      "nGroupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*\203\001\n\025" +
-      "MultiTerminalSyncType\022\023\n\017MY_SELF_CHANGED" +
-      "\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001\022\024\n\020MY_GROUP_CH" +
-      "ANGED\020\002\022\025\n\021MY_FRIEND_DELETED\020\003\022\021\n\rMY_GRO" +
-      "UP_QUIT\020\004*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022" +
-      "\n\n\006SYSTEM\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n" +
-      "\005Vedio\020\001B&\n\033com.yanlong.im.utils.socketB" +
-      "\007MsgBeanb\006proto3"
+      "\014\n\004name\030\003 \001(\t\"U\n\031RemoveGroupMember2Messa" +
+      "ge\022\013\n\003uid\030\001 \003(\004\022+\n\016notice_message\030\002 \003(\0132" +
+      "\023.GroupNoticeMessage\";\n\030ChangeGroupMaste" +
+      "rMessage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(" +
+      "\t\"\211\001\n\027ChangeViceAdminsMessage\022$\n\007members" +
+      "\030\001 \003(\0132\023.GroupNoticeMessage\022)\n\003opt\030\002 \001(\016" +
+      "2\034.ChangeViceAdminsMessage.Opt\"\035\n\003Opt\022\n\n" +
+      "\006REMOVE\020\000\022\n\n\006APPEND\020\001\"\253\001\n\026ChangeGroupMet" +
+      "aMessage\022\016\n\004name\030\001 \001(\tH\000\022\030\n\016protect_memb" +
+      "er\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(\tH\000\022\021\n\007shut_up\030" +
+      "\004 \001(\010H\000\022!\n\027screenshot_notification\030\005 \001(\010" +
+      "H\000\022\023\n\tforbbiden\030\006 \001(\010H\000B\n\n\010real_msg\"@\n\023D" +
+      "estroyGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006avata" +
+      "r\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2\n\031ChangeSurvivalT" +
+      "imeMessage\022\025\n\rsurvival_time\030\001 \001(\021\"S\n\021P2P" +
+      "AuVideoMessage\022\035\n\007av_type\030\001 \001(\0162\014.AuVide" +
+      "oType\022\021\n\toperation\030\002 \001(\t\022\014\n\004desc\030\003 \001(\t\"6" +
+      "\n\025P2PAuVideoDialMessage\022\035\n\007av_type\030\001 \001(\016" +
+      "2\014.AuVideoType\"H\n\023ForceOfflineMessage\0221\n" +
+      "\024force_offline_reason\030\001 \001(\0162\023.ForceOffli" +
+      "neReason\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(\t" +
+      "\"\215\001\n\027ActiveStatChangeMessage\0228\n\013active_t" +
+      "ype\030\001 \001(\0162#.ActiveStatChangeMessage.Acti" +
+      "veType\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveType\022" +
+      "\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023ResourceLoc" +
+      "kMessage\022A\n\022resource_lock_type\030\001 \001(\0162%.R" +
+      "esourceLockMessage.ResourceLockType\022\014\n\004l" +
+      "ock\030\002 \001(\r\"(\n\020ResourceLockType\022\024\n\020CLOUDRE" +
+      "DENVELOPE\020\000\" \n\013ReadMessage\022\021\n\ttimestamp\030" +
+      "\001 \001(\004\"\027\n\025TakeScreenshotMessage\"\025\n\023Histor" +
+      "yCleanMessage\"\235\001\n\nRefMessage\022\021\n\ttimestam" +
+      "p\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022" +
+      "\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\020\n\010nic" +
+      "kname\030\005 \001(\t\022\016\n\006avatar\030\006 \001(\t\022\013\n\003url\030\007 \001(\t" +
+      "\022\013\n\003msg\030\010 \001(\t\"\200\001\n\024ReplySpecificMessage\022\034" +
+      "\n\007ref_msg\030\001 \001(\0132\013.RefMessage\022 \n\010chat_msg" +
+      "\030\002 \001(\0132\014.ChatMessageH\000\022\034\n\006at_msg\030\003 \001(\0132\n" +
+      ".AtMessageH\000B\n\n\010real_msg\"\200\002\n\023SwitchChang" +
+      "eMessage\0224\n\013switch_type\030\001 \001(\0162\037.SwitchCh" +
+      "angeMessage.SwitchType\022\024\n\014switch_value\030\002" +
+      " \001(\r\022$\n\007members\030\003 \003(\0132\023.GroupNoticeMessa" +
+      "ge\"w\n\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013M" +
+      "ASTER_READ\020\002\022\013\n\007SHUT_UP\020\003\022\031\n\025OPEN_UP_RED" +
+      "_ENVELOPER\020\004\022\016\n\nSCREENSHOT\020\005\022\r\n\tGEO_TRAC" +
+      "K\020\006\"\265\001\n\020PayResultMessage\022+\n\006result\030\001 \001(\016" +
+      "2\033.PayResultMessage.PayResult\022\020\n\010trade_i" +
+      "d\030\002 \001(\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\terror_msg\030" +
+      "\004 \001(\t\022\014\n\004sign\030\005 \001(\t\".\n\tPayResult\022\013\n\007SUCC" +
+      "ESS\020\000\022\010\n\004FAIL\020\001\022\n\n\006REFUND\020\002\"&\n\022TransNoti" +
+      "fyMessage\022\020\n\010trade_id\030\001 \001(\004\".\n\016LabelValu" +
+      "eItem\022\r\n\005label\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\366\001\n\027" +
+      "BalanceAssistantMessage\022\020\n\010trade_id\030\001 \001(" +
+      "\004\0228\n\013detail_type\030\002 \001(\0162#.BalanceAssistan" +
+      "tMessage.DetailType\022\014\n\004time\030\003 \001(\004\022\r\n\005tit" +
+      "le\030\004 \001(\t\022\021\n\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004" +
+      "\022\035\n\004item\030\007 \003(\0132\017.LabelValueItem\"3\n\nDetai" +
+      "lType\022\010\n\004NONE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TRA" +
+      "NS\020\002\"5\n\021OfflineMsgRequest\022\020\n\010reqCount\030\001 " +
+      "\001(\005\022\016\n\006latest\030\002 \001(\010\"1\n\022ChangeOnlineStatu" +
+      "s\022\033\n\004stat\030\001 \001(\0162\r.OnlineStatus\"J\n\tReport" +
+      "Msg\0221\n\022changeOnlineStatus\030d \001(\0132\023.Change" +
+      "OnlineStatusH\000B\n\n\010real_msg\"H\n\tReqRspMsg\022" +
+      "/\n\021offlineMsgRequest\030d \001(\0132\022.OfflineMsgR" +
+      "equestH\000B\n\n\010real_msg\"\236\001\n\nAckMessage\022 \n\013r" +
+      "eject_type\030\001 \001(\0162\013.RejectType\022\022\n\nrequest" +
+      "_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004" +
+      " \001(\004\022\014\n\004desc\030\005 \001(\t\022)\n\rmergedNextReq\030\006 \001(" +
+      "\0132\022.OfflineMsgRequest\"*\n\022AuthRequestMess" +
+      "age\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthRespons" +
+      "eMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030" +
+      "\002 \001(\004\"\275\023\n\020UniversalMessage\022\022\n\nrequest_id" +
+      "\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001(\r" +
+      "\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage.Wr" +
+      "apMessage\032\301\022\n\013WrapMessage\022\021\n\ttimestamp\030\001" +
+      " \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006" +
+      "msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 " +
+      "\001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n" +
+      "\nmembername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021" +
+      "\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\020\n" +
+      "\010executor\030\014 \001(\004\022\017\n\007read_ts\030\r \001(\004\022\031\n\021exec" +
+      "utor_nickname\030\016 \001(\004\022\027\n\017executor_avatar\030\017" +
+      " \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005i" +
+      "mage\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_enve" +
+      "lope\030\222N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024re" +
+      "ceive_red_envelope\030\223N \001(\0132\032.ReceiveRedEn" +
+      "velopeMessageH\000\022%\n\010transfer\030\224N \001(\0132\020.Tra" +
+      "nsferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMe" +
+      "ssageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024.Busine" +
+      "ssCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceM" +
+      "essageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\ta" +
+      "ssistant\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006" +
+      "cancel\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013short" +
+      "_video\030\233N \001(\0132\022.ShortVideoMessageH\000\0226\n\021s" +
+      "napshot_location\030\234N \001(\0132\030.SnapshotLocati" +
+      "onMessageH\000\0222\n\017take_scrennshot\030\235N \001(\0132\026." +
+      "TakeScreenshotMessageH\000\0228\n\022shipped_expre" +
+      "ssion\030\236N \001(\0132\031.ShippedExpressionMessageH" +
+      "\000\022:\n\023assistant_promotion\030\237N \001(\0132\032.Assist" +
+      "antPromotionMessageH\000\0220\n\016request_friend\030" +
+      "\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021accep" +
+      "t_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMes" +
+      "sageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveF" +
+      "riendMessageH\000\022.\n\rhistory_clean\030\367N \001(\0132\024" +
+      ".HistoryCleanMessageH\000\022\'\n\005reply\030\370N \001(\0132\025" +
+      ".ReplySpecificMessageH\000\022.\n\rrequest_group" +
+      "\030\330O \001(\0132\024.RequestGroupMessageH\000\0221\n\017accep" +
+      "t_be_group\030\331O \001(\0132\025.AcceptBeGroupMessage" +
+      "H\000\0229\n\023remove_group_member\030\332O \001(\0132\031.Remov" +
+      "eGroupMemberMessageH\000\0229\n\023change_group_ma" +
+      "ster\030\333O \001(\0132\031.ChangeGroupMasterMessageH\000" +
+      "\022.\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroupM" +
+      "essageH\000\022;\n\024remove_group_member2\030\337O \001(\0132" +
+      "\032.RemoveGroupMember2MessageH\000\022&\n\tout_gro" +
+      "up\030\342O \001(\0132\020.OutGroupMessageH\000\0225\n\021change_" +
+      "group_meta\030\344O \001(\0132\027.ChangeGroupMetaMessa" +
+      "geH\000\022;\n\024change_survival_time\030\345O \001(\0132\032.Ch" +
+      "angeSurvivalTimeMessageH\000\022+\n\014p2p_au_vide" +
+      "o\030\352O \001(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_au" +
+      "_video_dial\030\353O \001(\0132\026.P2PAuVideoDialMessa" +
+      "geH\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022&\n\ts" +
+      "end_file\030\355O \001(\0132\020.SendFileMessageH\000\0227\n\022c" +
+      "hange_vice_admins\030\356O \001(\0132\030.ChangeViceAdm" +
+      "insMessageH\000\022.\n\rforce_offline\030\274P \001(\0132\024.F" +
+      "orceOfflineMessageH\000\0227\n\022active_stat_chan" +
+      "ge\030\275P \001(\0132\030.ActiveStatChangeMessageH\000\022.\n" +
+      "\rresource_lock\030\276P \001(\0132\024.ResourceLockMess" +
+      "ageH\000\022.\n\rswitch_change\030\277P \001(\0132\024.SwitchCh" +
+      "angeMessageH\000\0222\n\023multi_terminal_sync\030\300P " +
+      "\001(\0132\022.MultiTerminalSyncH\000\022(\n\npay_result\030" +
+      "\261T \001(\0132\021.PayResultMessageH\000\0226\n\021balance_a" +
+      "ssistant\030\262T \001(\0132\030.BalanceAssistantMessag" +
+      "eH\000\022,\n\014trans_notify\030\263T \001(\0132\023.TransNotify" +
+      "MessageH\000B\n\n\010real_msg*\341\006\n\013MessageType\022\010\n" +
+      "\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n" +
+      "\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t" +
+      "\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022" +
+      "\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SH" +
+      "ORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020\014\022\023\n\017TA" +
+      "KE_SCREENSHOT\020\r\022\026\n\022SHIPPED_EXPRESSION\020\016\022" +
+      "\021\n\rHISTORY_CLEAN\020\017\022\022\n\016REPLY_SPECIFIC\020\020\022\027" +
+      "\n\023ASSISTANT_PROMOTION\020\021\022\022\n\016REQUEST_FRIEN" +
+      "D\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRI" +
+      "END\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GR" +
+      "OUP\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE" +
+      "_GROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020" +
+      "k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021C" +
+      "HANGE_GROUP_META\020p\022\030\n\024CHANGE_SURVIVAL_TI" +
+      "ME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_D" +
+      "IAL\020w\022\010\n\004READ\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE" +
+      "_VICE_ADMINS\020z\022\026\n\022GROUP_ANNOUNCEMENT\020{\022\022" +
+      "\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE" +
+      "\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE" +
+      "\020\313\001\022\030\n\023MULTI_TERMINAL_SYNC\020\314\001\022\017\n\nPAY_RES" +
+      "ULT\020\264\002\022\026\n\021BALANCE_ASSISTANT\020\265\002\022\021\n\014TRANS_" +
+      "NOTIFY\020\266\002*&\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022\n\n" +
+      "\006HIDDEN\020\001*t\n\022ForceOfflineReason\022\014\n\010CONFL" +
+      "ICT\020\000\022\n\n\006LOCKED\020\001\022\024\n\020PASSWORD_CHANGED\020\002\022" +
+      "\025\n\021USER_DEACTIVATING\020\003\022\027\n\023BOUND_PHONE_CH" +
+      "ANGED\020\004*\304\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033" +
+      "NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLAC" +
+      "KLIST\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\021\n\rFRIEND" +
+      "_FROZEN\020\004\022\017\n\013SELF_LOCKED\020\005\022\021\n\rFRIEND_LOC" +
+      "KED\020\006\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAIL" +
+      "ABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007P" +
+      "ASSIVE\020\001*\226\001\n\025MultiTerminalSyncType\022\023\n\017MY" +
+      "_SELF_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001\022\024" +
+      "\n\020MY_GROUP_CHANGED\020\002\022\025\n\021MY_FRIEND_DELETE" +
+      "D\020\003\022\021\n\rMY_GROUP_QUIT\020\004\022\021\n\rMY_GROUP_READ\020" +
+      "\005*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYSTE" +
+      "M\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001" +
+      "B&\n\033com.yanlong.im.utils.socketB\007MsgBean" +
+      "b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -61617,7 +62207,7 @@ public final class MsgBean {
     internal_static_RemoveGroupMember2Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveGroupMember2Message_descriptor,
-        new java.lang.String[] { "Uid", });
+        new java.lang.String[] { "Uid", "NoticeMessage", });
     internal_static_ChangeGroupMasterMessage_descriptor =
       getDescriptor().getMessageTypes().get(26);
     internal_static_ChangeGroupMasterMessage_fieldAccessorTable = new
@@ -61797,7 +62387,7 @@ public final class MsgBean {
     internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_UniversalMessage_WrapMessage_descriptor,
-        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "DeviceType", "ToUid", "Executor", "ReadTs", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "SnapshotLocation", "TakeScrennshot", "ShippedExpression", "AssistantPromotion", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "HistoryClean", "Reply", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "SendFile", "ChangeViceAdmins", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "MultiTerminalSync", "PayResult", "BalanceAssistant", "TransNotify", "RealMsg", });
+        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "DeviceType", "ToUid", "Executor", "ReadTs", "ExecutorNickname", "ExecutorAvatar", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "SnapshotLocation", "TakeScrennshot", "ShippedExpression", "AssistantPromotion", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "HistoryClean", "Reply", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "SendFile", "ChangeViceAdmins", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "MultiTerminalSync", "PayResult", "BalanceAssistant", "TransNotify", "RealMsg", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
