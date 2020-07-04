@@ -72,6 +72,8 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private TextView tvReadTime;
     public IActionTagClickListener actionTagClickListener;
     private boolean isOpenRead = true;//是否开启已读开关
+    private int unreadPostion;
+    private TextView tvNote;
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -135,10 +137,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         bubbleLayout = viewRoot.findViewById(R.id.view_bubble);
         ckSelect = viewRoot.findViewById(R.id.ck_select);
         ivBell = viewRoot.findViewById(R.id.iv_bell);
-
         viewRead = viewRoot.findViewById(R.id.view_read);
         tvRead = viewRoot.findViewById(R.id.tv_read);
         tvReadTime = viewRoot.findViewById(R.id.tv_read_time);
+        tvNote = viewRoot.findViewById(R.id.tv_broadcast);
 
     }
 
@@ -177,41 +179,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         setCheckView();
         initBell();
         initRead();
+        showNewMessage();
     }
 
     @Deprecated
     private void initMenu() {
         menus = new ArrayList<>();
-//        switch (model.getMsg_type()) {
-//            case ChatEnum.EMessageType.NOTICE:
-//                break;
-//            case ChatEnum.EMessageType.TEXT:
-//            case ChatEnum.EMessageType.AT:
-//                menus.add(new OptionMenu("复制"));
-//                menus.add(new OptionMenu("转发"));
-//                menus.add(new OptionMenu("删除"));
-//                break;
-//            case ChatEnum.EMessageType.STAMP:
-//            case ChatEnum.EMessageType.BUSINESS_CARD:
-//            case ChatEnum.EMessageType.RED_ENVELOPE:
-//            case ChatEnum.EMessageType.ASSISTANT:
-//                menus.add(new OptionMenu("删除"));
-//                break;
-//            case ChatEnum.EMessageType.IMAGE:
-//                menus.add(new OptionMenu("转发"));
-//                menus.add(new OptionMenu("删除"));
-//                break;
-//            case ChatEnum.EMessageType.VOICE:
-//                MsgDao msgDao = new MsgDao();
-//                if (msgDao.userSetingGet().getVoicePlayer() == 0) {
-//                    menus.add(0, new OptionMenu("听筒播放"));
-//                } else {
-//                    menus.add(0, new OptionMenu("扬声器播放"));
-//                }
-//                menus.add(new OptionMenu("删除"));
-//                break;
-//
-//        }
     }
 
     private void checkCancelMenu() {
@@ -315,7 +288,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
             return;
         }
-        if(TextUtils.isEmpty(model.getFrom_avatar())){
+        if (TextUtils.isEmpty(model.getFrom_avatar())) {
             iv_avatar.setImageResource(R.mipmap.ic_info_head);
             return;
         }
@@ -326,7 +299,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
 
         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(model.getFrom_avatar());
-        if(localBitmap==null){
+        if (localBitmap == null) {
             RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .skipMemoryCache(false)
@@ -341,7 +314,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                             iv_avatar.setImageBitmap(resource);
                         }
                     });
-        }else{
+        } else {
             iv_avatar.setImageBitmap(localBitmap);
         }
     }
@@ -476,6 +449,21 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
     public void setReadStatus(boolean isOpen) {
         isOpenRead = isOpen;
+    }
+
+    public void setFirstUnreadPosition(int position) {
+        unreadPostion = position;
+    }
+
+    private void showNewMessage() {
+        if (tvNote != null) {
+            if (unreadPostion > 0 && currentPosition == unreadPostion) {
+                tvNote.setVisibility(VISIBLE);
+                tvNote.setText("----一下是新消息----");
+            } else {
+                tvNote.setVisibility(View.GONE);
+            }
+        }
     }
 
 }

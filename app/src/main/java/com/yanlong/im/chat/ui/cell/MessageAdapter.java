@@ -146,6 +146,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
         ChatCellBase cell = factoryChatCell.createCell(layout, view);
         cell.setReadStatus(isOpenRead);
         cell.setActionClickListener(actionListener);
+        if (unreadCount >= 10) {
+            cell.setFirstUnreadPosition(getItemCount() - unreadCount);
+        }
         return cell;
     }
 
@@ -395,7 +398,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 if (distance < 0) {//开始时间小于现在，已经开始了
                     start = -distance / period;
 
-                    mTimersIndexs.put(msgId, (int)start);
+                    mTimersIndexs.put(msgId, (int) start);
                     String name = "icon_st_" + Math.min(COUNT, start + 1);
                     int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                     updateSurvivalTimeImage(msgId, id);

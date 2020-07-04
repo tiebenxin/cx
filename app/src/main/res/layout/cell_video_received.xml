@@ -19,6 +19,21 @@
         android:layout_marginBottom="10dp"
         android:text="" />
 
+    <TextView
+        android:id="@+id/tv_broadcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_chat_gray_shape"
+        android:gravity="center"
+        android:singleLine="false"
+        android:text="----以下是新消息----"
+        android:padding="3dp"
+        android:textColor="@color/gray_500"
+        android:textSize="12sp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:id="@+id/view_root"
         android:layout_width="wrap_content"
