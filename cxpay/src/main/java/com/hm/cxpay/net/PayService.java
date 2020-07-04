@@ -61,7 +61,7 @@ public interface PayService {
     @POST(Route.MODIFY_PAYWORD)
     Observable<BaseResponse> modifyPayword(@Body RequestBody body, @QueryMap Map<String, String> map);
 
-    //修改支付密码
+    //忘记支付密码
     @POST(Route.FORGET_PAYWORD)
     Observable<BaseResponse> forgetPayword(@Body RequestBody body, @QueryMap Map<String, String> map);
 
