@@ -737,11 +737,14 @@ public class MessageRepository {
     public boolean handlerRemoveGroupMember2(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         boolean result = true;
         // 判断是否是管理员 群主 是就显示被剔的消息
-//        if (localDataSource.isGroupMasterOrManager(realm, wrapMessage.getGid(), UserAction.getMyId())) {
-//            // 保存被剔消息
-//            MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-//            result = saveMessageNew(bean, realm);
-//        }
+        if (localDataSource.isGroupMasterOrManager(realm, wrapMessage.getGid(), UserAction.getMyId())) {
+            // 保存被剔消息
+            if (wrapMessage.getRemoveGroupMember2().getNoticeMessageList() != null &&
+                    wrapMessage.getRemoveGroupMember2().getNoticeMessageList().size() > 0) {
+                MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+                result = saveMessageNew(bean, realm);
+            }
+        }
         MsgBean.RemoveGroupMember2Message removeGroupMember2 = wrapMessage.getRemoveGroupMember2();
         localDataSource.removeGroupMember(realm, wrapMessage.getGid(), removeGroupMember2.getUidList());
         requestGroupInfo(wrapMessage.getGid());
