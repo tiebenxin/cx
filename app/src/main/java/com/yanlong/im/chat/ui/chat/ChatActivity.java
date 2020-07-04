@@ -3134,7 +3134,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } else if (type == CoreEnum.ERefreshType.ADD) {
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
-                taskRefreshMessage(false);
+                mtListView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        taskRefreshMessage(false);
+                    }
+                },100);
 //                MsgAllBean bean = (MsgAllBean) event.getObject();
 //                if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
 //                    addMsg(bean);
