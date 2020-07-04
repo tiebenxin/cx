@@ -2101,12 +2101,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         List<FunctionItemModel> list = new ArrayList<>();
         list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
         list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
-//        if (!isSystemUser) {
-//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
-//        }
-//        if (!isGroup && !isSystemUser) {
-//            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
-//        }
+        if (!isSystemUser) {
+            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+        }
+        if (!isGroup && !isSystemUser) {
+            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+        }
         if (!isGroup && isVip) {
             list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
         }
