@@ -176,15 +176,21 @@ public class MosaicPaintView extends View {
 
     public void setSrcPath(Bitmap bitmap, String absPath) {
         if (bmBaseLayer == null) {
-            File file = new File(absPath);
-            if (file == null || !file.exists()) {
+            File file;
+            if (absPath.startsWith("http")) {
+                absPath = absPath.substring(0, absPath.lastIndexOf('.') + 4);
+                file = new File(absPath);
+            } else {
+                file = new File(absPath);
+            }
+            if (!absPath.startsWith("http") && (file == null || !file.exists())) {
                 Log.w(TAG, "invalid file path " + absPath);
                 return;
             }
 
             reset();
 
-            inPath = absPath;
+//          inPath = absPath;
             String fileName = file.getName();
             String parent = file.getParent();
             int index = fileName.lastIndexOf(".");
@@ -193,12 +199,11 @@ public class MosaicPaintView extends View {
             fileName = fileName.replace(stem, newStem);
             outPath = parent + "/" + fileName;
 
-
 //        DisplayMetrics outMetrics = new DisplayMetrics();
 //        activity.getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
 //        int widthPixels = outMetrics.widthPixels;
 //        int heightPixels = outMetrics.heightPixels;
-            BitmapUtil.Size size = BitmapUtil.getImageSize(inPath);
+//            BitmapUtil.Size size = BitmapUtil.getImageSize(inPath);
             mImageWidth = bitmap.getWidth();//size.width;
             mImageHeight = bitmap.getHeight();//size.height;
 
