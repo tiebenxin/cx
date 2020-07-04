@@ -113,7 +113,7 @@ public class ChatCellTransfer extends ChatCellBase {
                     if (transfer.getPassive() == 1) {
                         result = "已被领取";
                     } else {
-                        result = "你已确定收款";
+                        result = "你已确认收款";
                     }
                 }
             } else {
@@ -121,7 +121,7 @@ public class ChatCellTransfer extends ChatCellBase {
                     if (transfer.getPassive() == 1) {
                         result = "已收款";
                     } else {
-                        result = "朋友已确定收款";
+                        result = "朋友已确认收款";
                     }
                 }
             }
