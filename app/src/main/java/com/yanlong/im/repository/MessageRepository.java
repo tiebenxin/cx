@@ -587,7 +587,7 @@ public class MessageRepository {
                 if (msgAllBean != null) {
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg4Cancel(realm, wrapMessage.getMsgId(), cancelMsgId);
-                    MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
+//                    MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
                     // 处理图片撤回，在预览弹出提示
                     EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
                     event.msg_id = bean.getMsgCancel().getMsgidCancel();
@@ -926,9 +926,10 @@ public class MessageRepository {
                 if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL && filterDeleteCancel(msgAllBean.getFrom_uid())) {
                     //来自小助手消息的撤销消息不需要存储
                 } else {
+                    LogUtil.getLog().i("Liszt_test", "--消息LOG--updateObject--" + msgAllBean.getMsg_type());
                     localDataSource.updateObject(realm, msgAllBean);
                 }
-                LogUtil.getLog().i(TAG, "--接受到消息--存储在线消息--" + msgAllBean.getMsg_type());
+                LogUtil.getLog().i(TAG, "--消息LOG--存储在线消息--" + msgAllBean.getMsg_type());
                 if (MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid())) {
                     MessageManager.getInstance().notifyRefreshChat(msgAllBean, CoreEnum.ERefreshType.ADD);
                 }
