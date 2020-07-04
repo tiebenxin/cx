@@ -36,7 +36,7 @@ public class ChatCellNotice extends ChatCellBase {
     @Override
     protected void initView() {
         super.initView();
-        tv_content = getView().findViewById(R.id.tv_broadcast);
+        tv_content = getView().findViewById(R.id.tv_note);
         iv_icon = getView().findViewById(R.id.iv_broadcast);
     }
 
