@@ -1741,6 +1741,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             int position = mAdapter.getItemCount() - unreadCount;
             if (position >= 0) {
                 scrollChatToPosition(position);
+//                mtListView.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        lastPosition = mtListView.getLayoutManager().findLastVisibleItemPosition();
+//                        lastOffset = mtListView.getLayoutManager().
+//                    }
+//                }, 300);
             } else {
                 scrollChatToPosition(0);
             }
@@ -2142,7 +2149,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void scrollChatToPosition(int position) {
         LogUtil.getLog().i(TAG, "scrollChatToPosition--" + position);
-        mtListView.getLayoutManager().scrollToPosition(position);
+//        mtListView.getLayoutManager().scrollToPosition(position);
+        mtListView.getListView().smoothScrollToPosition(position);
         currentScrollPosition = position;
 //        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
@@ -2581,7 +2589,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
-                        scrollChatToPosition(length);
+                        mtListView.scrollToEnd();
                     } else {
 //                        scrollChatToPosition(lastPosition);
                         if (lastOffset == -1) {
@@ -2608,9 +2616,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
                         if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
-                            scrollChatToPosition(length);
+                            mtListView.scrollToEnd();
                         } else {
-//                            scrollChatToPosition(lastPosition);
                             if (lastOffset < 0) {
                                 scrollChatToPosition(lastPosition);
                             } else {

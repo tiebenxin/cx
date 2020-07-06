@@ -9,6 +9,7 @@ import net.cb.cb.library.net.NetWorkUtils;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -79,7 +80,13 @@ public abstract class BaseObserver<T> implements Observer<T> {
             }
         } else if (e instanceof ConnectException) {
             Log.e(TAG, "网络中断，请检查您的网络状态");
-            message = "网络中断，请检查您的网络状态";
+            message = "网络连接不可用，请稍后重试";
+            if (listener != null) {
+                listener.interruptedNetwork();
+            }
+        }else if (e instanceof UnknownHostException) {
+            Log.e(TAG, "网络连接不可用，请稍后重试");
+            message = "网络连接不可用，请稍后重试";
             if (listener != null) {
                 listener.interruptedNetwork();
             }
