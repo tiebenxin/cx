@@ -11,6 +11,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.util.List;
+import java.util.WeakHashMap;
 
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -32,8 +33,7 @@ public interface MsgServer {
     Call<ReturnBean> groupQuit(@Field("gid") String gid, @Field("nickname") String nickname);
 
     @POST("/group/remove-members")
-    @FormUrlEncoded
-    Call<ReturnBean<GroupJoinBean>> groupRemove(@Field("gid") String gid, @Field("@members") String membersJson);
+    Call<ReturnBean<GroupJoinBean>> groupRemove(@Body WeakHashMap<String, Object> params);
 
     @POST("/group/append-members")
     @FormUrlEncoded

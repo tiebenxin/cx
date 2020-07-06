@@ -1941,7 +1941,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         String name = "";
         String avatar = "";
         if (mViewModel.userInfo != null) {
-            name = mViewModel.userInfo.getName();
+            name = mViewModel.userInfo.getName4Show();
             avatar = mViewModel.userInfo.getHead();
         }
         Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
@@ -2101,12 +2101,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         List<FunctionItemModel> list = new ArrayList<>();
         list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
         list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
-//        if (!isSystemUser) {
-//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
-//        }
-//        if (!isGroup && !isSystemUser) {
-//            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
-//        }
+        if (!isSystemUser) {
+            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+        }
+        if (!isGroup && !isSystemUser) {
+            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+        }
         if (!isGroup && isVip) {
             list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
         }
@@ -2710,9 +2710,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
                 if (!TextUtils.isEmpty(transferBean.getMsgJson())) {
                     MsgAllBean msg = GsonUtils.getObject(transferBean.getMsgJson(), MsgAllBean.class);
-                    TransferMessage preTransfer = msg.getTransfer();
-                    preTransfer.setOpType(transferBean.getOpType());
-                    replaceListDataAndNotify(msg);
+                    if (msg.getMsg_type() == ChatEnum.EMessageType.TRANSFER) {
+                        TransferMessage preTransfer = msg.getTransfer();
+                        preTransfer.setOpType(transferBean.getOpType());
+                        replaceListDataAndNotify(msg);
+                    }
                 }
                 long uid = 0;
                 if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE && UserAction.getMyId() != null) {
@@ -3139,7 +3141,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     public void run() {
                         taskRefreshMessage(false);
                     }
-                },100);
+                }, 100);
 //                MsgAllBean bean = (MsgAllBean) event.getObject();
 //                if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
 //                    addMsg(bean);
@@ -5255,7 +5257,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 if (opType < detailBean.getStat()) {
                                     int type = getTransferOpType(detailBean.getStat());
                                     msgDao.updateTransferStatus(tradeId, type, 0);
-                                    TransferMessage preTransfer = msgBean.getTransfer();
                                     replaceListDataAndNotify(msgBean);
                                 }
                             } else {

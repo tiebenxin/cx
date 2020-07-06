@@ -38,11 +38,6 @@ public class SplashActivity extends AppActivity {
     private static final String TAG = "SplashActivity";
     private UserAction userAction = new UserAction();
     private final static long TIME = 200; //启动页时间
-    //    private ConstraintLayout mLayoutGuidance;
-//    private ViewPager mViewPager;
-//    private ImageView mBtnStart;
-    //    private ImageView mIvStart;
-    private ViewPagerAdapter adapter;
     private int images[] = {R.mipmap.bg_index1, R.mipmap.bg_index2, R.mipmap.bg_index3};
     private List<ImageView> imgList;
     private String phone;
@@ -52,8 +47,6 @@ public class SplashActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //透明状态栏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         //透明导航栏
@@ -69,68 +62,17 @@ public class SplashActivity extends AppActivity {
         }
 
         setContentView(R.layout.activity_start_page);
-//        hideNavigarionBar();
         initView();
         initEvent();
         showPage();
-
-
     }
 
-    private void hideNavigarionBar() {
-        if (Build.VERSION.SDK_INT < 19) {
-            getWindow().getDecorView().setSystemUiVisibility(View.GONE);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-
-        }
-    }
 
 
     private void initView() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-//        mLayoutGuidance = findViewById(R.id.layout_guidance);
-//        mViewPager = findViewById(R.id.view_pager);
-//        mBtnStart = findViewById(R.id.btn_start);
-//        mIvStart = findViewById(R.id.iv_start);
     }
 
-//    private void initViewPager() {
-//        imgList = new ArrayList<>();
-//        for (int i = 0; i < images.length; i++) {
-//            ImageView imageView = new ImageView(SplashActivity.this);
-//            imageView.setImageResource(images[i]);
-//            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-//            imgList.add(imageView);
-//        }
-//        adapter = new ViewPagerAdapter();
-//        mViewPager.setAdapter(adapter);
-//        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int i, float v, int i1) {
-//
-//            }
-//
-//            @Override
-//            public void onPageSelected(int i) {
-//                if (i == (images.length - 1)) {
-//                    mBtnStart.setVisibility(View.VISIBLE);
-//                } else {
-//                    mBtnStart.setVisibility(View.GONE);
-//                }
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int i) {
-//
-//            }
-//        });
-//    }
 
 
     private void startTimer() {
@@ -152,17 +94,11 @@ public class SplashActivity extends AppActivity {
 
 
     private void initEvent() {
-//        mBtnStart.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                goActivity(true);
-//            }
-//        });
+
     }
 
 
     private void updateToken(final boolean isFirst) {
-//        LogUtil.getLog().i("youmeng", "SplashActivity------->getDevId");
         LogUtil.getLog().d("a=", SplashActivity.class.getSimpleName() + "--更新token");
         new RunUtils(new RunUtils.Enent() {
             String devId;
@@ -178,17 +114,7 @@ public class SplashActivity extends AppActivity {
                     @Override
                     public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                        setFinishFlags();
                         finish();
-//                        if (isFirst) {
-//                            startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
-//                            setFinishFlags();
-//                            finish();
-//                        } else {
-//                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-//                            setFinishFlags();
-//                            finish();
-//                        }
                     }
 
                     @Override
@@ -196,16 +122,13 @@ public class SplashActivity extends AppActivity {
                         LogUtil.getLog().i("youmeng", "SplashActivity---->updateToken---->onFailure");
                         if (isFirst) {
                             startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
-                            setFinishFlags();
                             finish();
                         } else {
                             if (TextUtils.isEmpty(phone)) {
                                 startActivity(new Intent(SplashActivity.this, PasswordLoginActivity.class));
-                                setFinishFlags();
                                 finish();
                             } else {
                                 go(LoginActivity.class);
-                                setFinishFlags();
                                 finish();
                             }
                         }
@@ -214,12 +137,6 @@ public class SplashActivity extends AppActivity {
             }
         }).run();
 
-    }
-
-    // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
-    private void setFinishFlags() {
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-//                WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     }
 
 
@@ -235,50 +152,24 @@ public class SplashActivity extends AppActivity {
                 //6.17 无网处理
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
-                setFinishFlags();
                 finish();
             }
         } else {
             if (TextUtils.isEmpty(phone)) {
                 startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));//PasswordLoginActivity.class
                 // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
-                setFinishFlags();
                 finish();
             } else {
                 startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                 // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
-                setFinishFlags();
                 finish();
             }
         }
     }
 
-//    private void goActivity(boolean isFlast) {
-//        //同步使用友盟设备号,如果同步失败使用自己设备号
-//        if (NetUtil.isNetworkConnected()) {
-//            updateToken(isFlast);
-//        } else {
-//            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-//            if (token != null) {
-//                //6.17 无网处理
-//                userAction.login4tokenNotNet(token);
-//                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-//                finish();
-//            } else {
-//                if (TextUtils.isEmpty(phone)) {
-//                    startActivity(new Intent(SplashActivity.this, PasswordLoginActivity.class));
-//                    finish();
-//                } else {
-//                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-//                    finish();
-//                }
-//            }
-//        }
-//    }
+
 
     private void showPage() {
-//        mLayoutGuidance.setVisibility(View.GONE);
-//        mIvStart.setVisibility(View.VISIBLE);
         new CheckPermission2Util().requestPermissions(this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
