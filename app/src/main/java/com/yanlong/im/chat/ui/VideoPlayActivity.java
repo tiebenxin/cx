@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -61,6 +64,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
+import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
 
 /**
  * @version V1.0
@@ -148,7 +152,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void downVideo(final VideoMessage videoMessage) {
 
-        final File appDir = new File(getExternalCacheDir().getAbsolutePath() + "/Mp4/");
+        final File appDir = new File(Environment.getExternalStorageDirectory()+"/"+APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
@@ -163,6 +167,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     MsgDao dao = new MsgDao();
                     dao.fixVideoLocalUrl(videoMessage.getMsgId(), fileVideo.getAbsolutePath());
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
+                    scanFile(getContext(),fileVideo.getAbsolutePath());
                 }
 
                 @Override
@@ -800,6 +805,20 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             });
         } catch (Exception e) {
             LogUtil.getLog().d("TAG",e.getMessage());
+        }
+    }
+
+    //TODO android更新媒体库这么麻烦，搞了一下午，吐了，终于实现
+    public void scanFile(Context context, String filePath) {
+        try {
+            MediaScannerConnection.scanFile(context, new String[]{filePath}, new String[]{"video/mp4"},
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
