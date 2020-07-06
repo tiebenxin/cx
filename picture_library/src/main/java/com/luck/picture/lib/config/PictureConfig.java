@@ -53,6 +53,7 @@ public final class PictureConfig {
 
 
     public final static String FROM_WHERE = "from_where";//跳转来源 0 默认 1 猜你想要 2 收藏详情
+    public final static String COLLECT_JSON = "collect_json";//收藏详情点击大图->复用转发，需要携带CollectInfo数据
     public final static int FROM_DEFAULT = 0;
     public final static int FROM_GUESS_YOU_LIKE = 1;
     public final static int FROM_COLLECT_DETAIL = 2;

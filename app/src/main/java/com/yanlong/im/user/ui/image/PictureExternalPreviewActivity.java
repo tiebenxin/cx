@@ -84,6 +84,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private Long toUid;
     private AdapterPreviewImage mAdapter;
     String indexPath;
+    private String collectJson = "";//收藏详情点击大图转发需要的数据
 
 
     @Override
@@ -99,6 +100,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
         images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
         fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);
+        collectJson = getIntent().getStringExtra(PictureConfig.COLLECT_JSON);
         Intent intent = getIntent();
         position = intent.getIntExtra(PictureConfig.EXTRA_POSITION, 0);
         images = (List<LocalMedia>) intent.getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
@@ -156,7 +158,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private void initViewPageAdapterData() {
         if (images != null && images.size() > 0) {
             tv_title.setText(position + 1 + "/" + images.size());
-            mAdapter = new AdapterPreviewImage(this, fromWhere);
+            mAdapter = new AdapterPreviewImage(this, fromWhere,collectJson);
             mAdapter.setPopParentView(tv_title);
             mAdapter.bindData(images);
             viewPager.setAdapter(mAdapter);

@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -28,9 +31,11 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.CollectVideoMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -43,6 +48,7 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -58,6 +64,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
+import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
 
 /**
  * @version V1.0
@@ -91,9 +98,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private int mLastTime = 0;
     private Timer mTimer;
     private boolean pressHOME = false;//监测是否按了HOME键
-    private int from = 0;//默认0 来自收藏详情1
+    private int from = 0;//跳转来源 0 默认 1 猜你想要 2 收藏详情
     private boolean canCollect = false;//是否显示收藏项
     private boolean isPlayFinished = false;//是否播放完成 (播放完成禁止进度条胡乱抖动)
+    private String collectJson = "";//收藏详情点击视频转发需要的数据
+    private boolean isFinishDownload = false;//是否下载完成
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +119,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         msg_id = getIntent().getExtras().getString("msg_id");
         bgUrl = getIntent().getExtras().getString("bg_url");
         canCollect = getIntent().getExtras().getBoolean("can_collect");
-        if(getIntent().getExtras().getInt("from")!=0){
+        collectJson = getIntent().getStringExtra(PictureConfig.COLLECT_JSON);
+        if(getIntent().getExtras().getInt("from")!= PictureConfig.FROM_DEFAULT){
             from = getIntent().getExtras().getInt("from");
         }
         initView();
@@ -121,10 +131,14 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             Glide.with(this).load(bgUrl).into(img_bg);
         }
         if (!TextUtils.isEmpty(msgAllBean)) {
-            if(from==1){
-                VideoMessage videoMessage = new Gson().fromJson(msgAllBean, VideoMessage.class);
+            if(from==PictureConfig.FROM_COLLECT_DETAIL){
+                CollectVideoMessage collectVideoMessage = new Gson().fromJson(msgAllBean, CollectVideoMessage.class);
                 if (mPath.contains("http://")) {
-                    downVideo(videoMessage);
+                    //直接复用视频下载，由于收藏消息结构变化，CollectVideoMessage临时拼凑成VideoMessage
+                    VideoMessage tempMsg = new VideoMessage();
+                    tempMsg.setUrl(collectVideoMessage.getVideoURL());
+                    tempMsg.setMsgId(collectVideoMessage.getMsgId());
+                    downVideo(tempMsg);
                 }
             }else {
                 MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
@@ -139,7 +153,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void downVideo(final VideoMessage videoMessage) {
 
-        final File appDir = new File(getExternalCacheDir().getAbsolutePath() + "/Mp4/");
+        final File appDir = new File(Environment.getExternalStorageDirectory()+"/"+APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
@@ -154,16 +168,20 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     MsgDao dao = new MsgDao();
                     dao.fixVideoLocalUrl(videoMessage.getMsgId(), fileVideo.getAbsolutePath());
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
+                    scanFile(getContext(),fileVideo.getAbsolutePath());
+                    isFinishDownload = true;
                 }
 
                 @Override
                 public void onDownloading(int progress) {
                     LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
+                    isFinishDownload = false;
                 }
 
                 @Override
                 public void onDownloadFailed(Exception e) {
                     LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
+                    isFinishDownload = false;
                 }
             });
 
@@ -466,6 +484,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
 
         MessageManager.getInstance().setCanStamp(true);
+        isFinishDownload = false;
     }
 
     @Override
@@ -539,7 +558,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             public void onItem(String string, int postsion) {
                 if(canCollect){
                     if (postsion == 0) {
-                        onRetransmission(msgAllBean);
+                        if(from==PictureConfig.FROM_COLLECT_DETAIL){
+                            onRetransmission(msgAllBean,collectJson);
+                        }else {
+                            onRetransmission(msgAllBean,"");
+                        }
                     } else if (postsion == 1) {
                         EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                         MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
@@ -547,16 +570,28 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         EventBus.getDefault().post(eventCollectImgOrVideo);
                     } else if (postsion == 2) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
-                        ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                        if(isFinishDownload){
+                            ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                        }else {
+                            ToastUtil.show(VideoPlayActivity.this, "视频下载中，请稍候");
+                        }
                     } else {
 
                     }
                 }else {
                     if (postsion == 0) {
-                        onRetransmission(msgAllBean);
+                        if(from==PictureConfig.FROM_COLLECT_DETAIL){
+                            onRetransmission(msgAllBean,collectJson);
+                        }else {
+                            onRetransmission(msgAllBean,"");
+                        }
                     } else if (postsion == 1) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
-                        ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                        if(isFinishDownload){
+                            ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                        }else {
+                            ToastUtil.show(VideoPlayActivity.this, "视频下载中，请稍候");
+                        }
                     } else {
 
                     }
@@ -570,9 +605,18 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     }
 
-    private void onRetransmission(String msgbean) {
-        startActivity(new Intent(getContext(), MsgForwardActivity.class)
-                .putExtra(MsgForwardActivity.AGM_JSON, msgbean));
+    private void onRetransmission(String msgbean, String collectJson) {
+        if(!TextUtils.isEmpty(collectJson)){
+            if (NetUtil.isNetworkConnected()) {
+                context.startActivity(new Intent(context, MsgForwardActivity.class)
+                        .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
+            } else {
+                ToastUtil.show("请检查网络连接是否正常");
+            }
+        }else {
+            startActivity(new Intent(getContext(), MsgForwardActivity.class)
+                    .putExtra(MsgForwardActivity.AGM_JSON, msgbean));
+        }
     }
 
     public static void insertVideoToMediaStore(Context context, String filePath, long createTime, int width, int height, long duration) {
@@ -774,6 +818,20 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             });
         } catch (Exception e) {
             LogUtil.getLog().d("TAG",e.getMessage());
+        }
+    }
+
+    //TODO android更新媒体库这么麻烦，搞了一下午，吐了，终于实现
+    public void scanFile(Context context, String filePath) {
+        try {
+            MediaScannerConnection.scanFile(context, new String[]{filePath}, new String[]{"video/mp4"},
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

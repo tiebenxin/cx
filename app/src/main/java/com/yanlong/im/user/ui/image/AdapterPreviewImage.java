@@ -72,6 +72,7 @@ import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -101,17 +102,19 @@ public class AdapterPreviewImage extends PagerAdapter {
     //    private IPreviewImageListener listener;
     private String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
     private String[] newStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "编辑", "取消"};
+    private String[] gifStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "取消"};
     private String[] collectStrings = {"发送给朋友", "保存图片", "取消"};
     private View parentView;
     private int preProgress;
     private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
+    private String collectJson="";//收藏详情点击大图转发需要的数据
 
 
-    public AdapterPreviewImage(Activity c,int fromWhere) {
+    public AdapterPreviewImage(Activity c,int fromWhere,String collectJson) {
         context = c;
         inflater = LayoutInflater.from(c);
         this.fromWhere = fromWhere;
-
+        this.collectJson = collectJson;
     }
 
     public void bindData(List<LocalMedia> l) {
@@ -263,7 +266,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivZoom.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showDownLoadDialog(media, ivZoom, isHttp, isOriginal, llLook);
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal, llLook, isGif);
                 return true;
             }
         });
@@ -316,7 +319,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivLarge.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showDownLoadDialog(media, ivZoom, isHttp, isOriginal, llLook);
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal, llLook, isGif);
                 return false;
             }
         });
@@ -829,14 +832,21 @@ public class AdapterPreviewImage extends PagerAdapter {
     /**
      * 长按弹窗提示
      */
-    private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp, boolean isOriginal, LinearLayout llLook) {
+    private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp,
+                                    boolean isOriginal, LinearLayout llLook, boolean isGif) {
         final PopupSelectView popupSelectView;
         //收藏详情需求又改为只显示3项
-        if(fromWhere==PictureConfig.FROM_COLLECT_DETAIL){
+        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
             popupSelectView = new PopupSelectView(context, collectStrings);
-        }else {
+        } else {
             if (media.isCanCollect()) {
-                popupSelectView = new PopupSelectView(context, newStrings);
+                if (isGif) {
+                    popupSelectView = new PopupSelectView(context, gifStrings);
+                } else {
+                    popupSelectView = new PopupSelectView(context, newStrings);
+                }
+            } else if (isGif) {
+                popupSelectView = new PopupSelectView(context, gifStrings);
             } else {
                 popupSelectView = new PopupSelectView(context, strings);
             }
@@ -847,16 +857,16 @@ public class AdapterPreviewImage extends PagerAdapter {
                 String msgId = media.getMsg_id();
                 //收藏详情需求又改为只显示3项
                 if(fromWhere==PictureConfig.FROM_COLLECT_DETAIL){
-                    if (postsion == 0) {//转发
-                        sendToFriend(msgId);
+                    if (postsion == 0) {//收藏详情转发单独处理
+                        sendToFriend(msgId,PictureConfig.FROM_COLLECT_DETAIL);
                     } else if (postsion == 1) {//保存
                         saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                     }
-                }else {
+                } else {
                     //含有收藏项
                     if (media.isCanCollect()) {
-                        if (postsion == 0) {//转发
-                            sendToFriend(msgId);
+                        if (postsion == 0) {//默认转发
+                            sendToFriend(msgId,PictureConfig.FROM_DEFAULT);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                         } else if (postsion == 2) {//收藏
@@ -879,8 +889,8 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                     } else {
                         //不含有收藏项
-                        if (postsion == 0) {//转发
-                            sendToFriend(msgId);
+                        if (postsion == 0) {//默认转发
+                            sendToFriend(msgId,PictureConfig.FROM_DEFAULT);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                         } else if (postsion == 2) {//识别二维码
@@ -1085,19 +1095,27 @@ public class AdapterPreviewImage extends PagerAdapter {
 
     /**
      * 转发
+     *
      * @param msgId
      */
-    private void sendToFriend(String msgId){
-        if (!TextUtils.isEmpty(msgId)) {
-            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-            if (msgAllBean != null) {
+    private void sendToFriend(String msgId,int fromWhere) {
+        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
+            if (NetUtil.isNetworkConnected()) {
                 context.startActivity(new Intent(context, MsgForwardActivity.class)
-                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                        .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
             } else {
-                ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+                ToastUtil.show("请检查网络连接是否正常");
             }
         } else {
-            //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
+            if (!TextUtils.isEmpty(msgId)) {
+                MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+                if (msgAllBean != null) {
+                    context.startActivity(new Intent(context, MsgForwardActivity.class)
+                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                } else {
+                    ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+                }
+            }
         }
     }
 
