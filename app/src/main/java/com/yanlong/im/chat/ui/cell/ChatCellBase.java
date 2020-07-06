@@ -459,7 +459,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (tvNote != null) {
             if (unreadPostion > 0 && currentPosition == unreadPostion) {
                 tvNote.setVisibility(VISIBLE);
-                tvNote.setText("----一下是新消息----");
+                tvNote.setText("----以下是新消息----");
             } else {
                 tvNote.setVisibility(View.GONE);
             }

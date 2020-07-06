@@ -150,7 +150,7 @@ public class TransferActivity extends BasePayActivity {
                     actionId = UIUtils.getUUID();
                     httpSendTransfer(actionId, money, toUid, note);
                 } else {
-                    ToastUtil.show("转账金额不能低于0.01元");
+                    ToastUtil.show(getString(R.string.transfer_min_amount_notice));
                 }
             }
         });
