@@ -341,7 +341,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
     public static final int REQUEST_RED_ENVELOPE = 1 << 2;
-//    public static final int REQUEST_TRANSFER = 1 << 3;
+    public static final int REQUEST_TRANSFER = 1 << 3;
 
     private int lastOffset = -1;
     private int lastPosition = -1;
@@ -422,6 +422,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private PopupWindow popGuessUWant;//点击+号后展示的弹框
     private GetImgUtils.ImgBean latestImg;//获取最新拍摄/截屏加入的图片
     private String latestUrl = "";//最新加入的图片url
+    private long currentTradeId;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -782,6 +783,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
+        EventBus.getDefault().unregister(this);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
         //释放空间
@@ -1984,7 +1986,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .compress(true)// 是否压缩 true or false
                 .isGif(true)
                 .selectArtworkMaster(true)
-                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
 
     private void toCamera() {
@@ -2712,7 +2714,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventTransferSuccess(TransferSuccessEvent event) {
         CxTransferBean transferBean = event.getBean();
-        if (transferBean != null) {
+        if (transferBean != null && transferBean.getTradeId() != currentTradeId && transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
+            LogUtil.getLog().i("转账", "TransferSuccessEvent--" + event.getBean().getActionId() + "--" + event.getBean().getTradeId());
+            currentTradeId = transferBean.getTradeId();
             if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT
                     || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
                 if (!TextUtils.isEmpty(transferBean.getMsgJson())) {
@@ -3011,7 +3015,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 case REQUEST_RED_ENVELOPE:
                     CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
-                    if (envelopeBean != null) {
+                    if (envelopeBean != null && currentTradeId != envelopeBean.getTradeId()) {
+                        currentTradeId = envelopeBean.getTradeId();
                         RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(),
                                 envelopeBean.getMessage(), MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign());
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
@@ -3085,6 +3090,33 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     //刷新首页消息列表
                     notifyData2Bottom(true);
+                    break;
+                case REQUEST_TRANSFER:
+                    if (data != null) {
+                        CxTransferBean transferBean = data.getParcelableExtra("transfer");
+                        if (transferBean != null && transferBean.getTradeId() != currentTradeId) {
+                            LogUtil.getLog().i("转账", "TransferSuccessEvent--" + transferBean.getActionId() + "--" + transferBean.getTradeId());
+                            currentTradeId = transferBean.getTradeId();
+                            if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT
+                                    || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
+                                if (!TextUtils.isEmpty(transferBean.getMsgJson())) {
+                                    MsgAllBean msg = GsonUtils.getObject(transferBean.getMsgJson(), MsgAllBean.class);
+                                    if (msg.getMsg_type() == ChatEnum.EMessageType.TRANSFER) {
+                                        TransferMessage preTransfer = msg.getTransfer();
+                                        preTransfer.setOpType(transferBean.getOpType());
+                                        replaceListDataAndNotify(msg);
+                                    }
+                                }
+                                long tuid = 0;
+                                if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE && UserAction.getMyId() != null) {
+                                    tuid = UserAction.getMyId().longValue();
+                                }
+                                msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType(), tuid);
+                            }
+                            TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), transferBean.getOpType());
+                            sendMessage(message, ChatEnum.EMessageType.TRANSFER);
+                        }
+                    }
                     break;
 
             }
@@ -5047,7 +5079,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //获取拆红包后，红包状态
     private int getOpenEnvelopeStatus(int stat) {
-        int status = PayEnum.EEnvelopeStatus.RECEIVED;
+        int status = PayEnum.EEnvelopeStatus.NORMAL;
+        if (stat == 0) {//1 正常待领取状态
+            status = PayEnum.EEnvelopeStatus.NORMAL;
+        }
         if (stat == 1) {//1 领取
             status = PayEnum.EEnvelopeStatus.RECEIVED;
         } else if (stat == 2) {//已领完
@@ -5056,6 +5091,33 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             status = PayEnum.EEnvelopeStatus.PAST;
         } else if (stat == 4) {//领到
             status = PayEnum.EEnvelopeStatus.RECEIVED;
+        }
+        return status;
+    }
+
+    //获取拆红包后，红包状态
+    private int getOpenEnvelopeStatus(EnvelopeDetailBean bean) {
+        int status = PayEnum.EEnvelopeStatus.NORMAL;
+        if (bean.getType() == 0) {//普通红包
+            if (bean.getRecvList() != null) {
+                int size = bean.getRecvList().size();
+                if (size > 0) {
+                    int count = bean.getCnt();
+                    if (count == size) {
+                        return PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+                    }
+                }
+            }
+        } else {//拼手气红包
+            if (bean.getRecvList() != null) {
+                int size = bean.getRecvList().size();
+                if (size > 0) {
+                    int count = bean.getCnt();
+                    if (count == size) {
+                        return PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+                    }
+                }
+            }
         }
         return status;
     }
@@ -5132,8 +5194,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (baseResponse.isSuccess()) {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
-                                if (envelopeStatus != getOpenEnvelopeStatus(bean.getEnvelopeStatus())) {
-                                    taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean.getEnvelopeStatus()));
+                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean.getEnvelopeStatus())) {
+                                    taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
                                 }
                                 bean.setChatType(isGroup() ? 1 : 0);
                                 bean.setEnvelopeStatus(envelopeStatus);
@@ -5269,7 +5331,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             } else {
                                 intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
                             }
-                            startActivity(intent);
+                            startActivityForResult(intent, REQUEST_TRANSFER);
                         } else {
 
                         }

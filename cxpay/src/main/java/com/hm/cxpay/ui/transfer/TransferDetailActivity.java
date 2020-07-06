@@ -357,7 +357,12 @@ public class TransferDetailActivity extends BasePayActivity {
     }
 
     public void notifyTransfer(CxTransferBean bean) {
-        EventBus.getDefault().post(new TransferSuccessEvent(bean));
+//        EventBus.getDefault().post(new TransferSuccessEvent(bean));
+        Intent intent = new Intent();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("transfer", bean);
+        intent.putExtras(bundle);
+        setResult(RESULT_OK,intent);
     }
 
     private void showReturnTransferDialog() {
