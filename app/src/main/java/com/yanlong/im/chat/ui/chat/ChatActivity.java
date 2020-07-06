@@ -5859,6 +5859,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             intent.putExtra("videomsg", new Gson().toJson(msg));
             intent.putExtra("msg_id", msg.getMsg_id());
             intent.putExtra("bg_url", msg.getVideoMessage().getBg_url());
+            intent.putExtra("from", PictureConfig.FROM_DEFAULT);//2 来自收藏详情
             intent.putExtra("can_collect", canCollect);
             intent.putExtra(PictureConfig.COLLECT_JSON, "");
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

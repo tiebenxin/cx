@@ -32,6 +32,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.CollectVideoMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -126,9 +127,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
         if (!TextUtils.isEmpty(msgAllBean)) {
             if(from==PictureConfig.FROM_COLLECT_DETAIL){
-                VideoMessage videoMessage = new Gson().fromJson(msgAllBean, VideoMessage.class);
+                CollectVideoMessage collectVideoMessage = new Gson().fromJson(msgAllBean, CollectVideoMessage.class);
                 if (mPath.contains("http://")) {
-                    downVideo(videoMessage);
+                    //直接复用视频下载，由于收藏消息结构变化，CollectVideoMessage临时拼凑成VideoMessage
+                    VideoMessage tempMsg = new VideoMessage();
+                    tempMsg.setUrl(collectVideoMessage.getVideoURL());
+                    tempMsg.setMsgId(collectVideoMessage.getMsgId());
+                    downVideo(tempMsg);
                 }
             }else {
                 MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
