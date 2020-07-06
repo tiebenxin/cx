@@ -157,6 +157,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
             }
         } else {
             envelopeBean.setTradeId(tradeId);
+            envelopeBean.setActionId(actionId);
             envelopeBean.setSign(sign);
         }
         return envelopeBean;

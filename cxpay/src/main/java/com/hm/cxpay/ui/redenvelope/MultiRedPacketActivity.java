@@ -349,7 +349,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         ui.btnCommit.setEnabled(false);
         setSending(true);
         showLoadingDialog();
-        handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, type, note, gid)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
@@ -362,7 +361,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                                 Intent intent = new Intent(MultiRedPacketActivity.this, YiBaoWebActivity.class);
                                 intent.putExtra(YiBaoWebActivity.AGM_URL, urlBean.getUrl());
                                 startActivityForResult(intent, REQUEST_PAY);
-
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -394,10 +392,21 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ui.btnCommit.setEnabled(true);
-        if (requestCode == REQUEST_PAY && data != null) {
-            int result = data.getIntExtra(RESULT, 0);
-            if (result == 99) {
-                showLoadingDialog();
+        if (requestCode == REQUEST_PAY) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    int result = data.getIntExtra(RESULT, 0);
+                    if (result == 99) {
+                        showLoadingDialog();
+                    }
+                }
+                if (handler != null && handler != null) {
+                    handler.postDelayed(runnable, WAIT_TIME);
+                }
+            } else {
+                if (handler != null && handler != null) {
+                    handler.removeCallbacks(runnable);
+                }
             }
         }
     }

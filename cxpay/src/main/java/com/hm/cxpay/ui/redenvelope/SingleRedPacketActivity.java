@@ -217,7 +217,6 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
         envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, "");
         setSending(true);
         ui.btnCommit.setEnabled(false);
-        handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendRedEnvelopeToUser(actionId, money, 1, 0, note, uid)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
@@ -262,10 +261,21 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ui.btnCommit.setEnabled(true);
-        if (requestCode == REQUEST_PAY && data != null) {
-            int result = data.getIntExtra(RESULT, 0);
-            if (result == 99) {
-                showLoadingDialog();
+        if (requestCode == REQUEST_PAY) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    int result = data.getIntExtra(RESULT, 0);
+                    if (result == 99) {
+                        showLoadingDialog();
+                    }
+                }
+                if (handler != null && handler != null) {
+                    handler.postDelayed(runnable, WAIT_TIME);
+                }
+            } else {
+                if (handler != null && handler != null) {
+                    handler.removeCallbacks(runnable);
+                }
             }
         }
     }

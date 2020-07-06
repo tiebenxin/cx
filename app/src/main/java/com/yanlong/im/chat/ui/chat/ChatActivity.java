@@ -1954,7 +1954,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             avatar = mViewModel.userInfo.getHead();
         }
         Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_TRANSFER);
     }
 
     private void toSystemEnvelope() {
@@ -3423,7 +3423,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT,"");
+                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT, "");
 
     }
 
