@@ -1893,9 +1893,16 @@ public class MessageManager {
                 playVibration();
             }
         } else if (SESSION_TYPE == 1 && SESSION_FUID != null && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
-            //当前会话就是这个人
             if (msg.getMsgType() == MsgBean.MessageType.STAMP) {
-                playVibration();
+                if(isGroup && CAN_STAMP){
+                    //如果是处于单聊会话，但收到了群戳一戳，则需要弹框
+                    AppConfig.getContext().startActivity(new Intent(AppConfig.getContext(), ChatActionActivity.class)
+                            .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                }else {
+                    //如果是处于单聊会话，仅震动
+                    playVibration();
+                }
             }
         } else if (SESSION_TYPE == 3) {//静音模式
 
