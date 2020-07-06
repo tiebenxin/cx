@@ -166,6 +166,7 @@ public class CollectDetailsActivity extends AppActivity {
     private MsgAction msgAction = new MsgAction();
     private boolean isVoice = false;//当前收藏类型是否为语音，语音不允许转发
     private AnimationDrawable animationDrawable;//语音动画
+    private String collectJson = "";//获取到的Collect对象json化的数据
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -242,7 +243,8 @@ public class CollectDetailsActivity extends AppActivity {
                 position = getIntent().getIntExtra("position", -1);
             }
             if (getIntent().getStringExtra("json_data") != null) {
-                collectionInfo = new Gson().fromJson(getIntent().getStringExtra("json_data"), CollectionInfo.class);
+                collectJson = getIntent().getStringExtra("json_data");
+                collectionInfo = new Gson().fromJson(collectJson, CollectionInfo.class);
                 if (!TextUtils.isEmpty(collectionInfo.getData())) {
                     //显示用户名或群名
                     if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
@@ -684,7 +686,8 @@ public class CollectDetailsActivity extends AppActivity {
             intent.putExtra("videomsg", new Gson().toJson(msg));
             intent.putExtra("msg_id", msg.getMsgId());
             intent.putExtra("bg_url", msg.getVideoBgURL());
-            intent.putExtra("from", 1);//1 来自收藏详情
+            intent.putExtra("from", PictureConfig.FROM_COLLECT_DETAIL);//2 来自收藏详情
+            intent.putExtra(PictureConfig.COLLECT_JSON, collectJson);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
 
@@ -1028,7 +1031,7 @@ public class CollectDetailsActivity extends AppActivity {
         PictureSelector.create(CollectDetailsActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(0, selectList, "", 0L, PictureConfig.FROM_COLLECT_DETAIL);
+                .openExternalPreview1(0, selectList, "", 0L, PictureConfig.FROM_COLLECT_DETAIL,collectJson);
     }
 
     /***

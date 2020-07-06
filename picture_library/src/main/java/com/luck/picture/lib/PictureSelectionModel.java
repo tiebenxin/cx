@@ -464,10 +464,18 @@ public class PictureSelectionModel {
     }
 
 
-
-    public void openExternalPreview1(int position, List<LocalMedia> medias,String gid,Long toUid,int from) {
+    /**
+     *
+     * @param position
+     * @param medias
+     * @param gid
+     * @param toUid
+     * @param from
+     * @param collectJson 收藏点击大图，转发需要把CollectInfo带过去
+     */
+    public void openExternalPreview1(int position, List<LocalMedia> medias,String gid,Long toUid,int from,String collectJson) {
         if (selector != null) {
-            selector.externalPicturePreview1(position, medias,gid,toUid,from);
+            selector.externalPicturePreview1(position, medias,gid,toUid,from,collectJson);
         } else {
             throw new NullPointerException("This PictureSelector is Null");
         }
