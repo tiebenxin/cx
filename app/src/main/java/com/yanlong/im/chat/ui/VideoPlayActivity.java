@@ -103,6 +103,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private boolean isPlayFinished = false;//是否播放完成 (播放完成禁止进度条胡乱抖动)
     private String collectJson = "";//收藏详情点击视频转发需要的数据
     private boolean isFinishDownload = false;//是否下载完成
+    private boolean showFinishDownloadToast = false;//是否显示下载完成提示
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,6 +172,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
                     scanFile(getContext(),fileVideo.getAbsolutePath());
                     isFinishDownload = true;
+                    if(showFinishDownloadToast){
+                        ToastUtil.show("保存相册成功");
+                    }
                 }
 
                 @Override
@@ -485,6 +490,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
         MessageManager.getInstance().setCanStamp(true);
         isFinishDownload = false;
+        showFinishDownloadToast = false;
     }
 
     @Override
@@ -570,10 +576,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         EventBus.getDefault().post(eventCollectImgOrVideo);
                     } else if (postsion == 2) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
+                        //点击保存视频，若已经下载完成则提示"成功"；若没有下载完成，则无操作，等待下载完成后提示"成功"
                         if(isFinishDownload){
-                            ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                            ToastUtil.show(VideoPlayActivity.this, "保存相册成功");
                         }else {
-                            ToastUtil.show(VideoPlayActivity.this, "视频下载中，请稍候");
+                            showFinishDownloadToast = true;
                         }
                     } else {
 
@@ -588,9 +595,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     } else if (postsion == 1) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
                         if(isFinishDownload){
-                            ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                            ToastUtil.show(VideoPlayActivity.this, "保存相册成功");
                         }else {
-                            ToastUtil.show(VideoPlayActivity.this, "视频下载中，请稍候");
+                            showFinishDownloadToast = true;
                         }
                     } else {
 
