@@ -1630,7 +1630,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             isRun = 2;
                             //7.5
                             //恢复所有状态
-                            mViewModel.recoveryOtherValue(null);
+                            mViewModel.recoveryPartValue(null);
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
