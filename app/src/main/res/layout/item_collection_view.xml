@@ -249,7 +249,7 @@
                 android:visibility="invisible"
                 android:background="@drawable/shape_5radius_solid_e75e58"
                 android:textColor="@color/white"
-                android:textSize="17sp"
+                android:textSize="13sp"
                 android:text="确认删除" />
 
             <ImageView
