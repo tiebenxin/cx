@@ -56,7 +56,6 @@ public class DialogEnvelope extends BaseDialog {
         tvInfo = findViewById(R.id.txt_rb_info);
         ivOpen = findViewById(R.id.img_open);
         tvMore = findViewById(R.id.txt_more);
-
         ivClose.setOnClickListener(this);
         ivOpen.setOnClickListener(this);
         tvMore.setOnClickListener(this);
@@ -68,6 +67,7 @@ public class DialogEnvelope extends BaseDialog {
         if (id == ivClose.getId()) {
             dismiss();
         } else if (id == ivOpen.getId()) {
+            ivOpen.setEnabled(false);
             playAnim();
             openRedEnvelope(tradeId, token);
         } else if (id == tvMore.getId()) {
