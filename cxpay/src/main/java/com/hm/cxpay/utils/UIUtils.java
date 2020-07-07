@@ -89,7 +89,7 @@ public class UIUtils {
 
     //获取红包个数
     public static int getRedEnvelopeCount(String count) {
-        int c = 0;
+        int c = -1;
         if (TextUtils.isEmpty(count)) {
             return c;
         }
@@ -100,7 +100,6 @@ public class UIUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return c;
     }
 
