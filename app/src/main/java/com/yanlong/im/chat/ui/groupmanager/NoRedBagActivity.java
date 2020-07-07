@@ -102,11 +102,12 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 }
                 binding.txtOtRpBt.setText(type);
                 binding.txtOtRbTitle.setText(message.getComment());
+                binding.txtOtRbInfo.setText(getEnvelopeInfo(message.getEnvelopStatus()));
                 //红包领取状态
-                if(message.getIsInvalid()==0){
+                if (message.getIsInvalid() == 0) {
                     binding.imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_un);
                     binding.layoutRedBag.setBackgroundResource(R.mipmap.ic_rb_not_received);
-                }else {
+                } else {
                     binding.imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
                     binding.layoutRedBag.setBackgroundResource(R.mipmap.ic_rb_received);
                 }
@@ -114,13 +115,13 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    if(message.getIsInvalid()==0){
-                        if(canGetRedPacket){
+                    if (message.getIsInvalid() == 0) {
+                        if (canGetRedPacket) {
                             receiveEnvelope(msgAllBean);
-                        }else {
+                        } else {
                             ToastUtil.show("你已被禁止领取该群红包");
                         }
-                    }else {
+                    } else {
                         ToastUtil.show("已领取该红包");
                     }
                 });
@@ -150,7 +151,10 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 .map(new Function<Integer, List<MsgAllBean>>() {
                     @Override
                     public List<MsgAllBean> apply(Integer integer) throws Exception {
-                        return msgDao.selectValidEnvelopeMsg(mGid);
+                        if (UserAction.getMyId() == null) {
+                            return null;
+                        }
+                        return msgDao.selectValidEnvelopeMsg(mGid, UserAction.getMyId().longValue());
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -231,7 +235,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                     MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), mGid, rid + "");
                     MsgAllBean msgAllBean = SocketData.createMessageBean(msgBean.getTo_uid(), msgBean.getGid(), ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
                     MessageManager.getInstance().saveMessage(msgAllBean);
-                    mViewAdapter.notifyItemChange(msgBean);
+                    mViewAdapter.remove(msgBean);
                     notifyRefreshChat();
                 }
             }
@@ -248,7 +252,10 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
     //获取拆红包后，红包状态
     private int getOpenEnvelopeStatus(int stat) {
-        int status = PayEnum.EEnvelopeStatus.RECEIVED;
+        int status = PayEnum.EEnvelopeStatus.NORMAL;
+        if (stat == 0) {//1 正常待领取状态
+            status = PayEnum.EEnvelopeStatus.NORMAL;
+        }
         if (stat == 1) {//1 领取
             status = PayEnum.EEnvelopeStatus.RECEIVED;
         } else if (stat == 2) {//已领完
@@ -257,6 +264,33 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
             status = PayEnum.EEnvelopeStatus.PAST;
         } else if (stat == 4) {//领到
             status = PayEnum.EEnvelopeStatus.RECEIVED;
+        }
+        return status;
+    }
+
+    //获取拆红包后，红包状态
+    private int getOpenEnvelopeStatus(EnvelopeDetailBean bean) {
+        int status = PayEnum.EEnvelopeStatus.NORMAL;
+        if (bean.getType() == 0) {//普通红包
+            if (bean.getRecvList() != null) {
+                int size = bean.getRecvList().size();
+                if (size > 0) {
+                    int count = bean.getCnt();
+                    if (count == size) {
+                        return PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+                    }
+                }
+            }
+        } else {//拼手气红包
+            if (bean.getRecvList() != null) {
+                int size = bean.getRecvList().size();
+                if (size > 0) {
+                    int count = bean.getCnt();
+                    if (count == size) {
+                        return PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+                    }
+                }
+            }
         }
         return status;
     }
@@ -289,7 +323,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                                     if (isNormalStyle) {//普通玩法红包需要保存
                                         taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), PayEnum.EEnvelopeStatus.NORMAL);
                                     }
-                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -305,11 +339,11 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
         }
     }
 
-    private void getEnvelopeDetail(long rid, String token, int envelopeStatus) {
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean) {
         PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
@@ -319,6 +353,9 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                         if (baseResponse.isSuccess()) {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
+                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean.getEnvelopeStatus())) {
+                                    taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
+                                }
                                 bean.setChatType(1);
                                 bean.setEnvelopeStatus(envelopeStatus);
                                 Intent intent = SingleRedPacketDetailsActivity.newIntent(NoRedBagActivity.this, bean);
@@ -389,12 +426,18 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
     //抢红包后，更新红包token
     private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
+        int status = msgAllBean.getRed_envelope().getEnvelopStatus();
         if (!TextUtils.isEmpty(token)) {
             msgAllBean.getRed_envelope().setAccessToken(token);
             msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
+            if (envelopeStatus > 0) {
+                msgAllBean.getRed_envelope().setIsInvalid(1);
+            }
         }
         msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
-
+        if (envelopeStatus != 0) {
+            mViewAdapter.remove(msgAllBean);
+        }
     }
 
     /***
@@ -427,13 +470,13 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk()) {
                     List<NoRedEnvelopesBean> list = response.body().getData();
-                    if (list != null && list.size()>0) {
-                        for(int i=0; i<list.size(); i++){
-                            if(list.get(i).getUid() == UserAction.getMyInfo().getUid().longValue()){
+                    if (list != null && list.size() > 0) {
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).getUid() == UserAction.getMyInfo().getUid().longValue()) {
                                 canGetRedPacket = false;
                             }
                         }
-                    }else {
+                    } else {
                         canGetRedPacket = true;
                     }
                 } else {
@@ -446,6 +489,25 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 super.onFailure(call, t);
             }
         });
+    }
+
+    private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
+        String info = "";
+        switch (envelopStatus) {
+            case PayEnum.EEnvelopeStatus.NORMAL:
+                info = "领取红包";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED:
+                info = "已领取";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED_FINISHED:
+                info = "已被领完";
+                break;
+            case PayEnum.EEnvelopeStatus.PAST:
+                info = "已过期";
+                break;
+        }
+        return info;
     }
 
 }

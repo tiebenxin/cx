@@ -4822,11 +4822,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //抢红包后，更新红包token
-    private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String
-            token, int envelopeStatus) {
+    private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
         if (!TextUtils.isEmpty(token)) {
             msgAllBean.getRed_envelope().setAccessToken(token);
             msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
+            if (envelopeStatus > 0) {
+                msgAllBean.getRed_envelope().setIsInvalid(1);
+            }
         }
         msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
         ThreadUtil.getInstance().runMainThread(new Runnable() {
@@ -5970,7 +5972,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 showIdentifyDialog();
                 return;
             }
-            if (!checkCanOpenUpRedEnv()) {
+            int envelopeStatus = rb.getEnvelopStatus();
+
+            if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && !checkCanOpenUpRedEnv()) {
                 ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 return;
             }
@@ -5986,7 +5990,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 ToastUtil.show(ChatActivity.this, "无红包id");
                 return;
             }
-            int envelopeStatus = rb.getEnvelopStatus();
             boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
             if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
                 if (msg.isMe() && isNormalStyle) {
