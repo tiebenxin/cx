@@ -31,6 +31,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -134,6 +135,12 @@ public class GroupInfoActivity extends AppActivity {
             EventBus.getDefault().register(this);
         }
         findViews();
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, ChatActivity.class).putExtra(ChatActivity.AGM_TOGID, gid));
+        finish();
     }
 
     //自动寻找控件
@@ -273,7 +280,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), SearchMsgActivity.class)
-                        .putExtra(SearchMsgActivity.AGM_GID, gid)
+                        .putExtra(SearchMsgActivity.AGM_GID, gid).putExtra(SearchMsgActivity.FROM, 1)
                 );
             }
         });
@@ -668,7 +675,7 @@ public class GroupInfoActivity extends AppActivity {
                 case GROUP_NICK:
                     //若昵称内容为空，取用户名
                     if (TextUtils.isEmpty(content)) {
-                        content = UserAction.getMyInfo()==null? ginfo.getMygroupName() : UserAction.getMyInfo().getName();
+                        content = UserAction.getMyInfo() == null ? ginfo.getMygroupName() : UserAction.getMyInfo().getName();
                     }
                     taskChangeMemberName(gid, content);
                     break;

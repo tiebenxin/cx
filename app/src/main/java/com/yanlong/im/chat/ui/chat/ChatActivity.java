@@ -149,6 +149,7 @@ import com.yanlong.im.chat.ui.FileDownloadActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
+import com.yanlong.im.chat.ui.SearchMsgActivity;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.cell.ChatCellBase;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
@@ -323,6 +324,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public static final String GROUP_CREAT = "creat";
     public static final String ONLINE_STATE = "if_online";
     public static final String SEARCH_TIME = "search_time";
+    public static final String SEARCH_KEY = "search_key";
 
 
     private Gson gson = new Gson();
@@ -423,6 +425,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private GetImgUtils.ImgBean latestImg;//获取最新拍摄/截屏加入的图片
     private String latestUrl = "";//最新加入的图片url
     private long currentTradeId;
+    private String searchKey;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -1277,7 +1280,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                finish();
+                onBackPressed();
             }
 
             @Override
@@ -1627,7 +1630,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             isRun = 2;
                             //7.5
                             //恢复所有状态
-                            mViewModel.recoveryOtherValue(null);
+                            mViewModel.recoveryPartValue(null);
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
@@ -1812,6 +1815,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         searchTime = getIntent().getLongExtra(SEARCH_TIME, 0);
+        searchKey = getIntent().getStringExtra(SEARCH_KEY);
         if (searchTime > 0) {
             isLoadHistory = true;
         }
@@ -2301,7 +2305,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            finish();
+            onBackPressed();
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -2659,8 +2663,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             return;
         }
         //oppo 手机 调用 onBackPressed不会finish
+        if (!TextUtils.isEmpty(searchKey)) {
+            startActivity(new Intent(getContext(), SearchMsgActivity.class).putExtra(SearchMsgActivity.AGM_GID, toGid).putExtra(SearchMsgActivity.AGM_FUID, toUId)
+                    .putExtra(SearchMsgActivity.FROM, 1).putExtra(SearchMsgActivity.AGM_SEARCH_KEY, searchKey));
+        }
         finish();
-
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

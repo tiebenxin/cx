@@ -46,6 +46,7 @@ public class SearchMsgActivity extends AppActivity {
 
     public static final String AGM_FUID = "fuid";
     public static final String AGM_SEARCH_KEY = "search_key";
+    public static final String FROM = "from";//0 默认，1 聊天界面
     private Long fuid;
     private String gid;
 
@@ -53,11 +54,10 @@ public class SearchMsgActivity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private List<UserInfo> listDataUser = new ArrayList<>();
-    private List<Group> listDataGroup = new ArrayList<>();
     //第一次进入页面,用于弹出软键盘
     private boolean isInit = true;
     private String searchKey;
+    private int from;
 
 
     //自动寻找控件
@@ -73,6 +73,7 @@ public class SearchMsgActivity extends AppActivity {
     private void initEvent() {
         gid = getIntent().getStringExtra(AGM_GID);
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
+        from = getIntent().getIntExtra(FROM, 0);
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -150,6 +151,19 @@ public class SearchMsgActivity extends AppActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (from == 1) {
+            if (!TextUtils.isEmpty(gid)) {
+                startActivity(new Intent(getContext(), GroupInfoActivity.class).putExtra(GroupInfoActivity.AGM_GID, gid));
+            } else {
+                if (fuid != null) {
+                    startActivity(new Intent(getContext(), ChatInfoActivity.class).putExtra(ChatInfoActivity.AGM_FUID, fuid));
+                }
+            }
+        }
+        finish();
+    }
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -205,14 +219,11 @@ public class SearchMsgActivity extends AppActivity {
                                 InputUtil.hideKeyboard(edtSearch);
                             }
                         }, 10);
-//                    EventFindHistory eventFindHistory = new EventFindHistory();
-//                    eventFindHistory.setStime(msgbean.getTimestamp());
-//                    EventBus.getDefault().post(eventFindHistory);
                         startActivity(new Intent(getContext(), ChatActivity.class)
-                                        .putExtra(ChatActivity.AGM_TOGID, gid)
-                                        .putExtra(ChatActivity.AGM_TOUID, fuid)
-                                        .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
-//                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                .putExtra(ChatActivity.AGM_TOGID, gid)
+                                .putExtra(ChatActivity.AGM_TOUID, fuid)
+                                .putExtra(ChatActivity.SEARCH_KEY, key)
+                                .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
                         );
                     }
                 });

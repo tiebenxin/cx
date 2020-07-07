@@ -116,6 +116,19 @@ public class ChatViewModel extends ViewModel {
         recoveryValue(data, isOpenSpeak);
     }
 
+    /**
+     * 重置其他状态值
+     * 1.data＝null，所有状态值重置为false
+     * 2.data不为null,data本身不重置
+     *
+     * @param data
+     */
+    public void recoveryPartValue(MutableLiveData<Boolean> data) {
+        recoveryValue(data, isInputText);
+        recoveryValue(data, isOpenEmoj);
+        recoveryValue(data, isOpenFuction);
+    }
+
     private void recoveryValue(MutableLiveData<Boolean> data, MutableLiveData<Boolean> orignalData) {
         if ((data == null || data != orignalData) && orignalData.getValue()) {
             orignalData.setValue(false);
