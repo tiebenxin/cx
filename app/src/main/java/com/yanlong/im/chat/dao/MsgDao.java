@@ -378,7 +378,7 @@ public class MsgDao {
         return beans;
     }
 
-    public List<MsgAllBean> getMsg4UserImg(Long userid,long time) {
+    public List<MsgAllBean> getMsg4UserImg(Long userid, long time) {
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
         try {
@@ -3624,7 +3624,7 @@ public class MsgDao {
     }
 
     //查询群聊中未领取的有效红包,红包状态是未领取，且非普通红包
-    public List<MsgAllBean> selectValidEnvelopeMsg(String gid) {
+    public List<MsgAllBean> selectValidEnvelopeMsg(String gid, long mId) {
         Realm realm = DaoUtil.open();
         long time = SocketData.getFixTime();
         if (time <= 0) {
@@ -3635,33 +3635,26 @@ public class MsgDao {
         long ten = TimeToString.MINUTE * 10;
         try {
             List<MsgAllBean> msgAllBeans = new ArrayList<>();
-            RealmResults<RedEnvelopeMessage> envelopeList = realm.where(RedEnvelopeMessage.class)
-                    .beginGroup().equalTo("envelopStatus", 0).endGroup()
-                    .and()
-                    .beginGroup().equalTo("style", 1).endGroup()
-                    .findAll();
-
             RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
                     .beginGroup().isNotNull("red_envelope").endGroup()
                     .and()
+                    .beginGroup().equalTo("red_envelope.envelopStatus", 0).endGroup()
+                    .and()
+                    .beginGroup()
+                    .beginGroup().equalTo("red_envelope.style", 1).endGroup()
+                    .or()
+                    .beginGroup().equalTo("red_envelope.style", 0).and().notEqualTo("from_uid", mId).endGroup()
+                    .endGroup()
+                    .and()
                     .beginGroup().greaterThan("timestamp", time - diff).endGroup()
                     .and()
                     .beginGroup().lessThan("timestamp", time - ten).endGroup()
-                    .sort("timestamp")
+                    .sort("timestamp", Sort.DESCENDING)
                     .findAll();
-            if (realmResults != null && envelopeList != null) {
-                int len = realmResults.size();
-                for (int i = 0; i < len; i++) {
-                    MsgAllBean msgAllBean = realmResults.get(i);
-                    RedEnvelopeMessage redEnvelopeMessage = envelopeList.where().equalTo("msgid", msgAllBean.getMsg_id()).findFirst();
-                    if (redEnvelopeMessage != null) {
-                        MsgAllBean bean = realm.copyFromRealm(msgAllBean);
-                        msgAllBeans.add(bean);
-                    }
-
-                }
+            if (realmResults != null) {
+                msgAllBeans = realm.copyFromRealm(realmResults);
             }
             realm.close();
             return msgAllBeans;
