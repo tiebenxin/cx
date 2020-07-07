@@ -24,6 +24,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
@@ -98,6 +99,7 @@ public class ChatInfoActivity extends AppActivity {
             EventBus.getDefault().register(this);
         }
     }
+
 
     //自动寻找控件
     private void findViews() {
@@ -216,7 +218,7 @@ public class ChatInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), SearchMsgActivity.class)
-                        .putExtra(SearchMsgActivity.AGM_FUID, fuid)
+                        .putExtra(SearchMsgActivity.AGM_FUID, fuid).putExtra(SearchMsgActivity.FROM, 1)
                 );
             }
         });
@@ -267,8 +269,8 @@ public class ChatInfoActivity extends AppActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-//        setResult(ChatActivity.REQ_REFRESH);
+        startActivity(new Intent(this, ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, fuid));
+        finish();
     }
 
 
