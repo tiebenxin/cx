@@ -67,6 +67,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.inter.SwipeLayoutOpenCloseListener;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.InputUtil;
@@ -128,7 +129,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private List<CollectionInfo> needDeleteData;//需要删除的指定收藏集
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//确认删除弹框
-    private boolean showBottomView = false;//最后一项View避免被遮挡
     private boolean isVertical = true;//竖图(true)还是横图(false)  默认竖图
 
     //加载布局
@@ -158,8 +158,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                         }else {
                             binding.ivCheck.setImageResource(R.drawable.ic_unselect);
                         }
+                        binding.swipeLayout.setSwipeEnable(false);//TODO 新增侧滑，默认允许，编辑模式禁止响应
                     }else {
                         binding.ivCheck.setVisibility(GONE);
+                        binding.swipeLayout.setSwipeEnable(true);
                     }
                     if (!TextUtils.isEmpty(collectionInfo.getData())) {
                         //显示用户名或群名
@@ -419,17 +421,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 break;
                         }
                         onEvent(binding, position, collectionInfo);
-                        //最后一项避免被遮挡
-                        if(showBottomView){
-                            if(position==(mList.size()-1)){
-                                binding.viewBottom.setVisibility(VISIBLE);
-                            }else {
-                                binding.viewBottom.setVisibility(GONE);
-                            }
-                        }else {
-                            binding.viewBottom.setVisibility(GONE);
-                        }
-
                     }
                 }
             }
@@ -493,6 +484,32 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 } else {
                     //直接转发收藏消息到当前群或用户
                     showTransDialog(bean, CommonUtils.transformMsgType(bean.getType()));
+                }
+            }
+        });
+        binding.ivDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                binding.ivDelete.setVisibility(View.INVISIBLE);
+                binding.tvSureDelete.setVisibility(View.VISIBLE);
+            }
+        });
+        binding.tvSureDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mList.get(position) != null) {
+                    httpCancelCollect(mList.get(position).getId(), position,mList.get(position).getMsgId());
+                }
+            }
+        });
+        //监听侧滑开关状态
+        binding.swipeLayout.setOpenOrCloseListenr(new SwipeLayoutOpenCloseListener() {
+            @Override
+            public void changeStatus(boolean isOpen) { //true 开 false 关
+                if(isOpen==false){
+                    //每次关闭初始化(垃圾桶/确认删除)状态
+                    binding.ivDelete.setVisibility(View.VISIBLE);
+                    binding.tvSureDelete.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -1164,8 +1181,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             for(int i=0; i<mViewAdapter.getList().size(); i++){
                 mViewAdapter.getList().get(i).setShowEdit(true);
             }
-            //显示最后一项底部View
-            showBottomView = true;
         }else {
             //关闭底部布局
             bindingView.layoutBottom.setVisibility(GONE);
@@ -1173,8 +1188,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             for(int i=0; i<mViewAdapter.getList().size(); i++){
                 mViewAdapter.getList().get(i).setShowEdit(false);
             }
-            //隐藏最后一项底部View
-            showBottomView = false;
             //清空选中状态
             for(CollectionInfo info : mList){
                 info.setChecked(false);

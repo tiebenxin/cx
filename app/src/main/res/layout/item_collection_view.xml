@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
+    <net.cb.cb.library.view.NewSwipeMenuLayout
+        android:id="@+id/swipe_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:clickable="true">
+
+
         <RelativeLayout
             android:id="@+id/layout_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="5dp"
             android:background="@drawable/shape_chat_bg"
             android:orientation="vertical"
             android:paddingTop="10dp"
@@ -23,9 +26,9 @@
                 android:id="@+id/layout_top"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_toRightOf="@+id/iv_check"
                 android:layout_marginLeft="12dp"
+                android:layout_toRightOf="@+id/iv_check"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
@@ -54,11 +57,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/layout_top"
+                android:layout_marginLeft="12dp"
                 android:layout_marginTop="14dp"
                 android:layout_toRightOf="@+id/iv_check"
-                android:layout_marginLeft="12dp"
                 android:orientation="horizontal">
-                <!--文字/@消息-->
+                <!--文字/消息-->
                 <TextView
                     android:id="@+id/tv_content"
                     android:layout_width="wrap_content"
@@ -189,25 +192,28 @@
                         android:text=""
                         android:textColor="@color/c_878787"
                         android:textSize="10sp" />
+
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_marginRight="1dp"
-                        android:layout_marginBottom="1dp"
+                        android:layout_height="70dp"
                         android:layout_marginLeft="1dp"
-                        android:layout_height="70dp">
+                        android:layout_marginRight="1dp"
+                        android:layout_marginBottom="1dp">
+
                         <ImageView
                             android:id="@+id/iv_location"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
                             android:src="@color/c_dcdddd" />
+
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentRight="true"
-                            android:layout_marginRight="30dp"
                             android:layout_marginTop="20dp"
+                            android:layout_marginRight="30dp"
                             android:src="@mipmap/location_four" />
                     </RelativeLayout>
                 </LinearLayout>
@@ -217,23 +223,45 @@
                 android:id="@+id/iv_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
-                android:visibility="gone"
-                android:src="@drawable/ic_unselect"/>
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="12dp"
+                android:src="@drawable/ic_unselect"
+                android:visibility="gone" />
         </RelativeLayout>
 
-        <!--多选删除底部悬浮块-->
-        <View
-            android:id="@+id/view_bottom"
-            android:layout_width="match_parent"
-            android:gravity="center"
-            android:visibility="gone"
-            android:layout_height="45dp">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        </View>
+            <TextView
+                android:id="@+id/tv_sure_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:layout_marginLeft="9dp"
+                android:layout_marginRight="9dp"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"
+                android:background="@drawable/shape_5radius_solid_e75e58"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:text="确认删除" />
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/iv_delete"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:visibility="visible"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_item_collect_swipe_delete" />
+
+        </RelativeLayout>
+
+    </net.cb.cb.library.view.NewSwipeMenuLayout>
 
 </layout>
