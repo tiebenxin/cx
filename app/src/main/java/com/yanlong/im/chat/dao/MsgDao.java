@@ -3745,6 +3745,8 @@ public class MsgDao {
             msg.getMsgCancel().deleteFromRealm();
         if (msg.getVoiceMessage() != null)
             msg.getVoiceMessage().deleteFromRealm();
+        if (msg.getVideoMessage() != null)
+            msg.getVideoMessage().deleteFromRealm();
         if (msg.getAtMessage() != null)
             msg.getAtMessage().deleteFromRealm();
         if (msg.getAssistantMessage() != null)
@@ -3776,6 +3778,8 @@ public class MsgDao {
                 msg.getReplyMessage().getQuotedMessage().deleteFromRealm();
             msg.getReplyMessage().deleteFromRealm();
         }
+        if (msg.getAdMessage() != null)
+            msg.getAdMessage().deleteFromRealm();
     }
 
     //判断当前用户是否群主或者群管理员
