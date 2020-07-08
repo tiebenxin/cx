@@ -176,6 +176,10 @@ public class DaoMigration implements RealmMigration {
                 updateV39(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 39) {
+                updateV40(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -722,6 +726,50 @@ public class DaoMigration implements RealmMigration {
     private final void updateV39(RealmSchema schema) {
         schema.get("TransferMessage")
                 .addField("passive", int.class);
+    }
+
+    //新增红包消息备份表
+    private final void updateV40(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("lockedstatus", int.class);
+
+        schema.create("EnvelopeTemp")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("id", String.class)
+                .addField("re_type", int.class)
+                .addField("comment", String.class)
+                .addField("isInvalid", int.class)
+                .addField("style", int.class)
+                .addField("traceId", long.class)
+                .addField("actionId", String.class)
+                .addField("accessToken", String.class)
+                .addField("envelopStatus", int.class)
+                .addField("sign", String.class);
+
+        schema.create("MessageDBTemp")
+                .addField("msg_id", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("timestamp", Long.class)
+                .addField("send_state", int.class)
+                .addField("send_data", byte[].class)
+                .addField("isRead", boolean.class)
+                .addField("request_id", String.class)
+                .addField("from_uid", Long.class)
+                .addField("from_nickname", String.class)
+                .addField("from_avatar", String.class)
+                .addField("from_group_nickname", String.class)
+                .addField("to_uid", Long.class)
+                .addField("gid", String.class)
+                .addField("read", int.class)
+                .addField("msg_type", Integer.class)
+                .addField("survival_time", int.class)
+                .addField("endTime", int.class)
+                .addField("readTime", int.class)
+                .addField("startTime", int.class)
+                .addField("serverTime", int.class)
+                .addField("isLocal", int.class)
+                .addField("isReplying", int.class)
+                .addRealmObjectField("envelopeMessage", schema.get("EnvelopeTemp"))
+                ;
     }
 
 

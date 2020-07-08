@@ -26,7 +26,7 @@
                 android:background="@drawable/shape_notice_bg"
                 android:gravity="center_vertical"
                 android:textColor="@color/white"
-                android:text="@string/max_amount_notice" />
+                android:text="" />
 
 
             <LinearLayout

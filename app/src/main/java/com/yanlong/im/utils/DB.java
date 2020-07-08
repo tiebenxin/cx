@@ -757,6 +757,8 @@ public class DB {
             msg.getMsgCancel().deleteFromRealm();
         if (msg.getVoiceMessage() != null)
             msg.getVoiceMessage().deleteFromRealm();
+        if (msg.getVideoMessage() != null)
+            msg.getVideoMessage().deleteFromRealm();
         if (msg.getAtMessage() != null)
             msg.getAtMessage().deleteFromRealm();
         if (msg.getAssistantMessage() != null)
@@ -781,6 +783,15 @@ public class DB {
             msg.getWebMessage().deleteFromRealm();
         if (msg.getAdMessage() != null)
             msg.getAdMessage().deleteFromRealm();
+        if (msg.getReplyMessage() != null) {
+            if (msg.getReplyMessage().getAtMessage() != null)
+                msg.getReplyMessage().getAtMessage().deleteFromRealm();
+            if (msg.getReplyMessage().getChatMessage() != null)
+                msg.getReplyMessage().getChatMessage().deleteFromRealm();
+            if (msg.getReplyMessage().getQuotedMessage() != null)
+                msg.getReplyMessage().getQuotedMessage().deleteFromRealm();
+            msg.getReplyMessage().deleteFromRealm();
+        }
     }
 
     /**

@@ -373,6 +373,7 @@
 
         <activity
             android:name=".pay.ui.record.SingleRedPacketDetailsActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
 
@@ -682,6 +683,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.baned.WithDrawFailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pay.ui.record.ChangeDetailListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pay.ui.record.BillDetailListActivity"
             android:screenOrientation="portrait" />
 
     </application>

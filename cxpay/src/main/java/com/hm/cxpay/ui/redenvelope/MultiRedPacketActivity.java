@@ -192,6 +192,15 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             public void afterTextChanged(Editable s) {
                 String string = ui.edMoney.getText().toString().trim();
                 int count = UIUtils.getRedEnvelopeCount(s.toString().trim());
+                if (count == 0) {
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                    ui.tvMoney.setText("0.00");
+                    ui.btnCommit.setEnabled(false);
+                    return;
+                } else if (count < 0) {
+                    count = 0;
+                }
                 long money = UIUtils.getFen(string);
                 updateCommitUI(money, count);
             }
@@ -201,6 +210,9 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     private void updateCommitUI(long money, int count) {
         long totalMoney;
         double singleMoney;
+        if (count < 0) {
+            count = 0;
+        }
         if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
             totalMoney = money * count;
             singleMoney = money;
@@ -218,12 +230,17 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
             ui.tvNotice.setVisibility(View.VISIBLE);
             ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
-        } else {
-           /* if (count <= 0) {
-                ui.btnCommit.setEnabled(false);
+        } else if (totalMoney == 0) {
+            if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
+                ui.tvNotice.setVisibility(View.VISIBLE);
+                ui.tvNotice.setText(getString(R.string.min_amount_notice));
                 ui.tvMoney.setText("0.00");
+            } else {
                 ui.tvNotice.setVisibility(View.GONE);
-            } else {*/
+                ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
+            }
+            ui.btnCommit.setEnabled(false);
+        } else {
             if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
                 ui.btnCommit.setEnabled(false);
                 ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
@@ -261,7 +278,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     ui.tvNotice.setVisibility(View.GONE);
                 }
             }
-//            }
         }
     }
 

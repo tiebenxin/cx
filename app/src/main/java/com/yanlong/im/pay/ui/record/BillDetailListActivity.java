@@ -1,5 +1,6 @@
-package com.hm.cxpay.ui.bill;
+package com.yanlong.im.pay.ui.record;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
@@ -27,8 +30,11 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bill.BillDetailListAdapter;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -42,13 +48,19 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * @类名：账单明细
  * @Date：2019/12/9
  * @by zjy
  * @备注：
  */
-
+@Route(path = "/app/billListActivity")
 public class BillDetailListActivity extends AppActivity {
 
     private HeadView headView;
@@ -78,6 +90,7 @@ public class BillDetailListActivity extends AppActivity {
     private int year;
     private int month;
     private long selectTimeDataValue = 0L;//选择的月份转换后的时间戳
+    private UserDao userDao = new UserDao();
 
 
     @Override
@@ -160,17 +173,12 @@ public class BillDetailListActivity extends AppActivity {
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<BillBean> baseResponse) {
-                        if (baseResponse.getData() != null) {
+                        BillBean billBean =  baseResponse.getData();
+                        if (billBean!= null) {
                             //1 如果当前页有数据
-                            if(baseResponse.getData().getItems()!=null && baseResponse.getData().getItems().size()>0){
+                            if(billBean.getItems()!=null && billBean.getItems().size()>0){
                                 //1-1 如果是加载更多，则分页数据填充到尾部
-                                if (page > 1) {
-                                    adapter.addMoreList(baseResponse.getData().getItems());
-                                } else {
-                                    //1-2 如果是第一次加载，则只拿第一页数据
-                                    adapter.updateList(baseResponse.getData().getItems());
-                                }
-                                page++;
+                                resetName(billBean.getItems());
                                 showNoData(false);
                             }else {
                                 //2 如果当前页没数据
@@ -393,6 +401,42 @@ public class BillDetailListActivity extends AppActivity {
             tvChangeSelectDate.setVisibility(View.VISIBLE);
             billLayout.setVisibility(View.GONE);
         }
+    }
+
+    @SuppressLint("CheckResult")
+    private void resetName(List<CommonBean> list) {
+        Observable.just(0)
+                .map(new Function<Integer, List<CommonBean>>() {
+                    @Override
+                    public List<CommonBean> apply(Integer integer) throws Exception {
+                        int size = list.size();
+                        for (int i = 0; i < size; i++) {
+                            CommonBean commonBean = list.get(i);
+                            if (commonBean.getOtherUser() != null) {
+                                UserInfo userInfo = userDao.findUserInfo(commonBean.getOtherUser().getUid());
+                                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                                    commonBean.getOtherUser().setNickname(userInfo.getMkName());
+                                }
+                            }
+                        }
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<CommonBean>>empty())
+                .subscribe(new Consumer<List<CommonBean>>() {
+                    @Override
+                    public void accept(List<CommonBean> results) throws Exception {
+                        if (page > 1) {
+                            adapter.addMoreList(results);
+                        } else {
+                            //1-2 如果是第一次加载，则只拿第一页数据
+                            adapter.updateList(results);
+                        }
+                        page++;
+                    }
+                });
+
     }
 
 
