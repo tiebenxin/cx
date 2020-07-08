@@ -176,6 +176,10 @@ public class DaoMigration implements RealmMigration {
                 updateV39(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 39) {
+                updateV40(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -722,6 +726,12 @@ public class DaoMigration implements RealmMigration {
     private final void updateV39(RealmSchema schema) {
         schema.get("TransferMessage")
                 .addField("passive", int.class);
+    }
+
+    // 增加好友是否锁定
+    private final void updateV40(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("lockedstatus", int.class);
     }
 
 
