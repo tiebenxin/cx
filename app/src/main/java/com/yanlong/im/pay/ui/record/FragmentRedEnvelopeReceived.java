@@ -1,5 +1,6 @@
 package com.yanlong.im.pay.ui.record;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -7,10 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.RedEnvelopeItemBean;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -18,12 +21,20 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.RedDetailsBean;
 import com.yanlong.im.R;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.MultiListView;
 
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author Liszt
@@ -38,6 +49,7 @@ public class FragmentRedEnvelopeReceived extends Fragment {
     private AdapterRedEnvelopeReceived adapter;
     private long totalCount;
     private List<RedEnvelopeItemBean> mDataList;
+    private UserDao userDao = new UserDao();
 
     public static FragmentRedEnvelopeReceived newInstance() {
         FragmentRedEnvelopeReceived fragment = new FragmentRedEnvelopeReceived();
@@ -118,15 +130,9 @@ public class FragmentRedEnvelopeReceived extends Fragment {
                                     ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
                                 }
                                 if (details.getItems() != null) {
-                                    if (currentPage == 1) {
-                                        mDataList = details.getItems();
-                                    } else {
-                                        mDataList.addAll(details.getItems());
-                                    }
+                                    resetName(details.getItems());
                                 }
                             }
-                            adapter.bindData(mDataList);
-                            mMtListView.notifyDataSetChange();
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
@@ -143,6 +149,41 @@ public class FragmentRedEnvelopeReceived extends Fragment {
     public void updateDetails() {
         currentPage = 1;
         getRedEnvelopeDetails();
+    }
+
+    @SuppressLint("CheckResult")
+    private void resetName(List<RedEnvelopeItemBean> list) {
+        Observable.just(0)
+                .map(new Function<Integer, List<RedEnvelopeItemBean>>() {
+                    @Override
+                    public List<RedEnvelopeItemBean> apply(Integer integer) throws Exception {
+                        int size = list.size();
+                        for (int i = 0; i < size; i++) {
+                            RedEnvelopeItemBean envelopeItemBean = list.get(i);
+                            if (envelopeItemBean.getFromUser() != null) {
+                                UserInfo userInfo = userDao.findUserInfo(envelopeItemBean.getFromUser().getUid());
+                                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                                    envelopeItemBean.getFromUser().setNickname(userInfo.getMkName());
+                                }
+                            }
+                        }
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<RedEnvelopeItemBean>>empty())
+                .subscribe(new Consumer<List<RedEnvelopeItemBean>>() {
+                    @Override
+                    public void accept(List<RedEnvelopeItemBean> results) throws Exception {
+                        if (currentPage == 1) {
+                            mDataList = results;
+                        } else {
+                            mDataList.addAll(results);
+                        }
+                        adapter.bindData(mDataList);
+                        mMtListView.notifyDataSetChange();
+                    }
+                });
     }
 
 

@@ -684,6 +684,12 @@
         <activity
             android:name=".user.ui.baned.WithDrawFailActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".pay.ui.record.ChangeDetailListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pay.ui.record.BillDetailListActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 

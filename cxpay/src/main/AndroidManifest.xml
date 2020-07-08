@@ -52,14 +52,9 @@
         <activity
             android:name=".ui.BindPhoneNumActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.change.ChangeDetailListActivity"
-            android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.change.ChangeDetailActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.bill.BillDetailListActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bill.BillDetailActivity"

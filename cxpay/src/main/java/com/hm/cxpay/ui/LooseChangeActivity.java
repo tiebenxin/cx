@@ -18,8 +18,6 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.bill.BillDetailListActivity;
-import com.hm.cxpay.ui.change.ChangeDetailListActivity;
 import com.hm.cxpay.ui.identification.IdentificationInfoActivity;
 import com.hm.cxpay.ui.recharege.RechargeActivity;
 import com.hm.cxpay.ui.withdraw.WithdrawActivity;
@@ -130,7 +128,9 @@ public class LooseChangeActivity extends BasePayActivity {
 
             @Override
             public void onRight() {
-                startActivity(new Intent(activity, BillDetailListActivity.class));
+//                startActivity(new Intent(activity, BillDetailListActivity.class));
+                ARouter.getInstance().build("/app/billListActivity").navigation();
+
             }
         });
         //显示余额
@@ -163,7 +163,8 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 layoutChangeDetails.setEnabled(false);
-                startActivity(new Intent(activity, ChangeDetailListActivity.class));
+//                startActivity(new Intent(activity, ChangeDetailListActivity.class));
+                ARouter.getInstance().build("/app/changeListActivity").navigation();
             }
         });
         //红包明细

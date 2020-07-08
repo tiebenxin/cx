@@ -1,20 +1,25 @@
-package com.hm.cxpay.ui.change;
+package com.yanlong.im.pay.ui.record;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.bean.EnvelopeDetailBean;
+import com.hm.cxpay.bean.EnvelopeReceiverBean;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -22,6 +27,8 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bill.BillDetailListAdapter;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
@@ -34,13 +41,19 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * @类名：零钱明细
  * @Date：2019/12/9
  * @by zjy
  * @备注：
  */
-
+@Route(path = "/app/changeListActivity")
 public class ChangeDetailListActivity extends AppActivity {
 
     private HeadView headView;
@@ -60,6 +73,7 @@ public class ChangeDetailListActivity extends AppActivity {
     private int year;
     private int month;
     private long selectTimeDataValue = 0L;//选择的月份转换后的时间戳
+    private UserDao userDao = new UserDao();
 
 
     @Override
@@ -97,7 +111,7 @@ public class ChangeDetailListActivity extends AppActivity {
 
             }
         });
-        adapter = new BillDetailListAdapter(activity,list,2);
+        adapter = new BillDetailListAdapter(activity, list, 2);
         manager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
@@ -122,38 +136,33 @@ public class ChangeDetailListActivity extends AppActivity {
     /**
      * 请求->获取零钱明细
      */
-    private void getChangeDetailsList(){
+    private void getChangeDetailsList() {
         PayHttpUtils.getInstance().getChangeDetailsList(page, selectTimeDataValue)
                 .compose(RxSchedulers.<BaseResponse<BillBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<BillBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<BillBean> baseResponse) {
-                            if (baseResponse.getData() != null) {
-                                //1 如果当前页有数据
-                                if(baseResponse.getData().getItems()!=null && baseResponse.getData().getItems().size()>0){
-                                    //1-1 如果是加载更多，则分页数据填充到尾部
-                                    if (page > 1) {
-                                        adapter.addMoreList(baseResponse.getData().getItems());
-                                    } else {
-                                        //1-2 如果是第一次加载，则只拿第一页数据
-                                        adapter.updateList(baseResponse.getData().getItems());
-                                    }
-                                    page++;
+                        if (baseResponse.getData() != null) {
+                            //1 如果当前页有数据
+                            BillBean billBean = baseResponse.getData();
+                            if (billBean.getItems() != null && billBean.getItems().size() > 0) {
+                                //1-1 如果是加载更多，则分页数据填充到尾部
+                                resetName(billBean.getItems());
+                                showNoData(false);
+                            } else {
+                                //2 如果当前页没数据
+                                //2-1 如果是加载更多，当没有数据的时候，提示已经到底了
+                                if (page > 1) {
+                                    adapter.setLoadState(adapter.LOADING_END);
                                     showNoData(false);
-                                }else {
-                                    //2 如果当前页没数据
-                                    //2-1 如果是加载更多，当没有数据的时候，提示已经到底了
-                                    if (page > 1) {
-                                        adapter.setLoadState(adapter.LOADING_END);
-                                        showNoData(false);
-                                    } else {
-                                        //2-2 如果是第一次加载就没有数据则不显示底部
-                                        adapter.setLoadState(adapter.LOADING_GONE);
-                                        showNoData(true);
-                                    }
+                                } else {
+                                    //2-2 如果是第一次加载就没有数据则不显示底部
+                                    adapter.setLoadState(adapter.LOADING_GONE);
+                                    showNoData(true);
                                 }
                             }
+                        }
                     }
 
                     @Override
@@ -166,13 +175,14 @@ public class ChangeDetailListActivity extends AppActivity {
 
     /**
      * 是否显示无数据默认图
+     *
      * @param ifShow
      */
-    private void showNoData(boolean ifShow){
-        if(ifShow){
+    private void showNoData(boolean ifShow) {
+        if (ifShow) {
             noDataLayout.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
-        }else {
+        } else {
             noDataLayout.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
@@ -218,15 +228,51 @@ public class ChangeDetailListActivity extends AppActivity {
      * 账单 零钱 区分显示布局
      */
     private void isBill(boolean isTrue) {
-        if(isTrue){
+        if (isTrue) {
             tvChangeSelectDate.setVisibility(View.GONE);
             billLayout.setVisibility(View.VISIBLE);
             actionbar.setTitle("账单明细");
-        }else {
+        } else {
             tvChangeSelectDate.setVisibility(View.VISIBLE);
             billLayout.setVisibility(View.GONE);
             actionbar.setTitle("零钱明细");
         }
+    }
+
+    @SuppressLint("CheckResult")
+    private void resetName(List<CommonBean> list) {
+        Observable.just(0)
+                .map(new Function<Integer, List<CommonBean>>() {
+                    @Override
+                    public List<CommonBean> apply(Integer integer) throws Exception {
+                        int size = list.size();
+                        for (int i = 0; i < size; i++) {
+                            CommonBean commonBean = list.get(i);
+                            if (commonBean.getOtherUser() != null) {
+                                UserInfo userInfo = userDao.findUserInfo(commonBean.getOtherUser().getUid());
+                                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                                    commonBean.getOtherUser().setNickname(userInfo.getMkName());
+                                }
+                            }
+                        }
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<CommonBean>>empty())
+                .subscribe(new Consumer<List<CommonBean>>() {
+                    @Override
+                    public void accept(List<CommonBean> results) throws Exception {
+                        if (page > 1) {
+                            adapter.addMoreList(results);
+                        } else {
+                            //1-2 如果是第一次加载，则只拿第一页数据
+                            adapter.updateList(results);
+                        }
+                        page++;
+                    }
+                });
+
     }
 
 }
