@@ -67,6 +67,7 @@ public class FileDownloadActivity extends AppActivity {
     private int downloadStatus = 3; //0 下载中 1 下载完成 2 下载失败 3 未下载前
     private static int currentFileProgressValue = 0;//记录当前文件下载任务的进度
     private Handler handler;//如果下载过程中退出，下次进来需要轮训查询下载进度
+    private boolean ifAutoDownload = false;//是否自动下载
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -109,59 +110,8 @@ public class FileDownloadActivity extends AppActivity {
 
     private void getExtra() {
         if(getIntent()!=null){
-            msgString = (String) getIntent().getExtras().get("file_msg");
-            if(!TextUtils.isEmpty(msgString)){
-                msgAllBean = new Gson().fromJson(msgString, MsgAllBean.class);
-                sendFileMessage = msgAllBean.getSendFileMessage();
-            }
-
-            //显示文件名
-            if(!TextUtils.isEmpty(sendFileMessage.getFile_name())){
-                fileName = sendFileMessage.getFile_name();
-                //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
-                //若没有同名文件，则按默认新文件来保存
-                fileName = FileUtils.getFileRename(fileName);
-                tvFileName.setText(fileName);
-            }
-            //根据文件类型，显示图标
-            if(!TextUtils.isEmpty(sendFileMessage.getFormat())){
-                fileFormat = sendFileMessage.getFormat();
-                if(fileFormat.equals("txt")){
-                    ivFileImage.setImageResource(R.mipmap.ic_txt);
-                }else if(fileFormat.equals("xls") || fileFormat.equals("xlsx")){
-                    ivFileImage.setImageResource(R.mipmap.ic_excel);
-                }else if(fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")){ //PDF暂用此图标
-                    ivFileImage.setImageResource(R.mipmap.ic_ppt);
-                }else if(fileFormat.equals("doc") || fileFormat.equals("docx")){
-                    ivFileImage.setImageResource(R.mipmap.ic_word);
-                }else if(fileFormat.equals("rar") || fileFormat.equals("zip")){
-                    ivFileImage.setImageResource(R.mipmap.ic_zip);
-                }else if(fileFormat.equals("exe")){
-                    ivFileImage.setImageResource(R.mipmap.ic_exe);
-                }else {
-                    ivFileImage.setImageResource(R.mipmap.ic_unknow);
-                }
-            }
-            //获取文件消息id
-            if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
-                fileMsgId = sendFileMessage.getMsgId();
-            }
-
-            //获取文件消息大小
-            if(sendFileMessage.getSize()!=0L){
-                tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
-            }
-
-            tvDownload.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(downloadStatus == 3){
-                        startDownload();
-                    }else if(downloadStatus == 1){
-                        openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
-                    }
-                }
-            });
+            msgString = getIntent().getExtras().getString("file_msg");
+            ifAutoDownload = getIntent().getExtras().getBoolean("auto_download");
         }
     }
 
@@ -187,6 +137,61 @@ public class FileDownloadActivity extends AppActivity {
 
             }
         });
+        if(!TextUtils.isEmpty(msgString)){
+            msgAllBean = new Gson().fromJson(msgString, MsgAllBean.class);
+            sendFileMessage = msgAllBean.getSendFileMessage();
+        }
+
+        //显示文件名
+        if(!TextUtils.isEmpty(sendFileMessage.getFile_name())){
+            fileName = sendFileMessage.getFile_name();
+            //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
+            //若没有同名文件，则按默认新文件来保存
+            fileName = FileUtils.getFileRename(fileName);
+            tvFileName.setText(fileName);
+        }
+        //根据文件类型，显示图标
+        if(!TextUtils.isEmpty(sendFileMessage.getFormat())){
+            fileFormat = sendFileMessage.getFormat();
+            if(fileFormat.equals("txt")){
+                ivFileImage.setImageResource(R.mipmap.ic_txt);
+            }else if(fileFormat.equals("xls") || fileFormat.equals("xlsx")){
+                ivFileImage.setImageResource(R.mipmap.ic_excel);
+            }else if(fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")){ //PDF暂用此图标
+                ivFileImage.setImageResource(R.mipmap.ic_ppt);
+            }else if(fileFormat.equals("doc") || fileFormat.equals("docx")){
+                ivFileImage.setImageResource(R.mipmap.ic_word);
+            }else if(fileFormat.equals("rar") || fileFormat.equals("zip")){
+                ivFileImage.setImageResource(R.mipmap.ic_zip);
+            }else if(fileFormat.equals("exe")){
+                ivFileImage.setImageResource(R.mipmap.ic_exe);
+            }else {
+                ivFileImage.setImageResource(R.mipmap.ic_unknow);
+            }
+        }
+        //获取文件消息id
+        if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
+            fileMsgId = sendFileMessage.getMsgId();
+        }
+
+        //获取文件消息大小
+        if(sendFileMessage.getSize()!=0L){
+            tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
+        }
+
+        tvDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(downloadStatus == 3){
+                    startDownload();
+                }else if(downloadStatus == 1){
+                    openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
+                }
+            }
+        });
+        if(ifAutoDownload){
+            startDownload();
+        }
     }
 
     @Override
@@ -272,12 +277,10 @@ public class FileDownloadActivity extends AppActivity {
                         eventFileRename.setMsgAllBean(msgAllBean);
                         EventBus.getDefault().post(eventFileRename);
                         currentFileProgressValue = 100;
-
-//                            //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
-//                            if(activity==null || activity.isFinishing()){
-//                            }else {
-//                                openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
-//                            }
+                        //如果是自动下载，完成后需要自行打开
+                        if(ifAutoDownload){
+                            openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
+                        }
                     }
 
                     @Override

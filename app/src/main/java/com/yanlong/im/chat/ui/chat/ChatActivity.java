@@ -6110,75 +6110,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
-
-    /**
-     * 下载文件 + 打开
-     *
-     * @param sendFileMessage
-     */
-    private void DownloadFile(SendFileMessage sendFileMessage) {
-        String fileMsgId = "";
-        String fileUrl = "";
-        String fileName = "";
-
-        //获取文件消息id
-        if (!TextUtils.isEmpty(sendFileMessage.getMsgId())) {
-            fileMsgId = sendFileMessage.getMsgId();
-        }
-
-        //显示文件名
-        if (!TextUtils.isEmpty(sendFileMessage.getFile_name())) {
-            fileName = sendFileMessage.getFile_name();
-            //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123(1).txt 123(2).txt
-            //若没有同名文件，则按默认新文件来保存
-            fileName = net.cb.cb.library.utils.FileUtils.getFileRename(fileName);
-        }
-
-        //获取url，自动开始下载文件，并打开
-        if (!TextUtils.isEmpty(sendFileMessage.getUrl())) {
-            fileUrl = sendFileMessage.getUrl();
-            //指定下载路径文件夹，若不存在则创建
-            File fileDir = new File(FileConfig.PATH_DOWNLOAD);
-            if (!fileDir.exists()) {
-                fileDir.mkdir();
-            }
-            File file = new File(fileDir, fileName);
-            try {
-                String finalFileMsgId = fileMsgId;
-                String fileNewName = fileName;
-                DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
-                    @Override
-                    public void onDownloadSuccess(File file) {
-                        ToastUtil.showLong(ChatActivity.this, "下载成功! \n文件已保存：" + FileConfig.PATH_DOWNLOAD + "目录下");
-                        //下载成功
-                        //1 本地数据库刷新：保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便用户点击打开重名文件
-                        MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", finalFileMsgId);
-                        reMsg.getSendFileMessage().setRealFileRename(fileNewName);
-                        DaoUtil.update(reMsg);
-                        //2 列表数据刷新：如出现重名，显示新的名字，方便用户点击打开重名文件
-                        sendFileMessage.setRealFileRename(fileNewName);
-                        replaceListDataAndNotify(reMsg, true);
-                        //直接打开
-                        openAndroidFile(FileConfig.PATH_DOWNLOAD + fileNewName);
-                    }
-
-                    @Override
-                    public void onDownloading(int progress) {
-
-                    }
-
-                    @Override
-                    public void onDownloadFailed(Exception e) {
-                        ToastUtil.show("文件下载失败");
-                    }
-                });
-
-            } catch (Exception e) {
-                ToastUtil.show("文件下载失败");
-            }
-        }
-    }
-
     /**
      * 检查是否显示已读
      */
@@ -6405,13 +6336,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     //若不存在该文件，则需要重新下载
                     if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                         if (fileMessage.getSize() != 0) {
-                            //小于10M，自动下载+打开
+                            //小于10M，跳详情，自动下载+打开  TODO 新增需求改为全部先跳详情后，再自动下载并打开
                             if (fileMessage.getSize() < 10485760) {
-                                DownloadFile(fileMessage);
+                                Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                                intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                                intent.putExtra("auto_download",true);//是否自动下载
+                                startActivity(intent);
                             } else {
                                 //大于10M，跳详情，用户自行选择手动下载
                                 Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                                intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                                intent.putExtra("file_msg", new Gson().toJson(message));
+                                intent.putExtra("auto_download",false);
                                 startActivity(intent);
                             }
                         }
@@ -6434,13 +6369,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 //若不存在该文件，则需要重新下载
                 if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                     if (fileMessage.getSize() != 0) {
-                        //小于10M，自动下载+打开
+                        //小于10M，跳详情，自动下载+打开  TODO 新增需求改为全部先跳详情后，再自动下载并打开
                         if (fileMessage.getSize() < 10485760) {
-                            DownloadFile(fileMessage);
+                            Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                            intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                            intent.putExtra("auto_download",true);//是否自动下载
+                            startActivity(intent);
                         } else {
                             //大于10M，跳详情，用户自行选择手动下载
                             Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                            intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                            intent.putExtra("file_msg", new Gson().toJson(message));
+                            intent.putExtra("auto_download",false);
                             startActivity(intent);
                         }
                     }
