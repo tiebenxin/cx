@@ -176,6 +176,10 @@ public class DaoMigration implements RealmMigration {
                 updateV39(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 39) {
+                updateV40(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -726,6 +730,9 @@ public class DaoMigration implements RealmMigration {
 
     //新增红包消息备份表
     private final void updateV40(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("lockedstatus", int.class);
+
         schema.create("EnvelopeTemp")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("id", String.class)
