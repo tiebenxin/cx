@@ -748,7 +748,7 @@ public class DaoMigration implements RealmMigration {
 
         schema.create("MessageDBTemp")
                 .addField("msg_id", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("timestamp", long.class)
+                .addField("timestamp", Long.class)
                 .addField("send_state", int.class)
                 .addField("send_data", byte[].class)
                 .addField("isRead", boolean.class)
