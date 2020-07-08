@@ -466,12 +466,11 @@ public class PayHttpUtils {
     }
 
 
-    //商城->校验支付密码
-    public Observable<BaseResponse<CommonBean>> checkShopPayword(String pwd, String amt) {
+    //商城->消费
+    public Observable<BaseResponse<CommonBean>> shopConsumption(String amt) {
         Map<String, String> map = new HashMap<>();
-        map.put("pwd", MD5.md5(pwd));
         map.put("amt", amt);
-        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map), getAuthMap());
+        return HttpChannel.getInstance().getPayService().shopConsumption(getRequestBody(map), getAuthMap());
     }
 
     /**

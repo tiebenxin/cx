@@ -115,8 +115,8 @@ public class Route {
     //商城->获取免登陆商城URL (正式环境)
     public static final String SHOP_GET_URL_RELEASE = "/bank/store/getStoreAutoLoginUrl";
 
-    //商城->校验支付密码
-    public static final String SHOP_CHECK_PAYWORD = BANK+"/store/trans_validate";
+    //商城->消费
+    public static final String SHOP_CONSUMPTION = "/v2/store/consumer";
 
     //获取支付密码管理URL
     public static final String GET_PSW_MANAGER = BANK+"/user/to-password-manage";

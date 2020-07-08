@@ -162,9 +162,9 @@ public interface PayService {
     @POST(Route.SHOP_GET_URL_RELEASE)
     Observable<BaseResponse> getShopUrlRelease(@QueryMap Map<String, String> map);
 
-    //商城->校验支付密码
-    @POST(Route.SHOP_CHECK_PAYWORD)
-    Observable<BaseResponse<CommonBean>> checkShopPayword(@Body RequestBody body,@QueryMap Map<String, String> map);
+    //商城->消费
+    @POST(Route.SHOP_CONSUMPTION)
+    Observable<BaseResponse<CommonBean>> shopConsumption(@Body RequestBody body,@QueryMap Map<String, String> map);
 
     //获取支付密码管理界面
     @POST(Route.GET_PSW_MANAGER)
