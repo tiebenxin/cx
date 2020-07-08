@@ -206,10 +206,10 @@ public class FileDownloadActivity extends AppActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        handler.removeCallbacks(runnable);
+//        handler.removeCallbacks(runnable);
         //退出重置状态
-        tvDownload.setText("点击下载");
-        downloadStatus = 3;//默认状态：未下载
+//        tvDownload.setText("点击下载");
+//        downloadStatus = 3;//默认状态：未下载
     }
 
     /**
@@ -263,7 +263,7 @@ public class FileDownloadActivity extends AppActivity {
                 DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
-                        ToastUtil.showLong(activity,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
+                        ToastUtil.showLong(getContext(),"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
                         tvDownload.setText("打开文件");
                         downloadStatus = 1;
                         //下载成功后
