@@ -5171,7 +5171,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 GrabEnvelopeBean bean = baseResponse.getData();
                                 if (bean != null) {
                                     if (isNormalStyle) {//普通玩法红包需要保存
-                                        taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), PayEnum.EEnvelopeStatus.NORMAL);
+                                        taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), getGrabEnvelopeStatus(bean.getStat()));
                                     }
                                     getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
                                 }
