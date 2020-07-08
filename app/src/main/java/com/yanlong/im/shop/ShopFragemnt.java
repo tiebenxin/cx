@@ -58,7 +58,6 @@ public class ShopFragemnt extends Fragment {
 
     private WebView webView;
     private Activity activity;
-    private AlertDialog checkPaywordDialog;
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//通用提示选择弹框：实名认证
     private CommonSelectDialog dialogTwo;//通用提示选择弹框：是否绑定手机号
@@ -67,7 +66,6 @@ public class ShopFragemnt extends Fragment {
     private String payMoney = "";//需要支付的钱
     private String payStatus = "1";// 1 无操作  0 关闭密码框/用户支付失败  含http，即为成功，返回url
     private String authAll = "1";// 来自商城的认证流程： 1 需要完成全部三层认证
-    private String authOnce = "0";// 来自商城的认证流程：0 仅认证一次
 
     public static ShopFragemnt newInstance() {
         ShopFragemnt fragment = new ShopFragemnt();
@@ -216,95 +214,17 @@ public class ShopFragemnt extends Fragment {
                     }
                 });
     }
-
     /**
-     * 提示弹框->校验支付密码
+     * 请求->商城消费
      */
-    private void showCheckPaywordDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        checkPaywordDialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(com.hm.cxpay.R.layout.dialog_check_payword, null);
-        //初始化控件
-        ImageView ivClose = dialogView.findViewById(com.hm.cxpay.R.id.iv_close);
-        TextView tvTitle = dialogView.findViewById(com.hm.cxpay.R.id.temp_text_two);
-        final PswView pswView = dialogView.findViewById(com.hm.cxpay.R.id.psw_view);
-        //显示和点击事件
-        tvTitle.setVisibility(View.GONE);
-        //关闭弹框
-        ivClose.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkPaywordDialog.dismiss();
-                payStatus = "0";
-            }
-        });
-        //输入支付密码
-        pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
-            @Override
-            public void setPasswordChanged(String payword) {
-                httpCheckPayword(payword, pswView);
-            }
-        });
-        //展示界面
-        checkPaywordDialog.show();
-        //强制唤起软键盘
-        showSoftKeyword(pswView);
-        //解决dialog里edittext不响应键盘的问题
-        checkPaywordDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-        //解决圆角shape背景无效问题
-        Window window = checkPaywordDialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        checkPaywordDialog.getWindow().setAttributes(lp);
-        checkPaywordDialog.setContentView(dialogView);
-    }
-
-    /**
-     * 新增->强制弹出软键盘
-     *
-     * @param view 备注：延迟任务解决之前无法弹出问题
-     */
-    public void showSoftKeyword(final View view) {
-        if (view == null) {
-            return;
-        }
-        view.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                view.requestFocus();
-                InputMethodManager imm = (InputMethodManager) activity.getSystemService(INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.showSoftInput(view, 0);
-                }
-            }
-        }, 100);
-
-    }
-
-    /**
-     * 发请求->商城检查支付密码（是否正确）
-     */
-    private void httpCheckPayword(final String payword, final PswView pswView) {
-        PayHttpUtils.getInstance().checkShopPayword(payword, payMoney)
+    private void httpConsumption() {
+        PayHttpUtils.getInstance().shopConsumption(payMoney)
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         ToastUtil.show("支付成功！");
-                        if (checkPaywordDialog.isShowing()) {
-                            checkPaywordDialog.dismiss();
-                        }
                         if (baseResponse.getData() != null) {
                             CommonBean bean = baseResponse.getData();
                             if (!TextUtils.isEmpty(bean.getUrl())) {
@@ -323,7 +243,6 @@ public class ShopFragemnt extends Fragment {
                         }
                         //传失败状态给JS
                         payStatus = "0";
-                        pswView.clear();
                     }
                 });
     }
@@ -365,6 +284,7 @@ public class ShopFragemnt extends Fragment {
                 //未绑定手机号
                 showBindPhoneNumDialog();
             }*/
+            httpConsumption();
         } else {
             //未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号->4 新增一个步骤设置支付密码)
             showIdentifyDialog();
@@ -431,77 +351,5 @@ public class ShopFragemnt extends Fragment {
                 })
                 .build();
         dialogOne.show();
-    }
-
-    /**
-     * 是否绑定手机号弹框
-     */
-    private void showBindPhoneNumDialog() {
-        dialogTwo = builder.setTitle("您还没有绑定手机号码\n请先绑定后再进行操作。")
-                .setLeftText("取消")
-                .setRightText("去绑定")
-                .setLeftOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //取消
-                        dialogTwo.dismiss();
-                    }
-                })
-                .setRightOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //去绑定
-                        startActivity(new Intent(activity, BindPhoneNumActivity.class).putExtra("from_shop", authOnce));
-                        dialogTwo.dismiss();
-                    }
-                })
-                .build();
-        dialogTwo.show();
-    }
-
-    /**
-     * 检测到未设置支付密码弹框 (特殊样式，暂不复用)
-     */
-    private void showSetPaywordDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(com.hm.cxpay.R.layout.dialog_set_payword, null);
-        //初始化控件
-        TextView tvSet = dialogView.findViewById(com.hm.cxpay.R.id.tv_set);
-        TextView tvExit = dialogView.findViewById(com.hm.cxpay.R.id.tv_exit);
-        //去设置
-        tvSet.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                startActivity(new Intent(activity, SetPaywordActivity.class).putExtra("from_shop", authOnce));
-
-            }
-        });
-        //取消
-        tvExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
     }
 }
