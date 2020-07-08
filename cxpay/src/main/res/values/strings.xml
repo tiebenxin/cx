@@ -18,6 +18,7 @@
     <string name="group_max_amount_notice">红包平均金额不能高于200元</string>
     <string name="total_max_amount_notice">单次红包总金额不能超过5000元</string>
     <string name="max_count_notice">单次最多发送100个红包</string>
+    <string name="min_count_notice">红包个数不能低于0</string>
 
     <string name="total_transfer_max_amount_notice">单次转账金额不能超过1000元</string>
     <string name="transfer_min_amount_notice">转账金额不能为0</string>

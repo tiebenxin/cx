@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.bean.MessageDBTemp;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -56,6 +57,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -3653,8 +3655,45 @@ public class MsgDao {
                     .beginGroup().lessThan("timestamp", time - ten).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
+
+            RealmResults<MessageDBTemp> realmTemps = realm.where(MessageDBTemp.class)
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
+                    .beginGroup().isNotNull("red_envelope").endGroup()
+                    .and()
+                    .beginGroup().equalTo("red_envelope.envelopStatus", 0).endGroup()
+                    .and()
+                    .beginGroup()
+                    .beginGroup().equalTo("red_envelope.style", 1).endGroup()
+                    .or()
+                    .beginGroup().equalTo("red_envelope.style", 0).and().notEqualTo("from_uid", mId).endGroup()
+                    .endGroup()
+                    .and()
+//                    .beginGroup().greaterThan("timestamp", time - diff).endGroup()
+//                    .and()
+                    .beginGroup().greaterThan("timestamp", time - ten).endGroup()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
             if (realmResults != null) {
                 msgAllBeans = realm.copyFromRealm(realmResults);
+            }
+            if (realmTemps != null) {
+                List<MessageDBTemp> temps = realm.copyFromRealm(realmTemps);
+                if (temps != null) {
+                    List<MsgAllBean> msgList = MessageManager.getInstance().getMsgList(temps);
+                    if (msgList != null) {
+                        msgAllBeans.addAll(msgList);
+                        Collections.sort(msgAllBeans, new Comparator<MsgAllBean>() {
+                            @Override
+                            public int compare(MsgAllBean o1, MsgAllBean o2) {
+                                if (o1 == null || o2 == null || o1.getTimestamp() == null || o2.getTimestamp() == null) {
+                                    return 0;
+                                }
+                                return (int) (o1.getTimestamp().longValue() - o2.getTimestamp().longValue());
+                            }
+                        });
+                    }
+                }
             }
             realm.close();
             return msgAllBeans;

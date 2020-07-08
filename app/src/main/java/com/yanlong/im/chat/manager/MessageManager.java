@@ -13,11 +13,14 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.EnvelopeTemp;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.bean.MessageDBTemp;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
+import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventReceiveImage;
@@ -2382,6 +2385,116 @@ public class MessageManager {
                 MessageManager.getInstance().notifyReceiveImage(wrapMessage.getGid(), toUid);
             }
         }
+    }
+
+    //备份表数据转换
+    private List<MessageDBTemp> getMsgTempList(List<MsgAllBean> list) {
+        List<MessageDBTemp> messageDBTemps = null;
+        try {
+            if (list != null) {
+                messageDBTemps = new ArrayList<>();
+                for (MsgAllBean msg : list) {
+                    if (msg.getRed_envelope() == null) {
+                        continue;
+                    }
+                    EnvelopeTemp envelopeTemp = new EnvelopeTemp();
+                    envelopeTemp.setMsgId(msg.getRed_envelope().getMsgId());
+                    envelopeTemp.setAccessToken(msg.getRed_envelope().getAccessToken());
+                    envelopeTemp.setId(msg.getRed_envelope().getId());
+                    envelopeTemp.setActionId(msg.getRed_envelope().getActionId());
+                    envelopeTemp.setComment(msg.getRed_envelope().getComment());
+                    envelopeTemp.setEnvelopStatus(msg.getRed_envelope().getEnvelopStatus());
+                    envelopeTemp.setIsInvalid(msg.getRed_envelope().getIsInvalid());
+                    envelopeTemp.setRe_type(msg.getRed_envelope().getRe_type());
+                    envelopeTemp.setStyle(msg.getRed_envelope().getStyle());
+                    envelopeTemp.setSign(msg.getRed_envelope().getSign());
+                    envelopeTemp.setTraceId(msg.getRed_envelope().getTraceId());
+
+                    MessageDBTemp message = new MessageDBTemp();
+                    message.setMsg_id(msg.getMsg_id());
+                    message.setRequest_id(msg.getRequest_id());
+                    message.setMsg_type(msg.getMsg_type());
+                    message.setTimestamp(msg.getTimestamp());
+                    message.setGid(msg.getGid());
+                    message.setFrom_uid(msg.getFrom_uid());
+                    message.setTo_uid(msg.getTo_uid());
+                    message.setFrom_avatar(msg.getFrom_avatar());
+                    message.setFrom_nickname(msg.getFrom_nickname());
+                    message.setFrom_group_nickname(msg.getFrom_group_nickname());
+                    message.setSend_state(msg.getSend_state());
+                    message.setSend_data(msg.getSend_data());
+                    message.setIsLocal(msg.getIsLocal());
+                    message.setRead(msg.isRead());
+                    message.setRead(msg.getRead());
+                    message.setSurvival_time(msg.getSurvival_time());
+                    message.setStartTime(msg.getStartTime());
+                    message.setReadTime(msg.getReadTime());
+                    message.setEndTime(msg.getEndTime());
+                    message.setServerTime(msg.getServerTime());
+                    message.setIsReplying(msg.getIsReplying());
+                    message.setRedEnvelope(envelopeTemp);
+                    messageDBTemps.add(message);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return messageDBTemps;
+    }
+
+    //备份表数据转换
+    public List<MsgAllBean> getMsgList(List<MessageDBTemp> list) {
+        List<MsgAllBean> messageList = null;
+        try {
+            if (list != null) {
+                messageList = new ArrayList<>();
+                for (MessageDBTemp msg : list) {
+                    if (msg.getRedEnvelope() == null) {
+                        continue;
+                    }
+                    RedEnvelopeMessage envelope = new RedEnvelopeMessage();
+                    envelope.setMsgid(msg.getRedEnvelope().getMsgId());
+                    envelope.setAccessToken(msg.getRedEnvelope().getAccessToken());
+                    envelope.setId(msg.getRedEnvelope().getId());
+                    envelope.setActionId(msg.getRedEnvelope().getActionId());
+                    envelope.setComment(msg.getRedEnvelope().getComment());
+                    envelope.setEnvelopStatus(msg.getRedEnvelope().getEnvelopStatus());
+                    envelope.setIsInvalid(msg.getRedEnvelope().getIsInvalid());
+                    envelope.setRe_type(msg.getRedEnvelope().getRe_type());
+                    envelope.setStyle(msg.getRedEnvelope().getStyle());
+                    envelope.setSign(msg.getRedEnvelope().getSign());
+                    envelope.setTraceId(msg.getRedEnvelope().getTraceId());
+
+                    MsgAllBean message = new MsgAllBean();
+                    message.setMsg_id(msg.getMsg_id());
+                    message.setRequest_id(msg.getRequest_id());
+                    message.setMsg_type(msg.getMsg_type());
+                    message.setTimestamp(msg.getTimestamp());
+                    message.setGid(msg.getGid());
+                    message.setFrom_uid(msg.getFrom_uid());
+                    message.setTo_uid(msg.getTo_uid());
+                    message.setFrom_avatar(msg.getFrom_avatar());
+                    message.setFrom_nickname(msg.getFrom_nickname());
+                    message.setFrom_group_nickname(msg.getFrom_group_nickname());
+                    message.setSend_state(msg.getSend_state());
+                    message.setSend_data(msg.getSend_data());
+                    message.setIsLocal(msg.getIsLocal());
+                    message.setRead(msg.isRead());
+                    message.setRead(msg.getRead());
+                    message.setSurvival_time(msg.getSurvival_time());
+                    message.setStartTime(msg.getStartTime());
+                    message.setReadTime(msg.getReadTime());
+                    message.setEndTime(msg.getEndTime());
+                    message.setServerTime(msg.getServerTime());
+                    message.setIsReplying(msg.getIsReplying());
+                    message.setRed_envelope(envelope);
+                    messageList.add(message);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return messageList;
     }
 
 }

@@ -291,7 +291,7 @@ public class ApplicationLocalDataSource {
             }
             realm.close();
         }
-        burnManager.onDestory();
+        burnManager.onDestroy();
         realm = null;
         updateSessionDetail = null;
         burnManager = null;
