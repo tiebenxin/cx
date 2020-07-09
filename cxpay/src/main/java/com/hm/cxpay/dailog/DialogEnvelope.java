@@ -108,12 +108,13 @@ public class DialogEnvelope extends BaseDialog {
             tvMore.setVisibility(View.GONE);
         } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {//已经领完
             ivOpen.setVisibility(View.GONE);
-            tvInfo.setText("手慢了，红包已经派完");
             if (style == 1) {//拼手气
+                tvInfo.setText("手慢了，红包已经派完");
                 tvMore.setEnabled(true);
                 tvMore.setText("查看红包详情");
                 tvMore.setVisibility(View.VISIBLE);
             } else {
+                tvInfo.setText("该红包已被领取");
                 tvMore.setVisibility(View.VISIBLE);
                 tvMore.setText("普通红包只有领取到的人才能看到");
                 tvMore.setEnabled(false);

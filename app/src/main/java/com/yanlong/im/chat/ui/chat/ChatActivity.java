@@ -5995,11 +5995,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (msg.isMe() && isNormalStyle) {
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 } else {
-                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
-                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-                    } else {
-                        grabRedEnvelope(msg, tradeId, reType);
-                    }
+                    grabRedEnvelope(msg, tradeId, reType);
+//                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
+//                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+//                    } else {
+//                        grabRedEnvelope(msg, tradeId, reType);
+//                    }
                 }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
                 getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
