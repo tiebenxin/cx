@@ -109,10 +109,10 @@ public class AdapterPreviewImage extends PagerAdapter {
     private View parentView;
     private int preProgress;
     private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
-    private String collectJson="";//收藏详情点击大图转发需要的数据
+    private String collectJson = "";//收藏详情点击大图转发需要的数据
 
 
-    public AdapterPreviewImage(Activity c,int fromWhere,String collectJson) {
+    public AdapterPreviewImage(Activity c, int fromWhere, String collectJson) {
         context = c;
         inflater = LayoutInflater.from(c);
         this.fromWhere = fromWhere;
@@ -670,6 +670,9 @@ public class AdapterPreviewImage extends PagerAdapter {
 //                        }
 //                    });
 //        } else {
+        if (context == null || context.isFinishing()) {
+            return;
+        }
         RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .format(DecodeFormat.PREFER_ARGB_8888);
@@ -858,13 +861,13 @@ public class AdapterPreviewImage extends PagerAdapter {
             public void onItem(String string, int postsion) {
                 String msgId = media.getMsg_id();
                 //收藏详情需求又改为只显示3项
-                if(fromWhere==PictureConfig.FROM_COLLECT_DETAIL){
+                if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
                     if (postsion == 0) {//收藏详情转发单独处理
                         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                             ToastUtil.show(context.getString(R.string.user_disable_message));
                             return;
                         }
-                        sendToFriend(msgId,PictureConfig.FROM_COLLECT_DETAIL);
+                        sendToFriend(msgId, PictureConfig.FROM_COLLECT_DETAIL);
                     } else if (postsion == 1) {//保存
                         saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                     }
@@ -876,7 +879,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            sendToFriend(msgId,PictureConfig.FROM_DEFAULT);
+                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                         } else if (postsion == 2) {//收藏
@@ -916,7 +919,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            sendToFriend(msgId,PictureConfig.FROM_DEFAULT);
+                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                         } else if (postsion == 2) {//识别二维码
@@ -1132,7 +1135,7 @@ public class AdapterPreviewImage extends PagerAdapter {
      *
      * @param msgId
      */
-    private void sendToFriend(String msgId,int fromWhere) {
+    private void sendToFriend(String msgId, int fromWhere) {
         if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
             if (NetUtil.isNetworkConnected()) {
                 context.startActivity(new Intent(context, MsgForwardActivity.class)
