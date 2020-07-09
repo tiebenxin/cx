@@ -458,9 +458,9 @@ public class PayHttpUtils {
 
     //商城->获取免登陆商城URL
     public Observable<BaseResponse> getShopUrl() {
-        if(AppConfig.DEBUG){
+        if (AppConfig.DEBUG) {
             return HttpChannel.getInstance().getPayService().getShopUrlDebug(getAuthMap());
-        }else {
+        } else {
             return HttpChannel.getInstance().getPayService().getShopUrlRelease(getAuthMap());
         }
     }
@@ -474,12 +474,18 @@ public class PayHttpUtils {
     }
 
     /**
-     * 发送转账
+     * 获取密码管理URL
      *
-     * @param toUid 转账接受者id
      */
     public Observable<BaseResponse<UrlBean>> getPswManager() {
         return HttpChannel.getInstance().getPayService().getPasswordManager(getAuthMap());
+    }
+
+    //获取用户信息
+    public Observable<BaseResponse<String>> getHisUserInfo(long uid) {
+        Map<String, String> map = new HashMap<>();
+        map.put("recvUserId", uid + "");
+        return HttpChannel.getInstance().getPayService().getHisInfo(getRequestBody(map), getAuthMap());
     }
 
 }

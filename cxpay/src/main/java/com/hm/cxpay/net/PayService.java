@@ -170,4 +170,8 @@ public interface PayService {
     @POST(Route.GET_PSW_MANAGER)
     Observable<BaseResponse<UrlBean>> getPasswordManager( @QueryMap Map<String, String> map);
 
+    //获取领取者信息接口
+    @POST(Route.GET_HIS_USER_INFO)
+    Observable<BaseResponse<String>> getHisInfo(@Body RequestBody body,@QueryMap Map<String, String> map);
+
 }

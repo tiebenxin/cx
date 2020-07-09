@@ -4,16 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.LogUtil;
 
 
 /***
@@ -99,6 +102,13 @@ public class WebPageActivity extends AppActivity {
             public boolean onLongClick(View v) {
                 // TODO Auto-generated method stub
                 return true;
+            }
+        });
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                LogUtil.getLog().i(TAG, error.toString());
+                handler.proceed();// 接受所有网站的证书
             }
         });
         Log.i(TAG, "装载网页>>>>:" + url);

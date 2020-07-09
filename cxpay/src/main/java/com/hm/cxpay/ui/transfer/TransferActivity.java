@@ -280,22 +280,22 @@ public class TransferActivity extends BasePayActivity {
     }
 
     private void getHisInfo(long uid) {
-        PayHttpUtils.getInstance().getUserInfo(uid)
-                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
-                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+        PayHttpUtils.getInstance().getHisUserInfo(uid)
+                .compose(RxSchedulers.<BaseResponse<String>>compose())
+                .compose(RxSchedulers.<BaseResponse<String>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<String>>() {
                     @Override
-                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                    public void onHandleSuccess(BaseResponse<String> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             if (baseResponse.getData() != null) {
-                                UserBean userBean = baseResponse.getData();
-                                setName(name, userBean.getRealName());
+                                String realName = baseResponse.getData();
+                                setName(name, realName);
                             }
                         }
                     }
 
                     @Override
-                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                    public void onHandleError(BaseResponse<String> baseResponse) {
                     }
                 });
     }

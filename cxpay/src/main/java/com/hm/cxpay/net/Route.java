@@ -119,4 +119,7 @@ public class Route {
 
     //获取支付密码管理URL
     public static final String GET_PSW_MANAGER = BANK+"/user/to-password-manage";
+
+    //获取领取者信息
+    public static final String GET_HIS_USER_INFO = BANK+"/user/get_recv_user_info";
 }
