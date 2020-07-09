@@ -201,12 +201,12 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                             if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
                                 SocketData.send4RbRev(bean.getFrom_uid(), bean.getGid(), message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE);
                                 taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                                mViewAdapter.notifyItemChange(bean);
+                                mViewAdapter.remove(bean);
                                 notifyRefreshChat();
                             }
                             if (envelopeStatus == 1 || envelopeStatus == 2 || envelopeStatus == 3) {
                                 taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                                mViewAdapter.notifyItemChange(bean);
+                                mViewAdapter.remove(bean);
                                 notifyRefreshChat();
                             }
                         }

@@ -378,10 +378,6 @@
             android:theme="@style/RedAppThrme" />
 
         <!--红包记录-->
-        <activity
-            android:name=".pay.ui.record.RedpacketRecordActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/RedAppThrme" />
 
         <!--帮助-->
         <activity
