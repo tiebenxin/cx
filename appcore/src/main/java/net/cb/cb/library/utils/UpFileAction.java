@@ -69,38 +69,38 @@ public class UpFileAction {
             case IMG:
                 data.setTime(System.currentTimeMillis());
 //                pt = AppConfig.UP_PATH + "/image/android/" + simpleDateFormat.format(data) + "/";
-                pt = AppConfig.UP_PATH + "/image/android/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.getUpPath() + "/image/android/" + simpleDateFormat.format(data) + "/";
                 break;
             case HEAD:
-                pt = AppConfig.UP_PATH + "/avatar/android/" + id + "/";
+                pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
                 break;
             case HEAD_GROUP:
-                pt = AppConfig.UP_PATH + "/avatar/android/" + id + "/";
+                pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
                 break;
             case COMPLAINT:
-                pt = AppConfig.UP_PATH + "/misc/complaint/";
+                pt = AppConfig.getUpPath() + "/misc/complaint/";
                 break;
             case FEEDBACK:
-                pt = AppConfig.UP_PATH + "/misc/feedback/";
+                pt = AppConfig.getUpPath() + "/misc/feedback/";
                 break;
             case VOICE:
-                pt = AppConfig.UP_PATH + "/voice/android/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.getUpPath() + "/voice/android/" + simpleDateFormat.format(data) + "/";
                 break;
             case HEAD_GROUP_CHANGE:
-                pt = AppConfig.UP_PATH + "/avatar/android/" + id + "/";
+                pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
                 break;
             case VIDEO:
-                pt = AppConfig.UP_PATH + "/video/android/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.getUpPath() + "/video/android/" + simpleDateFormat.format(data) + "/";
                 break;
             case FILE:
-                pt = AppConfig.UP_PATH + "/file/android/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.getUpPath() + "/file/android/" + simpleDateFormat.format(data) + "/";
                 break;
             case PC_MSG:
-                pt = AppConfig.UP_PATH + "/file/msg/" + id + "/" + simpleDateFormat.format(data);
+                pt = AppConfig.getUpPath() + "/file/msg/" + id + "/" + simpleDateFormat.format(data);
                 break;
             default:
                 data.setTime(System.currentTimeMillis());
-                pt = "/" + AppConfig.UP_PATH + "/android/";
+                pt = "/" + AppConfig.getUpPath() + "/android/";
                 break;
 
         }
@@ -111,10 +111,10 @@ public class UpFileAction {
         String pt = "";
         switch (type) {
             case PC_MSG:
-                pt = AppConfig.UP_PATH + "/file/msg/" + id + "/" + fileName;
+                pt = AppConfig.getUpPath() + "/file/msg/" + id + "/" + fileName;
                 break;
             default:
-                pt = "/" + AppConfig.UP_PATH + "/android/" + fileName;
+                pt = "/" + AppConfig.getUpPath() + "/android/" + fileName;
                 break;
 
         }

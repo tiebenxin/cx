@@ -7,6 +7,8 @@ import android.os.Build;
 import android.os.LocaleList;
 import android.text.TextUtils;
 
+import net.cb.cb.library.utils.SpUtil;
+
 import java.util.Locale;
 
 
@@ -28,6 +30,7 @@ public class AppConfig {
     // 隐私政策
     public static final String USER_PRIVACY = "https://changxin.zhixun6.com/yszc.html";
     private static boolean isOnline;
+    private static String uploadParent;
 
     //设置全局字体
     public static void setFont(float font) {
@@ -42,19 +45,40 @@ public class AppConfig {
         return APP_CONTEXT;
     }
 
-//    public static String getUrlHost() {
-//        return URL_HOST;
-//    }
+    public static void setUpPath(String name) {
+        uploadParent = name;
+    }
 
-    /***
-     * 指定host
-     *
-     * @param urlHost
-     */
-//    public static void setUrlHost(String urlHost) {
-//        URL_HOST = urlHost;
-//        NetUtil.getNet().resetHost();
-//    }
+    public static String getUpPath() {
+        if (TextUtils.isEmpty(uploadParent)) {
+            int type = SpUtil.getSpUtil().getSPValue("ipType", 0);
+            if (type == 0) {
+                switch (BuildConfig.BUILD_TYPE) {
+                    case "debug":
+                        uploadParent = BuildConfig.UPLOAD_DEV;
+                        break;
+                    case "pre":
+                        uploadParent = BuildConfig.UPLOAD_PRE;
+                        break;
+                    case "release":
+                        uploadParent = BuildConfig.UPLOAD_RELEASE;
+                        break;
+                    default:
+                        uploadParent = BuildConfig.UP_PATH;
+                        break;
+                }
+            } else {
+                if (type == 1) {
+                    uploadParent = BuildConfig.UPLOAD_DEV;
+                } else if (type == 2) {
+                    uploadParent = BuildConfig.UPLOAD_PRE;
+                } else {
+                    uploadParent = BuildConfig.UPLOAD_RELEASE;
+                }
+            }
+        }
+        return uploadParent;
+    }
 
     /***
      * 获取系统语言zh0

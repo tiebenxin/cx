@@ -1078,8 +1078,12 @@ public class MessageRepository {
             lastMessage = realm.where(MsgAllBean.class).equalTo("gid", gid).sort("timestamp", Sort.DESCENDING).findFirst();
         }
         if (lastMessage != null) {
-            boolean isFromSelf = UserAction.getMyId() != null && lastMessage.getFrom_uid() == UserAction.getMyId().intValue();
-            long chatterId = isFromSelf ? lastMessage.getTo_uid() : lastMessage.getFrom_uid();
+            boolean isFromSelf = UserAction.getMyId() != null && lastMessage.getFrom_uid() != null && lastMessage.getFrom_uid() == UserAction.getMyId().intValue();
+            Long id = isFromSelf ? lastMessage.getTo_uid() : lastMessage.getFrom_uid();
+            long chatterId = -1;
+            if (id != null) {
+                chatterId = id.longValue();
+            }
             //非自己发过来的消息，才存储为未读状态
             if (!isFromSelf) {
                 boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(lastMessage.getGid(), null);

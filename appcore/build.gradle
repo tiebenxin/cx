@@ -28,6 +28,14 @@ android {
         buildConfigField("String", "HOST_DEV", "\"${rootProject.ext.host_default}\"")
         buildConfigField("String", "HOST_PRE", "\"${rootProject.ext.host_beta}\"")
         buildConfigField("String", "HOST_RELEASE", "\"${rootProject.ext.host_release}\"")
+
+        /**
+         * upload地址
+         */
+
+        buildConfigField("String", "UPLOAD_DEV", "\"${rootProject.ext.upload_default}\"")
+        buildConfigField("String", "UPLOAD_PRE", "\"${rootProject.ext.upload_beta}\"")
+        buildConfigField("String", "UPLOAD_RELEASE", "\"${rootProject.ext.upload_release}\"")
     }
 
     buildscript {

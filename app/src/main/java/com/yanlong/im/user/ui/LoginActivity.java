@@ -38,6 +38,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
@@ -192,21 +193,27 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
     private void switchService(@ChatEnum.EServiceType int type) {
         String host;
+        String uploadPath;
         switch (type) {
             case ChatEnum.EServiceType.DEBUG:
                 host = BuildConfig.HOST_DEV;
+                uploadPath = BuildConfig.UPLOAD_DEV;
                 break;
             case ChatEnum.EServiceType.BETA:
                 host = BuildConfig.HOST_PRE;
+                uploadPath = BuildConfig.UPLOAD_PRE;
                 break;
             case ChatEnum.EServiceType.RELEASE:
                 host = BuildConfig.HOST_RELEASE;
+                uploadPath = BuildConfig.UPLOAD_RELEASE;
                 break;
             default:
                 host = BuildConfig.API_HOST;
+                uploadPath = BuildConfig.UP_PATH;
                 break;
         }
         AppHostUtil.setHostUrl(host);
+        AppConfig.setUpPath(uploadPath);
         HttpChannel.getInstance().resetHost();
         userAction = new UserAction();
         new MessageRemoteDataSource().clear();
