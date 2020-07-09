@@ -429,7 +429,7 @@ public class SocketUtil {
     private boolean isStart = false;
 
     /***
-     * 启动，暂不纳入线程池管理，开销过大
+     * 启动，纳入线程池管理，连接速度无影响
      */
     public void startSocket() {
         if (isStart) {
@@ -500,24 +500,25 @@ public class SocketUtil {
     }
 
     /***
-     * 结束socket，暂不纳入线程池管理，开销过大
+     * 结束socket，暂不纳入线程池管理，关闭太慢了
      */
     public void endSocket() {
         isStart = false;
-        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
-
+//        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                stop2();
+//                clearThread();
+//            }
+//        });
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 stop2();
                 clearThread();
             }
-        });
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                stop2();
-//            }
-//        }).start();
+        }).start();
     }
 
     /**
