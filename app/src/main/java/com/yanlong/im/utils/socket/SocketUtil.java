@@ -1,6 +1,7 @@
 package com.yanlong.im.utils.socket;
 
 import android.accounts.NetworkErrorException;
+import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnvironment;
 import com.tencent.bugly.crashreport.BuglyLog;
@@ -72,6 +73,15 @@ public class SocketUtil {
                     SocketData.msgSave4Me(bean);
                 } else {
                     isAccepted = true;
+                }
+                // 保存对方封号提示语，每发一条消息都会保存
+                if (!TextUtils.isEmpty(bean.getDesc())) {
+                    isAccepted = false;
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.FREEZE_ACCOUNT);
+                    //收到直接存表
+                    if (msg != null) {
+                        DaoUtil.update(msg);
+                    }
                 }
             } else {
                 LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :" + bean.getRejectType());

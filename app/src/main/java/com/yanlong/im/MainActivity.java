@@ -814,12 +814,12 @@ public class MainActivity extends AppActivity {
             if (event != null) {
                 MsgAllBean msgAllbean = null;
                 if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                    P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), 0, event.operation, event.txt);
+                    P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Audio.getNumber(), event.operation, event.txt);
                     msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
 //                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
                 } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                    P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), 0, event.operation, event.txt);
+                    P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Vedio.getNumber(), event.operation, event.txt);
                     msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
 //                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);

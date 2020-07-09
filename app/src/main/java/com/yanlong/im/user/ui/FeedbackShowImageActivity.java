@@ -40,14 +40,17 @@ public class FeedbackShowImageActivity extends AppActivity {
         headView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         headView.getActionbar().getBtnRight().setImageResource(R.mipmap.icon_image_delect);
         postion = getIntent().getIntExtra(POSTION, 0);
-    //    imageView.setImageURI(getIntent().getStringExtra(URL));
+        //    imageView.setImageURI(getIntent().getStringExtra(URL));
 
         Glide.with(this).load(getIntent().getStringExtra(URL))
                 .apply(GlideOptionsUtil.imageOptions()).into(imageView);
 
         int type = getIntent().getIntExtra(TYPE, 0);
-        if(type == 1){
+        if (type == 1) {
             headView.getActionbar().setTitle("用户投诉");
+        } else if (type == 2) {
+            headView.getActionbar().setTitle("账号申诉");
+            headView.getActionbar().getBtnRight().setVisibility(View.GONE);
         }
     }
 

@@ -67,9 +67,11 @@ import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
+import com.yanlong.im.utils.UserUtil;
 import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -858,6 +860,10 @@ public class AdapterPreviewImage extends PagerAdapter {
                 //收藏详情需求又改为只显示3项
                 if(fromWhere==PictureConfig.FROM_COLLECT_DETAIL){
                     if (postsion == 0) {//收藏详情转发单独处理
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(context.getString(R.string.user_disable_message));
+                            return;
+                        }
                         sendToFriend(msgId,PictureConfig.FROM_COLLECT_DETAIL);
                     } else if (postsion == 1) {//保存
                         saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
@@ -866,17 +872,33 @@ public class AdapterPreviewImage extends PagerAdapter {
                     //含有收藏项
                     if (media.isCanCollect()) {
                         if (postsion == 0) {//默认转发
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(context.getString(R.string.user_disable_message));
+                                return;
+                            }
                             sendToFriend(msgId,PictureConfig.FROM_DEFAULT);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                         } else if (postsion == 2) {//收藏
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(context.getString(R.string.user_disable_message));
+                                return;
+                            }
                             EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                             eventCollectImgOrVideo.setMsgId(msgId);
                             EventBus.getDefault().post(eventCollectImgOrVideo);
                         } else if (postsion == 3) {//识别二维码
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(context.getString(R.string.user_disable_message));
+                                return;
+                            }
                             // scanningImage(media.getPath());
                             scanningQrImage(media.getCompressPath(), ivZoom);
                         } else if (postsion == 4) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(context.getString(R.string.user_disable_message));
+                                return;
+                            }
                             Intent intent = new Intent(context, ImageShowActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putString("imgpath", media.getCompressPath());
@@ -890,13 +912,25 @@ public class AdapterPreviewImage extends PagerAdapter {
                     } else {
                         //不含有收藏项
                         if (postsion == 0) {//默认转发
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(context.getString(R.string.user_disable_message));
+                                return;
+                            }
                             sendToFriend(msgId,PictureConfig.FROM_DEFAULT);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                         } else if (postsion == 2) {//识别二维码
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(context.getString(R.string.user_disable_message));
+                                return;
+                            }
                             // scanningImage(media.getPath());
                             scanningQrImage(media.getCompressPath(), ivZoom);
                         } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(context.getString(R.string.user_disable_message));
+                                return;
+                            }
                             Intent intent = new Intent(context, ImageShowActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putString("imgpath", media.getCompressPath());

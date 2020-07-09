@@ -181,6 +181,11 @@ public class GroupNumbersActivity extends AppActivity {
                     hd.viewLine.setVisibility(View.GONE);
                 }
             }
+            hd.ivSelect.setOnClickListener(o -> {
+                if (UserUtil.getUserStatus(bean.getLockedstatus())) {
+                    ToastUtil.show(getResources().getString(R.string.friend_disable_message));
+                }
+            });
 
             hd.ckSelect.setOnCheckedChangeListener(null);//清掉监听器
             hd.ckSelect.setChecked(bean.isChecked());
@@ -188,19 +193,29 @@ public class GroupNumbersActivity extends AppActivity {
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        listDataTop.add(bean);
+                    if (!UserUtil.getUserStatus(bean.getLockedstatus())) {
+                        if (isChecked) {
+                            listDataTop.add(bean);
+                        } else {
+                            listDataTop.remove(bean);
+                        }
+                        listData.get(position).setChecked(isChecked);
+                        topListView.getAdapter().notifyDataSetChanged();
                     } else {
-                        listDataTop.remove(bean);
+                        ToastUtil.show(getResources().getString(R.string.friend_disable_message));
                     }
-                    listData.get(position).setChecked(isChecked);
-                    topListView.getAdapter().notifyDataSetChanged();
                 }
             });
 
             TouchUtil.expandTouch(hd.ckSelect);
 
-
+            if (UserUtil.getUserStatus(bean.getLockedstatus())) {
+                hd.ckSelect.setVisibility(View.GONE);
+                hd.ivSelect.setVisibility(View.VISIBLE);
+            } else {
+                hd.ckSelect.setVisibility(View.VISIBLE);
+                hd.ivSelect.setVisibility(View.GONE);
+            }
         }
 
 
@@ -220,6 +235,7 @@ public class GroupNumbersActivity extends AppActivity {
             private TextView txtName;
             private CheckBox ckSelect;
             private View viewLine;
+            private ImageView ivSelect;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -230,6 +246,7 @@ public class GroupNumbersActivity extends AppActivity {
                 txtName = convertView.findViewById(R.id.txt_name);
                 ckSelect = convertView.findViewById(R.id.ck_select);
                 viewLine = convertView.findViewById(R.id.view_line);
+                ivSelect = convertView.findViewById(R.id.iv_select);
             }
 
         }
@@ -346,8 +363,8 @@ public class GroupNumbersActivity extends AppActivity {
                         if (response.body().getData().isPending()) {
                             //提示情况
                             ToastUtil.show("邀请成功,等待群主验证");
-                        }else{
-                            SocketData.createMsgGroupOfNotice(gid,listDataTop);
+                        } else {
+                            SocketData.createMsgGroupOfNotice(gid, listDataTop);
                         }
                     }
                     MessageManager.getInstance().notifyGroupChange(true);

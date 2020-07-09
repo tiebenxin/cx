@@ -12,11 +12,14 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -115,6 +118,12 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
         } else {
             ckSetRead.setChecked(true);
         }
+        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+            mCbFindPhone.setEnabled(false);
+            mCbFindProductNumber.setEnabled(false);
+            mCbVerification.setEnabled(false);
+            ckSetRead.setEnabled(false);
+        }
         taskUserInfo(uid);
     }
 
@@ -134,6 +143,10 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 go(BlacklistActivity.class);
                 break;
             case R.id.view_safe_center:
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 go(SafetyCenterActivity.class);
                 break;
         }

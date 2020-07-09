@@ -21,6 +21,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -152,6 +153,10 @@ public class FriendApplyAcitvity extends AppActivity {
 
                 holder.btnComit.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                            return;
+                        }
                         //同意
                         taskFriendAgree(bean);
                     }
@@ -170,6 +175,10 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                            return;
+                        }
                         //拒绝
                         holder.mSwipeLayout.quickClose();
                         taskDelRequestFriend(bean);
@@ -187,6 +196,10 @@ public class FriendApplyAcitvity extends AppActivity {
 
                 holder.btnComit.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                            return;
+                        }
                         //  同意
                         taskRequest(bean);
                     }
@@ -194,6 +207,10 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                            return;
+                        }
                         //拒绝
                         holder.mSwipeLayout.quickClose();
 //                        bean.setStat(3);

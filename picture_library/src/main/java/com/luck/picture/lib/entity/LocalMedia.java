@@ -14,6 +14,7 @@ import android.text.TextUtils;
  */
 
 public class LocalMedia implements Parcelable {
+    private boolean showAdd = false;// 是否显示添加按钮
     private String path;//原图origin
     private String compressPath;//预览图preview
     private String cutPath;//缩略图Thumbnail
@@ -120,6 +121,13 @@ public class LocalMedia implements Parcelable {
         this.duration = duration;
     }
 
+    public boolean isShowAdd() {
+        return showAdd;
+    }
+
+    public void setShowAdd(boolean showAdd) {
+        this.showAdd = showAdd;
+    }
 
     public boolean isChecked() {
         return isChecked;

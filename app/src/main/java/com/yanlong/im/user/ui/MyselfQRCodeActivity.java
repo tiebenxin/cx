@@ -33,6 +33,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ImageUtils;
 import com.yanlong.im.utils.QRCodeManage;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
@@ -205,6 +206,10 @@ public class MyselfQRCodeActivity extends AppActivity {
                         saveBmp2Gallery(getViewBitmap());
                         break;
                     case 1:
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                            return;
+                        }
                         Bitmap2Bytes(getViewBitmap());
                         break;
                     case 2:

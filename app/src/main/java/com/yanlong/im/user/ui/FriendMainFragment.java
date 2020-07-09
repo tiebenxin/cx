@@ -15,11 +15,13 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.EventUserOnlineChange;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PySortView;
@@ -195,6 +197,10 @@ public class FriendMainFragment extends Fragment {
 
             @Override
             public void onRight() {
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 startActivity(new Intent(getContext(), FriendAddAcitvity.class));
             }
         });

@@ -83,8 +83,19 @@
                         android:id="@+id/ck_select"
                         style="@style/app_check_green"
                         android:layout_width="wrap_content"
+                        android:visibility="visible"
                         android:layout_height="wrap_content"
                         android:padding="10dp"/>
+                    <ImageView
+                        android:id="@+id/iv_select"
+                        android:layout_width="wrap_content"
+                        android:src="@drawable/bg_cheack_green_e"
+                        android:visibility="gone"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="17dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <View

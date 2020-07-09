@@ -1,9 +1,16 @@
 package com.yanlong.im.utils;
 
+import com.example.nim_lib.config.Preferences;
+import com.yanlong.im.BuildConfig;
+import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.utils.SpUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,4 +98,31 @@ public class UserUtil {
         return false;
     }
 
+    /**
+     * 获取用户状态 0正常 1封号
+     *
+     * @return
+     */
+    public static int getUserStatus() {
+        int status = SpUtil.getSpUtil().getSPValue(Preferences.USER_STATUS + UserAction.getMyInfo().getUid() + BuildConfig.BUILD_TYPE, 0);
+        return status;
+    }
+
+    /**
+     * 保存用户状态 是否被封号的状态
+     *
+     * @param uid
+     * @param lockUser 0正常 1封号
+     */
+    public static void saveUserStatus(Long uid, int lockUser) {
+        SpUtil.getSpUtil().putSPValue(Preferences.USER_STATUS + uid + BuildConfig.BUILD_TYPE, lockUser);
+    }
+
+    public static boolean getUserStatus(int lockedstatus) {
+        boolean isLockedstatus = false;
+        if (lockedstatus == CoreEnum.EUserType.DISABLE) {
+            isLockedstatus = true;
+        }
+        return isLockedstatus;
+    }
 }

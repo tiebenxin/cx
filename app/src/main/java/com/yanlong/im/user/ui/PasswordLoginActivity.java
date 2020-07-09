@@ -15,15 +15,20 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.utils.DialogUtils;
 import com.yanlong.im.utils.PasswordTextWather;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.ErrorCode;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -35,6 +40,10 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -49,9 +58,15 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
     private TextView tvForgetPassword;
     private int count = 0;
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshBalance(EventFactory.ExitActivityEvent event) {
+        finish();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_passworfd_login);
         initView();
         initEvent();
@@ -130,6 +145,11 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
     @Override
     public void onClick(View v) {
@@ -200,6 +220,8 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                     showLogoutAccountDialog();
                                     return;
                                 } else {
+                                    // 更新用户状态
+                                    UserUtil.saveUserStatus(response.body().getData().getUid(), CoreEnum.EUserType.DEFAULT);
                                     toMain();
                                 }
                             }
@@ -213,6 +235,8 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                 return;
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
                                 showNewDeviceDialog(phone, response.body().getMsg());
+                            } else if (response.body().getCode().longValue() == ErrorCode.ERROR_CODE_10006) {// 被封号
+                                DialogUtils.instance().sealAccountDilaog(PasswordLoginActivity.this, response.body().getData());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -243,6 +267,8 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                     showLogoutAccountDialog();
                                     return;
                                 } else {
+                                    // 更新用户状态
+                                    UserUtil.saveUserStatus(response.body().getData().getUid(), CoreEnum.EUserType.DEFAULT);
                                     toMain();
                                 }
                             }
@@ -255,6 +281,8 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                 count += 1;
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
                                 showNewDeviceDialog(phone, response.body().getMsg());
+                            } else if (response.body().getCode().longValue() == ErrorCode.ERROR_CODE_10006) {// 被封号
+                                DialogUtils.instance().sealAccountDilaog(PasswordLoginActivity.this, response.body().getData());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }

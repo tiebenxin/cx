@@ -676,6 +676,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             setDisturb();
             initSurvivaltimeState();
             viewExtendFunction.bindDate(getItemModels());
+            // 封号
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                setBanView(false, false);
+            }
         } catch (Exception e) {
         }
     }
@@ -1285,6 +1289,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onRight() {
+                // 封号
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 if (isGroup()) {//群聊,单聊
                     startActivity(new Intent(getContext(), GroupInfoActivity.class)
                             .putExtra(GroupInfoActivity.AGM_GID, toGid)
@@ -1864,6 +1873,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void toVideoCall() {
+        if (checkUserStatus()) {
+            ToastUtil.show(getResources().getString(R.string.to_disable_message));
+            return;
+        }
         //重置所有状态值
         mViewModel.recoveryOtherValue(null);
         DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
@@ -1882,6 +1895,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             }
         });
+    }
+
+    /**
+     * 判断用户是否被封号
+     *
+     * @return
+     */
+    private boolean checkUserStatus() {
+        boolean status = false;
+        if (userDao != null) {
+            UserInfo userInfo = userDao.findUserInfo(toUId);
+            if (userInfo != null) {
+                // 封号
+                if (UserUtil.getUserStatus(userInfo.getLockedstatus())) {
+                    status = true;
+                }
+            }
+        }
+        return status;
     }
 
     private void toGroupRobot() {
@@ -2360,6 +2392,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (userDao != null) {
                         UserInfo userInfo = userDao.findUserInfo(toUId);
                         if (userInfo != null) {
+                            // 封号
+                            if (UserUtil.getUserStatus(userInfo.getLockedstatus())) {
+                                ToastUtil.show(getResources().getString(R.string.to_disable_message));
+                                return;
+                            }
                             EventFactory.CloseMinimizeEvent event = new EventFactory.CloseMinimizeEvent();
                             event.isClose = true;
                             EventBus.getDefault().post(event);
@@ -4038,16 +4075,41 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if ("听筒播放".equals(value)) {
             msgDao.userSetingVoicePlayer(1);
         } else if ("转发".equals(value)) {
+            // 封号
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                return;
+            }
             onRetransmission(msgbean);
         } else if ("撤回".equals(value)) {
+            // 封号
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                return;
+            }
             onRecall(msgbean);
         } else if ("扬声器播放".equals(value)) {
             msgDao.userSetingVoicePlayer(0);
         } else if ("回复".equals(value)) {
+            // 封号
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                return;
+            }
             onAnswer(msgbean);
         } else if ("多选".equals(value)) {
+            // 封号
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                return;
+            }
             onMore(msgbean);
         } else if ("收藏".equals(value)) {
+            // 封号
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                return;
+            }
             onCollect(msgbean);
         }
     }
@@ -4648,14 +4710,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             // 关闭软键盘
             InputUtil.hideKeyboard(editChat);
         }
+        // 是否被封号
+        boolean isDisable = UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE ? true : false;
         actionbar.getBtnRight().setVisibility(isExited || isForbid ? View.GONE : View.VISIBLE);
-        tvBan.setVisibility(isExited || isForbid ? VISIBLE : GONE);
+        tvBan.setVisibility(isExited || isForbid || isDisable ? VISIBLE : GONE);
         if (isExited) {
             tvBan.setText("你已经被移除群聊，无法发送消息");
         } else if (isForbid) {
             tvBan.setText(AppConfig.getString(R.string.group_forbid));
+        } else if (isDisable) {
+            tvBan.setText(getResources().getString(R.string.user_disable_message));
         }
-        viewChatBottomc.setVisibility(isExited || isForbid ? GONE : VISIBLE);
+        viewChatBottomc.setVisibility(isExited || isForbid || isDisable ? GONE : VISIBLE);
         llMore.setVisibility(GONE);
     }
 
