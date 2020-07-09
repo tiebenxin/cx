@@ -482,7 +482,7 @@ public class MessageRepository {
     public boolean handlerSwitchChange(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
-// TODO　处理老版本不兼容问题
+        // TODO　处理老版本不兼容问题
         if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
             return result;
         }
@@ -492,16 +492,17 @@ public class MessageRepository {
         int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
         long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         UserInfo userInfo = localDataSource.getFriend(realm, uid);
+        UserInfo userInfoCopy = realm.copyFromRealm(userInfo);
         if (userInfo == null) {
             return result;
         }
         switch (switchType) {
-            case 0: // 单聊已读
-                userInfo.setFriendRead(switchValue);
-                localDataSource.updateUserInfo(realm, userInfo);
+            case ChatEnum.ESwitchType.READ: // 单聊已读
+                userInfoCopy.setFriendRead(switchValue);
+                localDataSource.updateUserInfo(realm, userInfoCopy);
                 EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_FRIEND, switchValue));
                 break;
-            case 1: //vip
+            case ChatEnum.ESwitchType.VIP: //vip
                 UserBean userBean = (UserBean) UserAction.getMyInfo();
                 if (userBean != null) {
                     userBean.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
@@ -512,21 +513,25 @@ public class MessageRepository {
                 event.vip = wrapMessage.getSwitchChange().getSwitchValue() + "";
                 EventBus.getDefault().post(event);
                 break;
-            case 2:  //已读总开关
-                userInfo.setMasterRead(switchValue);
-                localDataSource.updateUserInfo(realm, userInfo);
+            case ChatEnum.ESwitchType.MASTER_READ:  //已读总开关
+                userInfoCopy.setMasterRead(switchValue);
+                localDataSource.updateUserInfo(realm, userInfoCopy);
                 EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchValue));
                 break;
-            case 3: // 单人禁言
-            case 4: // 领取群红包
+            case ChatEnum.ESwitchType.SHUT_UP: // 单人禁言
+            case ChatEnum.ESwitchType.OPEN_UP_RED_ENVELOPER: // 领取群红包
                 MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
                 result = saveMessageNew(bean, realm);
                 break;
-            case 5: // 截屏通知开关
+            case ChatEnum.ESwitchType.SCREENSHOT: // 截屏通知开关
                 bean = MsgConversionBean.ToBean(wrapMessage);
                 result = saveMessageNew(bean, realm);
                 localDataSource.updateFriendSnapshot(realm, wrapMessage.getFromUid(), switchValue);
                 MessageManager.getInstance().notifySwitchSnapshot("", wrapMessage.getFromUid(), switchValue);
+                break;
+            case ChatEnum.ESwitchType.FRIEND_LOCKED: // 好友锁状态变更
+                userInfoCopy.setLockedstatus(switchValue);
+                localDataSource.updateUserInfo(realm, userInfoCopy);
                 break;
         }
         return result;
@@ -652,6 +657,8 @@ public class MessageRepository {
             eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
             eventLoginOut4Conflict.setMsg("更换绑定手机号成功，\n请新手机号重新登录");
+        } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.APPEAL_PASS) {//申诉通过
+            eventLoginOut4Conflict.setMsg("您的账号申诉已通过，请重新登录以恢复功能使用");
         }
         EventBus.getDefault().post(eventLoginOut4Conflict);
     }

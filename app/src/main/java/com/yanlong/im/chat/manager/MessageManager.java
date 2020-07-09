@@ -615,6 +615,8 @@ public class MessageManager {
                     eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
                     eventLoginOut4Conflict.setMsg("更换绑定手机号成功，请新手机号重新登录");
+                } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.APPEAL_PASS) {//申诉通过
+                    eventLoginOut4Conflict.setMsg("您的账号申诉已通过，请重新登录以恢复功能使用");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
@@ -747,12 +749,12 @@ public class MessageManager {
                     break;
                 }
                 switch (switchType) {
-                    case 0: // 单聊已读
+                    case ChatEnum.ESwitchType.READ: // 单聊已读
                         userInfo.setFriendRead(switchValue);
                         userDao.updateUserinfo(userInfo);
                         EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_FRIEND, switchValue));
                         break;
-                    case 1: //vip
+                    case ChatEnum.ESwitchType.VIP: //vip
                         if (userBean != null) {
                             userBean.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
                             userDao.updateUserBean(userBean);
@@ -762,18 +764,18 @@ public class MessageManager {
                         event.vip = wrapMessage.getSwitchChange().getSwitchValue() + "";
                         EventBus.getDefault().post(event);
                         break;
-                    case 2:  //已读总开关
+                    case ChatEnum.ESwitchType.MASTER_READ:  //已读总开关
                         userInfo.setMasterRead(switchValue);
                         userDao.updateUserinfo(userInfo);
                         EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchValue));
                         break;
-                    case 3: // 单人禁言
-                    case 4: // 领取群红包
+                    case ChatEnum.ESwitchType.SHUT_UP: // 单人禁言
+                    case ChatEnum.ESwitchType.OPEN_UP_RED_ENVELOPER: // 领取群红包
                         if (bean != null) {
                             result = saveMessageNew(bean, isList);
                         }
                         break;
-                    case 5: // 截屏通知开关
+                    case ChatEnum.ESwitchType.SCREENSHOT: // 截屏通知开关
                         if (bean != null) {
                             result = saveMessageNew(bean, isList);
                         }
@@ -1897,12 +1899,12 @@ public class MessageManager {
             }
         } else if (SESSION_TYPE == 1 && SESSION_FUID != null && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
             if (msg.getMsgType() == MsgBean.MessageType.STAMP) {
-                if(isGroup && CAN_STAMP){
+                if (isGroup && CAN_STAMP) {
                     //如果是处于单聊会话，但收到了群戳一戳，则需要弹框
                     AppConfig.getContext().startActivity(new Intent(AppConfig.getContext(), ChatActionActivity.class)
                             .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())
                             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                }else {
+                } else {
                     //如果是处于单聊会话，仅震动
                     playVibration();
                 }

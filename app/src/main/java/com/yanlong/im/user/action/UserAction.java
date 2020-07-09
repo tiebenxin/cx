@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
+import com.google.gson.Gson;
 import com.hm.cxpay.global.PayEnvironment;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
@@ -13,6 +14,7 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.yanlong.im.BuildConfig;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
@@ -30,6 +32,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -49,6 +52,7 @@ import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
 import java.util.List;
+import java.util.WeakHashMap;
 
 import cn.jpush.android.api.JPushInterface;
 import okhttp3.Headers;
@@ -162,7 +166,7 @@ public class UserAction {
     /**
      * 刷新我的个人信息
      */
-    public static void refreshMyInfo(){
+    public static void refreshMyInfo() {
         myInfo = null;
         getMyInfo();
     }
@@ -1192,5 +1196,41 @@ public class UserAction {
         NetUtil.getNet().exec(server.changePhoneNum(password, phone, code), callback);
     }
 
+    /**
+     * 用户申诉
+     */
+    public void userAppeal(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userAppeal(params), callback);
+    }
 
+    /**
+     * 临时登录
+     */
+    public void tempLogin(WeakHashMap<String, Object> params, CallBack<ReturnBean<TokenBean>> callback) {
+        NetUtil.getNet().exec(server.tempLogin(params), new CallBack<ReturnBean<TokenBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                if (response.body() != null && response.body().isOk()) {//保存token
+                    if (response.body().getData() != null) {
+                        initDB("" + response.body().getData().getUid());
+                        //如果是手机号码登录，则删除上次常信号登陆的账号
+                        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
+                        // 保存用户状态 是否被封号的状态
+                        UserUtil.saveUserStatus(response.body().getData().getUid(), response.body().getData().getLockUser());
+                        getMyInfo4Web(response.body().getData().getUid(), "");
+                    }
+                }
+
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
+            }
+        });
+
+
+    }
 }

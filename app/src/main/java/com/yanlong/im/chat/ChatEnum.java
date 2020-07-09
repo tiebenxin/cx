@@ -454,5 +454,20 @@ public class ChatEnum {
         int BANED = 2; // 群被封禁
     }
 
-
+    /*
+     * 开关变更通知(多人同步消息)
+     * */
+    @IntDef({ESwitchType.READ, ESwitchType.VIP, ESwitchType.MASTER_READ, ESwitchType.SHUT_UP,
+            ESwitchType.OPEN_UP_RED_ENVELOPER, ESwitchType.SCREENSHOT, ESwitchType.GEO_TRACK, ESwitchType.FRIEND_LOCKED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ESwitchType {
+        int READ = 0; // 单聊已读
+        int VIP = 1; // vip变更
+        int MASTER_READ = 2; //已读总开关
+        int SHUT_UP = 3; // 禁言
+        int OPEN_UP_RED_ENVELOPER = 4; // 领取群红包
+        int SCREENSHOT = 5; // 截屏通知（单聊）
+        int GEO_TRACK = 6; // 地理位置准实时跟踪
+        int FRIEND_LOCKED = 7; //好友锁状态变更
+    }
 }

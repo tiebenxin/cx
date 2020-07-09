@@ -25,63 +25,71 @@
                     style="@style/app_txt_title_353535"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="15dp"
                     android:layout_marginTop="10dp"
+                    android:textColor="@color/c_868686"
+                    android:textSize="14sp"
                     android:text="申诉内容:" />
 
-                <EditText
-                    android:id="@+id/ed_content"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/shape_5radius_white"
+                    android:layout_marginLeft="15dp"
                     android:layout_marginTop="15dp"
-                    android:background="@color/white"
-                    android:gravity="top"
-                    android:hint="请输入申诉内容"
-                    android:maxLength="300"
-                    android:minHeight="100dp"
-                    android:padding="10dp"
-                    android:textSize="16sp" />
+                    android:layout_marginRight="15dp"
+                    android:orientation="vertical">
+                        <EditText
+                            android:id="@+id/ed_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:gravity="top"
+                            android:hint="请输入申诉内容"
+                            android:maxLength="300"
+                            android:minHeight="120dp"
+                            android:padding="10dp"
+                            android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/tv_words"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    android:gravity="right"
-                    android:paddingRight="30dp"
-                    android:paddingBottom="10dp"
-                    android:text="0/300"
-                    android:textColor="@color/gray_300" />
-
-
+                        <TextView
+                            android:id="@+id/tv_words"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="right"
+                            android:paddingRight="30dp"
+                            android:paddingBottom="10dp"
+                            android:text="0/300"
+                            android:textColor="@color/gray_300" />
+                </LinearLayout>
                 <TextView
                     style="@style/app_txt_title_353535"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="15dp"
+                    android:textColor="@color/c_868686"
+                    android:textSize="14sp"
                     android:layout_marginTop="20dp"
                     android:text="申诉图片:" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:background="@color/white">
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
-            </LinearLayout>
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@color/white"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:layout_marginRight="15dp" />
 
-                <Button
+            <Button
                     android:id="@+id/btn_commit"
                     style="@style/app_btn_green"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="15dp"
                     android:layout_marginTop="50dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="15dp"
                     android:text="提交" />
+
             </LinearLayout>
 
         </android.support.v4.widget.NestedScrollView>

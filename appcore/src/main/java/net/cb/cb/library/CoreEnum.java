@@ -21,6 +21,16 @@ public class CoreEnum {
     }
 
     /*
+     * 用户状态
+     * */
+    @IntDef({EUserType.DEFAULT, EUserType.DISABLE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EUserType {
+        int DEFAULT = 0;// 正常
+        int DISABLE = 1;// 封号
+    }
+
+    /*
      *花名册指令
      *
      * */

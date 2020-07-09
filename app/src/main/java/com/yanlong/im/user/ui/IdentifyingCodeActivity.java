@@ -12,13 +12,19 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.utils.DialogUtils;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.ErrorCode;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
@@ -27,6 +33,10 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -42,10 +52,15 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
     private HeadView mHeadView;
     private String phone;
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshBalance(EventFactory.ExitActivityEvent event) {
+        finish();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_identifying_code);
         initView();
         initEvent();
@@ -56,6 +71,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
     protected void onDestroy() {
         super.onDestroy();
         CountDownUtil.cancelTimer();
+        EventBus.getDefault().unregister(this);
     }
 
     private void initView() {
@@ -173,13 +189,16 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
                         if (response.body().isOk()) {
                             SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
                             preferencesUtil.save2Json(true);
-
+                            // 更新用户状态
+                            UserUtil.saveUserStatus(response.body().getData().getUid(), CoreEnum.EUserType.DEFAULT);
                             Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             intent.putExtra(MainActivity.IS_LOGIN, true);
                             startActivity(intent);
                         } else if (response.body().getCode().longValue() == 10004) {//手机号未注册
                             ToastUtil.show(getContext(), response.body().getMsg());
+                        } else if (response.body().getCode().longValue() == ErrorCode.ERROR_CODE_10006) {// 被封号
+                            DialogUtils.instance().sealAccountDilaog(IdentifyingCodeActivity.this, response.body().getData());
                         } else {
                             ToastUtil.show(getContext(), response.body().getMsg());
                         }

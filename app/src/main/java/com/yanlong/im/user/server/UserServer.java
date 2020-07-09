@@ -16,6 +16,7 @@ import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.util.List;
+import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -246,4 +247,10 @@ public interface UserServer {
     @POST("/user/update-phone")
     @FormUrlEncoded
     Call<ReturnBean> changePhoneNum(@Field("password") String password, @Field("phone") String phone, @Field("captcha") String captcha);
+
+    @POST("appeal/user-appeal")
+    Call<ReturnBean> userAppeal(@Body WeakHashMap<String, Object> params);
+
+    @POST("user/temp-login")
+    Call<ReturnBean<TokenBean>> tempLogin(@Body WeakHashMap<String, Object> params);
 }

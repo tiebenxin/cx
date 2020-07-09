@@ -25,9 +25,11 @@ import com.yanlong.im.chat.ui.ChatFontActivity;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.VersionBean;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.FileConfig;

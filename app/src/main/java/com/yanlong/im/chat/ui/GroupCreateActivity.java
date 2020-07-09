@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
@@ -171,8 +173,16 @@ public class GroupCreateActivity extends AppActivity {
 
             hd.ckSelect.setOnCheckedChangeListener(null);//清掉监听器
             hd.ckSelect.setChecked(bean.isChecked());
-
-
+            hd.layoutRoot.setOnClickListener(o -> {
+                if (UserUtil.getUserStatus(bean.getLockedstatus())) {
+                    ToastUtil.show(getResources().getString(R.string.friend_disable_message));
+                }
+            });
+            hd.ivSelect.setOnClickListener(o->{
+                if (UserUtil.getUserStatus(bean.getLockedstatus())) {
+                    ToastUtil.show(getResources().getString(R.string.friend_disable_message));
+                }
+            });
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -199,10 +209,14 @@ public class GroupCreateActivity extends AppActivity {
                 hd.itemView.setAlpha(1f);
                 hd.ckSelect.setEnabled(true);
             }
-
-
+            if (UserUtil.getUserStatus(bean.getLockedstatus())) {
+                hd.ckSelect.setVisibility(View.GONE);
+                hd.ivSelect.setVisibility(View.VISIBLE);
+            } else {
+                hd.ckSelect.setVisibility(View.VISIBLE);
+                hd.ivSelect.setVisibility(View.GONE);
+            }
         }
-
 
         //自动寻找ViewHold
         @Override
@@ -215,10 +229,12 @@ public class GroupCreateActivity extends AppActivity {
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
+            private LinearLayout layoutRoot;
             private TextView txtType;
             private ImageView imgHead;
             private TextView txtName;
             private CheckBox ckSelect;
+            private ImageView ivSelect;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -228,6 +244,8 @@ public class GroupCreateActivity extends AppActivity {
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
                 ckSelect = convertView.findViewById(R.id.ck_select);
+                layoutRoot = convertView.findViewById(R.id.layout_root);
+                ivSelect = convertView.findViewById(R.id.iv_select);
             }
 
         }

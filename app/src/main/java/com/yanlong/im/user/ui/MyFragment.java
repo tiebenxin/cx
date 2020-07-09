@@ -43,8 +43,10 @@ import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
@@ -176,6 +178,10 @@ public class MyFragment extends Fragment {
         mViewScanQrcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     // 申请权限
                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, CaptureActivity.REQ_PERM_CAMERA);
@@ -223,6 +229,10 @@ public class MyFragment extends Fragment {
         if (userInfo != null && userInfo.getuType() == ChatEnum.EUserType.FRIEND) {
             toChatActivity();
         } else {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                return;
+            }
             taskAddFriend(Constants.CX888_UID);
         }
     }

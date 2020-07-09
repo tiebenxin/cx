@@ -40,4 +40,6 @@ public class Preferences {
     public static final String FACE_PATH = "face_path";
     public static final String FACE_NAME = "face_name";
     public static final String FACE_SERVER_PATH = "face_server_path";
+
+    public static final String USER_STATUS = "user_status";
 }

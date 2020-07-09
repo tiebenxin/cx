@@ -19,6 +19,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.eventbus.RefreshBalanceEvent;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.HttpChannel;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
@@ -30,18 +32,24 @@ import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.ui.baned.BanedAccountActivity;
+import com.yanlong.im.utils.DialogUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.BuildConfig;
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
+import net.cb.cb.library.utils.ErrorCode;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -55,6 +63,10 @@ import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PopupSelectView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -85,9 +97,15 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private boolean isShowIPSelector;//是否显示ip选择器
     private UserAction userAction = new UserAction();
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshBalance(EventFactory.ExitActivityEvent event) {
+        finish();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_login);
         initView();
         initEvent();
@@ -164,6 +182,12 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private void switchService(@ChatEnum.EServiceType int type) {
@@ -366,6 +390,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                     showLogoutAccountDialog();
                                     return;
                                 } else {
+                                    // 更新用户状态
+                                    UserUtil.saveUserStatus(response.body().getData().getUid(), CoreEnum.EUserType.DEFAULT);
                                     toMain();
                                 }
                             }
@@ -380,6 +406,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
                                 showNewDeviceDialog(response.body().getMsg());
+                            } else if (response.body().getCode().longValue() == ErrorCode.ERROR_CODE_10006) {// 被封号
+                                DialogUtils.instance().sealAccountDilaog(LoginActivity.this, response.body().getData());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -407,6 +435,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                     showLogoutAccountDialog();
                                     return;
                                 } else {
+                                    // 更新用户状态
+                                    UserUtil.saveUserStatus(response.body().getData().getUid(), CoreEnum.EUserType.DEFAULT);
                                     toMain();
                                 }
                             }
@@ -421,6 +451,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
                                 showNewDeviceDialog(response.body().getMsg());
+                            } else if (response.body().getCode().longValue() == ErrorCode.ERROR_CODE_10006) {// 被封号
+                                DialogUtils.instance().sealAccountDilaog(LoginActivity.this, response.body().getData());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }

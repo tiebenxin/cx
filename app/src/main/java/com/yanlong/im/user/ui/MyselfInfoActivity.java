@@ -19,6 +19,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -177,6 +178,10 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+            ToastUtil.show(getResources().getString(R.string.user_disable_message));
+            return;
+        }
         switch (v.getId()) {
             case R.id.view_nickname:
                 if (isSystemUser()) {

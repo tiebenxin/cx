@@ -45,6 +45,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     private String neteaseAccid;// 网易id
     private String vip;// (0:普通|1:vip)
 
+    @SerializedName("friendLockUser")
     private int lockedstatus;// 好友状态 (0:解封|1:锁定)
     private Integer disturb;///消息免打扰(0:关闭|1:打开)
     private Integer istop;//聊天置顶(0:关闭|1:打开)

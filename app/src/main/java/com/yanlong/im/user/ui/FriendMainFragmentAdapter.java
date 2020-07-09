@@ -19,8 +19,11 @@ import com.yanlong.im.chat.ui.GroupSaveActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.StrikeButton;
 
 import java.util.List;
@@ -62,6 +65,10 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             hd.viewAddFriend.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                        ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
                     context.startActivity(new Intent(context, FriendAddAcitvity.class));
                 }
             });
@@ -76,6 +83,10 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                 @Override
                 public void onClick(View v) {
                     // ToastUtil.show(getContext(), "匹配");
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                        ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
                     context.startActivity(new Intent(context, FriendMatchActivity.class));
                 }
             });

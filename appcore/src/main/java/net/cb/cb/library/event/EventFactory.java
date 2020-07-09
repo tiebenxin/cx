@@ -118,6 +118,7 @@ public class EventFactory extends BaseEvent {
     public static class ToastEvent extends BaseEvent {
         public String value;
     }
+
     /**
      * 更新用户信息
      */
@@ -129,6 +130,19 @@ public class EventFactory extends BaseEvent {
      */
     public static class FaceUpdateEvent extends BaseEvent {
 
+    }
+
+    /**
+     * 封号时关闭其它界面
+     */
+    public static class ExitActivityEvent extends BaseEvent {
+    }
+
+    /**
+     * 封号时关闭其它界面
+     */
+    public static class UpdateAppealStatusEvent extends BaseEvent {
+        public boolean status;
     }
 
     /**

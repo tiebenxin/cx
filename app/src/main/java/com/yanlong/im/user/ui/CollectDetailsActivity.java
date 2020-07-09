@@ -83,10 +83,12 @@ import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.view.face.FaceView;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.FileConfig;
 import net.cb.cb.library.utils.FileUtils;
@@ -713,6 +715,10 @@ public class CollectDetailsActivity extends AppActivity {
                 switch (postsion) {
                     case 0:
                         if (string.equals("发送给朋友")) {
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                                return;
+                            }
                             //普通类型-转发
                             if (collectionInfo != null) {
                                 startActivity(new Intent(context, MsgForwardActivity.class)

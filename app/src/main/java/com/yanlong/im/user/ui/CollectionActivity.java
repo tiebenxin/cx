@@ -62,10 +62,12 @@ import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.face.FaceView;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.SwipeLayoutOpenCloseListener;
 import net.cb.cb.library.utils.CallBack;
@@ -687,6 +689,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         mTxtView1.setOnClickListener(o -> {
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
+            }
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                return;
             }
             if (CommonUtils.transformMsgType(mList.get(postion).getType()) == ChatEnum.EMessageType.VOICE) {
                 ToastUtil.showToast(CollectionActivity.this,"收藏的语音信息不可以转发",1);

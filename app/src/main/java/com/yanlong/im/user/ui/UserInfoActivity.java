@@ -32,6 +32,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
@@ -137,7 +138,7 @@ public class UserInfoActivity extends AppActivity {
 
     @ChatEnum.EFromType
     private int from;
-    private  AlertYesNo alertYesNo = null;
+    private AlertYesNo alertYesNo = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,6 +255,10 @@ public class UserInfoActivity extends AppActivity {
         viewDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 alertYesNo.init(UserInfoActivity.this, "提示",
                         "删除联系人，将在双方好友列表里同时删除，并删除与该联系人的聊天记录", "确定", "取消", new AlertYesNo.Event() {
                             @Override
@@ -274,6 +279,10 @@ public class UserInfoActivity extends AppActivity {
         viewMkname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 Intent intent = new Intent(UserInfoActivity.this, CommonSetingActivity.class);
                 intent.putExtra(CommonSetingActivity.TITLE, "设置备注");
                 intent.putExtra(CommonSetingActivity.REMMARK, "备注");
@@ -314,6 +323,10 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                        ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
                     toSendVerifyActivity();
                 }
             });
@@ -323,6 +336,10 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                        ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
                     taskFriendAgree(id, null);
                 }
             });
@@ -471,19 +488,20 @@ public class UserInfoActivity extends AppActivity {
 
     /**
      * 更新用户信息
+     *
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshFriend(EventRefreshFriend event) {
-        if(event.getUid()==id) {
+        if (event.getUid() == id) {
             if (event.isLocal()) {
                 @CoreEnum.ERosterAction int action = event.getRosterAction();
                 if (action == UPDATE_INFO) {
                     taskUserInfo(id);
-                }else if(action == REMOVE_FRIEND&&!isDeleteUser){//PC端删除了好友
+                } else if (action == REMOVE_FRIEND && !isDeleteUser) {//PC端删除了好友
                     userInfoLocal = userAction.getUserInfoInLocal(id);
                     if (userInfoLocal != null) {
-                        if(alertYesNo!=null&&alertYesNo.isShowing())alertYesNo.dismiss();
+                        if (alertYesNo != null && alertYesNo.isShowing()) alertYesNo.dismiss();
                         type = 1;
                         setData(userInfoLocal);
                     }
@@ -491,12 +509,14 @@ public class UserInfoActivity extends AppActivity {
             }
         }
     }
+
     @Override
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
-        if(alertYesNo!=null&&alertYesNo.isShowing())alertYesNo.dismiss();
+        if (alertYesNo != null && alertYesNo.isShowing()) alertYesNo.dismiss();
         super.onDestroy();
     }
+
     private void taskUserInfo(Long id) {
         if (id == 1L || id == 3L) {
             UserInfo info = userDao.findUserInfo(id);
@@ -884,7 +904,7 @@ public class UserInfoActivity extends AppActivity {
         }
         if (time.equals("关闭")) {
             txtPower.setText("关闭");
-        }else {
+        } else {
             if (TextUtils.isEmpty(stringBuffer)) {
                 stringBuffer.append("禁言" + time);
             } else {
