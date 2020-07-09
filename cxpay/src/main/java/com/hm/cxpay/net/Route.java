@@ -13,7 +13,6 @@ public class Route {
     public static final String SUPPORT_BANK_URL = "https://changxin.zhixun6.com/bank.html";
 
     //零钱的用户协议
-//    public static final String USER_AGREEMENT_OF_PAY = "http://baidu.com";
     public static final String USER_AGREEMENT_OF_PAY = "https://changxin.zhixun6.com/yhxy.html";
 
     //实名认证
@@ -116,7 +115,7 @@ public class Route {
     public static final String SHOP_GET_URL_RELEASE = "/bank/store/getStoreAutoLoginUrl";
 
     //商城->消费
-    public static final String SHOP_CONSUMPTION = "/v2/store/consumer";
+    public static final String SHOP_CONSUMPTION = BANK+"/store/consumer";
 
     //获取支付密码管理URL
     public static final String GET_PSW_MANAGER = BANK+"/user/to-password-manage";
