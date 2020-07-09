@@ -156,11 +156,9 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                         //1 先统计全员禁言的群，过滤掉不显示
                         for (int i = 0; i < groupInfoBeans.size(); i++) {
                             if (groupInfoBeans.get(i).getWordsNotAllowed() == 1) {
-                                //如果我是群主不过滤
-                                if (StringUtil.isNotNull(groupInfoBeans.get(i).getMaster())) {
-                                    if (!groupInfoBeans.get(i).getMaster().equals("" + UserAction.getMyId())) {
-                                        ListOne.add(groupInfoBeans.get(i));
-                                    }
+                                //如果我是群主或者管理员则不过滤
+                                if(!isAdmin(groupInfoBeans.get(i)) && !isAdministrators(groupInfoBeans.get(i))){
+                                    ListOne.add(groupInfoBeans.get(i));
                                 }
                             }
                         }
@@ -447,6 +445,30 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         } else {
             actionbar.setTxtRight("完成(" + event.type + ")");
         }
+    }
+
+    /**
+     * 判断是否是管理员
+     */
+    private boolean isAdministrators(Group group) {
+        boolean isManager = false;
+        if (group.getViceAdmins() != null && group.getViceAdmins().size() > 0) {
+            for (Long user : group.getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
+    }
+    /**
+     * 判断是否是群主
+     */
+    private boolean isAdmin(Group group) {
+        if (!StringUtil.isNotNull(group.getMaster()))
+            return false;
+        return group.getMaster().equals("" + UserAction.getMyId());
     }
 
 }
