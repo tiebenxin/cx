@@ -14,6 +14,7 @@ import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
+import com.yanlong.im.chat.bean.EnvelopeTemp;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
@@ -2382,6 +2383,18 @@ public class MsgDao {
                 envelopeMessage.setEnvelopStatus(envelopeStatus);
                 realm.insertOrUpdate(envelopeMessage);
             }
+
+            //删除红包备份消息
+            if (envelopeStatus > 0) {
+                long traceId = Long.parseLong(rid);
+                MessageDBTemp msgTemp = realm.where(MessageDBTemp.class).equalTo("envelopeMessage.traceId", traceId).findFirst();
+                if (msgTemp != null) {
+                    if (msgTemp.getRedEnvelope() != null) {
+                        msgTemp.getRedEnvelope().deleteFromRealm();
+                    }
+                    msgTemp.deleteFromRealm();
+                }
+            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -3659,19 +3672,19 @@ public class MsgDao {
             RealmResults<MessageDBTemp> realmTemps = realm.where(MessageDBTemp.class)
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
-                    .beginGroup().isNotNull("red_envelope").endGroup()
+                    .beginGroup().isNotNull("envelopeMessage").endGroup()
                     .and()
-                    .beginGroup().equalTo("red_envelope.envelopStatus", 0).endGroup()
+                    .beginGroup().equalTo("envelopeMessage.envelopStatus", 0).endGroup()
                     .and()
                     .beginGroup()
-                    .beginGroup().equalTo("red_envelope.style", 1).endGroup()
+                    .beginGroup().equalTo("envelopeMessage.style", 1).endGroup()
                     .or()
-                    .beginGroup().equalTo("red_envelope.style", 0).and().notEqualTo("from_uid", mId).endGroup()
+                    .beginGroup().equalTo("envelopeMessage.style", 0).and().notEqualTo("from_uid", mId).endGroup()
                     .endGroup()
                     .and()
-//                    .beginGroup().greaterThan("timestamp", time - diff).endGroup()
-//                    .and()
-                    .beginGroup().greaterThan("timestamp", time - ten).endGroup()
+                    .beginGroup().greaterThan("timestamp", time - diff).endGroup()
+                    .and()
+                    .beginGroup().lessThan("timestamp", time - ten).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
             if (realmResults != null) {
@@ -3689,7 +3702,7 @@ public class MsgDao {
                                 if (o1 == null || o2 == null || o1.getTimestamp() == null || o2.getTimestamp() == null) {
                                     return 0;
                                 }
-                                return (int) (o1.getTimestamp().longValue() - o2.getTimestamp().longValue());
+                                return (int) (o2.getTimestamp().longValue() - o1.getTimestamp().longValue());
                             }
                         });
                     }
