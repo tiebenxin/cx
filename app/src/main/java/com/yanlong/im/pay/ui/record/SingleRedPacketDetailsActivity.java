@@ -117,13 +117,15 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 userBean.setNickname(fromUser.getMkName());
             }
             UserBean user = PayEnvironment.getInstance().getUser();
+            boolean isFromSelf = false;
             if (userBean != null) {
                 UIUtils.loadAvatar(userBean.getAvatar(), ui.ivAvatar);
                 ui.tvName.setText(userBean.getNickname() + "的红包");
+                isFromSelf = userBean.getUid() == user.getUid();
             }
             ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
             if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
-                if (user != null && userBean.getUid() == user.getUid()) {//是自己发的
+                if (user != null && isFromSelf) {//是自己发的
                     if (envelopeDetailBean.getChatType() == 1) {//群聊
                         ui.llSend.setVisibility(View.GONE);
                         ui.llRecord.setVisibility(View.VISIBLE);
@@ -178,7 +180,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 int receivedCount = totalCount - remainCount;
                 if (user != null) {
                     if (envelopeDetailBean.getEnvelopeStatus() == PayEnum.EEnvelopeStatus.PAST) {
-                        if (userBean.getUid() == user.getUid()) {//是自己发的
+                        if (isFromSelf) {//是自己发的
                             if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
                                 ui.tvHint.setText("该红包已过期。已领取" + receivedCount + "/" + totalCount + "个，共" + receivedMoney + "/" + totalMoney + "元");
                             } else {
@@ -215,18 +217,22 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             //设置金额
             if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
                 if (envelopeDetailBean.getChatType() == CoreEnum.EChatType.GROUP) {
-                    if (list != null && list.size() > 0) {
-                        findSelf();
-                    } else {
+                    if (isFromSelf) {
                         ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
-
+                    } else {
+                        if (list != null && list.size() > 0) {
+                            findSelf(false);
+                        } else {
+                            ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
+                        }
                     }
                 } else {
                     ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
                 }
             } else {
-                findSelf();
+                findSelf(isFromSelf);
             }
+
         } catch (Exception e) {
 
         }
@@ -234,7 +240,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
     }
 
     //找到自己抢红包记录
-    private void findSelf() {
+    private void findSelf(boolean isFromSelf) {
         if (list != null && list.size() > 0) {
             long uid = PayEnvironment.getInstance().getUserId();
             EnvelopeReceiverBean selfReceiver = null;
@@ -247,7 +253,6 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     }
                 }
             }
-
             if (selfReceiver != null) {
                 ui.tvMoney.setVisibility(View.VISIBLE);
                 ui.tvUnit.setVisibility(View.VISIBLE);

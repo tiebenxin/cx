@@ -260,7 +260,6 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ui.btnCommit.setEnabled(true);
         if (requestCode == REQUEST_PAY) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
@@ -276,6 +275,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                 if (handler != null && handler != null) {
                     handler.removeCallbacks(runnable);
                 }
+                ui.btnCommit.setEnabled(true);
             }
         }
     }
