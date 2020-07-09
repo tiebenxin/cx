@@ -28,8 +28,8 @@ android {
         applicationId "com.yanlong.im"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 318
-        versionName "1.5.38"
+        versionCode 319
+        versionName "1.5.39"
         //  versionName "0.9.0_${releaseTime()}"
         //---------------------------------------
         //升级的时候,如果数据库有改动,一定要升级数据库,具体在一些类中修改
