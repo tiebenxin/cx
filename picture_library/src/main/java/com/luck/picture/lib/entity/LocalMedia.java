@@ -30,7 +30,7 @@ public class LocalMedia implements Parcelable {
     private int height;
     private long size;
     private String msg_id;
-    private boolean canCollect=false;//是否显示收藏，点击大图可左右滑动，需要判断每张图片的条件，阅后即焚/发送失败不允许收藏
+    private boolean canCollect=false;//是否显示收藏，点击大图可左右滑动，需要判断每张图片的条件，发送失败不允许收藏
 
     public LocalMedia() {
 
