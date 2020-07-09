@@ -119,11 +119,9 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
             if(!TextUtils.isEmpty(sessionsList.get(i).getGid())){
                 Group group = msgDao.groupNumberGet(sessionsList.get(i).getGid());
                 if (group.getWordsNotAllowed() == 1) {
-                    //如果我是群主则不过滤
-                    if (StringUtil.isNotNull(group.getMaster())) {
-                        if (!group.getMaster().equals("" + UserAction.getMyId())) {
-                            ListOne.add(sessionsList.get(i));
-                        }
+                    //如果我是群主或者管理员则不过滤
+                    if(!isAdmin(group) && !isAdministrators(group)){
+                        ListOne.add(sessionsList.get(i));
                     }
                 }
             }
@@ -200,50 +198,28 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
     }
 
     /**
-     * 获取单个群成员信息
-     * 备注：这里用于查询并过滤将我禁言的群
+     * 判断是否是管理员
      */
-//    private void getSingleMemberInfo(String toGid,int position) {
-//        new UserAction().getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
-//                super.onResponse(call, response);
-//                finalRequestNums++;
-//                if (response != null && response.body() != null && response.body().isOk()) {
-//                    singleMeberInfoBean = response.body().getData();
-//                    //被单人禁言的时间
-//                    if (singleMeberInfoBean.getShutUpDuration() != 0) {
-//                        ListTwo.add(sessionsList.get(position));
-//                    }
-//                    //如果执行到最后一次请求，即全部走完，再判断是否存在需要过滤掉的将我禁言的群
-//                    if(finalRequestNums == needRequestNums){
-//                        if(ListTwo.size()>0){
-//                            sessionsList.removeAll(ListTwo);
-//                        }
-//                        List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
-//                        adapter.bindData(temp);
-//                        ui.listView.init(adapter);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
-//                super.onFailure(call, t);
-//                ToastUtil.show(t.getMessage());
-//                finalRequestNums++;
-//                //如果执行到最后一次请求，即全部走完，再判断是否存在需要过滤掉的将我禁言的群
-//                if(finalRequestNums == needRequestNums){
-//                    if(ListTwo.size()>0){
-//                        sessionsList.removeAll(ListTwo);
-//                    }
-//                    List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
-//                    adapter.bindData(temp);
-//                    ui.listView.init(adapter);
-//                }
-//            }
-//        });
-//    }
+    private boolean isAdministrators(Group group) {
+        boolean isManager = false;
+        if (group.getViceAdmins() != null && group.getViceAdmins().size() > 0) {
+            for (Long user : group.getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
+    }
+    /**
+     * 判断是否是群主
+     */
+    private boolean isAdmin(Group group) {
+        if (!StringUtil.isNotNull(group.getMaster()))
+            return false;
+        return group.getMaster().equals("" + UserAction.getMyId());
+    }
 
 
 }
