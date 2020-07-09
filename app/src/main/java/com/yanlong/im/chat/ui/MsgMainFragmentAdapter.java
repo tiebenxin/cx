@@ -242,11 +242,15 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         if (ViewUtils.isFastDoubleClick()) {
                             return;
                         }
-                        context.startActivity(new Intent(context, ChatActivity.class)
-                                .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
-                                .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
-                                .putExtra(ChatActivity.ONLINE_STATE, viewModel.onlineState.getValue())
-                        );
+                        try {
+                            context.startActivity(new Intent(context, ChatActivity.class)
+                                    .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
+                                    .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
+                                    .putExtra(ChatActivity.ONLINE_STATE, viewModel.onlineState.getValue())
+                            );
+                        } catch (Exception e) {
+
+                        }
                     }
                 });
                 holder.btnDel.setOnClickListener(new View.OnClickListener() {
@@ -273,14 +277,14 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                                         read = 1;
                                     }
                                     if (MyAppLication.INSTANCE().repository != null) {
-                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read,finalMsginfo.getMsg_id());
+                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read, finalMsginfo.getMsg_id());
                                     }
                                 }
                             } else {
                                 read = (bean.getMarkRead() + bean.getUnread_count()) > 0 ? 0 : 1;
                                 if (finalMsginfo != null) {
                                     if (MyAppLication.INSTANCE().repository != null) {
-                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read,finalMsginfo.getMsg_id());
+                                        MyAppLication.INSTANCE().repository.markSessionRead(sid, read, finalMsginfo.getMsg_id());
                                     }
                                 }
                             }

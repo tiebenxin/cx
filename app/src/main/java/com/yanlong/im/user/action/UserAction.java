@@ -614,9 +614,8 @@ public class UserAction {
     }
 
 
-    private PayAction payAction = new PayAction();
-
     private void upMyinfoToPay() {
+        PayAction payAction = new PayAction();
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
