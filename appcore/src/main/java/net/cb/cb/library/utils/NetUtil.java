@@ -15,7 +15,15 @@ import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.net.IRequestListener;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -71,6 +79,8 @@ public class NetUtil {
         }
         //加证书
         // builder.sslSocketFactory(Ssl.getCertificates(),Ssl.getTrustManager());
+        builder.sslSocketFactory(createSSLSocketFactory());
+
         httpClient = builder.build();
         LogUtil.getLog().i("NetUtil", "--init-" + AppHostUtil.getHttpHost());
         retrofit = retrofit == null ? new Retrofit.Builder()
@@ -147,15 +157,16 @@ public class NetUtil {
             } catch (Exception e) {
             }
             return null;
-        }else{
+        } else {
             try {
-               return call.execute();
+                return call.execute();
             } catch (IOException e) {
                 e.printStackTrace();
-                return  null;
+                return null;
             }
         }
     }
+
     /***
      * 2.执行
      *
@@ -325,6 +336,42 @@ public class NetUtil {
             }
         });
 
+    }
+
+    /**
+     * 生成安全套接字工厂，用于https请求的证书跳过
+     */
+    public static SSLSocketFactory createSSLSocketFactory() {
+        SSLSocketFactory ssfFactory = null;
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, new TrustManager[]{new TrustAllCerts()}, new SecureRandom());
+            ssfFactory = sc.getSocketFactory();
+        } catch (Exception e) {
+        }
+        return ssfFactory;
+    }
+
+    /**
+     * 用于信任所有证书
+     */
+    static class TrustAllCerts implements X509TrustManager {
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s)
+                throws CertificateException {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s)
+                throws CertificateException {
+
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
     }
 
 }
