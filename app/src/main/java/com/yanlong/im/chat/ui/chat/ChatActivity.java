@@ -3437,8 +3437,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
             lc.setMsg_id(msgl.getMsg_id());
-            //发送状态正常，且未开启阅后即焚，则允许收藏
-            if (msgl.getSend_state() != ChatEnum.ESendStatus.ERROR && msgl.getSurvival_time() == 0) {
+            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
+            if (msgl.getSend_state() != ChatEnum.ESendStatus.ERROR) {
                 lc.setCanCollect(true);
             }
             temp.add(lc);
