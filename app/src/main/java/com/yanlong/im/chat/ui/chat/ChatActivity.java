@@ -292,8 +292,6 @@ import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
-    private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
-    private final String REST_EDIT = "重新编辑";
     private final String IS_VIP = "1";// (0:普通|1:vip)
     public final static int MIN_UNREAD_COUNT = 15;
     private int MAX_UNREAD_COUNT = 80 * 4;//默认加载最大数据
@@ -317,15 +315,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     // 表情控件视图
     protected FaceView viewFaceView;
 
-    private Integer font_size;
-
     public static final String AGM_TOUID = "toUId";
     public static final String AGM_TOGID = "toGId";
     public static final String GROUP_CREAT = "creat";
     public static final String ONLINE_STATE = "if_online";
     public static final String SEARCH_TIME = "search_time";
     public static final String SEARCH_KEY = "search_key";
-
 
     private Gson gson = new Gson();
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
@@ -1313,8 +1308,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
-        //设置字体大小
-        font_size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
         //注册消息监听
         SocketUtil.getSocketUtil().addEvent(msgEvent);
         //发送普通消息
@@ -1485,9 +1478,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     mViewModel.isInputText.setValue(true);
                 } else {//未打开面板->打开功能面板
                     mViewModel.isOpenFuction.setValue(true);
-                    if (checkCurrentImg()) {
-                        showPopupWindow(v);
-                    }
+                    // TODO　#133404 java.lang.SecurityException　先申请权限在访问
+                    permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+                        @Override
+                        public void onSuccess() {
+                            if (checkCurrentImg()) {
+                                showPopupWindow(v);
+                            }
+                        }
+
+                        @Override
+                        public void onFail() {
+
+                        }
+                    }, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE});
                 }
             }
         });
@@ -6407,13 +6411,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             if (fileMessage.getSize() < 10485760) {
                                 Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                                 intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-                                intent.putExtra("auto_download",true);//是否自动下载
+                                intent.putExtra("auto_download", true);//是否自动下载
                                 startActivity(intent);
                             } else {
                                 //大于10M，跳详情，用户自行选择手动下载
                                 Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                                 intent.putExtra("file_msg", new Gson().toJson(message));
-                                intent.putExtra("auto_download",false);
+                                intent.putExtra("auto_download", false);
                                 startActivity(intent);
                             }
                         }
@@ -6440,13 +6444,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (fileMessage.getSize() < 10485760) {
                             Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                             intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-                            intent.putExtra("auto_download",true);//是否自动下载
+                            intent.putExtra("auto_download", true);//是否自动下载
                             startActivity(intent);
                         } else {
                             //大于10M，跳详情，用户自行选择手动下载
                             Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                             intent.putExtra("file_msg", new Gson().toJson(message));
-                            intent.putExtra("auto_download",false);
+                            intent.putExtra("auto_download", false);
                             startActivity(intent);
                         }
                     }
