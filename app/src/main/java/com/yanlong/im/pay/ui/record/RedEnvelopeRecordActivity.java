@@ -45,6 +45,8 @@ public class RedEnvelopeRecordActivity extends AppActivity {
     private List<Fragment> fragments;
     String[] tabTiles = new String[]{"收到的红包", "发出的红包"};
     private int currentTab = 0;//默认收到红包界面
+    private RedDetailsBean recDetailBean;
+    private RedDetailsBean sendDetailBean;
 
 
     @Override
@@ -83,6 +85,15 @@ public class RedEnvelopeRecordActivity extends AppActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 currentTab = tab.getPosition();
                 ui.viewPager.setCurrentItem(tab.getPosition());
+                if (currentTab == 0) {
+                    if (recDetailBean != null) {
+                        initDetails(recDetailBean, true);
+                    }
+                } else {
+                    if (sendDetailBean != null) {
+                        initDetails(sendDetailBean, false);
+                    }
+                }
             }
 
             @Override
@@ -192,6 +203,11 @@ public class RedEnvelopeRecordActivity extends AppActivity {
 
     @SuppressLint("SetTextI18n")
     public void initDetails(RedDetailsBean bean, boolean isReceive) {
+        if (isReceive) {
+            recDetailBean = bean;
+        } else {
+            sendDetailBean = bean;
+        }
         if (bean != null) {
             UserBean user = PayEnvironment.getInstance().getUser();
             String name = "";

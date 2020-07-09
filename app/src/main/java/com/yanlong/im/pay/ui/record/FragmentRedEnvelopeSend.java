@@ -105,7 +105,7 @@ public class FragmentRedEnvelopeSend extends Fragment {
                             if (details != null) {
                                 totalCount = details.getTotal();
                                 if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
-                                    ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
+                                    ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, false);
                                 }
                                 if (details.getItems() != null) {
                                     if (currentPage == 1) {
