@@ -85,9 +85,8 @@ public class AudioPlayManager implements SensorEventListener {
 
 //                    this._audioManager.setMode(0);
 //                    this._audioManager.setSpeakerphoneOn(true);
-                    final int positions = this._mediaPlayer.getCurrentPosition();
-
                     try {
+                        final int positions = this._mediaPlayer.getCurrentPosition();
                         this._mediaPlayer.reset();
                         this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
                         this._mediaPlayer.setVolume(1.0F, 1.0F);
@@ -116,6 +115,8 @@ public class AudioPlayManager implements SensorEventListener {
                         this._mediaPlayer.prepareAsync();
                     } catch (IOException var5) {
                         var5.printStackTrace();
+                    }catch (NullPointerException e){
+
                     }
 
                     this.setScreenOn();

@@ -126,7 +126,7 @@ public class CommonSetingActivity extends AppActivity {
                 } else {
                     if (TextUtils.isEmpty(content.trim())) {
                         //群昵称可以为纯空格，回传""字符串改为取用户自己的昵称
-                        if (mHeadView.getActionbar().getTitle().equals("我在本群的昵称")) {
+                        if ("我在本群的昵称".equals(mHeadView.getActionbar().getTitle())) {
                             content = content.trim();
                         } else {
                             //用户名设置和备注不可以用纯空格
