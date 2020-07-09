@@ -3976,8 +3976,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             case ChatEnum.EMessageType.TEXT:
             case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
-                //发送状态正常，且未开启阅后即焚，则允许收藏
-                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
+                //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
+                if (sendStatus != ChatEnum.ESendStatus.ERROR) {
                     menus.add(new OptionMenu("收藏"));
                 }
                 break;
@@ -3987,8 +3987,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     menus.add(0, new OptionMenu("扬声器播放"));
                 }
-                //发送状态正常，且未开启阅后即焚，则允许收藏
-                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
+                //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
+                if (sendStatus != ChatEnum.ESendStatus.ERROR) {
                     menus.add(new OptionMenu("收藏"));
                 }
                 break;
@@ -3997,8 +3997,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             case ChatEnum.EMessageType.MSG_VIDEO:
             case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
             case ChatEnum.EMessageType.FILE:
-                //发送状态正常，且未开启阅后即焚，则允许收藏
-                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
+                //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
+                if (sendStatus != ChatEnum.ESendStatus.ERROR) {
                     menus.add(new OptionMenu("收藏"));
                 }
                 break;
@@ -5993,9 +5993,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 localUrl = msg.getVideoMessage().getUrl();
             }
-            //发送状态正常，且未开启阅后即焚，则允许收藏
+            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
             boolean canCollect = false;
-            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR && msg.getSurvival_time() == 0) {
+            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR) {
                 canCollect = true;
             }
             Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
