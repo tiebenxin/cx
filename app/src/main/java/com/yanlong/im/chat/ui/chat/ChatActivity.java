@@ -5107,7 +5107,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //抢红包，获取token
     public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType) {
-        PayHttpUtils.getInstance().grabRedEnvelope(rid)
+        String from = "";
+        if (isGroup()) {
+            from = toGid;
+        } else {
+            if (msgBean != null && msgBean.getFrom_uid() != null) {
+                from = msgBean.getFrom_uid().longValue() + "";
+            }
+        }
+        if (TextUtils.isEmpty(from)) {
+            return;
+        }
+        PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
@@ -5231,7 +5242,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
                                      boolean isNormalStyle) {
         if (TextUtils.isEmpty(token)) {
-            PayHttpUtils.getInstance().grabRedEnvelope(rid)
+            String from = "";
+            if (isGroup()) {
+                from = toGid;
+            } else {
+                if (msgBean != null && msgBean.getFrom_uid() != null) {
+                    from = msgBean.getFrom_uid().longValue() + "";
+                }
+            }
+            if (TextUtils.isEmpty(from)) {
+                return;
+            }
+            PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
                     .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
