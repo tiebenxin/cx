@@ -274,6 +274,7 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
+            FileManager.getInstance().clearLogDir();
         }
 
     }
