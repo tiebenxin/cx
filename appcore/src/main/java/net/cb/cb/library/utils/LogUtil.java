@@ -1,5 +1,6 @@
 package net.cb.cb.library.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import net.cb.cb.library.manager.excutor.ExecutorManager;
@@ -25,7 +26,7 @@ public class LogUtil {
     }
 
     private void sp(String TAG, String msg, int state) {
-        if (!isOpen)
+        if (!isOpen || TextUtils.isEmpty(msg))
             return;
         if (TAG == null || TAG.length() < 1) {
             TAG = "log";
@@ -105,7 +106,7 @@ public class LogUtil {
                 overDivider.append("=");
             }
             StringBuffer sb = new StringBuffer();
-            if( ex == null ||ex.getCause() == null ||ex.getCause().getStackTrace() == null){
+            if (ex == null || ex.getCause() == null || ex.getCause().getStackTrace() == null) {
                 return;
             }
             StackTraceElement[] element = ex.getCause().getStackTrace();
