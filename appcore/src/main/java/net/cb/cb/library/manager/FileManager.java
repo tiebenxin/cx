@@ -175,33 +175,36 @@ public class FileManager {
                     if (fileDir.exists()) {
                         File[] files = fileDir.listFiles();
                         if (files != null) {
-                            List<File> fileList = new ArrayList<>();
-                            for (int i = 0; i < files.length; i++) {
-                                File file = files[i];
-                                fileList.add(file);
-                            }
-                            int size = fileList.size();
-                            if (size > 10) {
-                                Collections.sort(fileList, new Comparator<File>() {
-                                    @Override
-                                    public int compare(File o1, File o2) {
-                                        if (o1 == null || o2 == null) {
-                                            return -1;
-                                        }
-                                        return (int) (o2.lastModified() - o1.lastModified());
-                                    }
-                                });
-                                //大于10
+                            int len = files.length;
+                            if (len > 10) {
+                                List<File> fileList = new ArrayList<>();
+                                for (int i = 0; i < len; i++) {
+                                    File file = files[i];
+                                    fileList.add(file);
+                                }
+                                int size = fileList.size();
                                 if (size > 10) {
-                                    List<File> removeList = new ArrayList<>();
-                                    for (int i = 0; i < size; i++) {
-                                        if (i > 9) {
-                                            removeList.add(fileList.get(i));
+                                    Collections.sort(fileList, new Comparator<File>() {
+                                        @Override
+                                        public int compare(File o1, File o2) {
+                                            if (o1 == null || o2 == null) {
+                                                return -1;
+                                            }
+                                            return (int) (o2.lastModified() - o1.lastModified());
                                         }
-                                    }
-                                    if (removeList.size() > 0) {
-                                        for (File file : removeList) {
-                                            file.delete();
+                                    });
+                                    //大于10
+                                    if (size > 10) {
+                                        List<File> removeList = new ArrayList<>();
+                                        for (int i = 0; i < size; i++) {
+                                            if (i > 9) {
+                                                removeList.add(fileList.get(i));
+                                            }
+                                        }
+                                        if (removeList.size() > 0) {
+                                            for (File file : removeList) {
+                                                file.delete();
+                                            }
                                         }
                                     }
                                 }
