@@ -180,15 +180,16 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    if (response.body().getData() != null) {
-                        doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
-                        saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
-                        LogUtil.writeLog("账号密码登录获取token" + "--token=" + response.body().getData().getAccessToken());
-                        initDB("" + response.body().getData().getUid());
-                        setToken(response.body().getData(), true);
+                    TokenBean tokenBean = response.body().getData();
+                    if (tokenBean != null) {
+                        doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                        saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                        LogUtil.writeLog("账号密码登录获取token" + "--uid=" + tokenBean.getUid() + "--token=" + tokenBean.getAccessToken());
+                        initDB("" + tokenBean.getUid());
+                        setToken(tokenBean, true);
                         //如果是手机号码登录，则删除上次常信号登陆的账号
                         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
-                        getMyInfo4Web(response.body().getData().getUid(), "");
+                        getMyInfo4Web(tokenBean.getUid(), "");
                     }
                 }
 
@@ -216,12 +217,13 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     if (response.body().getData() != null) {
-                        doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
-                        saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
-                        LogUtil.writeLog("常信号登录获取token" + "--token=" + response.body().getData().getAccessToken());
-                        initDB("" + response.body().getData().getUid());
-                        setToken(response.body().getData(), true);
-                        getMyInfo4Web(response.body().getData().getUid(), imid);
+                        TokenBean tokenBean = response.body().getData();
+                        doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                        saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                        LogUtil.writeLog("常信号登录获取token" + "--uid=" + tokenBean.getUid()+"--token=" + tokenBean.getAccessToken());
+                        initDB("" + tokenBean.getUid());
+                        setToken(tokenBean, true);
+                        getMyInfo4Web(tokenBean.getUid(), imid);
                     }
                 }
 
@@ -421,8 +423,8 @@ public class UserAction {
                     TokenBean newToken = response.body().getData();
                     token.setAccessToken(newToken.getAccessToken());
                     token.setBankReqSignKey(EncrypUtil.aesDecode(token.getBankReqSignKey()));
-                    LogUtil.getLog().i("updateToken--成功", "--token=" + response.body().getData().getAccessToken());
-                    LogUtil.writeLog("updateToken--成功" + "--token=" + response.body().getData().getAccessToken() + "--time=" + System.currentTimeMillis());
+                    LogUtil.getLog().i("updateToken--成功", "--token=" + newToken.getAccessToken());
+                    LogUtil.writeLog("updateToken--成功" + "---uid=" + newToken.getUid() + "--token=" + newToken.getAccessToken() + "--time=" + System.currentTimeMillis());
                     setToken(token, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
@@ -492,7 +494,7 @@ public class UserAction {
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
         PayEnvironment.getInstance().setToken(token.getAccessToken());
         LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
-        LogUtil.writeLog("设置token" + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
+        LogUtil.writeLog("设置token" + "--uid=" + token.getUid() + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
     }
 
 
@@ -734,12 +736,13 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    LogUtil.writeLog("手机验证码登录获取token" + "--token=" + response.body().getData().getAccessToken());
-                    doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
-                    saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
-                    initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
-                    getMyInfo4Web(response.body().getData().getUid(), "");
+                    TokenBean tokenBean = response.body().getData();
+                    LogUtil.writeLog("手机验证码登录获取token" + "---uid=" + tokenBean.getUid() + "--token=" + tokenBean.getAccessToken());
+                    doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    initDB("" + tokenBean.getUid());
+                    setToken(tokenBean, true);
+                    getMyInfo4Web(tokenBean.getUid(), "");
                 }
                 callback.onResponse(call, response);
             }

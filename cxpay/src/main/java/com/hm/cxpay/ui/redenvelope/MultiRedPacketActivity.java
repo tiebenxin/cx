@@ -448,6 +448,8 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     handler.postDelayed(runnable, WAIT_TIME);
                 }
             } else {
+                isSending= false;
+                dismissLoadingDialog();
                 if (handler != null && handler != null) {
                     handler.removeCallbacks(runnable);
                 }

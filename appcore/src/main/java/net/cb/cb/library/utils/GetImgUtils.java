@@ -34,7 +34,7 @@ public class GetImgUtils {
     /**
      * 获取相册中最新一张图片
      * @param context
-     * @return
+     * @return TODO #128104
      */
     public static ImgBean getLatestPhoto(Context context) {
         //检查所有文件夹
@@ -46,22 +46,35 @@ public class GetImgUtils {
                 MediaStore.Files.FileColumns.DATE_MODIFIED);
         //循环遍历找出所有图片
         while (cursor.moveToNext()) {
-            long mtime=cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
-            String imgUrl=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            long mtime = 0;
+            String imgUrl = "";
+            if(cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))!=0L
+                && cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))!=null){
+                mtime=cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
+                imgUrl=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
             imgBeans.add(new ImgBean(mtime, imgUrl));
         }
         if (!cursor.isClosed()) {
             cursor.close();
         }
         //按时间降序排序
-        Collections.sort(imgBeans, new Comparator<ImgBean>() {
-            @Override
-            public int compare(ImgBean imgBean, ImgBean t1) {
-                return (int) (t1.mTime-imgBean.mTime);
+        if(imgBeans.size()>0){
+            //如果只有1个，则直接返回，否则超过2个需要排序
+            if(imgBeans.size()>=2){
+                Collections.sort(imgBeans, new Comparator<ImgBean>() {
+                    @Override
+                    public int compare(ImgBean imgBean, ImgBean t1) {
+                        return (int) (t1.mTime-imgBean.mTime);
+                    }
+                });
             }
-        });
-        //拿最近一张图片
-        return imgBeans.get(0);
+            //拿最近一张图片
+            return imgBeans.get(0);
+        }else {
+            return null;
+        }
+
     }
 
 }
