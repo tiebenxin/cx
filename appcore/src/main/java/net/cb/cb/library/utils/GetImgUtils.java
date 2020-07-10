@@ -60,12 +60,15 @@ public class GetImgUtils {
         }
         //按时间降序排序
         if(imgBeans.size()>0){
-            Collections.sort(imgBeans, new Comparator<ImgBean>() {
-                @Override
-                public int compare(ImgBean imgBean, ImgBean t1) {
-                    return (int) (t1.mTime-imgBean.mTime);
-                }
-            });
+            //如果只有1个，则直接返回，否则超过2个需要排序
+            if(imgBeans.size()>=2){
+                Collections.sort(imgBeans, new Comparator<ImgBean>() {
+                    @Override
+                    public int compare(ImgBean imgBean, ImgBean t1) {
+                        return (int) (t1.mTime-imgBean.mTime);
+                    }
+                });
+            }
             //拿最近一张图片
             return imgBeans.get(0);
         }else {
