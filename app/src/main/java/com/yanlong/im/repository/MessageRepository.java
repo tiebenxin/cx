@@ -1064,38 +1064,42 @@ public class MessageRepository {
      * @param uid
      */
     public void offlineUpdateSession(Realm realm, String gid, Long uid) {
-        //最新消息
-        MsgAllBean lastMessage = null;
-        if (TextUtils.isEmpty(gid)) {
-            lastMessage = realm.where(MsgAllBean.class)
-                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
-                    .and()
-                    .beginGroup()
-                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid)
-                    .endGroup()
-                    .sort("timestamp", Sort.DESCENDING).findFirst();
-        } else {
-            lastMessage = realm.where(MsgAllBean.class).equalTo("gid", gid).sort("timestamp", Sort.DESCENDING).findFirst();
-        }
-        if (lastMessage != null) {
-            boolean isFromSelf = UserAction.getMyId() != null && lastMessage.getFrom_uid() != null && lastMessage.getFrom_uid() == UserAction.getMyId().intValue();
-            Long id = isFromSelf ? lastMessage.getTo_uid() : lastMessage.getFrom_uid();
-            long chatterId = -1;
-            if (id != null) {
-                chatterId = id.longValue();
-            }
-            //非自己发过来的消息，才存储为未读状态
-            if (!isFromSelf) {
-                boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(lastMessage.getGid(), null);
-                localDataSource.updateSessionRead(realm, lastMessage.getGid(), chatterId, canChangeUnread, lastMessage);
-                //矫正未读数
-                localDataSource.correctSessionCount(realm, lastMessage.getGid(), chatterId);
+        try {
+            //最新消息
+            MsgAllBean lastMessage = null;
+            if (TextUtils.isEmpty(gid)) {
+                lastMessage = realm.where(MsgAllBean.class)
+                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                        .and()
+                        .beginGroup()
+                        .equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+                        .endGroup()
+                        .sort("timestamp", Sort.DESCENDING).findFirst();
             } else {
-                //自己PC 端发的消息刷新session
-                /********通知更新或创建session ************************************/
-                localDataSource.updateFromSelfPCSession(realm, lastMessage);
-                /********通知更新或创建session end************************************/
+                lastMessage = realm.where(MsgAllBean.class).equalTo("gid", gid).sort("timestamp", Sort.DESCENDING).findFirst();
             }
+            if (lastMessage != null) {
+                boolean isFromSelf = UserAction.getMyId() != null && lastMessage.getFrom_uid() != null && lastMessage.getFrom_uid() == UserAction.getMyId().intValue();
+                Long id = isFromSelf ? lastMessage.getTo_uid() : lastMessage.getFrom_uid();
+                long chatterId = -1;
+                if (id != null) {
+                    chatterId = id.longValue();
+                }
+                //非自己发过来的消息，才存储为未读状态
+                if (!isFromSelf) {
+                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(lastMessage.getGid(), null);
+                    localDataSource.updateSessionRead(realm, lastMessage.getGid(), chatterId, canChangeUnread, lastMessage);
+                    //矫正未读数
+                    localDataSource.correctSessionCount(realm, lastMessage.getGid(), chatterId);
+                } else {
+                    //自己PC 端发的消息刷新session
+                    /********通知更新或创建session ************************************/
+                    localDataSource.updateFromSelfPCSession(realm, lastMessage);
+                    /********通知更新或创建session end************************************/
+                }
+            }
+        } catch (IllegalStateException e) {
+
         }
     }
 
