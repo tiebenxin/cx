@@ -34,7 +34,7 @@ public class GetImgUtils {
     /**
      * 获取相册中最新一张图片
      * @param context
-     * @return
+     * @return TODO #128104
      */
     public static ImgBean getLatestPhoto(Context context) {
         //检查所有文件夹
