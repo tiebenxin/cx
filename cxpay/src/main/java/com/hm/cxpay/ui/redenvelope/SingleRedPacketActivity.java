@@ -272,6 +272,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                     handler.postDelayed(runnable, WAIT_TIME);
                 }
             } else {
+                dismissLoadingDialog();
                 if (handler != null && handler != null) {
                     handler.removeCallbacks(runnable);
                 }
