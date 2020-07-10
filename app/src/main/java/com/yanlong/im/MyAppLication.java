@@ -120,7 +120,7 @@ public class MyAppLication extends MainApplication {
     }
 
     /**
-     * TODO 处理商城shopfragment里Webview造成多进程的异常 bugly #108910 (经查证,仅努比亚 NX563J会频繁报这个异常)
+     * TODO 处理商城shopfragment里Webview造成多进程的异常 bugly #108910 #130002 (经查证,仅努比亚 NX563J会频繁报这个异常)
      */
     private void HandleWebviewCrash() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
