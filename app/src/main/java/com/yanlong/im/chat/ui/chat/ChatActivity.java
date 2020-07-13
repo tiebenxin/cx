@@ -3640,7 +3640,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (tradeId > 0) {
             MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
             if (msgAllBean != null) {
-                showLoadingDialog();
                 httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
             }
         }
@@ -5430,10 +5429,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 获取账单详情
      */
     private void httpGetTransferDetail(String tradeId, int opType, MsgAllBean msgBean) {
-        if (isSelfLock()) {
+        if (opType == PayEnum.ETransferOpType.TRANS_SEND && isSelfLock()) {
             ToastUtil.show(getString(R.string.user_disable_message));
             return;
         }
+        showLoadingDialog();
         PayHttpUtils.getInstance().getTransferDetail(tradeId)
                 .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>handleResult())
@@ -5878,7 +5878,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     showIdentifyDialog();
                     return;
                 }
-                showLoadingDialog();
                 httpGetTransferDetail(transfer.getId(), transfer.getOpType(), message);
                 break;
             case ChatEnum.ECellEventType.AVATAR_CLICK:
