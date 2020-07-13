@@ -266,7 +266,9 @@ public class BillDetailActivity extends AppActivity {
             if (type == 2) {
                 if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
                     tvTitle.setText("零钱红包-发给" + data.getOtherUser().getNickname());
-                } else {
+                } else if (data.getToGroup() == 1){
+                    tvTitle.setText("零钱红包-发出群红包");
+                }else{
                     tvTitle.setText("零钱红包");
                 }
                 tvRedPacketGetMoneyTime.setVisibility(View.GONE);

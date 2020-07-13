@@ -2781,7 +2781,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventTransferSuccess(TransferSuccessEvent event) {
         CxTransferBean transferBean = event.getBean();
-        if (transferBean != null && transferBean.getTradeId() != currentTradeId && transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
+        if (transferBean != null && transferBean.getTradeId() != currentTradeId /*&& transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_SEND*/) {
             LogUtil.getLog().i("转账", "TransferSuccessEvent--" + event.getBean().getActionId() + "--" + event.getBean().getTradeId());
             currentTradeId = transferBean.getTradeId();
             if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT

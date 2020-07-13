@@ -149,7 +149,7 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     }else if(bean.getTradeType()==2){
                         //如果是群红包
                         if(bean.getToGroup()==1){
-                            holder.tvContent.setText("零钱红包-发群红包");
+                            holder.tvContent.setText("零钱红包-发出群红包");
                         }else {
                             //如果是普通红包
                             if(bean.getOtherUser()!=null && bean.getOtherUser().getNickname()!=null){
