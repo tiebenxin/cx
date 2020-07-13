@@ -12,7 +12,9 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
@@ -87,6 +89,9 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
         } else {
             mCbMessageInfo.setChecked(true);
         }
+        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+            mCbReceiveMessage.setEnabled(false);
+        }
         taskUserInfo(uid);
         taskSetingGet();
     }
@@ -128,10 +133,10 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 if (response.body() == null) {
                     return;
                 }
-                if(userInfo.getMessagenotice() == 0){
+                if (userInfo.getMessagenotice() == 0) {
                     userInfo.setMessagenotice(1);
                     userDao.updateUserBean(userInfo);
-                }else{
+                } else {
                     userInfo.setMessagenotice(0);
                     userDao.updateUserBean(userInfo);
                 }
@@ -149,10 +154,10 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 if (response.body() == null) {
                     return;
                 }
-                if(userInfo.getDisplaydetail() == 0){
+                if (userInfo.getDisplaydetail() == 0) {
                     userInfo.setDisplaydetail(1);
                     userDao.updateUserBean(userInfo);
-                }else{
+                } else {
                     userInfo.setDisplaydetail(0);
                     userDao.updateUserBean(userInfo);
                 }
@@ -171,7 +176,7 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                     return;
                 }
                 UserInfo userInfo = response.body().getData();
-                if (userInfo == null){
+                if (userInfo == null) {
                     return;
                 }
                 if (userInfo.getMessagenotice() == 0) {

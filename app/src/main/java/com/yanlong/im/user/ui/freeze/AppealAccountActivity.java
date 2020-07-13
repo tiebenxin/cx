@@ -306,7 +306,13 @@ public class AppealAccountActivity extends BaseBindActivity<ActivityAppealAccoun
                         .setListener(new DialogCommon.IDialogListener() {
                             @Override
                             public void onSure() {
-                                if (mList.size() > 0) {
+                                boolean isPic = false;
+                                for (LocalMedia localMedia : mList) {
+                                    if (!localMedia.isShowAdd()) {
+                                        isPic = true;
+                                    }
+                                }
+                                if (isPic) {
                                     UpLoadFileUtil.getInstance().upLoadFile(AppealAccountActivity.this, mList, new UpLoadFileUtil.OnUploadFileListener() {
                                         @Override
                                         public void onUploadFile(HashMap<String, String> netFile) {
