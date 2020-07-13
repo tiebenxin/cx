@@ -15,5 +15,5 @@ public interface ICustomerItemClick {
 
     void onClickItemVoice();
 
-    void onClickItemCancle();
+    void onClickItemCancel();
 }

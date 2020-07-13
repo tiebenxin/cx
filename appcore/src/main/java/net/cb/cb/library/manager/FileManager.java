@@ -1,6 +1,11 @@
 package net.cb.cb.library.manager;
 
 import android.os.Environment;
+import android.telephony.mbms.FileInfo;
+
+import com.jrmf360.tools.utils.ThreadUtil;
+
+import net.cb.cb.library.utils.FileConfig;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,6 +15,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -155,6 +162,60 @@ public class FileManager {
 
     public String createImagePath() {
         return getImageCachePath() + "/" + System.currentTimeMillis() + ".jpg";
+    }
+
+
+    //清除日志文件夹中多余日志，仅保存最近10天
+    public void clearLogDir() {
+        ThreadUtil.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    File fileDir = new File(FileConfig.PATH_LOG);
+                    if (fileDir.exists()) {
+                        File[] files = fileDir.listFiles();
+                        if (files != null) {
+                            int len = files.length;
+                            if (len > 10) {
+                                List<File> fileList = new ArrayList<>();
+                                for (int i = 0; i < len; i++) {
+                                    File file = files[i];
+                                    fileList.add(file);
+                                }
+                                int size = fileList.size();
+                                if (size > 10) {
+                                    Collections.sort(fileList, new Comparator<File>() {
+                                        @Override
+                                        public int compare(File o1, File o2) {
+                                            if (o1 == null || o2 == null) {
+                                                return -1;
+                                            }
+                                            return (int) (o2.lastModified() - o1.lastModified());
+                                        }
+                                    });
+                                    //大于10
+                                    if (size > 10) {
+                                        List<File> removeList = new ArrayList<>();
+                                        for (int i = 0; i < size; i++) {
+                                            if (i > 9) {
+                                                removeList.add(fileList.get(i));
+                                            }
+                                        }
+                                        if (removeList.size() > 0) {
+                                            for (File file : removeList) {
+                                                file.delete();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
 }

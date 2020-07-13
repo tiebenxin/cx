@@ -311,7 +311,14 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
     //获取红包详情
     public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle) {
         if (TextUtils.isEmpty(token)) {
-            PayHttpUtils.getInstance().grabRedEnvelope(rid)
+            String from = "";
+            if (!TextUtils.isEmpty(mGid)) {
+                from = mGid;
+            }
+            if (TextUtils.isEmpty(from)) {
+                return;
+            }
+            PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
                     .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
@@ -379,7 +386,14 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
     //抢红包，获取token
     public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType) {
-        PayHttpUtils.getInstance().grabRedEnvelope(rid)
+        String from = "";
+        if (!TextUtils.isEmpty(mGid)) {
+            from = mGid;
+        }
+        if (TextUtils.isEmpty(from)) {
+            return;
+        }
+        PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {

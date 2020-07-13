@@ -219,14 +219,9 @@ public class NetUtil {
 
 
     public static NetUtil getNet() {
-
         if (net == null)
             init();
         return net;
-    }
-
-    public void reset() {
-        init();
     }
 
     private NetUtil() {

@@ -1895,29 +1895,31 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
 
             @Override
-            public void onClickItemCancle() {
+            public void onClickItemCancel() {
 
             }
         });
     }
 
     /**
-     * 判断用户是否被封号
+     * 判断对方用户是否被封号
      *
-     * @return
+     * @return true， 被封， false 未被封
      */
     private boolean checkUserStatus() {
         boolean status = false;
-        if (userDao != null) {
-            UserInfo userInfo = userDao.findUserInfo(toUId);
-            if (userInfo != null) {
-                // 封号
-                if (UserUtil.getUserStatus(userInfo.getLockedstatus())) {
-                    status = true;
-                }
+        if (mViewModel.userInfo != null) {
+            // 封号
+            if (UserUtil.getUserStatus(mViewModel.userInfo.getLockedstatus())) {
+                status = true;
             }
         }
         return status;
+    }
+
+    //是否自己被封，true， 被封， false 未被封
+    private boolean isSelfLock() {
+        return UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE;
     }
 
     private void toGroupRobot() {
@@ -1998,7 +2000,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void toSystemEnvelope() {
-
         UserBean user = PayEnvironment.getInstance().getUser();
         if (user != null) {
             if (user.getRealNameStat() != 1) {//未认证
@@ -2074,9 +2075,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toCamera();
                         break;
                     case ChatEnum.EFunctionId.ENVELOPE_SYS:
+                        if (checkUserStatus()) {
+                            ToastUtil.show(getString(R.string.friend_disable_message));
+                            return;
+                        } else if (isSelfLock()) {
+                            ToastUtil.show(getString(R.string.user_disable_message));
+                            return;
+                        }
                         toSystemEnvelope();
                         break;
                     case ChatEnum.EFunctionId.TRANSFER:
+                        if (checkUserStatus()) {
+                            ToastUtil.show(getString(R.string.friend_disable_message));
+                            return;
+                        } else if (isSelfLock()) {
+                            ToastUtil.show(getString(R.string.user_disable_message));
+                            return;
+                        }
                         toTransfer();
                         break;
                     case ChatEnum.EFunctionId.VIDEO_CALL:
@@ -2354,6 +2369,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean checkCanOpenUpRedEnv() {
         boolean check = true;
         if (mViewModel.groupInfo != null && mViewModel.groupInfo.getCantOpenUpRedEnv() == 1) {
+            ToastUtil.show("你已被禁止领取红包");
+            check = false;
+        } else if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {//自己被封，不能领取
+            ToastUtil.show(getString(R.string.user_disable_message));
             check = false;
         }
         return check;
@@ -2762,7 +2781,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventTransferSuccess(TransferSuccessEvent event) {
         CxTransferBean transferBean = event.getBean();
-        if (transferBean != null && transferBean.getTradeId() != currentTradeId && transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
+        if (transferBean != null && transferBean.getTradeId() != currentTradeId /*&& transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_SEND*/) {
             LogUtil.getLog().i("转账", "TransferSuccessEvent--" + event.getBean().getActionId() + "--" + event.getBean().getTradeId());
             currentTradeId = transferBean.getTradeId();
             if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT
@@ -5107,7 +5126,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //抢红包，获取token
     public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType) {
-        PayHttpUtils.getInstance().grabRedEnvelope(rid)
+        String from = "";
+        if (isGroup()) {
+            from = toGid;
+        } else {
+            if (msgBean != null && msgBean.getFrom_uid() != null) {
+                from = msgBean.getFrom_uid().longValue() + "";
+            }
+        }
+        if (TextUtils.isEmpty(from)) {
+            return;
+        }
+        PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
@@ -5231,7 +5261,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
                                      boolean isNormalStyle) {
         if (TextUtils.isEmpty(token)) {
-            PayHttpUtils.getInstance().grabRedEnvelope(rid)
+            String from = "";
+            if (isGroup()) {
+                from = toGid;
+            } else {
+                if (msgBean != null && msgBean.getFrom_uid() != null) {
+                    from = msgBean.getFrom_uid().longValue() + "";
+                }
+            }
+            if (TextUtils.isEmpty(from)) {
+                return;
+            }
+            PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
                     .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
@@ -5389,6 +5430,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 获取账单详情
      */
     private void httpGetTransferDetail(String tradeId, int opType, MsgAllBean msgBean) {
+        if (isSelfLock()) {
+            ToastUtil.show(getString(R.string.user_disable_message));
+            return;
+        }
         PayHttpUtils.getInstance().getTransferDetail(tradeId)
                 .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>handleResult())

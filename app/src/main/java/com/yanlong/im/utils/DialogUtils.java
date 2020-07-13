@@ -1,12 +1,11 @@
 package com.yanlong.im.utils;
 
-import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.global.PayEnvironment;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.ui.freeze.SealAccountActivity;
 
@@ -16,6 +15,7 @@ import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetIntrtceptor;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -47,29 +47,33 @@ public class DialogUtils {
      * @param context
      */
     public void sealAccountDilaog(Context context, TokenBean tokenBean) {
-        setToken(tokenBean);
-        DialogCommon dialogCommon = new DialogCommon(context);
-        dialogCommon.setCanceledOnTouchOutside(false);
-        dialogCommon.setTitleAndSure(true, true)
-                .setTitle("提示")
-                .setContent("该常信账号存在违规行为已被限制登录，如需继续使用，请点击确定查看违规详情。" +
-                        "你可以在详情页面按相关指引进行操作“申请解封”或者申请临时登录。", false)
-                .setListener(new DialogCommon.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        Postcard postcard = ARouter.getInstance().build(SealAccountActivity.path);
-                        postcard.withBoolean(Constants.STATUS, tokenBean.getAppealState() == 1 ? true : false);
-                        postcard.navigation();
-                    }
+        if (tokenBean != null && !TextUtils.isEmpty(tokenBean.getAccessToken())) {
+            setToken(tokenBean);
+            DialogCommon dialogCommon = new DialogCommon(context);
+            dialogCommon.setCanceledOnTouchOutside(false);
+            dialogCommon.setTitleAndSure(true, true)
+                    .setTitle("提示")
+                    .setContent("该常信账号存在违规行为已被限制登录，如需继续使用，请点击确定查看违规详情。" +
+                            "你可以在详情页面按相关指引进行操作“申请解封”或者申请临时登录。", false)
+                    .setListener(new DialogCommon.IDialogListener() {
+                        @Override
+                        public void onSure() {
+                            Postcard postcard = ARouter.getInstance().build(SealAccountActivity.path);
+                            postcard.withBoolean(Constants.STATUS, tokenBean.getAppealState() == 1 ? true : false);
+                            postcard.navigation();
+                        }
 
-                    @Override
-                    public void onCancel() {
-                        cleanInfo();
-                        dialogCommon.dismiss();
-                        EventBus.getDefault().post(new EventFactory.ExitActivityEvent());
-                    }
-                });
-        dialogCommon.show();
+                        @Override
+                        public void onCancel() {
+                            cleanInfo();
+                            dialogCommon.dismiss();
+                            EventBus.getDefault().post(new EventFactory.ExitActivityEvent());
+                        }
+                    });
+            dialogCommon.show();
+        } else {
+            ToastUtil.show("登录数据异常");
+        }
     }
 
     /***

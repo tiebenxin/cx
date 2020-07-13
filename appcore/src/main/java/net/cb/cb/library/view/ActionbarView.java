@@ -237,7 +237,7 @@ public class ActionbarView extends LinearLayout {
      *
      * @param color
      */
-    public void setTextColor(@ColorInt int color) {
+    public void setTextColor(int color) {
         txtTitle.setTextColor(color);
         txtLeft.setTextColor(color);
         txtRight.setTextColor(color);

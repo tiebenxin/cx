@@ -76,7 +76,7 @@ public class BillDetailActivity extends AppActivity {
     private RelativeLayout layoutRecharge;//充值布局展示
     private TextView tvRechargeStatus;//充值-交易状态
     private TextView tvRechargeTime;//充值-充值时间
-//    private TextView tvRechargeBank;//充值-支付银行
+    //    private TextView tvRechargeBank;//充值-支付银行
     private TextView tvRechargeOrderId;//充值-交易单号
 
     private RelativeLayout layoutWithdrawOne;//提现布局A展示
@@ -91,7 +91,7 @@ public class BillDetailActivity extends AppActivity {
     private TextView tvWithdrawGetTime;//提现-到账时间
     private TextView tvWithdrawRealMoney;//提现-到账金额
     private TextView tvWithdrawCharge;//提现-手续费
-//    private TextView tvWithdrawBank;//提现-提现银行
+    //    private TextView tvWithdrawBank;//提现-提现银行
     private TextView tvWithdrawOrderId;//提现-交易单号
 
     private RelativeLayout layoutPay;//消费布局
@@ -163,11 +163,11 @@ public class BillDetailActivity extends AppActivity {
         tvWithdrawRealMoney = findViewById(R.id.tv_withdraw_real_money);
         tvWithdrawCharge = findViewById(R.id.tv_withdraw_charge);
 //        tvWithdrawBank = findViewById(R.id.tv_withdraw_bank);
-        tvWithdrawOrderId= findViewById(R.id.tv_withdraw_order_id);
-        ivRedpacketImage= findViewById(R.id.iv_redpacket_image);
-        titleTvRedPacketGetMoneyTime= findViewById(R.id.title_tv_red_packet_get_money_time);
-        titleTvRedPacketPayTime= findViewById(R.id.title_tv_red_packet_pay_time);
-        titleTvRedPacketPayStyle= findViewById(R.id.title_tv_red_packet_pay_style);
+        tvWithdrawOrderId = findViewById(R.id.tv_withdraw_order_id);
+        ivRedpacketImage = findViewById(R.id.iv_redpacket_image);
+        titleTvRedPacketGetMoneyTime = findViewById(R.id.title_tv_red_packet_get_money_time);
+        titleTvRedPacketPayTime = findViewById(R.id.title_tv_red_packet_pay_time);
+        titleTvRedPacketPayStyle = findViewById(R.id.title_tv_red_packet_pay_style);
         noDataLayout = findViewById(R.id.no_data_layout);
         svDetail = findViewById(R.id.sv_detail);
         layoutPay = findViewById(R.id.layout_pay);
@@ -185,9 +185,9 @@ public class BillDetailActivity extends AppActivity {
     private void initData() {
         getExtra();
         //从推送跳转过来则需要重新发请求
-        if(isFromPush){
+        if (isFromPush) {
             httpSearchBillDetail();
-        }else {
+        } else {
             if (getIntent().getParcelableExtra("item_data") != null) {
                 data = getIntent().getParcelableExtra("item_data");
                 showNoData(false);
@@ -219,11 +219,11 @@ public class BillDetailActivity extends AppActivity {
 
     //类型：1转账给别人 2发红包给别人 3充值 4提现 5红包退款 7红包收款 8转账收款 9转账退款 10提现退款 11充值退款 12消费退款(忽略)
     private void showUI(final int type) {
-        if(type == 2 || type == 5 || type == 7){
+        if (type == 2 || type == 5 || type == 7) {
             ivRedpacketImage.setVisibility(View.VISIBLE);
             ivRedpacketImage.setImageResource(R.mipmap.ic_redpackage);
             ivTitleImage.setVisibility(View.GONE);
-        }else {
+        } else {
             ivRedpacketImage.setVisibility(View.GONE);
             ivTitleImage.setVisibility(View.VISIBLE);
             ivTitleImage.setImageResource(selectImg(type));
@@ -234,7 +234,7 @@ public class BillDetailActivity extends AppActivity {
             if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
                 tvTitle.setText("转账-转给" + data.getOtherUser().getNickname());
             } else {
-                tvTitle.setText("转账-转给");
+                tvTitle.setText("转账");
             }
             //根据收支类型->显示操作金额
             if (data.getIncome() == 1) { //1 收入 其他支出
@@ -243,7 +243,7 @@ public class BillDetailActivity extends AppActivity {
                 tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
             }
             if (data.getStat() == 1) {
-                tvTransferSendStatus.setText("朋友已收钱");
+                tvTransferSendStatus.setText("支付成功");
             } else if (data.getStat() == 2) {
                 tvTransferSendStatus.setText("转账失败");
             } else if (data.getStat() == 99) {
@@ -256,7 +256,7 @@ public class BillDetailActivity extends AppActivity {
             tvTransferSendTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             if (data.getBillType() == 1) {
                 tvTransferSendPayStyle.setText("零钱");
-            }else {
+            } else {
                 tvTransferSendPayStyle.setText("银行卡");
             }
             tvTransferSendOrderId.setText(data.getTradeId() + "");
@@ -266,8 +266,10 @@ public class BillDetailActivity extends AppActivity {
             if (type == 2) {
                 if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
                     tvTitle.setText("零钱红包-发给" + data.getOtherUser().getNickname());
-                } else {
-                    tvTitle.setText("零钱红包-发给");
+                } else if (data.getToGroup() == 1){
+                    tvTitle.setText("零钱红包-发出群红包");
+                }else{
+                    tvTitle.setText("零钱红包");
                 }
                 tvRedPacketGetMoneyTime.setVisibility(View.GONE);
                 titleTvRedPacketGetMoneyTime.setVisibility(View.GONE);
@@ -281,7 +283,7 @@ public class BillDetailActivity extends AppActivity {
                 if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
                     tvTitle.setText("零钱红包-来自" + data.getOtherUser().getNickname());
                 } else {
-                    tvTitle.setText("零钱红包-来自");
+                    tvTitle.setText("零钱红包");
                 }
                 tvRedPacketPayStyle.setVisibility(View.GONE);
                 tvRedPacketPayTime.setVisibility(View.GONE);
@@ -301,9 +303,9 @@ public class BillDetailActivity extends AppActivity {
                 public void onClick(View v) {
                     //收款退款传递的id为红包bizid，发红包收红包传tradeId
                     long id = 0;
-                    if(type ==2){
+                    if (type == 2) {
                         id = data.getTradeId();
-                    }else {
+                    } else {
                         id = data.getBzId();
                     }
                     ARouter.getInstance().build("/app/singleRedPacketDetailsActivity")
@@ -314,7 +316,7 @@ public class BillDetailActivity extends AppActivity {
             });
             if (data.getStat() == 1) {
                 if (type == 2) {
-                    tvRedPacketStatus.setText("发送成功");
+                    tvRedPacketStatus.setText("支付成功");
                 } else if (type == 7) {
                     tvRedPacketStatus.setText("已存入零钱");
                 } else {
@@ -322,7 +324,7 @@ public class BillDetailActivity extends AppActivity {
                 }
             } else if (data.getStat() == 2) {
                 if (type == 2) {
-                    tvRedPacketStatus.setText("发送失败");
+                    tvRedPacketStatus.setText("支付失败");
                 } else if (type == 7) {
                     tvRedPacketStatus.setText("领取失败");
                 } else {
@@ -342,26 +344,26 @@ public class BillDetailActivity extends AppActivity {
             //3 充值 11 充值退款
         } else if (type == 3 || type == 11) {
             layoutRecharge.setVisibility(View.VISIBLE);
-            if(!TextUtils.isEmpty(data.getBankCardInfo())){
-                tvTitle.setText("充值-来自"+data.getBankCardInfo());
-            }else {
-                tvTitle.setText("充值-来自");
+            if (!TextUtils.isEmpty(data.getBankCardInfo())) {
+                tvTitle.setText("充值-来自" + data.getBankCardInfo());
+            } else {
+                tvTitle.setText("充值");
             }
-            tvContent.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
+            tvContent.setText("¥" + UIUtils.getYuan(data.getAmt()) + "元");
             if (data.getStat() == 1) {
-                if(type==3){
+                if (type == 3) {
                     tvRechargeStatus.setText("充值成功");
-                }else {
-                    if(data.getRefundType()==1){
+                } else {
+                    if (data.getRefundType() == 1) {
                         tvRechargeStatus.setText("部分退款成功");
-                    }else {
+                    } else {
                         tvRechargeStatus.setText("全额退款成功");
                     }
                 }
             } else if (data.getStat() == 2) {
-                if(type==3){
+                if (type == 3) {
                     tvRechargeStatus.setText("充值失败");
-                }else {
+                } else {
                     tvRechargeStatus.setText("退款失败");
                 }
             } else if (data.getStat() == 99) {
@@ -375,54 +377,54 @@ public class BillDetailActivity extends AppActivity {
         } else if (type == 4 || type == 10) {
             layoutWithdrawOne.setVisibility(View.VISIBLE);
             layoutWithdrawTwo.setVisibility(View.VISIBLE);
-            if(!TextUtils.isEmpty(data.getBankCardInfo())){
-                tvTitle.setText("提现-到"+data.getBankCardInfo());
-            }else {
-                tvTitle.setText("提现-到");
+            if (!TextUtils.isEmpty(data.getBankCardInfo())) {
+                tvTitle.setText("提现-到" + data.getBankCardInfo());
+            } else {
+                tvTitle.setText("提现");
             }
-            tvContent.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
-            tvWithdrawStatusOne.setText("发起提现\n"+DateUtils.timeStamp2Date(data.getCreateTime(), ""));
+            tvContent.setText("¥" + UIUtils.getYuan(data.getAmt()) + "元");
+            tvWithdrawStatusOne.setText("发起提现\n" + DateUtils.timeStamp2Date(data.getCreateTime(), ""));
             if (data.getStat() == 1) {
-                if(type==4){
+                if (type == 4) {
                     tvWithdrawStatusTwo.setText("提现成功");
                     ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
-                    tvWithdrawStatusThree.setText("到账\n"+DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
+                    tvWithdrawStatusThree.setText("到账\n" + DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
                     tvWithdrawStatusThree.setVisibility(View.VISIBLE);
                     ivWithdrawFinished.setVisibility(View.VISIBLE);
-                }else {
-                    if(data.getRefundType()==1){
+                } else {
+                    if (data.getRefundType() == 1) {
                         tvWithdrawStatusTwo.setText("部分退款成功");
-                    }else {
+                    } else {
                         tvWithdrawStatusTwo.setText("全额退款成功");
                     }
                     ivWithdrawStatusTwo.setVisibility(View.GONE);
                     tvWithdrawStatusThree.setVisibility(View.GONE);
                     ivWithdrawFinished.setVisibility(View.GONE);
                 }
-            }else if(data.getStat()==2){
-                if(type==4){
+            } else if (data.getStat() == 2) {
+                if (type == 4) {
                     tvWithdrawStatusTwo.setText("提现失败");
-                }else {
+                } else {
                     tvWithdrawStatusTwo.setText("退款失败");
                 }
                 ivWithdrawStatusTwo.setVisibility(View.GONE);
                 tvWithdrawStatusThree.setVisibility(View.GONE);
                 ivWithdrawFinished.setVisibility(View.GONE);
-            }else if(data.getStat()==99){
+            } else if (data.getStat() == 99) {
                 tvWithdrawStatusTwo.setText("处理中");
                 ivWithdrawStatusTwo.setVisibility(View.GONE);
                 tvWithdrawStatusThree.setVisibility(View.GONE);
                 ivWithdrawFinished.setVisibility(View.GONE);
             }
-            tvWithdrawMoney.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
+            tvWithdrawMoney.setText("¥" + UIUtils.getYuan(data.getAmt()) + "元");
             tvWithdrawCreateTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
             tvWithdrawGetTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
-            tvWithdrawCharge.setText("¥"+UIUtils.getYuan(data.getFee())+"元");
+            tvWithdrawCharge.setText("¥" + UIUtils.getYuan(data.getFee()) + "元");
 
             BigDecimal b1 = new BigDecimal(UIUtils.getYuan(data.getAmt()));
             BigDecimal b2 = new BigDecimal(UIUtils.getYuan(data.getFee()));
-            String realMoney =  b1.subtract(b2)+"";
-            tvWithdrawRealMoney.setText("¥"+realMoney+"元");
+            String realMoney = b1.subtract(b2) + "";
+            tvWithdrawRealMoney.setText("¥" + realMoney + "元");
 //            if(!TextUtils.isEmpty(data.getBankCardInfo())){
 //                tvWithdrawBank.setText(data.getBankCardInfo());
 //            }
@@ -433,16 +435,16 @@ public class BillDetailActivity extends AppActivity {
         } else if (type == 8 || type == 9) {
             layoutTransferGet.setVisibility(View.VISIBLE);
             if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
-                if(type==8){
+                if (type == 8) {
                     tvTitle.setText("转账收款-来自" + data.getOtherUser().getNickname());
-                }else {
+                } else {
                     tvTitle.setText("转账退款-来自" + data.getOtherUser().getNickname());
                 }
             } else {
-                if(type==8){
-                    tvTitle.setText("转账收款-来自");
-                }else {
-                    tvTitle.setText("转账退款-来自");
+                if (type == 8) {
+                    tvTitle.setText("转账收款");
+                } else {
+                    tvTitle.setText("转账退款");
                 }
             }
             //根据收支类型->显示操作金额
@@ -452,15 +454,15 @@ public class BillDetailActivity extends AppActivity {
                 tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
             }
             if (data.getStat() == 1) {
-                if(type==8){
+                if (type == 8) {
                     tvTransferGetStatus.setText("已存入零钱");
-                }else {
+                } else {
                     tvTransferGetStatus.setText("退款成功");
                 }
             } else if (data.getStat() == 2) {
-                if(type==8){
+                if (type == 8) {
                     tvTransferGetStatus.setText("收款失败");
-                }else {
+                } else {
                     tvTransferGetStatus.setText("退款失败");
                 }
             } else if (data.getStat() == 99) {
@@ -474,11 +476,11 @@ public class BillDetailActivity extends AppActivity {
             //6 消费 12 消费退款
         } else if (type == 6 || type == 12) {
             layoutPay.setVisibility(View.VISIBLE);
-            if(type==6){
+            if (type == 6) {
                 tvTitle.setText("购物-付款");
                 tvPayTime.setText("支付时间：");
                 tvPayNumber.setText("交易单号：");
-            }else {
+            } else {
                 tvTitle.setText("购物-退款");
                 tvPayTime.setText("退款时间：");
                 tvPayNumber.setText("退款单号：");
@@ -496,7 +498,7 @@ public class BillDetailActivity extends AppActivity {
             } else if (data.getStat() == 99) {
                 tvPayStatusValue.setText("处理中");
             }
-            if(!TextUtils.isEmpty(data.getStoreOrderNo())){
+            if (!TextUtils.isEmpty(data.getStoreOrderNo())) {
                 tvPayGoodsValue.setText(data.getStoreOrderNo());
             }
             if (!TextUtils.isEmpty(data.getStoreName())) {
@@ -505,7 +507,7 @@ public class BillDetailActivity extends AppActivity {
             tvPayTimeValue.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             if (data.getBillType() == 1) {
                 tvPayStyleValue.setText("零钱");
-            }else {
+            } else {
                 tvTransferSendPayStyle.setText("银行卡");
             }
             tvPayNumberValue.setText(data.getTradeId() + "");
@@ -515,8 +517,8 @@ public class BillDetailActivity extends AppActivity {
     /**
      * 获取账单详情
      */
-    private void httpSearchBillDetail(){
-        PayHttpUtils.getInstance().getBillDetailsList(1, 0,1,pushId)
+    private void httpSearchBillDetail() {
+        PayHttpUtils.getInstance().getBillDetailsList(1, 0, 1, pushId)
                 .compose(RxSchedulers.<BaseResponse<BillBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<BillBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {
@@ -524,11 +526,11 @@ public class BillDetailActivity extends AppActivity {
                     public void onHandleSuccess(BaseResponse<BillBean> baseResponse) {
                         if (baseResponse.getData() != null) {
                             //如果当前页有数据
-                            if(baseResponse.getData().getItems()!=null && baseResponse.getData().getItems().size()>0){
+                            if (baseResponse.getData().getItems() != null && baseResponse.getData().getItems().size() > 0) {
                                 data = baseResponse.getData().getItems().get(0);
                                 showNoData(false);
                                 showUI(data.getTradeType());
-                            }else {
+                            } else {
                                 //如果当前页没数据
                                 data = new CommonBean();
                                 showNoData(true);
@@ -543,7 +545,6 @@ public class BillDetailActivity extends AppActivity {
                 });
 
     }
-
 
 
     /**
@@ -574,13 +575,14 @@ public class BillDetailActivity extends AppActivity {
 
     /**
      * 推送跳转到账单详情
+     *
      * @param activity
      * @param jumpId
      */
-    public static void jumpToBillDetail(Activity activity , String jumpId){
-        Intent intent = new Intent(activity,BillDetailActivity.class);
-        intent.putExtra("id",jumpId);
-        intent.putExtra("from_push",true);
+    public static void jumpToBillDetail(Activity activity, String jumpId) {
+        Intent intent = new Intent(activity, BillDetailActivity.class);
+        intent.putExtra("id", jumpId);
+        intent.putExtra("from_push", true);
         activity.startActivity(intent);
     }
 
@@ -588,23 +590,24 @@ public class BillDetailActivity extends AppActivity {
      * 获取传递到本界面的值
      */
     private void getExtra() {
-        if(getIntent()!=null){
-            if(!TextUtils.isEmpty(getIntent().getStringExtra("id"))){
+        if (getIntent() != null) {
+            if (!TextUtils.isEmpty(getIntent().getStringExtra("id"))) {
                 pushId = getIntent().getStringExtra("id");
             }
-            isFromPush = getIntent().getBooleanExtra("from_push",false);
+            isFromPush = getIntent().getBooleanExtra("from_push", false);
         }
     }
 
     /**
      * 是否显示无数据默认图
+     *
      * @param ifShow
      */
-    private void showNoData(boolean ifShow){
-        if(ifShow){
+    private void showNoData(boolean ifShow) {
+        if (ifShow) {
             noDataLayout.setVisibility(View.VISIBLE);
             svDetail.setVisibility(View.GONE);
-        }else {
+        } else {
             noDataLayout.setVisibility(View.GONE);
             svDetail.setVisibility(View.VISIBLE);
         }

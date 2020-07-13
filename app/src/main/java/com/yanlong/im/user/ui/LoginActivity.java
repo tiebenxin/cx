@@ -106,7 +106,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         setContentView(R.layout.activity_login);
         initView();
         initEvent();

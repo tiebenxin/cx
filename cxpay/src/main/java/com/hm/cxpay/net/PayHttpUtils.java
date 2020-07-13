@@ -359,9 +359,10 @@ public class PayHttpUtils {
      *
      * @param rid 红包id 及 tradeId
      */
-    public Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(long rid) {
+    public Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(long rid, String from) {
         Map<String, String> map = new HashMap<>();
         map.put("rid", rid + "");
+        map.put("from", from);
         return HttpChannel.getInstance().getPayService().grabRedEnvelope(getRequestBody(map), getAuthMap());
     }
 
@@ -475,7 +476,6 @@ public class PayHttpUtils {
 
     /**
      * 获取密码管理URL
-     *
      */
     public Observable<BaseResponse<UrlBean>> getPswManager() {
         return HttpChannel.getInstance().getPayService().getPasswordManager(getAuthMap());

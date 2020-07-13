@@ -155,7 +155,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/btn_icon"
                 android:gravity="center"
-                android:textColor="@drawable/txt_actionbar"
+                android:textColor="@color/white"
                 android:textSize="15sp"
                 android:visibility="visible" />
         </LinearLayout>
@@ -177,7 +177,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:textColor="@drawable/txt_actionbar"
+                android:textColor="@color/white"
                 android:text="确定"
                 android:textSize="15sp" />
 

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.yanlong.im.R;
 
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
@@ -64,8 +65,10 @@ public class HelpActivity extends AppActivity {
 //        activity_help_web.loadUrl("http://192.168.10.102:8080/");
 /*        activity_help_web.loadUrl("https://helper.zhixun6.com:8000/");
         activity_help_web.setWebViewClient(new MyWebViewClient());*/
-
         mHeadView = findViewById(R.id.headView);
+        mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
+        mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
+
         mEdtSearch = findViewById(R.id.edt_search);
         tvFeedback = findViewById(R.id.tv_feedback);
         mRecyclerViewHot = findViewById(R.id.recyclerView_hot);
@@ -111,7 +114,10 @@ public class HelpActivity extends AppActivity {
 
             @Override
             public void onRight() {
-
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                startActivity(new Intent(HelpActivity.this, UploadLogActivity.class));
             }
         });
 

@@ -17,6 +17,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.Realm;
+import io.realm.exceptions.RealmError;
 
 /**
  * 消息处理IntentService 处理完成，会自动stopservice
@@ -67,18 +68,22 @@ public class MessageIntentService extends IntentService {
                 return;
             }
             restartCount = 0;
-            Realm realm = DaoUtil.open();
-            //初始化数据库对象 子线程
-            while (MessageManager.getInstance().getToDoMsgCount() > 0) {
-                try {
-                    MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
-                    dispatch.dispatch(bean, realm);
-                    //移除处理过的当前消息
-                } catch (Exception e) {
-                    LogUtil.writeError(e);
+            try {
+                Realm realm = DaoUtil.open();
+                //初始化数据库对象 子线程
+                while (MessageManager.getInstance().getToDoMsgCount() > 0) {
+                    try {
+                        MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
+                        dispatch.dispatch(bean, realm);
+                        //移除处理过的当前消息
+                    } catch (Exception e) {
+                        LogUtil.writeError(e);
+                    }
                 }
+                DaoUtil.close(realm);
+            } catch (io.realm.exceptions.RealmError errorr) {// TODO #132605 io.realm.exceptions.RealmError
+                LogUtil.writeError(errorr);
             }
-            DaoUtil.close(realm);
         }
     }
 }

@@ -274,12 +274,12 @@ public class TransferDetailActivity extends BasePayActivity {
                             //如果当前页有数据
                             TransferResultBean resultBean = baseResponse.getData();
                             notifyTransfer(createTransferBean(resultBean, PayEnum.ETransferOpType.TRANS_RECEIVE));
-                            ThreadUtil.getInstance().runMainThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    TransferDetailActivity.this.finish();
-                                }
-                            });
+//                            ThreadUtil.getInstance().runMainThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    TransferDetailActivity.this.finish();
+//                                }
+//                            });
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
@@ -319,12 +319,12 @@ public class TransferDetailActivity extends BasePayActivity {
                             //如果当前页有数据
                             TransferResultBean resultBean = baseResponse.getData();
                             notifyTransfer(createTransferBean(resultBean, PayEnum.ETransferOpType.TRANS_REJECT));
-                            ThreadUtil.getInstance().runMainThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    TransferDetailActivity.this.finish();
-                                }
-                            });
+//                            ThreadUtil.getInstance().runMainThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    TransferDetailActivity.this.finish();
+//                                }
+//                            });
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
@@ -357,12 +357,14 @@ public class TransferDetailActivity extends BasePayActivity {
     }
 
     public void notifyTransfer(CxTransferBean bean) {
-//        EventBus.getDefault().post(new TransferSuccessEvent(bean));
-        Intent intent = new Intent();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("transfer", bean);
-        intent.putExtras(bundle);
-        setResult(RESULT_OK,intent);
+        EventBus.getDefault().post(new TransferSuccessEvent(bean));
+//        Intent intent = new Intent();
+//        Bundle bundle = new Bundle();
+//        bundle.putParcelable("transfer", bean);
+//        intent.putExtras(bundle);
+//        setResult(RESULT_OK,intent);
+        //刷新账单详情
+        httpGetDetail();
     }
 
     private void showReturnTransferDialog() {
