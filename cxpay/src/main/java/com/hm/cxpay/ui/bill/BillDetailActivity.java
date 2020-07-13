@@ -243,7 +243,7 @@ public class BillDetailActivity extends AppActivity {
                 tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
             }
             if (data.getStat() == 1) {
-                tvTransferSendStatus.setText("朋友已收钱");
+                tvTransferSendStatus.setText("支付成功");
             } else if (data.getStat() == 2) {
                 tvTransferSendStatus.setText("转账失败");
             } else if (data.getStat() == 99) {
@@ -314,7 +314,7 @@ public class BillDetailActivity extends AppActivity {
             });
             if (data.getStat() == 1) {
                 if (type == 2) {
-                    tvRedPacketStatus.setText("发送成功");
+                    tvRedPacketStatus.setText("支付成功");
                 } else if (type == 7) {
                     tvRedPacketStatus.setText("已存入零钱");
                 } else {
@@ -322,7 +322,7 @@ public class BillDetailActivity extends AppActivity {
                 }
             } else if (data.getStat() == 2) {
                 if (type == 2) {
-                    tvRedPacketStatus.setText("发送失败");
+                    tvRedPacketStatus.setText("支付失败");
                 } else if (type == 7) {
                     tvRedPacketStatus.setText("领取失败");
                 } else {
