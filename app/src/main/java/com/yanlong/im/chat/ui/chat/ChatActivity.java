@@ -2413,7 +2413,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onSuccess() {
                 if (NetUtil.isNetworkConnected()) {
                     if (userDao != null) {
-                        UserInfo userInfo = userDao.findUserInfo(toUId);
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 自己被封号
+                            ToastUtil.show(getString(R.string.user_disable_message));
+                            return;
+                        }
+                        UserInfo userInfo = userDao.findUserInfo(toUId);//查询对方是否被封号
                         if (userInfo != null) {
                             // 封号
                             if (UserUtil.getUserStatus(userInfo.getLockedstatus())) {
