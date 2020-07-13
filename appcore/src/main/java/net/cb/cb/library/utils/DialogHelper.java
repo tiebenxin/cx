@@ -88,7 +88,7 @@ public class DialogHelper {
                     selectDialog.dismiss();
                 }
                 if (!ViewUtils.isFastDoubleClick()) {
-                    iCustomerItemClick.onClickItemCancle();
+                    iCustomerItemClick.onClickItemCancel();
                 }
             }
         });
