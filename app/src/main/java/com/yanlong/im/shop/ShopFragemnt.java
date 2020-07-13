@@ -224,7 +224,7 @@ public class ShopFragemnt extends Fragment {
                 .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
-                        ToastUtil.show("支付成功！");
+//                        ToastUtil.show("支付成功！");
                         if (baseResponse.getData() != null) {
                             CommonBean bean = baseResponse.getData();
                             if (!TextUtils.isEmpty(bean.getUrl())) {
