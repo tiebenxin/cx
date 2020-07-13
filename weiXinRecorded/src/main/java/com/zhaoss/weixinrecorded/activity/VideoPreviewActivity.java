@@ -5,7 +5,6 @@ import android.databinding.DataBindingUtil;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -37,7 +36,7 @@ public class VideoPreviewActivity extends BaseActivity implements SurfaceHolder.
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_video_preview);
-        mPath = getIntent().getExtras().getString(RecordedActivity.INTENT_PATH);
+        mPath = getIntent().getExtras().getString(CameraActivity.INTENT_PATH);
         binding.surfaceView.getHolder().addCallback(this);
         onEvent();
     }

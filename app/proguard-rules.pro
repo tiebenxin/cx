@@ -249,7 +249,7 @@
 -keep class com.lansosdk.** { *; }
 -keep class com.libyuv.** { *; }
 
--libraryjars ../weiXinRecorded/libs/lansongcommon_hx.jar
+#-libraryjars ../weiXinRecorded/libs/lansongcommon_hx.jar
 #=================lansosdk=======================
 
 #=================jrmf=======================

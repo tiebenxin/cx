@@ -23,7 +23,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.widget.ImageView;
 
-import com.lansosdk.videoeditor.LanSongFileUtil;
+import com.libyuv.LanSongFileUtil;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

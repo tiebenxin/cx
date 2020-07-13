@@ -15,7 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.gl.CameraGLView;
-import com.lansosdk.videoeditor.LanSongFileUtil;
+import com.libyuv.LanSongFileUtil;
 import com.listener.IRecordListener;
 import com.muxer.MediaAudioEncoder;
 import com.muxer.MediaEncoder;

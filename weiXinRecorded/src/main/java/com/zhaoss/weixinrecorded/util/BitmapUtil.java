@@ -5,7 +5,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 
-import com.lansosdk.videoeditor.LanSongFileUtil;
+import com.libyuv.LanSongFileUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
