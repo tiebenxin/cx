@@ -2369,7 +2369,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean checkCanOpenUpRedEnv() {
         boolean check = true;
         if (mViewModel.groupInfo != null && mViewModel.groupInfo.getCantOpenUpRedEnv() == 1) {
-            ToastUtil.show("你已被禁止领取红包");
+            ToastUtil.show("你已被禁止领取该群红包");
             check = false;
         } else if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {//自己被封，不能领取
             ToastUtil.show(getString(R.string.user_disable_message));
