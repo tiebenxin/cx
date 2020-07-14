@@ -4131,11 +4131,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             onMore(msgbean);
         } else if ("收藏".equals(value)) {
-            // 封号
-            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
-                ToastUtil.show(getResources().getString(R.string.user_disable_message));
-                return;
-            }
             onCollect(msgbean);
         }
     }

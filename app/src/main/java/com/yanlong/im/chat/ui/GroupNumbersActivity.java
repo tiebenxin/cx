@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,6 +29,7 @@ import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -35,6 +37,10 @@ import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,16 +74,37 @@ public class GroupNumbersActivity extends AppActivity {
 
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
-    private LinearLayout viewSearch;
     private RecyclerView topListView;
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
     private int isClickble = 0;
+    private RecyclerViewAdapter mAdapter;
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshBalance(EventFactory.UpdateGroupNumberEvent event) {
+        try {
+            // 更新好友封号状态
+            if (listData != null) {
+                for (int i = 0; i < listData.size(); i++) {
+                    UserInfo userInfo = listData.get(i);
+                    if (userInfo.getUid().longValue() == event.uid.longValue()) {
+                        userInfo.setLockedstatus(event.lockedstatus);
+                        mtListView.getListView().getAdapter().notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         setContentView(R.layout.activity_group_create);
         findViews();
         initEvent();
@@ -86,20 +113,24 @@ public class GroupNumbersActivity extends AppActivity {
 
     private void initData() {
         taskListData();
-
-
     }
 
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewSearch = findViewById(R.id.view_search);
         topListView = findViewById(R.id.topListView);
         mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
 
     //自动生成的控件事件
     private void initEvent() {
@@ -130,7 +161,8 @@ public class GroupNumbersActivity extends AppActivity {
         actionbar.setTxtRight("确定");
 
         actionbar.setTitle(type == TYPE_ADD ? "选择联系人" : "删除成员");
-        mtListView.init(new RecyclerViewAdapter());
+        mAdapter = new RecyclerViewAdapter();
+        mtListView.init(mAdapter);
         mtListView.getLoadView().setStateNormal();
         //联动
         viewType.setLinearLayoutManager(mtListView.getLayoutManager());
@@ -140,9 +172,7 @@ public class GroupNumbersActivity extends AppActivity {
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         topListView.setLayoutManager(linearLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
-
     }
-
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -154,7 +184,7 @@ public class GroupNumbersActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder hd, final int position) {
+        public void onBindViewHolder(RCViewHolder hd, @SuppressLint("RecyclerView") int position) {
 
             final UserInfo bean = listData.get(position);
 
@@ -218,14 +248,12 @@ public class GroupNumbersActivity extends AppActivity {
             }
         }
 
-
         //自动寻找ViewHold
         @Override
         public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
             RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_group_create, view, false));
             return holder;
         }
-
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
@@ -248,7 +276,6 @@ public class GroupNumbersActivity extends AppActivity {
                 viewLine = convertView.findViewById(R.id.view_line);
                 ivSelect = convertView.findViewById(R.id.iv_select);
             }
-
         }
     }
 
