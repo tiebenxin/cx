@@ -55,7 +55,7 @@ public class CXEntryActivity extends AppActivity {
                         return;
                     }
                     //处理数据为空异常
-                    if(!extras.containsKey(Intent.EXTRA_STREAM)){
+                    if (!extras.containsKey(Intent.EXTRA_STREAM)) {
                         ToastUtil.show(this, "分享失败，无分享数据");
                         finish();
                         return;
@@ -94,7 +94,7 @@ public class CXEntryActivity extends AppActivity {
                         return;
                     } else {
                         //处理数据为空异常
-                        if(!extras.containsKey(Intent.EXTRA_STREAM)){
+                        if (!extras.containsKey(Intent.EXTRA_STREAM)) {
                             ToastUtil.show(this, "分享失败，无分享数据");
                             finish();
                             return;
@@ -176,19 +176,24 @@ public class CXEntryActivity extends AppActivity {
 
     public boolean checkTokenValid() {
         boolean result = false;
-        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-        if (token != null) {
-            if (!token.isTokenValid(uid)) {
-                result = false;
+        try {
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+            if (token != null) {
+                if (!token.isTokenValid(uid)) {
+                    result = false;
+                } else {
+                    //初始化http请求中token
+                    new UserAction().login4tokenNotNet(token);
+                    result = true;
+                }
             } else {
-                //初始化http请求中token
-                new UserAction().login4tokenNotNet(token);
-                result = true;
+                result = false;
             }
-        } else {
-            result = false;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         return result;
     }
 
