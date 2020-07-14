@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
@@ -27,12 +28,17 @@ import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,10 +61,33 @@ public class GroupCreateActivity extends AppActivity {
     public static final String AGM_SELECT_UID = "select_uid";
     private String select_uid;
     private List<UserInfo> listDataTop = new ArrayList<>();
+    private RecyclerViewAdapter mAdapter;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshBalance(EventFactory.UpdateGroupNumberEvent event) {
+        try {
+            // 更新好友封号状态
+            if (listData != null) {
+                for (int i = 0; i < listData.size(); i++) {
+                    UserInfo userInfo = listData.get(i);
+                    if (userInfo.getUid().longValue() == event.uid.longValue()) {
+                        userInfo.setLockedstatus(event.lockedstatus);
+                        mtListView.getListView().getAdapter().notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         setContentView(R.layout.activity_group_create);
         findViews();
         initEvent();
@@ -76,6 +105,13 @@ public class GroupCreateActivity extends AppActivity {
         viewType = findViewById(R.id.view_type);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
 
     //自动生成的控件事件
     private void initEvent() {
@@ -104,8 +140,8 @@ public class GroupCreateActivity extends AppActivity {
                 taskCreate();
             }
         });
-
-        mtListView.init(new RecyclerViewAdapter());
+        mAdapter = new RecyclerViewAdapter();
+        mtListView.init(mAdapter);
         mtListView.getLoadView().setStateNormal();
         //联动
         viewType.setLinearLayoutManager(mtListView.getLayoutManager());
@@ -150,7 +186,7 @@ public class GroupCreateActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder hd, final int position) {
+        public void onBindViewHolder(RCViewHolder hd, @SuppressLint("RecyclerView") int position) {
 
             final UserInfo bean = listData.get(position);
 
@@ -178,7 +214,7 @@ public class GroupCreateActivity extends AppActivity {
                     ToastUtil.show(getResources().getString(R.string.friend_disable_message));
                 }
             });
-            hd.ivSelect.setOnClickListener(o->{
+            hd.ivSelect.setOnClickListener(o -> {
                 if (UserUtil.getUserStatus(bean.getLockedstatus())) {
                     ToastUtil.show(getResources().getString(R.string.friend_disable_message));
                 }
