@@ -2,7 +2,7 @@ package net.cb.cb.library.utils;
 
 import android.content.Context;
 
-import com.umeng.analytics.MobclickAgent;
+//import com.umeng.analytics.MobclickAgent;
 
 public class UpLoadUtils {
     private Context mContext;
@@ -20,6 +20,6 @@ public class UpLoadUtils {
         this.mContext=context;
     }
     public void upLoadLog(String text){
-        MobclickAgent.reportError(mContext, text);//errorContent是String格式
+//        MobclickAgent.reportError(mContext, text);//errorContent是String格式
     }
 }

@@ -6075,9 +6075,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msg, touid, rid);
-                } else {
+                } /*else {
                     ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
-                }
+                }*/
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
             UserBean userBean = PayEnvironment.getInstance().getUser();
@@ -6088,7 +6088,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             int envelopeStatus = rb.getEnvelopStatus();
 
             if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && !checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
+//                ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();
