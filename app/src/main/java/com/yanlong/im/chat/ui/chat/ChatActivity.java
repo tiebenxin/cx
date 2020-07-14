@@ -1592,7 +1592,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
                 MsgAllBean msg = sendMessage(voice, ChatEnum.EMessageType.VOICE, false);
                 // 不等于常信小助手，需要上传到服务器
-                if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                if (!isNoSendUser()) {
                     uploadVoice(file, msg);
                 }
             }
@@ -2256,7 +2256,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
         int sendStatus = ChatEnum.ESendStatus.PRE_SEND;
-        if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
+        if (isNoSendUser()) {//常信小助手
             sendStatus = ChatEnum.ESendStatus.NORMAL;
         } else {
             if (isUploadType(msgType)) {
@@ -2280,7 +2280,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
     private MsgAllBean sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
         int sendStatus = ChatEnum.ESendStatus.PRE_SEND;
-        if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
+        if (isNoSendUser()) {//常信小助手
             sendStatus = ChatEnum.ESendStatus.NORMAL;
         } else {
             if (isUploadType(msgType)) {
@@ -2306,7 +2306,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
     private MsgAllBean sendMessageFromResend(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
         int sendStatus = ChatEnum.ESendStatus.NORMAL;
-        if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
+        if (isNoSendUser()) {//常信小助手
             sendStatus = ChatEnum.ESendStatus.NORMAL;
             canSend = false;
         } else {
@@ -2561,7 +2561,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);
                     imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
                     // 不等于常信小助手
-                    if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                    if (!isNoSendUser()) {
                         UpLoadService.onAddImage(imgMsgBean, file, isArtworkMaster);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
@@ -2989,7 +2989,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                         // 不等于常信小助手，需要上传到服务器
-                        if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                        if (!isNoSendUser()) {
                             UpLoadService.onAddVideo(this.context, videoMsgBean, false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
@@ -3014,7 +3014,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" + */file, isArtworkMaster);
                         videoMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
                         // 不等于常信小助手，需要上传到服务器
-                        if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                        if (!isNoSendUser()) {
                             UpLoadService.onAddImage(videoMsgBean, file, isArtworkMaster);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
@@ -3046,7 +3046,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
 //                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                             // 不等于常信小助手，需要上传到服务器
-                            if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                            if (!isNoSendUser()) {
                                 UpLoadService.onAddImage(imgMsgBean, file, isArtworkMaster);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             }
@@ -3139,7 +3139,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ filePath, false);//TODO:使用file://路径会使得检测本地路径不存在
                                 imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
                                 // 不等于常信小助手，需要上传到服务器
-                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                                if (!isNoSendUser()) {
                                     UpLoadService.onAddImage(imgMsgBean, filePath, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 }
@@ -3150,7 +3150,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, "", fileName, new Double(fileSize).longValue(), fileFormat, false);
                                 fileMsgBean = sendMessage(fileMessage, ChatEnum.EMessageType.FILE, false);
                                 // 若不为常信小助手，消息需要上传到服务器
-                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                                if (!isNoSendUser()) {
                                     UpLoadService.onAddFile(this.context, fileMsgBean);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 }
@@ -3214,7 +3214,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + videofile, videoSize.getBgUrl(), false, duration, videoSize.getWidth(), videoSize.getHeight(), videofile);
             videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
             // 不等于常信小助手，需要上传到服务器
-            if (!Constants.CX_HELPER_UID.equals(toUId)) {
+            if (!isNoSendUser()) {
                 UpLoadService.onAddVideo(this.context, videoMsgBean, false);
                 startService(new Intent(getContext(), UpLoadService.class));
             }
@@ -5801,7 +5801,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MsgAllBean fileMsgBean = sendMessageFromResend(fileMessage, ChatEnum.EMessageType.FILE, false);
             replaceListDataAndNotify(fileMsgBean);
             // 若不为常信小助手，消息需要上传到服务端
-            if (!Constants.CX_HELPER_UID.equals(toUId)) {
+            if (!isNoSendUser()) {
                 UpLoadService.onAddFile(this.context, fileMsgBean);
                 startService(new Intent(getContext(), UpLoadService.class));
             } else {
@@ -6627,4 +6627,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return PayEnum.ETransferOpType.TRANS_SEND;
         }
     }
+
+    //是否是不需要真发送到服务器的用户，如常信小助手或零钱小助手
+    private boolean isNoSendUser() {
+        if (TextUtils.isEmpty(toGid) && toUId != null && (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId))) {
+            return true;
+        }
+        return false;
+    }
+
 }
