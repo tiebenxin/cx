@@ -75,11 +75,11 @@ public class SendMessageTest {
         //遍历所有好友
         for (int position = 3; position < TRecyclerView.getChildCount(recyclerViewId); position++) {
             System.out.println("position=" + position);
-            if(!filter().contains(TRecyclerView.get_item_view_text(recyclerViewId,position,R.id.txt_name))){
+//            if(!filter().contains(TRecyclerView.get_item_view_text(recyclerViewId,position,R.id.txt_name))){
                 TRecyclerView.scroll_to_position(recyclerViewId, position);
                 TRecyclerView.click_item(recyclerViewId, position);
                 sendText(sendCount);
-            }
+//            }
             TSystem.press_back();
         }
     }
