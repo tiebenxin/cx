@@ -1,15 +1,13 @@
 package net.cb.cb.library.utils;
 
 import android.content.Context;
-import android.net.Uri;
 import android.text.TextUtils;
 
-import com.luck.picture.lib.PictureSelector;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.entity.LocalMedia;
 
-import net.cb.cb.library.dialog.DialogCommon;
+import net.cb.cb.library.dialog.DialogLoadingProgress;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,11 +35,15 @@ public class UpLoadFileUtil {
     private Context context;
     private List<LocalMedia> mediaList;
     private OnUploadFileListener listener;
+    private DialogLoadingProgress mPayWaitDialog;
 
-    public void upLoadFile(Context context, List<LocalMedia> mediaList, OnUploadFileListener listener) {
+    public void upLoadFile(Context context, List<LocalMedia> mediaList, boolean isShowDialog, OnUploadFileListener listener) {
         this.context = context;
         this.mediaList = mediaList;
         this.listener = listener;
+        if (isShowDialog) {
+            showLoadingDialog(context);
+        }
         initData();
     }
 
@@ -69,6 +71,29 @@ public class UpLoadFileUtil {
         }
     }
 
+    public void showLoadingDialog(final Context context) {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mPayWaitDialog == null) {
+                    mPayWaitDialog = new DialogLoadingProgress(context);
+                }
+                mPayWaitDialog.show();
+            }
+        });
+    }
+
+    public void dismissLoadingDialog() {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mPayWaitDialog != null) {
+                    mPayWaitDialog.dismiss();
+                }
+            }
+        });
+    }
+
     private String getMediaPath(LocalMedia localMedia) {
         String path = localMedia.getPath();
         if (TextUtils.isEmpty(path)) {
@@ -84,12 +109,14 @@ public class UpLoadFileUtil {
             public void success(final String url) {
                 netFile.put(file, url);
                 if (--count == 0) {
+                    dismissLoadingDialog();
                     listener.onUploadFile(netFile);
                 }
             }
 
             @Override
             public void fail() {
+                dismissLoadingDialog();
                 listener.onFail();
             }
 
@@ -100,14 +127,9 @@ public class UpLoadFileUtil {
         }, file);
     }
 
-
     public interface OnUploadFileListener {
         void onUploadFile(HashMap<String, String> netFile);
 
         void onFail();
-    }
-
-    public interface OnFileUrlListener {
-        void onFileUrl(String key, String file);
     }
 }
