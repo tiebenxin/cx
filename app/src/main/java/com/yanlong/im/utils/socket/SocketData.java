@@ -705,7 +705,8 @@ public class SocketData {
                 image.setPreview(originUrl);
                 image.setThumbnail(originUrl);
             } else {
-                image.setPreview(originUrl + extPv);
+                //TODO: 未发原图时，预览图使用原图url，避免像素下降
+                image.setPreview(originUrl);
                 image.setThumbnail(originUrl + extTh);
             }
             if (isOriginal) {

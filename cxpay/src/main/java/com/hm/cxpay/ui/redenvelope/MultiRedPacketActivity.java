@@ -442,13 +442,23 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     int result = data.getIntExtra(RESULT, 0);
                     if (result == 99) {
                         showLoadingDialog();
+                        if (handler != null && handler != null) {
+                            handler.postDelayed(runnable, WAIT_TIME);
+                        }
+                    } else if (result == 0 || result == 1 || result == 2) {
+                        ui.btnCommit.setEnabled(true);
+                        if (handler != null && handler != null) {
+                            handler.removeCallbacks(runnable);
+                        }
+                    } else {
+                        showLoadingDialog();
+                        if (handler != null && handler != null) {
+                            handler.postDelayed(runnable, WAIT_TIME);
+                        }
                     }
                 }
-                if (handler != null && handler != null) {
-                    handler.postDelayed(runnable, WAIT_TIME);
-                }
             } else {
-                isSending= false;
+                isSending = false;
                 dismissLoadingDialog();
                 if (handler != null && handler != null) {
                     handler.removeCallbacks(runnable);
