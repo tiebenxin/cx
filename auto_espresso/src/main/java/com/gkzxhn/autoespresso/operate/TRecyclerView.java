@@ -259,7 +259,7 @@ public class TRecyclerView {
     private static String result = "";
 
     public static String get_item_view_text(int recyclerViewId, int position, final int textViewId) {
-        onView(withId(recyclerViewId)).perform(actionOnItemAtPosition(position, new ViewAction() {
+        onView(allOf(withId(recyclerViewId), isDisplayed())).perform(actionOnItemAtPosition(position, new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
                 return isDisplayed();
@@ -272,29 +272,11 @@ public class TRecyclerView {
 
             @Override
             public void perform(UiController uiController, View view) {
-
-
+                TextView v = view.findViewById(textViewId);
+                result = v.getText().toString();
+                System.out.println(getClass().getSimpleName() + "--" + result);
             }
         }));
         return result;
-    }
-
-    private static Matcher<View> childAtPosition(
-            final Matcher<View> parentMatcher, final int position) {
-
-        return new TypeSafeMatcher<View>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Child at position " + position + " in parent ");
-                parentMatcher.describeTo(description);
-            }
-
-            @Override
-            public boolean matchesSafely(View view) {
-                ViewParent parent = view.getParent();
-                return parent instanceof ViewGroup && parentMatcher.matches(parent)
-                        && view.equals(((ViewGroup) parent).getChildAt(position));
-            }
-        };
     }
 }

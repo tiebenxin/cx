@@ -36,15 +36,15 @@ import static org.hamcrest.Matchers.allOf;
  */
 @RunWith(AndroidJUnit4.class)
 public class SendMessageTest {
-    private int sendCount=200;
+    private int sendCount = 20;
+
     //需要屏蔽的朋友 备注、昵称
-    private List<String> filter(){
-        List<String> filterFriends=new ArrayList<>();
-        filterFriends.add("何总");
-        filterFriends.add("琳");
-        filterFriends.add("Liszt");
-        filterFriends.add("指尖生花");
-        filterFriends.add("郑的爱妃");
+    private List<String> filter() {
+        List<String> filterFriends = new ArrayList<>();
+        filterFriends.add("常信零钱小助手");
+        filterFriends.add("常信小助手");
+        filterFriends.add("常信文件传输助手");
+        filterFriends.add("成语接龙机器人");
         return filterFriends;
     }
 
@@ -73,14 +73,18 @@ public class SendMessageTest {
         //已保存的群聊列表id
         int recyclerViewId = R.id.listView;
         //遍历所有好友
-        for (int position = 3; position < TRecyclerView.getChildCount(recyclerViewId); position++) {
+        for (int position = 1; position < TRecyclerView.getChildCount(recyclerViewId); position++) {
             System.out.println("position=" + position);
-//            if(!filter().contains(TRecyclerView.get_item_view_text(recyclerViewId,position,R.id.txt_name))){
+            if (!filter().contains(TRecyclerView.get_item_view_text(recyclerViewId, position, R.id.txt_name))) {
                 TRecyclerView.scroll_to_position(recyclerViewId, position);
                 TRecyclerView.click_item(recyclerViewId, position);
+                TView.click_id(R.id.btn_msg);
+                SystemClock.sleep(500);
                 sendText(sendCount);
-//            }
-            TSystem.press_back();
+                TSystem.press_back();
+                SystemClock.sleep(500);
+                TSystem.press_back();
+            }
         }
     }
 

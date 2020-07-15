@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 2
         versionName "1.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -13,6 +13,12 @@ android {
         javaCompileOptions { annotationProcessorOptions { includeCompileClasspath = true } }
     }
     buildTypes {
+        debug{
+
+        }
+        pre{
+
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -26,20 +32,20 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
-    compile 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:28.+'
+    implementation 'com.android.support:recyclerview-v7:28.+'
+    implementation 'junit:junit:4.12'
     //Espresso  延迟加载
-    compile 'com.android.support.test.espresso.idling:idling-concurrent:3.0.2'
-    compile('com.android.support.test:runner:1.0.2', {
+    implementation 'com.android.support.test.espresso.idling:idling-concurrent:3.0.2'
+    implementation('com.android.support.test:runner:1.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     //Espresso Intent
-    compile 'com.android.support.test.espresso:espresso-intents:3.0.2'
+    implementation 'com.android.support.test.espresso:espresso-intents:3.0.2'
     //Espresso WebView
-    compile 'com.android.support.test.espresso:espresso-web:3.0.2'
+    implementation 'com.android.support.test.espresso:espresso-web:3.0.2'
     //Espresso 高级组件
-    compile('com.android.support.test.espresso:espresso-contrib:3.0.2', {
+    implementation('com.android.support.test.espresso:espresso-contrib:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.android.support', module: 'appcompat'
         exclude group: 'com.android.support', module: 'support-v4'
@@ -48,7 +54,7 @@ dependencies {
         exclude module: 'recyclerview-v7'
     })
     //Espresso UI测试核心库
-    compile('com.android.support.test.espresso:espresso-core:3.0.2', {
+    implementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation files('libs/jxl-2.6.12.jar')
