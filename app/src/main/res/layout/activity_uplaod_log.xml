@@ -72,6 +72,7 @@
                 android:layout_width="310dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:gravity="center_horizontal"
                 android:text="故障记录仅仅包含所选时间段内的故障记录，不包含聊天记录等信息。" />
 
 

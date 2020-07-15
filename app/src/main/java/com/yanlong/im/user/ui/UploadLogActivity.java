@@ -44,7 +44,7 @@ public class UploadLogActivity extends AppActivity {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
         day = calendar.get(Calendar.DAY_OF_MONTH);
-        ui.tvTime.setText(year + "年" + month + "月" + day + "日");
+        ui.tvTime.setText(year + "-" + month + "-" + day);
         ui.viewDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,9 +126,7 @@ public class UploadLogActivity extends AppActivity {
 
 
     private void initTimePicker() {
-        if (calendar == null) {
-            calendar = Calendar.getInstance();
-        }
+        calendar = Calendar.getInstance();
         Calendar start = Calendar.getInstance();
         start.add(Calendar.DATE, -9);
 
@@ -141,7 +139,7 @@ public class UploadLogActivity extends AppActivity {
                 int year = calendar.get(Calendar.YEAR);
                 int month = calendar.get(Calendar.MONTH) + 1;
                 day = calendar.get(Calendar.DAY_OF_MONTH);
-                ui.tvTime.setText(year + "年" + month + "月" + day + "日");
+                ui.tvTime.setText(year + "-" + month + "-" + day);
             }
         }).setType(new boolean[]{true, true, true, false, false, false})
                 .setDate(calendar)
