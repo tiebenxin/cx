@@ -68,8 +68,12 @@ public class UploadLogActivity extends AppActivity {
         if (file != null && file.exists()) {
             String date = getLogDate();
             if (!TextUtils.isEmpty(date)) {
-                String zipFile = file.getParent() + "/" + date + ".zip";
-                FileUtils.toZip(file, zipFile);
+                String zipPath = file.getParent() + "/" + date + ".zip";
+                FileUtils.toZip(file, zipPath);
+                File zipFile = new File(zipPath);
+                if (!zipFile.exists()) {
+                    return;
+                }
                 new UpFileAction().uploadLogFile(file, date, new IUploadListener() {
                     @Override
                     public void onSuccess(Object result) {

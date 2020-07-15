@@ -744,6 +744,17 @@ public final class CameraGLView extends GLSurfaceView {
             if (mCamera == null || parent == null) {
                 return;
             }
+            //重新聚焦
+            final Camera.Parameters params = mCamera.getParameters();
+            final List<String> focusModes = params.getSupportedFocusModes();
+            if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            } else {
+                if (DEBUG) Log.i(TAG, "Camera does not support autofocus");
+            }
+            mCamera.setParameters(params);
             try {
                 mCamera.setPreviewTexture(parent.getSurfaceTexture());
                 setRotation(null);
