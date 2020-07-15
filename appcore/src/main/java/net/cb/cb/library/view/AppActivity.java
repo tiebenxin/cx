@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.jrmf360.tools.utils.ThreadUtil;
-import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
@@ -76,14 +75,14 @@ public class AppActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        MobclickAgent.onResume(this);
+//        MobclickAgent.onResume(this);
         taskClearNotification();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        MobclickAgent.onPause(this);
+//        MobclickAgent.onPause(this);
     }
 
     @Override

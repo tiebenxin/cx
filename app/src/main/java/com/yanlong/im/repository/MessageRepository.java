@@ -532,6 +532,11 @@ public class MessageRepository {
             case ChatEnum.ESwitchType.FRIEND_LOCKED: // 好友锁状态变更
                 userInfoCopy.setLockedstatus(switchValue);
                 localDataSource.updateUserInfo(realm, userInfoCopy);
+                // 更新群成员操作列表
+                EventFactory.UpdateGroupNumberEvent updateGroupNumberEvent = new EventFactory.UpdateGroupNumberEvent();
+                updateGroupNumberEvent.lockedstatus = switchValue;
+                updateGroupNumberEvent.uid = userInfoCopy.getUid();
+                EventBus.getDefault().post(updateGroupNumberEvent);
                 break;
         }
         return result;

@@ -313,7 +313,7 @@ public class AppealAccountActivity extends BaseBindActivity<ActivityAppealAccoun
                                     }
                                 }
                                 if (isPic) {
-                                    UpLoadFileUtil.getInstance().upLoadFile(AppealAccountActivity.this, mList, new UpLoadFileUtil.OnUploadFileListener() {
+                                    UpLoadFileUtil.getInstance().upLoadFile(AppealAccountActivity.this, mList, true, new UpLoadFileUtil.OnUploadFileListener() {
                                         @Override
                                         public void onUploadFile(HashMap<String, String> netFile) {
                                             String file = "";

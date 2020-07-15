@@ -54,8 +54,10 @@ import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.dialog.MapDialog;
 import com.yanlong.im.listener.BaseListener;
 import com.yanlong.im.utils.DataUtils;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.view.MaxHeightRecyclerView;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.InputUtil;
@@ -316,6 +318,11 @@ public class LocationActivity extends AppActivity {
             @Override
             public void onRight() {
                 if (isShow) {
+                    // 封号
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                        ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
                     startActivity(new Intent(getContext(), MsgForwardActivity.class)
                             .putExtra(MsgForwardActivity.AGM_JSON, GsonUtils.optObject(msgAllBean)));
                 } else {

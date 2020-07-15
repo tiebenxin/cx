@@ -146,6 +146,14 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
+     * 好友封号时刷新群成员操作列表 创建群、增删好友
+     */
+    public static class UpdateGroupNumberEvent extends BaseEvent {
+        public int lockedstatus;
+        public Long uid;
+    }
+
+    /**
      * 网络监听
      */
     public static class EventNetStatus {
