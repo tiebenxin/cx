@@ -10,12 +10,19 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @类名：文件操作工具类
@@ -522,6 +529,73 @@ public class FileUtils {
             results.add(url);
         }
         return results;
+    }
+
+    //压缩单个文件为zip
+    public static void toZip(File srcFile, String zipFile) {
+        if (!srcFile.exists()) {
+            return;
+        }
+        ZipOutputStream zout = null;
+        BufferedOutputStream bos = null;
+        try {
+            zout = new ZipOutputStream(new FileOutputStream(zipFile));
+            //创建缓冲输出流
+            bos = new BufferedOutputStream(zout);
+            compress(zout, bos, srcFile, srcFile.getName());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (zout != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    private static void compress(ZipOutputStream zout, BufferedOutputStream bos, File sourceFile, String base) {
+        try {
+            //如果路径为目录（文件夹）
+            if (sourceFile.isDirectory()) {
+                //取出文件夹中的文件（或子文件夹）
+                File[] flist = sourceFile.listFiles();
+
+                if (flist.length == 0) {//如果文件夹为空，则只需在目的地zip文件中写入一个目录进入点
+                    System.out.println(base + "/");
+                    zout.putNextEntry(new ZipEntry(base + "/"));
+                } else {//如果文件夹不为空，则递归调用compress，文件夹中的每一个文件（或文件夹）进行压缩
+                    for (int i = 0; i < flist.length; i++) {
+                        compress(zout, bos, flist[i], base + "/" + flist[i].getName());
+                    }
+                }
+            } else {//如果不是目录（文件夹），即为文件，则先写入目录进入点，之后将文件写入zip文件中
+                zout.putNextEntry(new ZipEntry(base));
+                FileInputStream fos = new FileInputStream(sourceFile);
+                BufferedInputStream bis = new BufferedInputStream(fos);
+                int tag;
+                System.out.println(base);
+                //将源文件写入到zip文件中
+                while ((tag = bis.read()) != -1) {
+                    bos.write(tag);
+                }
+                bis.close();
+                fos.close();
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

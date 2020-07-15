@@ -369,4 +369,45 @@ public class NetUtil {
         }
     }
 
+    public UpFileServer getUpFileServer() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(12, TimeUnit.SECONDS);//设置连接超时时间
+        builder.readTimeout(6, TimeUnit.SECONDS);//设置读取超时时间;
+        builder.addInterceptor(new NetIntrtceptor());
+        if (AppConfig.DEBUG) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor(
+                    new HttpLoggingInterceptor.Logger() {
+                        @Override
+                        public void log(String message) {
+                            if (AppConfig.DEBUG) {
+//                            Log.e("h===","收到响应1: " + message);
+                                if (message != null) {
+                                    if (message.contains("http") || message.contains("data") || message.contains("Data")
+                                            || message.contains("=") || message.contains("{")) {
+                                        Log.e("h===", "收到响应2===" + message);
+                                    }
+                                }
+                            }
+                        }
+                    }
+            );
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+            builder.addInterceptor(logging);
+        } else {
+
+        }
+        builder.sslSocketFactory(createSSLSocketFactory());
+
+        OkHttpClient httpClient = builder.build();
+        retrofit = new Retrofit.Builder()
+                .baseUrl(AppHostUtil.getHttpHost())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(httpClient)
+                .build();
+
+        // 初始化Retrofit
+        return retrofit.create(UpFileServer.class);
+    }
+
 }

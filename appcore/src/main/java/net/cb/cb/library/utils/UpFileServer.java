@@ -4,7 +4,11 @@ import net.cb.cb.library.bean.AliObsConfigBean;
 import net.cb.cb.library.bean.HuaweiObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
 
+import io.reactivex.Observable;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 /***
@@ -14,17 +18,13 @@ import retrofit2.http.POST;
  */
 public interface UpFileServer {
 
-
-/*
-    @Multipart
-    @POST("/app/upload")
-    Call<ReturnBean<UpBean>>  updateFile (@Part("file\"; fileName=\"file.data") RequestBody imgs);
-*/
-
     @POST("/api/pad/v1/hwParam")
     Call<ReturnBean<HuaweiObsConfigBean>> haweiObs();
 
 
     @POST("/user/get-oss-security-token")
     Call<ReturnBean<AliObsConfigBean>> aliObs();
+
+    @POST("/app/log/upload")
+    Observable<ResponseBody> uploadLog(@Body RequestBody requestBody);
 }
