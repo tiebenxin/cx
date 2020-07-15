@@ -372,7 +372,8 @@ public class NetUtil {
     public UpFileServer getUpFileServer() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(12, TimeUnit.SECONDS);//设置连接超时时间
-        builder.readTimeout(6, TimeUnit.SECONDS);//设置读取超时时间;
+        builder.readTimeout(12, TimeUnit.SECONDS);//设置读取超时时间;
+        builder.writeTimeout(12, TimeUnit.SECONDS);//设置写入超时时间;
         builder.addInterceptor(new NetIntrtceptor());
         if (AppConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor(

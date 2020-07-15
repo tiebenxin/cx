@@ -431,8 +431,8 @@ public class UpFileAction {
         }
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        builder.addFormDataPart("log_date", date);
-        builder.addFormDataPart("log_file", file.getName(), requestBody);
+        builder.addFormDataPart("log-date", date);
+        builder.addFormDataPart("log-file", file.getName(), requestBody);
         FileUploadObserver<ResponseBody> fileUploadObserver = new FileUploadObserver<ResponseBody>() {
             @Override
             public void onUpLoadSuccess(ResponseBody responseBody) {

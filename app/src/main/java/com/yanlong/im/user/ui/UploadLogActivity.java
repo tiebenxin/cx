@@ -74,7 +74,7 @@ public class UploadLogActivity extends AppActivity {
                 if (!zipFile.exists()) {
                     return;
                 }
-                new UpFileAction().uploadLogFile(file, date, new IUploadListener() {
+                new UpFileAction().uploadLogFile(zipFile, date, new IUploadListener() {
                     @Override
                     public void onSuccess(Object result) {
                         System.out.println("上传日志成功--" + result);
