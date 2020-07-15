@@ -76,6 +76,18 @@ public class ChatActionActivity extends AppActivity {
             e.printStackTrace();
         }
         //显示发起人头像
+        if(!TextUtils.isEmpty(msgAllbean.getFrom_avatar())){
+            Glide.with(this).load(msgAllbean.getFrom_user().getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+        }else {
+            if(!TextUtils.isEmpty(msgAllbean.getFrom_user().getHead())){
+                Glide.with(this).load(msgAllbean.getFrom_user().getHead())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+            }else {
+                Glide.with(this).load(R.mipmap.ic_info_head)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+            }
+        }
         Glide.with(this).load(msgAllbean.getFrom_user().getHead())
                 .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
         //优先显示发起人群昵称，没有则显示用户昵称
