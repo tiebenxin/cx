@@ -77,7 +77,7 @@ public class ChatActionActivity extends AppActivity {
         }
         //显示发起人头像
         if(!TextUtils.isEmpty(msgAllbean.getFrom_avatar())){
-            Glide.with(this).load(msgAllbean.getFrom_user().getHead())
+            Glide.with(this).load(msgAllbean.getFrom_avatar())
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
         }else {
             if(!TextUtils.isEmpty(msgAllbean.getFrom_user().getHead())){
@@ -88,8 +88,6 @@ public class ChatActionActivity extends AppActivity {
                         .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
             }
         }
-        Glide.with(this).load(msgAllbean.getFrom_user().getHead())
-                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
         //优先显示发起人群昵称，没有则显示用户昵称
         if(!TextUtils.isEmpty(msgAllbean.getGid())){
             txtName.setText(TextUtils.isEmpty(msgAllbean.getFrom_group_nickname()) ? msgAllbean.getFrom_nickname() : msgAllbean.getFrom_group_nickname());
