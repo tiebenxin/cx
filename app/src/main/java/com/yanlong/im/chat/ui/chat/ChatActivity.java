@@ -1727,6 +1727,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (userAction.getMyInfo() == null) {
                     return;
                 }
+                // 封号
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 if (isGroup()) {
                     if (!isAdmin() && !isAdministrators()) {
                         ToastUtil.show(context, "只有群主才能修改该选项");

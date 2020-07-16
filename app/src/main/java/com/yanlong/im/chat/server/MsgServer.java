@@ -153,8 +153,7 @@ public interface MsgServer {
     Call<ReturnBean<List<ExitGroupUser>>> exitGroupList(@Field("gid") String gid);
 
     @POST("/group/toggle-open-up-red-envelope")
-    @FormUrlEncoded
-    Call<ReturnBean> toggleOpenUpRedEnvelope(@Field("@uidList") String uidJson, @Field("gid") String gid, @Field("ops") int ops);
+    Call<ReturnBean> toggleOpenUpRedEnvelope(@Body WeakHashMap<String, Object> params);
 
     @POST("/group/get-cant-open-up-red-envelope-members")
     @FormUrlEncoded

@@ -891,6 +891,51 @@ public class SocketData {
         DaoUtil.save(msg);
     }
 
+    /**
+     * 自己添加移除群成员领取红包
+     *
+     * @param gid      群ID
+     * @param isAdd    ture 禁止 false 允许
+     * @param userList
+     */
+    public static void createMsgRedEnvelopesOfNotice(String gid, boolean isAdd, List<UserInfo> userList) {
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setTimestamp(System.currentTimeMillis());
+
+        int survivalTime = new UserDao().getReadDestroy(null, gid);
+        msg.setSurvival_time(survivalTime);
+        msg.setRead(1);
+
+        msg.setTo_uid(UserAction.getMyId());
+        msg.setGid(gid);
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER);
+        String inviterName = "<font value ='3'>你</font>";
+        String names = "";
+        for (UserInfo user : userList) {
+            names += "\"<font id='" + user.getUid() + "' value ='2'>" + user.getName() + "</font>\"、";
+        }
+        String tag;
+        if (isAdd) {
+            tag = "已禁止";
+        } else {
+            tag = "已允许";
+        }
+        //去掉最后一个逗号
+        names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
+        String node = inviterName + tag + names + "在本群领取零钱红包" + "<div id='" + gid + "'></div>";
+        note.setNote(node);
+        msg.setMsgNotice(note);
+        msg.setIsLocal(1);
+        DaoUtil.save(msg);
+    }
+
     //消息被拒
     public static MsgAllBean createMsgBeanOfNotice(MsgBean.AckMessage ack, MsgAllBean msgAllBean, @ChatEnum.ENoticeType int type) {
         MsgAllBean bean = msgAllBean;

@@ -793,18 +793,25 @@ public class HtmlTransitonUtils {
             final String content = "\"" + bean.getName() + "\"";
             if ("你".equals(bean.getName())) {
                 builder.append(bean.getName());
+                if (i == 0) {
+                    builder.append("已允许");
+                }
                 continue;
             } else {
-                builder.append(content);
+                if ("你".equals(list.get(0).getName()) && i != list.size() - 1) {
+                    builder.append(content + "、");
+                } else {
+                    builder.append(content);
+                }
             }
-            int state;
+            int start;
             int end;
             if (i == 0) {
-                builder.append("允许");
-                state = 1;
-                end = builder.toString().length() - 3;
+                builder.append("已允许");
+                start = 1;
+                end = builder.toString().length() - 4;
             } else {
-                state = builder.toString().length() - content.length();
+                start = builder.toString().length() - content.length() + 1;
                 end = builder.toString().length() - 1;
             }
 
@@ -820,9 +827,9 @@ public class HtmlTransitonUtils {
                 }
 
             };
-            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(clickProtocol, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
-            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(protocolColorSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("在本群领取零钱红包");
     }
@@ -834,6 +841,9 @@ public class HtmlTransitonUtils {
             final String content = "\"" + bean.getName() + "\"";
             if ("你".equals(bean.getName())) {
                 builder.append(bean.getName());
+                if (i == 0) {
+                    builder.append("已禁止");
+                }
                 if (i > 0 && i != list.size() - 1) {
                     builder.append("、");
                 }
@@ -853,6 +863,7 @@ public class HtmlTransitonUtils {
             } else {
                 state = builder.toString().length() - content.length();
                 if (i == list.size() - 1) {
+                    state += 1;
                     end = builder.toString().length() - 1;
                 } else {
                     end = builder.toString().length() - 2;
@@ -882,26 +893,38 @@ public class HtmlTransitonUtils {
         List<HtmlBeanList> list = htmlBean.getList();
         for (int i = 0; i < list.size(); i++) {
             HtmlBeanList bean = list.get(i);
-            String content = "\"" + bean.getName() + "\"";
-            int state;
+            String content;
+            int start;
             int end;
+            if ("你".equals(bean.getName())) {
+                content = "你将";
+            } else {
+                content = "\"" + bean.getName() + "\"";
+            }
             if (i != list.size() - 1) {
                 if (i != list.size() - 2) {
-                    builder.append(content + "、");
-                    state = builder.toString().length() - content.length();
+                    if ("你将".equals(content)) {
+                        builder.append(content);
+                    } else {
+                        builder.append(content + "、");
+                    }
+                    start = builder.toString().length() - content.length();
                     end = builder.toString().length() - 2;
                 } else {
                     builder.append(content);
-                    state = builder.toString().length() - content.length() + 1;
+                    start = builder.toString().length() - content.length() + 1;
                     end = builder.toString().length() - 1;
                 }
 
             } else {
-                builder.append("已被" + content);
-                state = builder.toString().length() - content.length() + 1;
+                if ("你".equals(list.get(0).getName())) {
+                    builder.append("、" + content);
+                } else {
+                    builder.append("已被" + content);
+                }
+                start = builder.toString().length() - content.length() + 1;
                 end = builder.toString().length() - 1;
             }
-
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
@@ -914,11 +937,11 @@ public class HtmlTransitonUtils {
                 }
 
             };
-            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(clickProtocol, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
-            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(protocolColorSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        builder.append("移出群");
+        builder.append("移出群聊");
     }
 
     private void goToUserInfoActivity(Context context, Long id, String gid, boolean isGroup) {

@@ -750,13 +750,10 @@ public class MsgAction {
     /**
      * 开关群成员禁领红包
      *
-     * @param uidJson  成员列表
-     * @param gid      群id
-     * @param ops      -1 取消 0 不做操作 1 新增
      * @param callback
      */
-    public void toggleOpenUpRedEnvelope(String uidJson, String gid, int ops, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.toggleOpenUpRedEnvelope(uidJson, gid, ops), callback);
+    public void toggleOpenUpRedEnvelope(WeakHashMap<String, Object> params, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.toggleOpenUpRedEnvelope(params), callback);
     }
 
     /**

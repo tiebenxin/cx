@@ -406,6 +406,7 @@ public class MsgConversionBean {
                         }
                     }
                 }
+
                 MsgBean.RemoveGroupMember2Message removeGroupMember2 = bean.getRemoveGroupMember2();
                 if (removeGroupMember2.getNoticeMessageList() != null && removeGroupMember2.getNoticeMessageList().size() > 0) {
                     StringBuffer stringBuffer = new StringBuffer();
@@ -413,8 +414,13 @@ public class MsgConversionBean {
                         stringBuffer.append("\"<font color='#276baa' id='" + noticeMessage.getUid() + "'>" + noticeMessage.getNickname() + "</font>\"、");
                     }
                     String removeNames = stringBuffer.substring(0, stringBuffer.length() - 1);
-                    String user = "\"<font color='#276baa' id='" + fromUid + "'>" + name + "</font>\"";
-                    grOtherNotice.setNote(removeNames + "已被" + user + "移出群" + "<div id='" + bean.getGid() + "'></div>");
+                    if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
+                        String user = "<font>你</font>";
+                        grOtherNotice.setNote(user + "将" + removeNames + "移出群聊" + "<div id='" + bean.getGid() + "'></div>");
+                    } else {
+                        String user = "\"<font color='#276baa' id='" + fromUid + "'>" + name + "</font>\"";
+                        grOtherNotice.setNote(removeNames + "已被" + user + "移出群聊" + "<div id='" + bean.getGid() + "'></div>");
+                    }
                     grOtherNotice.setMsgType(ENoticeType.GROUP_OTHER_REMOVE);
                     msgAllBean.setMsgNotice(grOtherNotice);
                 }

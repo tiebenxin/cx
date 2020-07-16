@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -151,7 +152,12 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
      * @param isAdd 增加还是移除
      */
     private void toggleOpenUpRedEnvelope(boolean isAdd) {
-        mMsgAction.toggleOpenUpRedEnvelope(mUidJson, mGid, isAdd ? 1 : -1, new CallBack<ReturnBean>() {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("uidList", mList);
+        params.put("gid", mGid);
+        params.put("ops", isAdd ? 1 : -1);
+
+        mMsgAction.toggleOpenUpRedEnvelope(params, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
