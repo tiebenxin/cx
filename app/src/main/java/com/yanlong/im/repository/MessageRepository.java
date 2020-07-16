@@ -492,10 +492,10 @@ public class MessageRepository {
         int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
         long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         UserInfo userInfo = localDataSource.getFriend(realm, uid);
-        UserInfo userInfoCopy = realm.copyFromRealm(userInfo);
         if (userInfo == null) {
             return result;
         }
+        UserInfo userInfoCopy = realm.copyFromRealm(userInfo);
         switch (switchType) {
             case ChatEnum.ESwitchType.READ: // 单聊已读
                 userInfoCopy.setFriendRead(switchValue);
