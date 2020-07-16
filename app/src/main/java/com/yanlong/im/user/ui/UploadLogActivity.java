@@ -79,6 +79,7 @@ public class UploadLogActivity extends AppActivity {
                     public void onSuccess(Object result) {
                         System.out.println("上传日志成功--" + result);
                         ToastUtil.show("上传成功");
+                        zipFile.delete();
                     }
 
                     @Override
