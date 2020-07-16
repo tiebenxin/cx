@@ -918,7 +918,11 @@ public class HtmlTransitonUtils {
 
             } else {
                 if ("你".equals(list.get(0).getName())) {
-                    builder.append("、" + content);
+                    if (list.size() == 2) {
+                        builder.append(content);
+                    } else {
+                        builder.append("、" + content);
+                    }
                 } else {
                     builder.append("已被" + content);
                 }
