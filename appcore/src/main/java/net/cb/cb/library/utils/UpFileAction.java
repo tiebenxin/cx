@@ -8,11 +8,23 @@ import android.util.Log;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.AliObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.inter.IUploadListener;
+import net.cb.cb.library.net.FileUploadObserver;
+import net.cb.cb.library.net.RequestUploadFileBody;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -411,6 +423,49 @@ public class UpFileAction {
         }
         return endpoint;
     }
+
+    public void uploadLogFile(File file, String date, final IUploadListener listener) {
+        if (file == null || !file.exists() || TextUtils.isEmpty(date)) {
+            listener.onFailed();
+            return;
+        }
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        builder.addFormDataPart("log-date", date);
+        builder.addFormDataPart("log-file", file.getName(), requestBody);
+        FileUploadObserver<ResponseBody> fileUploadObserver = new FileUploadObserver<ResponseBody>() {
+            @Override
+            public void onUpLoadSuccess(ResponseBody responseBody) {
+                if (responseBody != null) {
+                    try {
+                        listener.onSuccess(responseBody.string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    listener.onFailed();
+                }
+            }
+
+            @Override
+            public void onUpLoadFail(Throwable e) {
+                e.printStackTrace();
+                listener.onFailed();
+
+            }
+
+            @Override
+            public void onProgress(int progress) {
+//                listener.onProgress(progress);
+
+            }
+        };
+        Observable<ResponseBody> observable=  NetUtil.getNet().getUpFileServer().uploadLog(new RequestUploadFileBody(builder.build(), fileUploadObserver));
+        observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(fileUploadObserver);
+    }
+
 
 }
 
