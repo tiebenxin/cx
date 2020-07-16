@@ -3,29 +3,19 @@ package com.yanlong.im.shop;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.UserBean;
@@ -35,9 +25,6 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.BindPhoneNumActivity;
-import com.hm.cxpay.ui.payword.SetPaywordActivity;
-import com.hm.cxpay.widget.PswView;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
@@ -46,8 +33,6 @@ import com.yanlong.im.user.ui.ServiceAgreementActivity;
 
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
-
-import static android.content.Context.INPUT_METHOD_SERVICE;
 
 /**
  * @author Liszt
@@ -262,6 +247,7 @@ public class ShopFragemnt extends Fragment {
                 return;
             }
             httpGetUrl();
+            payStatus = "1";
         }
     }
 
