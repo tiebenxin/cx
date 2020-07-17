@@ -97,6 +97,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private long[] mHits;
     private boolean isShowIPSelector;//是否显示ip选择器
     private UserAction userAction = new UserAction();
+    private String showTitle = "";//要显示的用户名或手机号
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshBalance(EventFactory.ExitActivityEvent event) {
@@ -284,12 +285,14 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private void initData() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         String imageHead = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).get4Json(String.class);
-
         String imid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
-        if (StringUtil.isNotNull(imid)) {
-            phone = imid;
+        if (StringUtil.isNotNull(phone)) {
+            showTitle = phone;
         }
-        mTvPhoneNumber.setText(phone);
+        if (StringUtil.isNotNull(imid)){
+            showTitle = imid;
+        }
+        mTvPhoneNumber.setText(showTitle);
         Glide.with(this).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
     }
 
@@ -312,7 +315,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
     private void goIdentifyCodeActivity() {
         Intent intent = new Intent(this, IdentifyingCodeActivity.class);
-        intent.putExtra(PHONE, phone);
+        if(!phone.equals("0")){
+            intent.putExtra(PHONE, phone);
+        }
         startActivity(intent);
     }
 
