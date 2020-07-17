@@ -916,10 +916,10 @@ public class SocketData {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
         note.setMsgType(ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER);
-        String inviterName = "<font value ='3'>你</font>";
+        String inviterName = "你";
         String names = "";
         for (UserInfo user : userList) {
-            names += "\"<font id='" + user.getUid() + "' value ='2'>" + user.getName() + "</font>\"、";
+            names += "\"<font id='" + user.getUid() + "' value ='2'><a href=''>" + user.getName() + "</a></font>\"、";
         }
         String tag;
         if (isAdd) {
@@ -1007,7 +1007,7 @@ public class SocketData {
                     if (bean.getTo_user() != null) {
                         name = bean.getTo_user().getName4Show();
                     }
-                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
+                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'><a href=''>" + name + "</a></font>\"" + "的好友, 请先添加对方为好友";
                     break;
                 case ChatEnum.ENoticeType.LOCK:
                     note = "聊天中所有信息已进行" + "<font color='#1f5305' tag=" + ChatEnum.ETagType.LOCK + ">" + "端对端加密" + "</font>" + "保护";
