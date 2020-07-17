@@ -315,7 +315,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
     private void goIdentifyCodeActivity() {
         Intent intent = new Intent(this, IdentifyingCodeActivity.class);
-        if(!phone.equals("0")){
+        if(!phone.equals("0")){ //TODO 发现后台添加生成的新用户，调用获取用户资料接口并缓存，得到的电话被自动设为了字符串"0"，已经在群里提给了后台，不知道是否修复，判断条件暂时这么写
             intent.putExtra(PHONE, phone);
         }
         startActivity(intent);
