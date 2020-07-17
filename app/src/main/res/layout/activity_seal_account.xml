@@ -14,28 +14,42 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
+
+                <ImageView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="15dp"
-                    android:text="账号违规说明：被投诉并确有违规行为"
+                    android:layout_marginTop="55dp"
+                    android:src="@mipmap/ic_seal_account"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="34dp"
+                    android:text="账号违规说明"
+                    android:textColor="@color/c_666666"
+                    android:textSize="17sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="被投诉并确有违规行为"
+                    android:layout_marginTop="13dp"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="17sp" />
 
                 <Button
                     android:id="@+id/btn_unsealing"
                     style="@style/app_btn_green"
                     android:textSize="18sp"
-                    android:layout_width="200dp"
-                    android:layout_marginTop="60dp"
-                    android:text="申请解封" />
+                    android:layout_width="192dp"
+                    android:layout_marginTop="83dp"
+                    android:text="解封账号" />
 
                 <Button
                     android:id="@+id/btn_temp_login"
                     style="@style/app_btn_green"
-                    android:layout_width="200dp"
+                    android:layout_width="192dp"
                     android:textSize="18sp"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="20dp"
                     android:text="申请临时登录" />
         </LinearLayout>
     </net.cb.cb.library.view.HeadView>

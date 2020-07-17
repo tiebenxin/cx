@@ -87,7 +87,7 @@ import retrofit2.Response;
  * @createDate 2020-7-6
  * @updateAuthor
  * @updateDate
- * @description 账号申诉
+ * @description 解封账号
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 @Route(path = AppealAccountActivity.path)

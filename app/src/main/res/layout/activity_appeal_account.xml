@@ -10,7 +10,7 @@
         android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:headview_title="账号申诉">
+        app:headview_title="解封账号">
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
