@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -79,6 +81,9 @@ public class ShopFragemnt extends Fragment {
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);// 设置允许JS弹窗
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setTextZoom(100);//适配某些手机网页显示不全
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
+            webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
         webView.addJavascriptInterface(new JavascriptInterface(), "JsToAndroid");//name需要和JS一致
         webView.addJavascriptInterface(new JavascriptInterface(), "JsGetValue");//name需要和JS一致
         webView.setWebViewClient(new MyWebViewClient());
