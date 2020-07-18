@@ -121,10 +121,11 @@ public class MessageRepository {
      * @param wrapMessage
      */
     public void handlerRequestGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
-        //自己邀请的，不需要显示
-        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 && wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
-            return;
-        }
+        // TODO　自己邀请的，不会收到通知
+//        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
+//                wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
+//            return;
+//        }
         for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
             ApplyBean applyBean = new ApplyBean();
             applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
@@ -997,7 +998,9 @@ public class MessageRepository {
 //            }
             result = localDataSource.insertOfflineMessages(realm, offlineMsgAllBean);
             offlineMsgAllBean.clear();
-            offlineMsgIds.clear();
+            if (offlineMsgIds != null) {
+                offlineMsgIds.clear();
+            }
         }
 
         return result;

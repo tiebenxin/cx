@@ -60,7 +60,9 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         setContentView(R.layout.activity_identifying_code);
         initView();
         initEvent();
@@ -71,7 +73,6 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
     protected void onDestroy() {
         super.onDestroy();
         CountDownUtil.cancelTimer();
-        EventBus.getDefault().unregister(this);
     }
 
     private void initView() {

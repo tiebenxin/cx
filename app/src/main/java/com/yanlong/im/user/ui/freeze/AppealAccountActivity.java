@@ -321,7 +321,6 @@ public class AppealAccountActivity extends BaseBindActivity<ActivityAppealAccoun
                                                 file = file + netFile.get(getMediaPath(mList.get(i))) + ",";
                                             }
                                             file = file.substring(0, file.length() - 1);
-                                            AppHostUtil.setHostUrl(BuildConfig.HOST_DEV);
                                             commit(content, file);
                                         }
 

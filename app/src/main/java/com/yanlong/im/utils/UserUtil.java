@@ -104,8 +104,16 @@ public class UserUtil {
      * @return
      */
     public static int getUserStatus() {
-        int status = SpUtil.getSpUtil().getSPValue(Preferences.USER_STATUS + UserAction.getMyInfo().getUid() + BuildConfig.BUILD_TYPE, 0);
-        return status;
+        int status = 0;
+        try {
+            if (UserAction.getMyInfo() != null) {
+                status = SpUtil.getSpUtil().getSPValue(Preferences.USER_STATUS + UserAction.getMyInfo().getUid() + BuildConfig.BUILD_TYPE, 0);
+            }
+        } catch (Exception e) {
+
+        } finally {
+            return status;
+        }
     }
 
     /**

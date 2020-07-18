@@ -66,7 +66,9 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         setContentView(R.layout.activity_passworfd_login);
         initView();
         initEvent();
@@ -143,12 +145,6 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                 login();
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override
