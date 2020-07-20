@@ -785,8 +785,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
-        EventBus.getDefault().unregister(this);
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         super.onDestroy();
         //释放空间
         if (popGuessUWant != null) {

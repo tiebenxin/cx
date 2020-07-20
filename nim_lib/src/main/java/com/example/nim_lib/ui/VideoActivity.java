@@ -286,7 +286,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON //保持屏幕长亮
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON); //打开屏幕
 
-        EventBus.getDefault().register(this);
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
         setContentView(R.layout.activity_video);
         setStatusBarColor(R.color.color_707);
         findSurfaceView();
@@ -539,16 +541,16 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         AVChatManager.getInstance().disableRtc();
         releaseVideo();
         registerObserves(false);
+        EventBus.getDefault().post(new CanStampEvent(true));
         if (!isFinishing()) {
             mHandler.removeCallbacks(runnable);
             mHandler.removeCallbacks(runnableWait);
             mHandler.removeCallbacks(runnableShowWait);
             mHandler.removeCallbacks(runnableOutWait);
-            if (EventBus.getDefault().isRegistered(this)) {
-                EventBus.getDefault().unregister(this);
-            }
         }
-        EventBus.getDefault().post(new CanStampEvent(true));
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         releaseWakeLock();
     }
 
