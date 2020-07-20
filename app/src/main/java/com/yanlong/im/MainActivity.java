@@ -57,6 +57,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+import com.yanlong.im.chat.eventbus.EventReportGeo;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.tcp.TcpConnection;
@@ -222,7 +223,7 @@ public class MainActivity extends AppActivity {
         } else {
             //有缓存则按需求规则，超过24小时再上报用户地理位置信息
             try {
-                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 24)) {
+                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 4)) {
                     getLocation();
                 }
             } catch (Exception e) {
@@ -622,7 +623,6 @@ public class MainActivity extends AppActivity {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
         if (event.getStatus() == CoreEnum.ENetStatus.SUCCESS_ON_NET) {
-//            reportIP(NetWorkUtils.getLocalIpAddress(this));
             getIP();
         }
     }
@@ -1188,6 +1188,13 @@ public class MainActivity extends AppActivity {
         if (!isFinishing()) {
             //允许
             MessageManager.getInstance().setCanStamp(event.canStamp);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(EventReportGeo event) {
+        if (!isFinishing()) {
+            getLocation();
         }
     }
 

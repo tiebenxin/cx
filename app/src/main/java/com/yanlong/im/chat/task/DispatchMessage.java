@@ -205,6 +205,9 @@ public abstract class DispatchMessage {
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
                 repository.handlerMultiTerminalSync(wrapMessage, realm);
                 break;
+            case REPORT_GEO_POSITION:// 上报地理位置
+                MessageManager.getInstance().notifyReportGeo();
+                break;
         }
 
         return result;

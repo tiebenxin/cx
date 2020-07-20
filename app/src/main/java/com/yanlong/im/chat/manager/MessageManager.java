@@ -27,6 +27,7 @@ import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.eventbus.EventRefreshGroup;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
+import com.yanlong.im.chat.eventbus.EventReportGeo;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.task.DispatchMessage;
 import com.yanlong.im.chat.task.OfflineMessage;
@@ -1561,14 +1562,8 @@ public class MessageManager {
     }
 
 
-    public void notifyRefreshFriend(boolean isLocal, UserInfo info, @CoreEnum.ERosterAction int action) {
-        EventRefreshFriend event = new EventRefreshFriend();
-        event.setLocal(isLocal);
-        if (action != CoreEnum.ERosterAction.DEFAULT) {
-            event.setUser(info);
-            event.setRosterAction(action);
-        }
-        EventBus.getDefault().post(event);
+    public void notifyReportGeo() {
+        EventBus.getDefault().post(new EventReportGeo());
     }
 
     /*
