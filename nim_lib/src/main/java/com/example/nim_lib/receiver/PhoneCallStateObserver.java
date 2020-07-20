@@ -4,9 +4,16 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.constant.AVChatExitCode;
+import com.example.nim_lib.controll.AVChatProfile;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
+
+import net.cb.cb.library.event.EventFactory;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +83,15 @@ public class PhoneCallStateObserver {
      */
     public void handleLocalCall() {
         if (stateEnum != PhoneCallStateEnum.IDLE) {
-            AVChatManager.getInstance().hangUp2(AVChatManager.getInstance().getCurrentChatId(), new HandleLocalCallCallback(1));
+            EventFactory.CallInPhoneActivityEvent event = new EventFactory.CallInPhoneActivityEvent();
+            if (AVChatProfile.getInstance().isCallEstablished()) {
+                event.operationType = AVChatExitCode.HANGUP;
+                EventBus.getDefault().post(event);
+            } else if (AVChatProfile.getInstance().isCallIng()) {
+                event.operationType = AVChatExitCode.CANCEL;
+                EventBus.getDefault().post(event);
+            }
+//            AVChatManager.getInstance().hangUp2(AVChatManager.getInstance().getCurrentChatId(), new HandleLocalCallCallback(1));
         }
     }
 

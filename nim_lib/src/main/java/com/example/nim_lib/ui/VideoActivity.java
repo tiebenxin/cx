@@ -286,7 +286,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON //保持屏幕长亮
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON); //打开屏幕
 
-        if(!EventBus.getDefault().isRegistered(this)){
+        if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
         setContentView(R.layout.activity_video);
@@ -2047,6 +2047,23 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         //通话中收到退出登录通知，关闭通话
         LogUtil.getLog().i(TAG, "--login_out");
         this.finish();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void callInPhoneActivityEvent(EventFactory.CallInPhoneActivityEvent event) {
+        // 来电话时中止通话
+        AVChatProfile.getInstance().setCallIng(false);
+        if (avChatData != null) {
+            mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+            if (event.operationType == AVChatExitCode.CANCEL) {
+                sendEventBus(Preferences.CANCLE, AVChatExitCode.CANCEL);
+            } else if (event.operationType == AVChatExitCode.HANGUP && toUId != null && toUId != 0) {
+                sendEventBus(Preferences.HANGUP, AVChatExitCode.HANGUP);
+            }
+        } else {
+            sendEventBus(Preferences.CANCLE, AVChatExitCode.CANCEL);
+            Toast.makeText(VideoActivity.this, R.string.avchat_cancel, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
