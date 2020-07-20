@@ -585,7 +585,7 @@ public class SocketUtil {
                 }
 
             }
-            LogUtil.getLog().d(TAG, ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime));
+            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime));
             if (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();
@@ -605,7 +605,7 @@ public class SocketUtil {
                 throw new NetworkErrorException();
 
             } else {
-                LogUtil.getLog().d(TAG, "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
+                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
                 receive();
                 //发送认证请求
                 TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
@@ -848,7 +848,7 @@ public class SocketUtil {
                         sendListThread();
                     }
                     LogUtil.writeLog(TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
-                    LogUtil.getLog().d(TAG, "连接总耗时=" + TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
+                    LogUtil.getLog().d(TAG + "--连接LOG", "总耗时=" + TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
                     TcpConnection.getInstance(AppConfig.getContext()).clearLogList();
                     break;
                 case ACK:
