@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -37,6 +38,8 @@ public class CommonSelectDialog extends Dialog {
     private String title;//标题文字
     private String leftText;//左侧按钮文字
     private String rightText;//右侧按钮文字
+    private EditText etInput;//输入框
+    private int type;//区分不同弹框类型 0 默认 1 含有输入框
 
     //重写三个构造方法，传入需要的上下文参数
     public CommonSelectDialog(@NonNull Builder builder) {
@@ -47,6 +50,7 @@ public class CommonSelectDialog extends Dialog {
         rightText = builder.rightText;
         leftListener = builder.leftListener;
         rightListener = builder.rightListener;
+        type = builder.type;
     }
 
 
@@ -74,6 +78,12 @@ public class CommonSelectDialog extends Dialog {
         tvContent = view.findViewById(R.id.tv_content);
         tvLeft = view.findViewById(R.id.tv_exit);
         tvRight = view.findViewById(R.id.tv_set);
+        etInput = view.findViewById(R.id.et_input);
+        if(type!=0){
+            etInput.setVisibility(View.VISIBLE);
+        }else {
+            etInput.setVisibility(View.GONE);
+        }
         //设置标题文字
         tvContent.setText(title);
         //设置左侧文字
@@ -84,6 +94,7 @@ public class CommonSelectDialog extends Dialog {
         tvLeft.setOnClickListener(leftListener);
         //右侧点击
         tvRight.setOnClickListener(rightListener);
+
     }
 
     //建造者模式
@@ -92,6 +103,7 @@ public class CommonSelectDialog extends Dialog {
         private String title;
         private String leftText;
         private String rightText;
+        private int type=0;//区分不同弹框类型 0 默认 1 含有输入框
         private View.OnClickListener leftListener;
         private View.OnClickListener rightListener;
 
@@ -111,6 +123,11 @@ public class CommonSelectDialog extends Dialog {
 
         public Builder setRightText(String rightText) {
             this.rightText = rightText;
+            return this;
+        }
+
+        public Builder setType(int type) {
+            this.type = type;
             return this;
         }
 

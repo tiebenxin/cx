@@ -1003,6 +1003,8 @@ public class GroupInfoActivity extends AppActivity {
                 .putExtra(GroupNumbersActivity.AGM_GID, gid)
                 .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_ADD)
                 .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
+                //群主和管理员无视群验证可直接拉人，普通成员需要判断是否需要群验证
+                .putExtra(GroupNumbersActivity.NEED_VERIFICATION,isAdmin()||isAdministrators() ? 0 : ginfo.getNeedVerification().intValue())
         );
     }
 
