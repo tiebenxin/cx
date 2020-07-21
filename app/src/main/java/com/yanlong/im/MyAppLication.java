@@ -104,7 +104,7 @@ public class MyAppLication extends MainApplication {
         initWeixinConfig();
         initRunstate();
         initRedPacket();
-        LogcatHelper.getInstance(this).start();
+//        LogcatHelper.getInstance(this).start();
         initException();
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
