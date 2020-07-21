@@ -202,6 +202,10 @@ public class OfflineMessage extends DispatchMessage {
                         //在线，表示能回执成功，清除掉MsgId
                         if (SocketUtil.getSocketUtil().getOnLineState())
                             mBatchSuccessMsgIds.clear();
+                    } else if (!repository.hasValidOfflineMessage()) {
+                        //无有效离线消息直接发送回执
+                        LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
+                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                     }
                     //更新所有的session
                     updateSessionsWhenBatchCompleted(realm);

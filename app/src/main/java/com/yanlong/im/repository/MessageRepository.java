@@ -363,6 +363,9 @@ public class MessageRepository {
                 EventBus.getDefault().post(eventRefreshFriend);
                 EventBus.getDefault().post(new EventExitChat(null, uid));
                 break;
+            case MY_GROUP_READ:
+
+                break;
         }
     }
 
@@ -1004,6 +1007,14 @@ public class MessageRepository {
         }
 
         return result;
+    }
+
+    //是否有有效离线消息
+    public boolean hasValidOfflineMessage() {
+        if (offlineMsgAllBean != null && offlineMsgAllBean.size() > 0) {
+            return true;
+        }
+        return false;
     }
 
     private void checkNeedRequestData(MsgAllBean msgAllBean, boolean isFromSelf, Realm realm) {

@@ -4667,6 +4667,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      *
      */
     private boolean updateSessionDraftAndAtMessage() {
+        LogUtil.getLog().i(TAG, "updateSessionDraftAndAtMessage");
         boolean hasChange = false;
         if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
             hasChange = true;
