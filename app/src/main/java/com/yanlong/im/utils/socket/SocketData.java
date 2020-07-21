@@ -2346,5 +2346,30 @@ public class SocketData {
         return msg;
     }
 
+    //普通成员邀请进群提示消息(给自己看的，固定文案)
+    public static void invitePersonLocalNotice(String gid) {
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setTimestamp(System.currentTimeMillis());
+
+        int survivalTime = new UserDao().getReadDestroy(null, gid);
+        msg.setSurvival_time(survivalTime);
+        msg.setRead(1);
+
+        msg.setTo_uid(UserAction.getMyId());
+        msg.setGid(gid);
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.DEFAULT);
+        note.setNote("群聊邀请已发送给群管理，等待群管理确认");
+        msg.setMsgNotice(note);
+        msg.setIsLocal(1);
+        DaoUtil.save(msg);
+    }
+
 
 }

@@ -407,6 +407,7 @@ public class GroupNumbersActivity extends AppActivity {
                     if (type == TYPE_ADD && response.body().getData() != null) {
                         if (response.body().getData().isPending()) {
                             ToastUtil.show("邀请成功,等待群主验证");
+                            SocketData.invitePersonLocalNotice(gid);
                         } else {
                             SocketData.createMsgGroupOfNotice(gid, listDataTop);
                         }
