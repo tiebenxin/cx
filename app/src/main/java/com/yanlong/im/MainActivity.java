@@ -223,7 +223,7 @@ public class MainActivity extends AppActivity {
         } else {
             //有缓存则按需求规则，超过24小时再上报用户地理位置信息
             try {
-                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 4)) {
+                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 6)) {
                     getLocation();
                 }
             } catch (Exception e) {

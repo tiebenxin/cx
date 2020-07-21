@@ -95,7 +95,7 @@ public class ChangeDetailActivity extends AppActivity {
             tvType.setText("支出");
             tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
         }
-        //类型：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款
+        //类型：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款 12购物退款
         int type = data.getTradeType();
         if(type == 1 || type == 8){
             tvTitle.setText("转账");
