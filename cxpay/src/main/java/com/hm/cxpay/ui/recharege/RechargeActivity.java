@@ -28,12 +28,14 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.YiBaoWebActivity;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -342,7 +344,7 @@ public class RechargeActivity extends AppActivity {
     /**
      * 发请求->充值接口
      */
-    private void httpRecharge(double money) {
+    private void httpRecharge(final double money) {
         PayHttpUtils.getInstance().toRecharge(money)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
@@ -350,10 +352,11 @@ public class RechargeActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.getData() != null) {
+                            LogUtil.writeLog("支付--充值--money=" + money + "--time" + System.currentTimeMillis());
                             //1 成功 99 处理中
                             UrlBean urlBean = baseResponse.getData();
-                            Intent intent = new Intent(RechargeActivity.this, WebPageActivity.class);
-                            intent.putExtra(WebPageActivity.AGM_URL, urlBean.getUrl());
+                            Intent intent = new Intent(RechargeActivity.this, YiBaoWebActivity.class);
+                            intent.putExtra(YiBaoWebActivity.AGM_URL, urlBean.getUrl());
                             startActivityForResult(intent, REQUEST_PAY);
                         }
                         dismissLoadingDialog();

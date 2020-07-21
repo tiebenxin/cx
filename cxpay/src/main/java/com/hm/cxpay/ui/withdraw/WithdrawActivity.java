@@ -37,6 +37,7 @@ import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.BigDecimalUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -224,7 +225,7 @@ public class WithdrawActivity extends AppActivity {
     /**
      * 请求->提现
      */
-    private void httpWithdraw(String money) {
+    private void httpWithdraw(final String money) {
         PayHttpUtils.getInstance().toWithdraw(money)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
@@ -232,6 +233,7 @@ public class WithdrawActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
+                            LogUtil.writeLog("支付--提现--money=" + money + "--time" + System.currentTimeMillis());
                             if (baseResponse.getData() != null) {
                                 //1 成功 99 处理中
                                 UrlBean urlBean = baseResponse.getData();
@@ -289,7 +291,7 @@ public class WithdrawActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data == null){
+        if (data == null) {
             return;
         }
         if (requestCode == REQUEST_PAY) {
