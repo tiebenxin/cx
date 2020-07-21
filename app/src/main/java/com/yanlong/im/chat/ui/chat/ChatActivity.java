@@ -725,10 +725,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         stopScreenShotListener();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        LogUtil.getLog().i(TAG, "ChatActivity-异常销毁了");
+    }
 
     @Override
     protected void onStop() {
         super.onStop();
+        LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         AudioPlayManager.getInstance().stopPlay();
         stopRecordVoice();
@@ -770,6 +776,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     protected void onDestroy() {
+        LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         //释放adapter资源
         mAdapter.onDestroy();
         mViewModel.onDestroy();
@@ -818,7 +825,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void initData() {
         //9.17 进去后就清理会话的阅读数量,初始化unreadCount
+        session = dao.sessionGet(toGid, toUId);
         taskCleanRead(true);
+        updateSessionDraftAndAtMessage();
         initViewNewMsg();
         if (!isLoadHistory) {
             taskRefreshMessage(false);
