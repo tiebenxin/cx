@@ -593,18 +593,20 @@ public class MessageRepository {
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg(realm, cancelMsgId);
                 } else {
-                    int position = offlineMsgIds.indexOf(cancelMsgId);
-                    if (position >= 0 && position < offlineMsgAllBean.size()) {
-                        msgAllBean = offlineMsgAllBean.get(position);
-                        if (msgAllBean != null) {
-                            offlineMsgAllBean.remove(msgAllBean);
+                    if (offlineMsgIds != null) {
+                        int position = offlineMsgIds.indexOf(cancelMsgId);
+                        if (position >= 0 && position < offlineMsgAllBean.size()) {
+                            msgAllBean = offlineMsgAllBean.get(position);
+                            if (msgAllBean != null) {
+                                offlineMsgAllBean.remove(msgAllBean);
+                            }
                         }
-                    }
-                    int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
-                    if (currentId >= 0 && currentId < offlineMsgAllBean.size()) {
-                        msgAllBean = offlineMsgAllBean.get(position);
-                        if (msgAllBean != null) {
-                            offlineMsgAllBean.remove(msgAllBean);
+                        int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
+                        if (currentId >= 0 && currentId < offlineMsgAllBean.size()) {
+                            msgAllBean = offlineMsgAllBean.get(position);
+                            if (msgAllBean != null) {
+                                offlineMsgAllBean.remove(msgAllBean);
+                            }
                         }
                     }
                 }
@@ -628,12 +630,14 @@ public class MessageRepository {
                     eventVideo.name = bean.getFrom_nickname();
                     EventBus.getDefault().post(eventVideo);
                 } else {
-                    int position = offlineMsgIds.indexOf(cancelMsgId);
-                    if (position >= 0 && position < offlineMsgAllBean.size()) {
-                        msgAllBean = offlineMsgAllBean.get(position);
-                        if (msgAllBean != null) {
-                            result = saveMessageNew(bean, realm);
-                            offlineMsgAllBean.remove(msgAllBean);
+                    if (offlineMsgIds != null) {
+                        int position = offlineMsgIds.indexOf(cancelMsgId);
+                        if (position >= 0 && position < offlineMsgAllBean.size()) {
+                            msgAllBean = offlineMsgAllBean.get(position);
+                            if (msgAllBean != null) {
+                                result = saveMessageNew(bean, realm);
+                                offlineMsgAllBean.remove(msgAllBean);
+                            }
                         }
                     }
                 }

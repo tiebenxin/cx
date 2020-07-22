@@ -23,6 +23,7 @@ import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -287,6 +288,11 @@ public class SocketUtil {
      */
     private void run() {
         if (isRun()) {
+            return;
+        }
+        //无网络，不连接
+        if (!NetUtil.isNetworkConnected()) {
+            setRunState(0);
             return;
         }
         setRunState(1);
