@@ -41,6 +41,7 @@ import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
@@ -191,7 +192,7 @@ public class TransferActivity extends BasePayActivity {
     }
 
 
-    public void httpSendTransfer(String actionId, final long money, final long toUid, final String note) {
+    public void httpSendTransfer(final String actionId, final long money, final long toUid, final String note) {
         isSending = true;
         showLoadingDialog();
         handler.postDelayed(runnable, WAIT_TIME);
@@ -203,6 +204,7 @@ public class TransferActivity extends BasePayActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
+                            LogUtil.writeLog("支付--转账--actionId=" + actionId + "--time" + System.currentTimeMillis());
                             UrlBean urlBean = baseResponse.getData();
                             if (urlBean != null) {
                                 Intent intent = new Intent(TransferActivity.this, YiBaoWebActivity.class);

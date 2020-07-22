@@ -469,6 +469,25 @@ public class FileUtils {
         }
     }
 
+    public static boolean isNeedsMd5(String value) {
+        if ("image/".equals(value) || "video/".equals(value) || "file/".equals(value)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否是本地拍摄
+     *
+     * @param path
+     * @return
+     */
+    public static boolean isLocalTake(String path) {
+        if (!TextUtils.isEmpty(path) && (path.contains("changxin/video") || path.contains("Pictures/") || path.contains("cache/group/"))) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 获取文件重命名 { 如123.txt若有重名则依次保存为123(1).txt  123(2).txt}

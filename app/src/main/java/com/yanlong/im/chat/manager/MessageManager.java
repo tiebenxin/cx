@@ -2187,6 +2187,7 @@ public class MessageManager {
         if (resultMessage == null) {
             return;
         }
+        LogUtil.writeLog("支付--接收到结果--actionId=" + resultMessage.getActionId() + "--tradeId=" + resultMessage.getTradeId());
         PayResultEvent event = new PayResultEvent();
         MsgBean.PayResultMessage.PayResult result = resultMessage.getResult();
         event.setActionId(resultMessage.getActionId());

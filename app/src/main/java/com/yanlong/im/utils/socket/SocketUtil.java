@@ -325,6 +325,7 @@ public class SocketUtil {
             socketChannel = null;
         }
         LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
+        LogUtil.writeLog(TAG + "--连接LOG--" + "关闭连接");
 
     }
 
@@ -585,7 +586,7 @@ public class SocketUtil {
                 }
 
             }
-            LogUtil.getLog().d(TAG, ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime));
+            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime));
             if (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();
@@ -601,11 +602,12 @@ public class SocketUtil {
                 socketChannel.close();
                 socketChannel = null;
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
+                LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
                 //证书问题
                 throw new NetworkErrorException();
 
             } else {
-                LogUtil.getLog().d(TAG, "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
+                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
                 receive();
                 //发送认证请求
                 TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
@@ -757,11 +759,12 @@ public class SocketUtil {
                 } catch (Exception e) {
                     if (e instanceof SocketEndException) {
                         LogUtil.getLog().e(TAG, "SocketEndException==连接已中断");
+                        LogUtil.writeLog("连接LOG" + "--SocketEndException--连接被服务器中断");
                         stop(true);
                     } else {
                         e.printStackTrace();
                         LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-                        LogUtil.writeLog("接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
+                        LogUtil.writeLog("连接LOG--接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
                         stop(true);
                         if (isStart) {
                             startSocket();
@@ -848,7 +851,7 @@ public class SocketUtil {
                         sendListThread();
                     }
                     LogUtil.writeLog(TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
-                    LogUtil.getLog().d(TAG, "连接总耗时=" + TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
+                    LogUtil.getLog().d(TAG + "--连接LOG", "总耗时=" + TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
                     TcpConnection.getInstance(AppConfig.getContext()).clearLogList();
                     break;
                 case ACK:

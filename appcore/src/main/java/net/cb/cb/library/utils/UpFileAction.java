@@ -80,14 +80,7 @@ public class UpFileAction {
         switch (type) {
             case IMG:
                 data.setTime(System.currentTimeMillis());
-//                pt = AppConfig.UP_PATH + "/image/android/" + simpleDateFormat.format(data) + "/";
-                pt = AppConfig.getUpPath() + "/image/android/" + simpleDateFormat.format(data) + "/";
-                break;
-            case HEAD:
-                pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
-                break;
-            case HEAD_GROUP:
-                pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
+                pt = "image/";
                 break;
             case COMPLAINT:
                 pt = AppConfig.getUpPath() + "/misc/complaint/";
@@ -96,16 +89,18 @@ public class UpFileAction {
                 pt = AppConfig.getUpPath() + "/misc/feedback/";
                 break;
             case VOICE:
-                pt = AppConfig.getUpPath() + "/voice/android/" + simpleDateFormat.format(data) + "/";
+                pt = "voice/";
                 break;
             case HEAD_GROUP_CHANGE:
+            case HEAD_GROUP:
+            case HEAD:
                 pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
                 break;
             case VIDEO:
-                pt = AppConfig.getUpPath() + "/video/android/" + simpleDateFormat.format(data) + "/";
+                pt = "video/";
                 break;
             case FILE:
-                pt = AppConfig.getUpPath() + "/file/android/" + simpleDateFormat.format(data) + "/";
+                pt = "file/";
                 break;
             case PC_MSG:
                 pt = AppConfig.getUpPath() + "/file/msg/" + id + "/" + simpleDateFormat.format(data);
@@ -460,7 +455,7 @@ public class UpFileAction {
 
             }
         };
-        Observable<ResponseBody> observable=  NetUtil.getNet().getUpFileServer().uploadLog(new RequestUploadFileBody(builder.build(), fileUploadObserver));
+        Observable<ResponseBody> observable = NetUtil.getNet().getUpFileServer().uploadLog(new RequestUploadFileBody(builder.build(), fileUploadObserver));
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(fileUploadObserver);

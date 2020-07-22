@@ -74,6 +74,9 @@ public class TransferDetailActivity extends BasePayActivity {
         isFromMe = intent.getBooleanExtra("isFromMe", false);
         tradeId = intent.getStringExtra("tradeId");
         msgJson = intent.getStringExtra("msg");
+        if (!TextUtils.isEmpty(msgJson)) {
+
+        }
         initView();
         if (detailBean != null) {
             initData(detailBean);

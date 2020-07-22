@@ -57,7 +57,10 @@ public class ChatCellTransfer extends ChatCellBase {
         if (!isToMe) {
             UserInfo user = model.getTo_user();
             if (user != null) {
-                nick = user.getName();
+                nick = user.getMkName();// TODO　#4844　优先显示备注
+                if (TextUtils.isEmpty(nick)) {
+                    nick = user.getName();
+                }
             }
         }
         info = getTransferInfo(transfer.getComment(), transfer.getOpType(), isMe, isToMe ? "" : nick, transfer.getCreator());

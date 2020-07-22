@@ -725,10 +725,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         stopScreenShotListener();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        LogUtil.getLog().i(TAG, "ChatActivity-异常销毁了");
+    }
 
     @Override
     protected void onStop() {
         super.onStop();
+        LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         AudioPlayManager.getInstance().stopPlay();
         stopRecordVoice();
@@ -770,6 +776,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     protected void onDestroy() {
+        LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         //释放adapter资源
         mAdapter.onDestroy();
         mViewModel.onDestroy();
@@ -785,8 +792,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
-        EventBus.getDefault().unregister(this);
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         super.onDestroy();
         //释放空间
         if (popGuessUWant != null) {
@@ -817,7 +825,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void initData() {
         //9.17 进去后就清理会话的阅读数量,初始化unreadCount
+        session = dao.sessionGet(toGid, toUId);
         taskCleanRead(true);
+        updateSessionDraftAndAtMessage();
         initViewNewMsg();
         if (!isLoadHistory) {
             taskRefreshMessage(false);
@@ -3647,7 +3657,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void clickTransfer(String rid, String msgId) {
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
-            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+            MsgAllBean msgAllBean = msgDao.getMsgByRid(tradeId);
             if (msgAllBean != null) {
                 httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
             }
@@ -4657,6 +4667,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      *
      */
     private boolean updateSessionDraftAndAtMessage() {
+        LogUtil.getLog().i(TAG, "updateSessionDraftAndAtMessage");
         boolean hasChange = false;
         if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
             hasChange = true;
@@ -5263,7 +5274,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //获取红包详情
     public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
                                      boolean isNormalStyle) {
-        if (TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token) && (msgBean != null && !msgBean.isMe())) {
             String from = "";
             if (isGroup()) {
                 from = toGid;
@@ -5448,6 +5459,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             dismissLoadingDialog();
                             //如果当前页有数据
                             TransferDetailBean detailBean = baseResponse.getData();
+                            initTransferMkName(detailBean);
                             Intent intent;
                             if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
                                 intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
@@ -5472,6 +5484,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
+    }
+
+    private void initTransferMkName(TransferDetailBean detailBean) {
+        if (detailBean != null && detailBean.getPayUser() != null) {
+            UserInfo userInfo = userDao.findUserInfo(detailBean.getPayUser().getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                detailBean.getPayUser().setNickname(userInfo.getMkName());
+            }
+        }
+        if (detailBean != null && detailBean.getRecvUser() != null) {
+            UserInfo userInfo = userDao.findUserInfo(detailBean.getRecvUser().getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                detailBean.getRecvUser().setNickname(userInfo.getMkName());
+            }
+        }
     }
 
     private void checkHasEnvelopeSendFailed() {

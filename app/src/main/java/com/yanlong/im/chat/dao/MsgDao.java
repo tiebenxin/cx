@@ -4241,23 +4241,22 @@ public class MsgDao {
         return list;
     }
 
-
-    /**
-     * 清空所有离线收藏操作记录->离线收藏记录表/离线删除记录表
-     */
-//    public void cleanAllCollect() {
-//        Realm realm = DaoUtil.open();
-//        try {
-//            realm.beginTransaction();
-//            realm.where(OfflineCollect.class).findAll().deleteAllFromRealm();
-//            realm.where(OfflineDelete.class).findAll().deleteAllFromRealm();
-//            realm.commitTransaction();
-//        } catch (Exception e) {
-//            DaoUtil.reportException(e);
-//        } finally {
-//            realm.close();
-//        }
-//    }
+    //根据红包id，获取MsgAllBean
+    public MsgAllBean getMsgByRid(long rid) {
+        MsgAllBean ret = null;
+        MsgAllBean bean = null;
+        Realm realm = DaoUtil.open();
+        ret = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("red_envelope.traceId", rid).endGroup()
+                .or()
+                .beginGroup().equalTo("transfer.id", rid).endGroup()
+                .findFirst();
+        if (ret != null) {
+            bean = realm.copyFromRealm(ret);
+        }
+        realm.close();
+        return bean;
+    }
 
 
 }

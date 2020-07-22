@@ -72,6 +72,7 @@ public class UploadLogActivity extends AppActivity {
                 FileUtils.toZip(file, zipPath);
                 File zipFile = new File(zipPath);
                 if (!zipFile.exists()) {
+                    ToastUtil.show("上传成功");
                     return;
                 }
                 new UpFileAction().uploadLogFile(zipFile, date, new IUploadListener() {
@@ -96,7 +97,7 @@ public class UploadLogActivity extends AppActivity {
             }
 
         } else {
-            ToastUtil.show("日志文件不存在");
+            ToastUtil.show("上传成功");
         }
     }
 

@@ -203,7 +203,7 @@ public abstract class DispatchMessage {
                 result = repository.handlerReplySpecific(wrapMessage, realm);
                 break;
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
-                repository.handlerMultiTerminalSync(wrapMessage, realm);
+                repository.handlerMultiTerminalSync(wrapMessage,isOfflineMsg, realm);
                 break;
             case REPORT_GEO_POSITION:// 上报地理位置
                 MessageManager.getInstance().notifyReportGeo();

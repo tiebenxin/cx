@@ -31,6 +31,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.YiBaoWebActivity;
 import com.hm.cxpay.utils.UIUtils;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NumRangeInputFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -402,6 +403,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             UrlBean urlBean = baseResponse.getData();
+                            LogUtil.writeLog("支付--群红包--actionId=" + actionId+ "--time" + System.currentTimeMillis());
                             if (urlBean != null) {
                                 Intent intent = new Intent(MultiRedPacketActivity.this, YiBaoWebActivity.class);
                                 intent.putExtra(YiBaoWebActivity.AGM_URL, urlBean.getUrl());

@@ -37,6 +37,7 @@ import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.BigDecimalUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -68,7 +69,8 @@ public class WithdrawActivity extends AppActivity {
     private Activity activity;
     private CommonBean rateBean;//银行卡费率
 
-    private Double minMoney = 10.0;//最低提现金额，默认10元，单位分
+    private Double minMoney = 1000.0;//最低提现金额，默认10元，单位分
+//    private Double maxMoney = 2000 * 1000.0;//最高提现金额，默认2000元，单位分
     private Double serviceMoney = 0.0;//服务费，单位分
     private Double extraMoney = 0.0;//额外固定费，单位分
     private Double rate = 0.005;//费率，默认0.005
@@ -143,13 +145,17 @@ public class WithdrawActivity extends AppActivity {
                 //1 金额不能为空
                 String money = etWithdraw.getText().toString();
                 if (!TextUtils.isEmpty(money)) {
-                    //2 提现金额不低于最低提现金额(默认10元)
-                    if (Double.valueOf(money) >= minMoney) {
-                        //3 不能超过余额
-                        httpWithdraw(money);
-                    } else {
-                        ToastUtil.show(context, "最小提现金额不低于" + minMoney + "元");
-                    }
+//                    double mm = Double.valueOf(money);
+                    //2 提现金额不低于最低提现金额(默认10元),不高于2000元，由服务端控制
+                    httpWithdraw(money);
+//                    if (mm >= minMoney && mm <= maxMoney) {
+//                        //3 不能超过余额
+//                        httpWithdraw(money);
+//                    } else if (mm > maxMoney) {
+//                        ToastUtil.show(context, "单笔提现金额不高于" + maxMoney + "元");
+//                    } else {
+//                        ToastUtil.show(context, "最小提现金额不低于" + minMoney + "元");
+//                    }
                 } else {
                     ToastUtil.show(context, "提现金额不能为空");
                 }
@@ -224,7 +230,7 @@ public class WithdrawActivity extends AppActivity {
     /**
      * 请求->提现
      */
-    private void httpWithdraw(String money) {
+    private void httpWithdraw(final String money) {
         PayHttpUtils.getInstance().toWithdraw(money)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
@@ -232,6 +238,7 @@ public class WithdrawActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
+                            LogUtil.writeLog("支付--提现--money=" + money + "--time" + System.currentTimeMillis());
                             if (baseResponse.getData() != null) {
                                 //1 成功 99 处理中
                                 UrlBean urlBean = baseResponse.getData();
@@ -289,7 +296,7 @@ public class WithdrawActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data == null){
+        if (data == null) {
             return;
         }
         if (requestCode == REQUEST_PAY) {
