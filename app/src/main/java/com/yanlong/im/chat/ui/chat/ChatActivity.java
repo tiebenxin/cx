@@ -5274,7 +5274,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //获取红包详情
     public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
                                      boolean isNormalStyle) {
-        if (TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token) && !msgBean.isMe()) {
             String from = "";
             if (isGroup()) {
                 from = toGid;
