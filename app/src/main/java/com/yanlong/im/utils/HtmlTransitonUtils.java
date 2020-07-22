@@ -13,12 +13,14 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
 import android.view.View;
+import android.widget.TextView;
 
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.user.ui.InviteDetailsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.utils.ToastUtil;
@@ -85,12 +87,18 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER:// 群管理变更通知 自己取消其他人
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL:// 群管理变更通知 自己被取消
+                case ChatEnum.ENoticeType.INVITE_VERIFICATION://普通群员拉人，新增群验证
                     Spanned spannedHtml = Html.fromHtml(html);
                     // subSequence 是去掉换行
                     SpannableStringBuilder clickableHtmlBuilder = new SpannableStringBuilder(spannedHtml.subSequence(0, spannedHtml.length() - 2));
                     URLSpan[] urls = clickableHtmlBuilder.getSpans(0, spannedHtml.length(), URLSpan.class);
+                    // 把所有的用户id传过去
+                    ArrayList<String> IDs = new ArrayList<>();
+                    for(int i=0; i<bean.getList().size();i++){
+                        IDs.add(bean.getList().get(i).getId());
+                    }
                     for (int i = 0; i < urls.length; i++) {
-                        setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(), bean.getGid());
+                        setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(), bean.getGid(),type,IDs);
                     }
                     return clickableHtmlBuilder;
                 case ChatEnum.ENoticeType.CANCEL_CAN_EDIT://撤销能重新编辑
@@ -104,14 +112,20 @@ public class HtmlTransitonUtils {
     /**
      * 设置点击超链接对应的处理内容
      */
-    private void setLinkClickable(Context context, SpannableStringBuilder clickableHtmlBuilder, URLSpan urlSpan, final String id, String gid) {
+    private void setLinkClickable(Context context, SpannableStringBuilder clickableHtmlBuilder, URLSpan urlSpan, final String id, String gid ,int type,ArrayList<String> IDs) {
         int start = clickableHtmlBuilder.getSpanStart(urlSpan);
         int end = clickableHtmlBuilder.getSpanEnd(urlSpan);
 
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                goToUserInfoActivity(context, Long.valueOf(id), gid, true);
+                if(type == ChatEnum.ENoticeType.INVITE_VERIFICATION && id.equals("-99")){ //"去确认"为一个id=-99的对象
+                    Intent intent = new Intent(context, InviteDetailsActivity.class);
+                    intent.putStringArrayListExtra(InviteDetailsActivity.ALL_IDS,IDs);
+                    context.startActivity(intent);
+                }else {
+                    goToUserInfoActivity(context, Long.valueOf(id), gid, true);
+                }
             }
 
             @Override
@@ -147,12 +161,18 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_CLOSE:// 群禁言
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER:// 群管理变更通知 自己取消其他人
-                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL:// 群管理变更通知 自己被取消
+                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL://普通群员拉人，新增群验证
+                case ChatEnum.ENoticeType.INVITE_VERIFICATION://普通群员拉人，新增群验证
                     Spanned spannedHtml = Html.fromHtml(html);
                     SpannableStringBuilder clickableHtmlBuilder = new SpannableStringBuilder(spannedHtml.subSequence(0, spannedHtml.length() - 2));
                     URLSpan[] urls = clickableHtmlBuilder.getSpans(0, spannedHtml.length(), URLSpan.class);
+                    // 把所有的用户id传过去
+                    ArrayList<String> IDs = new ArrayList<>();
+                    for(int i=0; i<bean.getList().size();i++){
+                        IDs.add(bean.getList().get(i).getId());
+                    }
                     for (int i = 0; i < urls.length; i++) {
-                        setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(), bean.getGid());
+                        setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(), bean.getGid(),type,IDs);
                     }
                     return clickableHtmlBuilder;
                 case ChatEnum.ENoticeType.CANCEL_CAN_EDIT:// 撤销能重新编辑

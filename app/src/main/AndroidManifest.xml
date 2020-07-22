@@ -693,6 +693,9 @@
             android:name=".pay.ui.record.BillDetailListActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".user.ui.UploadLogActivity" />
+        <activity
+            android:name=".user.ui.InviteDetailsActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 

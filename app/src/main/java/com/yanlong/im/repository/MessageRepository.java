@@ -143,6 +143,11 @@ public class MessageRepository {
         }
         localDataSource.addRemindCount(realm, "friend_apply");
         MessageManager.getInstance().notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);//刷新首页 通讯录底部小红点
+
+        //发新的通知
+        boolean result = true;
+        MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+        result = saveMessageNew(bean, realm);
     }
 
 

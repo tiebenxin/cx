@@ -163,13 +163,13 @@ public class GroupNumbersActivity extends AppActivity {
             public void onRight() {
                 if (isClickble == 0) {
                     if(needVerification==0){
-                        taskOption();//邀请入群，不显示弹框
+                        taskOption("");//邀请入群，不显示弹框
                     }else {
                         //TODO 若已开启群验证，改为弹框，入群通知移至聊天界面
                         if(type == TYPE_ADD){//邀请入群，需要显示弹框
                             showDialogOne();
                         }else {
-                            taskOption();//删除原有逻辑不变
+                            taskOption("");//删除原有逻辑不变
                         }
                     }
 
@@ -374,7 +374,7 @@ public class GroupNumbersActivity extends AppActivity {
     /***
      * 提交处理
      */
-    private void taskOption() {
+    private void taskOption(String remark) {
         if (listDataTop.size() < 1) {
             ToastUtil.show(getContext(), "请至少选择一个用户");
             return;
@@ -472,7 +472,7 @@ public class GroupNumbersActivity extends AppActivity {
                         @Override
                         public void onClick(View v) {
                             dialogOne.dismiss();
-                            taskOption();
+                            taskOption(dialogOne.getEditContent());
                         }
                     })
                     .build();

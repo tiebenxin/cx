@@ -376,6 +376,44 @@ public class MsgConversionBean {
                 gNotice.setNote(node);
                 msgAllBean.setMsgNotice(gNotice);
                 break;
+            case REQUEST_GROUP://入群验证
+                msgAllBean.setGid(bean.getGid());
+                msgAllBean.setMsg_type(EMessageType.NOTICE);
+                MsgNotice inviteNotice = new MsgNotice();
+                inviteNotice.setMsgid(msgAllBean.getMsg_id());
+                if (userInfo == null) {
+                    userInfo = new UserDao().findUserInfo(fromUid);
+                }
+                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                    name = userInfo.getMkName();
+                }
+                if (TextUtils.isEmpty(name)) {
+                    name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
+                    if (TextUtils.isEmpty(name)) {
+                        if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
+                            name = bean.getMembername();
+                        } else {
+                            name = bean.getNickname();
+                        }
+                    }
+                }
+                MsgBean.RequestGroupMessage requestGroupMessage = bean.getRequestGroup();
+                if (requestGroupMessage.getNoticeMessageList() != null && requestGroupMessage.getNoticeMessageList().size() > 0) {
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (MsgBean.GroupNoticeMessage inviteNoticeMsg : requestGroupMessage.getNoticeMessageList()) {
+                        stringBuffer.append("\"<font color='#276baa' id='" + inviteNoticeMsg.getUid() + "'><a href=''>" + inviteNoticeMsg.getNickname() + "</a></font>\"、");
+                    }
+
+                    String inviteNames = stringBuffer.substring(0, stringBuffer.length() - 1);
+                    String fromUser = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";
+                    String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//模拟一个超链接对象id为-99
+                    inviteNotice.setNote(fromUser+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
+                    inviteNotice.setMsgType(ENoticeType.INVITE_VERIFICATION);
+                    msgAllBean.setMsgNotice(inviteNotice);
+                }
+
+
+                break;
             case DESTROY_GROUP://群解散
                 msgAllBean.setGid(bean.getGid());
                 msgAllBean.setMsg_type(EMessageType.NOTICE);

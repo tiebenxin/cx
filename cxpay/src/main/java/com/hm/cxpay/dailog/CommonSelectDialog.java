@@ -97,6 +97,11 @@ public class CommonSelectDialog extends Dialog {
 
     }
 
+    //获取输入框内容
+    public String getEditContent(){
+        return etInput.getText().toString();
+    }
+
     //建造者模式
     public static final class Builder{
         private Context context;
