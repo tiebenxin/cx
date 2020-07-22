@@ -295,6 +295,7 @@ public class SocketUtil {
                 connect();
             }
         } catch (Exception e) {
+            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常" + e.getMessage());
             setRunState(0);
             e.printStackTrace();
             stop(true);
