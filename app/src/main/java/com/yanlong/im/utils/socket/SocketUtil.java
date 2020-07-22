@@ -325,6 +325,7 @@ public class SocketUtil {
             socketChannel = null;
         }
         LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
+        LogUtil.writeLog(TAG + "--连接LOG--" + "关闭连接");
 
     }
 
@@ -601,6 +602,7 @@ public class SocketUtil {
                 socketChannel.close();
                 socketChannel = null;
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
+                LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
                 //证书问题
                 throw new NetworkErrorException();
 
@@ -757,11 +759,12 @@ public class SocketUtil {
                 } catch (Exception e) {
                     if (e instanceof SocketEndException) {
                         LogUtil.getLog().e(TAG, "SocketEndException==连接已中断");
+                        LogUtil.writeLog("连接LOG" + "--SocketEndException--连接被服务器中断");
                         stop(true);
                     } else {
                         e.printStackTrace();
                         LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-                        LogUtil.writeLog("接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
+                        LogUtil.writeLog("连接LOG--接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
                         stop(true);
                         if (isStart) {
                             startSocket();
