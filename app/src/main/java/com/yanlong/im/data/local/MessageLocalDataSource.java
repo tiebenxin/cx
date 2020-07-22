@@ -587,7 +587,7 @@ public class MessageLocalDataSource {
      * 对方发送的消息-自己接收的消息，更新为已读
      * 更新消息已读
      */
-    public void updateRecivedMsgReadForPC(@NonNull Realm realm, String gid, Long uid, long timestamp) {
+    public void updateReceivedMsgReadForPC(@NonNull Realm realm, String gid, Long uid, long timestamp) {
         checkInTransaction(realm);
         try {
             //查出已读前的消息，设置为已读

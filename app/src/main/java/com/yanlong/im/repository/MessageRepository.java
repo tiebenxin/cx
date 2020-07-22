@@ -276,7 +276,7 @@ public class MessageRepository {
                 else
                     offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
             } else { //同步自己PC端好友发送消息的已读状态和阅后即焚
-                localDataSource.updateRecivedMsgReadForPC(realm, gid, uids, wrapMessage.getTimestamp());
+                localDataSource.updateReceivedMsgReadForPC(realm, gid, uids, wrapMessage.getTimestamp());
             }
         }
         MessageManager.getInstance().notifyRefreshChat(wrapMessage.getGid(), uids);
@@ -299,7 +299,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void handlerMultiTerminalSync(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerMultiTerminalSync(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
         switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
             case MY_SELF_CHANGED://自己的个人信息变更
                 remoteDataSource.getMyInfo(UserAction.getMyId(), null, new Function<UserBean, Boolean>() {
@@ -363,8 +363,16 @@ public class MessageRepository {
                 EventBus.getDefault().post(eventRefreshFriend);
                 EventBus.getDefault().post(new EventExitChat(null, uid));
                 break;
-            case MY_GROUP_READ:
-
+            case MY_GROUP_READ://群已读
+                gid = wrapMessage.getMultiTerminalSync().getGid();
+                gid = gid == null ? "" : gid;
+                if (!TextUtils.isEmpty(gid)) {
+                    if (isOfflineMsg) {
+                        offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
+                    } else { //同步自己PC端好友发送消息的已读状态和阅后即焚
+                        localDataSource.updateReceivedMsgReadForPC(realm, gid, -1L, wrapMessage.getTimestamp());
+                    }
+                }
                 break;
         }
     }
@@ -1048,7 +1056,7 @@ public class MessageRepository {
                 for (String gid : offlineMySelfPCGroupReadMsg.keySet()) {
                     long timestamp = offlineMySelfPCGroupReadMsg.get(gid);
                     if (gid != null)
-                        localDataSource.updateRecivedMsgReadForPC(realm, gid, null, timestamp);
+                        localDataSource.updateReceivedMsgReadForPC(realm, gid, null, timestamp);
                 }
             }
 
@@ -1056,7 +1064,7 @@ public class MessageRepository {
                 for (Long uid : offlineMySelfPCFriendReadMsg.keySet()) {
                     long timestamp = offlineMySelfPCFriendReadMsg.get(uid);
                     if (uid != null)
-                        localDataSource.updateRecivedMsgReadForPC(realm, null, uid, timestamp);
+                        localDataSource.updateReceivedMsgReadForPC(realm, null, uid, timestamp);
                 }
             }
 
