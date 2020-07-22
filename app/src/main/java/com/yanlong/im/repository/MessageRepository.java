@@ -582,7 +582,6 @@ public class MessageRepository {
     public boolean handlerCancel(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         boolean result = true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-        boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         if (bean != null) {
             String cancelMsgId = wrapMessage.getCancel().getMsgId();
             //TODO:saveMessageNew的有更新未读数

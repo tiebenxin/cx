@@ -106,10 +106,10 @@ public class LogUtil {
                 overDivider.append("=");
             }
             StringBuffer sb = new StringBuffer();
-            if (ex == null || ex.getCause() == null || ex.getCause().getStackTrace() == null) {
+            if (ex == null || ex.getStackTrace() == null) {
                 return;
             }
-            StackTraceElement[] element = ex.getCause().getStackTrace();
+            StackTraceElement[] element = ex.getStackTrace();
             sb.append(moment + "\n");
             sb.append(timeDivider.toString() + "\n");
             sb.append(ex.getMessage() + "\n");
@@ -117,7 +117,7 @@ public class LogUtil {
                 sb.append(element[i].toString() + "\n");
             }
             sb.append(overDivider.toString() + "\n");
-            File file = new File(FileConfig.PATH_LOG + "err" + day);
+            File file = new File(FileConfig.PATH_LOG + "log" + day + ".txt");
             if (!file.exists()) {
                 file.createNewFile();
             }
