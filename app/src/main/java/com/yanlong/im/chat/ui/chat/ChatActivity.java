@@ -3657,7 +3657,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void clickTransfer(String rid, String msgId) {
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
-            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+            MsgAllBean msgAllBean = msgDao.getMsgByRid(tradeId);
             if (msgAllBean != null) {
                 httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
             }
@@ -5459,6 +5459,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             dismissLoadingDialog();
                             //如果当前页有数据
                             TransferDetailBean detailBean = baseResponse.getData();
+                            initTransferMkName(detailBean);
                             Intent intent;
                             if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
                                 intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
@@ -5483,6 +5484,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
+    }
+
+    private void initTransferMkName(TransferDetailBean detailBean) {
+        if (detailBean != null && detailBean.getPayUser() != null) {
+            UserInfo userInfo = userDao.findUserInfo(detailBean.getPayUser().getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                detailBean.getPayUser().setNickname(userInfo.getMkName());
+            }
+        }
+        if (detailBean != null && detailBean.getRecvUser() != null) {
+            UserInfo userInfo = userDao.findUserInfo(detailBean.getRecvUser().getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                detailBean.getRecvUser().setNickname(userInfo.getMkName());
+            }
+        }
     }
 
     private void checkHasEnvelopeSendFailed() {

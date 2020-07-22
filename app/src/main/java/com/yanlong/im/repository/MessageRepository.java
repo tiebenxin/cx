@@ -300,6 +300,9 @@ public class MessageRepository {
      * @param wrapMessage
      */
     public void handlerMultiTerminalSync(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
+        if (wrapMessage.getMultiTerminalSync().getSyncType() == MsgBean.MultiTerminalSyncType.UNRECOGNIZED) {
+            return;
+        }
         switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
             case MY_SELF_CHANGED://自己的个人信息变更
                 remoteDataSource.getMyInfo(UserAction.getMyId(), null, new Function<UserBean, Boolean>() {
