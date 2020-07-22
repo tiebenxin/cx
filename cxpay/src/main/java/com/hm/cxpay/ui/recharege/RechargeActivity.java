@@ -145,7 +145,7 @@ public class RechargeActivity extends AppActivity {
                     //2 最低充值10元
                     double yuan = Double.valueOf(etRecharge.getText().toString());
                     //TODO:备注最低充值金额为10元, 开发时改为1元
-                    if (yuan >= 1.00) {
+                    if (yuan >= 10.00) {
                         //3 单笔充值最高不能超过500元
                         if (yuan <= 500.00) {
                             showLoadingDialog();
@@ -364,6 +364,9 @@ public class RechargeActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<UrlBean> baseResponse) {
+                        if (context != null) {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
                         dismissLoadingDialog();
                     }
                 });

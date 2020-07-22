@@ -69,7 +69,8 @@ public class WithdrawActivity extends AppActivity {
     private Activity activity;
     private CommonBean rateBean;//银行卡费率
 
-    private Double minMoney = 10.0;//最低提现金额，默认10元，单位分
+    private Double minMoney = 1000.0;//最低提现金额，默认10元，单位分
+//    private Double maxMoney = 2000 * 1000.0;//最高提现金额，默认2000元，单位分
     private Double serviceMoney = 0.0;//服务费，单位分
     private Double extraMoney = 0.0;//额外固定费，单位分
     private Double rate = 0.005;//费率，默认0.005
@@ -144,13 +145,17 @@ public class WithdrawActivity extends AppActivity {
                 //1 金额不能为空
                 String money = etWithdraw.getText().toString();
                 if (!TextUtils.isEmpty(money)) {
-                    //2 提现金额不低于最低提现金额(默认10元)
-                    if (Double.valueOf(money) >= minMoney) {
-                        //3 不能超过余额
-                        httpWithdraw(money);
-                    } else {
-                        ToastUtil.show(context, "最小提现金额不低于" + minMoney + "元");
-                    }
+//                    double mm = Double.valueOf(money);
+                    //2 提现金额不低于最低提现金额(默认10元),不高于2000元，由服务端控制
+                    httpWithdraw(money);
+//                    if (mm >= minMoney && mm <= maxMoney) {
+//                        //3 不能超过余额
+//                        httpWithdraw(money);
+//                    } else if (mm > maxMoney) {
+//                        ToastUtil.show(context, "单笔提现金额不高于" + maxMoney + "元");
+//                    } else {
+//                        ToastUtil.show(context, "最小提现金额不低于" + minMoney + "元");
+//                    }
                 } else {
                     ToastUtil.show(context, "提现金额不能为空");
                 }

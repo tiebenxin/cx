@@ -179,7 +179,7 @@
             android:textColor="@color/c_868686"
             android:text="提现说明：\n
 1.单日提现次数:3次\n
-2.单日最高提现金额10000元"/>
+2.单日最高提现金额2000元"/>
 
 
         <TextView
