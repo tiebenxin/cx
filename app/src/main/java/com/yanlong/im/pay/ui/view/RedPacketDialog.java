@@ -64,7 +64,7 @@ public class RedPacketDialog extends DialogFragment {
             if (envelopeMessage != null) {
                 txtRbInfo.setText(envelopeMessage.getComment());
             } else {
-                txtRbInfo.setText("恭喜发财，大吉大利");
+                txtRbInfo.setText("恭喜发财，好远连连");
             }
         } else if (envelopeStatus == 2) {//已经领完
             imgOpen.setVisibility(View.GONE);

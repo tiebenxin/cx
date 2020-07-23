@@ -123,7 +123,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 ui.tvName.setText(userBean.getNickname() + "的红包");
                 isFromSelf = userBean.getUid() == user.getUid();
             }
-            ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
+            ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，好远连连" : envelopeDetailBean.getNote());
             if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
                 if (user != null && isFromSelf) {//是自己发的
                     if (envelopeDetailBean.getChatType() == 1) {//群聊

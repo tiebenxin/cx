@@ -129,7 +129,7 @@
                     android:layout_width="match_parent"
                     android:maxLength="12"
                     android:layout_marginRight="5dp"
-                    android:hint="恭喜发财,大吉大利" />
+                    android:hint="恭喜发财,好远连连" />
 
             </LinearLayout>
 
