@@ -2170,17 +2170,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         List<FunctionItemModel> list = new ArrayList<>();
         list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
         list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
-        if (!isSystemUser) {
+
+        if (!isGroup && isVip) {
+            list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
+        }
+        list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
+
+        if (!isGroup && !isSystemUser) {
             list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
         }
         if (!isGroup && !isSystemUser) {
             list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
         }
-        if (!isGroup && isVip) {
-            list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
-        }
-        list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
+        if (isGroup) {
+            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+        }
         if (!isGroup) { //单聊，且对方不为客服小助手，显示戳一下
             if (!isSystemUser) {
                 list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
@@ -2194,10 +2199,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         if (!isSystemUser) {
             list.add(createItemMode("名片", R.mipmap.ic_chat_newfrd, ChatEnum.EFunctionId.CARD));
         }
+        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
