@@ -42,7 +42,7 @@
                     android:textSize="18sp"
                     android:layout_width="192dp"
                     android:layout_marginTop="83dp"
-                    android:text="解封账号" />
+                    android:text="申请解封" />
 
                 <Button
                     android:id="@+id/btn_temp_login"

@@ -1219,6 +1219,10 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk()) {//保存token
                     TokenBean tokenBean = response.body().getData();
                     if (tokenBean != null) {
+                        // 临时登录没有返回token,拿登录返回token设置并更新支付的token,
+                        if (!TextUtils.isEmpty(PayEnvironment.getInstance().getToken())) {
+                            tokenBean.setAccessToken(PayEnvironment.getInstance().getToken());
+                        }
                         setToken(tokenBean, true);
                         initDB("" + tokenBean.getUid());
                         //如果是手机号码登录，则删除上次常信号登陆的账号
