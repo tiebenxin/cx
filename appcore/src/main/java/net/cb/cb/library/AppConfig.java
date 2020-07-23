@@ -88,7 +88,12 @@ public class AppConfig {
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
             return UPLOAD_BACK_RELEASE;
         } else {
-            return UPLOAD_BACK_TEST;
+            int type = SpUtil.getSpUtil().getSPValue("ipType", 0);
+            if (type == 3) {
+                return UPLOAD_BACK_RELEASE;
+            } else {
+                return UPLOAD_BACK_TEST;
+            }
         }
     }
 
