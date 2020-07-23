@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
@@ -42,6 +43,7 @@ import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
 
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NumRangeInputFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
@@ -155,7 +157,7 @@ public class TransferActivity extends BasePayActivity {
                 }
             }
         });
-
+        ui.edMoney.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
         ui.edMoney.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -195,7 +197,6 @@ public class TransferActivity extends BasePayActivity {
     public void httpSendTransfer(final String actionId, final long money, final long toUid, final String note) {
         isSending = true;
         showLoadingDialog();
-        handler.postDelayed(runnable, WAIT_TIME);
         cxTransferBean = createTransferBean(actionId, money, PayEnum.ETransferOpType.TRANS_SEND, note, -1, "");
         PayHttpUtils.getInstance().sendTransfer(actionId, money, toUid, note)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
@@ -272,6 +273,9 @@ public class TransferActivity extends BasePayActivity {
                 int result = data.getIntExtra(RESULT, 0);
                 if (result == 99) {
                     showLoadingDialog();
+                    if (handler != null) {
+                        handler.postDelayed(runnable, WAIT_TIME);
+                    }
                 } else {
                     dismissLoadingDialog();
                 }
