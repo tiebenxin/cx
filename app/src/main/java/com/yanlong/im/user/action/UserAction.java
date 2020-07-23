@@ -1213,13 +1213,15 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk()) {//保存token
-                    if (response.body().getData() != null) {
-                        initDB("" + response.body().getData().getUid());
+                    TokenBean tokenBean = response.body().getData();
+                    if (tokenBean != null) {
+                        setToken(tokenBean,true);
+                        initDB("" + tokenBean.getUid());
                         //如果是手机号码登录，则删除上次常信号登陆的账号
                         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
                         // 保存用户状态 是否被封号的状态
-                        UserUtil.saveUserStatus(response.body().getData().getUid(), response.body().getData().getLockUser());
-                        getMyInfo4Web(response.body().getData().getUid(), "");
+                        UserUtil.saveUserStatus(tokenBean.getUid(), tokenBean.getLockUser());
+                        getMyInfo4Web(tokenBean.getUid(), "");
                     }
                 }
 
