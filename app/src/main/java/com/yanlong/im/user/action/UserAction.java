@@ -220,7 +220,7 @@ public class UserAction {
                         TokenBean tokenBean = response.body().getData();
                         doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
                         saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
-                        LogUtil.writeLog("常信号登录获取token" + "--uid=" + tokenBean.getUid()+"--token=" + tokenBean.getAccessToken());
+                        LogUtil.writeLog("常信号登录获取token" + "--uid=" + tokenBean.getUid() + "--token=" + tokenBean.getAccessToken());
                         initDB("" + tokenBean.getUid());
                         setToken(tokenBean, true);
                         getMyInfo4Web(tokenBean.getUid(), imid);
@@ -490,9 +490,13 @@ public class UserAction {
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).save2Json(result);
             }
         }
+        if (TextUtils.isEmpty(token.getAccessToken())) {
+            token.setAccessToken("");
+        } else {
+            NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+            PayEnvironment.getInstance().setToken(token.getAccessToken());
+        }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
-        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
-        PayEnvironment.getInstance().setToken(token.getAccessToken());
         LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
         LogUtil.writeLog("设置token" + "--uid=" + token.getUid() + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
     }
@@ -1215,7 +1219,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk()) {//保存token
                     TokenBean tokenBean = response.body().getData();
                     if (tokenBean != null) {
-                        setToken(tokenBean,true);
+                        setToken(tokenBean, true);
                         initDB("" + tokenBean.getUid());
                         //如果是手机号码登录，则删除上次常信号登陆的账号
                         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
