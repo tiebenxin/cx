@@ -4036,7 +4036,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
             if (!isGroupBanCancel()) {
-                if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgAllBean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgAllBean)) {
+                if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && !filterCancel(msgAllBean.getMsg_type()) && !isAtBanedCancel(msgAllBean)) {
                     if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                         boolean isExist = false;
                         for (OptionMenu optionMenu : menus) {
@@ -4054,6 +4054,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         menus.add(new OptionMenu("删除"));
         return menus;
+    }
+
+    private boolean filterCancel(int msgType) {
+        if (msgType == ChatEnum.EMessageType.RED_ENVELOPE || msgType == ChatEnum.EMessageType.TRANSFER) {
+            return true;
+        }
+        return false;
     }
 
     //是否禁止转发
