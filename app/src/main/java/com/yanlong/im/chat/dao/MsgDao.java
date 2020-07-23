@@ -4246,17 +4246,20 @@ public class MsgDao {
         MsgAllBean ret = null;
         MsgAllBean bean = null;
         Realm realm = DaoUtil.open();
-        ret = realm.where(MsgAllBean.class)
-                .beginGroup().equalTo("red_envelope.traceId", rid).endGroup()
-                .or()
-                .beginGroup().equalTo("transfer.id", rid).endGroup()
-                .findFirst();
-        if (ret != null) {
-            bean = realm.copyFromRealm(ret);
+        try {
+            ret = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("red_envelope.traceId", rid).endGroup()
+                    .or()
+                    .beginGroup().equalTo("transfer.id", rid + "").endGroup()
+                    .findFirst();
+            if (ret != null) {
+                bean = realm.copyFromRealm(ret);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
-        realm.close();
         return bean;
     }
-
-
 }

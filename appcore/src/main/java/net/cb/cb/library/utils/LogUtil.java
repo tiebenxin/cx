@@ -92,44 +92,50 @@ public class LogUtil {
      *
      * @param ex
      */
-    public static void writeError(Throwable ex) {
-        try {
-            SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy_MM_dd");
-            SimpleDateFormat momentFormat = new SimpleDateFormat("HH:mm:ss");
-            Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
-            String day = dayFormat.format(curDate);
-            String moment = momentFormat.format(curDate);
-            StringBuffer timeDivider = new StringBuffer();
-            StringBuffer overDivider = new StringBuffer();
-            for (int i = 0; i < 20; i++) {
-                timeDivider.append("-");
-                overDivider.append("=");
+    public static void writeError(final Throwable ex) {
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy_MM_dd");
+                    SimpleDateFormat momentFormat = new SimpleDateFormat("HH:mm:ss");
+                    Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
+                    String day = dayFormat.format(curDate);
+                    String moment = momentFormat.format(curDate);
+                    StringBuffer timeDivider = new StringBuffer();
+                    StringBuffer overDivider = new StringBuffer();
+                    for (int i = 0; i < 20; i++) {
+                        timeDivider.append("-");
+                        overDivider.append("=");
+                    }
+                    StringBuffer sb = new StringBuffer();
+                    if (ex == null || ex.getStackTrace() == null) {
+                        return;
+                    }
+                    StackTraceElement[] element = ex.getStackTrace();
+                    sb.append(moment + "\n");
+                    sb.append(timeDivider.toString() + "\n");
+                    sb.append(ex.getMessage() + "\n");
+                    for (int i = 0; i < element.length; i++) {
+                        sb.append(element[i].toString() + "\n");
+                    }
+                    sb.append(overDivider.toString() + "\n");
+                    File file = new File(FileConfig.PATH_LOG + "log" + day + ".txt");
+                    if (!file.exists()) {
+                        file.createNewFile();
+                    }
+                    FileOutputStream ops = new FileOutputStream(file, true);
+                    ops.write(sb.toString().getBytes());
+                    ops.flush();
+                    ops.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            StringBuffer sb = new StringBuffer();
-            if (ex == null || ex.getCause() == null || ex.getCause().getStackTrace() == null) {
-                return;
-            }
-            StackTraceElement[] element = ex.getCause().getStackTrace();
-            sb.append(moment + "\n");
-            sb.append(timeDivider.toString() + "\n");
-            sb.append(ex.getMessage() + "\n");
-            for (int i = 0; i < element.length; i++) {
-                sb.append(element[i].toString() + "\n");
-            }
-            sb.append(overDivider.toString() + "\n");
-            File file = new File(FileConfig.PATH_LOG + "err" + day);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            FileOutputStream ops = new FileOutputStream(file, true);
-            ops.write(sb.toString().getBytes());
-            ops.flush();
-            ops.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     /**

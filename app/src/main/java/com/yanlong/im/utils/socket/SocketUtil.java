@@ -23,6 +23,7 @@ import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -289,12 +290,18 @@ public class SocketUtil {
         if (isRun()) {
             return;
         }
+        //无网络，不连接
+        if (!NetUtil.isNetworkConnected()) {
+            setRunState(0);
+            return;
+        }
         setRunState(1);
         try {
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
             }
         } catch (Exception e) {
+            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常" + e.getMessage());
             setRunState(0);
             e.printStackTrace();
             stop(true);
