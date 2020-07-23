@@ -3648,9 +3648,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
             MsgAllBean msgAllBean = msgDao.getMsgByRid(tradeId);
-            if (msgAllBean != null) {
-                httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
-            }
+            httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
         }
     }
 
@@ -5458,21 +5456,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             TransferDetailBean detailBean = baseResponse.getData();
                             initTransferMkName(detailBean);
                             Intent intent;
-                            if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
-                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
-                                if (opType < detailBean.getStat()) {
-                                    int type = getTransferOpType(detailBean.getStat());
-                                    msgDao.updateTransferStatus(tradeId, type, 0);
-                                    replaceListDataAndNotify(msgBean);
+                            boolean isMe = false;
+                            if (msgBean != null) {
+                                isMe = msgBean.isMe();
+                                if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
+                                    intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, isMe, GsonUtils.optObject(msgBean));
+                                    if (opType < detailBean.getStat()) {
+                                        int type = getTransferOpType(detailBean.getStat());
+                                        msgDao.updateTransferStatus(tradeId, type, 0);
+                                        replaceListDataAndNotify(msgBean);
+                                    }
+                                } else {
+                                    intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, isMe);
                                 }
                             } else {
-                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, false);
                             }
                             startActivityForResult(intent, REQUEST_TRANSFER);
-                        } else {
-
                         }
-
                     }
 
                     @Override
@@ -5894,6 +5895,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 List<OptionMenu> menus = (List<OptionMenu>) args[0];
                 View v = (View) args[1];
                 IMenuSelectListener listener = (IMenuSelectListener) args[2];
+                if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
+                    return;
+                }
                 showPop(v, menus, message, listener);
                 break;
             case ChatEnum.ECellEventType.TRANSFER_CLICK:
@@ -6147,17 +6151,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
                 getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
-                if (msg.isMe()) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-                } else {
-                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-                }
+                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+//                if (msg.isMe()) {
+//                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+//                } else {
+//                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+//                }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {
-                if (msg.isMe()) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-                } else {
-                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-                }
+                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+//                if (msg.isMe()) {
+//                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+//                } else {
+//                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+//                }
             }
         }
     }
