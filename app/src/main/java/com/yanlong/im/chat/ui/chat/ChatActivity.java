@@ -1992,17 +1992,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void toTransfer() {
         UserBean user = PayEnvironment.getInstance().getUser();
-        if (user != null) {
-            if (user.getRealNameStat() != 1) {//未认证
-                showIdentifyDialog();
-                return;
-            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
-                showBindPhoneDialog();
-                return;
-            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
-                showSettingPswDialog();
-                return;
-            }*/
+        if (user == null || user.getRealNameStat() != 1) {
+            showIdentifyDialog();
+            return;
         }
         String name = "";
         String avatar = "";
@@ -2016,11 +2008,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void toSystemEnvelope() {
         UserBean user = PayEnvironment.getInstance().getUser();
-        if (user != null) {
-            if (user.getRealNameStat() != 1) {//未认证
-                showIdentifyDialog();
-                return;
-            }
+        if (user == null || user.getRealNameStat() != 1) {//未认证
+            showIdentifyDialog();
+            return;
         }
         if (isGroup()) {
             Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, mViewModel.groupInfo.getUsers().size());
@@ -5905,7 +5895,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 TransferMessage transfer = (TransferMessage) args[0];
                 UserBean userBean = PayEnvironment.getInstance().getUser();
-                if (userBean != null && userBean.getRealNameStat() != 1) {//未认证
+                if (userBean == null || userBean.getRealNameStat() != 1) {//未认证
                     showIdentifyDialog();
                     return;
                 }
@@ -6113,7 +6103,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
             UserBean userBean = PayEnvironment.getInstance().getUser();
-            if (userBean != null && userBean.getRealNameStat() != 1) {//未认证
+            if (userBean == null || userBean.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
             }
