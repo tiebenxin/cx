@@ -2346,8 +2346,8 @@ public class SocketData {
         return msg;
     }
 
-    //普通成员邀请进群提示消息(给自己看的，固定文案)
-    public static void invitePersonLocalNotice(String gid) {
+    //普通成员拉人进群待确认提示消息(给自己看的，固定文案)
+    public static void inviteBeConfirmedNotice(String gid) {
         MsgAllBean msg = new MsgAllBean();
         String msgId = SocketData.getUUID();
         msg.setMsg_id(msgId);
@@ -2365,11 +2365,40 @@ public class SocketData {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
         note.setMsgType(ChatEnum.ENoticeType.DEFAULT);
-        note.setNote("群聊邀请已发送给群管理，等待群管理确认");
+        note.setNote("群聊邀请已发送给群管理，等待确认");
         msg.setMsgNotice(note);
         msg.setIsLocal(1);
         DaoUtil.save(msg);
     }
+
+    //A邀请B进群消息
+    public static void invitePersonLocalNotice(String gid, Long fromUid, String formNickname, Long toUid, String toNickname) {
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
+        msg.setFrom_uid(fromUid);
+        msg.setTimestamp(System.currentTimeMillis());
+
+        int survivalTime = new UserDao().getReadDestroy(null, gid);
+        msg.setSurvival_time(survivalTime);
+        msg.setRead(1);
+
+        msg.setTo_uid(toUid);
+        msg.setGid(gid);
+        msg.setFrom_nickname(formNickname);
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.INVITED);
+        String inviterName = "\"<font id='" + fromUid + "'  value ='4'>" + formNickname + "</font>\"";
+        String toUserName = "\"<font id='" + toUid + "' value ='2'>" + toNickname + "</font>\"";
+        String node = inviterName + "邀请" + toUserName + "加入了群聊" + "<div id='" + gid + "'></div>";
+        note.setNote(node);
+        msg.setMsgNotice(note);
+        msg.setIsLocal(1);
+        DaoUtil.save(msg);
+    }
+
 
 
 }

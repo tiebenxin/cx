@@ -406,7 +406,7 @@ public class MsgConversionBean {
 
                     String inviteNames = stringBuffer.substring(0, stringBuffer.length() - 1);
                     String fromUser = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";
-                    String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//模拟一个超链接对象id为-99
+                    String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//"去确认"模拟成一个超链接对象id为-99
                     inviteNotice.setNote(fromUser+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
                     inviteNotice.setMsgType(ENoticeType.INVITE_VERIFICATION);
                     msgAllBean.setMsgNotice(inviteNotice);

@@ -406,8 +406,8 @@ public class GroupNumbersActivity extends AppActivity {
                     }
                     if (type == TYPE_ADD && response.body().getData() != null) {
                         if (response.body().getData().isPending()) {
-                            ToastUtil.show("邀请成功,等待群主验证");
-                            SocketData.invitePersonLocalNotice(gid);
+                            ToastUtil.show("邀请成功,请等待群主验证");
+                            SocketData.inviteBeConfirmedNotice(gid);
                         } else {
                             SocketData.createMsgGroupOfNotice(gid, listDataTop);
                         }
@@ -444,7 +444,7 @@ public class GroupNumbersActivity extends AppActivity {
         }
 
         if (type == TYPE_ADD) {
-            msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(), callback);
+            msgACtion.groupAdd(remark,gid, listDataTop, UserAction.getMyInfo().getName(), callback);
 //            dao.addGroupMember(gid,list);
         } else {
             msgACtion.groupRemove(gid, listDataTop, callback);

@@ -2289,14 +2289,14 @@ public class MsgDao {
 
     }
 
-    //根据uid批量查询申请人
+    //根据uid批量查询状态为申请的人
     public List<ApplyBean> getApplysByUid(List<String> uidList) {
         Realm realm = DaoUtil.open();
         List<ApplyBean> list = new ArrayList<>();
         if(uidList!=null && uidList.size()>0){
             for(int i=0; i<uidList.size(); i++){
                 ApplyBean bean;
-                ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).findFirst();
+                ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat",1).findFirst();
                 if (applyBean != null) {
                     bean = realm.copyFromRealm(applyBean);
                     list.add(bean);

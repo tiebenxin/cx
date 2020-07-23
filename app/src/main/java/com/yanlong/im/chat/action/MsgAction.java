@@ -139,7 +139,7 @@ public class MsgAction {
     }
 
 
-    public void groupAdd(String id, List<UserInfo> members, String nickname, CallBack<ReturnBean<GroupJoinBean>> callback) {
+    public void groupAdd(String remark,String id, List<UserInfo> members, String nickname, CallBack<ReturnBean<GroupJoinBean>> callback) {
         List<GroupUserInfo> groupUserInfos = new ArrayList<>();
         for (int i = 0; i < members.size(); i++) {
             GroupUserInfo groupUserInfo = new GroupUserInfo();
@@ -148,7 +148,7 @@ public class MsgAction {
             groupUserInfo.setNickname(members.get(i).getName());
             groupUserInfos.add(groupUserInfo);
         }
-        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos), nickname), callback);
+        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos), nickname,remark), callback);
     }
 
 

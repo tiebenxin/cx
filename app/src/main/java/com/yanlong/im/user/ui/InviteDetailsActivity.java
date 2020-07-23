@@ -10,24 +10,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.JsonNull;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +45,8 @@ public class InviteDetailsActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private TextView tvSubmit;//同意入群申请
+    private TextView tvSubmit;//同意入群申请按钮
+    private TextView tvInviteName;//邀请人的昵称
 
 
     public static final String ALL_IDS = "ids";//邀请入群验证通知消息的全部id，从数据库找出此次申请入群用户
@@ -57,7 +57,7 @@ public class InviteDetailsActivity extends AppActivity {
     private MsgAction msgAction;
 
     private int needRequestTimes = 0;//需要请求的次数 TODO 同意入群暂无批量接口
-    private int realRequestTimes = 0;//实际请求的次数 TODO 同意入群暂无批量接口
+    private int realRequestTimes = 0;//实际请求的次数
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +73,7 @@ public class InviteDetailsActivity extends AppActivity {
         actionbar = headView.getActionbar();
         mtListView = findViewById(R.id.mt_listview);
         tvSubmit = findViewById(R.id.tv_submit);
+        tvInviteName = findViewById(R.id.tv_invite_name);
     }
 
     private void initData() {
@@ -82,6 +83,10 @@ public class InviteDetailsActivity extends AppActivity {
         if(msgDao.getApplysByUid(ids)!=null && msgDao.getApplysByUid(ids).size()>0){
             listData.addAll(msgDao.getApplysByUid(ids));
             needRequestTimes = listData.size();
+            //每个申请人信息中含有邀请人的id和昵称
+            if(listData!=null && listData.size()>0){
+                tvInviteName.setText("\""+listData.get(0).getInviterName()+"\"");
+            }
         }
         mtListView.notifyDataSetChange();
     }
@@ -176,15 +181,19 @@ public class InviteDetailsActivity extends AppActivity {
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
                             groupInfo(bean.getGid());
+                            //TODO 新增->群主或管理员允许通过验证后，需要andorid端本地通知消息给自己，A邀请了B入群，与IOS一致
+                            SocketData.invitePersonLocalNotice(bean.getGid(),bean.getInviter(),bean.getInviterName(),bean.getUid(),bean.getNickname());
                         } else if (response.body().getCode() == 10005) {//已是群成员
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
                             groupInfo(bean.getGid());
+                            ToastUtil.show(getContext(), bean.getNickname()+"已经是本群成员");
                         } else {
                             ToastUtil.show(getContext(), response.body().getMsg());
                         }
-                        //请求完毕
+                        //请求完毕，通知群信息刷新
                         if(realRequestTimes==needRequestTimes){
+                            MessageManager.getInstance().notifyGroupChange(true);
                             finish();
                         }
                     }

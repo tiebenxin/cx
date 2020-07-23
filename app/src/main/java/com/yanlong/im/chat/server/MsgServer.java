@@ -37,7 +37,7 @@ public interface MsgServer {
 
     @POST("/group/append-members")
     @FormUrlEncoded
-    Call<ReturnBean<GroupJoinBean>> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson, @Field("nickname") String nickname);
+    Call<ReturnBean<GroupJoinBean>> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson, @Field("nickname") String nickname,@Field("additional") String additional);
 
     @POST("/group/quit")
     @FormUrlEncoded
