@@ -128,11 +128,12 @@ public class CommonSetingActivity extends AppActivity {
                         //群昵称可以为纯空格，回传""字符串改为取用户自己的昵称
                         if ("我在本群的昵称".equals(mHeadView.getActionbar().getTitle())) {
                             content = content.trim();
-                        } else {
-                            //用户名设置和备注不可以用纯空格
-                            ToastUtil.show(CommonSetingActivity.this, "不能全部用空格");
-                            return;
                         }
+//                        else {
+//                            //用户名设置和备注不可以用纯空格
+//                            ToastUtil.show(CommonSetingActivity.this, "不能全部用空格");
+//                            return;
+//                        }
                     } else {
                         content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
                         //截取前两位判断开头是否为emoji

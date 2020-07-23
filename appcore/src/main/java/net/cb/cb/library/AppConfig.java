@@ -31,7 +31,7 @@ public class AppConfig {
     public static final String USER_PRIVACY = "https://changxin.zhixun6.com/yszc.html";
     // 阿里云上传回调
     public static final String UPLOAD_BACK_TEST = "https://e7.callback.zhixun6.com:58181/file-uploaded";
-    public static final String UPLOAD_BACK_RELEASE = "https://e7.callback.zhixun6.com:58181/file-uploaded";
+    public static final String UPLOAD_BACK_RELEASE = "https://im-app.zhixun6.com:19009/file-uploaded";
 
     private static boolean isOnline;
     private static String uploadParent;
