@@ -1,5 +1,7 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -25,6 +28,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -47,9 +51,11 @@ public class InviteDetailsActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
     private TextView tvSubmit;//同意入群申请按钮
     private TextView tvInviteName;//邀请人的昵称
+    private TextView tvContent;//入群备注内容
 
 
     public static final String ALL_IDS = "ids";//邀请入群验证通知消息的全部id，从数据库找出此次申请入群用户
+    public static final String REMARK = "remark";//邀请入群备注
 
     private List<ApplyBean> listData;
     private List<String> ids;
@@ -58,6 +64,7 @@ public class InviteDetailsActivity extends AppActivity {
 
     private int needRequestTimes = 0;//需要请求的次数 TODO 同意入群暂无批量接口
     private int realRequestTimes = 0;//实际请求的次数
+    private String remark;//备注内容
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,9 +81,15 @@ public class InviteDetailsActivity extends AppActivity {
         mtListView = findViewById(R.id.mt_listview);
         tvSubmit = findViewById(R.id.tv_submit);
         tvInviteName = findViewById(R.id.tv_invite_name);
+        tvContent = findViewById(R.id.tv_content);
     }
 
     private void initData() {
+        if(!TextUtils.isEmpty(remark)){
+            tvContent.setText(remark);
+        }else {
+            tvContent.setText("无");
+        }
         msgDao = new MsgDao();
         msgAction = new MsgAction();
         listData = new ArrayList<>();
@@ -85,7 +98,11 @@ public class InviteDetailsActivity extends AppActivity {
             needRequestTimes = listData.size();
             //每个申请人信息中含有邀请人的id和昵称
             if(listData!=null && listData.size()>0){
-                tvInviteName.setText("\""+listData.get(0).getInviterName()+"\"");
+                if(!TextUtils.isEmpty(listData.get(0).getInviterName())){
+                    tvInviteName.setText("\""+listData.get(0).getInviterName()+"\"");
+                }else {
+                    tvInviteName.setText("\"未知用户\"");
+                }
             }
         }
         mtListView.notifyDataSetChange();
@@ -93,6 +110,7 @@ public class InviteDetailsActivity extends AppActivity {
 
     private void initEvent() {
         ids = getIntent().getStringArrayListExtra(ALL_IDS);
+        remark = getIntent().getStringExtra(REMARK);
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLayoutManager().setOrientation(LinearLayoutManager.HORIZONTAL);
         mtListView.getLoadView().setStateNormal();
@@ -112,6 +130,15 @@ public class InviteDetailsActivity extends AppActivity {
             public void onClick(View v) {
                 for(int i=0;i<listData.size();i++){
                     httpAgreeJoinGroup(listData.get(i));
+                }
+            }
+        });
+        //邀请人详细信息
+        tvInviteName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(listData!=null && listData.size()>0){
+                    goToUserInfoActivity(listData.get(0).getInviter(),listData.get(0).getGid(),true);
                 }
             }
         });
@@ -148,6 +175,13 @@ public class InviteDetailsActivity extends AppActivity {
                     Glide.with(context).load(R.mipmap.ic_info_head)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.ivIcon);
                 }
+                //点击子项跳被邀请用户的信息详情
+                holder.layoutItem.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToUserInfoActivity(bean.getUid(),bean.getGid(),true);
+                    }
+                });
             }
         }
 
@@ -156,12 +190,14 @@ public class InviteDetailsActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private ImageView ivIcon;
             private TextView tvName;
+            private LinearLayout layoutItem;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
                 ivIcon = convertView.findViewById(R.id.iv_icon);
                 tvName = convertView.findViewById(R.id.tv_name);
+                layoutItem = convertView.findViewById(R.id.layout_item);
             }
 
         }
@@ -221,5 +257,22 @@ public class InviteDetailsActivity extends AppActivity {
         });
     }
 
+
+    /**
+     * 跳转到用户信息
+     * @param id
+     * @param gid
+     * @param isGroup
+     */
+    private void goToUserInfoActivity(Long id, String gid, boolean isGroup) {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        context.startActivity(new Intent(context, UserInfoActivity.class)
+                .putExtra(UserInfoActivity.ID, id)
+                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                .putExtra(UserInfoActivity.GID, gid)
+                .putExtra(UserInfoActivity.IS_GROUP, isGroup));
+    }
 
 }

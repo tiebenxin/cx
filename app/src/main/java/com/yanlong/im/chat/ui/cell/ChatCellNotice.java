@@ -60,7 +60,11 @@ public class ChatCellNotice extends ChatCellBase {
                         tv_content.setText(Html.fromHtml(notice.getNote(), null,
                                 new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
                     } else {
-                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType()));
+                        if(notice.getMsgType() == ChatEnum.ENoticeType.INVITE_VERIFICATION){
+                            tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType(),message.getMsgNotice().getRemark()));
+                        }else {
+                            tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType(),""));
+                        }
                     }
                 }
 
@@ -101,7 +105,7 @@ public class ChatCellNotice extends ChatCellBase {
                 if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                     tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
                 } else {
-                    tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
+                    tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),""));
                 }
             }
         } else if (messageType == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {

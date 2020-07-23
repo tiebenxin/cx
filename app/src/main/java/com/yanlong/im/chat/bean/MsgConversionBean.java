@@ -409,6 +409,11 @@ public class MsgConversionBean {
                     String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//"去确认"模拟成一个超链接对象id为-99
                     inviteNotice.setNote(fromUser+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
                     inviteNotice.setMsgType(ENoticeType.INVITE_VERIFICATION);
+
+                    //保存入群申请验证备注
+                    if(!TextUtils.isEmpty(bean.getRequestGroup().getAdditional())){
+                        inviteNotice.setRemark(bean.getRequestGroup().getAdditional());
+                    }
                     msgAllBean.setMsgNotice(inviteNotice);
                 }
 
