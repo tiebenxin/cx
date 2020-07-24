@@ -297,7 +297,8 @@ public class ChatEnum {
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
-            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT, ENoticeType.DEFAULT_USER, ENoticeType.GROUP_OTHER_REMOVE , ENoticeType.INVITE_VERIFICATION})
+            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT, ENoticeType.DEFAULT_USER, ENoticeType.GROUP_OTHER_REMOVE,
+            ENoticeType.SEAL_ACCOUNT,ENoticeType.INVITE_VERIFICATION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int DEFAULT = 0;//默认，简单文本
@@ -331,7 +332,8 @@ public class ChatEnum {
         int CHANGE_VICE_ADMINS_CANCEL_OTHER = 28;// 群管理变更通知 自己取消其他人
         int DEFAULT_USER = 29;//默认user标签
         int GROUP_OTHER_REMOVE = 30;//其它人被移出群
-        int INVITE_VERIFICATION = 31;//普通群员拉人，新增群验证
+        int SEAL_ACCOUNT = 31;// 封号
+        int INVITE_VERIFICATION = 32;//普通群员拉人，新增群验证通知
     }
 
     /*

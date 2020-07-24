@@ -961,11 +961,18 @@ public class SocketData {
                 msg.setSurvival_time(survivalTime);
                 msg.setRead(1);
             }
+
             msg.setTo_uid(bean.getTo_uid());
             msg.setGid(bean.getGid());
             msg.setFrom_nickname(bean.getFrom_nickname());
             msg.setFrom_group_nickname(bean.getFrom_group_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, type, getNoticeString(bean, type)));
+            if (type == ChatEnum.ENoticeType.SEAL_ACCOUNT) {
+                MsgNotice msgNotice = msg.getMsgNotice();
+                if (msgNotice != null) {
+                    msgNotice.setNote(ack.getDesc());
+                }
+            }
             msg.setIsLocal(1);
         }
         return msg;

@@ -103,7 +103,7 @@ public class DialogEnvelope extends BaseDialog {
             if (!TextUtils.isEmpty(note)) {
                 tvInfo.setText(note);
             } else {
-                tvInfo.setText("恭喜发财，大吉大利");
+                tvInfo.setText("恭喜发财，好远连连");
             }
             tvMore.setVisibility(View.GONE);
         } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {//已经领完
@@ -136,7 +136,7 @@ public class DialogEnvelope extends BaseDialog {
             if (!TextUtils.isEmpty(note)) {
                 tvInfo.setText(note);
             } else {
-                tvInfo.setText("恭喜发财，大吉大利");
+                tvInfo.setText("恭喜发财，好远连连");
             }
             tvMore.setEnabled(true);
             tvMore.setText("查看红包详情");

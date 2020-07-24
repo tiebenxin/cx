@@ -78,7 +78,7 @@ public class SocketUtil {
                 // 保存对方封号提示语，每发一条消息都会保存
                 if (!TextUtils.isEmpty(bean.getDesc()) && !bean.getDesc().contains("拉黑")) {
                     isAccepted = false;
-                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.FREEZE_ACCOUNT);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.SEAL_ACCOUNT);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
