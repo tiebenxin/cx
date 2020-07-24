@@ -58,6 +58,7 @@ public class VideoPreviewActivity extends BaseActivity implements SurfaceHolder.
                 Intent intentMas = new Intent();
                 intentMas.putExtra(CameraActivity.INTENT_PATH, mPath);
                 intentMas.putExtra(CameraActivity.INTENT_PATH_TIME, Long.parseLong(getVideoAtt(mPath)));
+                intentMas.putExtra(CameraActivity.INTENT_LOCAL_TAKE, true);// 用于判断极速秒传是否需要调用fileCheck接口
                 setResult(RESULT_OK, intentMas);
                 finish();
             }

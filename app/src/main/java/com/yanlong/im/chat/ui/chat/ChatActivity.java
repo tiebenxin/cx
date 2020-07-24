@@ -2994,13 +2994,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         int height = data.getIntExtra(CameraActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(CameraActivity.INTENT_VIDEO_WIDTH, 0);
                         long time = data.getLongExtra(CameraActivity.INTENT_PATH_TIME, 0L);
+                        boolean isLocalTake = data.getBooleanExtra(CameraActivity.INTENT_LOCAL_TAKE, false);// 用于判断极速秒传是否需要调用fileCheck接口
 //                        String videoBg = data.getStringExtra(CameraActivity.INTENT_PATH_BG);
                         //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                         // 不等于常信小助手，需要上传到服务器
                         if (!isNoSendUser()) {
-                            UpLoadService.onAddVideo(this.context, videoMsgBean, false);
+                            UpLoadService.onAddVideo(this.context, videoMsgBean, false, isLocalTake);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
                     } else if (dataType == CameraActivity.RESULT_TYPE_PHOTO) {
@@ -3225,7 +3226,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
             // 不等于常信小助手，需要上传到服务器
             if (!isNoSendUser()) {
-                UpLoadService.onAddVideo(this.context, videoMsgBean, false);
+                UpLoadService.onAddVideo(this.context, videoMsgBean, false,false);
                 startService(new Intent(getContext(), UpLoadService.class));
             }
         } else {
@@ -3588,7 +3589,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             videoMessage.setBg_url(getVideoAttBitmap(url));
                         }
                     }
-                    UpLoadService.onAddVideo(this.context, msgAllBean, false);
+                    UpLoadService.onAddVideo(this.context, msgAllBean, false,false);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {

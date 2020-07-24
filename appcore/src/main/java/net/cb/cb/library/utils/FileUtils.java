@@ -483,7 +483,7 @@ public class FileUtils {
      * @return
      */
     public static boolean isLocalTake(String path) {
-        if (!TextUtils.isEmpty(path) && (path.contains("changxin/video") || path.contains("Pictures/") || path.contains("cache/group/"))) {
+        if (!TextUtils.isEmpty(path) && path.contains("Pictures/")) {
             return true;
         }
         return false;
