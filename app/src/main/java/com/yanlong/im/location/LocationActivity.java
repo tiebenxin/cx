@@ -46,6 +46,7 @@ import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
 import com.baidu.mapapi.search.sug.SuggestionSearchOption;
 import com.baidu.mapapi.utils.DistanceUtil;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.LocationMessage;
@@ -156,7 +157,7 @@ public class LocationActivity extends AppActivity {
         super.onResume();
         // 在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
         mapview.onResume();
-        if(!isShow)checkLocationEnabled();
+        if (!isShow) checkLocationEnabled();
     }
 
     private DialogCommon dialogCommon = null;
@@ -165,7 +166,7 @@ public class LocationActivity extends AppActivity {
      * 检查位置信息
      */
     private void checkLocationEnabled() {
-        if (!LocationUtils.isLocationEnabled(this)) {
+        if (!LocationUtils.isLocationEnabled2(this)) {
             if (dialogCommon == null) {
                 dialogCommon = new DialogCommon(this);
                 dialogCommon.setCanceledOnTouchOutside(false);
@@ -178,8 +179,8 @@ public class LocationActivity extends AppActivity {
                             @Override
                             public void onSure() {
                                 //跳转到位置设置
-                                Intent intent =  new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 context.startActivity(intent);
                             }
 
@@ -190,8 +191,8 @@ public class LocationActivity extends AppActivity {
                         });
             }
             dialogCommon.show();
-        }else{
-            if(dialogCommon!=null&&dialogCommon.isShowing())dialogCommon.dismiss();
+        } else {
+            if (dialogCommon != null && dialogCommon.isShowing()) dialogCommon.dismiss();
         }
     }
 
@@ -418,7 +419,8 @@ public class LocationActivity extends AppActivity {
                                 locationMessage.setAddressDescribe(bdLocation.getPoiList().get(i).getAddr());
                                 locationList.add(locationMessage);
 
-                                if(i != 0)getPoi(false, city, bdLocation.getPoiList().get(i).getName());
+                                if (i != 0)
+                                    getPoi(false, city, bdLocation.getPoiList().get(i).getName());
                             }
                             recyclerview.getAdapter().notifyDataSetChanged();
                             recyclerview.setVisibility(View.VISIBLE);
@@ -514,6 +516,15 @@ public class LocationActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (!LocationUtils.isLocationEnabled2(LocationActivity.this)) {
+                    ThreadUtil.getInstance().runMainThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkLocationEnabled();
+                        }
+                    });
                     return;
                 }
                 locService.start();
