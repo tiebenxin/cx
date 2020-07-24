@@ -51,7 +51,7 @@ public class ChatCellNotice extends ChatCellBase {
                         || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR
                         || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS
                         || notice.getMsgType() == ChatEnum.ENoticeType.FREEZE_ACCOUNT
-                        || notice.getMsgType() == ChatEnum.ENoticeType.SEAL_ACCOUNT) {
+                        || notice.getMsgType() == ChatEnum.ENoticeType.SEAL_ACCOUNT
                         || notice.getMsgType() == ChatEnum.ENoticeType.FREEZE_ACCOUNT
                         || notice.getMsgType() == ChatEnum.ENoticeType.DEFAULT) {
                     tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
