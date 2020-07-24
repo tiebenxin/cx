@@ -104,7 +104,7 @@
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:orientation="horizontal"
-                            android:paddingLeft="10dp"
+                            android:paddingLeft="3dp"
                             android:paddingRight="10dp">
 
                             <ImageView
@@ -116,13 +116,13 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="5dp"
+                                android:layout_marginLeft="2dp"
                                 android:orientation="vertical">
 
                                 <TextView
                                     android:id="@+id/tv_rb_title"
                                     style="@style/app_txt_title_2"
-                                    android:text="恭喜发财，好远连连"
+                                    android:text="恭喜发财，好运连连"
                                     android:textColor="@color/white"
                                     android:textSize="15sp" />
 
