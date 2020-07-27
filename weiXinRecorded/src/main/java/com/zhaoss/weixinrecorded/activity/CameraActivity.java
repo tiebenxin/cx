@@ -52,6 +52,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
     public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
     public static final String INTENT_PATH_BG = "intent_bg";
+    public static final String INTENT_LOCAL_TAKE = "intent_local_take";
     public static final int RESULT_TYPE_VIDEO = 1;
     public static final int RESULT_TYPE_PHOTO = 2;
     public static final int REQUEST_CODE_KEY = 100;
@@ -254,6 +255,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
                 intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraView.getVideoWidth());
                 intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraView.getVideoHeight());
                 intentMas.putExtra(INTENT_PATH_TIME, data.getLongExtra(INTENT_PATH_TIME, 0));
+                intentMas.putExtra(INTENT_LOCAL_TAKE, true);
                 intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intentMas);
                 finish();
