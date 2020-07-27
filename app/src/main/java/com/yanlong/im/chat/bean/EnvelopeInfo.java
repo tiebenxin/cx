@@ -11,7 +11,7 @@ import io.realm.annotations.PrimaryKey;
 public class EnvelopeInfo extends RealmObject {
     @PrimaryKey
     String rid;
-    String comment;//红包内容，恭喜发财，好远连连
+    String comment;//红包内容，恭喜发财，好运连连
     int reType;//红包类型0，魔方, 1系统红包
     int envelopeStyle;// 0 普通, 1 拼手气
     int sendStatus;//发送状态 0 未发送， 1 已发送

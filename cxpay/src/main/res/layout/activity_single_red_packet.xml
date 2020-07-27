@@ -71,7 +71,7 @@
                     style="@style/app_edt1"
                     android:layout_width="match_parent"
                     android:layout_marginRight="5dp"
-                    android:hint="恭喜发财,好远连连"
+                    android:hint="恭喜发财,好运连连"
                     android:maxLength="12" />
 
             </LinearLayout>

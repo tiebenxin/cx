@@ -20,7 +20,7 @@ public class CxEnvelopeBean extends BaseBean implements Parcelable {
     private long tradeId = 0;//交易id
     @PayEnum.ERedEnvelopeType
     private int envelopeType; // 红包类型,0-普通红包；1-拼手气红包
-    String message = "";//默认恭喜发财，好远连连
+    String message = "";//默认恭喜发财，好运连连
     private int envelopeAmount = 0;//红包个数
     private String sign = "";//签名
 

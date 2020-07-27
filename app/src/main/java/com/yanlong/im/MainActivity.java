@@ -1273,7 +1273,7 @@ public class MainActivity extends AppActivity {
         if (!LocationPersimmions.checkPermissions(this)) {
             return;
         }
-        if (!LocationUtils.isLocationEnabled(this)) {
+        if (!LocationUtils.isLocationEnabled2(this)) {
 //            ToastUtil.show("请打开定位服务");
             return;
         }

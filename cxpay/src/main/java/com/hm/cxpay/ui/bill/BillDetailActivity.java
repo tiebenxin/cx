@@ -266,9 +266,9 @@ public class BillDetailActivity extends AppActivity {
             if (type == 2) {
                 if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
                     tvTitle.setText("零钱红包-发给" + data.getOtherUser().getNickname());
-                } else if (data.getToGroup() == 1){
+                } else if (data.getToGroup() == 1) {
                     tvTitle.setText("零钱红包-发出群红包");
-                }else{
+                } else {
                     tvTitle.setText("零钱红包");
                 }
                 tvRedPacketGetMoneyTime.setVisibility(View.GONE);
@@ -334,10 +334,12 @@ public class BillDetailActivity extends AppActivity {
                 tvRedPacketStatus.setText("处理中");
             }
             tvRedPacketPayTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
-//            if (data.getBillType() == 1) {
-//                tvRedPacketPayStyle.setText("零钱");
-//            }
-            tvRedPacketPayStyle.setText("零钱");
+            //0 银行卡支付， 1 零钱支付
+            if (data.getBillType() == 0) {
+                tvRedPacketPayStyle.setText("银行卡");
+            } else {
+                tvRedPacketPayStyle.setText("零钱");
+            }
             tvRedPacketGetMoneyTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             tvRedPacketOrderId.setText(data.getTradeId() + "");
 
