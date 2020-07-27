@@ -683,7 +683,7 @@ public class MessageLocalDataSource {
         try {
             Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
                     realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-            if (session != null) {
+            if (session != null && session.getIsMute() != 1) {
                 //好友之后发送的未读消息数量
                 long unReadCount = TextUtils.isEmpty(gid) ? realm.where(MsgAllBean.class)
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
