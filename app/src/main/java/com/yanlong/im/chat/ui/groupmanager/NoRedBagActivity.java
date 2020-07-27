@@ -12,6 +12,7 @@ import com.hm.cxpay.bean.EnvelopeDetailBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.dailog.DialogEnvelope;
 import com.hm.cxpay.global.PayEnum;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -271,6 +272,11 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
     //获取拆红包后，红包状态
     private int getOpenEnvelopeStatus(EnvelopeDetailBean bean) {
         int status = PayEnum.EEnvelopeStatus.NORMAL;
+        //过期
+        if (PayEnvironment.getInstance().getFixTime() * 1000 - bean.getTime() >= TimeToString.DAY) {
+            status = PayEnum.EEnvelopeStatus.PAST;
+            return status;
+        }
         if (bean.getType() == 0) {//普通红包
             if (bean.getRecvList() != null) {
                 int size = bean.getRecvList().size();
