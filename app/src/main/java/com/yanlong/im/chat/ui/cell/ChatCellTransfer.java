@@ -77,16 +77,19 @@ public class ChatCellTransfer extends ChatCellBase {
         switch (transferStatus) {
             case PayEnum.ETransferOpType.TRANS_SEND:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_rb);
-                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_deep : R.drawable.bg_transfer_other_deep);
+//                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_deep : R.drawable.bg_transfer_other_deep);
+                bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_deep : R.drawable.selector_rp_other_deep);
                 break;
             case PayEnum.ETransferOpType.TRANS_RECEIVE:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_receive_rb);
-                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_light : R.drawable.bg_transfer_other_light);
+//                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_light : R.drawable.bg_transfer_other_light);
+                bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_light : R.drawable.selector_rp_other_light);
                 break;
             case PayEnum.ETransferOpType.TRANS_REJECT:
             case PayEnum.ETransferOpType.TRANS_PAST:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_return_rb);
-                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_light : R.drawable.bg_transfer_other_light);
+//                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_light : R.drawable.bg_transfer_other_light);
+                bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_light : R.drawable.selector_rp_other_light);
                 break;
         }
         tv_rb_title.setText(title);
