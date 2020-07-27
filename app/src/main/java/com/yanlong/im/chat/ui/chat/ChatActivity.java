@@ -3256,7 +3256,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
             // 不等于常信小助手，需要上传到服务器
             if (!isNoSendUser()) {
-                UpLoadService.onAddVideo(this.context, videoMsgBean, false,false);
+                UpLoadService.onAddVideo(this.context, videoMsgBean, false, false);
                 startService(new Intent(getContext(), UpLoadService.class));
             }
         } else {
@@ -3619,7 +3619,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             videoMessage.setBg_url(getVideoAttBitmap(url));
                         }
                     }
-                    UpLoadService.onAddVideo(this.context, msgAllBean, false,false);
+                    UpLoadService.onAddVideo(this.context, msgAllBean, false, false);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -5303,6 +5303,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //获取拆红包后，红包状态
     private int getOpenEnvelopeStatus(EnvelopeDetailBean bean) {
         int status = PayEnum.EEnvelopeStatus.NORMAL;
+        //过期
+        if (PayEnvironment.getInstance().getFixTime() * 1000 - bean.getTime() >= TimeToString.DAY) {
+            status = PayEnum.EEnvelopeStatus.PAST;
+            return status;
+        }
         if (bean.getType() == 0) {//普通红包
             if (bean.getRecvList() != null) {
                 int size = bean.getRecvList().size();
@@ -5471,55 +5476,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 });
         dialogIdentify.show();
-    }
-
-    /**
-     * 手机认证提示弹框
-     */
-    private void showBindPhoneDialog() {
-        DialogDefault dialogIdentify = new DialogDefault(this, R.style.MyDialogTheme);
-        dialogIdentify
-                .setTitleAndSure(false, true)
-                .setTitle("温馨提示")
-                .setContent("发红包之前，必须完成手机认证", true)
-                .setLeft("取消")
-                .setRight("去认证")
-                .setListener(new DialogDefault.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        startActivity(new Intent(ChatActivity.this, BindPhoneNumActivity.class));
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                });
-        dialogIdentify.show();
-    }
-
-    public void showSettingPswDialog() {
-        DialogDefault dialogSettingPayPsw = new DialogDefault(this, R.style.MyDialogTheme);
-        dialogSettingPayPsw
-                .setTitleAndSure(false, false)
-                .setTitle("温馨提示")
-                .setContent("您还没有设置支付密码，请设置支付密码后在进行操作", true)
-                .setLeft("设置支付密码")
-                .setRight("取消")
-                .setListener(new DialogDefault.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        startActivity(new Intent(ChatActivity.this, SetPaywordActivity.class));
-
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                });
-        dialogSettingPayPsw.show();
-
     }
 
     /**

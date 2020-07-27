@@ -832,6 +832,7 @@ public class SocketUtil {
                     testindex++;
                     break;
                 case AUTH:
+
                     LogUtil.getLog().i(TAG, ">>>-----<收到鉴权");
                     TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-成功鉴权");
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
@@ -848,6 +849,7 @@ public class SocketUtil {
                         //6.20 鉴权失败退出登录
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {
+                        SocketData.setPreServerAckTime(ruthmsg.getTimestamp());
                         setRunState(2);
                         //开始心跳
                         heartbeatTime = System.currentTimeMillis();

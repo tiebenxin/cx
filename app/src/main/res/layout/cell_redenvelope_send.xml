@@ -55,7 +55,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="5dp"
                     android:src="@mipmap/ic_net_err"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/view_read"
@@ -94,7 +94,7 @@
                         android:layout_width="200dp"
                         android:layout_height="80dp"
                         android:layout_marginTop="4dp"
-                        android:background="@drawable/bg_chat_me_rp"
+                        android:background="@drawable/bg_rp_me_deep_unselected"
                         android:gravity="right|center_vertical"
                         android:orientation="vertical"
                         android:visibility="visible">
@@ -104,19 +104,19 @@
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:orientation="horizontal"
-                            android:paddingLeft="3dp"
+                            android:paddingLeft="10dp"
                             android:paddingRight="10dp">
 
                             <ImageView
                                 android:id="@+id/iv_rb_state"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@mipmap/ic_rb_zfb_n" />
+                                android:src="@mipmap/ic_rb_zfb_un" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="2dp"
+                                android:layout_marginLeft="6dp"
                                 android:orientation="vertical">
 
                                 <TextView
