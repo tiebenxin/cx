@@ -217,6 +217,10 @@ public class UpFileUtil {
 
             @Override
             public void onFinish(final String md5Rresult) {
+                if (TextUtils.isEmpty(md5Rresult)) {
+                    ossUpCallback.fail();
+                    return;
+                }
                 getOSs(context, keyid, secret, token, endpoint);
 
                 if (imgPath != null) {
@@ -273,7 +277,7 @@ public class UpFileUtil {
 
             @Override
             public void onError(Throwable e) {
-
+                ossUpCallback.fail();
             }
         });
     }
