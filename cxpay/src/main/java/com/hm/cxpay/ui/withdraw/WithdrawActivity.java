@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -38,6 +39,7 @@ import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.BigDecimalUtils;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NumRangeInputFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -108,7 +110,7 @@ public class WithdrawActivity extends AppActivity {
         tvRateNotice = findViewById(R.id.tv_rate_notice);
         tvWithdrawAll = findViewById(R.id.tv_withdraw_all);
         actionbar = headView.getActionbar();
-
+        tvSubmit.setEnabled(false);
     }
 
     private void initData() {
@@ -201,19 +203,24 @@ public class WithdrawActivity extends AppActivity {
                             //实际值以分为单位，显示转为元
                             tvRateNotice.setText("服务费 " + serviceMoney + "元 (服务费=提现金额x" + doubleRate + "%+" + extraMoney + "元/笔)");
                             tvSubmit.setText("提现 (实际到账金额 " + realMoney + ")");
+                            tvSubmit.setEnabled(true);
                         } else if (inputMoney < 10) {
                             tvSubmit.setText("提现");
+                            tvSubmit.setEnabled(false);
                         } else {
                             ToastUtil.show(activity, "单笔提现不能超过2000元");
 //                            etWithdraw.setText("");
+                            tvSubmit.setEnabled(false);
                         }
                     } else {
                         ToastUtil.show(activity, "请输入正确格式的金额");
                         etWithdraw.setText("");
+                        tvSubmit.setEnabled(false);
                     }
                 } else {
                     tvRateNotice.setText("服务费 0.0元 (服务费=提现金额x" + rate * 100 + "%+" + extraMoney + "元/笔)");
                     tvSubmit.setText("提现");// (实际到账金额 0.0)
+                    tvSubmit.setEnabled(false);
                 }
             }
         });

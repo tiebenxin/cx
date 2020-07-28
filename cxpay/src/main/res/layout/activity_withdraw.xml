@@ -151,7 +151,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="25dp"
             android:layout_marginBottom="25dp"
-            android:background="@drawable/shape_5radius_solid_32b053"
+            android:background="@drawable/bg_btn_green3"
             android:gravity="center"
             android:text="提现"
             android:textColor="@color/white"
