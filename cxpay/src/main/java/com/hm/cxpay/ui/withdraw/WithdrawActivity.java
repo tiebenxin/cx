@@ -193,7 +193,7 @@ public class WithdrawActivity extends AppActivity {
                             && !etWithdraw.getText().toString().startsWith("0")) {
                         //3 金额最高限制10000 最低取接口值
                         double inputMoney = Double.valueOf(etWithdraw.getText().toString());
-                        if (inputMoney <= 10000 && inputMoney >= 10) {
+                        if (inputMoney <= 2000 && inputMoney >= 10) {
                             withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
                             serviceMoney = Double.valueOf(BigDecimalUtils.add(BigDecimalUtils.mul(withDrawMoney + "", rate + "", 2), extraMoney + "", 2));
                             realMoney = Double.valueOf(BigDecimalUtils.sub(withDrawMoney + "", serviceMoney + "", 2));
@@ -204,8 +204,8 @@ public class WithdrawActivity extends AppActivity {
                         } else if (inputMoney < 10) {
                             tvSubmit.setText("提现");
                         } else {
-                            ToastUtil.show(activity, "单笔最高不能超过10000元");
-                            etWithdraw.setText("");
+                            ToastUtil.show(activity, "单笔提现不能超过2000元");
+//                            etWithdraw.setText("");
                         }
                     } else {
                         ToastUtil.show(activity, "请输入正确格式的金额");

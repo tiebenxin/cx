@@ -122,6 +122,10 @@ public class DateUtils {
         return getTime(time, "yyyy-MM-dd  HH:mm");
     }
 
+    public static String getTransferTime(long time) {
+        return getTime(time, "yyyy-MM-dd  HH:mm:ss");
+    }
+
     /**
      * 判断时间间隔是否在X小时以内
      *

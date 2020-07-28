@@ -136,15 +136,15 @@ public class TransferDetailActivity extends BasePayActivity {
     }
 
     private void updateTimeUI(TransferDetailBean detailBean, int status) {
-        ui.tvTimeTransfer.setText("转账时间：" + DateUtils.getFullTime(detailBean.getTransTime()));
+        ui.tvTimeTransfer.setText("转账时间：" + DateUtils.getTransferTime(detailBean.getTransTime()));
         if (status == 1) {
             ui.tvTimeReturn.setVisibility(View.GONE);
         } else if (status == 2) {
             ui.tvTimeReturn.setVisibility(View.VISIBLE);
-            ui.tvTimeReturn.setText("收款时间：" + DateUtils.getFullTime(detailBean.getRecvTime()));
+            ui.tvTimeReturn.setText("收款时间：" + DateUtils.getTransferTime(detailBean.getRecvTime()));
         } else if (status == 3) {
             ui.tvTimeReturn.setVisibility(View.VISIBLE);
-            ui.tvTimeReturn.setText("退还时间：" + DateUtils.getFullTime(detailBean.getRejectTime()));
+            ui.tvTimeReturn.setText("退还时间：" + DateUtils.getTransferTime(detailBean.getRejectTime()));
         } else if (status == 4) {
             ui.tvTimeReturn.setVisibility(View.GONE);
         }
