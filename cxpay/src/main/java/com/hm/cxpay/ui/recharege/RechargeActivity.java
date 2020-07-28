@@ -162,7 +162,7 @@ public class RechargeActivity extends AppActivity {
                                     }).show();
                         }
                     } else {
-                        noticeDialog.setContent("最低充值金额10元", true)
+                        noticeDialog.setContent("充值金额不能低于10元", true)
                                 .setButtonTxt("确定")
                                 .hasTitle(false)
                                 .setListener(new DialogCommon2.IDialogListener() {

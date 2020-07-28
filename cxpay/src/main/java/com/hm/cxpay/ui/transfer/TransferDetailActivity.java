@@ -126,7 +126,7 @@ public class TransferDetailActivity extends BasePayActivity {
         if (detailBean != null) {
             //领取转账 stat: 1未领取 2已领取 3已拒收 4已过期
             int status = detailBean.getStat();
-            updateUI(detailBean.getIncome(), status);
+            updateUI(detailBean.getIncome(), status, detailBean.getRefundWay());
             ui.ivIcon.setImageResource(getDrawableId(status));
             ui.tvNote.setText(getNote(detailBean.getIncome(), status, detailBean.getRecvUser().getNickname()));
             ui.tvMoney.setText(UIUtils.getYuan(detailBean.getAmt()));
@@ -187,7 +187,9 @@ public class TransferDetailActivity extends BasePayActivity {
         return note;
     }
 
-    private void updateUI(int income, int status) {
+    //stat: 1未领取 2已领取 3已拒收 4已过期
+    //returnWay 退还方式： 0 零钱 1 银行卡
+    private void updateUI(int income, int status, int returnWay) {
         if (income == 1) {
             if (status == 1) {
                 ui.llReceive.setVisibility(View.VISIBLE);
@@ -219,10 +221,20 @@ public class TransferDetailActivity extends BasePayActivity {
                 ui.llReceive.setVisibility(View.GONE);
                 ui.llReturn.setVisibility(View.VISIBLE);
                 ui.llWaitReceive.setVisibility(View.GONE);
+                if (returnWay == 1) {
+                    ui.tvReturnNote.setText("已退还到银行卡");
+                } else if (returnWay == 2) {
+                    ui.tvReturnNote.setText("已退还到零钱账户");
+                }
             } else if (status == 4) {
                 ui.llReceive.setVisibility(View.GONE);
-                ui.llReturn.setVisibility(View.GONE);
+                ui.llReturn.setVisibility(View.VISIBLE);
                 ui.llWaitReceive.setVisibility(View.GONE);
+                if (returnWay == 1) {
+                    ui.tvReturnNote.setText("已退还到银行卡");
+                } else if (returnWay == 2) {
+                    ui.tvReturnNote.setText("已退还到零钱账户");
+                }
             }
         }
     }

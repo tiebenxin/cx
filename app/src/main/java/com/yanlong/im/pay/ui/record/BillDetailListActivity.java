@@ -219,7 +219,7 @@ public class BillDetailListActivity extends AppActivity {
 
     private void initTimePicker() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, Calendar.DAY_OF_MONTH);
+//        calendar.set(year, month - 1, Calendar.DAY_OF_MONTH);
 
         Calendar start = Calendar.getInstance();
         start.set(2019, 0, 1);//2019-1-1
