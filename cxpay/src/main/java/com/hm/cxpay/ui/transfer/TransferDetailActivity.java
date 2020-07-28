@@ -188,7 +188,7 @@ public class TransferDetailActivity extends BasePayActivity {
     }
 
     //stat: 1未领取 2已领取 3已拒收 4已过期
-    //returnWay 退还方式： 0 零钱 1 银行卡
+    //returnWay 退还方式： 2 零钱 1 银行卡
     private void updateUI(int income, int status, int returnWay) {
         if (income == 1) {
             if (status == 1) {
