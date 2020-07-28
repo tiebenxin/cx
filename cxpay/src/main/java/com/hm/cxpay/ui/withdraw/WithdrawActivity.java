@@ -70,7 +70,7 @@ public class WithdrawActivity extends AppActivity {
     private CommonBean rateBean;//银行卡费率
 
     private Double minMoney = 1000.0;//最低提现金额，默认10元，单位分
-//    private Double maxMoney = 2000 * 1000.0;//最高提现金额，默认2000元，单位分
+    //    private Double maxMoney = 2000 * 1000.0;//最高提现金额，默认2000元，单位分
     private Double serviceMoney = 0.0;//服务费，单位分
     private Double extraMoney = 0.0;//额外固定费，单位分
     private Double rate = 0.005;//费率，默认0.005
@@ -192,7 +192,8 @@ public class WithdrawActivity extends AppActivity {
                     if (!etWithdraw.getText().toString().equals(".")
                             && !etWithdraw.getText().toString().startsWith("0")) {
                         //3 金额最高限制10000 最低取接口值
-                        if (Double.valueOf(etWithdraw.getText().toString()) <= 10000) {
+                        double inputMoney = Double.valueOf(etWithdraw.getText().toString());
+                        if (inputMoney <= 10000 && inputMoney >= 10) {
                             withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
                             serviceMoney = Double.valueOf(BigDecimalUtils.add(BigDecimalUtils.mul(withDrawMoney + "", rate + "", 2), extraMoney + "", 2));
                             realMoney = Double.valueOf(BigDecimalUtils.sub(withDrawMoney + "", serviceMoney + "", 2));
@@ -200,6 +201,8 @@ public class WithdrawActivity extends AppActivity {
                             //实际值以分为单位，显示转为元
                             tvRateNotice.setText("服务费 " + serviceMoney + "元 (服务费=提现金额x" + doubleRate + "%+" + extraMoney + "元/笔)");
                             tvSubmit.setText("提现 (实际到账金额 " + realMoney + ")");
+                        } else if (inputMoney < 10) {
+                            tvSubmit.setText("提现");
                         } else {
                             ToastUtil.show(activity, "单笔最高不能超过10000元");
                             etWithdraw.setText("");
@@ -210,7 +213,7 @@ public class WithdrawActivity extends AppActivity {
                     }
                 } else {
                     tvRateNotice.setText("服务费 0.0元 (服务费=提现金额x" + rate * 100 + "%+" + extraMoney + "元/笔)");
-                    tvSubmit.setText("提现 (实际到账金额 0.0)");
+                    tvSubmit.setText("提现");// (实际到账金额 0.0)
                 }
             }
         });

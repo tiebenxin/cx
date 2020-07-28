@@ -119,7 +119,7 @@ public class DateUtils {
     }
 
     public static String getFullTime(long time) {
-        return getTime(time, "yyyy-MM-dd  HH:mm:ss");
+        return getTime(time, "yyyy-MM-dd  HH:mm");
     }
 
     /**
