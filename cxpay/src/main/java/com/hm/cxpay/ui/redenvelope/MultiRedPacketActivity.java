@@ -452,6 +452,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                         if (handler != null && handler != null) {
                             handler.removeCallbacks(runnable);
                         }
+                        payFailed();
                     } else {
                         showLoadingDialog();
                         if (handler != null && handler != null) {
