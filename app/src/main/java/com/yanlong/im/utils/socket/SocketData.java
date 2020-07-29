@@ -799,7 +799,7 @@ public class SocketData {
     }
 
 
-    public static MsgCancel createCancelMsg(MsgAllBean cancelMsg) {
+    public static MsgCancel createCancelMsg(MsgAllBean cancelMsg,long myUid) {
         if (cancelMsg == null) {
             return null;
         }
@@ -813,11 +813,17 @@ public class SocketData {
         msgType = cancelMsg.getMsg_type();
         MsgCancel cancel = new MsgCancel();
         cancel.setMsgid(SocketData.getUUID());
-        cancel.setNote("你撤回了一条消息");
+        if(cancelMsg.getFrom_uid().longValue()==myUid){
+            cancel.setNote("你撤回了一条消息");
+        }else {
+            cancel.setNote("你撤回了\"" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) +"\"的一条消息");
+//            cancel.setNote("你撤回了\"<font color='#276baa' id='" + cancelMsg.getFrom_uid() + "'><a href=''>" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) +"</a></font>\"的一条消息");
+        }
         cancel.setCancelContent(msg);
         cancel.setCancelContentType(msgType);
         cancel.setMsgidCancel(cancelMsg.getMsg_id());
         cancel.setTime(cancelMsg.getTimestamp());
+        cancel.setUid(cancelMsg.getFrom_uid());//被撤回的消息来源于哪个用户的uid
         return cancel;
     }
     /*

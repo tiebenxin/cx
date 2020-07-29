@@ -2416,7 +2416,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
-     * 判断别人是否为群主或管理员
+     * 根据uid判断别人是否为群主或管理员
      * @param uid
      * @return 主要用于撤回消息的权限
      */
@@ -4082,7 +4082,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             showCancel = true;
                             timeLimit = true;
                         }else {
-                            //如果这条消息为除自己以外，其他群管理/群主发的，则不允许撤回别人消息；如果是普通群员的消息，我可以任意时间撤回
+                            //如果这条消息为除自己以外，其他群管理/群主发的，则无权撤回其他管理层的消息；如果是普通群员的消息，我可以任意时间撤回
                             if(isHeAdmins(msgAllBean.getFrom_uid())){
                                 showCancel = false;
                             }else {
@@ -4295,7 +4295,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void onRecall(final MsgAllBean msgBean) {
         int position = mAdapter.getPosition(msgBean);
-        MsgCancel cancel = SocketData.createCancelMsg(msgBean);
+        MsgCancel cancel = SocketData.createCancelMsg(msgBean,UserAction.getMyId().longValue());
         if (cancel != null) {
             sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
         }

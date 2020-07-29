@@ -613,7 +613,7 @@ public class MsgConversionBean {
                     rname = "你";
                 } else {//对方撤回的消息当通知处理
                     msgCel.setMsgType(9);
-                    rname = "\"<font color='#276baa' id='" + fromUid + "'>" + msgDao.getUsername4Show(bean.getGid(), fromUid) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
+//                    rname = "\"<font color='#276baa' id='" + fromUid + "'>" + msgDao.getUsername4Show(bean.getGid(), fromUid) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
                     String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
                     if (TextUtils.isEmpty(nick)) {
                         if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
