@@ -3,6 +3,7 @@ package com.hm.cxpay.ui.identification;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -57,7 +58,8 @@ public class IdentificationUserActivity extends BasePayActivity {
                 authUser(idCard, name);
             }
         });
-
+        ui.etName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+        ui.etIdcard.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)});
     }
 
 
