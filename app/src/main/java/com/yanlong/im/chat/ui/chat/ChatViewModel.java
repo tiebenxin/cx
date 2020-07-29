@@ -162,7 +162,9 @@ public class ChatViewModel extends ViewModel {
             userInfo.removeAllChangeListeners();
             userInfo = null;
         }
-
+        if (toGid != null) {
+            toGid = null;
+        }
         if (groupInfo != null) {
             groupInfo.removeAllChangeListeners();
             groupInfo = null;
@@ -171,6 +173,5 @@ public class ChatViewModel extends ViewModel {
         if (repository != null) {
             repository.onDestory();
         }
-
     }
 }

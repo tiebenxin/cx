@@ -383,10 +383,12 @@ public class MessageLocalDataSource {
         checkInTransaction(realm);
         try {
             ApplyBean applyBean1 = realm.where(ApplyBean.class).equalTo("aid", aid).findFirst();
-            realm.beginTransaction();
-            applyBean1.setStat(2);
-            applyBean1.setTime(System.currentTimeMillis());
-            realm.commitTransaction();
+            if (applyBean1 != null) {
+                realm.beginTransaction();
+                applyBean1.setStat(2);
+                applyBean1.setTime(System.currentTimeMillis());
+                realm.commitTransaction();
+            }
         } catch (Exception e) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();
@@ -446,7 +448,7 @@ public class MessageLocalDataSource {
     /**
      * 撤回-删除消息
      *
-     * @param msgId       消息ID
+     * @param msgId 消息ID
      */
     public void deleteMsg(@NonNull Realm realm, String msgId) {
         checkInTransaction(realm);
