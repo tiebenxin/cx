@@ -14,7 +14,7 @@ public class LocationMessage extends RealmObject implements IMsgContent {
     private int latitude=-1;//纬度
     private int longitude=-1;//经度
     private String address;//地址
-    private String addressDescribe;//地址描述+
+    private String addressDescribe;//地址描述
     private String img;//地图图片路径
 
     @Ignore
