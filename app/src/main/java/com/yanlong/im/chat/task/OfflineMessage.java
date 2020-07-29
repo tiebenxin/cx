@@ -113,8 +113,10 @@ public class OfflineMessage extends DispatchMessage {
         if (mBatchSuccessMsgIds.contains(wrapMessage.getMsgId())) {//已经保存过了
             result = true;
         } else {
-            //收集gid和uid,用于最后更新session
-            collectBatchMessageGidAndUids(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
+            //收集gid和uid,用于最后更新session, 已读不需要更新Session时间
+            if (wrapMessage.getMsgType() != MsgBean.MessageType.READ) {
+                collectBatchMessageGidAndUids(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
+            }
         }
         LogUtil.getLog().i(TAG, "消息LOG--离线--filter=" + result);
         return false;

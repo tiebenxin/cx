@@ -16,7 +16,7 @@
     <string name="range_of_receive">对方可领的金额为0.01~200元</string>
     <string name="send_fail_note">发送红包失败。如已扣款，将会在24小时内自动退回您的零钱账户</string>
     <string name="group_max_amount_notice">红包平均金额不能高于200元</string>
-    <string name="total_max_amount_notice">单次红包总金额不能超过5000元</string>
+    <string name="total_max_amount_notice">单次红包总金额不能超过200元</string>
     <string name="max_count_notice">单次最多发送100个红包</string>
     <string name="min_count_notice">红包个数不能低于0</string>
 
