@@ -589,6 +589,7 @@ public class MessageRepository {
             MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", cancelMsgId).findFirst();
             if (filterDeleteCancel(wrapMessage.getFromUid())) {
                 if (msgAllBean != null) {
+                    bean.setTimestamp(msgAllBean.getTimestamp());
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg(realm, cancelMsgId);
                 } else {
@@ -598,6 +599,7 @@ public class MessageRepository {
                             msgAllBean = offlineMsgAllBean.get(position);
                             if (msgAllBean != null) {
                                 offlineMsgAllBean.remove(msgAllBean);
+                                offlineMsgIds.remove(msgAllBean.getMsg_id());
                             }
                         }
                         int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
@@ -605,12 +607,16 @@ public class MessageRepository {
                             msgAllBean = offlineMsgAllBean.get(position);
                             if (msgAllBean != null) {
                                 offlineMsgAllBean.remove(msgAllBean);
+                                if (offlineMsgIds != null) {
+                                    offlineMsgIds.remove(msgAllBean.getMsg_id());
+                                }
                             }
                         }
                     }
                 }
             } else {
                 if (msgAllBean != null) {
+                    bean.setTimestamp(msgAllBean.getTimestamp());
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg4Cancel(realm, wrapMessage.getMsgId(), cancelMsgId);
 //                    MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
@@ -634,8 +640,10 @@ public class MessageRepository {
                         if (position >= 0 && position < offlineMsgAllBean.size()) {
                             msgAllBean = offlineMsgAllBean.get(position);
                             if (msgAllBean != null) {
+                                bean.setTimestamp(msgAllBean.getTimestamp());
                                 result = saveMessageNew(bean, realm);
                                 offlineMsgAllBean.remove(msgAllBean);
+                                offlineMsgIds.remove(msgAllBean.getMsg_id());
                             }
                         }
                     }
