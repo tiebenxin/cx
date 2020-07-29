@@ -1910,6 +1910,9 @@ public class SocketData {
                         MsgCancel cancel = bean.getMsgCancel();
                         MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
                         cancelBuilder.setMsgId(cancel.getMsgidCancel());
+                        if(cancel.getUid()!=null){
+                            cancelBuilder.setUid(cancel.getUid());
+                        }
                         value = cancelBuilder.build();
                         type = MsgBean.MessageType.CANCEL;
                         needSave = false;

@@ -11,8 +11,10 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.MsgTagHandler;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.PatternUtil;
 
@@ -28,6 +30,7 @@ public class ChatCellNotice extends ChatCellBase {
 
     private TextView tv_content;
     private ImageView iv_icon;
+    private MsgDao msgDao;
 
     protected ChatCellNotice(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -91,7 +94,7 @@ public class ChatCellNotice extends ChatCellBase {
                 }
             }
             if (isMe && cancelMsgType != null && (cancelMsgType == ChatEnum.EMessageType.TEXT || cancelMsgType == ChatEnum.EMessageType.AT)
-                    && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace && message.getMsgCancel().getUid()==message.getFrom_uid()) {
+                    && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace && message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()) {
                 //存的时候把空格处理<br>，否则会被Html格式化
                 String contents = message.getMsgCancel().getCancelContent().replace("\n", "<br>");
                 content = content + "<cancel content='" + contents + "'> 重新编辑</cancel>";
@@ -101,7 +104,26 @@ public class ChatCellNotice extends ChatCellBase {
                 if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                     tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
                 } else {
-                    tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
+                    //A撤自己的消息，保留原有逻辑不变
+                    if(message.getMsgCancel().getUid()==null || message.getMsgCancel().getUid().longValue()==0L || message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()){
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
+                    }else {
+                        //A撤回了B的消息，携带被撤回人的uid
+                        if(msgDao==null){
+                            msgDao = new MsgDao();
+                        }
+                        Group groupInfo = msgDao.getGroup4Id(message.getGid());
+                        //还要显示群主或管理员身份，根据逻辑来看，如果A用户拥有撤销其他人的消息权限，则不是群主就是管理员
+                        if(groupInfo!=null){
+                            if(!TextUtils.isEmpty(groupInfo.getMaster()) && groupInfo.getMaster().equals(message.getFrom_uid()+"")){
+                                tv_content.setText("群主"+message.getMsgCancel().getNote());
+                            }else {
+                                tv_content.setText("管理员"+message.getMsgCancel().getNote());
+                            }
+                        }else {
+                            tv_content.setText(message.getMsgCancel().getNote());//若查不出群身份就不显示
+                        }
+                    }
                 }
             }
         } else if (messageType == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {
