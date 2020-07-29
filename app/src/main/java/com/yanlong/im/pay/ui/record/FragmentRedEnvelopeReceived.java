@@ -128,6 +128,8 @@ public class FragmentRedEnvelopeReceived extends Fragment {
                                 totalCount = details.getTotal();
                                 if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
                                     ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
+                                } else {
+                                    ((RedEnvelopeRecordActivity) getActivity()).initRecDetailBean(details);
                                 }
                                 if (details.getItems() != null) {
                                     resetName(details.getItems());

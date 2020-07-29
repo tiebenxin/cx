@@ -66,9 +66,16 @@
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
 -keep public class com.android.vending.licensing.ILicensingService
--keep public class FileConfig
+-keep public class net.cb.cb.library.utils.FileConfig
+-keep public class net.cb.cb.library.utils.NetUtil{*;}
+-keep public class com.yanlong.im.user.action.UserAction{*;}
+-keep public class com.yanlong.im.chat.action.MsgAction{*;}
 -keepnames class * implements java.io.Serializable
 #-keepnames class * implements android.os.Parcelable
+
+ # 保持行数与源文件,方便排查问题
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
 
 -keep class com.google.gson.** {*;}
 
@@ -146,13 +153,13 @@
 -keep class com.squareup.okhttp3.** { *;}
 -dontwarn okio.**
 
-# retrofit
--dontwarn okio.**
+# retrofit2
 -dontwarn javax.annotation.**
+-dontnote retrofit2.Platform
+-keep class retrofit2.** { *; }
 
 # Okio
 -dontwarn com.squareup.**
--dontwarn okio.**
 -keep public class org.codehaus.* { *; }
 -keep public class java.nio.* { *; }
 

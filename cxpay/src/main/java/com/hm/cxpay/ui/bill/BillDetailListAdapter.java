@@ -15,8 +15,8 @@ import android.widget.TextView;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.ui.change.ChangeDetailActivity;
+import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
-import com.luck.picture.lib.tools.DateUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +109,7 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 if (dataList.get(position) != null) {
                     final CommonBean bean = dataList.get(position);
                     //时间
-                    holder.tvTime.setText(DateUtils.timeStamp2Date(bean.getCreateTime(),""));
+                    holder.tvTime.setText(DateUtils.getFullTime(bean.getCreateTime()));
                     //根据收支类型->显示操作金额
                     if(bean.getIncome()==1){ //1 收入 其他支出
                         holder.tvCost.setText("+"+UIUtils.getYuan(bean.getAmt()));

@@ -125,8 +125,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_rate_notice"
             android:layout_marginLeft="7dp"
-            android:text="可提现余额  ¥0.00"
             android:padding="10dp"
+            android:text="可提现余额  ¥0.00"
             android:textColor="@color/c_868686"
             android:textSize="12sp" />
 
@@ -134,11 +134,11 @@
             android:id="@+id/tv_withdraw_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_below="@+id/tv_rate_notice"
-            android:text="全部提现"
+            android:layout_alignParentRight="true"
             android:layout_marginRight="5dp"
             android:padding="10dp"
+            android:text="全部提现"
             android:textColor="@color/c_374882"
             android:textSize="12sp" />
 
@@ -151,11 +151,12 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="25dp"
             android:layout_marginBottom="25dp"
-            android:background="@drawable/shape_5radius_solid_32b053"
+            android:background="@drawable/bg_btn_green3"
             android:gravity="center"
-            android:text="提现 (实际到账金额 0.0)"
+            android:text="提现"
             android:textColor="@color/white"
             android:textSize="18sp" />
+        <!--        (实际到账金额 0.0)-->
 
         <TextView
             android:id="@+id/tv_account_time"
@@ -175,11 +176,12 @@
             android:layout_below="@+id/tv_account_time"
             android:layout_marginLeft="17dp"
             android:layout_marginTop="50dp"
-            android:textSize="12sp"
-            android:textColor="@color/c_868686"
             android:text="提现说明：\n
 1.单日提现次数:3次\n
-2.单日最高提现金额2000元"/>
+2.单次提现金额限额2000元\n
+3.单日最高提现金额6000元"
+            android:textColor="@color/c_868686"
+            android:textSize="12sp" />
 
 
         <TextView

@@ -276,6 +276,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                         if (handler != null && handler != null) {
                             handler.removeCallbacks(runnable);
                         }
+                        payFailed();
                     } else {
                         showLoadingDialog();
                         if (handler != null && handler != null) {

@@ -1792,206 +1792,214 @@ public class SocketData {
         }
 
         public InitMsgContentAndType invoke() {
-            switch (msgType) {
-                //            case ChatEnum.EMessageType.NOTICE:
-                //                ChatMessage chat = bean.getChat();
-                //                MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
-                //                txtBuilder.setMsg(chat.getMsg());
-                //                value = txtBuilder.build();
-                //                type = MsgBean.MessageType.CHAT;
-                //                break;
-                case ChatEnum.EMessageType.TEXT://文本
-                    ChatMessage chat = bean.getChat();
-                    MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
-                    txtBuilder.setMsg(chat.getMsg());
-                    value = txtBuilder.build();
-                    type = MsgBean.MessageType.CHAT;
-                    break;
-                case ChatEnum.EMessageType.IMAGE://图片
-                    ImageMessage image = bean.getImage();
-                    MsgBean.ImageMessage.Builder imgBuilder = MsgBean.ImageMessage.newBuilder();
-                    imgBuilder.setOrigin(image.getOrigin())
-                            .setPreview(image.getPreview())
-                            .setThumbnail(image.getThumbnail())
-                            .setHeight((int) image.getHeight())
-                            .setWidth((int) image.getWidth())
-                            .setSize((int) image.getSize());
-                    value = imgBuilder.build();
-                    type = MsgBean.MessageType.IMAGE;
-                    break;
-                case ChatEnum.EMessageType.VOICE://语音
-                    VoiceMessage voice = bean.getVoiceMessage();
-                    MsgBean.VoiceMessage.Builder voiceBuilder = MsgBean.VoiceMessage.newBuilder();
-                    voiceBuilder.setDuration(voice.getTime());
-                    voiceBuilder.setUrl(voice.getUrl());
-                    value = voiceBuilder.build();
-                    type = MsgBean.MessageType.VOICE;
-                    break;
-                case ChatEnum.EMessageType.MSG_VIDEO://小视频
-                    VideoMessage video = bean.getVideoMessage();
-                    MsgBean.ShortVideoMessage.Builder videoBuilder = MsgBean.ShortVideoMessage.newBuilder();
-                    videoBuilder.setBgUrl(video.getBg_url()).setDuration((int) video.getDuration()).setUrl(video.getUrl()).setWidth((int) video.getWidth()).setHeight((int) video.getHeight());
-                    value = videoBuilder.build();
-                    type = MsgBean.MessageType.SHORT_VIDEO;
-                    break;
-                case ChatEnum.EMessageType.AT://@
-                    AtMessage at = bean.getAtMessage();
-                    MsgBean.AtMessage.Builder atBuilder = MsgBean.AtMessage.newBuilder();
-                    atBuilder.setAtTypeValue(at.getAt_type()).setMsg(at.getMsg()).addAllUid(at.getUid());
-                    value = atBuilder.build();
-                    type = MsgBean.MessageType.AT;
-                    break;
-                case ChatEnum.EMessageType.BUSINESS_CARD://名片
-                    BusinessCardMessage card = bean.getBusiness_card();
-                    MsgBean.BusinessCardMessage.Builder cardBuilder = MsgBean.BusinessCardMessage.newBuilder();
-                    cardBuilder.setUid(card.getUid()).setAvatar(card.getAvatar()).setNickname(card.getNickname()).setComment(card.getComment());
-                    value = cardBuilder.build();
-                    type = MsgBean.MessageType.BUSINESS_CARD;
-                    break;
-                case ChatEnum.EMessageType.STAMP://戳一戳
-                    StampMessage stamp = bean.getStamp();
-                    MsgBean.StampMessage.Builder stampBuilder = MsgBean.StampMessage.newBuilder();
-                    stampBuilder.setComment(stamp.getComment());
-                    value = stampBuilder.build();
-                    type = MsgBean.MessageType.STAMP;
-                    break;
-                case ChatEnum.EMessageType.TRANSFER://转账
-                    TransferMessage transfer = bean.getTransfer();
-                    MsgBean.TransferMessage.Builder transferBuild = MsgBean.TransferMessage.newBuilder();
+            try {
+                switch (msgType) {
+                    //            case ChatEnum.EMessageType.NOTICE:
+                    //                ChatMessage chat = bean.getChat();
+                    //                MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
+                    //                txtBuilder.setMsg(chat.getMsg());
+                    //                value = txtBuilder.build();
+                    //                type = MsgBean.MessageType.CHAT;
+                    //                break;
+                    case ChatEnum.EMessageType.TEXT://文本
+                        ChatMessage chat = bean.getChat();
+                        MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
+                        txtBuilder.setMsg(chat.getMsg());
+                        value = txtBuilder.build();
+                        type = MsgBean.MessageType.CHAT;
+                        break;
+                    case ChatEnum.EMessageType.IMAGE://图片
+                        ImageMessage image = bean.getImage();
+                        MsgBean.ImageMessage.Builder imgBuilder = MsgBean.ImageMessage.newBuilder();
+                        imgBuilder.setOrigin(image.getOrigin())
+                                .setPreview(image.getPreview())
+                                .setThumbnail(image.getThumbnail())
+                                .setHeight((int) image.getHeight())
+                                .setWidth((int) image.getWidth())
+                                .setSize((int) image.getSize());
+                        value = imgBuilder.build();
+                        type = MsgBean.MessageType.IMAGE;
+                        break;
+                    case ChatEnum.EMessageType.VOICE://语音
+                        VoiceMessage voice = bean.getVoiceMessage();
+                        MsgBean.VoiceMessage.Builder voiceBuilder = MsgBean.VoiceMessage.newBuilder();
+                        voiceBuilder.setDuration(voice.getTime());
+                        voiceBuilder.setUrl(voice.getUrl());
+                        value = voiceBuilder.build();
+                        type = MsgBean.MessageType.VOICE;
+                        break;
+                    case ChatEnum.EMessageType.MSG_VIDEO://小视频
+                        VideoMessage video = bean.getVideoMessage();
+                        MsgBean.ShortVideoMessage.Builder videoBuilder = MsgBean.ShortVideoMessage.newBuilder();
+                        videoBuilder.setBgUrl(video.getBg_url()).setDuration((int) video.getDuration()).setUrl(video.getUrl()).setWidth((int) video.getWidth()).setHeight((int) video.getHeight());
+                        value = videoBuilder.build();
+                        type = MsgBean.MessageType.SHORT_VIDEO;
+                        break;
+                    case ChatEnum.EMessageType.AT://@
+                        AtMessage at = bean.getAtMessage();
+                        MsgBean.AtMessage.Builder atBuilder = MsgBean.AtMessage.newBuilder();
+                        atBuilder.setAtTypeValue(at.getAt_type()).setMsg(at.getMsg()).addAllUid(at.getUid());
+                        value = atBuilder.build();
+                        type = MsgBean.MessageType.AT;
+                        break;
+                    case ChatEnum.EMessageType.BUSINESS_CARD://名片
+                        BusinessCardMessage card = bean.getBusiness_card();
+                        MsgBean.BusinessCardMessage.Builder cardBuilder = MsgBean.BusinessCardMessage.newBuilder();
+                        cardBuilder.setUid(card.getUid()).setAvatar(card.getAvatar()).setNickname(card.getNickname()).setComment(card.getComment());
+                        value = cardBuilder.build();
+                        type = MsgBean.MessageType.BUSINESS_CARD;
+                        break;
+                    case ChatEnum.EMessageType.STAMP://戳一戳
+                        StampMessage stamp = bean.getStamp();
+                        MsgBean.StampMessage.Builder stampBuilder = MsgBean.StampMessage.newBuilder();
+                        stampBuilder.setComment(stamp.getComment());
+                        value = stampBuilder.build();
+                        type = MsgBean.MessageType.STAMP;
+                        break;
+                    case ChatEnum.EMessageType.TRANSFER://转账
+                        TransferMessage transfer = bean.getTransfer();
+                        MsgBean.TransferMessage.Builder transferBuild = MsgBean.TransferMessage.newBuilder();
 
-                    transferBuild.setTransactionAmount(transfer.getTransaction_amount());
-                    transferBuild.setComment(transfer.getComment());
-                    transferBuild.setId(transfer.getId());
-                    transferBuild.setOpType(MsgBean.TransferMessage.OpType.forNumber(transfer.getOpType()));
-                    transferBuild.setSign(transfer.getSign());
-                    value = transferBuild.build();
-                    type = MsgBean.MessageType.TRANSFER;
-                    break;
-                case ChatEnum.EMessageType.RED_ENVELOPE://红包
-                    RedEnvelopeMessage red = bean.getRed_envelope();
-                    int reType = red.getRe_type().intValue();
-                    MsgBean.RedEnvelopeMessage.Builder redBuild = null;
-                    if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
-                        redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
-                                .setId(red.getId())
-                                .setComment(red.getComment())
-                                .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
-                                .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
-                    } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
-                        redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
-                                .setId(red.getTraceId() + "")
-                                .setComment(red.getComment())
-                                .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
-                                .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()))
-                                .setSign(red.getSign());
-                    }
-                    if (redBuild != null) {
-                        value = redBuild.build();
-                        type = MsgBean.MessageType.RED_ENVELOPER;
-                    }
-                    break;
-                case ChatEnum.EMessageType.READ://已读消息，不需要保存
-                    ReadMessage readMessage = bean.getReadMessage();
-                    MsgBean.ReadMessage.Builder readBuilder = MsgBean.ReadMessage.newBuilder();
-                    readBuilder.setTimestamp(readMessage.getTime());
-                    value = readBuilder.build();
-                    type = MsgBean.MessageType.READ;
-                    needSave = false;
-                    break;
-                case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
-                    MsgCancel cancel = bean.getMsgCancel();
-                    MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
-                    cancelBuilder.setMsgId(cancel.getMsgidCancel());
-                    value = cancelBuilder.build();
-                    type = MsgBean.MessageType.CANCEL;
-                    needSave = false;
-                    break;
-                case ChatEnum.EMessageType.LOCATION://位置
-                    LocationMessage locationMessage = bean.getLocationMessage();
-                    MsgBean.SnapshotLocationMessage.Builder locationBuilder = MsgBean.SnapshotLocationMessage.newBuilder();
-                    locationBuilder.setLat(locationMessage.getLatitude());
-                    locationBuilder.setLon(locationMessage.getLongitude());
-                    locationBuilder.setImg(locationMessage.getImg());
-                    locationBuilder.setAddr(locationMessage.getAddress());
-                    locationBuilder.setDesc(locationMessage.getAddressDescribe());
-                    value = locationBuilder.build();
-                    type = MsgBean.MessageType.SNAPSHOT_LOCATION;
-                    break;
-                case ChatEnum.EMessageType.SHIPPED_EXPRESSION:// 大表情
-                    ShippedExpressionMessage seMessage = bean.getShippedExpressionMessage();
-                    MsgBean.ShippedExpressionMessage.Builder semBuilder = MsgBean.ShippedExpressionMessage.newBuilder();
-                    semBuilder.setId(seMessage.getId());
-                    value = semBuilder.build();
-                    type = MsgBean.MessageType.SHIPPED_EXPRESSION;
-                    break;
-                case ChatEnum.EMessageType.FILE:// 文件
-                    SendFileMessage fileMessage = bean.getSendFileMessage();
-                    MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
-                    fileBuilder.setFileName(fileMessage.getFile_name())
-                            .setUrl(fileMessage.getUrl())
-                            .setSize(new Long(fileMessage.getSize()).intValue())
-                            .setFormat(fileMessage.getFormat());
-                    value = fileBuilder.build();
-                    type = MsgBean.MessageType.SEND_FILE;
-                    break;
-                case ChatEnum.EMessageType.TRANSFER_NOTICE://转发提醒
-                    TransferNoticeMessage noticeMessage = bean.getTransferNoticeMessage();
-                    long tradeId = StringUtil.getLong(noticeMessage.getRid());
-                    if (tradeId > 0) {
-                        MsgBean.TransNotifyMessage.Builder noticeBuilder = MsgBean.TransNotifyMessage.newBuilder();
-                        noticeBuilder.setTradeId(tradeId);
-                        value = noticeBuilder.build();
-                        type = MsgBean.MessageType.TRANS_NOTIFY;
-                    }
-                    break;
-                case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
-                    P2PAuVideoMessage p2pMessage = bean.getP2PAuVideoMessage();
-                    MsgBean.P2PAuVideoMessage.Builder p2pBuild = MsgBean.P2PAuVideoMessage.newBuilder();
-                    p2pBuild.setAvType(p2pMessage.getAv_type() == 1 ? MsgBean.AuVideoType.Vedio : MsgBean.AuVideoType.Audio);
-                    p2pBuild.setDesc(p2pMessage.getDesc());
-                    p2pBuild.setOperation(p2pMessage.getOperation());
-                    value = p2pBuild.build();
-                    type = MsgBean.MessageType.P2P_AU_VIDEO;
-                    break;
-                case ChatEnum.EMessageType.REPLY:
-                    ReplyMessage replyMessage = bean.getReplyMessage();
-                    MsgBean.ReplySpecificMessage.Builder replyBuild = MsgBean.ReplySpecificMessage.newBuilder();
-                    boolean isValid;
-                    QuotedMessage quotedMessage = replyMessage.getQuotedMessage();
-                    MsgBean.RefMessage.Builder refBuild = MsgBean.RefMessage.newBuilder();
-                    refBuild.setMsgId(quotedMessage.getMsgId());
-                    refBuild.setFromUid(quotedMessage.getFromUid());
-                    refBuild.setAvatar(quotedMessage.getAvatar());
-                    refBuild.setNickname(quotedMessage.getNickName());
-                    MsgBean.MessageType messageType = getMessageType(quotedMessage.getMsgType());
-                    if (messageType != MsgBean.MessageType.UNRECOGNIZED) {
-                        refBuild.setMsgType(messageType);
-                        refBuild.setTimestamp(quotedMessage.getTimestamp());
-                        refBuild.setMsg(quotedMessage.getMsg());
-                        refBuild.setUrl(quotedMessage.getUrl());
-                        replyBuild.setRefMsg(refBuild.build());
-                        if (replyMessage.getChatMessage() != null) {
-                            MsgBean.ChatMessage.Builder txtReplyBuilder = MsgBean.ChatMessage.newBuilder();
-                            txtReplyBuilder.setMsg(replyMessage.getChatMessage().getMsg());
-                            replyBuild.setChatMsg(txtReplyBuilder.build());
-                            isValid = true;
-                        } else if (replyMessage.getAtMessage() != null) {
-                            AtMessage atMessage = replyMessage.getAtMessage();
-                            MsgBean.AtMessage.Builder atReplyBuilder = MsgBean.AtMessage.newBuilder();
-                            atReplyBuilder.setAtTypeValue(atMessage.getAt_type()).setMsg(atMessage.getMsg()).addAllUid(atMessage.getUid());
-                            replyBuild.setAtMsg(atReplyBuilder.build());
-                            isValid = true;
-                        } else {
-                            isValid = false;
+                        transferBuild.setTransactionAmount(transfer.getTransaction_amount());
+                        transferBuild.setComment(transfer.getComment());
+                        transferBuild.setId(transfer.getId());
+                        MsgBean.TransferMessage.OpType opType = MsgBean.TransferMessage.OpType.forNumber(transfer.getOpType());
+                        if (opType == null || opType != MsgBean.TransferMessage.OpType.UNRECOGNIZED) {
+                            transferBuild.setOpType(opType);
                         }
-                        if (isValid) {
-                            value = replyBuild.build();
-                            type = MsgBean.MessageType.REPLY_SPECIFIC;
+                        if (!TextUtils.isEmpty(transfer.getSign())) {
+                            transferBuild.setSign(transfer.getSign());
                         }
-                    }
-                    break;
-                case ChatEnum.EMessageType.WEB:// 网页消息
-                    WebMessage webMessage = bean.getWebMessage();
+                        value = transferBuild.build();
+                        type = MsgBean.MessageType.TRANSFER;
+                        break;
+                    case ChatEnum.EMessageType.RED_ENVELOPE://红包
+                        RedEnvelopeMessage red = bean.getRed_envelope();
+                        int reType = red.getRe_type().intValue();
+                        MsgBean.RedEnvelopeMessage.Builder redBuild = null;
+                        if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                            redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                                    .setId(red.getId())
+                                    .setComment(red.getComment())
+                                    .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
+                                    .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                        } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                            redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                                    .setId(red.getTraceId() + "")
+                                    .setComment(red.getComment())
+                                    .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
+                                    .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                            if (!TextUtils.isEmpty(red.getSign())) {
+                                redBuild.setSign(red.getSign());
+                            }
+                        }
+                        if (redBuild != null) {
+                            value = redBuild.build();
+                            type = MsgBean.MessageType.RED_ENVELOPER;
+                        }
+                        break;
+                    case ChatEnum.EMessageType.READ://已读消息，不需要保存
+                        ReadMessage readMessage = bean.getReadMessage();
+                        MsgBean.ReadMessage.Builder readBuilder = MsgBean.ReadMessage.newBuilder();
+                        readBuilder.setTimestamp(readMessage.getTime());
+                        value = readBuilder.build();
+                        type = MsgBean.MessageType.READ;
+                        needSave = false;
+                        break;
+                    case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
+                        MsgCancel cancel = bean.getMsgCancel();
+                        MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
+                        cancelBuilder.setMsgId(cancel.getMsgidCancel());
+                        value = cancelBuilder.build();
+                        type = MsgBean.MessageType.CANCEL;
+                        needSave = false;
+                        break;
+                    case ChatEnum.EMessageType.LOCATION://位置
+                        LocationMessage locationMessage = bean.getLocationMessage();
+                        MsgBean.SnapshotLocationMessage.Builder locationBuilder = MsgBean.SnapshotLocationMessage.newBuilder();
+                        locationBuilder.setLat(locationMessage.getLatitude());
+                        locationBuilder.setLon(locationMessage.getLongitude());
+                        locationBuilder.setImg(locationMessage.getImg());
+                        locationBuilder.setAddr(locationMessage.getAddress());
+                        locationBuilder.setDesc(locationMessage.getAddressDescribe());
+                        value = locationBuilder.build();
+                        type = MsgBean.MessageType.SNAPSHOT_LOCATION;
+                        break;
+                    case ChatEnum.EMessageType.SHIPPED_EXPRESSION:// 大表情
+                        ShippedExpressionMessage seMessage = bean.getShippedExpressionMessage();
+                        MsgBean.ShippedExpressionMessage.Builder semBuilder = MsgBean.ShippedExpressionMessage.newBuilder();
+                        semBuilder.setId(seMessage.getId());
+                        value = semBuilder.build();
+                        type = MsgBean.MessageType.SHIPPED_EXPRESSION;
+                        break;
+                    case ChatEnum.EMessageType.FILE:// 文件
+                        SendFileMessage fileMessage = bean.getSendFileMessage();
+                        MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
+                        fileBuilder.setFileName(fileMessage.getFile_name())
+                                .setUrl(fileMessage.getUrl())
+                                .setSize(new Long(fileMessage.getSize()).intValue())
+                                .setFormat(fileMessage.getFormat());
+                        value = fileBuilder.build();
+                        type = MsgBean.MessageType.SEND_FILE;
+                        break;
+                    case ChatEnum.EMessageType.TRANSFER_NOTICE://转发提醒
+                        TransferNoticeMessage noticeMessage = bean.getTransferNoticeMessage();
+                        long tradeId = StringUtil.getLong(noticeMessage.getRid());
+                        if (tradeId > 0) {
+                            MsgBean.TransNotifyMessage.Builder noticeBuilder = MsgBean.TransNotifyMessage.newBuilder();
+                            noticeBuilder.setTradeId(tradeId);
+                            value = noticeBuilder.build();
+                            type = MsgBean.MessageType.TRANS_NOTIFY;
+                        }
+                        break;
+                    case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                        P2PAuVideoMessage p2pMessage = bean.getP2PAuVideoMessage();
+                        MsgBean.P2PAuVideoMessage.Builder p2pBuild = MsgBean.P2PAuVideoMessage.newBuilder();
+                        p2pBuild.setAvType(p2pMessage.getAv_type() == 1 ? MsgBean.AuVideoType.Vedio : MsgBean.AuVideoType.Audio);
+                        p2pBuild.setDesc(p2pMessage.getDesc());
+                        p2pBuild.setOperation(p2pMessage.getOperation());
+                        value = p2pBuild.build();
+                        type = MsgBean.MessageType.P2P_AU_VIDEO;
+                        break;
+                    case ChatEnum.EMessageType.REPLY:
+                        ReplyMessage replyMessage = bean.getReplyMessage();
+                        MsgBean.ReplySpecificMessage.Builder replyBuild = MsgBean.ReplySpecificMessage.newBuilder();
+                        boolean isValid;
+                        QuotedMessage quotedMessage = replyMessage.getQuotedMessage();
+                        MsgBean.RefMessage.Builder refBuild = MsgBean.RefMessage.newBuilder();
+                        refBuild.setMsgId(quotedMessage.getMsgId());
+                        refBuild.setFromUid(quotedMessage.getFromUid());
+                        refBuild.setAvatar(quotedMessage.getAvatar());
+                        refBuild.setNickname(quotedMessage.getNickName());
+                        MsgBean.MessageType messageType = getMessageType(quotedMessage.getMsgType());
+                        if (messageType != MsgBean.MessageType.UNRECOGNIZED) {
+                            refBuild.setMsgType(messageType);
+                            refBuild.setTimestamp(quotedMessage.getTimestamp());
+                            refBuild.setMsg(quotedMessage.getMsg());
+                            refBuild.setUrl(quotedMessage.getUrl());
+                            replyBuild.setRefMsg(refBuild.build());
+                            if (replyMessage.getChatMessage() != null) {
+                                MsgBean.ChatMessage.Builder txtReplyBuilder = MsgBean.ChatMessage.newBuilder();
+                                txtReplyBuilder.setMsg(replyMessage.getChatMessage().getMsg());
+                                replyBuild.setChatMsg(txtReplyBuilder.build());
+                                isValid = true;
+                            } else if (replyMessage.getAtMessage() != null) {
+                                AtMessage atMessage = replyMessage.getAtMessage();
+                                MsgBean.AtMessage.Builder atReplyBuilder = MsgBean.AtMessage.newBuilder();
+                                atReplyBuilder.setAtTypeValue(atMessage.getAt_type()).setMsg(atMessage.getMsg()).addAllUid(atMessage.getUid());
+                                replyBuild.setAtMsg(atReplyBuilder.build());
+                                isValid = true;
+                            } else {
+                                isValid = false;
+                            }
+                            if (isValid) {
+                                value = replyBuild.build();
+                                type = MsgBean.MessageType.REPLY_SPECIFIC;
+                            }
+                        }
+                        break;
+                    case ChatEnum.EMessageType.WEB:// 网页消息
+                        WebMessage webMessage = bean.getWebMessage();
 //                    MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
 //                    fileBuilder.setFileName(fileMessage.getFile_name())
 //                            .setUrl(fileMessage.getUrl())
@@ -1999,10 +2007,14 @@ public class SocketData {
 //                            .setFormat(fileMessage.getFormat());
 //                    value = fileBuilder.build();
 //                    type = MsgBean.MessageType.SEND_FILE;
-                    break;
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             return this;
         }
+
     }
 
     public static MsgNotice createMsgNoticeOfBanWords(String msgId, int flag) {

@@ -130,7 +130,7 @@ public class BillDetailListActivity extends AppActivity {
 
             }
         });
-        adapter = new BillDetailListAdapter(activity,list,1);
+        adapter = new BillDetailListAdapter(activity, list, 1);
         manager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
@@ -153,9 +153,9 @@ public class BillDetailListActivity extends AppActivity {
         tvSelectType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(selectTypeDialog!=null){
+                if (selectTypeDialog != null) {
                     selectTypeDialog.show();
-                }else {
+                } else {
                     showSelectTypeDialog();
                 }
             }
@@ -166,21 +166,21 @@ public class BillDetailListActivity extends AppActivity {
     /**
      * 请求->获取账单明细
      */
-    private void getBillDetailsList(){
-        PayHttpUtils.getInstance().getBillDetailsList(page, selectTimeDataValue,selectType,"")
+    private void getBillDetailsList() {
+        PayHttpUtils.getInstance().getBillDetailsList(page, selectTimeDataValue, selectType, "")
                 .compose(RxSchedulers.<BaseResponse<BillBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<BillBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<BillBean> baseResponse) {
-                        BillBean billBean =  baseResponse.getData();
-                        if (billBean!= null) {
+                        BillBean billBean = baseResponse.getData();
+                        if (billBean != null) {
                             //1 如果当前页有数据
-                            if(billBean.getItems()!=null && billBean.getItems().size()>0){
+                            if (billBean.getItems() != null && billBean.getItems().size() > 0) {
                                 //1-1 如果是加载更多，则分页数据填充到尾部
                                 resetName(billBean.getItems());
                                 showNoData(false);
-                            }else {
+                            } else {
                                 //2 如果当前页没数据
                                 //2-1 如果是加载更多，当没有数据的时候，提示已经到底了
                                 if (page > 1) {
@@ -205,13 +205,14 @@ public class BillDetailListActivity extends AppActivity {
 
     /**
      * 是否显示无数据默认图
+     *
      * @param ifShow
      */
-    private void showNoData(boolean ifShow){
-        if(ifShow){
+    private void showNoData(boolean ifShow) {
+        if (ifShow) {
             noDataLayout.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
-        }else {
+        } else {
             noDataLayout.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
@@ -219,8 +220,9 @@ public class BillDetailListActivity extends AppActivity {
 
     private void initTimePicker() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, Calendar.DAY_OF_MONTH);
-
+        if (year > 0 && month > 0) {
+            calendar.set(year, month - 1, Calendar.DAY_OF_MONTH);
+        }
         Calendar start = Calendar.getInstance();
         start.set(2019, 0, 1);//2019-1-1
         Calendar end = Calendar.getInstance();
@@ -256,7 +258,7 @@ public class BillDetailListActivity extends AppActivity {
     /**
      * 选择切换交易类型弹框
      */
-    private void showSelectTypeDialog(){
+    private void showSelectTypeDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(true);//取消点击外部消失弹窗
         selectTypeDialog = dialogBuilder.create();
@@ -279,8 +281,8 @@ public class BillDetailListActivity extends AppActivity {
                 selectTypeDialog.dismiss();
                 //刷新数据
                 tvSelectType.setText("全部");
-                page=1;
-                selectType =1 ;
+                page = 1;
+                selectType = 1;
                 getBillDetailsList();
             }
         });
@@ -293,8 +295,8 @@ public class BillDetailListActivity extends AppActivity {
                 selectTypeDialog.dismiss();
                 //刷新数据
                 tvSelectType.setText("转账");
-                page=1;
-                selectType =2 ;
+                page = 1;
+                selectType = 2;
                 getBillDetailsList();
             }
         });
@@ -307,8 +309,8 @@ public class BillDetailListActivity extends AppActivity {
                 selectTypeDialog.dismiss();
                 //刷新数据
                 tvSelectType.setText("红包");
-                page=1;
-                selectType =3 ;
+                page = 1;
+                selectType = 3;
                 getBillDetailsList();
             }
         });
@@ -321,8 +323,8 @@ public class BillDetailListActivity extends AppActivity {
                 selectTypeDialog.dismiss();
                 //刷新数据
                 tvSelectType.setText("充值/提现");
-                page=1;
-                selectType =4 ;
+                page = 1;
+                selectType = 4;
                 getBillDetailsList();
             }
         });
@@ -335,8 +337,8 @@ public class BillDetailListActivity extends AppActivity {
                 selectTypeDialog.dismiss();
                 //刷新数据
                 tvSelectType.setText("退款");
-                page=1;
-                selectType =5 ;
+                page = 1;
+                selectType = 5;
                 getBillDetailsList();
             }
         });
@@ -349,8 +351,8 @@ public class BillDetailListActivity extends AppActivity {
                 selectTypeDialog.dismiss();
                 //刷新数据
                 tvSelectType.setText("消费");
-                page=1;
-                selectType =6 ;
+                page = 1;
+                selectType = 6;
                 getBillDetailsList();
             }
         });
@@ -394,10 +396,10 @@ public class BillDetailListActivity extends AppActivity {
      * 账单 零钱 区分显示布局
      */
     private void isBill(boolean isTrue) {
-        if(isTrue){
+        if (isTrue) {
             tvChangeSelectDate.setVisibility(View.GONE);
             billLayout.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             tvChangeSelectDate.setVisibility(View.VISIBLE);
             billLayout.setVisibility(View.GONE);
         }
@@ -438,7 +440,6 @@ public class BillDetailListActivity extends AppActivity {
                 });
 
     }
-
 
 
 }

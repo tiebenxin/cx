@@ -244,24 +244,14 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivZoom.setOnViewTapListener(new PhotoViewAttacher2.OnViewTapListener() {
             @Override
             public void onViewTap(View view, float x, float y) {
-//                System.out.println(TAG + "-- ivZoom--onViewTap");
-                if (download != null) {//取消当前请求
-                    download.cancel();
-                }
-                ((Activity) context).finish();
-                ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+                onCancle();
             }
         });
 
         ivZoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                System.out.println(TAG + "-- ivZoom--onClick");
-                if (download != null) {//取消当前请求
-                    download.cancel();
-                }
-                ((Activity) context).finish();
-                ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+                onCancle();
             }
         });
 
@@ -276,12 +266,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivLarge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                System.out.println(TAG + "-- ivLarge--onClick");
-                if (download != null) {//取消当前请求
-                    download.cancel();
-                }
-                ((Activity) context).finish();
-                ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+                onCancle();
             }
         });
 
@@ -327,8 +312,21 @@ public class AdapterPreviewImage extends PagerAdapter {
         });
     }
 
+    private void onCancle() {
+        if (download != null) {//取消当前请求
+            download.cancel();
+        }
+        if (context != null && !context.isFinishing()) {
+            context.finish();
+            context.overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+        }
+    }
+
     private void showGif(LocalMedia media, ZoomImageView ivZoom, TextView tvViewOrigin, ProgressBar pbLoading) {
         if (!media.getCutPath().equals(media.getCompressPath())) {
+            if (activityIsFinish()) {
+                return;
+            }
             Glide.with(context).load(media.getCutPath()).error(Glide.with(context).load(media.getCompressPath())).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -354,11 +352,18 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
+    private boolean activityIsFinish() {
+        if (context == null || context.isDestroyed() || context.isFinishing()) {
+            return true;
+        }
+        return false;
+    }
+
     /*
      * 保存图片到本地
      * */
     private void saveImageToLocal(ZoomImageView ivZoom, LocalMedia media, boolean isGif, boolean isHttp, boolean isOriginal, LinearLayout llLook) {
-        if (context == null) {
+        if (activityIsFinish()) {
             return;
         }
         String format = PictureFileUtils.getFileFormatName(media.getCompressPath());
@@ -599,6 +604,10 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (tvViewOrigin != null) {
             tvViewOrigin.setVisibility(View.GONE);
         }
+        if (ivZoom == null || ivZoom.getContext() == null || ((Activity) ivZoom.getContext()).isDestroyed()
+                || ((Activity) ivZoom.getContext()).isFinishing()) {
+            return;
+        }
         RequestOptions gifOptions = new RequestOptions()
                 .priority(Priority.LOW)
                 .diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -614,6 +623,10 @@ public class AdapterPreviewImage extends PagerAdapter {
                         ivZoom.post(new Runnable() {
                             @Override
                             public void run() {
+                                if (ivZoom == null || ivZoom.getContext() == null || ((Activity) ivZoom.getContext()).isDestroyed()
+                                        || ((Activity) ivZoom.getContext()).isFinishing()) {
+                                    return;
+                                }
                                 Glide.with(ivZoom.getContext()).asBitmap().load(model).into(ivZoom);
                             }
                         });
@@ -670,7 +683,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 //                        }
 //                    });
 //        } else {
-        if (context == null || context.isFinishing()) {
+        if (activityIsFinish()) {
             return;
         }
         RequestOptions options = new RequestOptions()
@@ -725,6 +738,9 @@ public class AdapterPreviewImage extends PagerAdapter {
                 setDownloadProgress(tvViewOrigin, 0, llLook);
             }
         }, 100);
+        if (activityIsFinish()) {
+            return;
+        }
         final String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = originUrl.substring(originUrl.lastIndexOf("/") + 1);
         File fileSave = new File(filePath + "/" + fileName);//原图保存路径
@@ -747,6 +763,9 @@ public class AdapterPreviewImage extends PagerAdapter {
                 download = DownloadUtil.get().download(originUrl, filePath, fileName, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(final File file) {
+                        if (activityIsFinish()) {
+                            return;
+                        }
                         ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -777,6 +796,9 @@ public class AdapterPreviewImage extends PagerAdapter {
                     public void onDownloading(final int progress) {
 //                        Log.d(TAG, "onDownloading: " + progress);
                         if (isGif) {
+                            return;
+                        }
+                        if (activityIsFinish()) {
                             return;
                         }
                         ((Activity) context).runOnUiThread(new Runnable() {
@@ -840,6 +862,9 @@ public class AdapterPreviewImage extends PagerAdapter {
     private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp,
                                     boolean isOriginal, LinearLayout llLook, boolean isGif) {
         final PopupSelectView popupSelectView;
+        if (activityIsFinish()) {
+            return;
+        }
         //收藏详情需求又改为只显示3项
         if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
             popupSelectView = new PopupSelectView(context, collectStrings);
