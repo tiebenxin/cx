@@ -109,11 +109,11 @@ public class TransferActivity extends BasePayActivity {
                 eventTransferSuccess();
                 toTransferResult(money);
             } else if (event.getResult() == PayEnum.EPayResult.FAIL) {
-                if (!TextUtils.isEmpty(event.getErrMsg())) {
-                    ToastUtil.show(this, event.getErrMsg());
-                } else {
-                    ToastUtil.show(this, R.string.transfer_fail_note);
-                }
+//                if (!TextUtils.isEmpty(event.getErrMsg())) {
+//                    ToastUtil.show(this, event.getErrMsg());
+//                } else {
+//                    ToastUtil.show(this, R.string.transfer_fail_note);
+//                }
             } else {
                 ToastUtil.show(this, R.string.transfer_fail_note);
             }

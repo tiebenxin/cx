@@ -106,6 +106,8 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
                 PayEnvironment.getInstance().notifyRefreshBalance();
+            } else if (event.getResult() == PayEnum.EPayResult.FAIL) {
+
             } else {
                 ToastUtil.show(this, R.string.send_fail_note);
             }
