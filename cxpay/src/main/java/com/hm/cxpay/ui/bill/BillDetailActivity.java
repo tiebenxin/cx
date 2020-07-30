@@ -122,6 +122,8 @@ public class BillDetailActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
+        headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         layoutQuestion = findViewById(R.id.layout_question);
         ivTitleImage = findViewById(R.id.iv_title_image);
         tvTitle = findViewById(R.id.tv_title);
