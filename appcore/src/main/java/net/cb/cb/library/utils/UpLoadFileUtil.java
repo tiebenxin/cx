@@ -3,7 +3,6 @@ package net.cb.cb.library.utils;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.entity.LocalMedia;
 
 import net.cb.cb.library.dialog.DialogLoadingProgress;

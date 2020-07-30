@@ -50,7 +50,7 @@ import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 //发送群红包界面
 public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implements View.OnClickListener {
-    private String[] strings = {"红包记录", "取消"};
+    private String[] strings = {"查看零钱红包记录", "取消"};
     private PopupSelectView popupSelectView;
     @PayEnum.ERedEnvelopeType
     private int redPacketType = PayEnum.ERedEnvelopeType.LUCK;

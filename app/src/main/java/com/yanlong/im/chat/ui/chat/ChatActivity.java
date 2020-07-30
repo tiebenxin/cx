@@ -67,18 +67,11 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
-import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
-import com.jrmf360.rplib.JrmfRpClient;
-import com.jrmf360.rplib.bean.EnvelopeBean;
-import com.jrmf360.rplib.bean.GrabRpBean;
-import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
@@ -164,7 +157,6 @@ import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
-import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
@@ -244,6 +236,7 @@ import net.cb.cb.library.utils.ScreenShotListenManager;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -3103,26 +3096,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 case REQ_RP://红包
                     LogUtil.writeEnvelopeLog("云红包回调了");
                     LogUtil.getLog().e("云红包回调了");
-                    EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
-                    if (!checkNetConnectStatus(0)) {
-                        if (envelopeInfo != null) {
-                            saveMFEnvelope(envelopeInfo);
-                        }
-                        return;
-                    }
-                    if (envelopeInfo != null) {
-                        //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
-                        String info = envelopeInfo.getEnvelopeMessage();
-                        String rid = envelopeInfo.getEnvelopesID();
-                        LogUtil.writeEnvelopeLog("rid=" + rid);
-                        LogUtil.getLog().e("rid=" + rid);
-                        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-                        if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
-                            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
-                        }
-                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
-                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
-                    }
+//                    EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
+//                    if (!checkNetConnectStatus(0)) {
+//                        if (envelopeInfo != null) {
+//                            saveMFEnvelope(envelopeInfo);
+//                        }
+//                        return;
+//                    }
+//                    if (envelopeInfo != null) {
+//                        //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
+//                        String info = envelopeInfo.getEnvelopeMessage();
+//                        String rid = envelopeInfo.getEnvelopesID();
+//                        LogUtil.writeEnvelopeLog("rid=" + rid);
+//                        LogUtil.getLog().e("rid=" + rid);
+//                        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
+//                        if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
+//                            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
+//                        }
+//                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
+//                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
+//                    }
                     break;
 
                 case REQUEST_RED_ENVELOPE:
@@ -4869,92 +4862,92 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             ToastUtil.show(this, "你的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;
         }
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    if (isGroup()) {
-                        Group group = msgDao.getGroup4Id(toGid);
-                        int totalSize = 0;
-                        if (group != null && group.getUsers() != null) {
-                            totalSize = group.getUsers().size();
-                        }
-                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
-                                totalSize, info.getName(), info.getHead(), REQ_RP);
-                    } else {
-                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
-                                info.getName(), info.getHead(), REQ_RP);
-                    }
-                    LogUtil.writeEnvelopeLog("准备发红包");
-
-                }
-            }
-        });
+//        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+//                if (response.body() == null)
+//                    return;
+//                if (response.body().isOk()) {
+//                    SignatureBean sign = response.body().getData();
+//                    String token = sign.getSign();
+//                    if (isGroup()) {
+//                        Group group = msgDao.getGroup4Id(toGid);
+//                        int totalSize = 0;
+//                        if (group != null && group.getUsers() != null) {
+//                            totalSize = group.getUsers().size();
+//                        }
+//                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
+//                                totalSize, info.getName(), info.getHead(), REQ_RP);
+//                    } else {
+//                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
+//                                info.getName(), info.getHead(), REQ_RP);
+//                    }
+//                    LogUtil.writeEnvelopeLog("准备发红包");
+//
+//                }
+//            }
+//        });
     }
 
     /***
      * 红包收
      */
     private void taskPayRbGet(final MsgAllBean msgbean, final Long toUId, final String rbid) {
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-
-                    GrabRpCallBack callBack = new GrabRpCallBack() {
-                        @Override
-                        public void grabRpResult(GrabRpBean grabRpBean) {
-                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
-                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
-                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE);
-                                showSendObj(msgAllbean);
-                                /********通知更新sessionDetail************************************/
-                                //因为msg对象 uid有两个，都得添加
-                                List<String> gids = new ArrayList<>();
-                                List<Long> uids = new ArrayList<>();
-                                //gid存在时，不取uid
-                                if (TextUtils.isEmpty(msgAllbean.getGid())) {
-                                    uids.add(msgAllbean.getTo_uid());
-                                    uids.add(msgAllbean.getFrom_uid());
-                                } else {
-                                    gids.add(msgAllbean.getGid());
-                                }
-                                //回主线程调用更新session详情
-                                if (MyAppLication.INSTANCE().repository != null)
-                                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
-                                /********通知更新sessionDetail end************************************/
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                            }
-                            if (envelopeStatus == 2 || envelopeStatus == 3) {
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                            }
-                        }
-                    };
-                    if (!isActivityValid()) {
-                        return;
-                    }
-                    if (isGroup()) {
-                        IUser minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead(), rbid, callBack);
-                    } else {
-                        IUser minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead(), rbid, callBack);
-                    }
-
-                }
-            }
-        });
+//        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+//                if (response.body() == null)
+//                    return;
+//                if (response.body().isOk()) {
+//                    SignatureBean sign = response.body().getData();
+//                    String token = sign.getSign();
+//
+//                    GrabRpCallBack callBack = new GrabRpCallBack() {
+//                        @Override
+//                        public void grabRpResult(GrabRpBean grabRpBean) {
+//                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
+//                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
+//                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
+//                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE);
+//                                showSendObj(msgAllbean);
+//                                /********通知更新sessionDetail************************************/
+//                                //因为msg对象 uid有两个，都得添加
+//                                List<String> gids = new ArrayList<>();
+//                                List<Long> uids = new ArrayList<>();
+//                                //gid存在时，不取uid
+//                                if (TextUtils.isEmpty(msgAllbean.getGid())) {
+//                                    uids.add(msgAllbean.getTo_uid());
+//                                    uids.add(msgAllbean.getFrom_uid());
+//                                } else {
+//                                    gids.add(msgAllbean.getGid());
+//                                }
+//                                //回主线程调用更新session详情
+//                                if (MyAppLication.INSTANCE().repository != null)
+//                                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+//                                /********通知更新sessionDetail end************************************/
+//                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
+//                            }
+//                            if (envelopeStatus == 2 || envelopeStatus == 3) {
+//                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
+//                            }
+//                        }
+//                    };
+//                    if (!isActivityValid()) {
+//                        return;
+//                    }
+//                    if (isGroup()) {
+//                        IUser minfo = UserAction.getMyInfo();
+//                        JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
+//                                minfo.getName(), minfo.getHead(), rbid, callBack);
+//                    } else {
+//                        IUser minfo = UserAction.getMyInfo();
+//                        JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
+//                                minfo.getName(), minfo.getHead(), rbid, callBack);
+//                    }
+//
+//                }
+//            }
+//        });
     }
 
     /***
@@ -4962,25 +4955,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param rid
      */
     private void taskPayRbDetail(final MsgAllBean msgAllBean, final String rid) {
-     /*   if (!isGroup()) {
-            return;
-        }*/
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    if (!isActivityValid()) {
-                        return;
-                    }
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    IUser minfo = UserAction.getMyInfo();
-                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
-                }
-            }
-        });
+//        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+//                if (response.body() == null)
+//                    return;
+//                if (response.body().isOk()) {
+//                    if (!isActivityValid()) {
+//                        return;
+//                    }
+//                    SignatureBean sign = response.body().getData();
+//                    String token = sign.getSign();
+//                    IUser minfo = UserAction.getMyInfo();
+//                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
+//                }
+//            }
+//        });
 
     }
 
@@ -5613,24 +5603,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.show();
     }
 
-    private void saveMFEnvelope(EnvelopeBean bean) {
-        EnvelopeInfo envelopeInfo = new EnvelopeInfo();
-        envelopeInfo.setRid(bean.getEnvelopesID());
-        envelopeInfo.setAmount(StringUtil.getYuanToLong(bean.getEnvelopeAmount()));
-        envelopeInfo.setComment(bean.getEnvelopeMessage());
-        envelopeInfo.setReType(0);//0 MF  1 SYS
-        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-        if (bean.getEnvelopeType() == 1) {//拼手气
-            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
-        }
-        envelopeInfo.setEnvelopeStyle(style.getNumber());
-        envelopeInfo.setCreateTime(System.currentTimeMillis());
-        envelopeInfo.setGid(toGid);
-        envelopeInfo.setUid(toUId == null ? 0 : toUId.longValue());
-        envelopeInfo.setSendStatus(0);
-        envelopeInfo.setSign("");
-        msgDao.updateEnvelopeInfo(envelopeInfo);
-    }
+//    private void saveMFEnvelope(EnvelopeBean bean) {
+//        EnvelopeInfo envelopeInfo = new EnvelopeInfo();
+//        envelopeInfo.setRid(bean.getEnvelopesID());
+//        envelopeInfo.setAmount(StringUtil.getYuanToLong(bean.getEnvelopeAmount()));
+//        envelopeInfo.setComment(bean.getEnvelopeMessage());
+//        envelopeInfo.setReType(0);//0 MF  1 SYS
+//        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
+//        if (bean.getEnvelopeType() == 1) {//拼手气
+//            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
+//        }
+//        envelopeInfo.setEnvelopeStyle(style.getNumber());
+//        envelopeInfo.setCreateTime(System.currentTimeMillis());
+//        envelopeInfo.setGid(toGid);
+//        envelopeInfo.setUid(toUId == null ? 0 : toUId.longValue());
+//        envelopeInfo.setSendStatus(0);
+//        envelopeInfo.setSign("");
+//        msgDao.updateEnvelopeInfo(envelopeInfo);
+//    }
 
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
@@ -6194,19 +6184,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
                 getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
-                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-//                if (msg.isMe()) {
-//                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-//                } else {
-//                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-//                }
+//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (msg.isMe()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                } else {
+                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+                }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {
-                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-//                if (msg.isMe()) {
-//                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-//                } else {
-//                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-//                }
+//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (msg.isMe()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                } else {
+                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+                }
             }
         }
     }
