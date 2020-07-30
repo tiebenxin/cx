@@ -264,12 +264,12 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.max_count_notice));
-                } else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
+                } /*else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
-                } else {
+                } */else {
                     if (totalMoney > TOTAL_MAX_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
@@ -315,12 +315,12 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.max_count_notice));
-                } else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
+                }/* else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
-                } else {
+                }*/ else {
                     if (singleMoney < MIN_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
