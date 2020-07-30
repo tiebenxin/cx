@@ -109,9 +109,9 @@ public class DialogEnvelope extends BaseDialog {
         } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {//已经领完
             ivOpen.setVisibility(View.GONE);
             if (style == 1) {//拼手气
-                tvInfo.setText("手慢了，红包已经派完");
+                tvInfo.setText("手慢了，红包派完了");
                 tvMore.setEnabled(true);
-                tvMore.setText("查看红包详情");
+                tvMore.setText("查看领取详情>");
                 tvMore.setVisibility(View.VISIBLE);
             } else {
                 tvInfo.setText("该红包已被领取");
@@ -124,7 +124,7 @@ public class DialogEnvelope extends BaseDialog {
             tvInfo.setText("红包已过期");
             if (style == 1) {//拼手气
                 tvMore.setEnabled(true);
-                tvMore.setText("查看红包详情");
+                tvMore.setText("查看领取详情>");
                 tvMore.setVisibility(View.VISIBLE);
             } else {
                 tvMore.setVisibility(View.VISIBLE);
@@ -139,7 +139,7 @@ public class DialogEnvelope extends BaseDialog {
                 tvInfo.setText("恭喜发财，好运连连");
             }
             tvMore.setEnabled(true);
-            tvMore.setText("查看红包详情");
+            tvMore.setText("查看领取详情>");
             tvMore.setVisibility(View.VISIBLE);
         }
     }
@@ -200,7 +200,7 @@ public class DialogEnvelope extends BaseDialog {
             tvInfo.setText("已领取" + UIUtils.getYuan(bean.getAmt()) + "元");
             PayEnvironment.getInstance().notifyRefreshBalance();
             tvMore.setEnabled(true);
-            tvMore.setText("查看红包详情");
+            tvMore.setText("查看领取详情>");
             tvMore.setVisibility(View.VISIBLE);
         } else if (result == 2) {//已领完
             if (style == 0) {
@@ -209,16 +209,16 @@ public class DialogEnvelope extends BaseDialog {
                 tvInfo.setText("该红包已被领完");
             } else {
                 tvMore.setEnabled(true);
-                tvMore.setText("查看红包详情");
+                tvMore.setText("查看领取详情>");
                 tvMore.setVisibility(View.VISIBLE);
-                tvInfo.setText("手慢了，红包已经派完");
+                tvInfo.setText("手慢了，红包派完了");
             }
         } else if (result == 3) {//已过期
             tvInfo.setText("红包已过期");
         } else if (result == 4) {//已领过
             tvInfo.setText("已领取" + UIUtils.getYuan(bean.getAmt()) + "元");
             tvMore.setEnabled(true);
-            tvMore.setText("查看红包详情");
+            tvMore.setText("查看领取详情>");
             tvMore.setVisibility(View.VISIBLE);
         }
     }
