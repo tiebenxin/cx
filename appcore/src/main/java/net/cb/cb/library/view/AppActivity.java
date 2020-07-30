@@ -15,12 +15,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import com.jrmf360.tools.utils.ThreadUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

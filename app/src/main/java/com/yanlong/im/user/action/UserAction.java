@@ -5,16 +5,12 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.google.gson.Gson;
 import com.hm.cxpay.global.PayEnvironment;
-import com.jrmf360.rplib.JrmfRpClient;
-import com.jrmf360.rplib.http.model.BaseModel;
-import com.jrmf360.tools.http.OkHttpModelCallBack;
+
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
-import com.yanlong.im.BuildConfig;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
@@ -619,7 +615,7 @@ public class UserAction {
         NetUtil.getNet().exec(server.getAllFriendsGet(), callback);
     }
 
-
+    @Deprecated
     private void upMyinfoToPay() {
         PayAction payAction = new PayAction();
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
@@ -630,17 +626,17 @@ public class UserAction {
                 if (response.body().isOk()) {
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-                    JrmfRpClient.updateUserInfo(myInfo.getUid() + "", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
-                        @Override
-                        public void onSuccess(BaseModel baseModel) {
-
-                        }
-
-                        @Override
-                        public void onFail(String s) {
-
-                        }
-                    });
+//                    JrmfRpClient.updateUserInfo(myInfo.getUid() + "", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
+//                        @Override
+//                        public void onSuccess(BaseModel baseModel) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onFail(String s) {
+//
+//                        }
+//                    });
 
 
                 }

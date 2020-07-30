@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityLogoutStepBinding;
 import com.yanlong.im.user.action.UserAction;
@@ -15,6 +14,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;

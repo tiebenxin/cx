@@ -14,16 +14,8 @@ import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
-import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.CxTransferBean;
-import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.UrlBean;
-import com.hm.cxpay.bean.UserBean;
-import com.hm.cxpay.dailog.DialogBalanceNoEnough;
-import com.hm.cxpay.dailog.DialogDefault;
-import com.hm.cxpay.dailog.DialogErrorPassword;
-import com.hm.cxpay.dailog.DialogInputTransferPassword;
-import com.hm.cxpay.dailog.DialogSelectPayStyle;
 import com.hm.cxpay.databinding.ActivityTransferBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.eventbus.TransferSuccessEvent;
@@ -34,13 +26,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.YiBaoWebActivity;
-import com.hm.cxpay.ui.bank.BankSettingActivity;
-import com.hm.cxpay.ui.bank.BindBankActivity;
-import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
-import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
-import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
-import com.jrmf360.tools.utils.ThreadUtil;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NumRangeInputFilter;
@@ -50,8 +36,6 @@ import net.cb.cb.library.view.ActionbarView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.List;
 
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;

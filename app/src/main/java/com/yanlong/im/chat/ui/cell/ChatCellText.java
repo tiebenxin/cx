@@ -22,7 +22,7 @@ import com.yanlong.im.chat.ui.view.YLinkMovementMethod;
 import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ScreenUtils;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
@@ -144,7 +144,7 @@ public class ChatCellText extends ChatCellBase {
     }
 
     private void updateWidth() {
-        int width = ScreenUtils.getScreenWidth(getContext());
+        int width = ScreenUtil.getScreenWidth(getContext());
         double maxWidth = 0.6 * width;
         if (maxWidth > 0 && tv_content != null) {
             tv_content.setMaxWidth((int) maxWidth);

@@ -38,11 +38,16 @@
     <dimen name="font_size18">18sp</dimen>
     <dimen name="font_size20">20sp</dimen>
 
+    <dimen name="dimen_1">1dp</dimen>
     <dimen name="dimen_my5">5dp</dimen>
     <dimen name="dimen_my10">10dp</dimen>
+    <dimen name="dimen_my12">12dp</dimen>
     <dimen name="dimen_my15">15dp</dimen>
+    <dimen name="dimen_16">16dp</dimen>
     <dimen name="dimen_my20">20dp</dimen>
     <dimen name="dimen_my25">25dp</dimen>
     <dimen name="dimen_my30">30dp</dimen>
+    <dimen name="dimen_50">50dp</dimen>
+    <dimen name="dimen_80">80dp</dimen>
 
 </resources>

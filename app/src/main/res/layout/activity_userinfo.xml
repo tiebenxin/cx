@@ -249,7 +249,7 @@
                 android:layout_marginTop="@dimen/app_margin_item_top"
                 android:paddingLeft="@dimen/app_margin_main"
                 android:textColor="@color/gray_300"
-                android:textSize="@dimen/dimen_12"
+                android:textSize="@dimen/dimen_my12"
                 android:text="禁言、领取零钱红包等权限设置"/>
         </LinearLayout>
 

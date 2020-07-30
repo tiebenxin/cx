@@ -18,9 +18,6 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.UIUtils;
-import com.jrmf360.rplib.JrmfRpClient;
-import com.jrmf360.rplib.bean.GrabRpBean;
-import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
@@ -34,11 +31,8 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.databinding.ActivityNoRedBagBinding;
 import com.yanlong.im.databinding.ItemNoRedbagBinding;
-import com.yanlong.im.pay.action.PayAction;
-import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -174,7 +168,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
     private void receiveEnvelope(MsgAllBean bean) {
         RedEnvelopeMessage message = bean.getRed_envelope();
         if (message.getRe_type() == 0) {//云红包
-            receiveMF(bean, message);
+//            receiveMF(bean, message);
         } else if (message.getRe_type() == 1) {//零钱红包
             if (!TextUtils.isEmpty(message.getAccessToken())) {
                 showEnvelopeDialog(message.getAccessToken(), message.getEnvelopStatus(), bean, message.getRe_type());
@@ -184,43 +178,43 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
         }
     }
 
-    private void receiveMF(MsgAllBean bean, RedEnvelopeMessage message) {
-        new PayAction().SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-
-                    GrabRpCallBack callBack = new GrabRpCallBack() {
-                        @Override
-                        public void grabRpResult(GrabRpBean grabRpBean) {
-                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
-                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
-                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-                                SocketData.send4RbRev(bean.getFrom_uid(), bean.getGid(), message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE);
-                                taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                                mViewAdapter.remove(bean);
-                                notifyRefreshChat();
-                            }
-                            if (envelopeStatus == 1 || envelopeStatus == 2 || envelopeStatus == 3) {
-                                taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                                mViewAdapter.remove(bean);
-                                notifyRefreshChat();
-                            }
-                        }
-                    };
-                    IUser minfo = UserAction.getMyInfo();
-                    JrmfRpClient.openGroupRp(NoRedBagActivity.this, "" + minfo.getUid(), token,
-                            minfo.getName(), minfo.getHead(), message.getId(), callBack);
-
-
-                }
-            }
-        });
-    }
+//    private void receiveMF(MsgAllBean bean, RedEnvelopeMessage message) {
+//        new PayAction().SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+//                if (response.body() == null)
+//                    return;
+//                if (response.body().isOk()) {
+//                    SignatureBean sign = response.body().getData();
+//                    String token = sign.getSign();
+//
+//                    GrabRpCallBack callBack = new GrabRpCallBack() {
+//                        @Override
+//                        public void grabRpResult(GrabRpBean grabRpBean) {
+//                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
+//                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
+//                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
+//                                SocketData.send4RbRev(bean.getFrom_uid(), bean.getGid(), message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE);
+//                                taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
+//                                mViewAdapter.remove(bean);
+//                                notifyRefreshChat();
+//                            }
+//                            if (envelopeStatus == 1 || envelopeStatus == 2 || envelopeStatus == 3) {
+//                                taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
+//                                mViewAdapter.remove(bean);
+//                                notifyRefreshChat();
+//                            }
+//                        }
+//                    };
+//                    IUser minfo = UserAction.getMyInfo();
+//                    JrmfRpClient.openGroupRp(NoRedBagActivity.this, "" + minfo.getUid(), token,
+//                            minfo.getName(), minfo.getHead(), message.getId(), callBack);
+//
+//
+//                }
+//            }
+//        });
+//    }
 
     private void showEnvelopeDialog(String token, int status, MsgAllBean msgBean, int reType) {
         DialogEnvelope dialogEnvelope = new DialogEnvelope(NoRedBagActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
