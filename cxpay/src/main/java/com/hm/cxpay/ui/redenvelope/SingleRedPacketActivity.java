@@ -48,7 +48,7 @@ import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 //发送单个红包界面
 public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
-    private String[] strings = {"红包记录", "取消"};
+    private String[] strings = {"查看零钱红包记录", "取消"};
     private PopupSelectView popupSelectView;
     private ActivitySingleRedPacketBinding ui;
     private long uid;
