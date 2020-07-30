@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -115,6 +116,8 @@ public class RechargeActivity extends AppActivity {
         tvQuestion = findViewById(R.id.tv_question);
         actionbar = headView.getActionbar();
         noticeDialog = new DialogCommon2(RechargeActivity.this);
+        //只能输入整数
+        etRecharge.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
     }
 
     private void initData() {

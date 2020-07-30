@@ -111,6 +111,7 @@ public class WithdrawActivity extends AppActivity {
         tvWithdrawAll = findViewById(R.id.tv_withdraw_all);
         actionbar = headView.getActionbar();
         tvSubmit.setEnabled(false);
+        etWithdraw.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
     }
 
     private void initData() {
@@ -213,8 +214,8 @@ public class WithdrawActivity extends AppActivity {
                             tvSubmit.setEnabled(false);
                         }
                     } else {
-                        ToastUtil.show(activity, "请输入正确格式的金额");
-                        etWithdraw.setText("");
+//                        ToastUtil.show(activity, "请输入正确格式的金额");
+//                        etWithdraw.setText("");
                         tvSubmit.setEnabled(false);
                     }
                 } else {
