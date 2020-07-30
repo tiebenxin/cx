@@ -175,7 +175,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     public void showBackNoticeDialog() {
         final DialogDefault dialogBack = new DialogDefault(this);
         dialogBack.setTitleAndSure(false, true)
-                .setContent("红包正在发送中，此时返回，将导致红包发送失败。如已扣款，将会在24小时内自动退回您的零钱账户", true)
+                .setContent("红包正在发送中，此时返回，将导致红包发送失败。如已扣款，将会在24小时内自动退回你的零钱账户", true)
                 .setLeft("取消").setRight("继续返回")
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override

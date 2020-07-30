@@ -214,7 +214,7 @@
                     android:layout_marginTop="3dp"
                     android:paddingLeft="@dimen/app_margin_main"
                     android:paddingRight="@dimen/app_margin_main"
-                    android:text="查看当前会话消息已读状态,如果关闭已读回执,您也将无法查看他人的消息已读回执" />
+                    android:text="查看当前会话消息已读状态,如果关闭已读回执,你也将无法查看他人的消息已读回执" />
 
 
                 <LinearLayout style="@style/app_layout_list2"
