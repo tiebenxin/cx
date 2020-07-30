@@ -130,7 +130,9 @@ public class YiBaoWebActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
+//        if (event.getResult() != 1) {//支付失败不返回
         YiBaoWebActivity.this.finish();
+//        }
     }
 
 
