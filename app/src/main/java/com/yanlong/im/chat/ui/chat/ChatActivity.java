@@ -4785,7 +4785,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void taskPayRb() {
         IUser info = UserAction.getMyInfo();
         if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
-            ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
+            ToastUtil.show(this, "你的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;
         }
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
@@ -5483,7 +5483,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.setCanceledOnTouchOutside(false);
         String time = TimeToString.getEnvelopeTime(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
-        String content = "您有一个" + time + " 金额为" + money + "的红包已扣款未发送成功,是否重新发送此红包？";
+        String content = "你有一个" + time + " 金额为" + money + "的红包已扣款未发送成功,是否重新发送此红包？";
         dialogCommon.setTitleAndSure(true, true)
                 .setTitle("温馨提示")
                 .setContent(content, false)
@@ -5517,7 +5517,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.setCanceledOnTouchOutside(false);
         String time = TimeToString.MM_DD_HH_MM2(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
-        String content = "您有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回云红包账户";
+        String content = "你有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回云红包账户";
         dialogCommon.setContent(content)
                 .setListener(new DialogEnvelopePast.IDialogListener() {
                     @Override

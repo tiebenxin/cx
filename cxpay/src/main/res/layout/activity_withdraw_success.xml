@@ -161,7 +161,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="提现失败后，资金将原路返回您的账户"
+            android:text="提现失败后，资金将原路返回你的账户"
             android:textColor="@color/c_868686"
             android:layout_below="@+id/tv_submit"
             android:layout_marginTop="20dp"

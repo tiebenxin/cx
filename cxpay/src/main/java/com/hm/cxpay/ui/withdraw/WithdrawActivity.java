@@ -232,7 +232,7 @@ public class WithdrawActivity extends AppActivity {
                     etWithdraw.setText(balanceValue + "");
                     etWithdraw.setSelection(etWithdraw.getText().length());
                 } else {
-                    ToastUtil.show(context, "您的可提现余额不足");
+                    ToastUtil.show(context, "你的可提现余额不足");
                 }
             }
         });
