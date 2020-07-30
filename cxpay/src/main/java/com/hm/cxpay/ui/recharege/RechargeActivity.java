@@ -104,6 +104,7 @@ public class RechargeActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
         tvBalance = findViewById(R.id.tv_balance);
         etRecharge = findViewById(R.id.et_recharge);
         tvSubmit = findViewById(R.id.tv_submit);

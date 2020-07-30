@@ -100,6 +100,8 @@ public class WithdrawActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
+        headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         layoutChangeBankcard = findViewById(R.id.layout_change_bankcard);
         etWithdraw = findViewById(R.id.et_withdraw);
         tvBalance = findViewById(R.id.tv_balance);
