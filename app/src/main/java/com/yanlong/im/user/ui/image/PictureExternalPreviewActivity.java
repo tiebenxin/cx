@@ -158,7 +158,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private void initViewPageAdapterData() {
         if (images != null && images.size() > 0) {
             tv_title.setText(position + 1 + "/" + images.size());
-            mAdapter = new AdapterPreviewImage(this, fromWhere,collectJson);
+            mAdapter = new AdapterPreviewImage(this, fromWhere, collectJson);
             mAdapter.setPopParentView(tv_title);
             mAdapter.bindData(images);
             viewPager.setAdapter(mAdapter);
@@ -176,7 +176,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 public void onPageSelected(int position) {
                     tv_title.setText(position + 1 + "/" + images.size());
                     indexPath = images.get(position).getPath();
-//                    this.position = position;
+                    PictureExternalPreviewActivity.this.position = position;
 
                 }
 
