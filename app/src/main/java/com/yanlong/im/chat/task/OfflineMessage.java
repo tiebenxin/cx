@@ -114,7 +114,7 @@ public class OfflineMessage extends DispatchMessage {
             result = true;
         } else {
             //收集gid和uid,用于最后更新session, 已读不需要更新Session时间
-            if (wrapMessage.getMsgType() != MsgBean.MessageType.READ) {
+            if (wrapMessage.getMsgType() != MsgBean.MessageType.READ && wrapMessage.getMsgType() != MsgBean.MessageType.REPORT_GEO_POSITION) {
                 collectBatchMessageGidAndUids(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
             }
         }
