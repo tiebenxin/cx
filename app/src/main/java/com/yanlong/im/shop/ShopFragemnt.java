@@ -14,8 +14,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
+import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -74,6 +77,7 @@ public class ShopFragemnt extends Fragment {
         activity = getActivity();
         builder = new CommonSelectDialog.Builder(activity);
         initContentWeb(webView);
+        CookieSyncManager.createInstance(activity.getApplicationContext());
     }
 
     private void initContentWeb(WebView webView) {
@@ -120,6 +124,17 @@ public class ShopFragemnt extends Fragment {
 
         @android.webkit.JavascriptInterface
         public void callAndroidMethod(String money) {
+            CookieManager cookieManager = CookieManager.getInstance();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.removeSessionCookies(null);
+                cookieManager.removeAllCookie();
+                cookieManager.flush();
+            } else {
+                cookieManager.removeSessionCookies(null);
+                cookieManager.removeAllCookie();
+                CookieSyncManager.getInstance().sync();
+            }
+            WebStorage.getInstance().deleteAllData(); //清空WebView的localStorage
             if (!TextUtils.isEmpty(money)) {
                 payMoney = money;
                 payStatus = "1";
