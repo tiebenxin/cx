@@ -105,6 +105,8 @@ public class BillDetailListActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
+        headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         recyclerView = findViewById(R.id.rc_list);
         noDataLayout = findViewById(R.id.no_data_layout);
         tvSelectDate = findViewById(R.id.tv_select_date);

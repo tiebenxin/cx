@@ -104,6 +104,7 @@ public class RechargeActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
         tvBalance = findViewById(R.id.tv_balance);
         etRecharge = findViewById(R.id.et_recharge);
         tvSubmit = findViewById(R.id.tv_submit);
@@ -384,11 +385,13 @@ public class RechargeActivity extends AppActivity {
             return;
         }
         if (requestCode == REQUEST_PAY) {
-            int result = data.getIntExtra(RESULT, 0);
-            if (result == 99) {
-                startActivity(new Intent(activity, RechargeSuccessActivity.class).putExtra("money", etRecharge.getText().toString()));
-            } else {
-                ToastUtil.show("充值失败");
+            if (resultCode == RESULT_OK) {
+                int result = data.getIntExtra(RESULT, 0);
+                if (result == 99) {
+                    startActivity(new Intent(activity, RechargeSuccessActivity.class).putExtra("money", etRecharge.getText().toString()));
+                } else {
+                    ToastUtil.show("充值失败");
+                }
             }
         }
     }

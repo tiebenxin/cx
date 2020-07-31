@@ -109,11 +109,11 @@ public class TransferActivity extends BasePayActivity {
                 eventTransferSuccess();
                 toTransferResult(money);
             } else if (event.getResult() == PayEnum.EPayResult.FAIL) {
-                if (!TextUtils.isEmpty(event.getErrMsg())) {
-                    ToastUtil.show(this, event.getErrMsg());
-                } else {
-                    ToastUtil.show(this, R.string.transfer_fail_note);
-                }
+//                if (!TextUtils.isEmpty(event.getErrMsg())) {
+//                    ToastUtil.show(this, event.getErrMsg());
+//                } else {
+//                    ToastUtil.show(this, R.string.transfer_fail_note);
+//                }
             } else {
                 ToastUtil.show(this, R.string.transfer_fail_note);
             }
@@ -122,6 +122,8 @@ public class TransferActivity extends BasePayActivity {
 
     private void initView() {
         UIUtils.loadAvatar(avatar, ui.ivAvatar);
+//        ui.headView.getActionbar().setChangeStyleBg();
+//        ui.headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         ui.tvName.setText(name);
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override

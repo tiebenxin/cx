@@ -46,6 +46,8 @@ public class TransferResultActivity extends BasePayActivity {
     }
 
     private void initView() {
+//        ui.headView.getActionbar().setChangeStyleBg();
+//        ui.headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         if (resultType == 1) {
             ui.tvStatus.setText("支付成功");
         } else {

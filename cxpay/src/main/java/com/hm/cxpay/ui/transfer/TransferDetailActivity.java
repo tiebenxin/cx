@@ -85,6 +85,8 @@ public class TransferDetailActivity extends BasePayActivity {
     }
 
     private void initView() {
+//        ui.headView.getActionbar().setChangeStyleBg();
+//        ui.headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

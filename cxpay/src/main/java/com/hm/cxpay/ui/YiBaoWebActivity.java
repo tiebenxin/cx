@@ -58,6 +58,8 @@ public class YiBaoWebActivity extends AppActivity {
         setContentView(R.layout.activity_webpage);
         EventBus.getDefault().register(this);
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
+        headView.getAppBarLayout().setBackgroundResource(com.hm.cxpay.R.color.c_c85749);
         actionbar = headView.getActionbar();
         webView = findViewById(R.id.webView);
         progressBar = findViewById(R.id.progressBar);
