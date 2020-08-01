@@ -116,7 +116,7 @@ public class OfflineMessage extends DispatchMessage {
             result = true;
         } else {
             //收集gid和uid,用于最后更新session, 已读不需要更新Session时间
-            if (wrapMessage.getMsgType() != MsgBean.MessageType.READ && wrapMessage.getMsgType() != MsgBean.MessageType.REPORT_GEO_POSITION&& wrapMessage.getMsgType() != MsgBean.MessageType.HISTORY_CLEAN) {
+            if (wrapMessage.getMsgType() != MsgBean.MessageType.READ && wrapMessage.getMsgType() != MsgBean.MessageType.REPORT_GEO_POSITION && wrapMessage.getMsgType() != MsgBean.MessageType.HISTORY_CLEAN) {
                 collectBatchMessageGidAndUids(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
             }
         }
@@ -201,6 +201,7 @@ public class OfflineMessage extends DispatchMessage {
                 if (currentRequestId != null) {
                     if (result) {
                         //全部保存成功，消息回执
+                        MessageManager.getInstance().setReceiveOffline(false);
                         LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
                         SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                         //在线，表示能回执成功，清除掉MsgId
@@ -208,6 +209,7 @@ public class OfflineMessage extends DispatchMessage {
                             mBatchSuccessMsgIds.clear();
                     } else if (!repository.hasValidOfflineMessage()) {
                         //无有效离线消息直接发送回执
+                        MessageManager.getInstance().setReceiveOffline(false);
                         LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
                         SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                     }
@@ -239,12 +241,13 @@ public class OfflineMessage extends DispatchMessage {
         boolean isReceivedOfflineCompleted = SocketData.isEnough(batchMsgCount);
         if (isReceivedOfflineCompleted) {//离线消息接收完了
             //清空双向清除数据
-            if (repository.historyCleanMsg.size() > 0) {
-                repository.historyCleanMsg.clear();
-            }
+//            if (repository.historyCleanMsg.size() > 0) {
+//                repository.historyCleanMsg.clear();
+//            }
             //更正离线已读消息-已读状态、未读数量、阅后即焚
             repository.updateOfflineReadMsg(realm);
-
+            //更新离线双向清除
+            repository.updateOfflineHistoryClearMsg(realm);
             if (isSuccess && SocketUtil.getSocketUtil().getOnLineState()) {
                 //有网，保存完成，且是最后一批离线，清除
                 //本次离线消息是否接收完成

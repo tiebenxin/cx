@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -152,6 +153,8 @@ public class MessageManager {
 
     //是否正在处理消息
     private boolean isDealingMsg = false;
+    //是否正在处理消息
+    private boolean isReceiveOffline = false;
 
 
     //取第一个添加的消息,并且移除
@@ -244,6 +247,7 @@ public class MessageManager {
             }
         } else {
             offlineMsgDispatch.dispatch(bean, null);
+            isReceiveOffline = true;
         }
     }
 
@@ -2493,6 +2497,15 @@ public class MessageManager {
             e.printStackTrace();
         }
         return messageList;
+    }
+
+    public boolean isReceivingOffline() {
+        return isReceiveOffline;
+    }
+
+    public void setReceiveOffline(boolean b) {
+        LogUtil.getLog().i(TAG, "接收离线状态改变--" + b);
+        isReceiveOffline = b;
     }
 
 }

@@ -260,6 +260,10 @@ public class MessageRepository {
                     //对方已读我发的消息
                     offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
                 } else {
+                    if (MessageManager.getInstance().isReceivingOffline()) {
+                        LogUtil.getLog().i(TAG, "接收离线时收到已读消息" + uids);
+                        offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                    }
                     localDataSource.updateFriendMsgReadAndSurvivalTime(realm, uids, wrapMessage.getTimestamp());
                 }
             }
@@ -276,6 +280,14 @@ public class MessageRepository {
                 else
                     offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
             } else { //同步自己PC端好友发送消息的已读状态和阅后即焚
+                if (MessageManager.getInstance().isReceivingOffline()) {
+                    LogUtil.getLog().i(TAG, "接收离线时收到已读消息--uid=" + uids + "--gid=" + gid);
+                    if (TextUtils.isEmpty(gid)) {//单聊
+                        offlineMySelfPCFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                    } else {
+                        offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
+                    }
+                }
                 localDataSource.updateReceivedMsgReadForPC(realm, gid, uids, wrapMessage.getTimestamp());
             }
         }
@@ -1147,5 +1159,25 @@ public class MessageRepository {
     //过滤撤销消息中只删除消息，不产生消息记录的消息
     private boolean filterDeleteCancel(long fromUid) {
         return fromUid == Constants.CX_HELPER_UID;
+    }
+
+    /**
+     * 更新离线双向清除消息
+     */
+    public void updateOfflineHistoryClearMsg(Realm realm) {
+        try {
+            if (historyCleanMsg.size() > 0) {
+                for (Long uid : historyCleanMsg.keySet()) {
+                    long timestamp = historyCleanMsg.get(uid);
+                    if (uid != null) {
+                        localDataSource.messageHistoryClean(realm, uid, timestamp);
+                        offlineUpdateSession(realm, null, uid);
+                    }
+                }
+            }
+            historyCleanMsg.clear();
+        } catch (Exception e) {
+        }
+
     }
 }
