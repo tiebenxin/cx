@@ -149,8 +149,10 @@ public interface UserServer {
     Call<ReturnBean> setUserPassword(@Field("newPassword") String newPassword, @Field("oldPassword") String oldPassword);
 
     @POST("user/get-user-matchphone")
-    @FormUrlEncoded
-    Call<ReturnBean<List<FriendInfoBean>>> getUserMatchPhone(@Field("@phoneList") String phoneList);
+    Call<ReturnBean<List<FriendInfoBean>>> getUserMatchPhone(@Body WeakHashMap<String, Object> params);
+
+    @POST("user/increment-contacts")
+    Call<ReturnBean<List<FriendInfoBean>>> getIncrementContacts(@Body WeakHashMap<String, Object> params);
 
     @POST("/pub/change-password-by-sms-captcha")
     @FormUrlEncoded

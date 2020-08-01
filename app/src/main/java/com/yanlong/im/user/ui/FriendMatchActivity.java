@@ -1,7 +1,9 @@
 package com.yanlong.im.user.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -17,19 +19,34 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
+import com.yanlong.im.chat.ui.groupmanager.SetupSysManagerActivity;
+import com.yanlong.im.databinding.ActivityFriendMatchBinding;
+import com.yanlong.im.databinding.ItemFriendMatchBindBinding;
+import com.yanlong.im.databinding.ItemSetupManagerBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AppActivity;
@@ -38,60 +55,48 @@ import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PySortView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class FriendMatchActivity extends AppActivity {
-    private HeadView headView;
-    private ActionbarView actionbar;
-    private MultiListView mtListView;
-    private ClearEditText mCeSearch;
+public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBinding> {
 
-    private PySortView viewType;
     private UserAction userAction;
     private PhoneListUtil phoneListUtil = new PhoneListUtil();
     private List<FriendInfoBean> tempData = new ArrayList<>();
     private List<FriendInfoBean> listData = new ArrayList<>();
     private List<FriendInfoBean> seacchData = new ArrayList<>();
     private RecyclerViewAdapter adapter;
-    private ProgressBar progressBar;//批次上传等待框
     private int numberLimit = 500;//通讯录上传数量限制，手机联系人数量超过这个数，则分批次上传，显示等待框，加载完成后等待框消失
     private int needUploadTimes = 0;//批次上传-需要上传的次数
     private int hadUploadTimes = 0;//批次上传-已经上传的次数
     private boolean ifSub = false;//是否存在批次上传
+    private boolean isFirstUpload = true;// 是否第一次匹配
     private List<List<PhoneBean>> subList;//批次上传-切割后的数据
 
+    private List<FriendInfoBean> recentFriends = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friend_match);
-        findViews();
-        initEvent();
-        initData();
+    protected int setView() {
+        return R.layout.activity_friend_match;
     }
 
-
-    //自动寻找控件
-    private void findViews() {
-        headView = findViewById(R.id.headView);
-        actionbar = headView.getActionbar();
-        mtListView = findViewById(R.id.mtListView);
-        viewType = findViewById(R.id.view_type);
-        mCeSearch = findViewById(R.id.ce_search);
-        progressBar = findViewById(R.id.pb_wait);
-        mCeSearch.setHint("输入联系人昵称搜索");
+    @Override
+    protected void init(Bundle savedInstanceState) {
+        bindingView.ceSearch.setHint("输入联系人昵称搜索");
     }
 
-
-    //自动生成的控件事件
-    private void initEvent() {
-        actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
+    @Override
+    protected void initEvent() {
+        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
                 onBackPressed();
@@ -103,15 +108,15 @@ public class FriendMatchActivity extends AppActivity {
             }
         });
         //联动
-        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
-        viewType.setListView(mtListView.getListView());
+        bindingView.viewType.setLinearLayoutManager(bindingView.mtListView.getLayoutManager());
+        bindingView.viewType.setListView(bindingView.mtListView.getListView());
         adapter = new RecyclerViewAdapter();
-        mtListView.init(adapter);
-        mtListView.getLoadView().setStateNormal();
-        mCeSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        bindingView.mtListView.init(adapter);
+        bindingView.mtListView.getLoadView().setStateNormal();
+        bindingView.ceSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                String name = mCeSearch.getText().toString();
+                String name = bindingView.ceSearch.getText().toString();
                 if (actionId == EditorInfo.IME_ACTION_SEND || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                     switch (event.getAction()) {
                         case KeyEvent.ACTION_DOWN:
@@ -123,7 +128,7 @@ public class FriendMatchActivity extends AppActivity {
             }
         });
 
-        mCeSearch.addTextChangedListener(new TextWatcher() {
+        bindingView.ceSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -134,7 +139,7 @@ public class FriendMatchActivity extends AppActivity {
                 String content = s.toString();
                 if (TextUtils.isEmpty(content)) {
                     adapter.setList(listData);
-                    mtListView.notifyDataSetChange();
+                    bindingView.mtListView.notifyDataSetChange();
                 }
             }
 
@@ -142,39 +147,61 @@ public class FriendMatchActivity extends AppActivity {
             public void afterTextChanged(Editable s) {
             }
         });
-
     }
 
-    private void initData() {
+    @Override
+    protected void loadData() {
+        isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, true);
+
         userAction = new UserAction();
-        //  alert.show("正在匹配中...", false);
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-                phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
-                    @Override
-                    public void onList(final List<PhoneBean> list) {
-                        if (list == null)
-                            return;
-                        //分批次上传请求
-                        if (list.size() > numberLimit){
-                            ifSub = true;
-                            progressBar.setVisibility(View.VISIBLE);
-                            subList = new ArrayList<>();
-                            subList.addAll(CommonUtils.subWithLen(list,numberLimit));//拆分成多个List按批次上传
-                            needUploadTimes = subList.size();
-                            taskUserMatchPhone(subList.get(hadUploadTimes));//默认先传第一部分
-                        }else {
-                            ifSub = false;
-                            progressBar.setVisibility(View.GONE);
-                            taskUserMatchPhone(list);
+        phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
+            @Override
+            public void onList(final List<PhoneBean> list) {
+                if (list == null)
+                    return;
+                //分批次上传请求
+                if (list.size() > numberLimit) {
+                    ifSub = true;
+                    bindingView.pbWait.setVisibility(View.VISIBLE);
+                    subList = new ArrayList<>();
+                    subList.addAll(CommonUtils.subWithLen(list, numberLimit));//拆分成多个List按批次上传
+                    needUploadTimes = subList.size();
+                    taskUserMatchPhone(subList.get(hadUploadTimes));//默认先传第一部分
+                } else {
+                    ifSub = false;
+                    bindingView.pbWait.setVisibility(View.GONE);
+                    taskUserMatchPhone(list);
+                }
+            }
+        });
+    }
+
+    private void filterData(List<FriendInfoBean> notFriendlist) {
+        try {
+            String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS, "");
+            List<FriendInfoBean> list;
+            recentFriends.clear();
+            if (!TextUtils.isEmpty(friends)) {
+                list = new Gson().fromJson(friends, new TypeToken<List<FriendInfoBean>>() {
+                }.getType());
+                if (list != null && list.size() > 0) {
+                    for (FriendInfoBean friendInfoBean : list) {
+                        for (int i = notFriendlist.size() - 1; i >= 0; i--) {
+                            if (friendInfoBean.getUid() != null && notFriendlist.get(i).getUid() != null &&
+                                    friendInfoBean.getUid().longValue() == notFriendlist.get(i).getUid().longValue()) {
+                                notFriendlist.get(i).setShowPinYin(true);
+                                recentFriends.add(notFriendlist.get(i));
+                                notFriendlist.remove(i);
+                                break;
+                            }
                         }
                     }
-                });
-//            }
-//        }).start();
-    }
+                }
+            }
+        } catch (Exception e) {
 
+        }
+    }
 
     public void searchName(String name) {
         if (!TextUtils.isEmpty(name)) {
@@ -185,10 +212,9 @@ public class FriendMatchActivity extends AppActivity {
                 }
             }
             adapter.setList(seacchData);
-            mtListView.notifyDataSetChange();
+            bindingView.mtListView.notifyDataSetChange();
         }
     }
-
 
     /***
      * 初始化
@@ -198,10 +224,10 @@ public class FriendMatchActivity extends AppActivity {
         Collections.sort(listData);
         //筛选
         for (int i = 0; i < listData.size(); i++) {
-            viewType.putTag(listData.get(i).getTag(), i);
+            bindingView.viewType.putTag(listData.get(i).getTag(), i);
         }
         // 添加存在用户的首字母列表
-        viewType.addItemView(UserUtil.friendParseString(listData));
+        bindingView.viewType.addItemView(UserUtil.friendParseString(listData));
     }
 
     @Override
@@ -209,7 +235,6 @@ public class FriendMatchActivity extends AppActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         phoneListUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -228,48 +253,40 @@ public class FriendMatchActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, final int position) {
+        public void onBindViewHolder(RCViewHolder holder, @SuppressLint("RecyclerView") int position) {
             final FriendInfoBean bean = list.get(position);
+            if (recentFriends != null && recentFriends.size() > 0 && position == 0) {
+                holder.tvMessge.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvMessge.setVisibility(View.GONE);
+            }
+            holder.txtType.setVisibility(bean.isShowPinYin() ? View.GONE : View.VISIBLE);
             holder.txtType.setText(bean.getTag());
-            //    holder.imgHead.setImageURI(bean.getAvatar() + "");
             Glide.with(context).load(bean.getAvatar())
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
             holder.txtName.setText(bean.getNickname());
             holder.txtRemark.setText("通讯录: " + bean.getPhoneremark());
-
-            if (position != 0) {
-                FriendInfoBean lastbean = list.get(position - 1);
-                if (lastbean.getTag().equals(bean.getTag())) {
-                    holder.viewType.setVisibility(View.GONE);
+            if (!bean.isShowPinYin()) {
+                if (position != 0) {
+                    FriendInfoBean lastbean = list.get(position - 1);
+                    if (lastbean.getTag().equals(bean.getTag())) {
+                        holder.viewType.setVisibility(View.GONE);
+                    } else {
+                        holder.viewType.setVisibility(View.VISIBLE);
+                    }
                 } else {
                     holder.viewType.setVisibility(View.VISIBLE);
                 }
-            } else {
-                holder.viewType.setVisibility(View.VISIBLE);
             }
 
             holder.btnAdd.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    AlertTouch alertTouch = new AlertTouch();
-                    alertTouch.init(FriendMatchActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
-                        @Override
-                        public void onON() {
-
-                        }
-
-                        @Override
-                        public void onYes(String content) {
-                            taskFriendApply(bean.getUid(), content, bean.getPhoneremark(), position);
-                        }
-                    });
-                    alertTouch.show();
-                    alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
-                    alertTouch.setEdHintOrSize(null, 60);
-
+                    if (!DoubleUtils.isFastDoubleClick()) {
+                        onAddFriend(bean, position);
+                    }
                 }
             });
         }
-
 
         //自动寻找ViewHold
         @Override
@@ -277,7 +294,6 @@ public class FriendMatchActivity extends AppActivity {
             RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_friend_match, view, false));
             return holder;
         }
-
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
@@ -287,6 +303,7 @@ public class FriendMatchActivity extends AppActivity {
             private TextView txtName;
             private Button btnAdd;
             private TextView txtRemark;
+            private TextView tvMessge;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -297,24 +314,54 @@ public class FriendMatchActivity extends AppActivity {
                 txtName = convertView.findViewById(R.id.txt_name);
                 btnAdd = convertView.findViewById(R.id.btn_add);
                 txtRemark = convertView.findViewById(R.id.txt_remark);
+                tvMessge = convertView.findViewById(R.id.tv_messge);
             }
         }
     }
 
+    private void onAddFriend(FriendInfoBean bean, @SuppressLint("RecyclerView") int position) {
+        AlertTouch alertTouch = new AlertTouch();
+        alertTouch.init(FriendMatchActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
+            @Override
+            public void onON() {
 
+            }
+
+            @Override
+            public void onYes(String content) {
+                taskFriendApply(bean.getUid(), content, bean.getPhoneremark(), position);
+            }
+        });
+        alertTouch.show();
+        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+        alertTouch.setEdHintOrSize(null, 60);
+    }
+
+    /**
+     * 通讯录匹配
+     *
+     * @param phoneList
+     */
     private void taskUserMatchPhone(List<PhoneBean> phoneList) {
-        userAction.getUserMatchPhone(new Gson().toJson(phoneList), new CallBack<ReturnBean<List<FriendInfoBean>>>() {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("phoneList", phoneList);
+        params.put("isFirst", isFirstUpload ? CoreEnum.ECheckType.YES : CoreEnum.ECheckType.NO);
+        userAction.getUserMatchPhone(params, new CallBack<ReturnBean<List<FriendInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
-                //  alert.dismiss();
                 if (response.body() == null) {
                     return;
                 }
                 if (response.body().isOk()) {
-                    listData.addAll(response.body().getData());
+                    // 不显示手机通讯录匹配红点标记
+                    SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, false);
+                    List<FriendInfoBean> friendInfoBeans = response.body().getData();
+                    listData.addAll(friendInfoBeans);
                     for (FriendInfoBean bean : listData) {
                         bean.toTag();
                     }
+                    // 把最近的数据把到另外一个集合
+                    filterData(friendInfoBeans);
                     //筛选
                     Collections.sort(listData, new Comparator<FriendInfoBean>() {
                         @Override
@@ -332,40 +379,54 @@ public class FriendMatchActivity extends AppActivity {
                         }
                     }
                     listData.addAll(tempData);
-                    adapter.setList(listData);
                     initViewTypeData();
+                    // 如果有数据就放到开始位置
+                    if (recentFriends != null && recentFriends.size() > 0) {
+                        listData.addAll(0, recentFriends);
+                    }
+                    adapter.setList(listData);
                     hadUploadTimes++;
-                    if(ifSub){
-                        if(hadUploadTimes == needUploadTimes){
+                    if (ifSub) {
+                        if (hadUploadTimes == needUploadTimes) {
                             if (listData == null || listData.size() == 0) {
                                 ToastUtil.show(context, "没有匹配的手机联系人");
                             }
-                            mtListView.notifyDataSetChange();
-                            progressBar.setVisibility(View.GONE);
-                        }else {
+                            bindingView.mtListView.notifyDataSetChange();
+                            bindingView.pbWait.setVisibility(View.GONE);
+                        } else {
                             taskUserMatchPhone(subList.get(hadUploadTimes));
                         }
-                    }else {
+                    } else {
                         if (listData == null || listData.size() == 0) {
                             ToastUtil.show(context, "没有匹配的手机联系人");
                         }
-                        mtListView.notifyDataSetChange();
+                        bindingView.mtListView.notifyDataSetChange();
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<FriendInfoBean>>> call, Throwable t) {
-//                alert.dismiss();
                 super.onFailure(call, t);
                 hadUploadTimes++;
-                if(ifSub){
-                    if(hadUploadTimes == needUploadTimes){
-                        progressBar.setVisibility(View.GONE);
+                if (ifSub) {
+                    if (hadUploadTimes == needUploadTimes) {
+                        bindingView.pbWait.setVisibility(View.GONE);
                     }
                 }
             }
         });
+    }
+
+    private void onDelete(Long uid) {
+        if (recentFriends != null && recentFriends.size() > 0) {
+            for (int i = recentFriends.size() - 1; i >= 0; i--) {
+                if (uid != null && uid.longValue() == recentFriends.get(i).getUid().longValue()) {
+                    recentFriends.remove(i);
+                    break;
+                }
+            }
+        }
     }
 
     private void taskFriendApply(final Long uid, String sayHi, String contactName, final int position) {
@@ -376,13 +437,9 @@ public class FriendMatchActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
+                    onDelete(uid);
                     listData.remove(position);
-                    mtListView.notifyDataSetChange();
-//                    EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
-//                    eventRefreshFriend.setUid(uid);
-//                    eventRefreshFriend.setLocal(false);
-//                    eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REQUEST_FRIEND);
-//                    EventBus.getDefault().post(eventRefreshFriend);
+                    bindingView.mtListView.notifyDataSetChange();
                 }
                 ToastUtil.show(FriendMatchActivity.this, response.body().getMsg());
             }

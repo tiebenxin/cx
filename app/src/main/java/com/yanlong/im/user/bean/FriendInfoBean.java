@@ -17,6 +17,7 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
     private int switchmask;
     private String alias;
     private String phoneremark;
+    private boolean isShowPinYin;
 
     public String getPhoneremark() {
         return phoneremark;
@@ -41,6 +42,14 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
     public void setNickname(String nickname) {
         this.nickname = nickname;
         toTag();
+    }
+
+    public boolean isShowPinYin() {
+        return isShowPinYin;
+    }
+
+    public void setShowPinYin(boolean showPinYin) {
+        isShowPinYin = showPinYin;
     }
 
     public Long getUid() {

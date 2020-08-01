@@ -781,8 +781,15 @@ public class UserAction {
     /**
      * 通讯录匹配
      */
-    public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
-        NetUtil.getNet().exec(server.getUserMatchPhone(phoneList), callback);
+    public void getUserMatchPhone(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.getUserMatchPhone(params), callback);
+    }
+
+    /**
+     * 通讯录匹配 增量
+     */
+    public void getIncrementContacts(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.getIncrementContacts(params), callback);
     }
 
     /**

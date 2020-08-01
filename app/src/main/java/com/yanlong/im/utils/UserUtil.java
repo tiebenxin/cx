@@ -1,10 +1,13 @@
 package com.yanlong.im.utils;
 
+import android.text.TextUtils;
+
 import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.CoreEnum;
@@ -132,5 +135,32 @@ public class UserUtil {
             isLockedstatus = true;
         }
         return isLockedstatus;
+    }
+
+    /**
+     * 获取新增加的联系人
+     *
+     * @param newList
+     * @param oldList
+     * @return
+     */
+    public static List<String> getNewContentsPhone(List<PhoneBean> newList, List<PhoneBean> oldList) {
+        List<String> tempList = new ArrayList<>();
+        boolean isFlg;
+        if (newList != null && oldList != null) {
+            for (PhoneBean newBean : newList) {
+                isFlg = false;
+                for (PhoneBean oldBean : oldList) {
+                    if (!TextUtils.isEmpty(newBean.getPhone()) && newBean.getPhone().equals(oldBean.getPhone())) {
+                        isFlg = true;
+                        break;
+                    }
+                }
+                if (!isFlg) {
+                    tempList.add(newBean.getPhone());
+                }
+            }
+        }
+        return tempList;
     }
 }

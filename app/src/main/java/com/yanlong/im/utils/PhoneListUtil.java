@@ -153,6 +153,54 @@ public class PhoneListUtil {
         }
     }
 
+    public List<PhoneBean> getContacts(Context context) {
+        Cursor contactsCursor = null;
+        //联系人集合
+        List<PhoneBean> data = new ArrayList<>();
+        try {
+            ContentResolver resolver = context.getContentResolver();
+            //搜索字段
+            String[] projection = new String[]{
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.Contacts.DISPLAY_NAME};
+            // 获取手机联系人
+            contactsCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    projection, null, null, null);
+            if (contactsCursor != null) {
+                //key: contactId,value: 该contactId在联系人集合data的index
+                Map<Integer, Integer> contactIdMap = new HashMap<>();
+                while (contactsCursor.moveToNext()) {
+                    //获取联系人的ID
+                    int contactId = contactsCursor.getInt(0);
+                    //获取联系人的姓名
+                    String name = contactsCursor.getString(2);
+                    //获取联系人的号码
+                    String phoneNumber = contactsCursor.getString(1);
+                    //号码处理
+                    String replace = "";
+                    if (!TextUtils.isEmpty(phoneNumber)) {
+                        replace = phoneNumber.replace(" ", "").replace("-", "").replace("+", "");
+                    }
+                    //如果联系人Map不包含该contactId
+                    PhoneBean contacts = new PhoneBean();
+                    contacts.setName(name);
+                    contacts.setPhone(replace);
+                    data.add(contacts);
+                    contactIdMap.put(contactId, data.size() - 1);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (contactsCursor != null) {
+                contactsCursor.close();
+            }
+        }
+        return data;
+    }
+
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         CheckPermissionUtils.checkPermissionResult(new CheckPermissionUtils.OnHasGetPermissionListener() {
