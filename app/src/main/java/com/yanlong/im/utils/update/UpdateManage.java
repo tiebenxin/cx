@@ -331,6 +331,7 @@ public class UpdateManage {
                     break;
                 case COMPLETE:
                     String path = (String) msg.obj;
+//                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.LAST_INSTALL_APK_PATH).saveString("apk_path",path);//如果下载完成则保存apk地址
                     installAppUtil = new InstallAppUtil();
                     installAppUtil.install(activity, path);
                     if (dialog != null) {

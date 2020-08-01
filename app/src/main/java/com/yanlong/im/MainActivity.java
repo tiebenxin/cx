@@ -106,6 +106,7 @@ import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -143,6 +144,7 @@ import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.LAST_INSTALL_APK_PATH;
 import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 
@@ -270,6 +272,11 @@ public class MainActivity extends AppActivity {
         super.onStart();
         if (isCreate) {
             LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
+//            if(FileUtils.fileIsExist(new SharedPreferencesUtil(LAST_INSTALL_APK_PATH).getString("apk_path"))){
+//
+//            }else {
+//
+//            }
             uploadApp();
             checkRosters();
             checkNeteaseLogin();
