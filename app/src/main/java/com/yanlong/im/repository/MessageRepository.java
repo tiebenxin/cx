@@ -1029,7 +1029,7 @@ public class MessageRepository {
                 }
                 //非自己发过来的消息，才存储为未读状态
                 if (!isFromSelf) {
-                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), null);
+                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid());
                     localDataSource.updateSessionRead(realm, msgAllBean.getGid(), friendUid, canChangeUnread, msgAllBean);
                 } else {
                     //自己PC 端发的消息刷新session

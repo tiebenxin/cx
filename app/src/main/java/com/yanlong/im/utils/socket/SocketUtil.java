@@ -331,7 +331,7 @@ public class SocketUtil {
         } finally {
             socketChannel = null;
         }
-        LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
+        LogUtil.getLog().d(TAG, "连接LOG >>>>关闭连接 1------time=" + System.currentTimeMillis());
         LogUtil.writeLog(TAG + "--连接LOG--" + "关闭连接");
 
     }
@@ -354,7 +354,7 @@ public class SocketUtil {
         } finally {
             socketChannel = null;
         }
-        LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
+        LogUtil.getLog().d(TAG, "连接LOG >>>>关闭连接 2---------time=" + System.currentTimeMillis());
     }
 
 
@@ -577,30 +577,31 @@ public class SocketUtil {
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
 
-        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "\n\n");
+        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
-            LogUtil.getLog().d(TAG, ">>>链接中");
+            LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
             long ttime = System.currentTimeMillis();
-            while (!socketChannel.finishConnect()) {
-                //在等待连接的时间里,为什么睡眠200ms？？？？？
-                //TODO：取消线程睡眠。2020.5.12
+            try {
+                while (!socketChannel.finishConnect()) {
+                    //在等待连接的时间里,为什么睡眠200ms？？？？？
+                    //TODO：取消线程睡眠。2020.5.12
 //                Thread.sleep(200);
-                long connTime = System.currentTimeMillis() - ttime;
-                if (connTime > 2 * 1000) {
-                    LogUtil.getLog().d(TAG, ">>>链接中超时");
-                    break;
+                    long connTime = System.currentTimeMillis() - ttime;
+                    if (connTime > 2 * 1000) {
+                        LogUtil.getLog().d(TAG, ">>>链接中超时");
+                        break;
+                    }
                 }
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime));
+
+            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
             if (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();
             }
-
-
-            //----------------------------------------------------
 
             //3.
             long ctime = System.currentTimeMillis();
@@ -832,8 +833,7 @@ public class SocketUtil {
                     testindex++;
                     break;
                 case AUTH:
-
-                    LogUtil.getLog().i(TAG, ">>>-----<收到鉴权");
+                    LogUtil.getLog().i(TAG, "连接LOG >>>-----<收到鉴权" + "--time=" + System.currentTimeMillis());
                     TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-成功鉴权");
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
                     LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());

@@ -6200,7 +6200,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     public final void updateMsgUnread(int num) {
-        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
+        LogUtil.getLog().i("ChatActivity", "未读数：" + num);
         if (num > 99) {
             actionbar.setTxtLeft("99+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
         } else if (num > 0 && num <= 99) {

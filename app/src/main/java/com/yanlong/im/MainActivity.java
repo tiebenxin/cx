@@ -771,7 +771,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i("TAG", ">>>>EventRunState:" + event.getRun());
+        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
         if (event.getRun()) {
             startChatServer();
         } else {
