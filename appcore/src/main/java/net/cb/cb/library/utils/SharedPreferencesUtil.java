@@ -40,8 +40,7 @@ public class SharedPreferencesUtil {
         BANK_SIGN("bank_sign"),//银行签名
         POST_LOCATION_TIME("post_location_time"),//最近一次上传地理位置定位的时间
         IGNORE_UPDATE_VERSION("ignore_update_version"),//非强制更新-用户选择忽略的版本号(取消后此次版本不再提示)
-        GUESS_YOU_LIKE("guess_you_like"),//猜你要发送的图片，缓存展示过的图片url，不再重复展示
-        LAST_INSTALL_APK_PATH("last_install_apk_path");//最新更新版本后apk的下载保存地址
+        GUESS_YOU_LIKE("guess_you_like");//猜你要发送的图片，缓存展示过的图片url，不再重复展示
 
 
         private String name;
@@ -122,6 +121,24 @@ public class SharedPreferencesUtil {
      */
     public String getString(String key) {
         return sharedPreferences.getString(key,"");//默认值
+    }
+
+    /**
+     * 保存boolean类型的值
+     * @param key
+     * @param value
+     */
+    public void saveBoolean(String key, boolean value) {
+        spEdit.putBoolean(key, value);
+        spEdit.commit();
+    }
+
+    /**
+     * 获取boolean类型的值
+     * @param key
+     */
+    public boolean getBoolean(String key) {
+        return sharedPreferences.getBoolean(key,false);//默认值
     }
 
 

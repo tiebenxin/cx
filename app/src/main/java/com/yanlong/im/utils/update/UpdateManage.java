@@ -53,6 +53,7 @@ public class UpdateManage {
 
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//通用提示选择弹框：4G数据流量情况下是否确认更新
+    private String newVersion = "";//新版本号
 
     public UpdateManage(Context context, Activity activity) {
         this.context = context;
@@ -114,6 +115,7 @@ public class UpdateManage {
         if (check(versions)) {
             updateURL = url;
             dialog = new UpdateAppDialog();
+            newVersion = versions;
             dialog.init(activity, versions, content, new UpdateAppDialog.Event() {
                 @Override
                 public void onON() {
@@ -230,19 +232,19 @@ public class UpdateManage {
 
     private File getFile() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         return file;
     }
 
     private long getFileStart() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         return file.length();
     }
 
     private File clearApk() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         if (file.exists()) {
             file.delete();
         }
@@ -331,7 +333,6 @@ public class UpdateManage {
                     break;
                 case COMPLETE:
                     String path = (String) msg.obj;
-//                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.LAST_INSTALL_APK_PATH).saveString("apk_path",path);//如果下载完成则保存apk地址
                     installAppUtil = new InstallAppUtil();
                     installAppUtil.install(activity, path);
                     if (dialog != null) {
