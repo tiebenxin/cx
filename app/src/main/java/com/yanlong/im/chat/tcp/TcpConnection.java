@@ -50,7 +50,7 @@ public class TcpConnection implements Connection {
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                LogUtil.getLog().d(TAG, ">>>>>网路状态改变" + NetUtil.isNetworkConnected());
+                LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
                 if (NetUtil.isNetworkConnected()) {//链接成功
                     if (!isRunning) {
                         startConnect(from);
