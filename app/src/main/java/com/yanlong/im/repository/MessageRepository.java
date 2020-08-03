@@ -3,8 +3,11 @@ package com.yanlong.im.repository;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.common.base.Function;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -18,6 +21,8 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.data.local.MessageLocalDataSource;
 import com.yanlong.im.data.remote.MessageRemoteDataSource;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -34,6 +39,7 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -863,6 +869,41 @@ public class MessageRepository {
     }
 
     /**
+     * 好友推荐消息
+     *
+     * @param wrapMessage
+     * @param realm
+     * @return
+     */
+    public void handlerRecentFriends(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+        try {
+            MsgBean.RecommendMessage recommendMessage = wrapMessage.getRecommend();
+            if (recommendMessage != null) {
+                // 显示手机通讯录匹配红点标记
+                SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_NEW, true);
+                String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS, "");
+                List<FriendInfoBean> list = new ArrayList<>();
+                Gson gson = new Gson();
+                if (TextUtils.isEmpty(friends)) {
+                    FriendInfoBean friendInfoBean = new FriendInfoBean();
+                    friendInfoBean.setUid(recommendMessage.getUid());
+                    list.add(friendInfoBean);
+                    SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+                } else {
+                    list.addAll(gson.fromJson(friends, new TypeToken<List<FriendInfoBean>>() {
+                    }.getType()));
+                    FriendInfoBean friendInfoBean = new FriendInfoBean();
+                    friendInfoBean.setUid(recommendMessage.getUid());
+                    list.add(friendInfoBean);
+                    SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    /**
      * 接受成为好友,需要产生消息后面在处理
      *
      * @param wrapMessage
@@ -988,7 +1029,7 @@ public class MessageRepository {
                 }
                 //非自己发过来的消息，才存储为未读状态
                 if (!isFromSelf) {
-                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), null);
+                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid());
                     localDataSource.updateSessionRead(realm, msgAllBean.getGid(), friendUid, canChangeUnread, msgAllBean);
                 } else {
                     //自己PC 端发的消息刷新session

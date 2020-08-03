@@ -61,6 +61,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     static final int EDGE_LEFT = 0;
     static final int EDGE_RIGHT = 1;
     static final int EDGE_BOTH = 2;
+    protected static final float FLIP_DISTANCE = 50;
 
     static int SINGLE_TOUCH = 1;
 
@@ -72,6 +73,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     private boolean mBlockParentIntercept = false;
     private boolean isOrigin = false;
     private boolean isGif = false;
+    private int downY;
 
     private static void checkZoomLevels(float minZoom, float midZoom,
                                         float maxZoom) {
@@ -496,7 +498,6 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     @Override
     public boolean onTouch(View v, MotionEvent ev) {
         boolean handled = false;
-
         if (mZoomEnabled && hasDrawable((ImageView) v)) {
             ViewParent parent = v.getParent();
             switch (ev.getAction()) {
@@ -508,7 +509,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                     } else {
                         LogManager.getLogger().i(LOG_TAG, "onTouch getParent() returned null");
                     }
-
+                    downY = (int) ev.getY();
                     // If we're flinging, and the user presses down, cancel
                     // fling
                     cancelFling();
@@ -524,6 +525,12 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                             v.post(new AnimatedZoomRunnable(getScale(), mMinScale,
                                     rect.centerX(), rect.centerY()));
                             handled = true;
+                        }
+                    }
+                    int upY = (int) ev.getY();
+                    if (upY - downY > FLIP_DISTANCE) {
+                        if (mViewTapListener != null) {
+                            mViewTapListener.onViewTap(v, ev.getX(), ev.getY());
                         }
                     }
                     break;
@@ -551,6 +558,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
 
         return handled;
     }
+
 
     @Override
     public void setAllowParentInterceptOnEdge(boolean allow) {

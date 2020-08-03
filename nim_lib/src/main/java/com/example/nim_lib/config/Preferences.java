@@ -42,4 +42,10 @@ public class Preferences {
     public static final String FACE_SERVER_PATH = "face_server_path";
 
     public static final String USER_STATUS = "user_status";
+
+    public static final String CONTENTS_PHONE = "location_contents_phones";
+
+    public static final String IS_FIRST_UPLOAD_PHONE = "is_first_upload_phone";
+    public static final String RECENT_FRIENDS_NEW = "recent_friends_new";
+    public static final String RECENT_FRIENDS_UIDS = "recent_friends_uids";
 }
