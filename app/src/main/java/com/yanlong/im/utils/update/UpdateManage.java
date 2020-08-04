@@ -103,11 +103,12 @@ public class UpdateManage {
      * @param content 更新内容
      * @param url
      * @param isEnforcement 是否强制更新
-     * @param fromMainActivity 是否来自主页 (MainActivity则不再弹框提示用户忽略的版本，AboutAsActivity仍然允许点击唤起更新弹框)
+     * @param allowIgnore 非强制更新->用户点取消->是否允许忽略此次更新
+     *                    (MainActivity/SelectLoginActivity/LoginActivity则不再弹框，AboutAsActivity仍然允许点击唤起更新弹框)
      */
-    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean fromMainActivity) {
+    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean allowIgnore) {
         //如果是用户忽略的版本，则不再弹框提示
-        if(fromMainActivity){
+        if(allowIgnore){
             if(versions.equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))){
                 return;
             }
