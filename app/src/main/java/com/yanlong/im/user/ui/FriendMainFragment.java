@@ -18,6 +18,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -83,7 +84,7 @@ public class FriendMainFragment extends Fragment {
         //MainActivity的viewModel
         viewModel = new FriendViewModel();
         //显示右侧字母
-        if(viewModel.getFriends()!=null &&viewModel.getFriends().isLoaded())
+        if (viewModel.getFriends() != null && viewModel.getFriends().isLoaded())
             viewType.addItemView(userParseString());
         initEvent();
     }
@@ -134,11 +135,11 @@ public class FriendMainFragment extends Fragment {
             RealmResults<UserInfo> friends = viewModel.getFriends();
             //数据库中存储的是Z1，便于排序
             if (friends != null) {
-                for (int i = 0; i <  friends.size(); i++) {
-                    String tag =  friends.get(i).getTag();
+                for (int i = 0; i < friends.size(); i++) {
+                    String tag = friends.get(i).getTag();
                     list.add(tag);
                     //默认第一项是头部，这里位置得+1
-                    viewType.putTag(tag, i+1);
+                    viewType.putTag(tag, i + 1);
                 }
             }
         } catch (Exception e) {
@@ -176,7 +177,8 @@ public class FriendMainFragment extends Fragment {
 
             @Override
             public void onLoadMore() {
-                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.loadMoreFriends();
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.loadMoreFriends();
             }
 
             @Override
@@ -276,9 +278,10 @@ public class FriendMainFragment extends Fragment {
         }
     }
 
+    //是否tcp已经连接成功，避免抢占TCP网络资源
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRefreshOnlineStatus(EventRunState event) {
-        if (event.getRun()) {
+    public void eventRefreshOnlineStatus(EventOnlineStatus event) {
+        if (event.isOn()) {
             viewModel.requestUsersOnlineStatus();
         }
     }
