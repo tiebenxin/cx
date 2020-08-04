@@ -799,7 +799,7 @@ public class SocketData {
     }
 
 
-    public static MsgCancel createCancelMsg(MsgAllBean cancelMsg,long myUid) {
+    public static MsgCancel createCancelMsg(MsgAllBean cancelMsg,long myUid,int myType) {
         if (cancelMsg == null) {
             return null;
         }
@@ -824,6 +824,7 @@ public class SocketData {
         cancel.setMsgidCancel(cancelMsg.getMsg_id());
         cancel.setTime(cancelMsg.getTimestamp());
         cancel.setUid(cancelMsg.getFrom_uid());//被撤回的消息来源于哪个用户的uid
+        cancel.setRole(myType);
         return cancel;
     }
     /*
@@ -1910,9 +1911,9 @@ public class SocketData {
                         MsgCancel cancel = bean.getMsgCancel();
                         MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
                         cancelBuilder.setMsgId(cancel.getMsgidCancel());
-                        if(cancel.getUid()!=null){
-                            cancelBuilder.setUid(cancel.getUid());
-                        }
+                        cancelBuilder.setUid(cancel.getUid()!=null? cancel.getUid().longValue():0L);
+                        MsgBean.CancelMessage.Role role = MsgBean.CancelMessage.Role.forNumber(cancel.getRole());
+                        cancelBuilder.setRole(role);
                         value = cancelBuilder.build();
                         type = MsgBean.MessageType.CANCEL;
                         needSave = false;

@@ -638,6 +638,7 @@ public class MsgConversionBean {
                 msgCel.setMsgid(msgAllBean.getMsg_id());
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
                 msgCel.setUid(bean.getCancel().getUid());
+                msgCel.setRole(bean.getCancel().getRoleValue());
                 // 查出本地数据库的消息
                 MsgAllBean msgAllBean1 = msgDao.getMsgById(bean.getMsgId());
                 if (msgAllBean1 != null) {

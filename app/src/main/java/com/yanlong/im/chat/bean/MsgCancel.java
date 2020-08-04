@@ -14,6 +14,7 @@ public class MsgCancel extends RealmObject implements IMsgContent {
     private String cancelContent;// 撤回内容
     private Integer cancelContentType;// 撤回内容类型
     private Integer msgType = MSG_TYPE_DEFAULT;
+    private int role;//1群主 2群管理
 
     @Ignore
     private long time;//源撤销消息时间
@@ -81,5 +82,13 @@ public class MsgCancel extends RealmObject implements IMsgContent {
 
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
     }
 }

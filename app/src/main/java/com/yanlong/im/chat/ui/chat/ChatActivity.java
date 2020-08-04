@@ -4288,7 +4288,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void onRecall(final MsgAllBean msgBean) {
         int position = mAdapter.getPosition(msgBean);
-        MsgCancel cancel = SocketData.createCancelMsg(msgBean,UserAction.getMyId().longValue());
+        int myType = 0;//我的身份
+        if(isAdmin()){
+            myType = 1;
+        }else if(isAdministrators()){
+            myType = 2;
+        }
+        MsgCancel cancel = SocketData.createCancelMsg(msgBean,UserAction.getMyId().longValue(),myType);
         if (cancel != null) {
             sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
         }

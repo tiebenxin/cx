@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.PatternUtil;
+import com.yanlong.im.utils.socket.MsgBean;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,20 +109,26 @@ public class ChatCellNotice extends ChatCellBase {
                     if(message.getMsgCancel().getUid()==null || message.getMsgCancel().getUid().longValue()==0L || message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()){
                         tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
                     }else {
-                        //A撤回了B的消息，携带被撤回人的uid
-                        if(msgDao==null){
-                            msgDao = new MsgDao();
-                        }
-                        Group groupInfo = msgDao.getGroup4Id(message.getGid());
-                        //还要显示群主或管理员身份，根据逻辑来看，如果A用户拥有撤销其他人的消息权限，则不是群主就是管理员
-                        if(groupInfo!=null){
-                            if(!TextUtils.isEmpty(groupInfo.getMaster()) && groupInfo.getMaster().equals(message.getFrom_uid()+"")){
-                                tv_content.setText("群主"+message.getMsgCancel().getNote());
-                            }else {
-                                tv_content.setText("管理员"+message.getMsgCancel().getNote());
-                            }
-                        }else {
-                            tv_content.setText(message.getMsgCancel().getNote());//若查不出群身份就不显示
+//                        //A撤回了B的消息，携带被撤回人的uid
+//                        if(msgDao==null){
+//                            msgDao = new MsgDao();
+//                        }
+//                        Group groupInfo = msgDao.getGroup4Id(message.getGid());
+//                        //还要显示群主或管理员身份，根据逻辑来看，如果A用户拥有撤销其他人的消息权限，则不是群主就是管理员
+//                        if(groupInfo!=null){
+//                            if(!TextUtils.isEmpty(groupInfo.getMaster()) && groupInfo.getMaster().equals(message.getFrom_uid()+"")){
+//                                tv_content.setText("群主"+message.getMsgCancel().getNote());
+//                            }else {
+//                                tv_content.setText("管理员"+message.getMsgCancel().getNote());
+//                            }
+//                        }else {
+//                            tv_content.setText(message.getMsgCancel().getNote());//若查不出群身份就不显示
+//                        }
+//                    }
+                        if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE) {
+                            tv_content.setText("群主" + message.getMsgCancel().getNote());
+                        } else {
+                            tv_content.setText("管理员" + message.getMsgCancel().getNote());
                         }
                     }
                 }
