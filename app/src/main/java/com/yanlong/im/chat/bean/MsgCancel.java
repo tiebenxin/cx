@@ -8,7 +8,7 @@ public class MsgCancel extends RealmObject implements IMsgContent {
     public static final int MSG_TYPE_DEFAULT = 7897;
     @PrimaryKey
     private String msgid;
-    private Long uid;
+    private Long uid;//被撤回人的uid(原来就有这个字段，证实一直没使用)
     private String note;
     private String msgidCancel;//被撤回消息的id
     private String cancelContent;// 撤回内容

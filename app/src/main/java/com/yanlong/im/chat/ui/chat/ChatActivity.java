@@ -415,6 +415,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private long currentTradeId;
     private String searchKey;
 
+    private boolean showCancel = false;//长按气泡是否显示撤回选项
+    private boolean timeLimit = true;//这条消息撤回是否有2分钟时间限制
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2406,6 +2409,33 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
+     * 根据uid判断别人是否为群主或管理员
+     * @param uid
+     * @return 主要用于撤回消息的权限
+     */
+    private boolean isHeAdmins(Long uid) {
+        if(mViewModel.groupInfo != null){
+            //若没有群主
+            if(!StringUtil.isNotNull(mViewModel.groupInfo.getMaster())){
+                return false;
+            }else {
+                if(mViewModel.groupInfo.getMaster().equals("" + uid)){
+                    return true;
+                }else {
+                    if(mViewModel.groupInfo.getViceAdmins() != null && mViewModel.groupInfo.getViceAdmins().size() > 0) {
+                        for (Long user : mViewModel.groupInfo.getViceAdmins()) {
+                            if (user.equals(uid)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 进入音视频通话
      *
      * @param aVChatType
@@ -4032,8 +4062,50 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
-            if (!isGroupBanCancel()) {
+            if(isGroup()){
+                //如果是群聊，先确保该消息类型允许被撤回，状态正常
+                if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() == ChatEnum.EGroupStatus.NORMAL && !filterCancel(msgAllBean.getMsg_type()) && !isAtBanedCancel(msgAllBean)) {
+                    //如果我是群主，可撤回所有消息，无时间限制
+                    if(isAdmin()){
+                        showCancel = true;
+                        timeLimit = false;
+                    }else if(isAdministrators()){
+                        //如果我是群管理，且这条消息是自己发的，允许撤回，默认有时间限制
+                        if(msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()){
+                            showCancel = true;
+                            timeLimit = true;
+                        }else {
+                            //如果这条消息为除自己以外，其他群管理/群主发的，则无权撤回其他管理层的消息；如果是普通群员的消息，我可以任意时间撤回
+                            if(isHeAdmins(msgAllBean.getFrom_uid())){
+                                showCancel = false;
+                            }else {
+                                showCancel = true;
+                                timeLimit = false;
+                            }
+                        }
+                    }else {
+                        //如果我是普通群员，且这条消息是自己发的，允许撤回，默认有时间限制
+                        if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                            showCancel = true;
+                            timeLimit = true;
+                        }else {
+                            showCancel = false;
+                        }
+                    }
+                }
+            }else {
+                //单聊旧逻辑不变
                 if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && !filterCancel(msgAllBean.getMsg_type()) && !isAtBanedCancel(msgAllBean)) {
+                    showCancel = true;
+                    timeLimit = true;
+                }else {
+                    showCancel = false;
+                }
+            }
+            //展示撤回选项逻辑
+            if(showCancel){
+                //是否有2分钟限制
+                if(timeLimit){
                     if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                         boolean isExist = false;
                         for (OptionMenu optionMenu : menus) {
@@ -4041,10 +4113,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 isExist = true;
                             }
                         }
-
                         if (!isExist) {
                             menus.add(new OptionMenu("撤回"));
                         }
+                    }
+                }else {
+                    boolean isExist = false;
+                    for (OptionMenu optionMenu : menus) {
+                        if (optionMenu.getTitle().equals("撤回")) {
+                            isExist = true;
+                        }
+                    }
+                    if (!isExist) {
+                        menus.add(new OptionMenu("撤回"));
                     }
                 }
             }
@@ -4207,7 +4288,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void onRecall(final MsgAllBean msgBean) {
         int position = mAdapter.getPosition(msgBean);
-        MsgCancel cancel = SocketData.createCancelMsg(msgBean);
+        MsgCancel cancel = SocketData.createCancelMsg(msgBean,UserAction.getMyId().longValue());
         if (cancel != null) {
             sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
         }
@@ -6121,14 +6202,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //群聊是否可以cancel
-    private boolean isGroupBanCancel() {
-        if (isGroup()) {
-            if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean isGroupBanCancel() {
+//        if (isGroup()) {
+//            if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public void showLockDialog() {
         LockDialog lockDialog = new LockDialog(this, R.style.MyDialogNoFadedTheme);

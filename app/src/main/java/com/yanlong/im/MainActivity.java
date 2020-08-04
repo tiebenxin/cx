@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.IntDef;
@@ -93,6 +94,7 @@ import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
+import com.yanlong.im.utils.update.UpdateAppDialog;
 import com.yanlong.im.utils.update.UpdateManage;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
@@ -119,6 +121,8 @@ import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermissionUtils;
+import net.cb.cb.library.utils.FileUtils;
+import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -199,6 +203,8 @@ public class MainActivity extends AppActivity {
     private int currentTab = EMainTab.MSG;
     private long firstPressTime = 0;//第一次双击时间
     private boolean isFromLogin;
+    private InstallAppUtil installAppUtil;
+    private UpdateAppDialog dialog;
 
 
     @Override
@@ -285,13 +291,13 @@ public class MainActivity extends AppActivity {
         super.onStart();
         if (isCreate) {
             LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
-            uploadApp();
             checkRosters();
             checkNeteaseLogin();
             checkPermission();
             initLocation();
             FileManager.getInstance().clearLogDir();
         }
+        uploadApp();
 
     }
 
@@ -1017,31 +1023,66 @@ public class MainActivity extends AppActivity {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
-                    //强制更新
-                    if (bean.getForceUpdate() != 0) {
-                        //有最低不需要强制升级版本
-                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                        }
-                    } else {
-                        //缓存最新版本
-                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                        VersionBean versionBean = new VersionBean();
-                        versionBean.setVersion(bean.getVersion());
-                        preferencesUtil.save2Json(versionBean);
-                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                            //如有新版本，首页底部提示红点
-                            if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
-                                if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                    sbme.setNum(1, true);
+                    //判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
+                    if(!TextUtils.isEmpty(bean.getVersion())){
+                        if(FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk") ){
+                            if(dialog==null){
+                                dialog = new UpdateAppDialog();
+                                dialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
+                                    @Override
+                                    public void onON() {
+
+                                    }
+
+                                    @Override
+                                    public void onUpdate() {
+
+                                    }
+
+                                    @Override
+                                    public void onInstall() {
+                                        if(installAppUtil==null){
+                                            installAppUtil = new InstallAppUtil();
+                                        }
+                                        installAppUtil.install(MainActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk");
+                                    }
+                                });
+                                dialog.downloadComplete();
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))){
+                                    dialog.showCancle(false);
+                                }else {
+                                    dialog.showCancle(true);
+                                }
+                            }
+                            dialog.show();
+                        }else {
+                            //强制更新
+                            if (bean.getForceUpdate() != 0) {
+                                //有最低不需要强制升级版本
+                                if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                 } else {
-                                    sbme.setNum(0, true);
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                                }
+                            } else {
+                                //缓存最新版本
+                                SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                                VersionBean versionBean = new VersionBean();
+                                versionBean.setVersion(bean.getVersion());
+                                preferencesUtil.save2Json(versionBean);
+                                //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                                } else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                                    //如有新版本，首页底部提示红点
+                                    if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                                        if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
+                                            sbme.setNum(1, true);
+                                        } else {
+                                            sbme.setNum(0, true);
+                                        }
+                                    }
                                 }
                             }
                         }

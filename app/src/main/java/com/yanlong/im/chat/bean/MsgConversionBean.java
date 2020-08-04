@@ -610,31 +610,40 @@ public class MsgConversionBean {
                 String rname = "";
                 MsgCancel msgCel = new MsgCancel();
                 if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
-                    rname = "你";
+                    msgCel.setNote("你撤回了一条消息");
                 } else {//对方撤回的消息当通知处理
                     msgCel.setMsgType(9);
-                    rname = "\"<font color='#276baa' id='" + fromUid + "'>" + msgDao.getUsername4Show(bean.getGid(), fromUid) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
-                    String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
-                    if (TextUtils.isEmpty(nick)) {
-                        if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
-                            nick = bean.getMembername();
-                        } else {
-                            nick = bean.getNickname();
+                    //如果对方撤回的是他自己的消息，则提示A撤回了一条消息
+                    if(bean.getCancel().getUid()==0L || bean.getCancel().getUid() == fromUid){
+                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                        if (TextUtils.isEmpty(nick)) {
+                            if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
+                                nick = bean.getMembername();
+                            } else {
+                                nick = bean.getNickname();
+                            }
                         }
+                        rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
+                        msgCel.setNote(rname + "撤回了一条消息");
+                    }else {
+                        //如果对方撤回的是别人的消息，则提示A撤回了B的一条消息
+                        String userA = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                        String userB = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+//                        rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + userA + "</font>\"撤回了" + "\"<font color='#276baa' id='" + bean.getCancel().getUid() + "'>" + userB + "</font>\""
+//                                + "<div id='" + bean.getGid() + "'></div>";
+                        msgCel.setNote("\""+userA +"\"撤回了\""+ userB +"\"的一条消息");
                     }
-                    rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
                 }
                 msgAllBean.setMsg_type(EMessageType.MSG_CANCEL);
                 msgCel.setMsgid(msgAllBean.getMsg_id());
-                msgCel.setNote(rname + "撤回了一条消息");
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
+                msgCel.setUid(bean.getCancel().getUid());
                 // 查出本地数据库的消息
                 MsgAllBean msgAllBean1 = msgDao.getMsgById(bean.getMsgId());
                 if (msgAllBean1 != null) {
                     msgCel.setCancelContent(msgAllBean1.getMsgCancel().getCancelContent());
                     msgCel.setCancelContentType(msgAllBean1.getMsgCancel().getCancelContentType());
                 }
-
                 msgAllBean.setMsgCancel(msgCel);
                 msgAllBean.setRead(0);
                 LogUtil.getLog().i("撤回消息", bean.getMsgId() + "------" + bean.getSurvivalTime() + "-----");

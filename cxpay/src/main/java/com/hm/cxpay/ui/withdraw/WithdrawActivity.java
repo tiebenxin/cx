@@ -193,7 +193,7 @@ public class WithdrawActivity extends AppActivity {
             public void afterTextChanged(Editable s) {
                 //1 金额不为空
                 if (!TextUtils.isEmpty(etWithdraw.getText().toString())) {
-                    //2 格式要正确，单独小数点无法参与计算，以0的小数低于默认最低值10的也不参与计算并过滤掉
+                    //2 格式要正确，单独小数点无法参与计算，以0开头的小数低于默认最低值10的也不参与计算并过滤掉
                     if (!etWithdraw.getText().toString().equals(".")
                             && !etWithdraw.getText().toString().startsWith("0")) {
                         //3 金额最高限制10000 最低取接口值

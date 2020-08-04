@@ -14,8 +14,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
+import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -53,6 +56,8 @@ public class ShopFragemnt extends Fragment {
     private String payMoney = "";//需要支付的钱
     private String payStatus = "1";// 1 无操作  0 关闭密码框/用户支付失败  含http，即为成功，返回url
     private String authAll = "1";// 来自商城的认证流程： 1 需要完成全部三层认证
+
+    private String YB_COOKIE_URL = "yeepay.com";//清掉易宝的cookie
 
     public static ShopFragemnt newInstance() {
         ShopFragemnt fragment = new ShopFragemnt();
@@ -120,6 +125,17 @@ public class ShopFragemnt extends Fragment {
 
         @android.webkit.JavascriptInterface
         public void callAndroidMethod(String money) {
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.setAcceptCookie(true);
+//            cookieManager.removeSessionCookies(null);//移除
+            cookieManager.setCookie(getDomain(YB_COOKIE_URL), "");//指定要修改的cookies
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.flush();
+            } else {
+                CookieSyncManager.createInstance(activity.getApplicationContext());
+                CookieSyncManager.getInstance().sync();
+            }
+            WebStorage.getInstance().deleteAllData(); //清空WebView的localStorage
             if (!TextUtils.isEmpty(money)) {
                 payMoney = money;
                 payStatus = "1";
@@ -342,5 +358,16 @@ public class ShopFragemnt extends Fragment {
                 })
                 .build();
         dialogOne.show();
+    }
+
+    /**
+     * 获取URL的域名
+     */
+    private String getDomain(String url){
+        url = url.replace("http://", "").replace("https://", "");
+        if (url.contains("/")) {
+            url = url.substring(0, url.indexOf('/'));
+        }
+        return url;
     }
 }
