@@ -10,6 +10,7 @@ import net.cb.cb.library.base.BaseBean;
 public class OpenEnvelopeBean extends BaseBean {
     long amt;//抢到金额，只有灵气状态1或者4才有值
     int stat;//1:正常-代表已抢到 2:已领完 3:已过期 4:已领取过
+    boolean last;//是否是最后一个领取
 
     public long getAmt() {
         return amt;
@@ -25,5 +26,13 @@ public class OpenEnvelopeBean extends BaseBean {
 
     public void setStat(int stat) {
         this.stat = stat;
+    }
+
+    public boolean isLast() {
+        return last;
+    }
+
+    public void setLast(boolean last) {
+        this.last = last;
     }
 }

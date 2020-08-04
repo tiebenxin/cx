@@ -220,12 +220,12 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
         DialogEnvelope dialogEnvelope = new DialogEnvelope(NoRedBagActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
         dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
             @Override
-            public void onOpen(long rid, int envelopeStatus) {
+            public void onOpen(long rid, int envelopeStatus, boolean isLast) {
                 //TODO: 开红包后，先发送领取红包消息给服务端，然后更新红包状态，最后保存领取红包通知消息到本地
                 taskPayRbCheck(msgBean, rid + "", reType, token, getOpenEnvelopeStatus(envelopeStatus));
                 if (envelopeStatus == 1) {//抢到了
                     if (!msgBean.isMe()) {
-                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), mGid, rid + "", reType);//发送抢红包消息
+                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), mGid, rid + "", reType, isLast);//发送抢红包消息
                     }
                     MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), mGid, rid + "");
                     MsgAllBean msgAllBean = SocketData.createMessageBean(msgBean.getTo_uid(), msgBean.getGid(), ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);

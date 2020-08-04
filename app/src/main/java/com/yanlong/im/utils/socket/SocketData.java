@@ -799,7 +799,7 @@ public class SocketData {
     }
 
 
-    public static MsgCancel createCancelMsg(MsgAllBean cancelMsg,long myUid,int myType) {
+    public static MsgCancel createCancelMsg(MsgAllBean cancelMsg, long myUid, int myType) {
         if (cancelMsg == null) {
             return null;
         }
@@ -813,10 +813,10 @@ public class SocketData {
         msgType = cancelMsg.getMsg_type();
         MsgCancel cancel = new MsgCancel();
         cancel.setMsgid(SocketData.getUUID());
-        if(cancelMsg.getFrom_uid().longValue()==myUid){
+        if (cancelMsg.getFrom_uid().longValue() == myUid) {
             cancel.setNote("你撤回了一条消息");
-        }else {
-            cancel.setNote("你撤回了\"" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) +"\"的一条消息");
+        } else {
+            cancel.setNote("你撤回了\"" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) + "\"的一条消息");
 //            cancel.setNote("你撤回了\"<font color='#276baa' id='" + cancelMsg.getFrom_uid() + "'><a href=''>" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) +"</a></font>\"的一条消息");
         }
         cancel.setCancelContent(msg);
@@ -1619,7 +1619,7 @@ public class SocketData {
      * @param rid
      * @return
      */
-    public static void sendReceivedEnvelopeMsg(Long toId, String toGid, String rid, int reType) {
+    public static void sendReceivedEnvelopeMsg(Long toId, String toGid, String rid, int reType, boolean isLast) {
         //自己抢自己的红包，不需要发送
         if (toId != null && UserAction.getMyId() != null && toId.longValue() == UserAction.getMyId().longValue()) {
             return;
@@ -1628,6 +1628,7 @@ public class SocketData {
         MsgBean.ReceiveRedEnvelopeMessage contentMsg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .setReType(type)
+                .setFinished(isLast)
                 .build();
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, contentMsg);
         //立即发送
@@ -1911,7 +1912,7 @@ public class SocketData {
                         MsgCancel cancel = bean.getMsgCancel();
                         MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
                         cancelBuilder.setMsgId(cancel.getMsgidCancel());
-                        cancelBuilder.setUid(cancel.getUid()!=null? cancel.getUid().longValue():0L);
+                        cancelBuilder.setUid(cancel.getUid() != null ? cancel.getUid().longValue() : 0L);
                         MsgBean.CancelMessage.Role role = MsgBean.CancelMessage.Role.forNumber(cancel.getRole());
                         cancelBuilder.setRole(role);
                         value = cancelBuilder.build();

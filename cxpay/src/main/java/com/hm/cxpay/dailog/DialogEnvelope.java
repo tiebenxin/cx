@@ -161,7 +161,7 @@ public class DialogEnvelope extends BaseDialog {
                             if (bean != null) {
                                 updateUIAfterOpen(bean);
                                 if (listener != null) {
-                                    listener.onOpen(tradeId, bean.getStat());
+                                    listener.onOpen(tradeId, bean.getStat(),bean.isLast());
                                 }
                             }
                         } else {
@@ -228,7 +228,7 @@ public class DialogEnvelope extends BaseDialog {
     }
 
     public interface IEnvelopeListener {
-        void onOpen(long rid, int envelopeStatus);
+        void onOpen(long rid, int envelopeStatus,boolean isLast);
 
         void viewRecord(long rid, String token, int style);
     }
