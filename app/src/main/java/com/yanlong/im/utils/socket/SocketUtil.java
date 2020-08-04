@@ -274,6 +274,14 @@ public class SocketUtil {
         eventLists.remove(event);
     }
 
+    /***
+     * 清除所有监听
+     */
+    public void clearEvent() {
+        LogUtil.getLog().i(TAG, "连接LOG--清除Event");
+        eventLists.clear();
+    }
+
     private SocketUtil() {
     }
 
@@ -451,6 +459,7 @@ public class SocketUtil {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                clearEvent();
                 stop2();
                 clearThread();
             }
@@ -535,14 +544,15 @@ public class SocketUtil {
             //3.
             long ctime = System.currentTimeMillis();
             if (socketChannel.tryTLS(1) == 0) {
-                socketChannel.socket().close();
-                socketChannel.close();
-                socketChannel = null;
+                if (socketChannel != null) {
+                    socketChannel.socket().close();
+                    socketChannel.close();
+                    socketChannel = null;
+                }
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
                 LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
                 //证书问题
                 throw new NetworkErrorException();
-
             } else {
                 LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
                 receive();
