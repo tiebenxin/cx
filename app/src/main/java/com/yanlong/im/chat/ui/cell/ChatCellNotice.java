@@ -92,7 +92,7 @@ public class ChatCellNotice extends ChatCellBase {
                 }
             }
             if (isMe && cancelMsgType != null && (cancelMsgType == ChatEnum.EMessageType.TEXT || cancelMsgType == ChatEnum.EMessageType.AT)
-                    && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace && message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()) {
+                    && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace) {
                 //存的时候把空格处理<br>，否则会被Html格式化
                 String contents = message.getMsgCancel().getCancelContent().replace("\n", "<br>");
                 content = content + "<cancel content='" + contents + "'> 重新编辑</cancel>";
@@ -103,31 +103,19 @@ public class ChatCellNotice extends ChatCellBase {
                     tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
                 } else {
                     //A撤自己的消息，保留原有逻辑不变
-                    if(message.getMsgCancel().getUid()==null || message.getMsgCancel().getUid().longValue()==0L || message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()){
-                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
-                    }else {
-//                        //A撤回了B的消息，携带被撤回人的uid
-//                        if(msgDao==null){
-//                            msgDao = new MsgDao();
-//                        }
-//                        Group groupInfo = msgDao.getGroup4Id(message.getGid());
-//                        //还要显示群主或管理员身份，根据逻辑来看，如果A用户拥有撤销其他人的消息权限，则不是群主就是管理员
-//                        if(groupInfo!=null){
-//                            if(!TextUtils.isEmpty(groupInfo.getMaster()) && groupInfo.getMaster().equals(message.getFrom_uid()+"")){
-//                                tv_content.setText("群主"+message.getMsgCancel().getNote());
-//                            }else {
-//                                tv_content.setText("管理员"+message.getMsgCancel().getNote());
-//                            }
-//                        }else {
-//                            tv_content.setText(message.getMsgCancel().getNote());//若查不出群身份就不显示
-//                        }
-//                    }
-                        if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE) {
-                            tv_content.setText("群主" + message.getMsgCancel().getNote());
-                        } else {
-                            tv_content.setText("管理员" + message.getMsgCancel().getNote());
+                    if(message.getMsgCancel().getUid()!=null){
+                        if(message.getMsgCancel().getUid().longValue()==0L || message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()){
+                            tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
+                        }else {
+                            //A撤回了B的消息，携带被撤回人的uid
+                            if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE) {
+                                tv_content.setText("群主" + message.getMsgCancel().getNote());
+                            } else {
+                                tv_content.setText("管理员" + message.getMsgCancel().getNote());
+                            }
                         }
                     }
+
                 }
             }
         } else if (messageType == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {

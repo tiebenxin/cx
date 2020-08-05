@@ -642,8 +642,6 @@ public class MsgConversionBean {
                                 userB = bean.getCancel().getAlterantiveName();
                             }
                         }
-//                        rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + userA + "</font>\"撤回了" + "\"<font color='#276baa' id='" + bean.getCancel().getUid() + "'>" + userB + "</font>\""
-//                                + "<div id='" + bean.getGid() + "'></div>";
                         msgCel.setNote("\"" + userA + "\"撤回了\"" + userB + "\"的一条消息");
                     }
                 }
