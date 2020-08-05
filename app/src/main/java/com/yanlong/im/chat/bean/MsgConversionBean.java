@@ -633,7 +633,15 @@ public class MsgConversionBean {
                     } else {
                         //如果对方撤回的是别人的消息，则提示A撤回了B的一条消息
                         String userA = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
-                        String userB = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+                        String userB = "";
+                        //优先取备注名，如果查不到该用户资料，则取传过来的昵称值
+                        if(!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))){
+                            userB = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+                        }else {
+                            if(!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())){
+                                userB = bean.getCancel().getAlterantiveName();
+                            }
+                        }
 //                        rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + userA + "</font>\"撤回了" + "\"<font color='#276baa' id='" + bean.getCancel().getUid() + "'>" + userB + "</font>\""
 //                                + "<div id='" + bean.getGid() + "'></div>";
                         msgCel.setNote("\"" + userA + "\"撤回了\"" + userB + "\"的一条消息");
@@ -644,6 +652,7 @@ public class MsgConversionBean {
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
                 msgCel.setUid(bean.getCancel().getUid());
                 msgCel.setRole(bean.getCancel().getRoleValue());
+                msgCel.setAlterantive_name(bean.getCancel().getAlterantiveName());
                 // 查出本地数据库的消息
                 MsgAllBean msgAllBean1 = msgDao.getMsgById(bean.getMsgId());
                 if (msgAllBean1 != null) {
