@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.hm.cxpay.global.PayEnvironment;
-
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -15,8 +14,6 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.pay.action.PayAction;
-import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
@@ -615,35 +612,6 @@ public class UserAction {
         NetUtil.getNet().exec(server.getAllFriendsGet(), callback);
     }
 
-    @Deprecated
-    private void upMyinfoToPay() {
-        PayAction payAction = new PayAction();
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-//                    JrmfRpClient.updateUserInfo(myInfo.getUid() + "", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
-//                        @Override
-//                        public void onSuccess(BaseModel baseModel) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onFail(String s) {
-//
-//                        }
-//                    });
-
-
-                }
-            }
-        });
-    }
-
     /**
      * 设置用户个人资料
      */
@@ -666,7 +634,6 @@ public class UserAction {
                             if (gender != null)
                                 myInfo.setSex(gender);
                             updateUser2DB(myInfo);
-                            upMyinfoToPay();
                         }
                     }
                 } catch (Exception e) {
