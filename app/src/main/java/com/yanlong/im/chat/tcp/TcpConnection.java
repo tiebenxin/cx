@@ -54,10 +54,13 @@ public class TcpConnection implements Connection {
                 if (NetUtil.isNetworkConnected()) {//链接成功
                     if (!isRunning) {
                         startConnect(from);
+                    } else {
+                        SocketUtil.getSocketUtil().startSocket();
                     }
                 } else {//链接失败
                     stopConnect();
-
+                    //无网络，销毁连接
+//                    destroyConnect();
                 }
             }
         };

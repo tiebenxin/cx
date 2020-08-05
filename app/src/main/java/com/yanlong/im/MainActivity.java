@@ -30,14 +30,13 @@ import com.alibaba.android.arouter.facade.annotation.Route;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
+import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
@@ -47,7 +46,6 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.DateUtils;
-import com.luck.picture.lib.tools.Constant;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -96,7 +94,6 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.utils.update.UpdateAppDialog;
 import com.yanlong.im.utils.update.UpdateManage;
-import com.yanlong.im.view.face.bean.FaceBean;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 
 import net.cb.cb.library.AppConfig;
@@ -112,7 +109,6 @@ import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.manager.excutor.ExecutorManager;
@@ -120,7 +116,6 @@ import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.CheckPermissionUtils;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.IntentUtil;
@@ -589,7 +584,6 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
-
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
@@ -788,8 +782,10 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
-        if (event.isOn()) {
-//            MessageManager.getInstance().testReceiveMsg();
+        if (!event.isOn()) {
+            Glide.with(this).pauseRequests();
+        } else {
+            Glide.with(this).resumeRequests();
         }
 
     }
@@ -1024,9 +1020,9 @@ public class MainActivity extends AppActivity {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
                     //判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
-                    if(!TextUtils.isEmpty(bean.getVersion())){
-                        if(FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk") ){
-                            if(dialog==null){
+                    if (!TextUtils.isEmpty(bean.getVersion())) {
+                        if (FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk")) {
+                            if (dialog == null) {
                                 dialog = new UpdateAppDialog();
                                 dialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
                                     @Override
@@ -1041,21 +1037,21 @@ public class MainActivity extends AppActivity {
 
                                     @Override
                                     public void onInstall() {
-                                        if(installAppUtil==null){
+                                        if (installAppUtil == null) {
                                             installAppUtil = new InstallAppUtil();
                                         }
-                                        installAppUtil.install(MainActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk");
+                                        installAppUtil.install(MainActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk");
                                     }
                                 });
                                 dialog.downloadComplete();
-                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))){
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                                     dialog.showCancle(false);
-                                }else {
+                                } else {
                                     dialog.showCancle(true);
                                 }
                             }
                             dialog.show();
-                        }else {
+                        } else {
                             //强制更新
                             if (bean.getForceUpdate() != 0) {
                                 //有最低不需要强制升级版本
