@@ -634,15 +634,21 @@ public class MsgConversionBean {
                         //如果对方撤回的是别人的消息，则提示A撤回了B的一条消息
                         String userA = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
                         String userB = "";
-                        //优先取备注名，如果查不到该用户资料，则取传过来的昵称值
-                        if(!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))){
-                            userB = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+                        //如果对方撤回的是你的消息，则提示A撤回了你的一条消息
+                        if(bean.getCancel().getUid() == UserAction.getMyId().longValue()){
+                            msgCel.setNote("\"" + userA + "\"撤回了你的一条消息");
                         }else {
-                            if(!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())){
-                                userB = bean.getCancel().getAlterantiveName();
+                            //优先取备注名，如果查不到该用户资料，则取传过来的昵称值
+                            if(!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))){
+                                userB = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+                            }else {
+                                if(!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())){
+                                    userB = bean.getCancel().getAlterantiveName();
+                                }
                             }
+                            msgCel.setNote("\"" + userA + "\"撤回了\"" + userB + "\"的一条消息");
                         }
-                        msgCel.setNote("\"" + userA + "\"撤回了\"" + userB + "\"的一条消息");
+
                     }
                 }
                 msgAllBean.setMsg_type(EMessageType.MSG_CANCEL);
