@@ -376,8 +376,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     int reType = envelopeMessage.getRe_type();
                     if (reType == 1) {
                         str = "[零钱红包]" + getRed_envelope().getComment();
-                    } else {
-                        str = "[云红包]" + getRed_envelope().getComment();
                     }
                 }
             } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
