@@ -74,7 +74,6 @@ public class MyFragment extends Fragment {
     private TextView txtName;
     private LinearLayout viewQr;
     private LinearLayout viewMoney;
-    private LinearLayout viewWallet;
     private LinearLayout viewCollection;
     private LinearLayout viewSetting;
     private TextView mTvInfo;
@@ -94,7 +93,6 @@ public class MyFragment extends Fragment {
         txtName = rootView.findViewById(R.id.txt_name);
         viewQr = rootView.findViewById(R.id.view_qr);
         viewMoney = rootView.findViewById(R.id.view_money);
-        viewWallet = rootView.findViewById(R.id.view_wallet);
         viewCollection = rootView.findViewById(R.id.view_collection);
         viewSetting = rootView.findViewById(R.id.view_setting);
         mTvInfo = rootView.findViewById(R.id.tv_info);
@@ -138,7 +136,6 @@ public class MyFragment extends Fragment {
     //自动生成的控件事件
     private void initEvent() {
         viewMoney.setVisibility(View.VISIBLE);//关闭零钱
-        viewWallet.setVisibility(View.GONE);//关闭云红包
 
         builder = new CommonSelectDialog.Builder(context);
         viewHead.setOnClickListener(new View.OnClickListener() {
@@ -194,13 +191,6 @@ public class MyFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), HelpActivity.class));
-            }
-        });
-        //云红包
-        viewWallet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                taskWallet();
             }
         });
 

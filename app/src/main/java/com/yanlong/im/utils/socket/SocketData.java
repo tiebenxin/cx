@@ -762,43 +762,6 @@ public class SocketData {
         return fileMessage;
     }
 
-
-    /***
-     * 收红包
-     * @param toId
-     * @param toGid
-     * @param rid
-     * @return
-     */
-    public static MsgAllBean send4RbRev(Long toId, String toGid, String rid, int reType) {
-        msgDao.redEnvelopeOpen(rid, PayEnum.EEnvelopeStatus.RECEIVED, reType, "");
-        MsgBean.ReceiveRedEnvelopeMessage msg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
-                .setId(rid)
-                .build();
-
-        if (toId.longValue() == UserAction.getMyId().longValue()) {//自己的不发红包通知,只保存
-            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder("", null, toId, toGid, getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
-            msgSave4Me(umsg, 0);
-            return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
-        }
-
-        //8.19 收到红包给自己增加一条消息
-        String mid = getUUID();
-        MsgNotice note = new MsgNotice();
-        note.setMsgid(mid);
-        note.setMsgType(8);
-        String name = msgDao.getUsername4Show(toGid, toId);
-
-        String rname = "<font color='#276baa' id='" + toId + "'>" + name + "</font>";
-        if (toId.longValue() == UserAction.getMyId().longValue()) {
-            rname = "自己";
-        }
-        note.setNote("你领取了\"" + rname + "的云红包" + "<div id= '" + toGid + "'></div>");
-        msgDao.noteMsgAddRb(mid, toId, toGid, note);
-        return send4Base(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
-    }
-
-
     public static MsgCancel createCancelMsg(MsgAllBean cancelMsg, long myUid, int myType) {
         if (cancelMsg == null) {
             return null;

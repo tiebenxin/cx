@@ -3087,33 +3087,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                     notifyData2Bottom(true);
-
                     break;
-                case REQ_RP://红包
-                    LogUtil.writeEnvelopeLog("云红包回调了");
-                    LogUtil.getLog().e("云红包回调了");
-//                    EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
-//                    if (!checkNetConnectStatus(0)) {
-//                        if (envelopeInfo != null) {
-//                            saveMFEnvelope(envelopeInfo);
-//                        }
-//                        return;
-//                    }
-//                    if (envelopeInfo != null) {
-//                        //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
-//                        String info = envelopeInfo.getEnvelopeMessage();
-//                        String rid = envelopeInfo.getEnvelopesID();
-//                        LogUtil.writeEnvelopeLog("rid=" + rid);
-//                        LogUtil.getLog().e("rid=" + rid);
-//                        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-//                        if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
-//                            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
-//                        }
-//                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
-//                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
-//                    }
-                    break;
-
                 case REQUEST_RED_ENVELOPE:
                     CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
                     if (envelopeBean != null && currentTradeId != envelopeBean.getTradeId()) {
@@ -5468,7 +5442,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.setCanceledOnTouchOutside(false);
         String time = TimeToString.MM_DD_HH_MM2(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
-        String content = "你有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回云红包账户";
+        String content = "你有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回零钱红包账户";
         dialogCommon.setContent(content)
                 .setListener(new DialogEnvelopePast.IDialogListener() {
                     @Override
@@ -5483,24 +5457,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.show();
     }
 
-//    private void saveMFEnvelope(EnvelopeBean bean) {
-//        EnvelopeInfo envelopeInfo = new EnvelopeInfo();
-//        envelopeInfo.setRid(bean.getEnvelopesID());
-//        envelopeInfo.setAmount(StringUtil.getYuanToLong(bean.getEnvelopeAmount()));
-//        envelopeInfo.setComment(bean.getEnvelopeMessage());
-//        envelopeInfo.setReType(0);//0 MF  1 SYS
-//        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-//        if (bean.getEnvelopeType() == 1) {//拼手气
-//            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
-//        }
-//        envelopeInfo.setEnvelopeStyle(style.getNumber());
-//        envelopeInfo.setCreateTime(System.currentTimeMillis());
-//        envelopeInfo.setGid(toGid);
-//        envelopeInfo.setUid(toUId == null ? 0 : toUId.longValue());
-//        envelopeInfo.setSendStatus(0);
-//        envelopeInfo.setSign("");
-//        msgDao.updateEnvelopeInfo(envelopeInfo);
-//    }
 
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
