@@ -90,9 +90,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 RedEnvelopeMessage message = msgAllBean.getRed_envelope();
                 int reType = message.getRe_type().intValue();//红包类型
                 String type = "";
-                if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
-                    type = "云红包";
-                } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                 if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                     type = "零钱红包";
                 }
                 binding.txtOtRpBt.setText(type);
@@ -167,9 +165,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
     private void receiveEnvelope(MsgAllBean bean) {
         RedEnvelopeMessage message = bean.getRed_envelope();
-        if (message.getRe_type() == 0) {//云红包
-//            receiveMF(bean, message);
-        } else if (message.getRe_type() == 1) {//零钱红包
+        if (message.getRe_type() == 1) {//零钱红包
             if (!TextUtils.isEmpty(message.getAccessToken())) {
                 showEnvelopeDialog(message.getAccessToken(), message.getEnvelopStatus(), bean, message.getRe_type());
             } else {
@@ -178,43 +174,6 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
         }
     }
 
-//    private void receiveMF(MsgAllBean bean, RedEnvelopeMessage message) {
-//        new PayAction().SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-//                if (response.body() == null)
-//                    return;
-//                if (response.body().isOk()) {
-//                    SignatureBean sign = response.body().getData();
-//                    String token = sign.getSign();
-//
-//                    GrabRpCallBack callBack = new GrabRpCallBack() {
-//                        @Override
-//                        public void grabRpResult(GrabRpBean grabRpBean) {
-//                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
-//                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
-//                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-//                                SocketData.send4RbRev(bean.getFrom_uid(), bean.getGid(), message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE);
-//                                taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-//                                mViewAdapter.remove(bean);
-//                                notifyRefreshChat();
-//                            }
-//                            if (envelopeStatus == 1 || envelopeStatus == 2 || envelopeStatus == 3) {
-//                                taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-//                                mViewAdapter.remove(bean);
-//                                notifyRefreshChat();
-//                            }
-//                        }
-//                    };
-//                    IUser minfo = UserAction.getMyInfo();
-//                    JrmfRpClient.openGroupRp(NoRedBagActivity.this, "" + minfo.getUid(), token,
-//                            minfo.getName(), minfo.getHead(), message.getId(), callBack);
-//
-//
-//                }
-//            }
-//        });
-//    }
 
     private void showEnvelopeDialog(String token, int status, MsgAllBean msgBean, int reType) {
         DialogEnvelope dialogEnvelope = new DialogEnvelope(NoRedBagActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
@@ -440,7 +399,6 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
     //抢红包后，更新红包token
     private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
-        int status = msgAllBean.getRed_envelope().getEnvelopStatus();
         if (!TextUtils.isEmpty(token)) {
             msgAllBean.getRed_envelope().setAccessToken(token);
             msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);

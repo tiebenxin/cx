@@ -176,7 +176,6 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(EMessageType.VOICE);
                 break;
             case SHORT_VIDEO:
-                MsgAllBean videoMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
                 VideoMessage videoMessage = new VideoMessage();
                 videoMessage.setMsgId(msgAllBean.getMsg_id());
                 videoMessage.setUrl(bean.getShortVideo().getUrl());
@@ -186,9 +185,6 @@ public class MsgConversionBean {
                 videoMessage.setDuration(bean.getShortVideo().getDuration());
                 msgAllBean.setMsg_type(EMessageType.MSG_VIDEO);
                 msgAllBean.setVideoMessage(videoMessage);
-//                videoMsg.setMsg_type(ChatEnum.EMessageType.MSG_VIDEO);
-//                videoMsg.setVideoMessage(videoMessage);
-//                videoMessage.setLocalUrl(bean.getShortVideo().getLocalUrl());
                 break;
             case TRANSFER:
                 if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.UNRECOGNIZED) {
@@ -244,31 +240,8 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-                //isError true 表示是回执错误导致发送失败,发送者是自己
-                if (receiveRedEnvelope.getReType().getNumber() == 0) {
-                    if (isError) {
-                        rbNotice.setMsgType(ENoticeType.RECEIVE_RED_ENVELOPE);
-                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
-                        if (TextUtils.isEmpty(nick)) {
-                            if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
-                                nick = bean.getMembername();
-                            } else {
-                                nick = bean.getNickname();
-                            }
-                        }
-                        name = "<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick + "</font>";
-                        rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
-                    } else {
-
-                        if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
-                            rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
-                            rbNotice.setMsgType(ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
-                        } else {
-                            rbNotice.setMsgType(ENoticeType.RED_ENVELOPE_RECEIVED);
-                            rbNotice.setNote("\"<font color='#276baa' id='" + fromUid + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
-                        }
-                    }
-                } else if (receiveRedEnvelope.getReType().getNumber() == 1) {
+                //isError true 表示是回执错误导致发送失败,发送者是自己，零钱红包
+                 if (receiveRedEnvelope.getReType().getNumber() == 1) {
                     if (isError) {
                         rbNotice.setMsgType(ENoticeType.RECEIVE_SYS_ENVELOPE);
                         String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
@@ -303,7 +276,6 @@ public class MsgConversionBean {
                             }
                         }
                     }
-
                 }
 
                 msgAllBean.setMsgNotice(rbNotice);

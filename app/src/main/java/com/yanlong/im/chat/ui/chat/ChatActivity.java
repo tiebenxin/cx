@@ -156,7 +156,6 @@ import com.yanlong.im.dialog.ForwardDialog;
 import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
-import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
@@ -2097,9 +2096,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         break;
                     case ChatEnum.EFunctionId.VIDEO_CALL:
                         toVideoCall();
-                        break;
-                    case ChatEnum.EFunctionId.ENVELOPE_MF:
-                        taskPayRb();
                         break;
                     case ChatEnum.EFunctionId.LOCATION:
                         toLocation();
@@ -4453,7 +4449,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private UserAction userAction = new UserAction();
     private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
-    private PayAction payAction = new PayAction();
 
 
     private void setDisturb() {
@@ -4858,127 +4853,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-
-    /***
-     * 发红包
-     */
-    private void taskPayRb() {
-        IUser info = UserAction.getMyInfo();
-        if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
-            ToastUtil.show(this, "你的云红包功能已暂停使用，如有疑问请咨询官方客服号");
-            return;
-        }
-//        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-//                if (response.body() == null)
-//                    return;
-//                if (response.body().isOk()) {
-//                    SignatureBean sign = response.body().getData();
-//                    String token = sign.getSign();
-//                    if (isGroup()) {
-//                        Group group = msgDao.getGroup4Id(toGid);
-//                        int totalSize = 0;
-//                        if (group != null && group.getUsers() != null) {
-//                            totalSize = group.getUsers().size();
-//                        }
-//                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
-//                                totalSize, info.getName(), info.getHead(), REQ_RP);
-//                    } else {
-//                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
-//                                info.getName(), info.getHead(), REQ_RP);
-//                    }
-//                    LogUtil.writeEnvelopeLog("准备发红包");
-//
-//                }
-//            }
-//        });
-    }
-
-    /***
-     * 红包收
-     */
-    private void taskPayRbGet(final MsgAllBean msgbean, final Long toUId, final String rbid) {
-//        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-//                if (response.body() == null)
-//                    return;
-//                if (response.body().isOk()) {
-//                    SignatureBean sign = response.body().getData();
-//                    String token = sign.getSign();
-//
-//                    GrabRpCallBack callBack = new GrabRpCallBack() {
-//                        @Override
-//                        public void grabRpResult(GrabRpBean grabRpBean) {
-//                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
-//                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
-//                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-//                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE);
-//                                showSendObj(msgAllbean);
-//                                /********通知更新sessionDetail************************************/
-//                                //因为msg对象 uid有两个，都得添加
-//                                List<String> gids = new ArrayList<>();
-//                                List<Long> uids = new ArrayList<>();
-//                                //gid存在时，不取uid
-//                                if (TextUtils.isEmpty(msgAllbean.getGid())) {
-//                                    uids.add(msgAllbean.getTo_uid());
-//                                    uids.add(msgAllbean.getFrom_uid());
-//                                } else {
-//                                    gids.add(msgAllbean.getGid());
-//                                }
-//                                //回主线程调用更新session详情
-//                                if (MyAppLication.INSTANCE().repository != null)
-//                                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
-//                                /********通知更新sessionDetail end************************************/
-//                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-//                            }
-//                            if (envelopeStatus == 2 || envelopeStatus == 3) {
-//                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-//                            }
-//                        }
-//                    };
-//                    if (!isActivityValid()) {
-//                        return;
-//                    }
-//                    if (isGroup()) {
-//                        IUser minfo = UserAction.getMyInfo();
-//                        JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
-//                                minfo.getName(), minfo.getHead(), rbid, callBack);
-//                    } else {
-//                        IUser minfo = UserAction.getMyInfo();
-//                        JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
-//                                minfo.getName(), minfo.getHead(), rbid, callBack);
-//                    }
-//
-//                }
-//            }
-//        });
-    }
-
-    /***
-     * 红包详情
-     * @param rid
-     */
-    private void taskPayRbDetail(final MsgAllBean msgAllBean, final String rid) {
-//        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-//                if (response.body() == null)
-//                    return;
-//                if (response.body().isOk()) {
-//                    if (!isActivityValid()) {
-//                        return;
-//                    }
-//                    SignatureBean sign = response.body().getData();
-//                    String token = sign.getSign();
-//                    IUser minfo = UserAction.getMyInfo();
-//                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
-//                }
-//            }
-//        });
-
-    }
 
     /***
      * 红包是否已经被抢,红包改为失效
@@ -6141,17 +6015,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         final Long touid = msg.getFrom_uid();
         final int style = msg.getRed_envelope().getStyle();
         int reType = rb.getRe_type().intValue();//红包类型
-        if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
-            if (isInvalid || (msg.isMe() && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                taskPayRbDetail(msg, rid);
-            } else {
-                if (checkCanOpenUpRedEnv()) {
-                    taskPayRbGet(msg, touid, rid);
-                } /*else {
-                    ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
-                }*/
-            }
-        } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+        if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
             UserBean userBean = PayEnvironment.getInstance().getUser();
             if (userBean == null || userBean.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();

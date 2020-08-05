@@ -16,23 +16,11 @@ import com.hm.cxpay.ui.identification.IdentificationUserActivity;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityServiceAgreementBinding;
-import com.yanlong.im.pay.action.PayAction;
-import com.yanlong.im.pay.bean.SignatureBean;
-import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.IUser;
-import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.SpUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.WebPageActivity;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 /**
  * @version V1.0
@@ -44,8 +32,6 @@ import retrofit2.Response;
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
 public class ServiceAgreementActivity extends AppActivity {
-
-    private PayAction payAction = new PayAction();
     private ActivityServiceAgreementBinding mBinding;
     private final String USER_SERICE = "《用户服务协议》";
     private final String SERCICE_SERICE = "《隐私政策》";
@@ -142,32 +128,6 @@ public class ServiceAgreementActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 finish();
-            }
-        });
-    }
-
-    /**
-     * 钱包
-     */
-    private void taskWallet() {
-        IUser info = UserAction.getMyInfo();
-        if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
-            ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
-            return;
-        }
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    //缓存用户已同意的状态
-                    SpUtil spUtil = SpUtil.getSpUtil();
-                    spUtil.putSPValue("ServieAgreement", "true");
-//                    String token = response.body().getData().getSign();
-//                    UserInfo minfo = UserAction.getMyInfo();
-//                    JrmfWalletClient.intentWallet(ServiceAgreementActivity.this, "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
-                }
             }
         });
     }

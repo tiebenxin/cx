@@ -32,7 +32,6 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
-import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.IUser;
@@ -333,32 +332,6 @@ public class MyFragment extends Fragment {
         }
     }
 
-    private PayAction payAction = new PayAction();
-
-    //钱包
-//    private void taskWallet() {
-//        IUser info = UserAction.getMyInfo();
-//        if (info == null) {
-//            return;
-//        }
-//        if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
-//            ToastUtil.show(getActivity(), "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
-//            return;
-//        }
-//        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-//                if (response.body() == null)
-//                    return;
-//                if (response.body().isOk()) {
-//                    String token = response.body().getData().getSign();
-//                    if (getActivity() != null && !getActivity().isFinishing()) {
-//                        JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, info.getName(), info.getHead());
-//                    }
-//                }
-//            }
-//        });
-//    }
 
 
     private void taskAddFriend(Long id) {
