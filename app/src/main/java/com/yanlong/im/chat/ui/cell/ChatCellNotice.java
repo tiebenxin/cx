@@ -11,10 +11,8 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.socket.MsgBean;
@@ -31,7 +29,6 @@ public class ChatCellNotice extends ChatCellBase {
 
     private TextView tv_content;
     private ImageView iv_icon;
-    private MsgDao msgDao;
 
     protected ChatCellNotice(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);

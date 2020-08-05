@@ -184,6 +184,10 @@ public class DaoMigration implements RealmMigration {
                 updateV41(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 41) {
+                updateV42(schema);
+                oldVersion++;
+            }
 
         }
     }
@@ -777,11 +781,19 @@ public class DaoMigration implements RealmMigration {
                 ;
     }
 
-    //增加转账消息被动关系字段
+    //增加撤回消息新字段
     private final void updateV41(RealmSchema schema) {
         schema.get("MsgCancel")
                 .addField("role", int.class);
     }
+
+    //增加撤回消息新字段
+    private final void updateV42(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("alterantive_name", String.class);
+    }
+
+
 
 
     @Override

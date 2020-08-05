@@ -816,7 +816,7 @@ public class SocketData {
         if (cancelMsg.getFrom_uid().longValue() == myUid) {
             cancel.setNote("你撤回了一条消息");
         } else {
-            cancel.setNote("你撤回了\"" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) + "\"的一条消息");
+            cancel.setNote("你撤回了\"" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) + "\"的一条消息");//被撤回消息用户B的群昵称，含备注
 //            cancel.setNote("你撤回了\"<font color='#276baa' id='" + cancelMsg.getFrom_uid() + "'><a href=''>" + msgDao.getUsername4Show(cancelMsg.getGid(), cancelMsg.getFrom_uid()) +"</a></font>\"的一条消息");
         }
         cancel.setCancelContent(msg);
@@ -825,6 +825,15 @@ public class SocketData {
         cancel.setTime(cancelMsg.getTimestamp());
         cancel.setUid(cancelMsg.getFrom_uid());//被撤回的消息来源于哪个用户的uid
         cancel.setRole(myType);
+        if(!TextUtils.isEmpty(cancelMsg.getFrom_group_nickname())){
+            cancel.setAlterantive_name(cancelMsg.getFrom_group_nickname());//被撤回消息用户B的群昵称，不含备注
+        }else {
+            if(!TextUtils.isEmpty(cancelMsg.getFrom_nickname())){
+                cancel.setAlterantive_name(cancelMsg.getFrom_nickname());
+            }else {
+                cancel.setAlterantive_name("");
+            }
+        }
         return cancel;
     }
     /*
@@ -1913,6 +1922,7 @@ public class SocketData {
                         MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
                         cancelBuilder.setMsgId(cancel.getMsgidCancel());
                         cancelBuilder.setUid(cancel.getUid() != null ? cancel.getUid().longValue() : 0L);
+                        cancelBuilder.setAlterantiveName(!TextUtils.isEmpty(cancel.getAlterantive_name()) ? cancel.getAlterantive_name() : "");
                         MsgBean.CancelMessage.Role role = MsgBean.CancelMessage.Role.forNumber(cancel.getRole());
                         cancelBuilder.setRole(role);
                         value = cancelBuilder.build();
