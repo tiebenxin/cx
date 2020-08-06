@@ -18,6 +18,7 @@ import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.ViewUtils;
+import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
 import java.io.File;
@@ -40,6 +41,7 @@ public class UploadLogActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_uplaod_log);
+
         calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
@@ -59,6 +61,18 @@ public class UploadLogActivity extends AppActivity {
                     return;
                 }
                 uploadFile();
+            }
+        });
+
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                finish();
+            }
+
+            @Override
+            public void onRight() {
+
             }
         });
     }
