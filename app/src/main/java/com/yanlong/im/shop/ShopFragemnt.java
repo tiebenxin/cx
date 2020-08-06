@@ -1,6 +1,8 @@
 package com.yanlong.im.shop;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebStorage;
@@ -39,6 +42,8 @@ import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * @author Liszt
  * @date 2020/2/26
@@ -57,6 +62,9 @@ public class ShopFragemnt extends Fragment {
     private String authAll = "1";// 来自商城的认证流程： 1 需要完成全部三层认证
 
     private String YB_COOKIE_URL = "yeepay.com";//清掉易宝的cookie
+    private ValueCallback<Uri> uploadMessage;
+    private ValueCallback<Uri[]> uploadMessageAboveL;
+    private final static int FILE_CHOOSER_RESULT_CODE = 10000;
 
     public static ShopFragemnt newInstance() {
         ShopFragemnt fragment = new ShopFragemnt();
@@ -95,7 +103,33 @@ public class ShopFragemnt extends Fragment {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
+            }
 
+
+            // For Android < 3.0
+            public void openFileChooser(ValueCallback<Uri> valueCallback) {
+                uploadMessage = valueCallback;
+                openImageChooserActivity();
+            }
+
+            // For Android  >= 3.0
+            public void openFileChooser(ValueCallback valueCallback, String acceptType) {
+                uploadMessage = valueCallback;
+                openImageChooserActivity();
+            }
+
+            //For Android  >= 4.1
+            public void openFileChooser(ValueCallback<Uri> valueCallback, String acceptType, String capture) {
+                uploadMessage = valueCallback;
+                openImageChooserActivity();
+            }
+
+            // For Android >= 5.0
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                uploadMessageAboveL = filePathCallback;
+                openImageChooserActivity();
+                return true;
             }
         });
         webView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -359,4 +393,69 @@ public class ShopFragemnt extends Fragment {
         }
         return url;
     }
+
+
+    // 2.回调方法触发本地选择文件
+    private void openImageChooserActivity() {
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("image/*");//图片上传
+//        i.setType("file/*");//文件上传
+//        i.setType("*/*");//文件上传
+        startActivityForResult(Intent.createChooser(i, "Image Chooser"), FILE_CHOOSER_RESULT_CODE);
+    }
+
+    // 3.选择图片后处理
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FILE_CHOOSER_RESULT_CODE) {
+            if (null == uploadMessage && null == uploadMessageAboveL) return;
+            Uri result = data == null || resultCode != RESULT_OK ? null : data.getData();
+            // Uri result = (((data == null) || (resultCode != RESULT_OK)) ? null : data.getData());
+            if (uploadMessageAboveL != null) {
+                onActivityResultAboveL(requestCode, resultCode, data);
+            } else if (uploadMessage != null) {
+                uploadMessage.onReceiveValue(result);
+                uploadMessage = null;
+            }
+        } else {
+            //这里uploadMessage跟uploadMessageAboveL在不同系统版本下分别持有了
+            //WebView对象，在用户取消文件选择器的情况下，需给onReceiveValue传null返回值
+            //否则WebView在未收到返回值的情况下，无法进行任何操作，文件选择器会失效
+            if (uploadMessage != null) {
+                uploadMessage.onReceiveValue(null);
+                uploadMessage = null;
+            } else if (uploadMessageAboveL != null) {
+                uploadMessageAboveL.onReceiveValue(null);
+                uploadMessageAboveL = null;
+            }
+        }
+    }
+
+    // 4. 选择内容回调到Html页面
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void onActivityResultAboveL(int requestCode, int resultCode, Intent intent) {
+        if (requestCode != FILE_CHOOSER_RESULT_CODE || uploadMessageAboveL == null)
+            return;
+        Uri[] results = null;
+        if (resultCode == RESULT_OK) {
+            if (intent != null) {
+                String dataString = intent.getDataString();
+                ClipData clipData = intent.getClipData();
+                if (clipData != null) {
+                    results = new Uri[clipData.getItemCount()];
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        ClipData.Item item = clipData.getItemAt(i);
+                        results[i] = item.getUri();
+                    }
+                }
+                if (dataString != null)
+                    results = new Uri[]{Uri.parse(dataString)};
+            }
+        }
+        uploadMessageAboveL.onReceiveValue(results);
+        uploadMessageAboveL = null;
+    }
+
 }
