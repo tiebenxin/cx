@@ -74,9 +74,7 @@ public class UpLoadFileUtil {
         ThreadUtil.getInstance().runMainThread(new Runnable() {
             @Override
             public void run() {
-                if (mPayWaitDialog == null) {
-                    mPayWaitDialog = new DialogLoadingProgress(context);
-                }
+                mPayWaitDialog = new DialogLoadingProgress(context);
                 mPayWaitDialog.show();
             }
         });
