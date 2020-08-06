@@ -50,7 +50,6 @@ public class ShopFragemnt extends Fragment {
     private Activity activity;
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//通用提示选择弹框：实名认证
-    private CommonSelectDialog dialogTwo;//通用提示选择弹框：是否绑定手机号
 
     private String url = "";//商城地址
     private String payMoney = "";//需要支付的钱
@@ -273,27 +272,15 @@ public class ShopFragemnt extends Fragment {
     }
 
     /**
-     * 三层判断：是否实名认证->是否绑定手机号->是否设置支付密码
+     * 判断：是否实名认证
      */
     private void checkUserStatus(UserBean userBean) {
         //1 已实名认证
         if (userBean.getRealNameStat() == 1) {
-            //2 已完成绑定手机号
-            /*if (userBean.getPhoneBindStat() == 1) {
-                //3 已设置支付密码
-                if (userBean.getPayPwdStat() == 1) {
-                    showCheckPaywordDialog();
-                } else {
-                    //未设置支付密码
-                    showSetPaywordDialog();
-                }
-            } else {
-                //未绑定手机号
-                showBindPhoneNumDialog();
-            }*/
+            //1-1 直接支付消费
             httpConsumption();
         } else {
-            //未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号->4 新增一个步骤设置支付密码)
+            //2 未实名认证
             showIdentifyDialog();
         }
     }
