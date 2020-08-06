@@ -284,8 +284,8 @@ public class MyAppLication extends MainApplication {
      */
     private LoginInfo getLoginInfo() {
         SpUtil spUtil = SpUtil.getSpUtil();
-        String account = spUtil.getSPValue("account", "");
-        String token = spUtil.getSPValue("token", "");
+        String account = spUtil.getSPValue(Preferences.KEY_USER_ACCOUNT, "");
+        String token = spUtil.getSPValue(Preferences.KEY_USER_TOKEN, "");
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             return new LoginInfo(account, token);
         } else {

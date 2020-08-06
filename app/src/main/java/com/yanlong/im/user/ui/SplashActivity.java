@@ -68,11 +68,9 @@ public class SplashActivity extends AppActivity {
     }
 
 
-
     private void initView() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
     }
-
 
 
     private void startTimer() {
@@ -168,7 +166,6 @@ public class SplashActivity extends AppActivity {
     }
 
 
-
     private void showPage() {
         new CheckPermission2Util().requestPermissions(this, new CheckPermission2Util.Event() {
             @Override
@@ -185,7 +182,8 @@ public class SplashActivity extends AppActivity {
         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE
                 , Manifest.permission.READ_EXTERNAL_STORAGE
                 , Manifest.permission.ACCESS_FINE_LOCATION
-                , Manifest.permission.ACCESS_COARSE_LOCATION});
+                , Manifest.permission.ACCESS_COARSE_LOCATION
+                , Manifest.permission.READ_PHONE_STATE});
     }
 
 

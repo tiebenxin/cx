@@ -2480,7 +2480,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onFail() {
 
             }
-        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
+        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO,Manifest.permission.READ_PHONE_STATE});
     }
 
     /**
