@@ -255,7 +255,7 @@ public class SocketUtil {
      * @param event
      */
     public void addEvent(SocketEvent event) {
-        if (!eventLists.contains(event)) {
+        if (event != null && !eventLists.contains(event)) {
             eventLists.add(event);
         }
 
@@ -273,7 +273,9 @@ public class SocketUtil {
      * @param event
      */
     public void removeEvent(SocketEvent event) {
-        eventLists.remove(event);
+        if (event != null) {
+            eventLists.remove(event);
+        }
     }
 
     /***
