@@ -782,12 +782,11 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
-        if (!event.isOn()) {
-            Glide.with(this).pauseRequests();
-        } else {
-            Glide.with(this).resumeRequests();
-        }
-
+//        if (!event.isOn()) {
+//            Glide.with(this).pauseRequests();
+//        } else {
+//            Glide.with(this).resumeRequests();
+//        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

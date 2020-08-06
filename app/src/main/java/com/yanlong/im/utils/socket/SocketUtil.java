@@ -407,7 +407,14 @@ public class SocketUtil {
      */
     public void startSocket() {
         if (isStart) {
-            LogUtil.getLog().i(TAG, ">>>>> 当前正在运行");
+            LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
+            if (!isRun()) {
+                try {
+                    connect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             return;
         }
         isStart = true;
@@ -441,6 +448,20 @@ public class SocketUtil {
                 }
             }
         });
+    }
+
+    /***
+     * 无网络stop socket, 不需要清除Event
+     * */
+    public void stopSocket() {
+        isStart = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                stop2();
+                clearThread();
+            }
+        }).start();
     }
 
     /***
@@ -510,7 +531,6 @@ public class SocketUtil {
         //socketChannel =  SocketChannel.open();
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
-
         LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
