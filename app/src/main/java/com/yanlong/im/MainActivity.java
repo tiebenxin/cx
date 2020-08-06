@@ -264,8 +264,8 @@ public class MainActivity extends AppActivity {
                                 NIMClient.getService(AuthService.class).logout();// 需要先登出网易登录，在重新登录
                                 UserAction userAction = new UserAction();
                                 SpUtil spUtil = SpUtil.getSpUtil();
-                                String account = spUtil.getSPValue("account", "");
-                                String token = spUtil.getSPValue("token", "");
+                                String account = spUtil.getSPValue(Preferences.KEY_USER_ACCOUNT, "");
+                                String token = spUtil.getSPValue(Preferences.KEY_USER_TOKEN, "");
                                 userAction.doNeteaseLogin(account, token);
                             } else {
                                 LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录成功");
@@ -273,7 +273,7 @@ public class MainActivity extends AppActivity {
                             }
                         }
                     } catch (Exception e) {
-
+                        LogUtil.writeLog(">>>>>>>>>网易云登录出现了异常>>>>>>>>> " + e.getMessage());
                     }
                 }
             }, 10000);
