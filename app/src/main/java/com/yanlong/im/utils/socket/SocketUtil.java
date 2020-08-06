@@ -30,7 +30,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.NoConnectionPendingException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -226,6 +225,9 @@ public class SocketUtil {
      * @param state
      */
     private void setRunState(int state) {
+        if (isRun == state) {
+            return;
+        }
         isRun = state;
         if (isRun == 0) {
             event.onLine(false);
@@ -239,7 +241,7 @@ public class SocketUtil {
      * 获取在线状态
      * @return
      */
-    public boolean getOnLineState() {
+    public boolean getOnlineState() {
         return isRun == 2;
     }
 
