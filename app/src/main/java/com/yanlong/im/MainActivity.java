@@ -613,6 +613,9 @@ public class MainActivity extends AppActivity {
             stopChatService();
         }
         SocketUtil.getSocketUtil().setMainLive(false);
+        if (mMsgMainFragment != null) {
+            SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+        }
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
@@ -657,7 +660,9 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
-//        checkTokenValid();
+        if (mMsgMainFragment != null) {
+            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+        }
     }
 
     //检测支付环境的初始化
@@ -782,12 +787,11 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
-        if (!event.isOn()) {
-            Glide.with(this).pauseRequests();
-        } else {
-            Glide.with(this).resumeRequests();
-        }
-
+//        if (!event.isOn()) {
+//            Glide.with(this).pauseRequests();
+//        } else {
+//            Glide.with(this).resumeRequests();
+//        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -58,9 +58,8 @@ public class TcpConnection implements Connection {
                         SocketUtil.getSocketUtil().startSocket();
                     }
                 } else {//链接失败
-                    stopConnect();
-                    //无网络，销毁连接
-//                    destroyConnect();
+//                    stopConnect();
+                    SocketUtil.getSocketUtil().stopSocket();
                 }
             }
         };

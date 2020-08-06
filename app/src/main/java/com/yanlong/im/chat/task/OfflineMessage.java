@@ -11,9 +11,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.utils.LogUtil;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -205,7 +203,7 @@ public class OfflineMessage extends DispatchMessage {
                         LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
                         SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                         //在线，表示能回执成功，清除掉MsgId
-                        if (SocketUtil.getSocketUtil().getOnLineState())
+                        if (SocketUtil.getSocketUtil().getOnlineState())
                             mBatchSuccessMsgIds.clear();
                     } else if (!repository.hasValidOfflineMessage()) {
                         //无有效离线消息直接发送回执
@@ -248,7 +246,7 @@ public class OfflineMessage extends DispatchMessage {
             repository.updateOfflineReadMsg(realm);
             //更新离线双向清除
             repository.updateOfflineHistoryClearMsg(realm);
-            if (isSuccess && SocketUtil.getSocketUtil().getOnLineState()) {
+            if (isSuccess && SocketUtil.getSocketUtil().getOnlineState()) {
                 //有网，保存完成，且是最后一批离线，清除
                 //本次离线消息是否接收完成
                 mBatchSuccessMsgIds.clear();

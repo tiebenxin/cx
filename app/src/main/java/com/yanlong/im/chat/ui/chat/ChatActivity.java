@@ -5054,7 +5054,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             isOk = false;
         } else {
-            isOk = SocketUtil.getSocketUtil().getOnLineState();
+            isOk = SocketUtil.getSocketUtil().getOnlineState();
             if (!isOk) {
                 if (type == 0) {
                     ToastUtil.show(this, "连接已断开，请稍后再试");

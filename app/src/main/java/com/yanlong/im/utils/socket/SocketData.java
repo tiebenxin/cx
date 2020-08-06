@@ -827,7 +827,7 @@ public class SocketData {
         if (needSave) {
             saveMessage(bean);
         }
-        if (SocketUtil.getSocketUtil().getOnLineState()) {
+        if (SocketUtil.getSocketUtil().getOnlineState()) {
             if (type != null && value != null && isSend) {
                 SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
                 MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
