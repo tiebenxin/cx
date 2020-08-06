@@ -490,7 +490,9 @@ public class MainActivity extends AppActivity {
         bottomTab.getTabAt(1).select();
         bottomTab.getTabAt(0).select();
 
-
+        if (mMsgMainFragment != null) {
+            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+        }
         // 启动聊天服务
         startChatServer();
 
@@ -660,9 +662,6 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
-        if (mMsgMainFragment != null) {
-            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
-        }
     }
 
     //检测支付环境的初始化
@@ -778,8 +777,14 @@ public class MainActivity extends AppActivity {
     public void eventRunState(EventRunState event) {
         LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
         if (event.getRun()) {
+            if (mMsgMainFragment != null) {
+                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+            }
             startChatServer();
         } else {
+            if (mMsgMainFragment != null) {
+                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+            }
             stopChatService();
         }
 

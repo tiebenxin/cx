@@ -593,6 +593,9 @@ public class MsgMainFragment extends Fragment {
     }
 
     private void doOnlineChange(boolean state) {
+        if (getActivityMe() == null){
+            return;
+        }
         getActivityMe().runOnUiThread(new Runnable() {
             @Override
             public void run() {

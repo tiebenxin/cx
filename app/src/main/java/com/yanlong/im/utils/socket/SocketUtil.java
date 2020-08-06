@@ -225,9 +225,9 @@ public class SocketUtil {
      * @param state
      */
     private void setRunState(int state) {
-        if (isRun == state) {
-            return;
-        }
+//        if (isRun == state) {
+//            return;
+//        }
         isRun = state;
         if (isRun == 0) {
             event.onLine(false);
@@ -330,8 +330,9 @@ public class SocketUtil {
         if (!isRun()) {
             return;
         }
-
-        setRunState(0);
+        if (isRun != 0) {
+            setRunState(0);
+        }
         //结束发送列队
         if (isClearSendList) {
             SendList.endList();
@@ -351,7 +352,9 @@ public class SocketUtil {
 
     //6.20 强制结束
     public void stop2() {
-        setRunState(0);
+        if (isRun != 0) {
+            setRunState(0);
+        }
         if (heardSchedule != null) {
             heardSchedule.cancel(true);
         }
@@ -665,7 +668,7 @@ public class SocketUtil {
                         }
                     }
                 }
-                setRunState(0);
+//                setRunState(0);
                 LogUtil.getLog().d(TAG, ">>>接收结束");
             }
         });
