@@ -346,6 +346,7 @@ public class ShopFragemnt extends Fragment {
                     public void onClick(View v) {
                         //取消
                         dialogOne.dismiss();
+                        payStatus = "0";
                     }
                 })
                 .setRightOnClickListener(new View.OnClickListener() {
@@ -354,6 +355,7 @@ public class ShopFragemnt extends Fragment {
                         //从商城跳转到认证，需要额外增加一个步骤，即设置支付密码
                         startActivity(new Intent(activity, ServiceAgreementActivity.class).putExtra("from_shop", authAll));
                         dialogOne.dismiss();
+                        payStatus = "0";
                     }
                 })
                 .build();
