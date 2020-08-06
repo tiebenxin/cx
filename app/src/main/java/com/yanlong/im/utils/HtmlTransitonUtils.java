@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class HtmlTransitonUtils {
 
-    public SpannableStringBuilder getSpannableString(Context context, String html, int type) {
+    public SpannableStringBuilder getSpannableString(Context context, String html, int type,int isAdmin) { //isAdmin 1群主 2管理员 0普通成员(默认)
         SpannableStringBuilder style = new SpannableStringBuilder();
         if (!TextUtils.isEmpty(html)) {
             HtmlBean bean = htmlTransition(html);
@@ -65,7 +65,7 @@ public class HtmlTransitonUtils {
                     setType8(context, style, bean);
                     break;
                 case ChatEnum.ENoticeType.CANCEL: //消息撤回
-                    setType9(context, style, bean);
+                    setType9(context, style, bean,isAdmin);
                     break;
                 case ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF://自己领取了自己的云红包
 
@@ -433,10 +433,15 @@ public class HtmlTransitonUtils {
         builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private void setType9(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+    private void setType9(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int isAdmin) {
         List<HtmlBeanList> list = htmlBean.getList();
         for (final HtmlBeanList bean : list) {
             final String content = "\"" + bean.getName() + "\"";
+            if(isAdmin==1){
+                builder.append("群主");
+            }else if(isAdmin==2){
+                builder.append("管理员");
+            }
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;
