@@ -679,8 +679,11 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
+                    TokenBean tokenBean = response.body().getData();
+                    doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    initDB("" + tokenBean.getUid());
+                    setToken(tokenBean, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
