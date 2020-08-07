@@ -73,6 +73,7 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
@@ -215,7 +216,7 @@ public class MainActivity extends AppActivity {
         doRegisterNetReceiver();
         SocketUtil.getSocketUtil().setMainLive(true);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
-        checkContactsPhone();
+//        checkContactsPhone();
     }
 
     private void checkPermission() {
@@ -1587,9 +1588,9 @@ public class MainActivity extends AppActivity {
                         WeakHashMap<String, Object> params = new WeakHashMap<>();
                         params.put("phoneList", newList);
                         params.put("isFirst", isFirstUpload ? CoreEnum.ECheckType.YES : CoreEnum.ECheckType.NO);
-                        userAction.getUserMatchPhone(params, new CallBack<ReturnBean<List<FriendInfoBean>>>() {
+                        userAction.getUserMatchPhone(params, new CallBack<ReturnBean<AddressBookMatchingBean>>() {
                             @Override
-                            public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
+                            public void onResponse(Call<ReturnBean<AddressBookMatchingBean>> call, Response<ReturnBean<AddressBookMatchingBean>> response) {
                                 super.onResponse(call, response);
                                 if (response.body() != null && response.body().isOk()) {
                                     SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, false);
@@ -1598,7 +1599,7 @@ public class MainActivity extends AppActivity {
                             }
 
                             @Override
-                            public void onFailure(Call<ReturnBean<List<FriendInfoBean>>> call, Throwable t) {
+                            public void onFailure(Call<ReturnBean<AddressBookMatchingBean>> call, Throwable t) {
                                 super.onFailure(call, t);
                                 LogUtil.writeLog("=======通讯录全量上传失败=========");
                             }

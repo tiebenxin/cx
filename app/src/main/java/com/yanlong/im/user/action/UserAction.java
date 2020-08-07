@@ -14,6 +14,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
@@ -678,8 +679,11 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
+                    TokenBean tokenBean = response.body().getData();
+                    doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    initDB("" + tokenBean.getUid());
+                    setToken(tokenBean, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
@@ -748,8 +752,15 @@ public class UserAction {
     /**
      * 通讯录匹配
      */
-    public void getUserMatchPhone(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
+    public void getUserMatchPhone(WeakHashMap<String, Object> params, CallBack<ReturnBean<AddressBookMatchingBean>> callback) {
         NetUtil.getNet().exec(server.getUserMatchPhone(params), callback);
+    }
+
+    /**
+     * 通讯录匹配
+     */
+    public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.getUserMatchPhone(phoneList), callback);
     }
 
     /**
