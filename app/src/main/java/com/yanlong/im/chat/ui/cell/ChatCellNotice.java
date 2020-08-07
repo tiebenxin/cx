@@ -102,7 +102,7 @@ public class ChatCellNotice extends ChatCellBase {
                 if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                     tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
                 } else {
-                    //A撤自己的消息，保留原有逻辑不变
+                    //A撤自己的消息，新版显示群主/管理员身份
                     if(message.getMsgCancel().getUid()!=null){
                         if(message.getMsgCancel().getUid().longValue()==0L || message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()){
                             if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE){
@@ -121,6 +121,7 @@ public class ChatCellNotice extends ChatCellBase {
                             }
                         }
                     }else {
+                        //A撤自己的消息，保留原有逻辑不变
                         tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),0));
                     }
                 }
