@@ -512,7 +512,7 @@ public class BillDetailActivity extends AppActivity {
             if (data.getBillType() == 1) {
                 tvPayStyleValue.setText("零钱");
             } else {
-                tvTransferSendPayStyle.setText("银行卡");
+                tvPayStyleValue.setText("银行卡");
             }
             tvPayNumberValue.setText(data.getTradeId() + "");
         }
