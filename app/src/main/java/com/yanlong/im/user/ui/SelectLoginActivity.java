@@ -165,7 +165,8 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
                     UpdateManage updateManage = new UpdateManage(context, SelectLoginActivity.this);
                     //判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
                     if(!TextUtils.isEmpty(bean.getVersion())){
-                        if(FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk") ){
+                        if(FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk")
+                                && VersionUtil.isLowerVersion(context,bean.getVersion())) {//当前的版本必须要低于安装包才允许安装
                             if(dialog==null){
                                 dialog = new UpdateAppDialog();
                                 dialog.init(SelectLoginActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
