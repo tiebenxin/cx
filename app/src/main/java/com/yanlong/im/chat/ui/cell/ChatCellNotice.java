@@ -120,6 +120,8 @@ public class ChatCellNotice extends ChatCellBase {
                                 tv_content.setText("管理员" + message.getMsgCancel().getNote());
                             }
                         }
+                    }else {
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),0));
                     }
                 }
             }
