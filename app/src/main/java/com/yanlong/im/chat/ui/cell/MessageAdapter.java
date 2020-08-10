@@ -41,7 +41,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private FactoryChatCell factoryChatCell;
     private final boolean isGroup;//是否群聊
 
-    //    private Map<Integer, ChatCellBase> cellMap = new HashMap<>();
     private boolean isShowCheckBox;
     private int unreadCount = 0;
     private List<MsgAllBean> selectedList = new ArrayList<>();
@@ -318,9 +317,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     public void showCheckBox(boolean flag, boolean update) {
         isShowCheckBox = flag;
-        if (update) {
-            notifyDataSetChanged();
-        }
+//        if (update) {
+//            notifyDataSetChanged();
+//        }
     }
 
     public boolean isShowCheckBox() {

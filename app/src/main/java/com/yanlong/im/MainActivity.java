@@ -108,6 +108,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
@@ -777,6 +778,7 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
         LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
+        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
         if (event.getRun()) {
             if (mMsgMainFragment != null) {
                 SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());

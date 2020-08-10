@@ -28,6 +28,7 @@ import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
 import com.yanlong.im.chat.ui.groupmanager.SetupGroupMemberLableActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DataUtils;
@@ -378,13 +379,17 @@ public class UserInfoActivity extends AppActivity {
     }
 
     private void toSendVerifyActivity() {
-        String content = "我是" + UserAction.getMyInfo().getName();
+        IUser myInfo = UserAction.getMyInfo();
+        if (myInfo == null) {
+            return;
+        }
+        String content = "我是" + myInfo.getName();
         if (group != null) {
             String name = group.getName();
             if (!TextUtils.isEmpty(name)) {
                 String userName = group.getMygroupName();
                 if (TextUtils.isEmpty(userName)) {
-                    userName = UserAction.getMyInfo().getName();
+                    userName = myInfo.getName();
                 }
                 content = "我是" + "\"" + name + "\"" + "的" + userName;
             }

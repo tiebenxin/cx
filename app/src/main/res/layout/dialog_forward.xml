@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray_99"
+    android:background="@color/transparent"
+    android:minWidth="300dp"
     android:orientation="vertical">
 
     <TextView
@@ -11,32 +12,32 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:gravity="center_horizontal"
-        android:textColor="@color/black"
         android:padding="10dp"
-        android:textSize="14sp"
-        android:text="逐条转发" />
+        android:text="逐条转发"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/tv_merge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:textColor="@color/black"
-        android:padding="10dp"
-        android:textSize="14sp"
         android:gravity="center_horizontal"
-        android:text="合并转发" />
+        android:padding="10dp"
+        android:text="合并转发"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/tv_cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
         android:background="@color/white"
         android:gravity="center_horizontal"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/black"
         android:padding="10dp"
-        android:textSize="14sp"
-        android:text="取消" />
+        android:text="取消"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
 
 </LinearLayout>
