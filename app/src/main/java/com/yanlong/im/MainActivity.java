@@ -200,7 +200,7 @@ public class MainActivity extends AppActivity {
     private long firstPressTime = 0;//第一次双击时间
     private boolean isFromLogin;
     private InstallAppUtil installAppUtil;
-    private UpdateAppDialog dialog;
+    private UpdateAppDialog installDialog;//安装提示弹框
 
 
     @Override
@@ -294,7 +294,9 @@ public class MainActivity extends AppActivity {
             FileManager.getInstance().clearLogDir();
         }
         uploadApp();
-
+        if(installDialog!=null){
+            installDialog.dismiss();
+        }
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
@@ -1029,41 +1031,52 @@ public class MainActivity extends AppActivity {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
-                    //判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
                     if (!TextUtils.isEmpty(bean.getVersion())) {
+                        //场景一：判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
                         if (FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk")
-                                && VersionUtil.isLowerVersion(context,bean.getVersion())) {//当前的版本必须要低于安装包才允许安装
-                            if (dialog == null) {
-                                dialog = new UpdateAppDialog();
-                                dialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
-                                    @Override
-                                    public void onON() {
+                                && VersionUtil.isLowerVersion(context,bean.getVersion())) {
+                            try {
+                                //检查文件是否完整 + 当前的版本必须要低于安装包才允许安装
+                                if(FileUtils.getFileSize(new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk"))
+                                        == new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE).getLong("new_apk_size")){
+                                    if (installDialog == null) {
+                                        installDialog = new UpdateAppDialog();
+                                        installDialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
+                                            @Override
+                                            public void onON() {
 
-                                    }
+                                            }
 
-                                    @Override
-                                    public void onUpdate() {
+                                            @Override
+                                            public void onUpdate() {
 
-                                    }
+                                            }
 
-                                    @Override
-                                    public void onInstall() {
-                                        if (installAppUtil == null) {
-                                            installAppUtil = new InstallAppUtil();
+                                            @Override
+                                            public void onInstall() {
+                                                if (installAppUtil == null) {
+                                                    installAppUtil = new InstallAppUtil();
+                                                }
+                                                installAppUtil.install(MainActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk");
+                                            }
+                                        });
+                                        installDialog.downloadComplete();
+                                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                            installDialog.showCancle(false);
+                                        } else {
+                                            installDialog.showCancle(true);
                                         }
-                                        installAppUtil.install(MainActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk");
                                     }
-                                });
-                                dialog.downloadComplete();
-                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                                    dialog.showCancle(false);
-                                } else {
-                                    dialog.showCancle(true);
+                                    installDialog.show();
                                 }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            dialog.show();
+
+
                         } else {
-                            //强制更新
+                            //场景二：没有下载过新版本的安装包，按正常逻辑往下走
+                            //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
                             if (bean.getForceUpdate() != 0) {
                                 //有最低不需要强制升级版本
                                 if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {

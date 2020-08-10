@@ -190,7 +190,7 @@ public class UpdateAppDialog {
      */
     public void setPos(int progress) {
         int w = DensityUtil.dip2px(context, 200);
-        LogUtil.getLog().i("w=====", "" + w);
+        LogUtil.getLog().i("w=====", "" + progress);
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvUpdatePercent.getLayoutParams();
 //        int pro = mProgressNum.getProgress();//进度是不断变化的，原来是1此时可能是2，又去从进度条获取则进度会忽大忽小
         if(progress>=0 && progress<=100){
