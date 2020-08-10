@@ -244,6 +244,9 @@ public class FriendMainFragment extends Fragment {
                 case CoreEnum.ERosterAction.REQUEST_FRIEND://请求添加为好友
                     mtListView.getListView().getAdapter().notifyItemChanged(0, 0);
                     break;
+                case CoreEnum.ERosterAction.PHONE_MATCH:// 手机通讯录匹配
+                    mtListView.getListView().getAdapter().notifyDataSetChanged();
+                    break;
                 default:
                     if (uid > 0) {
                         mtListView.getListView().getAdapter().notifyDataSetChanged();

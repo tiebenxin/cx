@@ -188,7 +188,10 @@ public class DaoMigration implements RealmMigration {
                 updateV42(schema);
                 oldVersion++;
             }
-
+            if (newVersion > oldVersion && oldVersion == 42) {
+                updateV43(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -778,7 +781,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("isLocal", int.class)
                 .addField("isReplying", int.class)
                 .addRealmObjectField("envelopeMessage", schema.get("EnvelopeTemp"))
-                ;
+        ;
     }
 
     //增加撤回消息新字段
@@ -793,7 +796,12 @@ public class DaoMigration implements RealmMigration {
                 .addField("alterantive_name", String.class);
     }
 
-
+    // 增加手机通讯录表
+    private final void updateV43(RealmSchema schema) {
+        schema.create("PhoneBean")
+                .addField("phoneremark", String.class)
+                .addField("phone", String.class);
+    }
 
 
     @Override

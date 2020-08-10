@@ -163,4 +163,31 @@ public class UserUtil {
         }
         return tempList;
     }
+
+    /**
+     * 获取删除的联系人
+     *
+     * @param newList
+     * @param oldList
+     * @return
+     */
+    public static List<String> getDeleteContentsPhone(List<PhoneBean> newList, List<PhoneBean> oldList) {
+        List<String> tempList = new ArrayList<>();
+        boolean isFlg;
+        if (newList != null && oldList != null) {
+            for (PhoneBean oldBean : oldList) {
+                isFlg = false;
+                for (PhoneBean newBean : newList) {
+                    if (!TextUtils.isEmpty(oldBean.getPhone()) && oldBean.getPhone().equals(newBean.getPhone())) {
+                        isFlg = true;
+                        break;
+                    }
+                }
+                if (!isFlg) {
+                    tempList.add(oldBean.getPhone());
+                }
+            }
+        }
+        return tempList;
+    }
 }

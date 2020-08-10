@@ -50,7 +50,7 @@ public class PhoneListUtil {
             //获取联系人姓名
             String name = cursor.getString(cursor
                     .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            temp.setName(name);
+            temp.setPhoneremark(name);
 
             //获取联系人电话号码
             Cursor phoneCursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -135,7 +135,7 @@ public class PhoneListUtil {
                     //如果联系人Map不包含该contactId
                     PhoneBean contacts = new PhoneBean();
                     //  contacts.setRecordId(contactId);
-                    contacts.setName(name);
+                    contacts.setPhoneremark(name);
                     //  String[] strings = new String[1];
                     //  strings[0] = PhoneBean;
                     contacts.setPhone(replace);
@@ -184,7 +184,7 @@ public class PhoneListUtil {
                     }
                     //如果联系人Map不包含该contactId
                     PhoneBean contacts = new PhoneBean();
-                    contacts.setName(name);
+                    contacts.setPhoneremark(name);
                     contacts.setPhone(replace);
                     data.add(contacts);
                     contactIdMap.put(contactId, data.size() - 1);

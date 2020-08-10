@@ -35,7 +35,7 @@ public class CoreEnum {
      *
      * */
     @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO,
-            ERosterAction.LOAD_ALL_SUCCESS, ERosterAction.BLACK})
+            ERosterAction.LOAD_ALL_SUCCESS, ERosterAction.BLACK,ERosterAction.PHONE_MATCH})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ERosterAction {
         int DEFAULT = 0; // 默认，无指令
@@ -45,6 +45,7 @@ public class CoreEnum {
         int UPDATE_INFO = 4; // 信息更新
         int LOAD_ALL_SUCCESS = 5; // 所有数据加载完毕
         int BLACK = 6; // 加入黑名单
+        int PHONE_MATCH = 7; // 手机通讯匹配
     }
 
 

@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.data.local.MessageLocalDataSource;
 import com.yanlong.im.data.remote.MessageRemoteDataSource;
@@ -25,6 +26,8 @@ import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -879,29 +882,30 @@ public class MessageRepository {
         try {
             MsgBean.RecommendMessage recommendMessage = wrapMessage.getRecommend();
             if (recommendMessage != null) {
-                // 显示手机通讯录匹配红点标记
-                SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_NEW, true);
-                String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS, "");
-                List<FriendInfoBean> list = new ArrayList<>();
-                Gson gson = new Gson();
-                if (TextUtils.isEmpty(friends)) {
-                    FriendInfoBean friendInfoBean = new FriendInfoBean();
-                    friendInfoBean.setUid(recommendMessage.getUid());
-                    list.add(friendInfoBean);
-                    SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
-                } else {
-                    list.addAll(gson.fromJson(friends, new TypeToken<List<FriendInfoBean>>() {
-                    }.getType()));
-                    FriendInfoBean friendInfoBean = new FriendInfoBean();
-                    friendInfoBean.setUid(recommendMessage.getUid());
-                    list.add(friendInfoBean);
-                    SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+                UserDao userDao = new UserDao();
+                // 获取本地保存的通讯录，用于判断是否是当前手机的通讯录
+                List<PhoneBean> oldList = userDao.getLocaPhones();
+                boolean isExist = false;
+                if (oldList != null && oldList.size() > 0) {
+                    for (PhoneBean phoneBean : oldList) {
+                        if (!TextUtils.isEmpty(phoneBean.getPhone()) && phoneBean.getPhone().equals(recommendMessage.getPhone() + "")) {
+                            isExist = true;
+                            break;
+                        }
+                    }
+                }
+                if (isExist) {
+                    // 手机通讯录匹配红点加1
+                    localDataSource.addRemindCount(realm, Preferences.RECENT_FRIENDS_NEW);
+                    MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
+                    CommonUtils.saveFriendInfo(recommendMessage.getUid(), recommendMessage.getPhone() + "");
                 }
             }
         } catch (Exception e) {
 
         }
     }
+
 
     /**
      * 接受成为好友,需要产生消息后面在处理

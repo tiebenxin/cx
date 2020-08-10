@@ -7,6 +7,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
+import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -706,6 +707,37 @@ public class UserDao {
                     member.setMarkerName(user.getMkName());
                 }
             }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    public List<PhoneBean> getLocaPhones() {
+        List<PhoneBean> res = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<PhoneBean> ls = realm.where(PhoneBean.class).findAll();
+            res = realm.copyFromRealm(ls);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return res;
+    }
+
+    public void updateLocaPhones(List<PhoneBean> list) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<PhoneBean> ls = realm.where(PhoneBean.class).findAll();
+            ls.deleteAllFromRealm();
+            realm.insertOrUpdate(list);
+            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -149,10 +149,6 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> setUserPassword(@Field("newPassword") String newPassword, @Field("oldPassword") String oldPassword);
 
-    @POST("user/get-user-matchphone")
-    @FormUrlEncoded
-    Call<ReturnBean<List<FriendInfoBean>>> getUserMatchPhone(@Field("@phoneList") String phoneList);
-
     @POST("user/match-contacts")
     Call<ReturnBean<AddressBookMatchingBean>> getUserMatchPhone(@Body WeakHashMap<String, Object> params);
 

@@ -25,12 +25,14 @@
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center_vertical">
 
                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         style="@style/app_txt_title_2"
                         android:text="新的申请" />
 
@@ -39,8 +41,7 @@
                         android:layout_marginLeft="5dip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:strike_icon_res="@color/transparent"
-                      />
+                        app:strike_icon_res="@color/transparent"/>
 
                 </LinearLayout>
 
@@ -98,15 +99,23 @@
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center_vertical">
 
                     <TextView
                         style="@style/app_txt_title_2"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:text="手机通讯录匹配" />
 
+                    <net.cb.cb.library.view.StrikeButton
+                        android:id="@+id/sb_matching"
+                        android:layout_marginLeft="5dip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:strike_icon_res="@color/transparent" />
                 </LinearLayout>
 
                 <View style="@style/app_line" />
