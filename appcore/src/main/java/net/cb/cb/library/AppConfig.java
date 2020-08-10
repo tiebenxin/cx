@@ -29,6 +29,10 @@ public class AppConfig {
     public static final String USER_AGREEMENT = "https://changxin.zhixun6.com/yhxy.html";
     // 隐私政策
     public static final String USER_PRIVACY = "https://changxin.zhixun6.com/yszc.html";
+    // 阿里云上传回调
+    public static final String UPLOAD_BACK_TEST = "https://e7.callback.zhixun6.com:58181/file-uploaded";
+    public static final String UPLOAD_BACK_RELEASE = "https://im-app.zhixun6.com:19009/file-uploaded";
+
     private static boolean isOnline;
     private static String uploadParent;
 
@@ -78,6 +82,19 @@ public class AppConfig {
             }
         }
         return uploadParent;
+    }
+
+    public static String getUploadBack() {
+        if ("release".equals(BuildConfig.BUILD_TYPE)) {
+            return UPLOAD_BACK_RELEASE;
+        } else {
+            int type = SpUtil.getSpUtil().getSPValue("ipType", 0);
+            if (type == 3) {
+                return UPLOAD_BACK_RELEASE;
+            } else {
+                return UPLOAD_BACK_TEST;
+            }
+        }
     }
 
     /***

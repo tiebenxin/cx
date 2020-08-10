@@ -232,7 +232,7 @@ public class ImageMoveView extends RelativeLayout {
                         params.x = paramX + dx;
                         params.y = paramY + dy;
                         // 更新悬浮窗位置
-//                        wm.updateViewLayout(floatingViewObj, params);
+                        wm.updateViewLayout(floatingViewObj, params);
                         break;
                     case MotionEvent.ACTION_UP:
                         // 判断是否触发点击事件

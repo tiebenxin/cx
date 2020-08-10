@@ -180,6 +180,15 @@ public class DaoMigration implements RealmMigration {
                 updateV40(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 40) {
+                updateV41(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 41) {
+                updateV42(schema);
+                oldVersion++;
+            }
+
         }
     }
 
@@ -771,6 +780,20 @@ public class DaoMigration implements RealmMigration {
                 .addRealmObjectField("envelopeMessage", schema.get("EnvelopeTemp"))
                 ;
     }
+
+    //增加撤回消息新字段
+    private final void updateV41(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("role", int.class);
+    }
+
+    //增加撤回消息新字段
+    private final void updateV42(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("alterantive_name", String.class);
+    }
+
+
 
 
     @Override

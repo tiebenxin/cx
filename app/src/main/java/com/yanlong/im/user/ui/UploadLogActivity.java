@@ -18,6 +18,7 @@ import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.ViewUtils;
+import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
 import java.io.File;
@@ -40,6 +41,7 @@ public class UploadLogActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_uplaod_log);
+
         calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
@@ -61,6 +63,18 @@ public class UploadLogActivity extends AppActivity {
                 uploadFile();
             }
         });
+
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                finish();
+            }
+
+            @Override
+            public void onRight() {
+
+            }
+        });
     }
 
     private void uploadFile() {
@@ -72,6 +86,7 @@ public class UploadLogActivity extends AppActivity {
                 FileUtils.toZip(file, zipPath);
                 File zipFile = new File(zipPath);
                 if (!zipFile.exists()) {
+                    ToastUtil.show("文件压缩失败");
                     return;
                 }
                 new UpFileAction().uploadLogFile(zipFile, date, new IUploadListener() {
@@ -96,7 +111,7 @@ public class UploadLogActivity extends AppActivity {
             }
 
         } else {
-            ToastUtil.show("日志文件不存在");
+            ToastUtil.show("文件不存在");
         }
     }
 

@@ -1,12 +1,15 @@
 package com.yanlong.im;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.IntDef;
@@ -14,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -26,12 +30,13 @@ import com.alibaba.android.arouter.facade.annotation.Route;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
+import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.hm.cxpay.bean.BankBean;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
@@ -41,7 +46,6 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.DateUtils;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -57,6 +61,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+import com.yanlong.im.chat.eventbus.EventReportGeo;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.tcp.TcpConnection;
@@ -68,9 +73,12 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
+import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
@@ -80,9 +88,12 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.ChatBitmapCache;
+import com.yanlong.im.utils.PhoneListUtil;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
+import com.yanlong.im.utils.update.UpdateAppDialog;
 import com.yanlong.im.utils.update.UpdateManage;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 
@@ -106,13 +117,17 @@ import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.FileUtils;
+import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
+import net.cb.cb.library.utils.RxJavaUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -136,6 +151,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.WeakHashMap;
 
 import cn.jpush.android.api.JPushInterface;
 import io.realm.RealmResults;
@@ -176,7 +192,6 @@ public class MainActivity extends AppActivity {
     private BDAbstractLocationListener listener;
 
     private UserAction userAction = new UserAction();
-    private boolean testMe = true;
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
     private ShopFragemnt mShowFragment;
@@ -184,6 +199,8 @@ public class MainActivity extends AppActivity {
     private int currentTab = EMainTab.MSG;
     private long firstPressTime = 0;//第一次双击时间
     private boolean isFromLogin;
+    private InstallAppUtil installAppUtil;
+    private UpdateAppDialog dialog;
 
 
     @Override
@@ -199,6 +216,7 @@ public class MainActivity extends AppActivity {
         doRegisterNetReceiver();
         SocketUtil.getSocketUtil().setMainLive(true);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+//        checkContactsPhone();
     }
 
     private void checkPermission() {
@@ -222,7 +240,7 @@ public class MainActivity extends AppActivity {
         } else {
             //有缓存则按需求规则，超过24小时再上报用户地理位置信息
             try {
-                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 24)) {
+                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 6)) {
                     getLocation();
                 }
             } catch (Exception e) {
@@ -247,8 +265,8 @@ public class MainActivity extends AppActivity {
                                 NIMClient.getService(AuthService.class).logout();// 需要先登出网易登录，在重新登录
                                 UserAction userAction = new UserAction();
                                 SpUtil spUtil = SpUtil.getSpUtil();
-                                String account = spUtil.getSPValue("account", "");
-                                String token = spUtil.getSPValue("token", "");
+                                String account = spUtil.getSPValue(Preferences.KEY_USER_ACCOUNT, "");
+                                String token = spUtil.getSPValue(Preferences.KEY_USER_TOKEN, "");
                                 userAction.doNeteaseLogin(account, token);
                             } else {
                                 LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录成功");
@@ -256,7 +274,7 @@ public class MainActivity extends AppActivity {
                             }
                         }
                     } catch (Exception e) {
-
+                        LogUtil.writeLog(">>>>>>>>>网易云登录出现了异常>>>>>>>>> " + e.getMessage());
                     }
                 }
             }, 10000);
@@ -269,13 +287,13 @@ public class MainActivity extends AppActivity {
         super.onStart();
         if (isCreate) {
             LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
-            uploadApp();
             checkRosters();
             checkNeteaseLogin();
             checkPermission();
             initLocation();
             FileManager.getInstance().clearLogDir();
         }
+        uploadApp();
 
     }
 
@@ -473,7 +491,9 @@ public class MainActivity extends AppActivity {
         bottomTab.getTabAt(1).select();
         bottomTab.getTabAt(0).select();
 
-
+        if (mMsgMainFragment != null) {
+            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+        }
         // 启动聊天服务
         startChatServer();
 
@@ -567,7 +587,6 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
-
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
@@ -597,6 +616,9 @@ public class MainActivity extends AppActivity {
             stopChatService();
         }
         SocketUtil.getSocketUtil().setMainLive(false);
+        if (mMsgMainFragment != null) {
+            SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+        }
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
@@ -622,7 +644,6 @@ public class MainActivity extends AppActivity {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
         if (event.getStatus() == CoreEnum.ENetStatus.SUCCESS_ON_NET) {
-//            reportIP(NetWorkUtils.getLocalIpAddress(this));
             getIP();
         }
     }
@@ -642,7 +663,6 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
-//        checkTokenValid();
     }
 
     //检测支付环境的初始化
@@ -756,10 +776,16 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i("TAG", ">>>>EventRunState:" + event.getRun());
+        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
         if (event.getRun()) {
+            if (mMsgMainFragment != null) {
+                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+            }
             startChatServer();
         } else {
+            if (mMsgMainFragment != null) {
+                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+            }
             stopChatService();
         }
 
@@ -767,10 +793,11 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
-        if (event.isOn()) {
-//            MessageManager.getInstance().testReceiveMsg();
-        }
-
+//        if (!event.isOn()) {
+//            Glide.with(this).pauseRequests();
+//        } else {
+//            Glide.with(this).resumeRequests();
+//        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1002,31 +1029,67 @@ public class MainActivity extends AppActivity {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
-                    //强制更新
-                    if (bean.getForceUpdate() != 0) {
-                        //有最低不需要强制升级版本
-                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                        }
-                    } else {
-                        //缓存最新版本
-                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                        VersionBean versionBean = new VersionBean();
-                        versionBean.setVersion(bean.getVersion());
-                        preferencesUtil.save2Json(versionBean);
-                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                            //如有新版本，首页底部提示红点
-                            if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
-                                if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                    sbme.setNum(1, true);
+                    //判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
+                    if (!TextUtils.isEmpty(bean.getVersion())) {
+                        if (FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk")
+                                && VersionUtil.isLowerVersion(context,bean.getVersion())) {//当前的版本必须要低于安装包才允许安装
+                            if (dialog == null) {
+                                dialog = new UpdateAppDialog();
+                                dialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
+                                    @Override
+                                    public void onON() {
+
+                                    }
+
+                                    @Override
+                                    public void onUpdate() {
+
+                                    }
+
+                                    @Override
+                                    public void onInstall() {
+                                        if (installAppUtil == null) {
+                                            installAppUtil = new InstallAppUtil();
+                                        }
+                                        installAppUtil.install(MainActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk");
+                                    }
+                                });
+                                dialog.downloadComplete();
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                    dialog.showCancle(false);
                                 } else {
-                                    sbme.setNum(0, true);
+                                    dialog.showCancle(true);
+                                }
+                            }
+                            dialog.show();
+                        } else {
+                            //强制更新
+                            if (bean.getForceUpdate() != 0) {
+                                //有最低不需要强制升级版本
+                                if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                                } else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                                }
+                            } else {
+                                //缓存最新版本
+                                SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                                VersionBean versionBean = new VersionBean();
+                                versionBean.setVersion(bean.getVersion());
+                                preferencesUtil.save2Json(versionBean);
+                                //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                                } else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                                    //如有新版本，首页底部提示红点
+                                    if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                                        if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
+                                            sbme.setNum(1, true);
+                                        } else {
+                                            sbme.setNum(0, true);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1191,6 +1254,13 @@ public class MainActivity extends AppActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(EventReportGeo event) {
+        if (!isFinishing()) {
+            getLocation();
+        }
+    }
+
     private void checkHasEnvelopeSendFailed() {
         List<EnvelopeInfo> list = msgDao.queryEnvelopeInfoList();
         if (list != null && list.size() > 0) {
@@ -1266,7 +1336,7 @@ public class MainActivity extends AppActivity {
         if (!LocationPersimmions.checkPermissions(this)) {
             return;
         }
-        if (!LocationUtils.isLocationEnabled(this)) {
+        if (!LocationUtils.isLocationEnabled2(this)) {
 //            ToastUtil.show("请打开定位服务");
             return;
         }
@@ -1487,5 +1557,87 @@ public class MainActivity extends AppActivity {
             });
         }
 
+    }
+
+    /**
+     * 检查是否打开访问通讯录权限，打开了则上传通讯录，第一次全量上传后面增量上传
+     */
+    private void checkContactsPhone() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            PhoneListUtil phoneListUtil = new PhoneListUtil();
+            RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<List<PhoneBean>>() {
+
+                @Override
+                public List<PhoneBean> doInBackground() throws Throwable {
+                    return phoneListUtil.getContacts(MainActivity.this);
+                }
+
+                @Override
+                public void onFinish(List<PhoneBean> newList) {
+                    if (newList == null) {
+                        return;
+                    }
+                    List<PhoneBean> oldList;
+                    Gson gson = new Gson();
+                    // 获取本地保存的记录，有则增量上传，没有全量上传
+                    String localJson = SpUtil.getSpUtil().getSPValue(Preferences.CONTENTS_PHONE, "");
+                    SpUtil.getSpUtil().putSPValue(Preferences.CONTENTS_PHONE, gson.toJson(newList));
+                    if (TextUtils.isEmpty(localJson)) {
+                        boolean isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, true);
+                        // 全量上传
+                        WeakHashMap<String, Object> params = new WeakHashMap<>();
+                        params.put("phoneList", newList);
+                        params.put("isFirst", isFirstUpload ? CoreEnum.ECheckType.YES : CoreEnum.ECheckType.NO);
+                        userAction.getUserMatchPhone(params, new CallBack<ReturnBean<AddressBookMatchingBean>>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean<AddressBookMatchingBean>> call, Response<ReturnBean<AddressBookMatchingBean>> response) {
+                                super.onResponse(call, response);
+                                if (response.body() != null && response.body().isOk()) {
+                                    SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, false);
+                                    LogUtil.writeLog("=======通讯录全量上传成功=========");
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ReturnBean<AddressBookMatchingBean>> call, Throwable t) {
+                                super.onFailure(call, t);
+                                LogUtil.writeLog("=======通讯录全量上传失败=========");
+                            }
+                        });
+                    } else {
+                        oldList = gson.fromJson(localJson, new TypeToken<List<PhoneBean>>() {
+                        }.getType());
+                        // 获取新增加的联系人
+                        List<String> tempList = UserUtil.getNewContentsPhone(newList, oldList);
+                        // 增量上传
+                        if (tempList.size() > 0) {
+                            WeakHashMap<String, Object> params = new WeakHashMap<>();
+                            params.put("phoneList", tempList);
+                            userAction.getIncrementContacts(params, new CallBack<ReturnBean<List<FriendInfoBean>>>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
+                                    super.onResponse(call, response);
+                                    if (response.body() != null && response.body().isOk()) {
+                                        LogUtil.writeLog("=======通讯录增量上传成功=========" + gson.toJson(tempList));
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ReturnBean<List<FriendInfoBean>>> call, Throwable t) {
+                                    super.onFailure(call, t);
+                                    LogUtil.writeLog("=======通讯录增量上传失败=========" + gson.toJson(tempList));
+                                }
+                            });
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    LogUtil.writeLog("=======获取通讯录失败了=========");
+                }
+            });
+        }
     }
 }

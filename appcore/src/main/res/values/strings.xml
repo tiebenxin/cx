@@ -28,8 +28,10 @@
     <string name="two_way_clear_chat_hint">清除双方的聊天记录，请谨慎操作。</string>
     <string name="two_way_clear_chat_dialog_hint">将同时清除双方的聊天记录，\n请谨慎操作</string>
     <string name="two_way_clear_chat_success">已双向清除聊天记录</string>
-    <string name="user_disable_message">你已被限制此功能</string>
+    <string name="user_disable_message">你已被限制使用此功能</string>
     <string name="friend_disable_message">该账号因涉嫌违规,已被停用</string>
     <string name="to_disable_message">对方被封号，不能发起音视频通话</string>
+
+    <string name="send_note_message">终于遇见你。快快来下载注册使用常信吧。点击下方链接下载常信http://xz.bdcagg.cn/，从此沟通零距离</string>
 
 </resources>

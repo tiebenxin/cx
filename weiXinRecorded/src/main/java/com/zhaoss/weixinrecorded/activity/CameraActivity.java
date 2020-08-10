@@ -1,6 +1,7 @@
 package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
@@ -51,6 +52,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
     public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
     public static final String INTENT_PATH_BG = "intent_bg";
+    public static final String INTENT_LOCAL_TAKE = "intent_local_take";
     public static final int RESULT_TYPE_VIDEO = 1;
     public static final int RESULT_TYPE_PHOTO = 2;
     public static final int REQUEST_CODE_KEY = 100;
@@ -221,7 +223,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         if (orientationEventListener != null) {
             orientationEventListener.disable();
         }
-       mCameraView.CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//重置为后置摄像头，静态变量没回收
+        mCameraView.CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//重置为后置摄像头，静态变量没回收
 
     }
 
@@ -253,6 +255,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
                 intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraView.getVideoWidth());
                 intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraView.getVideoHeight());
                 intentMas.putExtra(INTENT_PATH_TIME, data.getLongExtra(INTENT_PATH_TIME, 0));
+                intentMas.putExtra(INTENT_LOCAL_TAKE, true);
                 intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intentMas);
                 finish();
@@ -440,5 +443,14 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            System.out.println(TAG + "--onConfigurationChanged--横屏");
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            System.out.println(TAG + "--onOrientationChanged--竖屏");
+        }
+    }
 }
 

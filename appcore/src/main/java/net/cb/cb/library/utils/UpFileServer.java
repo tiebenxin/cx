@@ -4,6 +4,8 @@ import net.cb.cb.library.bean.AliObsConfigBean;
 import net.cb.cb.library.bean.HuaweiObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
 
+import java.util.WeakHashMap;
+
 import io.reactivex.Observable;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -27,4 +29,13 @@ public interface UpFileServer {
 
     @POST("/app/log/upload")
     Observable<ResponseBody> uploadLog(@Body RequestBody requestBody);
+
+    /**
+     * 单个文件check
+     *
+     * @param param
+     * @return
+     */
+    @POST("/high-speed/check")
+    Call<ReturnBean<String>> fileCheck(@Body WeakHashMap<String, Object> param);
 }

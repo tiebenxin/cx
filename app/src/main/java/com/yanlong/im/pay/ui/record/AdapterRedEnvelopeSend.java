@@ -72,7 +72,7 @@ public class AdapterRedEnvelopeSend extends AbstractRecyclerAdapter<RedEnvelopeI
                 tvName.setText("普通红包");
             }
             tvMoney.setText(UIUtils.getYuan(bean.getAmt()) + "元");
-            tvTime.setText(DateUtils.getGrabTime(bean.getTime()));
+            tvTime.setText(DateUtils.getFullTime(bean.getTime()));
         }
     }
 }

@@ -151,26 +151,26 @@ public class FriendMatchActivity extends AppActivity {
 //        new Thread(new Runnable() {
 //            @Override
 //            public void run() {
-                phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
-                    @Override
-                    public void onList(final List<PhoneBean> list) {
-                        if (list == null)
-                            return;
-                        //分批次上传请求
-                        if (list.size() > numberLimit){
-                            ifSub = true;
-                            progressBar.setVisibility(View.VISIBLE);
-                            subList = new ArrayList<>();
-                            subList.addAll(CommonUtils.subWithLen(list,numberLimit));//拆分成多个List按批次上传
-                            needUploadTimes = subList.size();
-                            taskUserMatchPhone(subList.get(hadUploadTimes));//默认先传第一部分
-                        }else {
-                            ifSub = false;
-                            progressBar.setVisibility(View.GONE);
-                            taskUserMatchPhone(list);
-                        }
-                    }
-                });
+        phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
+            @Override
+            public void onList(final List<PhoneBean> list) {
+                if (list == null)
+                    return;
+                //分批次上传请求
+                if (list.size() > numberLimit){
+                    ifSub = true;
+                    progressBar.setVisibility(View.VISIBLE);
+                    subList = new ArrayList<>();
+                    subList.addAll(CommonUtils.subWithLen(list,numberLimit));//拆分成多个List按批次上传
+                    needUploadTimes = subList.size();
+                    taskUserMatchPhone(subList.get(hadUploadTimes));//默认先传第一部分
+                }else {
+                    ifSub = false;
+                    progressBar.setVisibility(View.GONE);
+                    taskUserMatchPhone(list);
+                }
+            }
+        });
 //            }
 //        }).start();
     }

@@ -3867,7 +3867,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         long time = SocketData.getFixTime() - TimeToString.DAY * 3;
         try {
-            //群聊消息,1000
+            //群聊消息,1000 过滤红包转账消息
             RealmResults<MsgAllBean> groupMsgs = realm.where(MsgAllBean.class)
                     .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
                     .and()
@@ -3876,10 +3876,14 @@ public class MsgDao {
                     .beginGroup().equalTo("isLocal", 0).endGroup()
                     .and()
                     .beginGroup().equalTo("send_state", 0).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", 3).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", 6).endGroup()
                     .limit(1000)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
-            //单聊消息,3000
+            //单聊消息,3000，过滤红包3 转账 6消息
             RealmResults<MsgAllBean> privateMsgs = realm.where(MsgAllBean.class)
                     .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                     .and()
@@ -3888,6 +3892,10 @@ public class MsgDao {
                     .beginGroup().equalTo("isLocal", 0).endGroup()
                     .and()
                     .beginGroup().equalTo("send_state", 0).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", 3).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", 6).endGroup()
                     .limit(3000)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
@@ -4223,23 +4231,25 @@ public class MsgDao {
         return list;
     }
 
-
-    /**
-     * 清空所有离线收藏操作记录->离线收藏记录表/离线删除记录表
-     */
-//    public void cleanAllCollect() {
-//        Realm realm = DaoUtil.open();
-//        try {
-//            realm.beginTransaction();
-//            realm.where(OfflineCollect.class).findAll().deleteAllFromRealm();
-//            realm.where(OfflineDelete.class).findAll().deleteAllFromRealm();
-//            realm.commitTransaction();
-//        } catch (Exception e) {
-//            DaoUtil.reportException(e);
-//        } finally {
-//            realm.close();
-//        }
-//    }
-
-
+    //根据红包id，获取MsgAllBean
+    public MsgAllBean getMsgByRid(long rid) {
+        MsgAllBean ret = null;
+        MsgAllBean bean = null;
+        Realm realm = DaoUtil.open();
+        try {
+            ret = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("red_envelope.traceId", rid).endGroup()
+                    .or()
+                    .beginGroup().equalTo("transfer.id", rid + "").endGroup()
+                    .findFirst();
+            if (ret != null) {
+                bean = realm.copyFromRealm(ret);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return bean;
+    }
 }

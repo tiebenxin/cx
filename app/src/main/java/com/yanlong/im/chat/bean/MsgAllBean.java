@@ -376,8 +376,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     int reType = envelopeMessage.getRe_type();
                     if (reType == 1) {
                         str = "[零钱红包]" + getRed_envelope().getComment();
-                    } else {
-                        str = "[云红包]" + getRed_envelope().getComment();
                     }
                 }
             } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
@@ -438,7 +436,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
                 str = "[位置]";
             } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
-                str = "[零钱小助手消息]";
+                str = getBalanceAssistantMessage().getTitle();
             } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
                 if (getSendFileMessage() != null) {
                     if (!TextUtils.isEmpty(getSendFileMessage().getFile_name())) {

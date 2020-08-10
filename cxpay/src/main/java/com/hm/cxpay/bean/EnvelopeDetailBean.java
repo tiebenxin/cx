@@ -20,7 +20,7 @@ public class EnvelopeDetailBean extends BaseBean implements Parcelable {
     int cnt; //红包个数
     long finishTime;//红包全部领完时间
     FromUserBean imUserInfo;//发红包者用户信息
-    String note;//红包备注：恭喜发财，大吉大利
+    String note;//红包备注：恭喜发财，好运连连
     long remainAmt;//剩余金额
     int remainCnt;//红包个数
     long time;//红包发送时间

@@ -3,6 +3,7 @@ package com.yanlong.im.user.server;
 
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
+import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
@@ -151,6 +152,12 @@ public interface UserServer {
     @POST("user/get-user-matchphone")
     @FormUrlEncoded
     Call<ReturnBean<List<FriendInfoBean>>> getUserMatchPhone(@Field("@phoneList") String phoneList);
+
+    @POST("user/match-contacts")
+    Call<ReturnBean<AddressBookMatchingBean>> getUserMatchPhone(@Body WeakHashMap<String, Object> params);
+
+    @POST("user/increment-contacts")
+    Call<ReturnBean<List<FriendInfoBean>>> getIncrementContacts(@Body WeakHashMap<String, Object> params);
 
     @POST("/pub/change-password-by-sms-captcha")
     @FormUrlEncoded

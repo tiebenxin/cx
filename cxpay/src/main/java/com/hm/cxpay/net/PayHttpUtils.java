@@ -325,7 +325,7 @@ public class PayHttpUtils {
     /**
      * 发送红包给单人:
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气 1或者普通红包 0，
-     * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
+     * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，好运连连，uid-红包发送给谁
      */
     public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToUser(String actionId, long amt, int count, int type, String note, long uid) {
         Map<String, String> map = new HashMap<>();
@@ -341,7 +341,7 @@ public class PayHttpUtils {
     /**
      * 发送红包给群:
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气1或者普通红包0，
-     * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
+     * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，好运连连，uid-红包发送给谁
      */
     public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count, int type, String note, String gid) {
         Map<String, String> map = new HashMap<>();

@@ -14,7 +14,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="title"
-        android:textColor="@color/c_868686"
+        android:textColor="@color/c_878787"
         android:textSize="13sp" />
 
     <TextView
@@ -24,7 +24,6 @@
         android:layout_weight="3"
         android:text="内容"
         android:textColor="@color/c_353535"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:textSize="13sp" />
 
 </LinearLayout>

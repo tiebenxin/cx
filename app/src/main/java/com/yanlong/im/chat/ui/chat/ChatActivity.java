@@ -67,18 +67,11 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
-import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
-import com.jrmf360.rplib.JrmfRpClient;
-import com.jrmf360.rplib.bean.EnvelopeBean;
-import com.jrmf360.rplib.bean.GrabRpBean;
-import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
@@ -163,8 +156,6 @@ import com.yanlong.im.dialog.ForwardDialog;
 import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
-import com.yanlong.im.pay.action.PayAction;
-import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
@@ -244,6 +235,7 @@ import net.cb.cb.library.utils.ScreenShotListenManager;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -422,6 +414,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private long currentTradeId;
     private String searchKey;
 
+    private boolean showCancel = false;//长按气泡是否显示撤回选项
+    private boolean timeLimit = true;//这条消息撤回是否有2分钟时间限制
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -489,7 +484,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
-                    setPanelHeight(mKeyboardHeight, viewFaceView);
+//                    setPanelHeight(mKeyboardHeight, viewFaceView);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -533,7 +528,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
-                    setPanelHeight(mKeyboardHeight, viewExtendFunction);
+//                    setPanelHeight(mKeyboardHeight, viewExtendFunction);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -725,10 +720,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         stopScreenShotListener();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        LogUtil.getLog().i(TAG, "ChatActivity-异常销毁了");
+    }
 
     @Override
     protected void onStop() {
         super.onStop();
+        LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         AudioPlayManager.getInstance().stopPlay();
         stopRecordVoice();
@@ -770,6 +771,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     protected void onDestroy() {
+        LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         //释放adapter资源
         mAdapter.onDestroy();
         mViewModel.onDestroy();
@@ -785,8 +787,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
-        EventBus.getDefault().unregister(this);
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         super.onDestroy();
         //释放空间
         if (popGuessUWant != null) {
@@ -817,7 +820,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void initData() {
         //9.17 进去后就清理会话的阅读数量,初始化unreadCount
+        session = dao.sessionGet(toGid, toUId);
         taskCleanRead(true);
+        updateSessionDraftAndAtMessage();
         initViewNewMsg();
         if (!isLoadHistory) {
             taskRefreshMessage(false);
@@ -1727,6 +1732,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (userAction.getMyInfo() == null) {
                     return;
                 }
+                // 封号
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                    ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                    return;
+                }
                 if (isGroup()) {
                     if (!isAdmin() && !isAdministrators()) {
                         ToastUtil.show(context, "只有群主才能修改该选项");
@@ -1977,17 +1987,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void toTransfer() {
         UserBean user = PayEnvironment.getInstance().getUser();
-        if (user != null) {
-            if (user.getRealNameStat() != 1) {//未认证
-                showIdentifyDialog();
-                return;
-            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
-                showBindPhoneDialog();
-                return;
-            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
-                showSettingPswDialog();
-                return;
-            }*/
+        if (user == null || user.getRealNameStat() != 1) {
+            showIdentifyDialog();
+            return;
         }
         String name = "";
         String avatar = "";
@@ -2001,11 +2003,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void toSystemEnvelope() {
         UserBean user = PayEnvironment.getInstance().getUser();
-        if (user != null) {
-            if (user.getRealNameStat() != 1) {//未认证
-                showIdentifyDialog();
-                return;
-            }
+        if (user == null || user.getRealNameStat() != 1) {//未认证
+            showIdentifyDialog();
+            return;
         }
         if (isGroup()) {
             Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, mViewModel.groupInfo.getUsers().size());
@@ -2097,9 +2097,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     case ChatEnum.EFunctionId.VIDEO_CALL:
                         toVideoCall();
                         break;
-                    case ChatEnum.EFunctionId.ENVELOPE_MF:
-                        taskPayRb();
-                        break;
                     case ChatEnum.EFunctionId.LOCATION:
                         toLocation();
                         break;
@@ -2165,17 +2162,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         List<FunctionItemModel> list = new ArrayList<>();
         list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
         list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
-        if (!isSystemUser) {
+
+        if (!isGroup && isVip) {
+            list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
+        }
+        list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
+
+        if (!isGroup && !isSystemUser) {
             list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
         }
         if (!isGroup && !isSystemUser) {
             list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
         }
-        if (!isGroup && isVip) {
-            list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
-        }
-        list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
+        if (isGroup) {
+            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+        }
         if (!isGroup) { //单聊，且对方不为客服小助手，显示戳一下
             if (!isSystemUser) {
                 list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
@@ -2189,10 +2191,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         if (!isSystemUser) {
             list.add(createItemMode("名片", R.mipmap.ic_chat_newfrd, ChatEnum.EFunctionId.CARD));
         }
+        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
@@ -2403,6 +2405,33 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
+     * 根据uid判断别人是否为群主或管理员
+     * @param uid
+     * @return 主要用于撤回消息的权限
+     */
+    private boolean isHeAdmins(Long uid) {
+        if(mViewModel.groupInfo != null){
+            //若没有群主
+            if(!StringUtil.isNotNull(mViewModel.groupInfo.getMaster())){
+                return false;
+            }else {
+                if(mViewModel.groupInfo.getMaster().equals("" + uid)){
+                    return true;
+                }else {
+                    if(mViewModel.groupInfo.getViceAdmins() != null && mViewModel.groupInfo.getViceAdmins().size() > 0) {
+                        for (Long user : mViewModel.groupInfo.getViceAdmins()) {
+                            if (user.equals(uid)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 进入音视频通话
      *
      * @param aVChatType
@@ -2451,7 +2480,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onFail() {
 
             }
-        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
+        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO,Manifest.permission.READ_PHONE_STATE});
     }
 
     /**
@@ -2984,13 +3013,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         int height = data.getIntExtra(CameraActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(CameraActivity.INTENT_VIDEO_WIDTH, 0);
                         long time = data.getLongExtra(CameraActivity.INTENT_PATH_TIME, 0L);
+                        boolean isLocalTake = data.getBooleanExtra(CameraActivity.INTENT_LOCAL_TAKE, false);// 用于判断极速秒传是否需要调用fileCheck接口
 //                        String videoBg = data.getStringExtra(CameraActivity.INTENT_PATH_BG);
                         //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                         // 不等于常信小助手，需要上传到服务器
                         if (!isNoSendUser()) {
-                            UpLoadService.onAddVideo(this.context, videoMsgBean, false);
+                            UpLoadService.onAddVideo(this.context, videoMsgBean, false, isLocalTake);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
                     } else if (dataType == CameraActivity.RESULT_TYPE_PHOTO) {
@@ -3057,33 +3087,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                     notifyData2Bottom(true);
-
                     break;
-                case REQ_RP://红包
-                    LogUtil.writeEnvelopeLog("云红包回调了");
-                    LogUtil.getLog().e("云红包回调了");
-                    EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
-                    if (!checkNetConnectStatus(0)) {
-                        if (envelopeInfo != null) {
-                            saveMFEnvelope(envelopeInfo);
-                        }
-                        return;
-                    }
-                    if (envelopeInfo != null) {
-                        //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
-                        String info = envelopeInfo.getEnvelopeMessage();
-                        String rid = envelopeInfo.getEnvelopesID();
-                        LogUtil.writeEnvelopeLog("rid=" + rid);
-                        LogUtil.getLog().e("rid=" + rid);
-                        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-                        if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
-                            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
-                        }
-                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
-                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
-                    }
-                    break;
-
                 case REQUEST_RED_ENVELOPE:
                     CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
                     if (envelopeBean != null && currentTradeId != envelopeBean.getTradeId()) {
@@ -3215,7 +3219,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
             // 不等于常信小助手，需要上传到服务器
             if (!isNoSendUser()) {
-                UpLoadService.onAddVideo(this.context, videoMsgBean, false);
+                UpLoadService.onAddVideo(this.context, videoMsgBean, false, false);
                 startService(new Intent(getContext(), UpLoadService.class));
             }
         } else {
@@ -3578,7 +3582,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             videoMessage.setBg_url(getVideoAttBitmap(url));
                         }
                     }
-                    UpLoadService.onAddVideo(this.context, msgAllBean, false);
+                    UpLoadService.onAddVideo(this.context, msgAllBean, false, false);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -3642,10 +3646,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void clickTransfer(String rid, String msgId) {
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
-            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-            if (msgAllBean != null) {
-                httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
-            }
+            MsgAllBean msgAllBean = msgDao.getMsgByRid(tradeId);
+            httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
         }
     }
 
@@ -4030,8 +4032,50 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
-            if (!isGroupBanCancel()) {
-                if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgAllBean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgAllBean)) {
+            if(isGroup()){
+                //如果是群聊，先确保该消息类型允许被撤回，状态正常
+                if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() == ChatEnum.EGroupStatus.NORMAL && !filterCancel(msgAllBean.getMsg_type()) && !isAtBanedCancel(msgAllBean)) {
+                    //如果我是群主，可撤回所有消息，无时间限制
+                    if(isAdmin()){
+                        showCancel = true;
+                        timeLimit = false;
+                    }else if(isAdministrators()){
+                        //如果我是群管理，且这条消息是自己发的，允许撤回，默认有时间限制
+                        if(msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()){
+                            showCancel = true;
+                            timeLimit = true;
+                        }else {
+                            //如果这条消息为除自己以外，其他群管理/群主发的，则无权撤回其他管理层的消息；如果是普通群员的消息，我可以任意时间撤回
+                            if(isHeAdmins(msgAllBean.getFrom_uid())){
+                                showCancel = false;
+                            }else {
+                                showCancel = true;
+                                timeLimit = false;
+                            }
+                        }
+                    }else {
+                        //如果我是普通群员，且这条消息是自己发的，允许撤回，默认有时间限制
+                        if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                            showCancel = true;
+                            timeLimit = true;
+                        }else {
+                            showCancel = false;
+                        }
+                    }
+                }
+            }else {
+                //单聊旧逻辑不变
+                if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && !filterCancel(msgAllBean.getMsg_type()) && !isAtBanedCancel(msgAllBean)) {
+                    showCancel = true;
+                    timeLimit = true;
+                }else {
+                    showCancel = false;
+                }
+            }
+            //展示撤回选项逻辑
+            if(showCancel){
+                //是否有2分钟限制
+                if(timeLimit){
                     if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                         boolean isExist = false;
                         for (OptionMenu optionMenu : menus) {
@@ -4039,16 +4083,32 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 isExist = true;
                             }
                         }
-
                         if (!isExist) {
                             menus.add(new OptionMenu("撤回"));
                         }
+                    }
+                }else {
+                    boolean isExist = false;
+                    for (OptionMenu optionMenu : menus) {
+                        if (optionMenu.getTitle().equals("撤回")) {
+                            isExist = true;
+                        }
+                    }
+                    if (!isExist) {
+                        menus.add(new OptionMenu("撤回"));
                     }
                 }
             }
         }
         menus.add(new OptionMenu("删除"));
         return menus;
+    }
+
+    private boolean filterCancel(int msgType) {
+        if (msgType == ChatEnum.EMessageType.RED_ENVELOPE || msgType == ChatEnum.EMessageType.TRANSFER) {
+            return true;
+        }
+        return false;
     }
 
     //是否禁止转发
@@ -4198,7 +4258,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void onRecall(final MsgAllBean msgBean) {
         int position = mAdapter.getPosition(msgBean);
-        MsgCancel cancel = SocketData.createCancelMsg(msgBean);
+        int myType = 0;//我的身份
+        if(isAdmin()){
+            myType = 1;
+        }else if(isAdministrators()){
+            myType = 2;
+        }
+        MsgCancel cancel = SocketData.createCancelMsg(msgBean,UserAction.getMyId().longValue(),myType);
         if (cancel != null) {
             sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
         }
@@ -4357,7 +4423,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private UserAction userAction = new UserAction();
     private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
-    private PayAction payAction = new PayAction();
 
 
     private void setDisturb() {
@@ -4652,6 +4717,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      *
      */
     private boolean updateSessionDraftAndAtMessage() {
+        LogUtil.getLog().i(TAG, "updateSessionDraftAndAtMessage");
         boolean hasChange = false;
         if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
             hasChange = true;
@@ -4761,130 +4827,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-
-    /***
-     * 发红包
-     */
-    private void taskPayRb() {
-        IUser info = UserAction.getMyInfo();
-        if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
-            ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
-            return;
-        }
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    if (isGroup()) {
-                        Group group = msgDao.getGroup4Id(toGid);
-                        int totalSize = 0;
-                        if (group != null && group.getUsers() != null) {
-                            totalSize = group.getUsers().size();
-                        }
-                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
-                                totalSize, info.getName(), info.getHead(), REQ_RP);
-                    } else {
-                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
-                                info.getName(), info.getHead(), REQ_RP);
-                    }
-                    LogUtil.writeEnvelopeLog("准备发红包");
-
-                }
-            }
-        });
-    }
-
-    /***
-     * 红包收
-     */
-    private void taskPayRbGet(final MsgAllBean msgbean, final Long toUId, final String rbid) {
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-
-                    GrabRpCallBack callBack = new GrabRpCallBack() {
-                        @Override
-                        public void grabRpResult(GrabRpBean grabRpBean) {
-                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
-                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
-                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE);
-                                showSendObj(msgAllbean);
-                                /********通知更新sessionDetail************************************/
-                                //因为msg对象 uid有两个，都得添加
-                                List<String> gids = new ArrayList<>();
-                                List<Long> uids = new ArrayList<>();
-                                //gid存在时，不取uid
-                                if (TextUtils.isEmpty(msgAllbean.getGid())) {
-                                    uids.add(msgAllbean.getTo_uid());
-                                    uids.add(msgAllbean.getFrom_uid());
-                                } else {
-                                    gids.add(msgAllbean.getGid());
-                                }
-                                //回主线程调用更新session详情
-                                if (MyAppLication.INSTANCE().repository != null)
-                                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
-                                /********通知更新sessionDetail end************************************/
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                            }
-                            if (envelopeStatus == 2 || envelopeStatus == 3) {
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                            }
-                        }
-                    };
-                    if (!isActivityValid()) {
-                        return;
-                    }
-                    if (isGroup()) {
-                        IUser minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead(), rbid, callBack);
-                    } else {
-                        IUser minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead(), rbid, callBack);
-                    }
-
-                }
-            }
-        });
-    }
-
-    /***
-     * 红包详情
-     * @param rid
-     */
-    private void taskPayRbDetail(final MsgAllBean msgAllBean, final String rid) {
-     /*   if (!isGroup()) {
-            return;
-        }*/
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    if (!isActivityValid()) {
-                        return;
-                    }
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    IUser minfo = UserAction.getMyInfo();
-                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
-                }
-            }
-        });
-
-    }
 
     /***
      * 红包是否已经被抢,红包改为失效
@@ -5112,7 +5054,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             isOk = false;
         } else {
-            isOk = SocketUtil.getSocketUtil().getOnLineState();
+            isOk = SocketUtil.getSocketUtil().getOnlineState();
             if (!isOk) {
                 if (type == 0) {
                     ToastUtil.show(this, "连接已断开，请稍后再试");
@@ -5205,6 +5147,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //获取拆红包后，红包状态
     private int getOpenEnvelopeStatus(EnvelopeDetailBean bean) {
         int status = PayEnum.EEnvelopeStatus.NORMAL;
+        //过期
+        if (PayEnvironment.getInstance().getFixTime() * 1000 - bean.getTime() >= TimeToString.DAY) {
+            status = PayEnum.EEnvelopeStatus.PAST;
+            return status;
+        }
         if (bean.getType() == 0) {//普通红包
             if (bean.getRecvList() != null) {
                 int size = bean.getRecvList().size();
@@ -5233,12 +5180,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
         dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
             @Override
-            public void onOpen(long rid, int envelopeStatus) {
+            public void onOpen(long rid, int envelopeStatus,boolean isLast) {
                 //TODO: 开红包后，先发送领取红包消息给服务端，然后更新红包状态，最后保存领取红包通知消息到本地
                 taskPayRbCheck(msgBean, rid + "", reType, token, getOpenEnvelopeStatus(envelopeStatus));
                 if (envelopeStatus == 1) {//抢到了
                     if (!msgBean.isMe()) {
-                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "", reType);//发送抢红包消息
+                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "", reType,isLast);//发送抢红包消息
                     }
                     MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid, rid + "");
                     sendMessage(message, ChatEnum.EMessageType.NOTICE, false);
@@ -5258,7 +5205,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //获取红包详情
     public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
                                      boolean isNormalStyle) {
-        if (TextUtils.isEmpty(token)) {
+        if (TextUtils.isEmpty(token) && (msgBean != null && !msgBean.isMe())) {
             String from = "";
             if (isGroup()) {
                 from = toGid;
@@ -5312,7 +5259,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (baseResponse.isSuccess()) {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
-                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean.getEnvelopeStatus())) {
+                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean)) {
                                     taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
                                 }
                                 bean.setChatType(isGroup() ? 1 : 0);
@@ -5376,55 +5323,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
-     * 手机认证提示弹框
-     */
-    private void showBindPhoneDialog() {
-        DialogDefault dialogIdentify = new DialogDefault(this, R.style.MyDialogTheme);
-        dialogIdentify
-                .setTitleAndSure(false, true)
-                .setTitle("温馨提示")
-                .setContent("发红包之前，必须完成手机认证", true)
-                .setLeft("取消")
-                .setRight("去认证")
-                .setListener(new DialogDefault.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        startActivity(new Intent(ChatActivity.this, BindPhoneNumActivity.class));
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                });
-        dialogIdentify.show();
-    }
-
-    public void showSettingPswDialog() {
-        DialogDefault dialogSettingPayPsw = new DialogDefault(this, R.style.MyDialogTheme);
-        dialogSettingPayPsw
-                .setTitleAndSure(false, false)
-                .setTitle("温馨提示")
-                .setContent("您还没有设置支付密码，请设置支付密码后在进行操作", true)
-                .setLeft("设置支付密码")
-                .setRight("取消")
-                .setListener(new DialogDefault.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        startActivity(new Intent(ChatActivity.this, SetPaywordActivity.class));
-
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                });
-        dialogSettingPayPsw.show();
-
-    }
-
-    /**
      * 获取账单详情
      */
     private void httpGetTransferDetail(String tradeId, int opType, MsgAllBean msgBean) {
@@ -5443,22 +5341,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             dismissLoadingDialog();
                             //如果当前页有数据
                             TransferDetailBean detailBean = baseResponse.getData();
+                            initTransferMkName(detailBean);
                             Intent intent;
-                            if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
-                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
-                                if (opType < detailBean.getStat()) {
-                                    int type = getTransferOpType(detailBean.getStat());
-                                    msgDao.updateTransferStatus(tradeId, type, 0);
-                                    replaceListDataAndNotify(msgBean);
+                            boolean isMe = false;
+                            if (msgBean != null) {
+                                isMe = msgBean.isMe();
+                                if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
+                                    intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, isMe, GsonUtils.optObject(msgBean));
+                                    if (opType < detailBean.getStat()) {
+                                        int type = getTransferOpType(detailBean.getStat());
+                                        msgDao.updateTransferStatus(tradeId, type, 0);
+                                        replaceListDataAndNotify(msgBean);
+                                    }
+                                } else {
+                                    intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, isMe);
                                 }
                             } else {
-                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, false);
                             }
                             startActivityForResult(intent, REQUEST_TRANSFER);
-                        } else {
-
                         }
-
                     }
 
                     @Override
@@ -5467,6 +5369,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
+    }
+
+    private void initTransferMkName(TransferDetailBean detailBean) {
+        if (detailBean != null && detailBean.getPayUser() != null) {
+            UserInfo userInfo = userDao.findUserInfo(detailBean.getPayUser().getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                detailBean.getPayUser().setNickname(userInfo.getMkName());
+            }
+        }
+        if (detailBean != null && detailBean.getRecvUser() != null) {
+            UserInfo userInfo = userDao.findUserInfo(detailBean.getRecvUser().getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                detailBean.getRecvUser().setNickname(userInfo.getMkName());
+            }
+        }
     }
 
     private void checkHasEnvelopeSendFailed() {
@@ -5491,7 +5408,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.setCanceledOnTouchOutside(false);
         String time = TimeToString.getEnvelopeTime(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
-        String content = "您有一个" + time + " 金额为" + money + "的红包已扣款未发送成功,是否重新发送此红包？";
+        String content = "你有一个" + time + " 金额为" + money + "的红包已扣款未发送成功,是否重新发送此红包？";
         dialogCommon.setTitleAndSure(true, true)
                 .setTitle("温馨提示")
                 .setContent(content, false)
@@ -5525,7 +5442,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.setCanceledOnTouchOutside(false);
         String time = TimeToString.MM_DD_HH_MM2(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
-        String content = "您有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回云红包账户";
+        String content = "你有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回零钱红包账户";
         dialogCommon.setContent(content)
                 .setListener(new DialogEnvelopePast.IDialogListener() {
                     @Override
@@ -5540,24 +5457,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogCommon.show();
     }
 
-    private void saveMFEnvelope(EnvelopeBean bean) {
-        EnvelopeInfo envelopeInfo = new EnvelopeInfo();
-        envelopeInfo.setRid(bean.getEnvelopesID());
-        envelopeInfo.setAmount(StringUtil.getYuanToLong(bean.getEnvelopeAmount()));
-        envelopeInfo.setComment(bean.getEnvelopeMessage());
-        envelopeInfo.setReType(0);//0 MF  1 SYS
-        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-        if (bean.getEnvelopeType() == 1) {//拼手气
-            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
-        }
-        envelopeInfo.setEnvelopeStyle(style.getNumber());
-        envelopeInfo.setCreateTime(System.currentTimeMillis());
-        envelopeInfo.setGid(toGid);
-        envelopeInfo.setUid(toUId == null ? 0 : toUId.longValue());
-        envelopeInfo.setSendStatus(0);
-        envelopeInfo.setSign("");
-        msgDao.updateEnvelopeInfo(envelopeInfo);
-    }
 
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
@@ -5865,6 +5764,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 List<OptionMenu> menus = (List<OptionMenu>) args[0];
                 View v = (View) args[1];
                 IMenuSelectListener listener = (IMenuSelectListener) args[2];
+                if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
+                    return;
+                }
                 showPop(v, menus, message, listener);
                 break;
             case ChatEnum.ECellEventType.TRANSFER_CLICK:
@@ -5873,7 +5775,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 TransferMessage transfer = (TransferMessage) args[0];
                 UserBean userBean = PayEnvironment.getInstance().getUser();
-                if (userBean != null && userBean.getRealNameStat() != 1) {//未认证
+                if (userBean == null || userBean.getRealNameStat() != 1) {//未认证
                     showIdentifyDialog();
                     return;
                 }
@@ -6069,19 +5971,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         final Long touid = msg.getFrom_uid();
         final int style = msg.getRed_envelope().getStyle();
         int reType = rb.getRe_type().intValue();//红包类型
-        if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
-            if (isInvalid || (msg.isMe() && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                taskPayRbDetail(msg, rid);
-            } else {
-                if (checkCanOpenUpRedEnv()) {
-                    taskPayRbGet(msg, touid, rid);
-                } /*else {
-                    ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
-                }*/
-            }
-        } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+        if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
             UserBean userBean = PayEnvironment.getInstance().getUser();
-            if (userBean != null && userBean.getRealNameStat() != 1) {//未认证
+            if (userBean == null || userBean.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
             }
@@ -6118,12 +6010,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
                 getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
+//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 if (msg.isMe()) {
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 } else {
                     showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
                 }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {
+//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 if (msg.isMe()) {
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 } else {
@@ -6134,14 +6028,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //群聊是否可以cancel
-    private boolean isGroupBanCancel() {
-        if (isGroup()) {
-            if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean isGroupBanCancel() {
+//        if (isGroup()) {
+//            if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public void showLockDialog() {
         LockDialog lockDialog = new LockDialog(this, R.style.MyDialogNoFadedTheme);
@@ -6213,7 +6107,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     public final void updateMsgUnread(int num) {
-        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
+        LogUtil.getLog().i("ChatActivity", "未读数：" + num);
         if (num > 99) {
             actionbar.setTxtLeft("99+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
         } else if (num > 0 && num <= 99) {

@@ -15,6 +15,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.PatternUtil;
+import com.yanlong.im.utils.socket.MsgBean;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,33 +46,36 @@ public class ChatCellNotice extends ChatCellBase {
         super.showMessage(message);
         if (messageType == ChatEnum.EMessageType.NOTICE) {
             MsgNotice notice = message.getMsgNotice();
-            if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
-                    || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
-                    || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR
-                    || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS
-                    || notice.getMsgType() == ChatEnum.ENoticeType.FREEZE_ACCOUNT) {
-                tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
-            } else {
-                if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
-                        || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
-                        || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN || notice.getMsgType() == ChatEnum.ENoticeType.DEFAULT_USER) {
-                    tv_content.setText(Html.fromHtml(notice.getNote(), null,
-                            new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
+            if (notice.getMsgType() != null) {
+                if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
+                        || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                        || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR
+                        || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS
+                        || notice.getMsgType() == ChatEnum.ENoticeType.FREEZE_ACCOUNT
+                        || notice.getMsgType() == ChatEnum.ENoticeType.SEAL_ACCOUNT) {
+                    tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
                 } else {
-                    tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType()));
+                    if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                            || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
+                            || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN || notice.getMsgType() == ChatEnum.ENoticeType.DEFAULT_USER) {
+                        tv_content.setText(Html.fromHtml(notice.getNote(), null,
+                                new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
+                    } else {
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType(),0));
+                    }
                 }
-            }
 
-            //如果是红包消息类型则显示红包图
-            if (message.getMsgNotice().getMsgType() != null && (notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED
-                    || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
-                    || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
-                    || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED
-                    || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
-                    || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
-                iv_icon.setVisibility(View.VISIBLE);
-            } else {
-                iv_icon.setVisibility(View.GONE);
+                //如果是红包消息类型则显示红包图
+                if (message.getMsgNotice().getMsgType() != null && (notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED
+                        || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                        || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                        || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED
+                        || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                        || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
+                    iv_icon.setVisibility(View.VISIBLE);
+                } else {
+                    iv_icon.setVisibility(View.GONE);
+                }
             }
         } else if (messageType == ChatEnum.EMessageType.MSG_CANCEL) {
             iv_icon.setVisibility(View.GONE);
@@ -88,7 +92,7 @@ public class ChatCellNotice extends ChatCellBase {
                 }
             }
             if (isMe && cancelMsgType != null && (cancelMsgType == ChatEnum.EMessageType.TEXT || cancelMsgType == ChatEnum.EMessageType.AT)
-                    && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace) {
+                    && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace && message.getMsgCancel().getUid()!=null && message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()) {
                 //存的时候把空格处理<br>，否则会被Html格式化
                 String contents = message.getMsgCancel().getCancelContent().replace("\n", "<br>");
                 content = content + "<cancel content='" + contents + "'> 重新编辑</cancel>";
@@ -98,7 +102,28 @@ public class ChatCellNotice extends ChatCellBase {
                 if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                     tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
                 } else {
-                    tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
+                    //A撤自己的消息，新版显示群主/管理员身份
+                    if(message.getMsgCancel().getUid()!=null){
+                        if(message.getMsgCancel().getUid().longValue()==0L || message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()){
+                            if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE){
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),1));
+                            }else if(message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.VICE_ADMIN_VALUE){
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),2));
+                            }else {
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),0));
+                            }
+                        }else {
+                            //A撤回了B的消息，携带被撤回人的uid
+                            if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE) {
+                                tv_content.setText("群主" + message.getMsgCancel().getNote());
+                            } else {
+                                tv_content.setText("管理员" + message.getMsgCancel().getNote());
+                            }
+                        }
+                    }else {
+                        //A撤自己的消息，保留原有逻辑不变
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),0));
+                    }
                 }
             }
         } else if (messageType == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {

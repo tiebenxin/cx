@@ -26,6 +26,7 @@ import com.hm.cxpay.utils.UIUtils;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.HeadView;
 
@@ -141,7 +142,10 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                layoutRecharge.setEnabled(false);
+//                layoutRecharge.setEnabled(false);
+                if (ViewUtils.isFastDoubleClick()){
+                    return;
+                }
                 // 1 已设置支付密码 -> 允许跳转
                 startActivity(new Intent(activity, RechargeActivity.class));
                 isBalanceChange = true;
@@ -151,6 +155,9 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (ViewUtils.isFastDoubleClick()){
+                    return;
+                }
                 //1 已设置支付密码 -> 允许跳转
                 startActivity(new Intent(activity, WithdrawActivity.class));
                 isBalanceChange = true;

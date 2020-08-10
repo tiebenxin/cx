@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
 
 import io.realm.RealmObject;
@@ -105,7 +107,11 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     }
 
     public String getSign() {
-        return sign;
+        if (!TextUtils.isEmpty(sign)) {
+            return sign;
+        } else {
+            return "";
+        }
     }
 
     public void setSign(String sign) {

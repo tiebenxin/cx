@@ -53,6 +53,7 @@ public class UpdateManage {
 
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//通用提示选择弹框：4G数据流量情况下是否确认更新
+    private String newVersion = "";//新版本号
 
     public UpdateManage(Context context, Activity activity) {
         this.context = context;
@@ -102,11 +103,12 @@ public class UpdateManage {
      * @param content 更新内容
      * @param url
      * @param isEnforcement 是否强制更新
-     * @param fromMainActivity 是否来自主页 (MainActivity则不再弹框提示用户忽略的版本，AboutAsActivity仍然允许点击唤起更新弹框)
+     * @param allowIgnore 非强制更新->用户点取消->是否允许忽略此次更新
+     *                    (MainActivity/SelectLoginActivity/LoginActivity则不再弹框，AboutAsActivity仍然允许点击唤起更新弹框)
      */
-    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean fromMainActivity) {
+    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean allowIgnore) {
         //如果是用户忽略的版本，则不再弹框提示
-        if(fromMainActivity){
+        if(allowIgnore){
             if(versions.equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))){
                 return;
             }
@@ -114,6 +116,7 @@ public class UpdateManage {
         if (check(versions)) {
             updateURL = url;
             dialog = new UpdateAppDialog();
+            newVersion = versions;
             dialog.init(activity, versions, content, new UpdateAppDialog.Event() {
                 @Override
                 public void onON() {
@@ -230,19 +233,19 @@ public class UpdateManage {
 
     private File getFile() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         return file;
     }
 
     private long getFileStart() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         return file.length();
     }
 
     private File clearApk() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         if (file.exists()) {
             file.delete();
         }

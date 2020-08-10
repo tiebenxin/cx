@@ -253,7 +253,7 @@
                 android:layout_marginLeft="17dp"
                 android:text="充值说明：\n
 1.充值成功以后，资金将30分钟内到账\n
-2.充值失败以后，资金将按原路径退回您的充值账户\n
+2.充值失败以后，资金将按原路径退回你的充值账户\n
 3.如有问题请咨询常信客服"
                 android:textColor="@color/c_868686"
                 android:textSize="12sp" />

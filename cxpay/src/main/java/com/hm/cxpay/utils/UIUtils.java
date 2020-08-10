@@ -82,7 +82,7 @@ public class UIUtils {
     public static String getRedEnvelopeContent(EditText et) {
         String note = et.getText().toString().trim();
         if (TextUtils.isEmpty(note)) {
-            note = "恭喜发财，大吉大利";
+            note = "恭喜发财，好运连连";
         }
         return note;
     }

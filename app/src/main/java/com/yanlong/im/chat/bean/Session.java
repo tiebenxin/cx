@@ -3,6 +3,7 @@ package com.yanlong.im.chat.bean;
 import androidx.annotation.Nullable;
 
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -122,6 +123,7 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
     public void setUnread_count(int unread_count) {
+        LogUtil.getLog().i("未读数", "设置未读数count=" + unread_count + "--gid=" + gid + "--uid=" + from_uid);
         this.unread_count = unread_count;
     }
 
@@ -129,7 +131,6 @@ public class Session extends RealmObject implements Comparable<Session> {
     public void setName(String name) {
 
     }
-
 
 
     public void setMessage(MsgAllBean message) {
@@ -189,11 +190,11 @@ public class Session extends RealmObject implements Comparable<Session> {
     public int compareTo(Session o) {
         if (o != null && o.up_time != null && this != null && this.up_time != null) {
             //降序
-            if(o.up_time.longValue() > this.up_time.longValue()){
+            if (o.up_time.longValue() > this.up_time.longValue()) {
                 return 1;
-            }else if (o.up_time.longValue() < this.up_time.longValue()){
+            } else if (o.up_time.longValue() < this.up_time.longValue()) {
                 return -1;
-            }else {
+            } else {
                 return 0;
             }
         } else if (o == null || o.up_time == null) {

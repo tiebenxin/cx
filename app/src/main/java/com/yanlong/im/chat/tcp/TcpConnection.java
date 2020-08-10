@@ -50,14 +50,16 @@ public class TcpConnection implements Connection {
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                LogUtil.getLog().d(TAG, ">>>>>网路状态改变" + NetUtil.isNetworkConnected());
+                LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
                 if (NetUtil.isNetworkConnected()) {//链接成功
                     if (!isRunning) {
                         startConnect(from);
+                    } else {
+                        SocketUtil.getSocketUtil().startSocket();
                     }
                 } else {//链接失败
-                    stopConnect();
-
+//                    stopConnect();
+                    SocketUtil.getSocketUtil().stopSocket();
                 }
             }
         };
@@ -68,7 +70,7 @@ public class TcpConnection implements Connection {
 
     @Override
     public void startConnect() {
-        LogUtil.getLog().d(TAG, "开始连接--" + NetUtil.isNetworkConnected());
+        LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
         this.from = EFrom.DEFAULT;
         taskFixSendState();
         isRunning = true;
@@ -78,7 +80,7 @@ public class TcpConnection implements Connection {
 
     //开始链接
     public void startConnect(@EFrom int from) {
-        LogUtil.getLog().d(TAG, "开始连接--" + NetUtil.isNetworkConnected());
+        LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
         this.from = from;
         taskFixSendState();
         isRunning = true;
@@ -89,7 +91,7 @@ public class TcpConnection implements Connection {
     //停止链接
     @Override
     public void stopConnect() {
-        LogUtil.getLog().d(TAG, "暂停连接--" + NetUtil.isNetworkConnected());
+        LogUtil.getLog().d(TAG, "连接LOG--暂停连接--" + NetUtil.isNetworkConnected());
         SocketUtil.getSocketUtil().stop(true);
     }
 
@@ -99,7 +101,7 @@ public class TcpConnection implements Connection {
         if (from == EFrom.OTHER) {
             return;
         }
-        LogUtil.getLog().d(TAG, "销毁连接--" + NetUtil.isNetworkConnected());
+        LogUtil.getLog().d(TAG, "连接LOG--销毁连接--" + NetUtil.isNetworkConnected());
         SocketUtil.getSocketUtil().endSocket();
         isRunning = false;
         if (context != null && mNetworkChangeReceiver != null) {

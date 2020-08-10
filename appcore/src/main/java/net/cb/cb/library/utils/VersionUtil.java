@@ -116,11 +116,11 @@ public class VersionUtil {
     }
 
     /**
-     * 判断当前版本是否低于比较版本
+     * 判断当前版本是否低于比较版本newVerName
      *
      * @param context
      * @param newVerName
-     * @return
+     * @return true 低于 false 高于
      */
     public static boolean isLowerVersion(Context context, String newVerName) {
         boolean isLower = false;

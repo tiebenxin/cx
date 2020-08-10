@@ -3,8 +3,11 @@ package com.yanlong.im.repository;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.common.base.Function;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -18,6 +21,8 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.data.local.MessageLocalDataSource;
 import com.yanlong.im.data.remote.MessageRemoteDataSource;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -34,6 +39,7 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -121,10 +127,11 @@ public class MessageRepository {
      * @param wrapMessage
      */
     public void handlerRequestGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
-        //自己邀请的，不需要显示
-        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 && wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
-            return;
-        }
+        // TODO　自己邀请的，不会收到通知
+//        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
+//                wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
+//            return;
+//        }
         for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
             ApplyBean applyBean = new ApplyBean();
             applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
@@ -259,6 +266,10 @@ public class MessageRepository {
                     //对方已读我发的消息
                     offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
                 } else {
+                    if (MessageManager.getInstance().isReceivingOffline()) {
+                        LogUtil.getLog().i(TAG, "接收离线时收到已读消息" + uids);
+                        offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                    }
                     localDataSource.updateFriendMsgReadAndSurvivalTime(realm, uids, wrapMessage.getTimestamp());
                 }
             }
@@ -275,7 +286,15 @@ public class MessageRepository {
                 else
                     offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
             } else { //同步自己PC端好友发送消息的已读状态和阅后即焚
-                localDataSource.updateRecivedMsgReadForPC(realm, gid, uids, wrapMessage.getTimestamp());
+                if (MessageManager.getInstance().isReceivingOffline()) {
+                    LogUtil.getLog().i(TAG, "接收离线时收到已读消息--uid=" + uids + "--gid=" + gid);
+                    if (TextUtils.isEmpty(gid)) {//单聊
+                        offlineMySelfPCFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                    } else {
+                        offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
+                    }
+                }
+                localDataSource.updateReceivedMsgReadForPC(realm, gid, uids, wrapMessage.getTimestamp());
             }
         }
         MessageManager.getInstance().notifyRefreshChat(wrapMessage.getGid(), uids);
@@ -298,7 +317,10 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void handlerMultiTerminalSync(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerMultiTerminalSync(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
+        if (wrapMessage.getMultiTerminalSync().getSyncType() == MsgBean.MultiTerminalSyncType.UNRECOGNIZED) {
+            return;
+        }
         switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
             case MY_SELF_CHANGED://自己的个人信息变更
                 remoteDataSource.getMyInfo(UserAction.getMyId(), null, new Function<UserBean, Boolean>() {
@@ -361,6 +383,17 @@ public class MessageRepository {
                 eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REMOVE_FRIEND);
                 EventBus.getDefault().post(eventRefreshFriend);
                 EventBus.getDefault().post(new EventExitChat(null, uid));
+                break;
+            case MY_GROUP_READ://群已读
+                gid = wrapMessage.getMultiTerminalSync().getGid();
+                gid = gid == null ? "" : gid;
+                if (!TextUtils.isEmpty(gid)) {
+                    if (isOfflineMsg) {
+                        offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
+                    } else { //同步自己PC端好友发送消息的已读状态和阅后即焚
+                        localDataSource.updateReceivedMsgReadForPC(realm, gid, -1L, wrapMessage.getTimestamp());
+                    }
+                }
                 break;
         }
     }
@@ -567,7 +600,6 @@ public class MessageRepository {
     public boolean handlerCancel(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         boolean result = true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-        boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         if (bean != null) {
             String cancelMsgId = wrapMessage.getCancel().getMsgId();
             //TODO:saveMessageNew的有更新未读数
@@ -575,26 +607,34 @@ public class MessageRepository {
             MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", cancelMsgId).findFirst();
             if (filterDeleteCancel(wrapMessage.getFromUid())) {
                 if (msgAllBean != null) {
+                    bean.setTimestamp(msgAllBean.getTimestamp());
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg(realm, cancelMsgId);
                 } else {
-                    int position = offlineMsgIds.indexOf(cancelMsgId);
-                    if (position >= 0 && position < offlineMsgAllBean.size()) {
-                        msgAllBean = offlineMsgAllBean.get(position);
-                        if (msgAllBean != null) {
-                            offlineMsgAllBean.remove(msgAllBean);
+                    if (offlineMsgIds != null) {
+                        int position = offlineMsgIds.indexOf(cancelMsgId);
+                        if (position >= 0 && position < offlineMsgAllBean.size()) {
+                            msgAllBean = offlineMsgAllBean.get(position);
+                            if (msgAllBean != null) {
+                                offlineMsgAllBean.remove(msgAllBean);
+                                offlineMsgIds.remove(msgAllBean.getMsg_id());
+                            }
                         }
-                    }
-                    int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
-                    if (currentId >= 0 && currentId < offlineMsgAllBean.size()) {
-                        msgAllBean = offlineMsgAllBean.get(position);
-                        if (msgAllBean != null) {
-                            offlineMsgAllBean.remove(msgAllBean);
+                        int currentId = offlineMsgIds.indexOf(wrapMessage.getMsgId());
+                        if (currentId >= 0 && currentId < offlineMsgAllBean.size()) {
+                            msgAllBean = offlineMsgAllBean.get(position);
+                            if (msgAllBean != null) {
+                                offlineMsgAllBean.remove(msgAllBean);
+                                if (offlineMsgIds != null) {
+                                    offlineMsgIds.remove(msgAllBean.getMsg_id());
+                                }
+                            }
                         }
                     }
                 }
             } else {
                 if (msgAllBean != null) {
+                    bean.setTimestamp(msgAllBean.getTimestamp());
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg4Cancel(realm, wrapMessage.getMsgId(), cancelMsgId);
 //                    MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
@@ -613,12 +653,16 @@ public class MessageRepository {
                     eventVideo.name = bean.getFrom_nickname();
                     EventBus.getDefault().post(eventVideo);
                 } else {
-                    int position = offlineMsgIds.indexOf(cancelMsgId);
-                    if (position >= 0 && position < offlineMsgAllBean.size()) {
-                        msgAllBean = offlineMsgAllBean.get(position);
-                        if (msgAllBean != null) {
-                            result = saveMessageNew(bean, realm);
-                            offlineMsgAllBean.remove(msgAllBean);
+                    if (offlineMsgIds != null) {
+                        int position = offlineMsgIds.indexOf(cancelMsgId);
+                        if (position >= 0 && position < offlineMsgAllBean.size()) {
+                            msgAllBean = offlineMsgAllBean.get(position);
+                            if (msgAllBean != null) {
+                                bean.setTimestamp(msgAllBean.getTimestamp());
+                                result = saveMessageNew(bean, realm);
+                                offlineMsgAllBean.remove(msgAllBean);
+                                offlineMsgIds.remove(msgAllBean.getMsg_id());
+                            }
                         }
                     }
                 }
@@ -825,6 +869,41 @@ public class MessageRepository {
     }
 
     /**
+     * 好友推荐消息
+     *
+     * @param wrapMessage
+     * @param realm
+     * @return
+     */
+    public void handlerRecentFriends(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+        try {
+            MsgBean.RecommendMessage recommendMessage = wrapMessage.getRecommend();
+            if (recommendMessage != null) {
+                // 显示手机通讯录匹配红点标记
+                SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_NEW, true);
+                String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS, "");
+                List<FriendInfoBean> list = new ArrayList<>();
+                Gson gson = new Gson();
+                if (TextUtils.isEmpty(friends)) {
+                    FriendInfoBean friendInfoBean = new FriendInfoBean();
+                    friendInfoBean.setUid(recommendMessage.getUid());
+                    list.add(friendInfoBean);
+                    SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+                } else {
+                    list.addAll(gson.fromJson(friends, new TypeToken<List<FriendInfoBean>>() {
+                    }.getType()));
+                    FriendInfoBean friendInfoBean = new FriendInfoBean();
+                    friendInfoBean.setUid(recommendMessage.getUid());
+                    list.add(friendInfoBean);
+                    SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    /**
      * 接受成为好友,需要产生消息后面在处理
      *
      * @param wrapMessage
@@ -950,7 +1029,7 @@ public class MessageRepository {
                 }
                 //非自己发过来的消息，才存储为未读状态
                 if (!isFromSelf) {
-                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), null);
+                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid());
                     localDataSource.updateSessionRead(realm, msgAllBean.getGid(), friendUid, canChangeUnread, msgAllBean);
                 } else {
                     //自己PC 端发的消息刷新session
@@ -997,10 +1076,20 @@ public class MessageRepository {
 //            }
             result = localDataSource.insertOfflineMessages(realm, offlineMsgAllBean);
             offlineMsgAllBean.clear();
-            offlineMsgIds.clear();
+            if (offlineMsgIds != null) {
+                offlineMsgIds.clear();
+            }
         }
 
         return result;
+    }
+
+    //是否有有效离线消息
+    public boolean hasValidOfflineMessage() {
+        if (offlineMsgAllBean != null && offlineMsgAllBean.size() > 0) {
+            return true;
+        }
+        return false;
     }
 
     private void checkNeedRequestData(MsgAllBean msgAllBean, boolean isFromSelf, Realm realm) {
@@ -1034,7 +1123,7 @@ public class MessageRepository {
                 for (String gid : offlineMySelfPCGroupReadMsg.keySet()) {
                     long timestamp = offlineMySelfPCGroupReadMsg.get(gid);
                     if (gid != null)
-                        localDataSource.updateRecivedMsgReadForPC(realm, gid, null, timestamp);
+                        localDataSource.updateReceivedMsgReadForPC(realm, gid, null, timestamp);
                 }
             }
 
@@ -1042,7 +1131,7 @@ public class MessageRepository {
                 for (Long uid : offlineMySelfPCFriendReadMsg.keySet()) {
                     long timestamp = offlineMySelfPCFriendReadMsg.get(uid);
                     if (uid != null)
-                        localDataSource.updateRecivedMsgReadForPC(realm, null, uid, timestamp);
+                        localDataSource.updateReceivedMsgReadForPC(realm, null, uid, timestamp);
                 }
             }
 
@@ -1111,5 +1200,25 @@ public class MessageRepository {
     //过滤撤销消息中只删除消息，不产生消息记录的消息
     private boolean filterDeleteCancel(long fromUid) {
         return fromUid == Constants.CX_HELPER_UID;
+    }
+
+    /**
+     * 更新离线双向清除消息
+     */
+    public void updateOfflineHistoryClearMsg(Realm realm) {
+        try {
+            if (historyCleanMsg.size() > 0) {
+                for (Long uid : historyCleanMsg.keySet()) {
+                    long timestamp = historyCleanMsg.get(uid);
+                    if (uid != null) {
+                        localDataSource.messageHistoryClean(realm, uid, timestamp);
+                        offlineUpdateSession(realm, null, uid);
+                    }
+                }
+            }
+            historyCleanMsg.clear();
+        } catch (Exception e) {
+        }
+
     }
 }

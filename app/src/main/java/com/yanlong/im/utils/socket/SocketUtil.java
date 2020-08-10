@@ -23,6 +23,7 @@ import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -75,9 +76,9 @@ public class SocketUtil {
                     isAccepted = true;
                 }
                 // 保存对方封号提示语，每发一条消息都会保存
-                if (!TextUtils.isEmpty(bean.getDesc())) {
+                if (!TextUtils.isEmpty(bean.getDesc()) && !bean.getDesc().contains("拉黑")) {
                     isAccepted = false;
-                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.FREEZE_ACCOUNT);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.SEAL_ACCOUNT);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
@@ -224,6 +225,9 @@ public class SocketUtil {
      * @param state
      */
     private void setRunState(int state) {
+//        if (isRun == state) {
+//            return;
+//        }
         isRun = state;
         if (isRun == 0) {
             event.onLine(false);
@@ -237,7 +241,7 @@ public class SocketUtil {
      * 获取在线状态
      * @return
      */
-    public boolean getOnLineState() {
+    public boolean getOnlineState() {
         return isRun == 2;
     }
 
@@ -251,7 +255,7 @@ public class SocketUtil {
      * @param event
      */
     public void addEvent(SocketEvent event) {
-        if (!eventLists.contains(event)) {
+        if (event != null && !eventLists.contains(event)) {
             eventLists.add(event);
         }
 
@@ -269,7 +273,17 @@ public class SocketUtil {
      * @param event
      */
     public void removeEvent(SocketEvent event) {
-        eventLists.remove(event);
+        if (event != null) {
+            eventLists.remove(event);
+        }
+    }
+
+    /***
+     * 清除所有监听
+     */
+    public void clearEvent() {
+        LogUtil.getLog().i(TAG, "连接LOG--清除Event");
+        eventLists.clear();
     }
 
     private SocketUtil() {
@@ -289,12 +303,18 @@ public class SocketUtil {
         if (isRun()) {
             return;
         }
+        //无网络，不连接
+        if (!NetUtil.isNetworkConnected()) {
+            setRunState(0);
+            return;
+        }
         setRunState(1);
         try {
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
             }
         } catch (Exception e) {
+            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常" + e.getMessage());
             setRunState(0);
             e.printStackTrace();
             stop(true);
@@ -310,8 +330,9 @@ public class SocketUtil {
         if (!isRun()) {
             return;
         }
-
-        setRunState(0);
+        if (isRun != 0) {
+            setRunState(0);
+        }
         //结束发送列队
         if (isClearSendList) {
             SendList.endList();
@@ -324,13 +345,16 @@ public class SocketUtil {
         } finally {
             socketChannel = null;
         }
-        LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
+        LogUtil.getLog().d(TAG, "连接LOG >>>>关闭连接 1------time=" + System.currentTimeMillis());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "关闭连接");
 
     }
 
     //6.20 强制结束
     public void stop2() {
-        setRunState(0);
+        if (isRun != 0) {
+            setRunState(0);
+        }
         if (heardSchedule != null) {
             heardSchedule.cancel(true);
         }
@@ -346,7 +370,7 @@ public class SocketUtil {
         } finally {
             socketChannel = null;
         }
-        LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
+        LogUtil.getLog().d(TAG, "连接LOG >>>>关闭连接 2---------time=" + System.currentTimeMillis());
     }
 
 
@@ -356,30 +380,6 @@ public class SocketUtil {
     private void heartbeatThread() {
         LogUtil.getLog().d(TAG, ">>>心跳线程启动---------------");
         heardSchedule = ExecutorManager.INSTANCE.getTimerThread().schedule(heartRunnable, heartbeatStep, TimeUnit.MILLISECONDS);
-//        new Thread(new Runnable() {
-//            //限制版本控制
-//            private long indexVer = threadVer;
-//
-//            @Override
-//            public void run() {
-//                try {
-//                    while (isRun() && indexVer == threadVer) {
-//                        if (System.currentTimeMillis() - heartbeatTime > heartbeatStep * 3.5) {//心跳超时
-//                            //重启
-//                            stop(true);
-//                        } else {
-//                            sendData(SocketPacket.getPackage(SocketPacket.DataType.PROTOBUF_HEARTBEAT, SocketPacket.P_HEART), null, "");
-//                        }
-//                        Thread.sleep(heartbeatStep);
-//                    }
-//                    LogUtil.getLog().d(TAG, ">>>心跳线程结束---------------");
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                    LogUtil.getLog().d(TAG, ">>>心跳异常run: " + e.getMessage());
-//                }
-//            }
-//        }).start();
-
     }
 
     //队列遍历步长:必须小于每条消息重发时长
@@ -404,25 +404,6 @@ public class SocketUtil {
                 }
             }
         });
-//        new Thread(new Runnable() {
-//            //限制版本控制
-//            private long indexVer = threadVer;
-//
-//            @Override
-//            public void run() {
-//                try {
-//                    while (isRun() && indexVer == threadVer) {
-//                        SendList.loopList();
-//                        Thread.sleep(sendListStep);
-//                    }
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                    LogUtil.getLog().d(TAG, ">>>队列异常run: " + e.getMessage());
-//                }
-//            }
-//        }).start();
-
-
     }
 
 
@@ -433,7 +414,14 @@ public class SocketUtil {
      */
     public void startSocket() {
         if (isStart) {
-            LogUtil.getLog().i(TAG, ">>>>> 当前正在运行");
+            LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
+            if (!isRun()) {
+                try {
+                    connect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             return;
         }
         isStart = true;
@@ -467,36 +455,20 @@ public class SocketUtil {
                 }
             }
         });
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
-//                if (socketChannel != null) {
-//                    LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
-//                }
-//
-//                while (isStart) {
-//                    LogUtil.getLog().i(TAG, ">>>>>服务器链接检查isRun: " + isRun);
-////                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
-//                    if (socketChannel != null) {
-//                        LogUtil.getLog().i(TAG, ">>>>>服务器链接isConnected: " + socketChannel.isConnected());
-//                    }
-//                    if ((socketChannel == null || !socketChannel.isConnected()) && isRun == 0) {//没有启动,就执行启动
-//                        //线程版本+1
-//                        threadVer++;
-//                        SocketUtil.this.run();
-//                        LogUtil.getLog().i(TAG, ">>>>>新线程结束");
-//                    } else {//已经启动了
-//                    }
-//
-//                    try {
-//                        Thread.sleep(recontTime);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }).start();
+    }
+
+    /***
+     * 无网络stop socket, 不需要清除Event
+     * */
+    public void stopSocket() {
+        isStart = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                stop2();
+                clearThread();
+            }
+        }).start();
     }
 
     /***
@@ -515,6 +487,7 @@ public class SocketUtil {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                clearEvent();
                 stop2();
                 clearThread();
             }
@@ -561,51 +534,54 @@ public class SocketUtil {
      * 链接
      */
     private void connect() throws Exception {
-
-        //2.
         socketChannel = new SSLSocketChannel2(SocketChannel.open());
         //socketChannel =  SocketChannel.open();
-
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
-
-        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "\n\n");
+        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
-            LogUtil.getLog().d(TAG, ">>>链接中");
+            LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
             long ttime = System.currentTimeMillis();
-            while (!socketChannel.finishConnect()) {
-                //在等待连接的时间里,为什么睡眠200ms？？？？？
-                //TODO：取消线程睡眠。2020.5.12
+            try {
+                while (!socketChannel.finishConnect()) {
+                    //在等待连接的时间里,为什么睡眠200ms？？？？？
+                    //TODO：取消线程睡眠。2020.5.12
 //                Thread.sleep(200);
-                long connTime = System.currentTimeMillis() - ttime;
-                if (connTime > 2 * 1000) {
-                    LogUtil.getLog().d(TAG, ">>>链接中超时");
-                    break;
+                    long connTime = System.currentTimeMillis() - ttime;
+                    if (connTime > 2 * 1000) {
+                        LogUtil.getLog().d(TAG, ">>>链接中超时");
+                        break;
+                    }
                 }
-
+            } catch (Exception e) {
+                e.printStackTrace();
+                LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:finishConnect出错");
+                connect();
+                return;
             }
-            LogUtil.getLog().d(TAG, ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime));
+
+            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
             if (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
+                LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:链接不上");
                 throw new NetworkErrorException();
             }
-
-
-            //----------------------------------------------------
 
             //3.
             long ctime = System.currentTimeMillis();
             if (socketChannel.tryTLS(1) == 0) {
-                socketChannel.socket().close();
-                socketChannel.close();
-                socketChannel = null;
+                if (socketChannel != null) {
+                    socketChannel.socket().close();
+                    socketChannel.close();
+                    socketChannel = null;
+                }
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
+                LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
                 //证书问题
                 throw new NetworkErrorException();
-
             } else {
-                LogUtil.getLog().d(TAG, "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
+                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
                 receive();
                 //发送认证请求
                 TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
@@ -619,83 +595,6 @@ public class SocketUtil {
      * 接收
      */
     private void receive() {
-//        new Thread(new Runnable() {
-//            private long indexVer = threadVer;
-//            @Override
-//            public void run() {
-//                //限制版本控制
-//                try {
-//                    //8.6先加大接收容量
-//                    ByteBuffer readBuf = ByteBuffer.allocate(1024 * 8);//最大 65536 ，65536/1024=64kb，倍数小于64
-//                    int data_size = 0;
-//                    List<byte[]> temp = new ArrayList<>();
-//                    while (isRun() && (indexVer == threadVer)) {
-//                        data_size = socketChannel.read(readBuf);
-//                        if (data_size > 0) {
-//                            readBuf.flip();
-//                            //当次数据
-//                            byte[] data = new byte[data_size];
-//                            readBuf.get(data, 0, data_size);
-//                            if (data.length < 1024) {
-//                                LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketPacket.bytesToHex(data));
-//                            }
-//                            LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: " + data.length);
-//
-//                            if (SocketPacket.isHead(data)) {//收到包头
-//                                LogUtil.getLog().d(TAG, ">>>接收数据: 是包头");
-//                                temp.clear();//每次收到包头把之前的缓存清理
-//                                byte[] ex = doPackage(data);//没处理完的断包
-//                                if (ex != null) {
-//                                    if (!SocketPacket.isHead(ex)) {//下个断包是否是包头不是就抛掉
-//                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketPacket.bytesToHex(ex));
-//                                    }
-//                                    temp.add(ex);
-//                                    LogUtil.getLog().d(TAG, ">>>[包头]剩余数据长度" + ex.length);
-//                                }
-//                            } else {//收到包体
-//                                LogUtil.getLog().d(TAG, ">>>接收数据: 是包体");
-//                                if (temp.size() > 0) {
-//                                    byte[] oldpk = SocketPacket.listToBytes(temp);
-//                                    LogUtil.getLog().d(TAG, ">>>上一个包大小" + oldpk.length);
-//                                    temp.clear();
-//                                    byte[] epk = SocketPacket.byteMergerAll(oldpk, data);//合成的新包
-//                                    LogUtil.getLog().d(TAG, ">>>合成包大小" + epk.length);
-//                                    byte[] ex = doPackage(epk);
-//                                    if (ex != null) {
-//                                        temp.add(ex);
-//                                        LogUtil.getLog().d(TAG, ">>>[包体]剩余数据长度" + ex.length);
-//                                    }
-//                                } else {//如果没有包头缓存,同样抛掉包体
-//                                    LogUtil.getLog().d(TAG, ">>>抛掉包体错误数据" + SocketPacket.bytesToHex(data));
-//                                }
-//                            }
-//                            LogUtil.getLog().d(TAG, ">>>当前缓冲区数: " + temp.size());
-//                            readBuf.clear();
-//                        } else {
-//                            // LogUtil.getLog().d(TAG, "<<<<<接收缓存: "+ data_size);
-//                        }
-//                        Thread.sleep(50);
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-//                    LogUtil.writeLog("===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-//                    //java.io.EOFException: Read error
-//                    if (e != null && e.getMessage() != null && e.getMessage().contains("EOFException")) {
-//                        EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
-//                        // 登录冲突
-//                        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-//                        eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
-//                        EventBus.getDefault().post(eventLoginOut4Conflict);
-//                        return;
-//                    }
-//                    stop(true);
-//                    startSocket();
-//                }
-//                setRunState(0);
-//                LogUtil.getLog().d(TAG, ">>>接收结束");
-//            }
-//        }).start();
         ExecutorManager.INSTANCE.getReadThread().execute(new Runnable() {
             private long indexVer = threadVer;
 
@@ -757,18 +656,19 @@ public class SocketUtil {
                 } catch (Exception e) {
                     if (e instanceof SocketEndException) {
                         LogUtil.getLog().e(TAG, "SocketEndException==连接已中断");
+                        LogUtil.writeLog("连接LOG" + "--SocketEndException--连接被服务器中断");
                         stop(true);
                     } else {
                         e.printStackTrace();
                         LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-                        LogUtil.writeLog("接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
+                        LogUtil.writeLog("连接LOG--接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
                         stop(true);
                         if (isStart) {
                             startSocket();
                         }
                     }
                 }
-                setRunState(0);
+//                setRunState(0);
                 LogUtil.getLog().d(TAG, ">>>接收结束");
             }
         });
@@ -805,16 +705,6 @@ public class SocketUtil {
                     heartbeatTime = System.currentTimeMillis();
                     //调试时不用吧onMsg放在线程里,这里为了优化分发的效率才如此处理
                     event.onMsg(pmsg);
-//                    if (AppConfig.DEBUG) {
-//                        event.onMsg(pmsg);
-//                    } else {
-//                        new Thread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                event.onMsg(pmsg);
-//                            }
-//                        }).start();
-//                    }
                     break;
                 case PROTOBUF_HEARTBEAT:
                     LogUtil.getLog().i(TAG, ">>>-----<收到心跳" + testindex);
@@ -822,7 +712,7 @@ public class SocketUtil {
                     testindex++;
                     break;
                 case AUTH:
-                    LogUtil.getLog().i(TAG, ">>>-----<收到鉴权");
+                    LogUtil.getLog().i(TAG, "连接LOG >>>-----<收到鉴权" + "--time=" + System.currentTimeMillis());
                     TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-成功鉴权");
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
                     LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
@@ -838,6 +728,7 @@ public class SocketUtil {
                         //6.20 鉴权失败退出登录
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {
+                        SocketData.setPreServerAckTime(ruthmsg.getTimestamp());
                         setRunState(2);
                         //开始心跳
                         heartbeatTime = System.currentTimeMillis();
@@ -848,7 +739,7 @@ public class SocketUtil {
                         sendListThread();
                     }
                     LogUtil.writeLog(TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
-                    LogUtil.getLog().d(TAG, "连接总耗时=" + TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
+                    LogUtil.getLog().d(TAG + "--连接LOG", "总耗时=" + TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
                     TcpConnection.getInstance(AppConfig.getContext()).clearLogList();
                     break;
                 case ACK:
@@ -864,7 +755,6 @@ public class SocketUtil {
                     break;
             }
 
-            //---------------------------------
             if (ls.size() > 1) {//多个包情况
                 return doPackage(ls.get(1));
             }

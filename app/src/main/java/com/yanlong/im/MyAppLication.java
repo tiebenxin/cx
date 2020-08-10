@@ -18,7 +18,6 @@ import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.jrmf360.tools.JrmfClient;
 import com.kye.net.NetRequestHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
@@ -40,7 +39,6 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
-import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
@@ -104,7 +102,7 @@ public class MyAppLication extends MainApplication {
         initWeixinConfig();
         initRunstate();
         initRedPacket();
-        LogcatHelper.getInstance(this).start();
+//        LogcatHelper.getInstance(this).start();
         initException();
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
@@ -286,8 +284,8 @@ public class MyAppLication extends MainApplication {
      */
     private LoginInfo getLoginInfo() {
         SpUtil spUtil = SpUtil.getSpUtil();
-        String account = spUtil.getSPValue("account", "");
-        String token = spUtil.getSPValue("token", "");
+        String account = spUtil.getSPValue(Preferences.KEY_USER_ACCOUNT, "");
+        String token = spUtil.getSPValue(Preferences.KEY_USER_TOKEN, "");
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             return new LoginInfo(account, token);
         } else {
@@ -358,10 +356,10 @@ public class MyAppLication extends MainApplication {
      */
     private void initRedPacket() {
         //改为正式环境
-        JrmfClient.isDebug(false);
-        /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
-        JrmfClient.init(this);
-        com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);
+//        JrmfClient.isDebug(false);
+//        /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
+//        JrmfClient.init(this);
+//        com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);
 
     }
 

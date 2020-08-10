@@ -11,11 +11,9 @@ import com.hm.cxpay.utils.UIUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.utils.socket.MsgBean;
 
 /*
  * 转账消息
@@ -57,7 +55,10 @@ public class ChatCellTransfer extends ChatCellBase {
         if (!isToMe) {
             UserInfo user = model.getTo_user();
             if (user != null) {
-                nick = user.getName();
+                nick = user.getMkName();// TODO　#4844　优先显示备注
+                if (TextUtils.isEmpty(nick)) {
+                    nick = user.getName();
+                }
             }
         }
         info = getTransferInfo(transfer.getComment(), transfer.getOpType(), isMe, isToMe ? "" : nick, transfer.getCreator());
@@ -76,16 +77,17 @@ public class ChatCellTransfer extends ChatCellBase {
         switch (transferStatus) {
             case PayEnum.ETransferOpType.TRANS_SEND:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_rb);
-                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_chat_me_rp : R.drawable.bg_chat_other_rp);
+                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_deep : R.drawable.bg_transfer_other_deep);
+
                 break;
             case PayEnum.ETransferOpType.TRANS_RECEIVE:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_receive_rb);
-                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_chat_me_rp_h : R.drawable.bg_chat_other_rp_h);
+                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_light : R.drawable.bg_transfer_other_light);
                 break;
             case PayEnum.ETransferOpType.TRANS_REJECT:
             case PayEnum.ETransferOpType.TRANS_PAST:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_return_rb);
-                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_chat_me_rp_h : R.drawable.bg_chat_other_rp_h);
+                bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_light : R.drawable.bg_transfer_other_light);
                 break;
         }
         tv_rb_title.setText(title);

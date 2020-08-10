@@ -7,22 +7,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
-import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.CxTransferBean;
-import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.UrlBean;
-import com.hm.cxpay.bean.UserBean;
-import com.hm.cxpay.dailog.DialogBalanceNoEnough;
-import com.hm.cxpay.dailog.DialogDefault;
-import com.hm.cxpay.dailog.DialogErrorPassword;
-import com.hm.cxpay.dailog.DialogInputTransferPassword;
-import com.hm.cxpay.dailog.DialogSelectPayStyle;
 import com.hm.cxpay.databinding.ActivityTransferBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.eventbus.TransferSuccessEvent;
@@ -33,22 +26,16 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.YiBaoWebActivity;
-import com.hm.cxpay.ui.bank.BankSettingActivity;
-import com.hm.cxpay.ui.bank.BindBankActivity;
-import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
-import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
-import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
-import com.jrmf360.tools.utils.ThreadUtil;
 
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NumRangeInputFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.List;
 
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;
@@ -121,14 +108,22 @@ public class TransferActivity extends BasePayActivity {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 eventTransferSuccess();
                 toTransferResult(money);
+            } else if (event.getResult() == PayEnum.EPayResult.FAIL) {
+//                if (!TextUtils.isEmpty(event.getErrMsg())) {
+//                    ToastUtil.show(this, event.getErrMsg());
+//                } else {
+//                    ToastUtil.show(this, R.string.transfer_fail_note);
+//                }
             } else {
-                ToastUtil.show(this, R.string.send_fail_note);
+                ToastUtil.show(this, R.string.transfer_fail_note);
             }
         }
     }
 
     private void initView() {
         UIUtils.loadAvatar(avatar, ui.ivAvatar);
+//        ui.headView.getActionbar().setChangeStyleBg();
+//        ui.headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         ui.tvName.setText(name);
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -154,7 +149,7 @@ public class TransferActivity extends BasePayActivity {
                 }
             }
         });
-
+        ui.edMoney.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
         ui.edMoney.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -191,10 +186,9 @@ public class TransferActivity extends BasePayActivity {
     }
 
 
-    public void httpSendTransfer(String actionId, final long money, final long toUid, final String note) {
+    public void httpSendTransfer(final String actionId, final long money, final long toUid, final String note) {
         isSending = true;
         showLoadingDialog();
-        handler.postDelayed(runnable, WAIT_TIME);
         cxTransferBean = createTransferBean(actionId, money, PayEnum.ETransferOpType.TRANS_SEND, note, -1, "");
         PayHttpUtils.getInstance().sendTransfer(actionId, money, toUid, note)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
@@ -203,6 +197,7 @@ public class TransferActivity extends BasePayActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
+                            LogUtil.writeLog("支付--转账--actionId=" + actionId + "--time" + System.currentTimeMillis());
                             UrlBean urlBean = baseResponse.getData();
                             if (urlBean != null) {
                                 Intent intent = new Intent(TransferActivity.this, YiBaoWebActivity.class);
@@ -270,6 +265,9 @@ public class TransferActivity extends BasePayActivity {
                 int result = data.getIntExtra(RESULT, 0);
                 if (result == 99) {
                     showLoadingDialog();
+                    if (handler != null) {
+                        handler.postDelayed(runnable, WAIT_TIME);
+                    }
                 } else {
                     dismissLoadingDialog();
                 }

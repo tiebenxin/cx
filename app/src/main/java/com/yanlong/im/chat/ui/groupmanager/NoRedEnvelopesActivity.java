@@ -16,14 +16,17 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.eventbus.EventRefreshGroup;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.databinding.ActivityNoredEnvelopesBinding;
 import com.yanlong.im.databinding.ItemNoredEnvelopesBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.ReturnBean;
@@ -39,6 +42,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -150,7 +154,7 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
                     public void onYes() {
                         mUsers.clear();
                         mUsers.add(mList.get(position).getUid());
-                        toggleOpenUpRedEnvelope(mGosn.toJson(mUsers), null, mList.get(position), false);
+                        toggleOpenUpRedEnvelope(mUsers, null, mList.get(position), false);
                     }
                 });
         dialog.show();
@@ -170,7 +174,7 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
                     for (UserInfo userInfo : list) {
                         mUsers.add(userInfo.getUid());
                     }
-                    toggleOpenUpRedEnvelope(mGosn.toJson(mUsers), list, null, true);
+                    toggleOpenUpRedEnvelope(mUsers, list, null, true);
                 }
             }
         }
@@ -179,28 +183,35 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
     /**
      * 开关群成员禁领红包
      *
-     * @param uidJson  用户uidjson
+     * @param uidList  用户集合
      * @param list     添加用户列表
      * @param userInfo 移除用户
      * @param isAdd    增加还是移除
      */
-    private void toggleOpenUpRedEnvelope(String uidJson, List<UserInfo> list, UserInfo userInfo, boolean isAdd) {
-        mMsgAction.toggleOpenUpRedEnvelope(uidJson, mGid, isAdd ? 1 : -1, new CallBack<ReturnBean>() {
+    private void toggleOpenUpRedEnvelope(List<Long> uidList, List<UserInfo> list, UserInfo userInfo, boolean isAdd) {
+
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("uidList", uidList);
+        params.put("gid", mGid);
+        params.put("ops", isAdd ? 1 : -1);
+        mMsgAction.toggleOpenUpRedEnvelope(params, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk()) {
                     if (isAdd) {
                         mList.addAll(list);
+                        // 本地创建一个通知
+                        SocketData.createMsgRedEnvelopesOfNotice(mGid, isAdd, list);
                     } else {
+                        // 本地创建一个通知
+                        List<UserInfo> userInfos = new ArrayList<>();
+                        userInfos.add(userInfo);
+                        SocketData.createMsgRedEnvelopesOfNotice(mGid, isAdd, userInfos);
                         mList.remove(userInfo);
-                        // 移除自己更新群信息
-                        if (userInfo.getUid() != null && userInfo.getUid().intValue() == UserAction.getMyId().intValue()) {
-                            EventGroupChange event = new EventGroupChange();
-                            event.setNeedLoad(true);
-                            EventBus.getDefault().post(event);
-                        }
                     }
+                    // 移除自己更新群信息
+                    MessageManager.getInstance().notifyGroupChange(true);
                     mViewAdapter.notifyDataSetChanged();
                 } else {
                     if (isAdd) {
@@ -249,7 +260,7 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
      * @param gid
      */
     private void taskGroupInfo(String gid) {
-        mMsgAction.groupInfo(gid,true, new CallBack<ReturnBean<Group>>() {
+        mMsgAction.groupInfo(gid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
@@ -298,15 +309,17 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
 
     /**
      * 更新列表
+     *
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshGroup(EventRefreshGroup event) {
-        if(event!=null&&event.getGid().equals(mGid)){
+        if (event != null && event.getGid().equals(mGid)) {
             getCantOpenUpRedMembers();
         }
 
     }
+
     @Override
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);

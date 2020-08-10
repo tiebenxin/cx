@@ -57,7 +57,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SingleRedPacketDetailsActivity extends BasePayActivity {
     private List<EnvelopeReceiverBean> list = new ArrayList<>();
 
-    private String[] strings = {"红包记录", "取消"};
+    private String[] strings = {"查看零钱红包记录", "取消"};
     private PopupSelectView popupSelectView;
     private EnvelopeDetailBean envelopeDetailBean;
     private ActivityRedPacketDetailsBinding ui;
@@ -123,7 +123,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 ui.tvName.setText(userBean.getNickname() + "的红包");
                 isFromSelf = userBean.getUid() == user.getUid();
             }
-            ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
+            ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，好运连连" : envelopeDetailBean.getNote());
             if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
                 if (user != null && isFromSelf) {//是自己发的
                     if (envelopeDetailBean.getChatType() == 1) {//群聊
@@ -166,7 +166,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             } else {
                 ui.llSend.setVisibility(View.GONE);
                 ui.llRecord.setVisibility(View.VISIBLE);
-                ui.tvNote.setVisibility(View.VISIBLE);
+                ui.tvNote.setVisibility(View.GONE);
                 ui.tvNote.setText("已存入零钱");
             }
             //初始化领取记录
@@ -259,6 +259,12 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 ui.tvMoney.setText(UIUtils.getYuan(selfReceiver.getAmt()));
                 ui.tvNote.setVisibility(View.VISIBLE);
             } else {
+                ui.tvMoney.setVisibility(View.GONE);
+                ui.tvUnit.setVisibility(View.GONE);
+                ui.tvNote.setVisibility(View.GONE);
+            }
+        } else {
+            if (isFromSelf) {
                 ui.tvMoney.setVisibility(View.GONE);
                 ui.tvUnit.setVisibility(View.GONE);
                 ui.tvNote.setVisibility(View.GONE);

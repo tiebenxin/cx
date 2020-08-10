@@ -5,22 +5,16 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.google.gson.Gson;
 import com.hm.cxpay.global.PayEnvironment;
-import com.jrmf360.rplib.JrmfRpClient;
-import com.jrmf360.rplib.http.model.BaseModel;
-import com.jrmf360.tools.http.OkHttpModelCallBack;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
-import com.yanlong.im.BuildConfig;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.pay.action.PayAction;
-import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
@@ -200,7 +194,7 @@ public class UserAction {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
-                ToastUtil.show("登录失败，请检查您的网络环境或联系客服");
+                ToastUtil.show("登录失败，请检查你的网络环境或联系客服");
             }
         });
     }
@@ -220,7 +214,7 @@ public class UserAction {
                         TokenBean tokenBean = response.body().getData();
                         doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
                         saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
-                        LogUtil.writeLog("常信号登录获取token" + "--uid=" + tokenBean.getUid()+"--token=" + tokenBean.getAccessToken());
+                        LogUtil.writeLog("常信号登录获取token" + "--uid=" + tokenBean.getUid() + "--token=" + tokenBean.getAccessToken());
                         initDB("" + tokenBean.getUid());
                         setToken(tokenBean, true);
                         getMyInfo4Web(tokenBean.getUid(), imid);
@@ -234,7 +228,7 @@ public class UserAction {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
-                ToastUtil.show("登录失败，请检查您的网络环境或联系客服");
+                ToastUtil.show("登录失败，请检查你的网络环境或联系客服");
             }
         });
     }
@@ -490,9 +484,13 @@ public class UserAction {
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).save2Json(result);
             }
         }
+        if (TextUtils.isEmpty(token.getAccessToken())) {
+            token.setAccessToken("");
+        } else {
+            NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+            PayEnvironment.getInstance().setToken(token.getAccessToken());
+        }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
-        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
-        PayEnvironment.getInstance().setToken(token.getAccessToken());
         LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
         LogUtil.writeLog("设置token" + "--uid=" + token.getUid() + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
     }
@@ -615,35 +613,6 @@ public class UserAction {
         NetUtil.getNet().exec(server.getAllFriendsGet(), callback);
     }
 
-
-    private void upMyinfoToPay() {
-        PayAction payAction = new PayAction();
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    JrmfRpClient.updateUserInfo(myInfo.getUid() + "", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
-                        @Override
-                        public void onSuccess(BaseModel baseModel) {
-
-                        }
-
-                        @Override
-                        public void onFail(String s) {
-
-                        }
-                    });
-
-
-                }
-            }
-        });
-    }
-
     /**
      * 设置用户个人资料
      */
@@ -666,7 +635,6 @@ public class UserAction {
                             if (gender != null)
                                 myInfo.setSex(gender);
                             updateUser2DB(myInfo);
-                            upMyinfoToPay();
                         }
                     }
                 } catch (Exception e) {
@@ -711,8 +679,11 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
+                    TokenBean tokenBean = response.body().getData();
+                    doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    initDB("" + tokenBean.getUid());
+                    setToken(tokenBean, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
@@ -781,8 +752,22 @@ public class UserAction {
     /**
      * 通讯录匹配
      */
+    public void getUserMatchPhone(WeakHashMap<String, Object> params, CallBack<ReturnBean<AddressBookMatchingBean>> callback) {
+        NetUtil.getNet().exec(server.getUserMatchPhone(params), callback);
+    }
+
+    /**
+     * 通讯录匹配
+     */
     public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
         NetUtil.getNet().exec(server.getUserMatchPhone(phoneList), callback);
+    }
+
+    /**
+     * 通讯录匹配 增量
+     */
+    public void getIncrementContacts(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.getIncrementContacts(params), callback);
     }
 
     /**
@@ -1213,13 +1198,19 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk()) {//保存token
-                    if (response.body().getData() != null) {
-                        initDB("" + response.body().getData().getUid());
+                    TokenBean tokenBean = response.body().getData();
+                    if (tokenBean != null) {
+                        // 临时登录没有返回token,拿登录返回token设置并更新支付的token,
+                        if (!TextUtils.isEmpty(PayEnvironment.getInstance().getToken())) {
+                            tokenBean.setAccessToken(PayEnvironment.getInstance().getToken());
+                        }
+                        setToken(tokenBean, true);
+                        initDB("" + tokenBean.getUid());
                         //如果是手机号码登录，则删除上次常信号登陆的账号
                         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
                         // 保存用户状态 是否被封号的状态
-                        UserUtil.saveUserStatus(response.body().getData().getUid(), response.body().getData().getLockUser());
-                        getMyInfo4Web(response.body().getData().getUid(), "");
+                        UserUtil.saveUserStatus(tokenBean.getUid(), tokenBean.getLockUser());
+                        getMyInfo4Web(tokenBean.getUid(), "");
                     }
                 }
 

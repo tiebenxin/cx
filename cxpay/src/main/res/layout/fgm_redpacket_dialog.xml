@@ -48,6 +48,7 @@
                 style="@style/app_txt_title_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="21sp"
                 android:text="手慢了，红包派完了！"
                 android:textColor="@color/yellow_200" />
 

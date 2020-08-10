@@ -1,6 +1,8 @@
 package net.cb.cb.library.net;
 
-import com.jrmf360.tools.utils.ThreadUtil;
+
+import net.cb.cb.library.utils.ThreadUtil;
+
 import io.reactivex.Observer;
 
 /**

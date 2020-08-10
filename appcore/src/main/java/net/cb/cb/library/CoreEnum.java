@@ -101,4 +101,14 @@ public class CoreEnum {
         int DELETE = 2; //删除
         int ADD = 3; //添加
     }
+
+    /*
+     * 常量0，1
+     * */
+    @IntDef({ECheckType.NO, ECheckType.YES})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ECheckType {
+        int NO = 0;
+        int YES = 1;
+    }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -19,10 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.hm.cxpay.eventbus.RefreshBalanceEvent;
-import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.HttpChannel;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -36,12 +34,12 @@ import com.yanlong.im.utils.DialogUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.update.UpdateAppDialog;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon;
@@ -51,7 +49,9 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ErrorCode;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
@@ -59,6 +59,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -97,6 +98,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private long[] mHits;
     private boolean isShowIPSelector;//是否显示ip选择器
     private UserAction userAction = new UserAction();
+    private String showTitle = "";//要显示的用户名或手机号
+    private InstallAppUtil installAppUtil;
+    private UpdateAppDialog dialog;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshBalance(EventFactory.ExitActivityEvent event) {
@@ -185,12 +189,6 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     private void switchService(@ChatEnum.EServiceType int type) {
@@ -284,12 +282,14 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private void initData() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         String imageHead = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).get4Json(String.class);
-
         String imid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
-        if (StringUtil.isNotNull(imid)) {
-            phone = imid;
+        if (StringUtil.isNotNull(phone)) {
+            showTitle = phone;
         }
-        mTvPhoneNumber.setText(phone);
+        if (StringUtil.isNotNull(imid)) {
+            showTitle = imid;
+        }
+        mTvPhoneNumber.setText(showTitle);
         Glide.with(this).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
     }
 
@@ -312,7 +312,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
     private void goIdentifyCodeActivity() {
         Intent intent = new Intent(this, IdentifyingCodeActivity.class);
-        intent.putExtra(PHONE, phone);
+        if (!phone.equals("0")) { //TODO 发现后台添加生成的新用户，调用获取用户资料接口并缓存，得到的电话被自动设为了字符串"0"，已经在群里提给了后台，不知道是否修复，判断条件暂时这么写
+            intent.putExtra(PHONE, phone);
+        }
         startActivity(intent);
     }
 
@@ -560,26 +562,62 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, LoginActivity.this);
-                    //强制更新
-                    if (bean.getForceUpdate() != 0) {
-                        //有最低不需要强制升级版本
-                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                    //判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
+                    if(!TextUtils.isEmpty(bean.getVersion())){
+                        if(FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk")
+                                && VersionUtil.isLowerVersion(context,bean.getVersion())) {//当前的版本必须要低于安装包才允许安装
+                            if(dialog==null){
+                                dialog = new UpdateAppDialog();
+                                dialog.init(LoginActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
+                                    @Override
+                                    public void onON() {
+
+                                    }
+
+                                    @Override
+                                    public void onUpdate() {
+
+                                    }
+
+                                    @Override
+                                    public void onInstall() {
+                                        if(installAppUtil==null){
+                                            installAppUtil = new InstallAppUtil();
+                                        }
+                                        installAppUtil.install(LoginActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk");
+                                    }
+                                });
+
+                                dialog.downloadComplete();
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))){
+                                    dialog.showCancle(false);
+                                }else {
+                                    dialog.showCancle(true);
+                                }
+                            }
+                            dialog.show();
                         }
-                    } else {
-                        //缓存最新版本
-                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                        VersionBean versionBean = new VersionBean();
-                        versionBean.setVersion(bean.getVersion());
-                        preferencesUtil.save2Json(versionBean);
-                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                    }else {
+                        //强制更新
+                        if (bean.getForceUpdate() != 0) {
+                            //有最低不需要强制升级版本
+                            if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                            } else {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                            }
                         } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                            //如有新版本，首页底部提示红点
+                            //缓存最新版本
+                            SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                            VersionBean versionBean = new VersionBean();
+                            versionBean.setVersion(bean.getVersion());
+                            preferencesUtil.save2Json(versionBean);
+                            //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                            if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                            } else {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                            }
                         }
                     }
                 }

@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-import com.jrmf360.tools.utils.ScreenUtil;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -20,6 +19,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.BackgroundImageBean;
 import com.yanlong.im.utils.SpaceItemDecoration;
 
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;

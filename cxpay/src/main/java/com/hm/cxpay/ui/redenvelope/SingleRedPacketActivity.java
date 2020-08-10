@@ -31,6 +31,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.YiBaoWebActivity;
 import com.hm.cxpay.utils.UIUtils;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NumRangeInputFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -47,7 +48,7 @@ import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 //发送单个红包界面
 public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
-    private String[] strings = {"红包记录", "取消"};
+    private String[] strings = {"查看零钱红包记录", "取消"};
     private PopupSelectView popupSelectView;
     private ActivitySingleRedPacketBinding ui;
     private long uid;
@@ -93,6 +94,8 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
                 PayEnvironment.getInstance().notifyRefreshBalance();
+            } else if (event.getResult() == PayEnum.EPayResult.FAIL) {
+
             } else {
                 ToastUtil.show(this, R.string.send_fail_note);
             }
@@ -163,8 +166,12 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                 } else {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
-                    ui.tvNotice.setVisibility(View.VISIBLE);
-                    ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                    if (!TextUtils.isEmpty(string)) {
+                        ui.tvNotice.setVisibility(View.VISIBLE);
+                        ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                    } else {
+                        ui.tvNotice.setVisibility(View.GONE);
+                    }
                 }
 
             }
@@ -224,6 +231,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
+                            LogUtil.writeLog("支付--单红包--actionId=" + actionId + "--time" + System.currentTimeMillis());
                             UrlBean urlBean = baseResponse.getData();
                             if (urlBean != null) {
                                 Intent intent = new Intent(SingleRedPacketActivity.this, YiBaoWebActivity.class);
@@ -274,6 +282,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                         if (handler != null && handler != null) {
                             handler.removeCallbacks(runnable);
                         }
+                        payFailed();
                     } else {
                         showLoadingDialog();
                         if (handler != null && handler != null) {

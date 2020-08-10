@@ -57,7 +57,12 @@ public class UpFileAction {
      * @param filePath
      */
     public void upFile(PATH type, Context context, UpFileUtil.OssUpCallback callback, String filePath) {
-        upFile(type, context, callback, filePath, null);
+        upFile(type, context, callback, filePath, null, false);
+    }
+
+
+    public void upFile(PATH type, Context context, UpFileUtil.OssUpCallback callback, String filePath, boolean isLocalTake) {
+        upFile(type, context, callback, filePath, null, isLocalTake);
     }
 
     public void upFile(String id, PATH type, Context context, UpFileUtil.OssUpCallback callback, String filePath) {
@@ -70,7 +75,7 @@ public class UpFileAction {
     }
 
     public void upFile(PATH type, Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
-        upFile(type, context, callback, null, fileByte);
+        upFile(type, context, callback, null, fileByte, false);
     }
 
     public String getPath(PATH type, String id) {
@@ -80,14 +85,7 @@ public class UpFileAction {
         switch (type) {
             case IMG:
                 data.setTime(System.currentTimeMillis());
-//                pt = AppConfig.UP_PATH + "/image/android/" + simpleDateFormat.format(data) + "/";
-                pt = AppConfig.getUpPath() + "/image/android/" + simpleDateFormat.format(data) + "/";
-                break;
-            case HEAD:
-                pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
-                break;
-            case HEAD_GROUP:
-                pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
+                pt = "image/";
                 break;
             case COMPLAINT:
                 pt = AppConfig.getUpPath() + "/misc/complaint/";
@@ -96,16 +94,18 @@ public class UpFileAction {
                 pt = AppConfig.getUpPath() + "/misc/feedback/";
                 break;
             case VOICE:
-                pt = AppConfig.getUpPath() + "/voice/android/" + simpleDateFormat.format(data) + "/";
+                pt = "voice/";
                 break;
             case HEAD_GROUP_CHANGE:
+            case HEAD_GROUP:
+            case HEAD:
                 pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
                 break;
             case VIDEO:
-                pt = AppConfig.getUpPath() + "/video/android/" + simpleDateFormat.format(data) + "/";
+                pt = "video/";
                 break;
             case FILE:
-                pt = AppConfig.getUpPath() + "/file/android/" + simpleDateFormat.format(data) + "/";
+                pt = "file/";
                 break;
             case PC_MSG:
                 pt = AppConfig.getUpPath() + "/file/msg/" + id + "/" + simpleDateFormat.format(data);
@@ -135,7 +135,7 @@ public class UpFileAction {
 
     private Long startTime = 0L;
 
-    private void upFile(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte) {
+    private void upFile(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte, final boolean isLocalTake) {
         startTime = SystemClock.currentThreadTimeMillis();
         NetUtil.getNet().exec(
                 server.aliObs()
@@ -168,7 +168,7 @@ public class UpFileAction {
 //                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, ""), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
-                                            configBean.getBucket(), callback, filePath, fileByte);
+                                            configBean.getBucket(), callback, filePath, fileByte, isLocalTake);
 
                                     UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
                                 }
@@ -235,7 +235,7 @@ public class UpFileAction {
 //                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
-                                            configBean.getBucket(), callback, filePath, fileByte);
+                                            configBean.getBucket(), callback, filePath, fileByte,false);
 
                                     UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
                                 }
@@ -295,7 +295,7 @@ public class UpFileAction {
 //                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id, fileName), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
-                                            configBean.getBucket(), callback, filePath, fileByte);
+                                            configBean.getBucket(), callback, filePath, fileByte,false);
 
                                     UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
                                 }
@@ -381,7 +381,7 @@ public class UpFileAction {
                                                 public void inProgress(long progress, long zong) {
                                                     callback.inProgress(progress, zong);
                                                 }
-                                            }, filep, null);
+                                            }, filep, null,false);
                                 }
                             }).start();
 
@@ -460,7 +460,7 @@ public class UpFileAction {
 
             }
         };
-        Observable<ResponseBody> observable=  NetUtil.getNet().getUpFileServer().uploadLog(new RequestUploadFileBody(builder.build(), fileUploadObserver));
+        Observable<ResponseBody> observable = NetUtil.getNet().getUpFileServer().uploadLog(new RequestUploadFileBody(builder.build(), fileUploadObserver));
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(fileUploadObserver);

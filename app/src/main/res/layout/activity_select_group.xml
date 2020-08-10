@@ -57,7 +57,7 @@
                     android:id="@+id/ll_at_all"
                     style="@style/app_layout_list1_item"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/dimen_10"
+                    android:paddingBottom="@dimen/dimen_my10"
                     android:visibility="gone">
 
                     <ImageView

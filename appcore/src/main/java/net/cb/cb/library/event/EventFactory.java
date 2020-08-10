@@ -85,6 +85,13 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
+     * 来电话时关闭音视频界面
+     */
+    public static class CallInPhoneActivityEvent extends BaseEvent {
+        public int operationType;// 操作类型
+    }
+
+    /**
      * 发送一条通知
      */
     public static class SendP2PAuVideoDialMessage extends BaseEvent {

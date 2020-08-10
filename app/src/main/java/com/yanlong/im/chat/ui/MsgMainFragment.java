@@ -39,7 +39,6 @@ import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
-import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -142,7 +141,32 @@ public class MsgMainFragment extends Fragment {
     }
 
     private PopView popView = new PopView();
-    private SocketEvent socketEvent;
+    private SocketEvent socketEvent = new SocketEvent() {
+        @Override
+        public void onHeartbeat() {
+
+        }
+
+        @Override
+        public void onACK(MsgBean.AckMessage bean) {
+
+        }
+
+        @Override
+        public void onMsg(MsgBean.UniversalMessage bean) {
+
+        }
+
+        @Override
+        public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
+
+        }
+
+        @Override
+        public void onLine(final boolean state) {
+            doOnlineChange(state);
+        }
+    };
 
     private void initEvent() {
         mAdapter = new MsgMainFragmentAdapter(getActivity(), viewModel, mHeadView);
@@ -165,110 +189,6 @@ public class MsgMainFragment extends Fragment {
             }
         });
 
-        SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
-            @Override
-            public void onHeartbeat() {
-
-            }
-
-            @Override
-            public void onACK(MsgBean.AckMessage bean) {
-
-            }
-
-            @Override
-            public void onMsg(MsgBean.UniversalMessage bean) {
-
-            }
-
-            @Override
-            public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
-
-            }
-
-            @Override
-            public void onLine(final boolean state) {
-                getActivityMe().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        LogUtil.getLog().d("tyad", "run: state=" + state);
-                        AppConfig.setOnline(state);
-                        actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
-                        if (!state && getActivityMe().isActivityStop()) {
-                            return;
-                        }
-                        resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
-                        viewModel.onlineState.setValue(state);
-                    }
-                });
-                //检测在线状态，一旦联网，调用批量收藏/删除接口，通知后端处理用户离线操作，保持数据一致
-                //1 若网络恢复正常
-                if (state) {
-                    //2 判断是否有用户离线收藏操作/收藏删除记录，有则及时调接口
-                    if (msgDao.getAllOfflineCollectRecords() != null && msgDao.getAllOfflineCollectRecords().size() > 0) {
-                        List<OfflineCollect> list = msgDao.getAllOfflineCollectRecords();
-                        List<CollectionInfo> dataList = new ArrayList<>();
-                        for (int i = 0; i < list.size(); i++) {
-                            if (list.get(i).getCollectionInfo() != null) {
-                                dataList.add(list.get(i).getCollectionInfo());
-                            }
-                        }
-                        if (dataList != null && dataList.size() > 0) {
-                            //批量收藏
-                            msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
-                                @Override
-                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                                    super.onResponse(call, response);
-                                    if (response.body() == null) {
-                                        return;
-                                    }
-                                    if (response.body().isOk()) {
-                                        LogUtil.getLog().i("TAG", "批量收藏成功!");
-                                        msgDao.deleteAllOfflineCollectRecords();//清空本地离线收藏记录
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<ReturnBean> call, Throwable t) {
-                                    super.onFailure(call, t);
-                                    LogUtil.getLog().i("TAG", "批量收藏失败 " + t.getMessage());
-                                }
-                            });
-                        }
-
-                    }
-                    //批量删除
-                    if (msgDao.getAllOfflineDeleteRecords() != null && msgDao.getAllOfflineDeleteRecords().size() > 0) {
-                        List<String> msgIds = new ArrayList<>();
-                        List<OfflineDelete> list = msgDao.getAllOfflineDeleteRecords();
-                        for (int i = 0; i < list.size(); i++) {
-                            msgIds.add(list.get(i).getMsgId());
-                        }
-                        if (msgIds != null && msgIds.size() > 0) {
-                            msgAction.offlineDeleteCollections(msgIds, new CallBack<ReturnBean>() {
-                                @Override
-                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                                    super.onResponse(call, response);
-                                    if (response.body() == null) {
-                                        return;
-                                    }
-                                    if (response.body().isOk()) {
-                                        LogUtil.getLog().i("TAG", "批量删除成功!");
-                                        msgDao.deleteAllOfflineDeleteRecords();//清空本地离线删除记录
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<ReturnBean> call, Throwable t) {
-                                    super.onFailure(call, t);
-                                    LogUtil.getLog().i("TAG", "批量删除失败 " + t.getMessage());
-                                }
-                            });
-                        }
-                    }
-                }
-            }
-        });
 
         actionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -575,7 +495,6 @@ public class MsgMainFragment extends Fragment {
         super.onDestroy();
         //释放数据对象
         viewModel.onDestroy(this);
-        SocketUtil.getSocketUtil().removeEvent(socketEvent);
         EventBus.getDefault().unregister(this);
     }
 
@@ -671,5 +590,94 @@ public class MsgMainFragment extends Fragment {
             }
         } catch (Exception e) {
         }
+    }
+
+    private void doOnlineChange(boolean state) {
+        if (getActivityMe() == null){
+            return;
+        }
+        getActivityMe().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.getLog().d("tyad", "run: state=" + state);
+                AppConfig.setOnline(state);
+                actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                if (!state && getActivityMe().isActivityStop()) {
+                    return;
+                }
+                resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
+                viewModel.onlineState.setValue(state);
+            }
+        });
+        //检测在线状态，一旦联网，调用批量收藏/删除接口，通知后端处理用户离线操作，保持数据一致
+        //1 若网络恢复正常
+        if (state) {
+            //2 判断是否有用户离线收藏操作/收藏删除记录，有则及时调接口
+            if (msgDao.getAllOfflineCollectRecords() != null && msgDao.getAllOfflineCollectRecords().size() > 0) {
+                List<OfflineCollect> list = msgDao.getAllOfflineCollectRecords();
+                List<CollectionInfo> dataList = new ArrayList<>();
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getCollectionInfo() != null) {
+                        dataList.add(list.get(i).getCollectionInfo());
+                    }
+                }
+                if (dataList != null && dataList.size() > 0) {
+                    //批量收藏
+                    msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
+                        @Override
+                        public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                            super.onResponse(call, response);
+                            if (response.body() == null) {
+                                return;
+                            }
+                            if (response.body().isOk()) {
+                                LogUtil.getLog().i("TAG", "批量收藏成功!");
+                                msgDao.deleteAllOfflineCollectRecords();//清空本地离线收藏记录
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ReturnBean> call, Throwable t) {
+                            super.onFailure(call, t);
+                            LogUtil.getLog().i("TAG", "批量收藏失败 " + t.getMessage());
+                        }
+                    });
+                }
+
+            }
+            //批量删除
+            if (msgDao.getAllOfflineDeleteRecords() != null && msgDao.getAllOfflineDeleteRecords().size() > 0) {
+                List<String> msgIds = new ArrayList<>();
+                List<OfflineDelete> list = msgDao.getAllOfflineDeleteRecords();
+                for (int i = 0; i < list.size(); i++) {
+                    msgIds.add(list.get(i).getMsgId());
+                }
+                if (msgIds != null && msgIds.size() > 0) {
+                    msgAction.offlineDeleteCollections(msgIds, new CallBack<ReturnBean>() {
+                        @Override
+                        public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                            super.onResponse(call, response);
+                            if (response.body() == null) {
+                                return;
+                            }
+                            if (response.body().isOk()) {
+                                LogUtil.getLog().i("TAG", "批量删除成功!");
+                                msgDao.deleteAllOfflineDeleteRecords();//清空本地离线删除记录
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ReturnBean> call, Throwable t) {
+                            super.onFailure(call, t);
+                            LogUtil.getLog().i("TAG", "批量删除失败 " + t.getMessage());
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    public SocketEvent getSocketEvent() {
+        return socketEvent;
     }
 }

@@ -820,7 +820,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
 
-                    return false;
+                    return true;
                 }
             });
         } catch (Exception e) {

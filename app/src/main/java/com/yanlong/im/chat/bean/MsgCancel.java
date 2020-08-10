@@ -8,12 +8,14 @@ public class MsgCancel extends RealmObject implements IMsgContent {
     public static final int MSG_TYPE_DEFAULT = 7897;
     @PrimaryKey
     private String msgid;
-    private Long uid;
+    private Long uid;//被撤回人的uid(原来就有这个字段，证实一直没使用)
     private String note;
     private String msgidCancel;//被撤回消息的id
     private String cancelContent;// 撤回内容
     private Integer cancelContentType;// 撤回内容类型
     private Integer msgType = MSG_TYPE_DEFAULT;
+    private int role;//1群主 2群管理
+    private String alterantive_name;// 被撤回人的昵称
 
     @Ignore
     private long time;//源撤销消息时间
@@ -81,5 +83,21 @@ public class MsgCancel extends RealmObject implements IMsgContent {
 
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    public String getAlterantive_name() {
+        return alterantive_name;
+    }
+
+    public void setAlterantive_name(String alterantive_name) {
+        this.alterantive_name = alterantive_name;
     }
 }

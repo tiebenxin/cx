@@ -87,7 +87,7 @@ import retrofit2.Response;
  * @createDate 2020-7-6
  * @updateAuthor
  * @updateDate
- * @description 账号申诉
+ * @description 申请解封
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 @Route(path = AppealAccountActivity.path)
@@ -321,7 +321,6 @@ public class AppealAccountActivity extends BaseBindActivity<ActivityAppealAccoun
                                                 file = file + netFile.get(getMediaPath(mList.get(i))) + ",";
                                             }
                                             file = file.substring(0, file.length() - 1);
-                                            AppHostUtil.setHostUrl(BuildConfig.HOST_DEV);
                                             commit(content, file);
                                         }
 
@@ -355,7 +354,7 @@ public class AppealAccountActivity extends BaseBindActivity<ActivityAppealAccoun
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response != null && response.body().isOk()) {
+                if (response != null && response.body() != null && response.body().isOk()) {
                     EventFactory.UpdateAppealStatusEvent event = new EventFactory.UpdateAppealStatusEvent();
                     event.status = true;
                     EventBus.getDefault().post(event);

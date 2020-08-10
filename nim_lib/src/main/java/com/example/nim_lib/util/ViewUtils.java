@@ -71,7 +71,7 @@ public class ViewUtils {
     /**
      * 根据手机的分辨率从 dimens文件读取px
      */
-    public static int getDimenPx(Context context,int dimenId) {
+    public static int getDimenPx(Context context, int dimenId) {
         return context.getResources().getDimensionPixelOffset(dimenId);
     }
 
@@ -104,7 +104,7 @@ public class ViewUtils {
     public static boolean isFastDoubleClick() {
         long time = System.currentTimeMillis();
         long timeD = time - lastClickTime;
-        if (300 < timeD) {
+        if (800 < timeD) {
             lastClickTime = time;
             return false;
         }
@@ -227,13 +227,12 @@ public class ViewUtils {
      * 禁止EditText输入空格,换行按键,过滤可输入的字符
      *
      * @param editText
-     * @param digits 键盘可输入的字符
-     *               如果该参数传空字符串,则只限制输入 空格,换行按键
-     *               如果传键盘可输入的字符,则不可输入的字符会被过滤,不可输入
-     *
+     * @param digits    键盘可输入的字符
+     *                  如果该参数传空字符串,则只限制输入 空格,换行按键
+     *                  如果传键盘可输入的字符,则不可输入的字符会被过滤,不可输入
      * @param maxLength 限制输入最大长度
      */
-    public static void setEditTextFilterInputCharacters(EditText editText, final String digits,int maxLength) {
+    public static void setEditTextFilterInputCharacters(EditText editText, final String digits, int maxLength) {
         InputFilter filter = new InputFilter() {
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
@@ -252,7 +251,7 @@ public class ViewUtils {
                 }
             }
         };
-        editText.setFilters(new InputFilter[]{filter,new InputFilter.LengthFilter(maxLength)});
+        editText.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(maxLength)});
     }
 
     public static boolean isFastDoubleClick(final View v) {

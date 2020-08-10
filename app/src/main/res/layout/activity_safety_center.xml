@@ -107,18 +107,46 @@
                     android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
+            <View
+                style="@style/app_line"
+                android:layout_height="20dp"
+                android:background="@color/transparent"
+                android:visibility="visible" />
 
             <LinearLayout
                 android:id="@+id/view_freeze_account"
                 style="@style/app_layout_list2_item"
-                android:layout_marginTop="20dp"
+                android:layout_height="60dp"
                 android:visibility="gone">
 
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_freeze_title" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:text="冻结账号" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:gravity="bottom"
+                        android:text="冻结账号" />
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:paddingTop="5dp"
+                        android:text="账号被盗用，冻结常信账号"
+                        android:textColor="@color/c_868686"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
 
                 <ImageView
@@ -136,13 +164,37 @@
             <LinearLayout
                 android:id="@+id/view_appeal_account"
                 style="@style/app_layout_list2_item"
+                android:layout_height="60dp"
                 android:visibility="gone">
 
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_appeal_title" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:text="账号申诉" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:gravity="bottom"
+                        android:text="账号申诉" />
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:paddingTop="5dp"
+                        android:text="系统误封账号，提交申诉"
+                        android:textColor="@color/c_868686"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
 
                 <ImageView
@@ -160,13 +212,37 @@
             <LinearLayout
                 android:id="@+id/view_logout_account"
                 style="@style/app_layout_list2_item"
-                android:visibility="gone">
+                android:layout_height="60dp"
+                android:visibility="visible">
 
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_logout_title" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:text="注销账号" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:gravity="bottom"
+                        android:text="注销账号" />
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:paddingTop="5dp"
+                        android:text="删除所有数据，永久注销常信账号"
+                        android:textColor="@color/c_868686"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
 
                 <ImageView

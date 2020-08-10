@@ -383,10 +383,12 @@ public class MessageLocalDataSource {
         checkInTransaction(realm);
         try {
             ApplyBean applyBean1 = realm.where(ApplyBean.class).equalTo("aid", aid).findFirst();
-            realm.beginTransaction();
-            applyBean1.setStat(2);
-            applyBean1.setTime(System.currentTimeMillis());
-            realm.commitTransaction();
+            if (applyBean1 != null) {
+                realm.beginTransaction();
+                applyBean1.setStat(2);
+                applyBean1.setTime(System.currentTimeMillis());
+                realm.commitTransaction();
+            }
         } catch (Exception e) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();
@@ -446,7 +448,7 @@ public class MessageLocalDataSource {
     /**
      * 撤回-删除消息
      *
-     * @param msgId       消息ID
+     * @param msgId 消息ID
      */
     public void deleteMsg(@NonNull Realm realm, String msgId) {
         checkInTransaction(realm);
@@ -587,7 +589,7 @@ public class MessageLocalDataSource {
      * 对方发送的消息-自己接收的消息，更新为已读
      * 更新消息已读
      */
-    public void updateRecivedMsgReadForPC(@NonNull Realm realm, String gid, Long uid, long timestamp) {
+    public void updateReceivedMsgReadForPC(@NonNull Realm realm, String gid, Long uid, long timestamp) {
         checkInTransaction(realm);
         try {
             //查出已读前的消息，设置为已读
@@ -683,7 +685,7 @@ public class MessageLocalDataSource {
         try {
             Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
                     realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-            if (session != null) {
+            if (session != null && session.getIsMute() != 1) {
                 //好友之后发送的未读消息数量
                 long unReadCount = TextUtils.isEmpty(gid) ? realm.where(MsgAllBean.class)
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()

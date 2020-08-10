@@ -120,7 +120,7 @@ public class SealAccountActivity extends BaseBindActivity<ActivitySealAccountBin
             case R.id.btn_temp_login:// 临时登录
                 tempLogin();
                 break;
-            case R.id.btn_unsealing:// 账号申诉
+            case R.id.btn_unsealing:// 申请解封
                 if (status) {
                     IntentUtil.gotoActivity(this, AppealIngActivity.class);
                 } else {

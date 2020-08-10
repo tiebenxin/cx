@@ -2,6 +2,7 @@ package com.yanlong.im.location;
 
 import android.app.Application;
 import android.content.Context;
+import android.location.LocationManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -17,7 +18,7 @@ import static java.lang.Math.sqrt;
  */
 public class LocationUtils {
     public LocationService locationService;
-    public static double beishu=1000000d;
+    public static double beishu = 1000000d;
     public static String baiduImageUrl = "http://api.map.baidu.com/staticimage/v2";//静态图地址
     public static String ak = "ak=L7VrjgIV1dMONUenMO8XmIwOPKGLSDE5";//秘钥
     public static String mcode = "mcode=62:84:03:64:9A:E7:CD:28:13:24:91:1A:16:60:8F:47:83:8D:98:B3;com.yanlong.im";//安全码  sha1+包名
@@ -64,7 +65,17 @@ public class LocationUtils {
         }
     }
 
-    
+    //判断定位服务是否打开
+    public static boolean isLocationEnabled2(Context content) {
+        try {
+            LocationManager locationManager = (LocationManager) content.getSystemService(Context.LOCATION_SERVICE);
+            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception e) {
+        }
+        return false;
+
+    }
+
 
     //初始化
     public void initLocation(Application application) {
@@ -97,24 +108,23 @@ public class LocationUtils {
 //        locationService.stop();
 
 
-
     }
 
 
     //bd转gc坐标
-    public static double bdToGc(String latOrLon,double bd_lat,double bd_lon){
+    public static double bdToGc(String latOrLon, double bd_lat, double bd_lon) {
         double x_pi = 3.14159265358979324 * 3000.0 / 180.0;
         double x = bd_lon - 0.0065;
         double y = bd_lat - 0.006;
         double z = sqrt(x * x + y * y) - 0.00002 * sin(y * x_pi);
         double theta = atan2(y, x) - 0.000003 * cos(x * x_pi);
-        double gc=0d;
-        if("lat".equals(latOrLon)){//获取纬度
+        double gc = 0d;
+        if ("lat".equals(latOrLon)) {//获取纬度
             double gg_lat = z * sin(theta);
-            gc=gg_lat;
-        }else if("lon".equals(latOrLon)){//获取经度
+            gc = gg_lat;
+        } else if ("lon".equals(latOrLon)) {//获取经度
             double gg_lon = z * cos(theta);
-            gc=gg_lon;
+            gc = gg_lon;
         }
         return gc;
     }

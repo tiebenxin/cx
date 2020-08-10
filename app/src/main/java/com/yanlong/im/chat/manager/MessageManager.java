@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -27,6 +28,7 @@ import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.eventbus.EventRefreshGroup;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
+import com.yanlong.im.chat.eventbus.EventReportGeo;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.task.DispatchMessage;
 import com.yanlong.im.chat.task.OfflineMessage;
@@ -151,6 +153,8 @@ public class MessageManager {
 
     //是否正在处理消息
     private boolean isDealingMsg = false;
+    //是否正在处理消息
+    private boolean isReceiveOffline = false;
 
 
     //取第一个添加的消息,并且移除
@@ -243,6 +247,7 @@ public class MessageManager {
             }
         } else {
             offlineMsgDispatch.dispatch(bean, null);
+            isReceiveOffline = true;
         }
     }
 
@@ -1561,14 +1566,8 @@ public class MessageManager {
     }
 
 
-    public void notifyRefreshFriend(boolean isLocal, UserInfo info, @CoreEnum.ERosterAction int action) {
-        EventRefreshFriend event = new EventRefreshFriend();
-        event.setLocal(isLocal);
-        if (action != CoreEnum.ERosterAction.DEFAULT) {
-            event.setUser(info);
-            event.setRosterAction(action);
-        }
-        EventBus.getDefault().post(event);
+    public void notifyReportGeo() {
+        EventBus.getDefault().post(new EventReportGeo());
     }
 
     /*
@@ -2192,6 +2191,7 @@ public class MessageManager {
         if (resultMessage == null) {
             return;
         }
+        LogUtil.writeLog("支付--接收到结果--actionId=" + resultMessage.getActionId() + "--tradeId=" + resultMessage.getTradeId());
         PayResultEvent event = new PayResultEvent();
         MsgBean.PayResultMessage.PayResult result = resultMessage.getResult();
         event.setActionId(resultMessage.getActionId());
@@ -2497,6 +2497,15 @@ public class MessageManager {
             e.printStackTrace();
         }
         return messageList;
+    }
+
+    public boolean isReceivingOffline() {
+        return isReceiveOffline;
+    }
+
+    public void setReceiveOffline(boolean b) {
+        LogUtil.getLog().i(TAG, "接收离线状态改变--" + b);
+        isReceiveOffline = b;
     }
 
 }

@@ -55,6 +55,9 @@ public class PayEnvironment {
     }
 
     public void setToken(String token) {
+        if (TextUtils.isEmpty(token)) {
+            token = "";
+        }
         this.token = token;
     }
 

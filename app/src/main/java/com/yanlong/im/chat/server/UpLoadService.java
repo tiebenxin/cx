@@ -224,11 +224,12 @@ public class UpLoadService extends Service {
     /**
      * 发送视屏
      *
-     * @param mContext   上下文
-     * @param msgAllBean 消息对象
-     * @param isRest     是否重发
+     * @param mContext    上下文
+     * @param msgAllBean  消息对象
+     * @param isRest      是否重发
+     * @param isLocalTake 是拍摄还是相册先的
      */
-    public static void onAddVideo(final Context mContext, MsgAllBean msgAllBean, boolean isRest) {
+    public static void onAddVideo(final Context mContext, MsgAllBean msgAllBean, boolean isRest, boolean isLocalTake) {
         if (mVideoMaps != null && !isRest) {
             // 先添加到集合中，上传失败用于重发
             mVideoMaps.put(msgAllBean.getMsg_id(), new VideoUploadBean(mContext, msgAllBean.getMsg_id(), msgAllBean, 0));
@@ -240,14 +241,14 @@ public class UpLoadService extends Service {
             return;
         }
         //检查图片是否已经上传
-        if(videoMessage.getBg_url().startsWith("http://")||videoMessage.getBg_url().startsWith("https://")){
+        if (videoMessage.getBg_url().startsWith("http://") || videoMessage.getBg_url().startsWith("https://")) {
             LogUtil.getLog().d(TAG, "视频预览图上传成功了---------");
             if (mVideoMaps.get(msgAllBean.getMsg_id()) != null) {
                 mVideoMaps.get(msgAllBean.getMsg_id()).setSendNum(0);
             }
             netBgUrl = videoMessage.getBg_url();
-            uploadVideo(mContext, msgAllBean, videoMessage);
-        }else {//图片未上传
+            uploadVideo(mContext, msgAllBean, videoMessage, isLocalTake);
+        } else {//图片未上传
             uploadImageOfVideo(mContext, videoMessage.getBg_url(), new UpLoadCallback() {
                 @Override
                 public void success(String url) {
@@ -256,7 +257,7 @@ public class UpLoadService extends Service {
                         mVideoMaps.get(msgAllBean.getMsg_id()).setSendNum(0);
                     }
                     netBgUrl = url;
-                    uploadVideo(mContext, msgAllBean, videoMessage);
+                    uploadVideo(mContext, msgAllBean, videoMessage, isLocalTake);
                 }
 
                 @Override
@@ -278,10 +279,10 @@ public class UpLoadService extends Service {
                         EventBus.getDefault().post(eventUpImgLoadEvent);
                     } else {
                         LogUtil.getLog().d(TAG, "fail : 视频预览图重发了======" + sendNum + "=========>" + msgAllBean.getMsg_id());
-                        loopImageList();
+                        loopImageList(isLocalTake);
                     }
                 }
-            });
+            }, isLocalTake);
         }
     }
 
@@ -291,7 +292,7 @@ public class UpLoadService extends Service {
      * @param mContext     上下文
      * @param videoMessage 视屏对象
      */
-    private static void uploadVideo(final Context mContext, final MsgAllBean bean, VideoMessage videoMessage) {
+    private static void uploadVideo(final Context mContext, final MsgAllBean bean, VideoMessage videoMessage, boolean isLocalTake) {
         if (bean == null || videoMessage == null || TextUtils.isEmpty(videoMessage.getLocalUrl())) {
             return;
         }
@@ -336,7 +337,7 @@ public class UpLoadService extends Service {
                     EventBus.getDefault().post(eventUpImgLoadEvent);
                 } else {
                     LogUtil.getLog().d(TAG, "fail : 视频重发了======" + sendNum + "=========>" + bean.getMsg_id());
-                    loopVideoList();
+                    loopVideoList(isLocalTake);
                 }
             }
 
@@ -357,7 +358,7 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setUrl("");
                 EventBus.getDefault().post(eventUpImgLoadEvent);
             }
-        }, videoMessage.getLocalUrl());
+        }, videoMessage.getLocalUrl(), isLocalTake);
     }
 
 
@@ -368,7 +369,7 @@ public class UpLoadService extends Service {
      * @param file
      * @param upLoadCallback
      */
-    private static void uploadImageOfVideo(Context mContext, String file, final UpLoadCallback upLoadCallback) {
+    private static void uploadImageOfVideo(Context mContext, String file, final UpLoadCallback upLoadCallback, boolean isLocalTake) {
         UpFileAction upFileAction = new UpFileAction();
         upFileAction.upFile(UpFileAction.PATH.VIDEO, mContext, new UpFileUtil.OssUpCallback() {
             @Override
@@ -385,7 +386,7 @@ public class UpLoadService extends Service {
             public void inProgress(long progress, long zong) {
 //                LogUtil.getLog().d(TAG, progress + "上传视频预览图---------" + zong);
             }
-        }, file);
+        }, file, isLocalTake);
 
     }
 
@@ -393,13 +394,13 @@ public class UpLoadService extends Service {
     /**
      * 循环重发 预览图
      */
-    private static void loopImageList() {
+    private static void loopImageList(boolean isLocalTake) {
         Iterator<Map.Entry<String, VideoUploadBean>> entrys = mVideoMaps.entrySet().iterator();
         while (entrys.hasNext()) {
             Map.Entry<String, VideoUploadBean> entry = entrys.next();
             VideoUploadBean bean = entry.getValue();
             if (bean.getMsg() != null) {
-                onAddVideo(bean.getContext(), bean.getMsg(), true);
+                onAddVideo(bean.getContext(), bean.getMsg(), true, isLocalTake);
             } /*else {
                 onAddVideo(bean.getContext(), bean.getId(), bean.getFile(), bean.getBgUrl(), bean.getOriginal(), bean.getToUId(),
                         bean.getToGid(), bean.getTime(), bean.getVideoMessage(), true);
@@ -411,13 +412,13 @@ public class UpLoadService extends Service {
     /**
      * 循环重发 视屏
      */
-    private static void loopVideoList() {
+    private static void loopVideoList(boolean isLocalTake) {
         Iterator<Map.Entry<String, VideoUploadBean>> entrys = mVideoMaps.entrySet().iterator();
         while (entrys.hasNext()) {
             Map.Entry<String, VideoUploadBean> entry = entrys.next();
             VideoUploadBean bean = entry.getValue();
             if (bean.getMsg() != null) {
-                uploadVideo(bean.getContext(), bean.getMsg(), bean.getMsg().getVideoMessage());
+                uploadVideo(bean.getContext(), bean.getMsg(), bean.getMsg().getVideoMessage(), isLocalTake);
             } /*else {
                 uploadVideo(bean.getContext(), bean.getId(), bean.getFile(), bean.getBgUrl(), bean.getOriginal(), bean.getToUId(),
                         bean.getToGid(), bean.getTime(), bean.getVideoMessage(), true);
