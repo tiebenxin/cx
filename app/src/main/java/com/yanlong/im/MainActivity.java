@@ -108,6 +108,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
@@ -777,6 +778,7 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
         LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
+        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
         if (event.getRun()) {
             if (mMsgMainFragment != null) {
                 SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
@@ -1032,7 +1034,7 @@ public class MainActivity extends AppActivity {
                     //判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
                     if (!TextUtils.isEmpty(bean.getVersion())) {
                         if (FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk")
-                                && VersionUtil.isLowerVersion(context,bean.getVersion())) {//当前的版本必须要低于安装包才允许安装
+                                && VersionUtil.isLowerVersion(context, bean.getVersion())) {//当前的版本必须要低于安装包才允许安装
                             if (dialog == null) {
                                 dialog = new UpdateAppDialog();
                                 dialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {

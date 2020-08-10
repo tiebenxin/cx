@@ -539,6 +539,7 @@ public class SocketUtil {
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
         LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());

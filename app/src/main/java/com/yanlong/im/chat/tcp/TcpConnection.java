@@ -51,6 +51,8 @@ public class TcpConnection implements Connection {
             @Override
             public void onReceive(Context context, Intent intent) {
                 LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
+                LogUtil.writeLog(TAG + "--连接LOG--" + "网路状态改变--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
+
                 if (NetUtil.isNetworkConnected()) {//链接成功
                     if (!isRunning) {
                         startConnect(from);
@@ -71,6 +73,7 @@ public class TcpConnection implements Connection {
     @Override
     public void startConnect() {
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
         this.from = EFrom.DEFAULT;
         if (NetUtil.isNetworkConnected()) {
             taskFixSendState();
@@ -83,6 +86,7 @@ public class TcpConnection implements Connection {
     //开始链接
     public void startConnect(@EFrom int from) {
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
         this.from = from;
         if (NetUtil.isNetworkConnected()) {
             taskFixSendState();
@@ -96,6 +100,7 @@ public class TcpConnection implements Connection {
     @Override
     public void stopConnect() {
         LogUtil.getLog().d(TAG, "连接LOG--暂停连接--" + NetUtil.isNetworkConnected());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "暂停连接--" + "--time=" + System.currentTimeMillis());
         SocketUtil.getSocketUtil().stop(true);
     }
 
@@ -106,6 +111,7 @@ public class TcpConnection implements Connection {
             return;
         }
         LogUtil.getLog().d(TAG, "连接LOG--销毁连接--" + NetUtil.isNetworkConnected());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "销毁连接--" + "--time=" + System.currentTimeMillis());
         SocketUtil.getSocketUtil().endSocket();
         isRunning = false;
         if (context != null && mNetworkChangeReceiver != null) {
