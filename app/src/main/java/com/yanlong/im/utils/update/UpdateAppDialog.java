@@ -85,7 +85,6 @@ public class UpdateAppDialog {
             @Override
             public void onClick(View v) {
                 event.onInstall();
-                dismiss();
             }
         });
 
