@@ -314,7 +314,7 @@ public class SocketUtil {
                 connect();
             }
         } catch (Exception e) {
-            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常" + e.getMessage());
+            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
             setRunState(0);
             e.printStackTrace();
             stop(true);

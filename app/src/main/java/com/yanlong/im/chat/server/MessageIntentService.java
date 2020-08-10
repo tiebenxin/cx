@@ -53,37 +53,35 @@ public class MessageIntentService extends IntentService {
     @SuppressLint("CheckResult")
     protected void onHandleIntent(@Nullable Intent intent) {//异步处理方法
         LogUtil.getLog().d("Liszt_test", "消息LOG--onHandleIntent");
-        synchronized (this) {
-            if (MessageManager.getInstance().getToDoMsgCount() == 0 && restartCount < 3) {
-                //TODO:不影响消息接收，两批消息共用一次onHandleIntent
-                LogUtil.getLog().d("Liszt_test", "消息LOG-无数据队列-不影响消息接收-重启动");
-                restartCount++;
-                try {
-                    Thread.sleep(100);
-                    startService(intent);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    LogUtil.getLog().i("Liszt_test", "消息LOG--在线--睡眠出错");
-                }
-                return;
-            }
-            restartCount = 0;
+        if (MessageManager.getInstance().getToDoMsgCount() == 0 && restartCount < 3) {
+            //TODO:不影响消息接收，两批消息共用一次onHandleIntent
+            LogUtil.getLog().d("Liszt_test", "消息LOG-无数据队列-不影响消息接收-重启动");
+            restartCount++;
             try {
-                Realm realm = DaoUtil.open();
-                //初始化数据库对象 子线程
-                while (MessageManager.getInstance().getToDoMsgCount() > 0) {
-                    try {
-                        MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
-                        dispatch.dispatch(bean, realm);
-                        //移除处理过的当前消息
-                    } catch (Exception e) {
-                        LogUtil.writeError(e);
-                    }
-                }
-                DaoUtil.close(realm);
-            } catch (io.realm.exceptions.RealmError errorr) {// TODO #132605 io.realm.exceptions.RealmError
-                LogUtil.writeError(errorr);
+                Thread.sleep(100);
+                startService(intent);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                LogUtil.getLog().i("Liszt_test", "消息LOG--在线--睡眠出错");
             }
+            return;
+        }
+        restartCount = 0;
+        try {
+            Realm realm = DaoUtil.open();
+            //初始化数据库对象 子线程
+            while (MessageManager.getInstance().getToDoMsgCount() > 0) {
+                try {
+                    MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
+                    dispatch.dispatch(bean, realm);
+                    //移除处理过的当前消息
+                } catch (Exception e) {
+                    LogUtil.writeError(e);
+                }
+            }
+            DaoUtil.close(realm);
+        } catch (io.realm.exceptions.RealmError errorr) {// TODO #132605 io.realm.exceptions.RealmError
+            LogUtil.writeError(errorr);
         }
     }
 }

@@ -1284,6 +1284,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
                 onBackPressed();
             }
 
@@ -1801,7 +1804,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     @Override
                     public void run() {
                         showViewMore(false);
-                        mAdapter.showCheckBox(false, true);
+                        mAdapter.showCheckBox(true, true);
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
                     }
                 }, 100);
 
@@ -2357,8 +2361,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (ViewUtils.isFastDoubleClick()) {
+            return super.onKeyDown(keyCode, event);
+        }
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             onBackPressed();
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -2406,19 +2414,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 根据uid判断别人是否为群主或管理员
+     *
      * @param uid
      * @return 主要用于撤回消息的权限
      */
     private boolean isHeAdmins(Long uid) {
-        if(mViewModel.groupInfo != null){
+        if (mViewModel.groupInfo != null) {
             //若没有群主
-            if(!StringUtil.isNotNull(mViewModel.groupInfo.getMaster())){
+            if (!StringUtil.isNotNull(mViewModel.groupInfo.getMaster())) {
                 return false;
-            }else {
-                if(mViewModel.groupInfo.getMaster().equals("" + uid)){
+            } else {
+                if (mViewModel.groupInfo.getMaster().equals("" + uid)) {
                     return true;
-                }else {
-                    if(mViewModel.groupInfo.getViceAdmins() != null && mViewModel.groupInfo.getViceAdmins().size() > 0) {
+                } else {
+                    if (mViewModel.groupInfo.getViceAdmins() != null && mViewModel.groupInfo.getViceAdmins().size() > 0) {
                         for (Long user : mViewModel.groupInfo.getViceAdmins()) {
                             if (user.equals(uid)) {
                                 return true;
@@ -2480,7 +2489,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onFail() {
 
             }
-        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO,Manifest.permission.READ_PHONE_STATE});
+        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_PHONE_STATE});
     }
 
     /**
@@ -2743,6 +2752,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (mAdapter != null && mAdapter.isShowCheckBox()) {
             mAdapter.showCheckBox(false, true);
             showViewMore(false);
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
             return;
         }
         clearScrollPosition();
@@ -4032,50 +4042,50 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
-            if(isGroup()){
+            if (isGroup()) {
                 //如果是群聊，先确保该消息类型允许被撤回，状态正常
                 if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() == ChatEnum.EGroupStatus.NORMAL && !filterCancel(msgAllBean.getMsg_type()) && !isAtBanedCancel(msgAllBean)) {
                     //如果我是群主，可撤回所有消息，无时间限制
-                    if(isAdmin()){
+                    if (isAdmin()) {
                         showCancel = true;
                         timeLimit = false;
-                    }else if(isAdministrators()){
+                    } else if (isAdministrators()) {
                         //如果我是群管理，且这条消息是自己发的，允许撤回，默认有时间限制
-                        if(msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()){
+                        if (msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             showCancel = true;
                             timeLimit = true;
-                        }else {
+                        } else {
                             //如果这条消息为除自己以外，其他群管理/群主发的，则无权撤回其他管理层的消息；如果是普通群员的消息，我可以任意时间撤回
-                            if(isHeAdmins(msgAllBean.getFrom_uid())){
+                            if (isHeAdmins(msgAllBean.getFrom_uid())) {
                                 showCancel = false;
-                            }else {
+                            } else {
                                 showCancel = true;
                                 timeLimit = false;
                             }
                         }
-                    }else {
+                    } else {
                         //如果我是普通群员，且这条消息是自己发的，允许撤回，默认有时间限制
                         if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             showCancel = true;
                             timeLimit = true;
-                        }else {
+                        } else {
                             showCancel = false;
                         }
                     }
                 }
-            }else {
+            } else {
                 //单聊旧逻辑不变
                 if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && !filterCancel(msgAllBean.getMsg_type()) && !isAtBanedCancel(msgAllBean)) {
                     showCancel = true;
                     timeLimit = true;
-                }else {
+                } else {
                     showCancel = false;
                 }
             }
             //展示撤回选项逻辑
-            if(showCancel){
+            if (showCancel) {
                 //是否有2分钟限制
-                if(timeLimit){
+                if (timeLimit) {
                     if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                         boolean isExist = false;
                         for (OptionMenu optionMenu : menus) {
@@ -4087,7 +4097,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             menus.add(new OptionMenu("撤回"));
                         }
                     }
-                }else {
+                } else {
                     boolean isExist = false;
                     for (OptionMenu optionMenu : menus) {
                         if (optionMenu.getTitle().equals("撤回")) {
@@ -4101,6 +4111,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         menus.add(new OptionMenu("删除"));
+//        menus.add(new OptionMenu("多选"));
         return menus;
     }
 
@@ -4239,6 +4250,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         showViewMore(true);
         mAdapter.getSelectedMsg().add(msgBean);
         mAdapter.showCheckBox(true, true);
+        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+
     }
 
     /**
@@ -4259,12 +4272,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onRecall(final MsgAllBean msgBean) {
         int position = mAdapter.getPosition(msgBean);
         int myType = 0;//我的身份
-        if(isAdmin()){
+        if (isAdmin()) {
             myType = 1;
-        }else if(isAdministrators()){
+        } else if (isAdministrators()) {
             myType = 2;
         }
-        MsgCancel cancel = SocketData.createCancelMsg(msgBean,UserAction.getMyId().longValue(),myType);
+        MsgCancel cancel = SocketData.createCancelMsg(msgBean, UserAction.getMyId().longValue(), myType);
         if (cancel != null) {
             sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
         }
@@ -5180,12 +5193,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
         dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
             @Override
-            public void onOpen(long rid, int envelopeStatus,boolean isLast) {
+            public void onOpen(long rid, int envelopeStatus, boolean isLast) {
                 //TODO: 开红包后，先发送领取红包消息给服务端，然后更新红包状态，最后保存领取红包通知消息到本地
                 taskPayRbCheck(msgBean, rid + "", reType, token, getOpenEnvelopeStatus(envelopeStatus));
                 if (envelopeStatus == 1) {//抢到了
                     if (!msgBean.isMe()) {
-                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "", reType,isLast);//发送抢红包消息
+                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "", reType, isLast);//发送抢红包消息
                     }
                     MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid, rid + "");
                     sendMessage(message, ChatEnum.EMessageType.NOTICE, false);

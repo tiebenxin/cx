@@ -124,6 +124,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (iv_error != null) {
             iv_error.setOnClickListener(this);
         }
+        if (ckSelect != null) {
+            ckSelect.setOnClickListener(this);
+        }
     }
 
     protected void initView() {
@@ -146,17 +149,27 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
     @Override
     public void onClick(View view) {
-        int id = view.getId();
-        if (id == bubbleLayout.getId()) {
-            onBubbleClick();
-        } else if (id == iv_avatar.getId()) {
-            if (mCellListener != null && !isMe) {
-                mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_CLICK, model, new Object());
+        try {
+            int id = view.getId();
+            if (bubbleLayout != null && id == bubbleLayout.getId()) {
+                onBubbleClick();
+            } else if (iv_avatar != null && id == iv_avatar.getId()) {
+                if (mCellListener != null && !isMe) {
+                    mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_CLICK, model, new Object());
+                }
+            } else if (iv_error != null && id == iv_error.getId()) {
+                if (mCellListener != null) {
+                    mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
+                }
+            } else if (ckSelect != null && id == ckSelect.getId()) {
+                if (ckSelect.isChecked()) {
+                    mAdapter.getSelectedMsg().add(model);
+                } else {
+                    mAdapter.getSelectedMsg().remove(model);
+                }
             }
-        } else if (id == iv_error.getId()) {
-            if (mCellListener != null) {
-                mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -416,6 +429,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
         if (mAdapter.isShowCheckBox()) {
             ckSelect.setVisibility(VISIBLE);
+            List<MsgAllBean> selectedMsgs = mAdapter.getSelectedMsg();
+            if (selectedMsgs != null && selectedMsgs.contains(model)) {
+                ckSelect.setChecked(true);
+            } else {
+                ckSelect.setChecked(false);
+            }
         } else {
             ckSelect.setVisibility(View.GONE);
         }
