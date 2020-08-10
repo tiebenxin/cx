@@ -148,6 +148,11 @@ public class UpdateManage {
                                     return;
                                 }
                                 long length = response.body().contentLength();
+                                //缓存新安装包大小，用于检查安装包的完整性
+                                if(startsPoint==0){
+                                    SharedPreferencesUtil newApkSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE);
+                                    newApkSize.saveLong("new_apk_size", length);
+                                }
                                 if (length == 0) {
                                     // 说明文件已经下载完，直接跳转安装就好
                                     downloadListener.complete(String.valueOf(getFile().getAbsoluteFile()));
