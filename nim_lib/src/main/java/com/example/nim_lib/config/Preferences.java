@@ -48,4 +48,6 @@ public class Preferences {
     public static final String IS_FIRST_UPLOAD_PHONE = "is_first_upload_phone";
     public static final String RECENT_FRIENDS_NEW = "recent_friends_new";
     public static final String RECENT_FRIENDS_UIDS = "recent_friends_uids";
+    public static final String CHECK_FRIENDS_TIME = "check_friends_time";
+    public static final String RECENT_FRIENDS_RED_NUMBER = "recent_friends_red_number";
 }

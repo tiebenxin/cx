@@ -208,9 +208,9 @@ public abstract class DispatchMessage {
             case REPORT_GEO_POSITION:// 上报地理位置
                 MessageManager.getInstance().notifyReportGeo();
                 break;
-//            case RECOMMEND:// 好友推荐消息
-//                repository.handlerRecentFriends(wrapMessage, realm);
-//                break;
+            case RECOMMEND:// 好友推荐消息
+                repository.handlerRecentFriends(wrapMessage, realm);
+                break;
         }
 
         return result;

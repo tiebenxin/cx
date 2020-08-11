@@ -17,8 +17,10 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
     private int switchmask;
     private String alias;
     private String phoneremark;// 电话备注
+    private String phone;// 手机号
     private boolean isShowPinYin;// 是否显示拼音
     private boolean isRegister;// 是否显示邀请
+    private long createTime;// 创建时间
 
     public String getPhoneremark() {
         return phoneremark;
@@ -61,6 +63,14 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
         this.uid = uid;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getAvatar() {
         return avatar;
     }
@@ -99,6 +109,14 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
 
     public void setRegister(boolean register) {
         isRegister = register;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
     }
 
     /***

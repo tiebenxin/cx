@@ -1,5 +1,7 @@
 package com.luck.picture.lib.tools;
 
+import android.util.Log;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -167,4 +169,35 @@ public class DateUtils {
         return System.currentTimeMillis() + survivalTime;
     }
 
+    /**
+     * 判断是否是最近7天
+     *
+     * @param oldTime
+     * @return
+     */
+    public static boolean checkTimeDifferenceDay(long oldTime) {
+        if (oldTime > 0) {
+            long timeDifference = System.currentTimeMillis() - oldTime;
+            long second = timeDifference / 1000;// 计算秒
+            long day = second / 60 / 60 / 24;// 计算天
+            Log.i("1212", "oldTime:" + oldTime + "  " + day + "天");
+            return day <= 7;
+//            return second / 60 < 10;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean checkTimeDifferenceHour(long oldTime) {
+        if (oldTime > 0) {
+            long timeDifference = System.currentTimeMillis() - oldTime;
+            long second = timeDifference / 1000;// 计算秒
+            long hour = second / 60 / 60;// 计算小时
+            Log.i("1212", "oldTime:" + oldTime + "  " + hour + "小时");
+            return hour < 24;
+//            return second < 10;
+        } else {
+            return false;
+        }
+    }
 }

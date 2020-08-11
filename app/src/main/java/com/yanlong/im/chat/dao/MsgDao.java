@@ -1808,6 +1808,35 @@ public class MsgDao {
         }
     }
 
+    /**
+     * @param type
+     * @param count
+     * @param isAdd 加还是减
+     */
+    public void remidCount(String type, int count, boolean isAdd) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+            int readnum;
+            if (isAdd) {
+                readnum = remind == null ? 1 : remind.getNumber() + count;
+            } else {
+                readnum = count;
+            }
+            Remind newreamid = new Remind();
+            newreamid.setNumber(readnum);
+            newreamid.setRemid_type(type);
+            realm.insertOrUpdate(newreamid);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
 
     /***
      * 获取所有会话

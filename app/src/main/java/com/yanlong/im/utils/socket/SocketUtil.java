@@ -207,6 +207,7 @@ public class SocketUtil {
                         sendData(SocketPacket.getPackage(SocketPacket.DataType.PROTOBUF_HEARTBEAT, SocketPacket.P_HEART), null, "");
                     }
                     Thread.sleep(heartbeatStep);
+//                    LogUtil.getLog().i(TAG, ">>>>>sleep--heartbeatStep=" + heartbeatStep);
                 }
                 LogUtil.getLog().d(TAG, ">>>心跳线程结束------");
             } catch (Exception e) {
@@ -397,6 +398,8 @@ public class SocketUtil {
                     while (isRun() /*&& indexVer == threadVer*/) {
                         SendList.loopList();
                         Thread.sleep(sendListStep);
+//                        LogUtil.getLog().i(TAG, ">>>>>sleep--sendListStep=" + sendListStep);
+
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -433,7 +436,8 @@ public class SocketUtil {
                     LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
                 }
 
-                while (isStart) {
+                //启动，并且未鉴权成功
+                while (isStart && !getOnlineState()) {
                     LogUtil.getLog().i(TAG, ">>>>>服务器链接检查isRun: " + isRun);
 //                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
                     if (socketChannel != null) {
@@ -449,6 +453,7 @@ public class SocketUtil {
 
                     try {
                         Thread.sleep(recontTime);
+//                        LogUtil.getLog().i(TAG, ">>>>>sleep--recontTime" + recontTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -535,6 +540,7 @@ public class SocketUtil {
      */
     private void connect() throws Exception {
         socketChannel = new SSLSocketChannel2(SocketChannel.open());
+        socketChannel.socket().setTcpNoDelay(true);//关闭Nagle算法,及关闭延迟
         //socketChannel =  SocketChannel.open();
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);

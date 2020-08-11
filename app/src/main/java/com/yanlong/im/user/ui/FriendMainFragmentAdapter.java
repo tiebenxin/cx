@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.FriendViewModel;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -87,10 +88,13 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                         ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
                         return;
                     }
+                    viewModel.clearRemindCount(Preferences.RECENT_FRIENDS_NEW);
+                    hd.sbMatching.setNum(0, false);
                     context.startActivity(new Intent(context, FriendMatchActivity.class));
                 }
             });
             hd.sbApply.setNum(viewModel.getRemindCount("friend_apply"), false);
+            hd.sbMatching.setNum(viewModel.getRemindCount(Preferences.RECENT_FRIENDS_NEW), false);
         } else if (holder instanceof RCViewBtnHolder) {
             final RCViewBtnHolder hd = (RCViewBtnHolder) holder;
             hd.friend_numb_tv.setText("共" + viewModel.getFriendSize() + "位联系人");
@@ -218,6 +222,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         private LinearLayout viewMatch;
         private LinearLayout viewGroup;
         private StrikeButton sbApply;
+        private StrikeButton sbMatching;
 
         //自动寻找ViewHold
         public RCViewFuncHolder(View convertView) {
@@ -227,6 +232,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             viewMatch = convertView.findViewById(R.id.view_match);
             viewGroup = convertView.findViewById(R.id.view_group);
             sbApply = convertView.findViewById(R.id.sb_apply);
+            sbMatching = convertView.findViewById(R.id.sb_matching);
         }
     }
 

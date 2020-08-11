@@ -30,15 +30,17 @@
         android:id="@+id/tv_messge"
         android:layout_width="match_parent"
         android:text="最近7天"
-        android:textSize="13sp"
-        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:textColor="@color/c_517da2"
         android:paddingLeft="16dp"
         android:paddingTop="10dp"
         android:paddingBottom="3dp"
         android:visibility="gone"
         android:layout_height="wrap_content"/>
 
-    <LinearLayout style="@style/app_layout_list1">
+    <LinearLayout
+        android:id="@+id/layout_root"
+        style="@style/app_layout_list1">
 
         <LinearLayout style="@style/app_layout_list1_item">
 
