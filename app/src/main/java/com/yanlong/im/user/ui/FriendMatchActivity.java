@@ -340,7 +340,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                 public void onClick(View v) {
                     if (!DoubleUtils.isFastDoubleClick()) {
                         if (bean.isRegister()) {
-                            Uri smsToUri = Uri.parse("smsto:" + bean.getNickname());
+                            Uri smsToUri = Uri.parse("smsto:" + bean.getPhone());
                             Intent intent = new Intent(Intent.ACTION_SENDTO, smsToUri);
                             //短信内容
                             intent.putExtra("sms_body", getResources().getString(R.string.send_note_message));
@@ -501,7 +501,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
         if (list != null && listData != null) {
             for (AddressBookMatchingBean.NotExistListBean bean : list) {
                 FriendInfoBean friendInfoBean = new FriendInfoBean();
-                friendInfoBean.setNickname(bean.getPhone());
+                friendInfoBean.setNickname(bean.getPhoneremark());
                 friendInfoBean.setPhone(bean.getPhone());
                 friendInfoBean.setPhoneremark(bean.getPhoneremark());
                 friendInfoBean.setRegister(true);

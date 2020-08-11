@@ -3,6 +3,7 @@ package com.yanlong.im.user.bean;
 import android.text.TextUtils;
 
 import net.cb.cb.library.base.BaseBean;
+import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.PinyinUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -124,6 +125,9 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
 
      */
     public void toTag() {
+        if (!TextUtils.isEmpty(nickname) && CheckUtil.isMobileNO(nickname)) {
+            nickname = phoneremark;
+        }
         if (TextUtils.isEmpty(nickname)) {
             setTag("#");
         } else if (!("" + nickname.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {

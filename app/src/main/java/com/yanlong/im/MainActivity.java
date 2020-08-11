@@ -1,10 +1,8 @@
 package com.yanlong.im;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -17,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,17 +24,13 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
-import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
@@ -51,7 +44,6 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.umeng.commonsdk.debug.E;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
@@ -75,12 +67,9 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
-import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.NewVersionBean;
-import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
@@ -90,9 +79,6 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.ChatBitmapCache;
-import com.yanlong.im.utils.CommonUtils;
-import com.yanlong.im.utils.PhoneListUtil;
-import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -111,7 +97,6 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
@@ -127,7 +112,6 @@ import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
-import net.cb.cb.library.utils.RxJavaUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -155,7 +139,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.WeakHashMap;
 
 import cn.jpush.android.api.JPushInterface;
 import io.realm.RealmResults;
@@ -196,6 +179,7 @@ public class MainActivity extends AppActivity {
     private BDAbstractLocationListener listener;
 
     private UserAction userAction = new UserAction();
+    private MsgDao msgDao = new MsgDao();
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
     private ShopFragemnt mShowFragment;
@@ -221,7 +205,6 @@ public class MainActivity extends AppActivity {
         doRegisterNetReceiver();
         SocketUtil.getSocketUtil().setMainLive(true);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
-        checkContactsPhone();
     }
 
     private void checkPermission() {
@@ -268,7 +251,6 @@ public class MainActivity extends AppActivity {
                                 LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录失败，重新登录了:" + NIMClient.getStatus());
                                 LogUtil.writeLog(">>>>>>>>>网易云登录失败，重新登录了 状态是: " + NIMClient.getStatus());
                                 NIMClient.getService(AuthService.class).logout();// 需要先登出网易登录，在重新登录
-                                UserAction userAction = new UserAction();
                                 SpUtil spUtil = SpUtil.getSpUtil();
                                 String account = spUtil.getSPValue(Preferences.KEY_USER_ACCOUNT, "");
                                 String token = spUtil.getSPValue(Preferences.KEY_USER_TOKEN, "");
@@ -993,9 +975,6 @@ public class MainActivity extends AppActivity {
         taskNewVersion();
     }
 
-
-    private MsgDao msgDao = new MsgDao();
-
     /***
      * 未读消息
      * @return
@@ -1583,133 +1562,5 @@ public class MainActivity extends AppActivity {
             });
         }
 
-    }
-
-    /**
-     * 检查是否打开访问通讯录权限，打开了则上传通讯录，第一次全量上传后面增量上传
-     */
-    private void checkContactsPhone() {
-        try {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-                // 24小时检查一次
-                long time = SpUtil.getSpUtil().getSPValue(Preferences.CHECK_FRIENDS_TIME, -1l);
-                if (time != -1l && com.luck.picture.lib.tools.DateUtils.checkTimeDifferenceHour(time)) {
-                    return;
-                }
-
-                PhoneListUtil phoneListUtil = new PhoneListUtil();
-                RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<List<PhoneBean>>() {
-
-                    @Override
-                    public List<PhoneBean> doInBackground() throws Throwable {
-                        return phoneListUtil.getContacts(MainActivity.this);
-                    }
-
-                    @Override
-                    public void onFinish(List<PhoneBean> newList) {
-                        if (newList == null) {
-                            return;
-                        }
-                        // 记录上传时间
-                        SpUtil.getSpUtil().putSPValue(Preferences.CHECK_FRIENDS_TIME, System.currentTimeMillis());
-                        UserDao userDao = new UserDao();
-                        // 获取本地保存的记录，有则增量上传，没有全量上传
-                        List<PhoneBean> oldList = userDao.getLocaPhones();
-                        Gson gson = new Gson();
-                        // 保存最新的通讯录
-                        userDao.updateLocaPhones(newList);
-                        if (oldList == null || oldList.size() == 0) {
-                            boolean isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, true);
-                            // 全量上传
-                            WeakHashMap<String, Object> params = new WeakHashMap<>();
-                            params.put("phoneList", newList);
-                            params.put("isFirst", isFirstUpload ? CoreEnum.ECheckType.YES : CoreEnum.ECheckType.NO);
-                            userAction.getUserMatchPhone(params, new CallBack<ReturnBean<AddressBookMatchingBean>>() {
-                                @Override
-                                public void onResponse(Call<ReturnBean<AddressBookMatchingBean>> call, Response<ReturnBean<AddressBookMatchingBean>> response) {
-                                    super.onResponse(call, response);
-                                    if (response.body() != null && response.body().isOk()) {
-                                        SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, false);
-                                        LogUtil.writeLog("=======通讯录全量上传成功=========");
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<ReturnBean<AddressBookMatchingBean>> call, Throwable t) {
-                                    super.onFailure(call, t);
-                                    LogUtil.writeLog("=======通讯录全量上传失败=========");
-                                }
-                            });
-                        } else {
-                            // 获取新增加的联系人
-                            List<String> tempList = UserUtil.getNewContentsPhone(newList, oldList);
-                            // 增量上传
-                            if (tempList.size() > 0) {
-                                // 手机通讯录匹配红点加1
-                                msgDao.remidCount(Preferences.RECENT_FRIENDS_NEW, tempList.size(), true);
-                                MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
-
-                                for (String phone : tempList) {
-                                    CommonUtils.saveFriendInfo(-1l, phone);
-                                    // 用户记录红点 是那个手机号的红点
-                                    CommonUtils.saveFriendInfo(phone);
-                                }
-
-                                WeakHashMap<String, Object> params = new WeakHashMap<>();
-                                params.put("phoneList", tempList);
-                                userAction.getIncrementContacts(params, new CallBack<ReturnBean<List<FriendInfoBean>>>() {
-                                    @Override
-                                    public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
-                                        super.onResponse(call, response);
-                                        if (response.body() != null && response.body().isOk()) {
-                                            LogUtil.writeLog("=======通讯录增量上传成功=========" + gson.toJson(tempList));
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<ReturnBean<List<FriendInfoBean>>> call, Throwable t) {
-                                        super.onFailure(call, t);
-                                        LogUtil.writeLog("=======通讯录增量上传失败=========" + gson.toJson(tempList));
-                                    }
-                                });
-                            }
-                            // 是否有删除
-                            int redCount = msgDao.remidGet(Preferences.RECENT_FRIENDS_NEW);
-                            if (redCount > 0 && newList.size() != oldList.size()) {
-                                int subIndex = 0;
-                                // 删除手机号集合
-                                List<String> deleteList = UserUtil.getDeleteContentsPhone(newList, oldList);
-                                // 红点手机号集合
-                                List<FriendInfoBean> redList = CommonUtils.getRedFriendInfo();
-                                if (deleteList != null && redList != null) {
-                                    // 计算删除的条数
-                                    for (FriendInfoBean bean : redList) {
-                                        for (String phone : deleteList) {
-                                            if (!TextUtils.isEmpty(bean.getPhone()) && bean.getPhone().equals(phone)) {
-                                                subIndex++;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                // 更新红点
-                                if (subIndex > 0) {
-                                    int newRedCount = redCount - subIndex;
-                                    msgDao.remidCount(Preferences.RECENT_FRIENDS_NEW, newRedCount > 0 ? newRedCount : 0, false);
-                                    MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LogUtil.writeLog("=======获取通讯录失败了=========");
-                    }
-                });
-            }
-        } catch (Exception e) {
-
-        }
     }
 }
