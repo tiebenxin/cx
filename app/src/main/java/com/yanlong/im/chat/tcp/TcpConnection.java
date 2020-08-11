@@ -57,7 +57,9 @@ public class TcpConnection implements Connection {
                     if (!isRunning) {
                         startConnect(from);
                     } else {
-                        SocketUtil.getSocketUtil().startSocket();
+                        if (!SocketUtil.getSocketUtil().isRun()) {
+                            SocketUtil.getSocketUtil().startSocket();
+                        }
                     }
                 } else {//链接失败
 //                    stopConnect();
