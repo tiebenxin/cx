@@ -807,7 +807,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
         initData();
-
+        //注册消息监听
+        SocketUtil.getSocketUtil().addEvent(msgEvent);
     }
 
     @Override
@@ -1316,8 +1317,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
-        //注册消息监听
-        SocketUtil.getSocketUtil().addEvent(msgEvent);
+
         //发送普通消息
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override

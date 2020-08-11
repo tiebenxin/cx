@@ -416,22 +416,8 @@ public class SocketUtil {
      * 启动，纳入线程池管理，连接速度无影响
      */
     public void startSocket() {
-        if (isStart) {
+        if (isStart && isRun()) {
             LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
-            if (!isRun()) {
-                ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            connect();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-                        }
-
-                    }
-                });
-            }
             return;
         }
         isStart = true;
