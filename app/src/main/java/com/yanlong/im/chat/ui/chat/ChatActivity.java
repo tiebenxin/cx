@@ -231,6 +231,7 @@ import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
+import net.cb.cb.library.utils.RxJavaUtil;
 import net.cb.cb.library.utils.ScreenShotListenManager;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
@@ -874,27 +875,44 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void initViewNewMsg() {
-        int ramSize = DeviceUtils.getTotalRam();
-        if (ramSize >= 2) {
-            MAX_UNREAD_COUNT = 80 * 8;
-        } else {
-            MAX_UNREAD_COUNT = 80 * 4;
-        }
-//        viewNewMessage.setVisible(false);
-//        mAdapter.setUnreadCount(0);
-        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
-            viewNewMessage.setVisible(true);
-            viewNewMessage.setCount(unreadCount);
-            mAdapter.setUnreadCount(unreadCount);
-        } else if (unreadCount >= MAX_UNREAD_COUNT) {
-            unreadCount = MAX_UNREAD_COUNT;
-            viewNewMessage.setVisible(true);
-            viewNewMessage.setCount(unreadCount);
-            mAdapter.setUnreadCount(unreadCount);
-        } else {
-            viewNewMessage.setVisible(false);
-            mAdapter.setUnreadCount(0);
-        }
+        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Integer>() {
+            @Override
+            public Integer doInBackground() throws Throwable {
+                //有io操作
+                return DeviceUtils.getTotalRam();
+            }
+
+            @Override
+            public void onFinish(Integer result) {
+                int ramSize = 2;
+                if (result != null) {
+                    ramSize = result;
+                }
+                if (ramSize >= 2) {
+                    MAX_UNREAD_COUNT = 80 * 8;
+                } else {
+                    MAX_UNREAD_COUNT = 80 * 4;
+                }
+                if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
+                    viewNewMessage.setVisible(true);
+                    viewNewMessage.setCount(unreadCount);
+                    mAdapter.setUnreadCount(unreadCount);
+                } else if (unreadCount >= MAX_UNREAD_COUNT) {
+                    unreadCount = MAX_UNREAD_COUNT;
+                    viewNewMessage.setVisible(true);
+                    viewNewMessage.setCount(unreadCount);
+                    mAdapter.setUnreadCount(unreadCount);
+                } else {
+                    viewNewMessage.setVisible(false);
+                    mAdapter.setUnreadCount(0);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
     }
 
     //检测是否有截屏权限
