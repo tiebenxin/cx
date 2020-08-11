@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -73,11 +74,16 @@ public class UpdateAppDialog {
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(NetUtil.isNetworkConnected()){
-                    event.onUpdate();
+                    //TODO 进度条抖动问题已定位：多次快速点击导致多个下载任务抢占资源
+                    ClickFilter.onClick(btnUpdate, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            event.onUpdate();
+                        }
+                    });
                 }else {
                     ToastUtil.show(context,"请检查网络连接是否正常");
                 }
-
             }
         });
 
