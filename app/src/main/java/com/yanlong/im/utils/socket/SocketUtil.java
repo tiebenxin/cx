@@ -419,11 +419,17 @@ public class SocketUtil {
         if (isStart) {
             LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
             if (!isRun()) {
-                try {
-                    connect();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            connect();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
             }
             return;
         }
@@ -564,6 +570,8 @@ public class SocketUtil {
             } catch (Exception e) {
                 e.printStackTrace();
                 LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:finishConnect出错");
+                Thread.sleep(100);
+                stop2();
                 connect();
                 return;
             }
