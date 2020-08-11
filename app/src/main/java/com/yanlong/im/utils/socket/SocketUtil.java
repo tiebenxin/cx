@@ -426,6 +426,7 @@ public class SocketUtil {
                             connect();
                         } catch (Exception e) {
                             e.printStackTrace();
+                            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                         }
 
                     }
