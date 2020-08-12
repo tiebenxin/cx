@@ -264,7 +264,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
      */
     private void initViewTypeData() {
         //排序
-        Collections.sort(listData);
+//        Collections.sort(listData);
         //筛选
         for (int i = 0; i < listData.size(); i++) {
             bindingView.viewType.putTag(listData.get(i).getTag(), i);
