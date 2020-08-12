@@ -72,7 +72,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private TextView tvReadTime;
     public IActionTagClickListener actionTagClickListener;
     private boolean isOpenRead = true;//是否开启已读开关
-    private int unreadPostion;
+    private int unreadPosition;
     private TextView tvNote;
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
@@ -97,6 +97,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             bubbleLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                        updateCheckBox();
+                        return true;
+                    }
                     if (mCellListener != null) {
                         updateSelectedBG(true);
                         checkCancelMenu();//临时检测撤回menu
@@ -113,6 +117,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 iv_avatar.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
+                        if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                            updateCheckBox();
+                            return true;
+                        }
                         if (mCellListener != null) {
                             mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_LONG_CLICK, model, new Object());
                         }
@@ -126,6 +134,26 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
         if (ckSelect != null) {
             ckSelect.setOnClickListener(this);
+        }
+        if (viewRoot != null) {
+            viewRoot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                        updateCheckBox();
+                    }
+                }
+            });
+        }
+    }
+
+    private void updateCheckBox() {
+        if (ckSelect.isChecked()) {
+            ckSelect.setChecked(false);
+            mAdapter.getSelectedMsg().remove(model);
+        } else {
+            ckSelect.setChecked(true);
+            mAdapter.getSelectedMsg().add(model);
         }
     }
 
@@ -152,12 +180,23 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         try {
             int id = view.getId();
             if (bubbleLayout != null && id == bubbleLayout.getId()) {
+                if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                    updateCheckBox();
+                    return;
+                }
                 onBubbleClick();
             } else if (iv_avatar != null && id == iv_avatar.getId()) {
+                if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                    updateCheckBox();
+                    return;
+                }
                 if (mCellListener != null && !isMe) {
                     mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_CLICK, model, new Object());
                 }
             } else if (iv_error != null && id == iv_error.getId()) {
+                if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                    return;
+                }
                 if (mCellListener != null) {
                     mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
                 }
@@ -471,12 +510,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     public void setFirstUnreadPosition(int position) {
-        unreadPostion = position;
+        unreadPosition = position;
     }
 
     private void showNewMessage() {
         if (tvNote != null) {
-            if (unreadPostion > 0 && currentPosition == unreadPostion) {
+            if (unreadPosition > 0 && currentPosition == unreadPosition) {
                 tvNote.setVisibility(VISIBLE);
                 tvNote.setText("----以下是新消息----");
             } else {

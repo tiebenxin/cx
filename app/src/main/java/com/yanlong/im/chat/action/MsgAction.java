@@ -241,20 +241,20 @@ public class MsgAction {
                             if (MessageManager.getInstance().isGroupValid2(group)) {//在群中，才更新
                                 if (MessageManager.getInstance().isGroupValid2(newGroup)) {
                                     dao.groupNumberSave(newGroup);
-                                    MessageManager.getInstance().updateCacheGroup(group);
+//                                    MessageManager.getInstance().updateCacheGroup(group);
                                 } else {
                                     dao.removeGroupMember(group.getGid(), UserAction.getMyId());
                                 }
                             } else {
                                 if (MessageManager.getInstance().isGroupValid2(newGroup)) {//重新被拉进群，更新
                                     dao.groupNumberSave(newGroup);
-                                    MessageManager.getInstance().updateCacheGroup(group);
+//                                    MessageManager.getInstance().updateCacheGroup(group);
                                 }
                             }
                             MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
                         } else {
                             dao.groupNumberSave(newGroup);
-                            MessageManager.getInstance().updateCacheGroup(group);
+//                            MessageManager.getInstance().updateCacheGroup(group);
                         }
                         //8.8 取消从数据库里读取群成员信息
                         if(callback != null)callback.onResponse(call, response);

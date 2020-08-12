@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -17,20 +18,21 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
         android:text="" />
+
     <TextView
         android:id="@+id/tv_broadcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/bg_chat_gray_shape"
         android:gravity="center"
+        android:padding="3dp"
         android:singleLine="false"
         android:text="----以下是新消息----"
-        android:padding="3dp"
         android:textColor="@color/gray_500"
         android:textSize="12sp"
-        android:layout_marginBottom="5dp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/ll_root"
@@ -38,13 +40,26 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="visible" />
+
         <com.yanlong.im.wight.avatar.RoundImageView
-            app:radius="3dp"
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginRight="10dp"
+            app:radius="3dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -72,9 +87,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="4dp"
                     android:layout_marginBottom="4dp"
+                    android:background="@drawable/bg_chat_other_file"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
-                    android:background="@drawable/bg_chat_other_file"
                     android:visibility="visible">
 
                     <ImageView
@@ -121,22 +136,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/layout_content"
-                        android:visibility="gone"
                         android:layout_marginTop="5dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
                         <View
                             android:layout_width="wrap_content"
                             android:layout_height="1dp"
-                            android:background="@color/c_dcdddd"/>
+                            android:background="@color/c_dcdddd" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
-                            android:text="电脑端文件"
+                            android:layout_gravity="right"
                             android:layout_marginTop="3dp"
                             android:layout_marginRight="10dp"
-                            android:layout_gravity="right"
-                            android:textColor="@color/c_32b053"/>
+                            android:text="电脑端文件"
+                            android:textColor="@color/c_32b053"
+                            android:textSize="11sp" />
                     </LinearLayout>
 
 

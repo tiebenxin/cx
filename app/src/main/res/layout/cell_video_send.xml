@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
+    android:id="@+id/view_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -27,9 +28,22 @@
         android:layout_gravity="right"
         android:orientation="horizontal">
 
-        <LinearLayout
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:padding="5dp"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -184,18 +198,6 @@
             android:layout_marginLeft="10dp"
             app:radius="3dp" />
 
-        <CheckBox
-            android:id="@+id/ck_select"
-            style="@style/app_check_green"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:gravity="center"
-            android:padding="5dp"
-            android:visibility="gone" />
 
     </LinearLayout>
 </LinearLayout>

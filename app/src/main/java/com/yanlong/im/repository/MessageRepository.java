@@ -431,7 +431,10 @@ public class MessageRepository {
      * @param group
      */
     private void saveGoupToDB(@NonNull Group group, Realm realm) {
-        if (localDataSource.isMemberInGroup(group)) {//在群中，更新群信息
+        // TODO 本地没有则需要保存，为了解决离线的时候，别人拉你进来发了消息后在剔你出去，你在登录进来看到消息会话数据不显示群名、群头像异常问题；
+        Group oldGroup = DaoUtil.findOne(Group.class, "gid", group.getGid());
+        if (localDataSource.isMemberInGroup(group) ||
+                (oldGroup == null || oldGroup.getUsers() == null)) {//在群中，更新群信息
             localDataSource.updateGroup(realm, group);
         } else {//不在群中，不更新了，直接把自己移除
             localDataSource.removeGroupMember(realm, group.getGid(), UserAction.getMyId());
@@ -831,7 +834,8 @@ public class MessageRepository {
             if (MyAppLication.INSTANCE().repository != null)
                 MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
             //通知UI更新
-            MessageManager.getInstance().notifyGroupChange(false);
+            MessageManager.getInstance().notifyGroupChange(true);
+            LogUtil.getLog().i("1212", "3======================================");
         }
         return result;
     }

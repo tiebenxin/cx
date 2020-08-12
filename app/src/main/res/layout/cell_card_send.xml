@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -19,28 +20,32 @@
         android:layout_marginBottom="10dp"
         android:text="" />
 
-    <!--  <TextView
-          android:id="@+id/tv_broadcast"
-          style="@style/app_txt_title_2"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center_horizontal"
-          android:background="@drawable/bg_time"
-          android:gravity="center"
-          android:singleLine="false"
-          android:text="公告"
-          android:textColor="@color/white" />-->
 
     <LinearLayout
         android:id="@+id/ll_root"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
         android:orientation="horizontal">
 
-        <LinearLayout
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -56,6 +61,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -178,12 +184,12 @@
         </LinearLayout>
 
         <com.yanlong.im.wight.avatar.RoundImageView
-            app:radius="3dp"
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginLeft="10dp" />
+            android:layout_marginLeft="10dp"
+            app:radius="3dp" />
 
     </LinearLayout>
 </LinearLayout>
