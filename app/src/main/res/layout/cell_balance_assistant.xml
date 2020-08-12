@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:id="@+id/view_parent"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
     android:paddingRight="@dimen/app_margin_main"
@@ -31,104 +32,4 @@
 
     </LinearLayout>
 
-
-    <!--    <LinearLayout-->
-    <!--        android:id="@+id/ll_root"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_gravity="right"-->
-    <!--        android:orientation="horizontal">-->
-
-    <!--        <LinearLayout-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:orientation="vertical">-->
-
-    <!--            <TextView-->
-    <!--                android:id="@+id/tv_name"-->
-    <!--                style="@style/app_txt_content_1"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_marginBottom="2dp"-->
-    <!--                android:gravity="right"-->
-    <!--                android:paddingLeft="8dp"-->
-    <!--                android:paddingRight="8dp"-->
-    <!--                android:text=""-->
-    <!--                android:visibility="gone" />-->
-
-    <!--            <LinearLayout-->
-    <!--                android:layout_width="wrap_content"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:orientation="horizontal">-->
-
-    <!--                <ImageView-->
-    <!--                    android:id="@+id/iv_error"-->
-    <!--                    android:layout_width="20dp"-->
-    <!--                    android:layout_height="20dp"-->
-    <!--                    android:layout_gravity="center_vertical"-->
-    <!--                    android:layout_marginRight="5dp"-->
-    <!--                    android:src="@mipmap/ic_net_err"-->
-    <!--                    android:visibility="gone" />-->
-
-    <!--                <LinearLayout-->
-    <!--                    android:id="@+id/view_read"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:layout_gravity="center_vertical"-->
-    <!--                    android:layout_marginRight="5dp"-->
-    <!--                    android:gravity="center"-->
-    <!--                    android:orientation="vertical"-->
-    <!--                    android:visibility="gone">-->
-
-    <!--                    <TextView-->
-    <!--                        android:id="@+id/tv_read"-->
-    <!--                        android:layout_width="wrap_content"-->
-    <!--                        android:layout_height="wrap_content"-->
-    <!--                        android:text="已读"-->
-    <!--                        android:textColor="@color/gray_500"-->
-    <!--                        android:textSize="12sp" />-->
-
-    <!--                    <TextView-->
-    <!--                        android:id="@+id/tv_read_time"-->
-    <!--                        android:layout_width="wrap_content"-->
-    <!--                        android:layout_height="wrap_content"-->
-    <!--                        android:text="12:20"-->
-    <!--                        android:textColor="@color/gray_500"-->
-    <!--                        android:textSize="9sp" />-->
-    <!--                </LinearLayout>-->
-
-
-    <!--                <FrameLayout-->
-    <!--                    android:id="@+id/view_bubble_root"-->
-    <!--                    android:layout_width="wrap_content"-->
-    <!--                    android:layout_height="wrap_content">-->
-
-    <!--                    <com.yanlong.im.chat.ui.view.LabelItemView-->
-    <!--                        android:id="@+id/view_ot_balance"-->
-    <!--                        android:layout_width="match_parent"-->
-    <!--                        android:layout_height="wrap_content"-->
-    <!--                        android:visibility="visible" />-->
-
-    <!--                    <android.support.v7.widget.AppCompatImageView-->
-    <!--                        android:id="@+id/iv_bell"-->
-    <!--                        android:layout_width="wrap_content"-->
-    <!--                        android:layout_height="wrap_content"-->
-    <!--                        android:layout_gravity="right|bottom"-->
-    <!--                        android:src="@mipmap/icon_st_1"-->
-    <!--                        android:visibility="gone" />-->
-
-    <!--                </FrameLayout>-->
-    <!--            </LinearLayout>-->
-
-
-    <!--        </LinearLayout>-->
-
-    <!--        <ImageView-->
-    <!--            android:id="@+id/iv_avatar"-->
-    <!--            style="@style/app_img_head"-->
-    <!--            android:layout_width="35dp"-->
-    <!--            android:layout_height="35dp"-->
-    <!--            android:layout_marginLeft="10dp"-->
-    <!--            android:visibility="gone" />-->
-
-    <!--    </LinearLayout>-->
 </LinearLayout>

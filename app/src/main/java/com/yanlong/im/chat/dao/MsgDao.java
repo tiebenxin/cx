@@ -132,24 +132,22 @@ public class MsgDao {
         if (groups == null || groups.size() <= 0) {
             return;
         }
+        int len = groups.size();
+        for (int i = 0; i < len; i++) {
+            Group group = groups.get(i);
+            List<MemberUser> memberUsers = group.getUsers();
+            if (memberUsers != null) {
+                int size = memberUsers.size();
+                for (int j = 0; j < size; j++) {
+                    MemberUser memberUser = memberUsers.get(j);
+                    memberUser.init(group.getGid());
+                }
+            }
+        }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            int len = groups.size();
-            if (len > 0) {
-                for (int i = 0; i < len; i++) {
-                    Group group = groups.get(i);
-                    List<MemberUser> memberUsers = group.getUsers();
-                    if (memberUsers != null) {
-                        int size = memberUsers.size();
-                        for (int j = 0; j < size; j++) {
-                            MemberUser memberUser = memberUsers.get(j);
-                            memberUser.init(group.getGid());
-                        }
-                    }
-                }
-                realm.copyToRealmOrUpdate(groups);
-            }
+            realm.copyToRealmOrUpdate(groups);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -578,19 +576,15 @@ public class MsgDao {
      * @param
      */
     public void groupNumberSave(Group ginfo) {
+        if(ginfo == null){
+            return;
+        }
+        for (MemberUser sv : ginfo.getUsers()) {
+            sv.init(ginfo.getGid());
+        }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            //更新信息到群成员列表
-//            RealmList<MemberUser> nums = new RealmList<>();
-            //更新信息到用户表
-            for (MemberUser sv : ginfo.getUsers()) {
-                sv.init(ginfo.getGid());
-
-            }
-            //更新自己的群昵称
-//            ginfo.getMygroupName();
-//            ginfo.setUsers(nums);
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
             realm.close();

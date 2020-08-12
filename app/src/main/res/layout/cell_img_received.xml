@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
+    android:id="@+id/view_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -18,26 +19,40 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
         android:text="" />
+
     <TextView
         android:id="@+id/tv_broadcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/bg_chat_gray_shape"
         android:gravity="center"
+        android:padding="3dp"
         android:singleLine="false"
         android:text="----以下是新消息----"
-        android:padding="3dp"
         android:textColor="@color/gray_500"
         android:textSize="12sp"
-        android:layout_marginBottom="5dp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/view_root"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="visible" />
 
         <com.yanlong.im.wight.avatar.RoundImageView
             android:id="@+id/iv_avatar"

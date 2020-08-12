@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
+    android:id="@+id/view_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -28,13 +29,27 @@
         android:gravity="right"
         android:orientation="horizontal">
 
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="visible" />
+
 
         <LinearLayout
             android:id="@+id/ll_content"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:layout_toLeftOf="@+id/iv_avatar"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -50,6 +65,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -113,8 +129,8 @@
                                 android:id="@+id/iv_ref_image"
                                 android:layout_width="45dp"
                                 android:layout_height="45dp"
-                                android:scaleType="fitXY"
                                 android:gravity="center_vertical"
+                                android:scaleType="fitXY"
                                 android:selectAllOnFocus="true" />
 
                             <LinearLayout
@@ -201,21 +217,6 @@
             android:layout_alignParentRight="true"
             android:layout_marginLeft="10dp"
             app:radius="3dp" />
-
-
-        <CheckBox
-            android:id="@+id/ck_select"
-            style="@style/app_check_green"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:gravity="center"
-            android:padding="5dp"
-            android:visibility="visible" />
-
 
     </LinearLayout>
 </LinearLayout>

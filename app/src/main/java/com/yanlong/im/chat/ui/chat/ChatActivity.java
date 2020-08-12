@@ -4129,7 +4129,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         menus.add(new OptionMenu("删除"));
-//        menus.add(new OptionMenu("多选"));
+        menus.add(new OptionMenu("多选"));
         return menus;
     }
 
