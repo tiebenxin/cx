@@ -299,7 +299,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         public void handleMessage(Message msg) {
             if (!isFinishing() && mMediaPlayer != null) {
                 double result = 0;
-                if(mMediaPlayer.getDuration()>0){ //TODO 抖动是因为MediaPlayer.getDuration()方法有时候会获取长度为0，属于官方bug
+                if(mCurrentTime>0){ //TODO 抖动是因为MediaPlayer.getDuration()方法有时候会获取长度为0，属于官方bug
                     result = (double) mCurrentTime / mMediaPlayer.getDuration();
                     LogUtil.getLog().i("TAG", "mCurrentTime:"+mCurrentTime+"  mMediaPlayer.getDuration():"+mMediaPlayer.getDuration());
                 }
