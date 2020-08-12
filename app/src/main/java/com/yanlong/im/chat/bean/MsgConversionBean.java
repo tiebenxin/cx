@@ -587,7 +587,23 @@ public class MsgConversionBean {
                 String rname = "";
                 MsgCancel msgCel = new MsgCancel();
                 if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
-                    msgCel.setNote("你撤回了一条消息");
+                    //我撤回我自己的消息
+                    if(bean.getCancel()!=null){
+                        if(bean.getFromUid()==bean.getCancel().getUid()){
+                            msgCel.setNote("你撤回了一条消息");
+                        }else {
+                            //PC端我撤回别人的消息
+                            String tempName = "";
+                            if(!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))){
+                                tempName = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+                            }else {
+                                if(!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())){
+                                    tempName = bean.getCancel().getAlterantiveName();
+                                }
+                            }
+                            msgCel.setNote("你撤回了\"" + tempName + "\"的一条消息");//被撤回消息用户B的群昵称，含备注
+                        }
+                    }
                 } else {//对方撤回的消息当通知处理
                     msgCel.setMsgType(9);
                     //如果对方撤回的是他自己的消息，则提示A撤回了一条消息
