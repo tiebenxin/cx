@@ -125,9 +125,6 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
 
      */
     public void toTag() {
-        if (!TextUtils.isEmpty(nickname) && CheckUtil.isMobileNO(nickname)) {
-            nickname = phoneremark;
-        }
         if (TextUtils.isEmpty(nickname)) {
             setTag("#");
         } else if (!("" + nickname.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
