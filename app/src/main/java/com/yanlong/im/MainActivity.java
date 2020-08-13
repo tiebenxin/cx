@@ -1002,7 +1002,7 @@ public class MainActivity extends AppActivity {
         //  sum+=msgDao.remidGet("friend_apply");
         // 手机通讯匹配第一次显示红点
         boolean isFirst = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), true);
-        if (isFirst) {
+        if (isFirst && sum == 0) {
             sbfriend.setSktype(1);
             sbfriend.setNum(1, true);
         } else {

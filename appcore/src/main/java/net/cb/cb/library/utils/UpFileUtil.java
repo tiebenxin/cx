@@ -207,6 +207,8 @@ public class UpFileUtil {
     private void uploadMd5File(final String path, final Context context, final String keyid, final String secret,
                                final String token, final String endpoint, final String btName, final OssUpCallback ossUpCallback,
                                final String imgPath, final byte[] imgbyte, final boolean isLocalTakeVideo) {
+
+        getOSs(context, keyid, secret, token, endpoint);
         // 获取文件的md5值，用于判断文件是否上传过
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
 
@@ -221,8 +223,6 @@ public class UpFileUtil {
                     ossUpCallback.fail();
                     return;
                 }
-                getOSs(context, keyid, secret, token, endpoint);
-
                 if (imgPath != null) {
                     int sEx = imgPath.lastIndexOf(".");
 
@@ -239,7 +239,6 @@ public class UpFileUtil {
                 }
 
                 final String objkey = path + img_name;
-                LogUtil.getLog().i("h===", "objkey:" + objkey);
                 if (StringUtil.isNotNull(imgPath)) {
                     putObjectRequest = new PutObjectRequest(btName, objkey, imgPath);
                 } else {
