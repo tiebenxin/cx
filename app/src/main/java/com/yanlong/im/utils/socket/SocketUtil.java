@@ -193,7 +193,7 @@ public class SocketUtil {
 
         @Override
         public void onLine(boolean state) {
-            LogUtil.getLog().e(TAG, ">>>>>在线状态" + state);
+            LogUtil.getLog().e(TAG, "连接LOG-->>>>>在线状态" + state);
             //保存连接状态到本地
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).save2Json(state);
             for (SocketEvent ev : eventLists) {
@@ -836,7 +836,7 @@ public class SocketUtil {
         if (transmission == null) {
             transmission = Transmission.create(true);
         }
-        LogUtil.getLog().i(TAG, "连接LOG--连接前-status=" + connStatus.get());
+        LogUtil.getLog().i(TAG, "连接LOG--连接前-status=" + connStatus.get() + "--time=" + System.currentTimeMillis());
         if (connStatus.get() == EConnectionStatus.DEFAULT) {
             updateConnectStatus(EConnectionStatus.CONNECTING);
             ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
@@ -846,12 +846,12 @@ public class SocketUtil {
                         @Override
                         public void whenConnected(Transmission trs) {
                             updateConnectStatus(EConnectionStatus.CONNECTED);
-                            LogUtil.getLog().i(TAG, "连接LOG--Transmission --whenConnected success");
+                            LogUtil.getLog().i(TAG, "连接LOG--Transmission --whenConnected success" + "--time=" + System.currentTimeMillis());
                             TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
                             if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
                                 return;
                             }
-                            LogUtil.getLog().i(TAG, ">>>>连接LOG-发送token=" + tokenBean.getAccessToken());
+                            LogUtil.getLog().i(TAG, ">>>>发送token=" + tokenBean.getAccessToken());
                             MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
                                     .setAccessToken(tokenBean.getAccessToken()).build();
 
@@ -872,11 +872,11 @@ public class SocketUtil {
 
                         @Override
                         public void whenAuthResponse(Transmission trs, byte[] rsp) {
-                            LogUtil.getLog().i(TAG, "连接LOG --Transmission --接收到鉴权");
+                            LogUtil.getLog().i(TAG, "连接LOG --Transmission --接收到鉴权" + "--time=" + System.currentTimeMillis());
                             try {
                                 MsgBean.AuthResponseMessage authMessage = MsgBean.AuthResponseMessage.parseFrom(rsp);
                                 if (authMessage != null && authMessage.getAccepted() == 1) {
-                                    LogUtil.getLog().i(TAG, "连接LOG --Transmission --鉴权成功");
+                                    LogUtil.getLog().i(TAG, "连接LOG --Transmission --鉴权成功" + "--time=" + System.currentTimeMillis());
                                     updateConnectStatus(EConnectionStatus.AUTH);
                                     if (event != null) {
                                         event.onLine(true);
@@ -902,13 +902,13 @@ public class SocketUtil {
 
                         @Override
                         public void whenHeartbeat(Transmission trs) {
-                            LogUtil.getLog().i(TAG, "连接LOG--whenHeartbeat");
+//                            LogUtil.getLog().i(TAG, "连接LOG--whenHeartbeat");
 
                         }
 
                         @Override
                         public void whenReceiveMsg(Transmission trs, byte[] msg) {
-                            LogUtil.getLog().i(TAG, "连接LOG--whenReceiveMsg");
+//                            LogUtil.getLog().i(TAG, "连接LOG--whenReceiveMsg");
                             try {
                                 MsgBean.UniversalMessage message = MsgBean.UniversalMessage.parseFrom(msg);
                                 if (event != null) {
@@ -1001,7 +1001,7 @@ public class SocketUtil {
     }
 
     private void updateConnectStatus(@EConnectionStatus int status) {
-        LogUtil.getLog().i(TAG, "连接LOG--更新连接状态--status=" + status);
+        LogUtil.getLog().i(TAG, "连接LOG--更新连接状态--status=" + status + "--time=" + System.currentTimeMillis());
         connStatus.set(status);
         setRunState(status);
     }

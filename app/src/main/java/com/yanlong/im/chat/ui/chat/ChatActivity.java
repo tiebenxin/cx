@@ -1289,7 +1289,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 actionbar.getTxtTitleMore().setVisibility(VISIBLE);
             }
         } else {
-            actionbar.getGroupLoadBar().setVisibility(VISIBLE);
+            if (SocketUtil.getSocketUtil().getConnectStatus() == SocketUtil.EConnectionStatus.DEFAULT) {
+                actionbar.getGroupLoadBar().setVisibility(VISIBLE);
+            } else {
+                actionbar.getGroupLoadBar().setVisibility(GONE);
+            }
             //断网后，隐藏单聊标题底部在线状态
             if (!isGroup()) {
                 actionbar.getTxtTitleMore().setVisibility(GONE);
