@@ -179,9 +179,9 @@ public class DateUtils {
         if (oldTime > 0) {
             long timeDifference = System.currentTimeMillis() - oldTime;
             long second = timeDifference / 1000;// 计算秒
-//            long day = second / 60 / 60 / 24;// 计算天
-//            return day <= 7;
-            return second / 60 < 10;
+            long day = second / 60 / 60 / 24;// 计算天
+            return day <= 7;
+//            return second / 60 < 10;
         } else {
             return true;
         }
@@ -191,9 +191,9 @@ public class DateUtils {
         if (oldTime > 0) {
             long timeDifference = System.currentTimeMillis() - oldTime;
             long second = timeDifference / 1000;// 计算秒
-//            long hour = second / 60 / 60;// 计算小时
-//            return hour < 24;
-            return second < 10;
+            long hour = second / 60 / 60;// 计算小时
+            return hour < 24;
+//            return second < 10;
         } else {
             return false;
         }
