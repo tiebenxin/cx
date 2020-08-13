@@ -832,114 +832,126 @@ public class SocketUtil {
     public void startSocket2() {
         if (transmission == null) {
             transmission = Transmission.create(true);
-        }
-        if (connStatus == EConnectionStatus.DEFAULT) {
-            transmission.connect(AppHostUtil.getTcpHost()/*"192.168.10.229"*/, /*AppHostUtil.TCP_PORT*/19991, 3000, new ResponseHandler() {
-                @Override
-                public void whenConnected(Transmission trs) {
-                    updateConnectStatus(EConnectionStatus.CONN);
-                    LogUtil.getLog().i(TAG, "连接LOG--Transmission --whenConnected success");
-                    TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-                    if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
-                        return;
-                    }
-                    LogUtil.getLog().i(TAG, ">>>>连接LOG-发送token=" + tokenBean.getAccessToken());
-                    MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
-                            .setAccessToken(tokenBean.getAccessToken()).build();
+            if (connStatus == EConnectionStatus.DEFAULT) {
+                ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        transmission.connect(AppHostUtil.getTcpHost()/*"192.168.10.229"*/, /*AppHostUtil.TCP_PORT*/19991, 3000, new ResponseHandler() {
+                            @Override
+                            public void whenConnected(Transmission trs) {
+                                updateConnectStatus(EConnectionStatus.CONN);
+                                LogUtil.getLog().i(TAG, "连接LOG--Transmission --whenConnected success");
+                                TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+                                if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
+                                    return;
+                                }
+                                LogUtil.getLog().i(TAG, ">>>>连接LOG-发送token=" + tokenBean.getAccessToken());
+                                MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
+                                        .setAccessToken(tokenBean.getAccessToken()).build();
 
-                    transmission.sendMsg(ProtoConsts.PackageType.AUTH, auth.toByteArray(), new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            LogUtil.getLog().i(TAG, "连接LOG->>>>发送token成功--启动心跳");
-                            transmission.enableHeartbeat();
-                        }
-                    });
-                }
-
-                @Override
-                public void whenClosed(Transmission trs) {
-                    LogUtil.getLog().i(TAG, "连接LOG--Transmission --whenClosed");
-                    updateConnectStatus(EConnectionStatus.DEFAULT);
-                }
-
-                @Override
-                public void whenAuthResponse(Transmission trs, byte[] rsp) {
-                    LogUtil.getLog().i(TAG, "连接LOG --Transmission --接收到鉴权");
-                    try {
-                        MsgBean.AuthResponseMessage authMessage = MsgBean.AuthResponseMessage.parseFrom(rsp);
-                        if (authMessage != null && authMessage.getAccepted() == 1) {
-                            LogUtil.getLog().i(TAG, "连接LOG --Transmission --鉴权成功");
-                            updateConnectStatus(EConnectionStatus.AUTH);
-                            if (event != null) {
-                                event.onLine(true);
+                                transmission.sendMsg(ProtoConsts.PackageType.AUTH, auth.toByteArray(), new ChannelFutureListener() {
+                                    @Override
+                                    public void operationComplete(ChannelFuture future) throws Exception {
+                                        LogUtil.getLog().i(TAG, "连接LOG->>>>发送token成功--启动心跳");
+                                        transmission.enableHeartbeat();
+                                    }
+                                });
                             }
-                            sendRequestForOffline2();
-                            sendListThread();
-                        } else {
-                            stopSocket2();
-                            // 上报后的Crash会显示该标签
-                            CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
-                            // 上传异常数据
-                            CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
-                            BuglyLog.e(BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
-                            CrashReport.postCatchedException(new BuglyException());
-                            //6.20 鉴权失败退出登录
-                            EventBus.getDefault().post(new EventLoginOut());
-                        }
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
+
+                            @Override
+                            public void whenClosed(Transmission trs) {
+                                LogUtil.getLog().i(TAG, "连接LOG--Transmission --whenClosed");
+                                updateConnectStatus(EConnectionStatus.DEFAULT);
+                            }
+
+                            @Override
+                            public void whenAuthResponse(Transmission trs, byte[] rsp) {
+                                LogUtil.getLog().i(TAG, "连接LOG --Transmission --接收到鉴权");
+                                try {
+                                    MsgBean.AuthResponseMessage authMessage = MsgBean.AuthResponseMessage.parseFrom(rsp);
+                                    if (authMessage != null && authMessage.getAccepted() == 1) {
+                                        LogUtil.getLog().i(TAG, "连接LOG --Transmission --鉴权成功");
+                                        updateConnectStatus(EConnectionStatus.AUTH);
+                                        if (event != null) {
+                                            event.onLine(true);
+                                        }
+                                        sendRequestForOffline2();
+                                        sendListThread();
+                                    } else {
+                                        stopSocket2();
+                                        // 上报后的Crash会显示该标签
+                                        CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
+                                        // 上传异常数据
+                                        CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
+                                        BuglyLog.e(BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
+                                        CrashReport.postCatchedException(new BuglyException());
+                                        //6.20 鉴权失败退出登录
+                                        EventBus.getDefault().post(new EventLoginOut());
+                                    }
+                                } catch (InvalidProtocolBufferException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+
+                            @Override
+                            public void whenHeartbeat(Transmission trs) {
+                                LogUtil.getLog().i(TAG, "连接LOG--whenHeartbeat");
+
+                            }
+
+                            @Override
+                            public void whenReceiveMsg(Transmission trs, byte[] msg) {
+                                LogUtil.getLog().i(TAG, "连接LOG--whenReceiveMsg");
+                                try {
+                                    MsgBean.UniversalMessage message = MsgBean.UniversalMessage.parseFrom(msg);
+                                    if (event != null) {
+                                        event.onMsg(message);
+                                    }
+                                } catch (InvalidProtocolBufferException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+
+                            @Override
+                            public void whenAck(Transmission trs, byte[] ack) {
+                                LogUtil.getLog().i(TAG, "连接LOG--whenAck");
+                                try {
+                                    MsgBean.AckMessage ackMessage = MsgBean.AckMessage.parseFrom(ack);
+                                    if (event != null) {
+                                        event.onACK(ackMessage);
+                                    }
+                                } catch (InvalidProtocolBufferException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                            }
+
+                            @Override
+                            public void whenException(Transmission trs, Throwable cause) {
+                                LogUtil.getLog().i(TAG, "连接LOG--whenException--" + cause);
+                                updateConnectStatus(EConnectionStatus.DEFAULT);
+                            }
+                        });
+
                     }
-
-                }
-
-                @Override
-                public void whenHeartbeat(Transmission trs) {
-                    LogUtil.getLog().i(TAG, "连接LOG--whenHeartbeat");
-
-                }
-
-                @Override
-                public void whenReceiveMsg(Transmission trs, byte[] msg) {
-                    LogUtil.getLog().i(TAG, "连接LOG--whenReceiveMsg");
-                    try {
-                        MsgBean.UniversalMessage message = MsgBean.UniversalMessage.parseFrom(msg);
-                        if (event != null) {
-                            event.onMsg(message);
-                        }
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                @Override
-                public void whenAck(Transmission trs, byte[] ack) {
-                    LogUtil.getLog().i(TAG, "连接LOG--whenAck");
-                    try {
-                        MsgBean.AckMessage ackMessage = MsgBean.AckMessage.parseFrom(ack);
-                        if (event != null) {
-                            event.onACK(ackMessage);
-                        }
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
-                    }
-
-
-                }
-
-                @Override
-                public void whenException(Transmission trs, Throwable cause) {
-                    LogUtil.getLog().i(TAG, "连接LOG--whenException--" + cause);
-                    updateConnectStatus(EConnectionStatus.DEFAULT);
-                }
-            });
+                });
+            }
         }
     }
 
     public void stopSocket2() {
         if (transmission != null) {
-            transmission.close();
-            updateConnectStatus(EConnectionStatus.DEFAULT);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    transmission.close();
+                    transmission = null;
+                    updateConnectStatus(EConnectionStatus.DEFAULT);
+                }
+            }).start();
         }
     }
 

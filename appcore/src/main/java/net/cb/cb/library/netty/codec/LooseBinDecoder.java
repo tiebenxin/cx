@@ -203,7 +203,6 @@ public class LooseBinDecoder extends ByteToMessageDecoder {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ctx.close();
         handler.whenClosed(trs);
     }
 }
