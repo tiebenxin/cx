@@ -88,9 +88,9 @@ public class ChatCellImage extends ChatCellFileBase {
             String gif = message.getImage().getPreview();
             if (!TextUtils.equals(tag, gif)) {
                 imageView.setTag(R.id.tag_img, gif);
-                rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-                rOptions.priority(Priority.LOW);
-                rOptions.skipMemoryCache(false);
+                rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+//                rOptions.priority(Priority.LOW);
+//                rOptions.skipMemoryCache(true);
                 imageView.setImageResource(R.mipmap.ic_image_bg);
                 File local = CustomGlideModule.getCacheFile(gif);
                 if (local == null) {
@@ -146,9 +146,10 @@ public class ChatCellImage extends ChatCellFileBase {
         }
         currentUrl = url;
         LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
+        //TODO:设置options后gif图片不动
         Glide.with(getContext())
                 .load(url)
-                .apply(rOptions)
+//                .apply(rOptions)
                 .into(imageView);
     }
 
