@@ -298,13 +298,23 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         @Override
         public void handleMessage(Message msg) {
             if (!isFinishing() && mMediaPlayer != null) {
-                DecimalFormat df = new DecimalFormat("0.00");
-                String result = df.format((double) mCurrentTime / mMediaPlayer.getDuration());
+                double result = 0;
+                if(mCurrentTime>0){ //TODO 抖动是因为MediaPlayer.getDuration()方法有时候会获取长度为0，属于官方bug
+                    result = (double) mCurrentTime / mMediaPlayer.getDuration();
+                    LogUtil.getLog().i("TAG", "mCurrentTime:"+mCurrentTime+"  mMediaPlayer.getDuration():"+mMediaPlayer.getDuration());
+                }
                 if(isPlayFinished){
                     activity_video_seek.setProgress(100);
                 }else {
-                    activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
+                    activity_video_seek.setProgress(Double.valueOf(result * 100).intValue());
                 }
+//                DecimalFormat df = new DecimalFormat("0.00");
+//                String result = df.format((double) mCurrentTime / mMediaPlayer.getDuration());
+//                if(isPlayFinished){
+//                    activity_video_seek.setProgress(100);
+//                }else {
+//                    activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
+//                }
                 mCurrentTime = mCurrentTime / 1000;
                 mHour = mCurrentTime / 3600;
                 mMin = mCurrentTime % 3600 / 60;

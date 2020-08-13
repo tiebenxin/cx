@@ -417,6 +417,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private boolean showCancel = false;//长按气泡是否显示撤回选项
     private boolean timeLimit = true;//这条消息撤回是否有2分钟时间限制
+    private ImageView ivCollection;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -425,18 +426,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_chat);
         Window window = getWindow();
-//
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         //标题栏
         window.setStatusBarColor(getResources().getColor(R.color.blue_title));
-        //底部导航栏
-//        window.setNavigationBarColor(getResources().getColor(R.color.red_100));
-
+        initIntent();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
         findViews();
-        initEvent();
         initObserver();
         getOftenUseFace();
     }
@@ -638,14 +635,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     int memberCount = mViewModel.groupInfo.getUsers() == null ? 0 : mViewModel.groupInfo.getUsers().size();
                     actionbar.setNumber(memberCount, memberCount > 0);
                     //如果自己不在群里面
-                    boolean isExit = false;
-                    for (MemberUser uifo : mViewModel.groupInfo.getUsers()) {
-                        if (uifo.getUid() == UserAction.getMyId().longValue()) {
-                            isExit = true;
-                        }
-                    }
                     boolean forbid = mViewModel.groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
-                    setBanView(!isExit, forbid);
+                    setBanView(!isEixt(), forbid);
                     //6.15 设置右上角点击
                     taskGroupConf();
 
@@ -673,6 +664,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } catch (Exception e) {
         }
+    }
+
+    /**
+     * 是否还在群里
+     *
+     * @return
+     */
+    private boolean isEixt() {
+        boolean isExit = false;
+        if (isGroup()) {
+            for (MemberUser uifo : mViewModel.groupInfo.getUsers()) {
+                if (uifo.getUid() == UserAction.getMyId().longValue()) {
+                    isExit = true;
+                    break;
+                }
+            }
+        } else {
+            isExit = true;
+        }
+        return isExit;
     }
 
     private String originalText = "";
@@ -800,9 +811,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onStart() {
         super.onStart();
+        initEvent();
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
@@ -954,6 +967,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         llMore = findViewById(R.id.ll_more);
         ivDelete = findViewById(R.id.iv_delete);
         ivForward = findViewById(R.id.iv_forward);
+        ivCollection = findViewById(R.id.iv_collection);
         layoutInput = findViewById(R.id.layout_input);
         mtListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -1267,7 +1281,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void initEvent() {
         //读取软键盘高度
         mKeyboardHeight = getSharedPreferences(KEY_BOARD, Context.MODE_PRIVATE).getInt(KEY_BOARD, 0);
-        initIntent();
         //预先网络监听
         if (onlineState) {
             actionbar.getGroupLoadBar().setVisibility(GONE);
@@ -1818,16 +1831,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         notifyData();
                     }
                 }
-                ivDelete.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        showViewMore(false);
-                        mAdapter.showCheckBox(true, true);
-                        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
-                    }
-                }, 100);
-
-
+                hideMultiSelect(ivDelete);
             }
         });
         //批量转发
@@ -1844,6 +1848,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
+        //批量收藏
+        ivCollection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
+                    return;
+                }
+                ToastUtil.show("暂不支持改功能");
+                hideMultiSelect(ivCollection);
+            }
+        });
+
         viewReplyMessage.setClickListener(new OnControllerClickListener() {
             @Override
             public void onClick() {
@@ -1857,10 +1876,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void initIntent() {
-        toGid = getIntent().getStringExtra(AGM_TOGID);
-        toUId = getIntent().getLongExtra(AGM_TOUID, 0);
-        searchTime = getIntent().getLongExtra(SEARCH_TIME, 0);
-        searchKey = getIntent().getStringExtra(SEARCH_KEY);
+        if (getIntent() != null) {
+            toGid = getIntent().getStringExtra(AGM_TOGID);
+            toUId = getIntent().getLongExtra(AGM_TOUID, 0);
+            searchTime = getIntent().getLongExtra(SEARCH_TIME, 0);
+            searchKey = getIntent().getStringExtra(SEARCH_KEY);
+        }
         if (searchTime > 0) {
             isLoadHistory = true;
         }
@@ -4157,7 +4178,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
-                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.TRANSFER) {
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.TRANSFER || !isEixt()) {
             return true;
         }
         return false;
@@ -5687,6 +5708,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
                     }
                 }
+                hideMultiSelect(ivForward);
             }
 
             @Override
@@ -5698,6 +5720,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         onForwardActivity(ChatEnum.EForwardMode.MERGE, new Gson().toJson(list));
                     }
                 }
+                hideMultiSelect(ivForward);
             }
 
             @Override
@@ -5706,6 +5729,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
         forwardDialog.show();
+    }
+
+    //隐藏多选功能
+    private void hideMultiSelect(ImageView iv) {
+        iv.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showViewMore(false);
+                mAdapter.showCheckBox(false, true);
+                mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+            }
+        }, 100);
     }
 
     /**

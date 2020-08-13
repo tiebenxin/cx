@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import com.yanlong.im.user.bean.PhoneBean;
 
 import net.cb.cb.library.utils.CheckPermissionUtils;
+import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -114,7 +115,10 @@ public class PhoneListUtil {
                     //号码处理
                     String replace = "";
                     if (!TextUtils.isEmpty(phoneNumber)) {
-                        replace = phoneNumber.replace(" ", "").replace("-", "").replace("+", "");
+                        replace = phoneNumber.replace(" ", "").
+                                replace("-", "").
+                                replace("+", "").
+                                replace("+86", "");
                     }
                     //判断号码是否符合手机号
            /*     if (CheckUtils.checkPhoneNumber(replace)) {
@@ -138,6 +142,9 @@ public class PhoneListUtil {
                     contacts.setPhoneremark(name);
                     //  String[] strings = new String[1];
                     //  strings[0] = PhoneBean;
+                    if (TextUtils.isEmpty(replace) || !CheckUtil.isMobileNO(replace)) {
+                        continue;
+                    }
                     contacts.setPhone(replace);
                     data.add(contacts);
                     contactIdMap.put(contactId, data.size() - 1);
