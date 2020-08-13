@@ -8,6 +8,7 @@ buildscript {
         jcenter()
         mavenCentral()
         maven { url 'http://developer.huawei.com/repo/' }
+        maven{ url 'http://central.maven.org/maven2/'}
 
 
     }

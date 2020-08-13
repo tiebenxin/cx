@@ -297,6 +297,15 @@
 -dontwarn org.codehaus.mojo.animal_sniffer.*
 #=================PictureSelector 2.0  图片选择器混淆=================
 
+#netty
+-keepattributes Signature,InnerClasses
+-keepclasseswithmembers class io.netty.** {
+    *;
+}
+-dontwarn io.netty.**
+-dontwarn sun.**
+#netty
+
 
 
 
