@@ -216,6 +216,7 @@ import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -638,14 +639,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     int memberCount = mViewModel.groupInfo.getUsers() == null ? 0 : mViewModel.groupInfo.getUsers().size();
                     actionbar.setNumber(memberCount, memberCount > 0);
                     //如果自己不在群里面
-                    boolean isExit = false;
-                    for (MemberUser uifo : mViewModel.groupInfo.getUsers()) {
-                        if (uifo.getUid() == UserAction.getMyId().longValue()) {
-                            isExit = true;
-                        }
-                    }
                     boolean forbid = mViewModel.groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
-                    setBanView(!isExit, forbid);
+                    setBanView(!isEixt(), forbid);
                     //6.15 设置右上角点击
                     taskGroupConf();
 
@@ -673,6 +668,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } catch (Exception e) {
         }
+    }
+
+    /**
+     * 是否还在群里
+     *
+     * @return
+     */
+    private boolean isEixt() {
+        boolean isExit = false;
+        if (isGroup()) {
+            for (MemberUser uifo : mViewModel.groupInfo.getUsers()) {
+                if (uifo.getUid() == UserAction.getMyId().longValue()) {
+                    isExit = true;
+                    break;
+                }
+            }
+        } else {
+            isExit = true;
+        }
+        return isExit;
     }
 
     private String originalText = "";
@@ -4154,7 +4169,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
-                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.TRANSFER) {
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.TRANSFER || !isEixt()) {
             return true;
         }
         return false;

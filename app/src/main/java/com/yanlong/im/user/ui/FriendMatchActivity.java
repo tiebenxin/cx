@@ -264,7 +264,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
      */
     private void initViewTypeData() {
         //排序
-        Collections.sort(listData);
+//        Collections.sort(listData);
         //筛选
         for (int i = 0; i < listData.size(); i++) {
             bindingView.viewType.putTag(listData.get(i).getTag(), i);
@@ -305,23 +305,19 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
             }
             if (bean.isRegister()) {
                 holder.btnAdd.setText("邀请");
-                holder.txtRemark.setVisibility(View.GONE);
                 holder.btnAdd.setBackground(getResources().getDrawable(R.drawable.bg_btn_blue));
+                holder.txtName.setText(bean.getPhoneremark());
             } else {
                 holder.btnAdd.setText("添加");
-                holder.txtRemark.setVisibility(View.VISIBLE);
                 holder.btnAdd.setBackground(getResources().getDrawable(R.drawable.bg_btn_green));
+                holder.txtName.setText(bean.getNickname() + "  (" + bean.getPhoneremark() + ")");
             }
             holder.txtType.setVisibility(bean.isShowPinYin() ? View.GONE : View.VISIBLE);
             holder.txtType.setText(bean.getTag());
             Glide.with(context).load(bean.getAvatar())
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-            String nickname = bean.getNickname();
-            if (!TextUtils.isEmpty(bean.getNickname()) && CheckUtil.isMobileNO(bean.getNickname())) {
-                nickname = bean.getPhoneremark();
-            }
-            holder.txtName.setText(nickname);
-            holder.txtRemark.setText("手机通讯录: " + bean.getPhoneremark());
+
+            holder.txtRemark.setText("+86  " + bean.getPhone());
             if (!bean.isShowPinYin()) {
                 if (position != 0) {
                     FriendInfoBean lastbean = list.get(position - 1);
