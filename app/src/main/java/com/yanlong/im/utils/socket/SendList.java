@@ -109,7 +109,7 @@ public class SendList {
 //            }
 //        }
             SEND_LIST.remove(keyId);
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtil.getLog().d(TAG, "移除发送队列异常:" + e.getMessage());
         }
     }
@@ -142,16 +142,16 @@ public class SendList {
                 if (now > (bean.getFirstTimeSent() + bean.getReSendNum() * SEND_RE_TIME)) {
                     LogUtil.getLog().e(TAG, ">>>>符合发送条件" + kid);
                     if (bean.getMsg() != null) {
-                        SocketUtil.getSocketUtil().sendData4Msg(bean.getMsg());
+//                        SocketUtil.getSocketUtil().sendData4Msg(bean.getMsg());
+                        SocketUtil.getSocketUtil().sendMsg(bean.getMsg().build());
                     } else {
                         LogUtil.writeLog(">>>重新发送回执 RequestId:" + bean.getMsgAck().getRequestId() +
                                 " MsgId:" + bean.getMsgAck().getMsgIdList() + " MsgIdCount:" + bean.getMsgAck().getMsgIdCount());
                         // 添加到消息队中监听
                         addSendList(bean.getMsgAck().getRequestId(), bean.getMsgAck());
-//                        SocketUtil.getSocketUtil().sendData(SocketPact.getPackage(SocketPact.DataType.ACK, bean.getMsgAck().build().toByteArray()),
-//                                null,bean.getMsgAck().getRequestId());
-                        SocketUtil.getSocketUtil().sendData(SocketPacket.getPackage(SocketPacket.DataType.ACK, bean.getMsgAck().build().toByteArray()),
-                                null, bean.getMsgAck().getRequestId());
+//                        SocketUtil.getSocketUtil().sendData(SocketPacket.getPackage(SocketPacket.DataType.ACK, bean.getMsgAck().build().toByteArray()),
+//                                null, bean.getMsgAck().getRequestId());
+                        SocketUtil.getSocketUtil().sendACK(bean.getMsgAck().build());
                     }
                 } else {
                     LogUtil.getLog().e(TAG, ">>>>符合重发条件但时间不满足" + kid);

@@ -57,13 +57,16 @@ public class TcpConnection implements Connection {
                     if (!isRunning) {
                         startConnect(from);
                     } else {
-                        if (!SocketUtil.getSocketUtil().isRun()) {
-                            SocketUtil.getSocketUtil().startSocket();
+//                        if (!SocketUtil.getSocketUtil().isRun()) {
+//                            SocketUtil.getSocketUtil().startSocket();
+//                        }
+                        if (SocketUtil.getSocketUtil().getConnectStatus() == SocketUtil.EConnectionStatus.DEFAULT) {
+                            SocketUtil.getSocketUtil().startSocket2();
                         }
                     }
                 } else {//链接失败
 //                    stopConnect();
-                    SocketUtil.getSocketUtil().stopSocket();
+                    SocketUtil.getSocketUtil().stopSocket2();
                 }
             }
         };
@@ -80,7 +83,7 @@ public class TcpConnection implements Connection {
         if (NetUtil.isNetworkConnected()) {
             taskFixSendState();
             isRunning = true;
-            SocketUtil.getSocketUtil().startSocket();
+            SocketUtil.getSocketUtil().startSocket2();
         }
         initNetReceiver();
     }
@@ -93,7 +96,7 @@ public class TcpConnection implements Connection {
         if (NetUtil.isNetworkConnected()) {
             taskFixSendState();
             isRunning = true;
-            SocketUtil.getSocketUtil().startSocket();
+            SocketUtil.getSocketUtil().startSocket2();
         }
         initNetReceiver();
     }
@@ -103,7 +106,8 @@ public class TcpConnection implements Connection {
     public void stopConnect() {
         LogUtil.getLog().d(TAG, "连接LOG--暂停连接--" + NetUtil.isNetworkConnected());
         LogUtil.writeLog(TAG + "--连接LOG--" + "暂停连接--" + "--time=" + System.currentTimeMillis());
-        SocketUtil.getSocketUtil().stop(true);
+//        SocketUtil.getSocketUtil().stop(true);
+        SocketUtil.getSocketUtil().stopSocket2();
     }
 
     //销毁链接
@@ -114,7 +118,8 @@ public class TcpConnection implements Connection {
         }
         LogUtil.getLog().d(TAG, "连接LOG--销毁连接--" + NetUtil.isNetworkConnected());
         LogUtil.writeLog(TAG + "--连接LOG--" + "销毁连接--" + "--time=" + System.currentTimeMillis());
-        SocketUtil.getSocketUtil().endSocket();
+//        SocketUtil.getSocketUtil().stop2();
+        SocketUtil.getSocketUtil().stopSocket2();
         isRunning = false;
         if (context != null && mNetworkChangeReceiver != null) {
             context.unregisterReceiver(mNetworkChangeReceiver);
@@ -158,6 +163,4 @@ public class TcpConnection implements Connection {
             logList.clear();
         }
     }
-
-
 }

@@ -178,7 +178,8 @@ public class OfflineMessage extends DispatchMessage {
                 }
             } else {//空消息 回执
                 LogUtil.writeLog("--发送回执2离线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, SocketData.isEnough(0)), null, bean.getRequestId());
+//                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, SocketData.isEnough(0)), null, bean.getRequestId());
+                SocketUtil.getSocketUtil().sendACK(SocketData.createACK(bean.getRequestId(), null, bean.getMsgFrom(), false, SocketData.isEnough(0)));
             }
 
         });
@@ -201,7 +202,8 @@ public class OfflineMessage extends DispatchMessage {
                         //全部保存成功，消息回执
                         MessageManager.getInstance().setReceiveOffline(false);
                         LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
-                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
+//                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
+                        SocketUtil.getSocketUtil().sendACK(SocketData.createACK(requestId, null, msgFrom, false, SocketData.isEnough(0)));
                         //在线，表示能回执成功，清除掉MsgId
                         if (SocketUtil.getSocketUtil().getOnlineState())
                             mBatchSuccessMsgIds.clear();
@@ -209,7 +211,8 @@ public class OfflineMessage extends DispatchMessage {
                         //无有效离线消息直接发送回执
                         MessageManager.getInstance().setReceiveOffline(false);
                         LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
-                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
+//                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
+                        SocketUtil.getSocketUtil().sendACK(SocketData.createACK(requestId, null, msgFrom, false, SocketData.isEnough(0)));
                     }
                     //更新所有的session
                     updateSessionsWhenBatchCompleted(realm);

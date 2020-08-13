@@ -96,7 +96,8 @@ public class OnlineMessage extends DispatchMessage {
                 }
                 if (size == 1 && bean.getWrapMsg(0) != null && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
                     LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+//                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+                    SocketUtil.getSocketUtil().sendACK(SocketData.createACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true));
                 }
             }
         } catch (Exception e) {
@@ -104,7 +105,9 @@ public class OnlineMessage extends DispatchMessage {
         }
         if (result && bean.getWrapMsgCount() > 1) {
             LogUtil.writeLog("--发送回执3在线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
-            SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+//            SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+            SocketUtil.getSocketUtil().sendACK(SocketData.createACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true));
+
         }
     }
 

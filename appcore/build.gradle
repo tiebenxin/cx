@@ -80,6 +80,10 @@ android {
 
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 
@@ -87,8 +91,8 @@ dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api fileTree(include: ['*.aar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation  'com.android.support.test:runner:1.0.2'
-    androidTestImplementation  'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -146,8 +150,10 @@ dependencies {
 
     //友盟
     api 'com.umeng.umsdk:common:2.2.5'
-//    api 'com.umeng.umsdk:utdid:+'
-//    api 'com.umeng.umsdk:analytics:8.1.6'
+
+    //    api 'com.umeng.umsdk:utdid:+'
+
+    //    api 'com.umeng.umsdk:analytics:8.1.6'
     api 'com.umeng.sdk:share-wechat:6.9.1'
     api 'org.jsoup:jsoup:1.12.1'
 
@@ -157,21 +163,28 @@ dependencies {
 
     // 小米
     api 'cn.jiguang.sdk.plugin:xiaomi:3.5.8'
+
     //华为
     api 'cn.jiguang.sdk.plugin:huawei:3.5.8'
     api 'com.huawei.hms:push:4.0.2.300'
+
     //魅族
     api 'cn.jiguang.sdk.plugin:meizu:3.5.8'
+
     // oppo
     api 'cn.jiguang.sdk.plugin:oppo:3.5.8'
+
     //vivo
     api 'cn.jiguang.sdk.plugin:vivo:3.5.8'
 
     //volley
     implementation files('libs/volley.jar')
+
     //分享SDK
     implementation files('libs/cxShare.jar')
 
     //guava
-    api("com.google.guava:guava:28.2-android")
+    api 'com.google.guava:guava:28.2-android'
+//    implementation files('libs/transmission-1.0.0.jar')
+    api 'io.netty:netty-all:4.1.51.Final'
 }

@@ -36,6 +36,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.TokenBean;
@@ -43,6 +44,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -361,7 +363,8 @@ public class SocketData {
         }
         //立即发送
         if (isSend && isNoAssistant(toId, toGid)) {
-            SocketUtil.getSocketUtil().sendData4Msg(msg);
+//            SocketUtil.getSocketUtil().sendData4Msg(msg);
+            SocketUtil.getSocketUtil().sendMsg(msg.build());
         }
         MsgAllBean msgAllbean = MsgConversionBean.ToBean(msg.getWrapMsg(0));
         return msgAllbean;
@@ -788,12 +791,12 @@ public class SocketData {
         cancel.setTime(cancelMsg.getTimestamp());
         cancel.setUid(cancelMsg.getFrom_uid());//被撤回的消息来源于哪个用户的uid
         cancel.setRole(myType);
-        if(!TextUtils.isEmpty(cancelMsg.getFrom_group_nickname())){
+        if (!TextUtils.isEmpty(cancelMsg.getFrom_group_nickname())) {
             cancel.setAlterantive_name(cancelMsg.getFrom_group_nickname());//被撤回消息用户B的群昵称，不含备注
-        }else {
-            if(!TextUtils.isEmpty(cancelMsg.getFrom_nickname())){
+        } else {
+            if (!TextUtils.isEmpty(cancelMsg.getFrom_nickname())) {
                 cancel.setAlterantive_name(cancelMsg.getFrom_nickname());
-            }else {
+            } else {
                 cancel.setAlterantive_name("");
             }
         }
@@ -831,7 +834,8 @@ public class SocketData {
             if (type != null && value != null && isSend) {
                 SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
                 MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
-                SocketUtil.getSocketUtil().sendData4Msg(msg);
+//                SocketUtil.getSocketUtil().sendData4Msg(msg);
+                SocketUtil.getSocketUtil().sendMsg(msg.build());
             }
         }
     }
@@ -1604,7 +1608,8 @@ public class SocketData {
                 .build();
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, contentMsg);
         //立即发送
-        SocketUtil.getSocketUtil().sendData4Msg(msg);
+//        SocketUtil.getSocketUtil().sendData4Msg(msg);
+        SocketUtil.getSocketUtil().sendMsg(msg.build());
     }
 
     //位置消息
@@ -1675,7 +1680,8 @@ public class SocketData {
         MsgBean.TakeScreenshotMessage contentMsg = MsgBean.TakeScreenshotMessage.newBuilder().build();
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.TAKE_SCREENSHOT, contentMsg);
         //立即发送
-        SocketUtil.getSocketUtil().sendData4Msg(msg);
+//        SocketUtil.getSocketUtil().sendData4Msg(msg);
+        SocketUtil.getSocketUtil().sendMsg(msg.build());
     }
 
 
@@ -2347,6 +2353,41 @@ public class SocketData {
                 break;
         }
         return msg;
+    }
+
+    /***
+     * 回执,可以不发送msgId
+     * @param from 0 在线消息， 1离线消息
+     * @param latest 是否需要最新消息
+     * @return
+     */
+    public static MsgBean.AckMessage createACK(String rid, List<String> msgids, int from, boolean latest, boolean isEnd) {
+        LogUtil.getLog().i(TAG, "消息LOG--发送ACK====" + "--from=" + from + "--latest=" + latest + "--isEnd=" + isEnd);
+        MsgBean.AckMessage ack;
+        MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder().setRequestId(rid);
+        if (msgids != null) {
+            for (int i = 0; i < msgids.size(); i++) {
+                amsg.addMsgId(msgids.get(i));
+            }
+        }
+        //离线消息，回执需要添加下一次需要多少数据
+        if (from == 1) {
+            LogUtil.getLog().i(TAG, "--请求离线--历史");
+            if (isEnd) {
+                MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
+                request.setReqCount(-1);
+                request.setLatest(false);
+                amsg.setMergedNextReq(request);
+            } else {
+                MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
+                request.setReqCount(offlineCount);
+                request.setLatest(false);
+                amsg.setMergedNextReq(request);
+            }
+        }
+        ack = amsg.build();
+        return ack;
+
     }
 
 

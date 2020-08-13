@@ -179,7 +179,8 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 if (msgList.size() > 0) {
                     boolean isSuccess = msgDao.insertOrUpdateMsgList(msgList);
                     if (isSuccess) {
-                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
+//                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
+                        SocketUtil.getSocketUtil().sendACK(SocketData.createACK(requestId, null, from, false, SocketData.isEnough(msgCount)));
                         System.out.println(TAG + "--发送回执2--requestId=" + requestId + "--time=" + System.currentTimeMillis());
                         LogUtil.writeLog("--发送回执2--requestId=" + requestId);
                     } else {
@@ -190,12 +191,14 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                         CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1, "Id:" + requestId + ";" + new Gson().toJson(msgList));
                     }
                 } else {
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
+//                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
+                    SocketUtil.getSocketUtil().sendACK(SocketData.createACK(requestId, null, from, false, SocketData.isEnough(msgCount)));
                     System.out.println(TAG + "--发送回执3--requestId=" + requestId);
                     LogUtil.writeLog("--发送回执3--requestId=" + requestId);
                 }
             } else {
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
+//                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
+                SocketUtil.getSocketUtil().sendACK(SocketData.createACK(requestId, null, from, false, SocketData.isEnough(msgCount)));
                 System.out.println(TAG + "--发送回执4--requestId=" + requestId);
                 LogUtil.writeLog("--发送回执4--requestId=" + requestId);
             }

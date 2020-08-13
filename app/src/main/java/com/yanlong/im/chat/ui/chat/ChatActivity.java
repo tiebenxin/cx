@@ -3576,7 +3576,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
-                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+//                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    SocketUtil.getSocketUtil().sendMsg(bean.build());
                     taskRefreshMessage(false);
                 }
             } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
@@ -3590,9 +3591,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
-                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+//                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    SocketUtil.getSocketUtil().sendMsg(bean.build());
                     replaceListDataAndNotify(reMsg);
-//                                taskRefreshMessage();
                 }
             } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 //todo 重新上传视频
@@ -3617,7 +3618,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     //点击发送的时候如果要改变成发送中的状态
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
-                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+//                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    SocketUtil.getSocketUtil().sendMsg(bean.build());
                     taskRefreshMessage(false);
                 }
             } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.FILE) { //文件消息失败重发机制
@@ -3638,7 +3640,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
-                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+//                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    SocketUtil.getSocketUtil().sendMsg(bean.build());
                     taskRefreshMessage(false);
                 }
             }
