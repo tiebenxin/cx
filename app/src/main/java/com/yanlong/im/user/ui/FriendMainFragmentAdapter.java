@@ -18,11 +18,13 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.StrikeButton;
@@ -94,7 +96,15 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                 }
             });
             hd.sbApply.setNum(viewModel.getRemindCount("friend_apply"), false);
-            hd.sbMatching.setNum(viewModel.getRemindCount(Preferences.RECENT_FRIENDS_NEW), false);
+            boolean isFirst = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), true);
+            if (isFirst) {
+                hd.ivDisturbUnread.setVisibility(View.VISIBLE);
+                hd.sbMatching.setVisibility(View.GONE);
+            } else {
+                hd.ivDisturbUnread.setVisibility(View.GONE);
+                hd.sbMatching.setVisibility(View.VISIBLE);
+                hd.sbMatching.setNum(viewModel.getRemindCount(Preferences.RECENT_FRIENDS_NEW), false);
+            }
         } else if (holder instanceof RCViewBtnHolder) {
             final RCViewBtnHolder hd = (RCViewBtnHolder) holder;
             hd.friend_numb_tv.setText("共" + viewModel.getFriendSize() + "位联系人");
@@ -223,6 +233,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         private LinearLayout viewGroup;
         private StrikeButton sbApply;
         private StrikeButton sbMatching;
+        private ImageView ivDisturbUnread;
 
         //自动寻找ViewHold
         public RCViewFuncHolder(View convertView) {
@@ -233,6 +244,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             viewGroup = convertView.findViewById(R.id.view_group);
             sbApply = convertView.findViewById(R.id.sb_apply);
             sbMatching = convertView.findViewById(R.id.sb_matching);
+            ivDisturbUnread = convertView.findViewById(R.id.iv_disturb_unread);
         }
     }
 

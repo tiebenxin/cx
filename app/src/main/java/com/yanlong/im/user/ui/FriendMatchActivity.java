@@ -166,6 +166,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
     protected void loadData() {
         isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), true);
         SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER + UserAction.getMyId(), "");
+        SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), false);// 标识不在显示第一次进来的红点
 
         userAction = new UserAction();
         phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
@@ -423,14 +424,14 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                 if (response.body() == null) {
                     return;
                 }
+                // 不显示手机通讯录匹配红点标记
+                SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), false);
                 try {
                     if (response.body().isOk()) {
                         AddressBookMatchingBean addressBookMatchingBean = response.body().getData();
                         List<FriendInfoBean> friendInfoBeans = addressBookMatchingBean.getMatchList();
                         listData.addAll(friendInfoBeans);
                         addNoRegisterUser(addressBookMatchingBean.getNotExistList());
-                        // 不显示手机通讯录匹配红点标记
-                        SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), false);
 
                         for (FriendInfoBean bean : listData) {
                             bean.toTag();

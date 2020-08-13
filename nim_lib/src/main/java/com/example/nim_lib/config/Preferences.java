@@ -50,4 +50,5 @@ public class Preferences {
     public static final String RECENT_FRIENDS_UIDS = "recent_friends_uids";
     public static final String CHECK_FRIENDS_TIME = "check_friends_time";
     public static final String RECENT_FRIENDS_RED_NUMBER = "recent_friends_red_number";
+    public static final String IS_FIRST_NEW_RED = "is_first_new_red";// 第一次进来显示红点，只显示一次
 }

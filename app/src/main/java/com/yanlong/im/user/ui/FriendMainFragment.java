@@ -351,8 +351,8 @@ public class FriendMainFragment extends Fragment {
                         List<PhoneBean> oldList = userDao.getLocaPhones();
                         // 保存最新的通讯录
                         userDao.updateLocaPhones(newList);
-                        if (oldList == null || oldList.size() == 0) {
-                            boolean isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), true);
+                        boolean isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), true);
+                        if ((oldList == null || oldList.size() == 0) && isFirstUpload) {
                             //分批次上传请求
                             if (newList.size() > numberLimit) {
                                 ifSub = true;
@@ -434,7 +434,7 @@ public class FriendMainFragment extends Fragment {
             public void onResponse(Call<ReturnBean<AddressBookMatchingBean>> call, Response<ReturnBean<AddressBookMatchingBean>> response) {
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk()) {
-                    SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE+ UserAction.getMyId(), false);
+                    SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), false);
                     LogUtil.writeLog("=======通讯录全量上传成功=========");
                     if (ifSub) {
                         hadUploadTimes++;
