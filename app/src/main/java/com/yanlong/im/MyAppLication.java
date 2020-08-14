@@ -85,6 +85,7 @@ public class MyAppLication extends MainApplication {
         super.onCreate();
         initNim();
         AppConfig.setContext(getApplicationContext());
+        HandleWebviewCrash();
         ///推送处理
         initUPushPre();
 
@@ -114,7 +115,6 @@ public class MyAppLication extends MainApplication {
         initLocation();//初始化定位  TODO #124911
         initARouter();//初始化路由
         initVolley();
-        HandleWebviewCrash();
     }
 
     /**
@@ -122,7 +122,7 @@ public class MyAppLication extends MainApplication {
      */
     private void HandleWebviewCrash() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            String processName = getCurrentProcessName();
+            String processName = getProcessName(this);
             if (!"com.yanlong.im".equals(processName)) {//判断不等于默认进程名称
                 WebView.setDataDirectorySuffix(processName);
             }
@@ -496,5 +496,23 @@ public class MyAppLication extends MainApplication {
             // TODO oppo 必须要改开机自启动，或开启悬浮窗权限才能生效 ，文章地址：https://www.jianshu.com/p/5f6d8379533b
             startActivity(intent);
         }
+    }
+
+    public String getProcessName(Context context) {
+        try {
+            if (context == null)
+                return null;
+            ActivityManager manager = (ActivityManager)
+                    context.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningAppProcessInfo processInfo :
+                    manager.getRunningAppProcesses()) {
+                if (processInfo.pid == android.os.Process.myPid()) {
+                    return processInfo.processName;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
