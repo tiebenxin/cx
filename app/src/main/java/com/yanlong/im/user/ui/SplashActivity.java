@@ -55,11 +55,11 @@ public class SplashActivity extends AppActivity {
         //外部app启动本应用本解析参数  分享到本app
         ApkUtils.startThisApp(this);
 
-        //6.27 如果已经启动则不在启动这个页面
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
-            finish();
-            return;
-        }
+        //6.27 如果已经启动则不在启动这个页面,解决点击推送不能唤起appbug
+//        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+//            finish();
+//            return;
+//        }
 
         setContentView(R.layout.activity_start_page);
         initView();
