@@ -113,11 +113,11 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void run() {
             //解决断网后又马上连网造成的提示显示异常问题
-            if (!NetUtil.isNetworkConnected()) {
-                if (mAdapter.viewNetwork != null) {
-                    mAdapter.viewNetwork.setVisibility(View.VISIBLE);
-                }
+//            if (!NetUtil.isNetworkConnected()) {
+            if (mAdapter.viewNetwork != null) {
+                mAdapter.viewNetwork.setVisibility(View.VISIBLE);
             }
+//            }
         }
     };
 
@@ -255,7 +255,7 @@ public class MsgMainFragment extends Fragment {
 
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
         try {
-//            LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+            LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
             if (mAdapter == null || mAdapter.viewNetwork == null) {
                 return;
             }
@@ -292,9 +292,15 @@ public class MsgMainFragment extends Fragment {
     }
 
     private void removeHandler() {
-        if (mAdapter.viewNetwork != null && runnable != null) {
-            mAdapter.viewNetwork.removeCallbacks(runnable);
+        if (mAdapter != null && mAdapter.viewNetwork != null) {
+            if (runnable != null) {
+                mAdapter.viewNetwork.removeCallbacks(runnable);
+            }
+            if (showRunnable != null) {
+                mAdapter.viewNetwork.removeCallbacks(showRunnable);
+            }
         }
+
     }
 
     @Override
@@ -593,7 +599,7 @@ public class MsgMainFragment extends Fragment {
     }
 
     private void doOnlineChange(boolean state) {
-        if (getActivityMe() == null){
+        if (getActivityMe() == null) {
             return;
         }
         getActivityMe().runOnUiThread(new Runnable() {

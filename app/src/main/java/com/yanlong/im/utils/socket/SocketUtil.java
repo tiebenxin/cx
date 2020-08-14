@@ -37,6 +37,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -882,9 +883,6 @@ public class SocketUtil {
                                 if (authMessage != null && authMessage.getAccepted() == 1) {
                                     LogUtil.getLog().i(TAG, "连接LOG --Transmission --鉴权成功" + "--time=" + System.currentTimeMillis());
                                     updateConnectStatus(EConnectionStatus.AUTH);
-                                    if (event != null) {
-                                        event.onLine(true);
-                                    }
                                     sendRequestForOffline2();
                                     sendListThread();
                                 } else {
@@ -943,12 +941,16 @@ public class SocketUtil {
                         public void whenException(Transmission trs, Throwable cause) {
                             LogUtil.getLog().i(TAG, "连接LOG--whenException--" + cause);
                             stopSocket2();
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            if (cause instanceof UnknownHostException) {
+
+                            }else {
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                startSocket2();
                             }
-                            startSocket2();
                         }
                     });
 
