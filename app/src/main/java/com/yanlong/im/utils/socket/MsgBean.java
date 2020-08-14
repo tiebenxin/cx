@@ -39961,7 +39961,7 @@ public final class MsgBean {
      *开关值（根据业务规则而定）
      * </pre>
      *
-     * <code>uint32 switch_value = 2;</code>
+     * <code>int32 switch_value = 2;</code>
      */
     int getSwitchValue();
 
@@ -40070,7 +40070,7 @@ public final class MsgBean {
             }
             case 16: {
 
-              switchValue_ = input.readUInt32();
+              switchValue_ = input.readInt32();
               break;
             }
             case 26: {
@@ -40374,7 +40374,7 @@ public final class MsgBean {
      *开关值（根据业务规则而定）
      * </pre>
      *
-     * <code>uint32 switch_value = 2;</code>
+     * <code>int32 switch_value = 2;</code>
      */
     public int getSwitchValue() {
       return switchValue_;
@@ -40451,7 +40451,7 @@ public final class MsgBean {
         output.writeEnum(1, switchType_);
       }
       if (switchValue_ != 0) {
-        output.writeUInt32(2, switchValue_);
+        output.writeInt32(2, switchValue_);
       }
       for (int i = 0; i < members_.size(); i++) {
         output.writeMessage(3, members_.get(i));
@@ -40470,7 +40470,7 @@ public final class MsgBean {
       }
       if (switchValue_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(2, switchValue_);
+          .computeInt32Size(2, switchValue_);
       }
       for (int i = 0; i < members_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -40867,7 +40867,7 @@ public final class MsgBean {
        *开关值（根据业务规则而定）
        * </pre>
        *
-       * <code>uint32 switch_value = 2;</code>
+       * <code>int32 switch_value = 2;</code>
        */
       public int getSwitchValue() {
         return switchValue_;
@@ -40877,7 +40877,7 @@ public final class MsgBean {
        *开关值（根据业务规则而定）
        * </pre>
        *
-       * <code>uint32 switch_value = 2;</code>
+       * <code>int32 switch_value = 2;</code>
        */
       public Builder setSwitchValue(int value) {
         
@@ -40890,7 +40890,7 @@ public final class MsgBean {
        *开关值（根据业务规则而定）
        * </pre>
        *
-       * <code>uint32 switch_value = 2;</code>
+       * <code>int32 switch_value = 2;</code>
        */
       public Builder clearSwitchValue() {
         
@@ -63927,7 +63927,7 @@ public final class MsgBean {
       "AtMessageH\000B\n\n\010real_msg\"\253\002\n\023SwitchChange" +
       "Message\0224\n\013switch_type\030\001 \001(\0162\037.SwitchCha" +
       "ngeMessage.SwitchType\022\024\n\014switch_value\030\002 " +
-      "\001(\r\022$\n\007members\030\003 \003(\0132\023.GroupNoticeMessag" +
+      "\001(\005\022$\n\007members\030\003 \003(\0132\023.GroupNoticeMessag" +
       "e\"\241\001\n\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013M" +
       "ASTER_READ\020\002\022\013\n\007SHUT_UP\020\003\022\031\n\025OPEN_UP_RED" +
       "_ENVELOPER\020\004\022\016\n\nSCREENSHOT\020\005\022\r\n\tGEO_TRAC" +
