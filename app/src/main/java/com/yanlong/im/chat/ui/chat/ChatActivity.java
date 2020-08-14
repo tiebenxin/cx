@@ -212,6 +212,7 @@ import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.bean.VideoSize;
 import net.cb.cb.library.dialog.DialogCommon;
+import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
@@ -1826,12 +1827,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     List<MsgAllBean> msgList = mAdapter.getSelectedMsg();
                     int len = msgList.size();
                     if (len > 0) {
-                        mAdapter.removeMsgList(msgList);
-                        msgDao.deleteMsgList(msgList);
-                        notifyData();
+                        showDeleteDialog(msgList);
                     }
                 }
-                hideMultiSelect(ivDelete);
             }
         });
         //批量转发
@@ -4240,6 +4238,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return;
             }
             onMore(msgbean);
+            if (mViewModel.isInputText.getValue()) {
+                mViewModel.isInputText.setValue(false);
+            }
         } else if ("收藏".equals(value)) {
             onCollect(msgbean);
         }
@@ -6594,6 +6595,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             return true;
         }
         return false;
+    }
+
+    private void showDeleteDialog(List<MsgAllBean> msgList) {
+        DialogCommon dialogDelete = new DialogCommon(this);
+        dialogDelete.setTitleAndSure(false, true)
+                .setContent("确定删除？", true)
+                .setLeft("取消")
+                .setRight("删除")
+                .setListener(new DialogCommon.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        mAdapter.removeMsgList(msgList);
+                        msgDao.deleteMsgList(msgList);
+                        notifyData();
+                        hideMultiSelect(ivDelete);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+                }).show();
     }
 
 }
