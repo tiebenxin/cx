@@ -141,6 +141,8 @@ public class UserInfoActivity extends AppActivity {
     private int from;
     private AlertYesNo alertYesNo = null;
 
+    private int friendDeactivateStat = 0;//该用户的注销状态
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -326,6 +328,10 @@ public class UserInfoActivity extends AppActivity {
                 public void onClick(View v) {
                     if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                         ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
+                    if (friendDeactivateStat == -1) {// 已注销
+                        ToastUtil.show("该账号不存在");
                         return;
                     }
                     toSendVerifyActivity();
@@ -557,8 +563,9 @@ public class UserInfoActivity extends AppActivity {
                     if (userInfoLocal == null) {
                         userInfoLocal = userInfo;
                     }
+                    userDao.updateUserinfo(userInfo);//刷新用户数据，主要更新注销状态
                     setData(userInfo);
-
+                    friendDeactivateStat = userInfo.getFriendDeactivateStat();
                 }
             });
         }

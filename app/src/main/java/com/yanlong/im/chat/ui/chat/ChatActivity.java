@@ -57,6 +57,7 @@ import com.hm.cxpay.bean.EnvelopeDetailBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogEnvelope;
 import com.hm.cxpay.eventbus.NoticeReceiveEvent;
@@ -419,6 +420,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean showCancel = false;//长按气泡是否显示撤回选项
     private boolean timeLimit = true;//这条消息撤回是否有2分钟时间限制
 
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//注销弹框
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -440,6 +444,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initEvent();
         initObserver();
         getOftenUseFace();
+        builder = new CommonSelectDialog.Builder(ChatActivity.this);
     }
 
 
@@ -1362,6 +1367,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (!checkNetConnectStatus(0)) {
                     return;
                 }
+
+                if (mViewModel.userInfo!=null && mViewModel.userInfo.getFriendDeactivateStat()==-1){
+                    //该账号已注销
+                    ToastUtil.show("发送失败，该账号已注销");
+                }
+
                 //test 8.
                 String text = editChat.getText().toString().trim();
                 if (TextUtils.isEmpty(text)) {
@@ -2119,6 +2130,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             ToastUtil.show(getString(R.string.user_disable_message));
                             return;
                         }
+                        if (mViewModel.userInfo != null) {
+                            if(mViewModel.userInfo.getFriendDeactivateStat() == -1){
+                                showLogOutDialog(-1);
+                                return;
+                            }else if(mViewModel.userInfo.getFriendDeactivateStat() == 1){
+                                showLogOutDialog(1);
+                                return;
+                            }
+                        }
                         toSystemEnvelope();
                         break;
                     case ChatEnum.EFunctionId.TRANSFER:
@@ -2128,6 +2148,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else if (isSelfLock()) {
                             ToastUtil.show(getString(R.string.user_disable_message));
                             return;
+                        }
+                        if (mViewModel.userInfo != null) {
+                            if(mViewModel.userInfo.getFriendDeactivateStat() == -1){
+                                showLogOutDialog(-1);
+                                return;
+                            }else if(mViewModel.userInfo.getFriendDeactivateStat() == 1){
+                                showLogOutDialog(1);
+                                return;
+                            }
                         }
                         toTransfer();
                         break;
@@ -6576,4 +6605,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         return false;
     }
 
+    /**
+     * 注销提示弹框
+     */
+    private void showLogOutDialog(int type){
+        String content = "";
+        if(type==1){
+            content = "该账号正在注销中，为了保障你的资金安全，\n暂时无法交易";
+        }else if(type==-1){
+            content = "该账号已注销，为了保障你的资金安全，\n暂时无法交易";
+        }
+        dialogOne = builder.setTitle(content)
+                .setShowLeftText(false)
+                .setRightText("确定")
+                .setRightOnClickListener(v -> dialogOne.dismiss())
+                .build();
+        dialogOne.show();
+    }
 }
