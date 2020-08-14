@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.example.nim_lib.config.Preferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -69,7 +70,7 @@ public class CommonUtils {
      * @param phone
      */
     public static void saveFriendInfo(Long uid, String phone) {
-        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS, "");
+        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS + UserAction.getMyId(), "");
         List<FriendInfoBean> list = new ArrayList<>();
         Gson gson = new Gson();
         if (TextUtils.isEmpty(friends)) {
@@ -78,7 +79,7 @@ public class CommonUtils {
             friendInfoBean.setPhoneremark(phone);
             friendInfoBean.setCreateTime(System.currentTimeMillis());
             list.add(friendInfoBean);
-            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS + UserAction.getMyId(), gson.toJson(list));
         } else {
             list.addAll(gson.fromJson(friends, new TypeToken<List<FriendInfoBean>>() {
             }.getType()));
@@ -97,9 +98,9 @@ public class CommonUtils {
                 friendInfoBean.setPhoneremark(phone);
                 friendInfoBean.setCreateTime(System.currentTimeMillis());
                 list.add(friendInfoBean);
-                SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+                SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS + UserAction.getMyId(), gson.toJson(list));
             } else {
-                SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, gson.toJson(list));
+                SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS + UserAction.getMyId(), gson.toJson(list));
             }
         }
     }
@@ -110,7 +111,7 @@ public class CommonUtils {
      * @param phone
      */
     public static void saveFriendInfo(String phone) {
-        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER, "");
+        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), "");
         List<FriendInfoBean> list = new ArrayList<>();
         Gson gson = new Gson();
         if (TextUtils.isEmpty(friends)) {
@@ -118,7 +119,7 @@ public class CommonUtils {
             friendInfoBean.setPhone(phone);
             friendInfoBean.setCreateTime(System.currentTimeMillis());
             list.add(friendInfoBean);
-            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER, gson.toJson(list));
+            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), gson.toJson(list));
         } else {
             list.addAll(gson.fromJson(friends, new TypeToken<List<FriendInfoBean>>() {
             }.getType()));
@@ -126,7 +127,7 @@ public class CommonUtils {
             friendInfoBean.setPhone(phone);
             friendInfoBean.setCreateTime(System.currentTimeMillis());
             list.add(friendInfoBean);
-            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER, gson.toJson(list));
+            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), gson.toJson(list));
         }
     }
 
@@ -136,7 +137,7 @@ public class CommonUtils {
      * @return
      */
     public static List<FriendInfoBean> getRedFriendInfo() {
-        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER, "");
+        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), "");
         List<FriendInfoBean> list = new ArrayList<>();
         Gson gson = new Gson();
         if (!TextUtils.isEmpty(friends)) {

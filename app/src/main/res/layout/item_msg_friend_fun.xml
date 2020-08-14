@@ -41,6 +41,7 @@
                         android:layout_marginLeft="5dip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="15dp"
                         app:strike_icon_res="@color/transparent"/>
 
                 </LinearLayout>
@@ -112,10 +113,19 @@
 
                     <net.cb.cb.library.view.StrikeButton
                         android:id="@+id/sb_matching"
-                        android:layout_marginLeft="5dip"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="15dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:strike_icon_res="@color/transparent" />
+
+                    <ImageView
+                        android:id="@+id/iv_disturb_unread"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:layout_marginRight="15dp"
+                        android:background="@drawable/shape_disturb_unread_bg" />
                 </LinearLayout>
 
                 <View style="@style/app_line" />

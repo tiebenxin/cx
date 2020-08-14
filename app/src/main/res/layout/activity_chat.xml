@@ -199,18 +199,25 @@
                     android:visibility="gone">
 
                     <ImageView
-                        android:id="@+id/iv_delete"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:src="@mipmap/ic_add" />
-
-                    <ImageView
                         android:id="@+id/iv_forward"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="30dp"
                         android:layout_weight="1"
-                        android:src="@mipmap/ic_add" />
+                        android:src="@mipmap/ic_multi_forward" />
+
+                    <ImageView
+                        android:id="@+id/iv_collection"
+                        android:layout_width="0dp"
+                        android:layout_height="30dp"
+                        android:layout_weight="1"
+                        android:src="@mipmap/ic_multi_collection" />
+
+                    <ImageView
+                        android:id="@+id/iv_delete"
+                        android:layout_width="0dp"
+                        android:layout_height="30dp"
+                        android:layout_weight="1"
+                        android:src="@mipmap/ic_multi_delete" />
 
 
                 </LinearLayout>

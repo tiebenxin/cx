@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -448,6 +449,7 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
+            ImageView ivRed = rootView.findViewById(R.id.iv_disturb_unread);
             if (i == EMainTab.SHOP) {
                 sb.setSktype(1);
                 //设置值
@@ -998,8 +1000,15 @@ public class MainActivity extends AppActivity {
         sum += msgDao.remidGet(Preferences.RECENT_FRIENDS_NEW);// 手机通讯录匹配
         // sum+=msgDao.remidGet("friend_apply");
         //  sum+=msgDao.remidGet("friend_apply");
-        sbfriend.setNum(sum, true);
-
+        // 手机通讯匹配第一次显示红点
+        boolean isFirst = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), true);
+        if (isFirst && sum == 0) {
+            sbfriend.setSktype(1);
+            sbfriend.setNum(1, true);
+        } else {
+            sbfriend.setSktype(0);
+            sbfriend.setNum(sum, true);
+        }
     }
 
     /**
@@ -1014,17 +1023,17 @@ public class MainActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    if(updateManage==null){
+                    if (updateManage == null) {
                         updateManage = new UpdateManage(context, MainActivity.this);
                         if (!TextUtils.isEmpty(bean.getVersion())) {
                             //场景一：判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
                             if (FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk")
-                                    && VersionUtil.isLowerVersion(context,bean.getVersion())) {
+                                    && VersionUtil.isLowerVersion(context, bean.getVersion())) {
                                 try {
                                     //1-1 当前的版本必须要低于安装包才允许安装
                                     //1-2 检查安装包是否完整，若安装包已经下载成功，只是取消了安装，则提示是否现在安装
-                                    if(FileUtils.getFileSize(new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk"))
-                                            == new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE).getLong("new_apk_size")){
+                                    if (FileUtils.getFileSize(new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk"))
+                                            == new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE).getLong("new_apk_size")) {
                                         if (installDialog == null) {
                                             installDialog = new UpdateAppDialog();
                                             installDialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
@@ -1054,7 +1063,7 @@ public class MainActivity extends AppActivity {
                                             }
                                         }
                                         installDialog.show();
-                                    }else {
+                                    } else {
                                         //若安装包没有下载完成，如强行杀掉进程，则还需要重新下载
                                         if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
                                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);

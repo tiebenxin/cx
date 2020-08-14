@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -43,7 +44,7 @@ public class ChatCellImage extends ChatCellFileBase {
 
     private ImageView imageView;
     private ImageMessage imageMessage;
-    String currentUrl="";
+    String currentUrl = "";
 //    private ProgressBar progressBar;
 //    private TextView tv_progress;
 //    private LinearLayout ll_progress;
@@ -73,6 +74,7 @@ public class ChatCellImage extends ChatCellFileBase {
         loadImage(message);
     }
 
+    @SuppressLint("CheckResult")
     private void loadImage(MsgAllBean message) {
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
@@ -86,25 +88,18 @@ public class ChatCellImage extends ChatCellFileBase {
             String gif = message.getImage().getPreview();
             if (!TextUtils.equals(tag, gif)) {
                 imageView.setTag(R.id.tag_img, gif);
-                rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+                rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+//                rOptions.priority(Priority.LOW);
+//                rOptions.skipMemoryCache(true);
                 imageView.setImageResource(R.mipmap.ic_image_bg);
                 File local = CustomGlideModule.getCacheFile(gif);
                 if (local == null) {
-                    Glide.with(getContext())
-                            .load(gif)
-                            .apply(rOptions)
-                            .into(imageView);
+                    glideGif(rOptions, gif);
                 } else {
-                    Glide.with(getContext())
-                            .load(local)
-                            .into(imageView);
+                    glideGif(rOptions, local.getAbsolutePath());
                 }
             } else {
-                Glide.with(getContext())
-                        .load(gif)
-                        .apply(rOptions)
-//                    .thumbnail(0.2f)
-                        .into(imageView);
+                glideGif(rOptions, gif);
             }
         } else {
             rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -122,7 +117,7 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void glide(RequestOptions rOptions, String url) {
-        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         currentUrl = url;
@@ -143,6 +138,19 @@ public class ChatCellImage extends ChatCellFileBase {
             imageView.setImageBitmap(localBitmap);
         }
 
+    }
+
+    private void glideGif(RequestOptions rOptions, String url) {
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        currentUrl = url;
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
+        //TODO:设置options后gif图片不动
+        Glide.with(getContext())
+                .load(url)
+//                .apply(rOptions)
+                .into(imageView);
     }
 
 
