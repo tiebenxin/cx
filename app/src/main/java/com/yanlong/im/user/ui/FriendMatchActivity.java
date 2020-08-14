@@ -41,6 +41,7 @@ import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
@@ -50,6 +51,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -91,6 +93,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
     private boolean ifSub = false;//是否存在批次上传
     private boolean isFirstUpload = true;// 是否第一次匹配
     private List<List<PhoneBean>> subList;//批次上传-切割后的数据
+    private UserDao userDao = new UserDao();
 
     private List<FriendInfoBean> recentFriends = new ArrayList<>();// 最近7天数据
 
@@ -161,18 +164,18 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
 
     @Override
     protected void loadData() {
-        isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, true);
-
-        // 不显示手机通讯录匹配红点标记
-        SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE, false);
-        SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER, "");
+        isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), true);
+        SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER + UserAction.getMyId(), "");
 
         userAction = new UserAction();
         phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
             @Override
             public void onList(final List<PhoneBean> list) {
+                SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), false);// 标识不在显示第一次进来的红点
                 if (list == null)
                     return;
+                // 保存最新的通讯录
+                userDao.updateLocaPhones(list);
                 //分批次上传请求
                 if (list.size() > numberLimit) {
                     ifSub = true;
@@ -197,7 +200,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
      */
     private void filterData(List<FriendInfoBean> notFriendlist) {
         try {
-            String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS, "");
+            String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_UIDS + UserAction.getMyId(), "");
             List<FriendInfoBean> list;
             recentFriends.clear();
             if (!TextUtils.isEmpty(friends)) {
@@ -213,7 +216,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                     }
                     // 更新缓存
                     if (sum != list.size()) {
-                        SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS, new Gson().toJson(list));
+                        SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_UIDS + UserAction.getMyId(), new Gson().toJson(list));
                     }
                     // 筛选最近7天的数据添加到recentFriends
                     for (FriendInfoBean friendInfoBean : list) {
@@ -263,8 +266,6 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
      * 初始化
      */
     private void initViewTypeData() {
-        //排序
-//        Collections.sort(listData);
         //筛选
         for (int i = 0; i < listData.size(); i++) {
             bindingView.viewType.putTag(listData.get(i).getTag(), i);
@@ -317,7 +318,7 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
             Glide.with(context).load(bean.getAvatar())
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
-            holder.txtRemark.setText("+86  " + bean.getPhone());
+            holder.txtRemark.setText(bean.getPhone());
             if (!bean.isShowPinYin()) {
                 if (position != 0) {
                     FriendInfoBean lastbean = list.get(position - 1);
@@ -423,12 +424,15 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                 if (response.body() == null) {
                     return;
                 }
+                // 不显示手机通讯录匹配红点标记
+                SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), false);
                 try {
                     if (response.body().isOk()) {
                         AddressBookMatchingBean addressBookMatchingBean = response.body().getData();
                         List<FriendInfoBean> friendInfoBeans = addressBookMatchingBean.getMatchList();
                         listData.addAll(friendInfoBeans);
                         addNoRegisterUser(addressBookMatchingBean.getNotExistList());
+
                         for (FriendInfoBean bean : listData) {
                             bean.toTag();
                         }
@@ -474,6 +478,8 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                             }
                             bindingView.mtListView.notifyDataSetChange();
                         }
+                    } else {
+                        bindingView.mtListView.notifyDataSetChange();
                     }
                 } catch (Exception e) {
 

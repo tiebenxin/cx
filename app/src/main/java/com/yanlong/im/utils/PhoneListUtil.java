@@ -142,7 +142,7 @@ public class PhoneListUtil {
                     contacts.setPhoneremark(name);
                     //  String[] strings = new String[1];
                     //  strings[0] = PhoneBean;
-                    if (TextUtils.isEmpty(replace) || !CheckUtil.isMobileNO(replace)) {
+                    if (TextUtils.isEmpty(replace) || replace.length() != 11) {
                         continue;
                     }
                     contacts.setPhone(replace);
