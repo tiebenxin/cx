@@ -158,6 +158,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    // 解决重复引用问题
+    packagingOptions {
+        exclude 'AndroidManifest.xml'
+        exclude 'R.txt'
+        exclude 'res/values/values.xml'
+        exclude 'classes.jar'
+        exclude 'META-INF/*'
+    }
 }
 
 

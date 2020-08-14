@@ -938,7 +938,9 @@ public class SocketUtil {
                         @Override
                         public void whenException(Transmission trs, Throwable cause) {
                             LogUtil.getLog().i(TAG, "连接LOG--whenException--" + cause);
-                            updateConnectStatus(EConnectionStatus.DEFAULT);
+//                            updateConnectStatus(EConnectionStatus.DEFAULT);
+                            stopSocket2();
+//                            startSocket2();
                         }
                     });
 
