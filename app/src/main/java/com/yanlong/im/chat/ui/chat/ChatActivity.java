@@ -40,6 +40,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -235,6 +236,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.RxJavaUtil;
 import net.cb.cb.library.utils.ScreenShotListenManager;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
@@ -354,7 +356,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private int popupWidth;// 气泡宽
     private int popupHeight;// 气泡高
     private ImageView mImgTriangleUp;// 上箭头
-    private ImageView mImgTriangleDown;// 下箭头
+    //    private ImageView mImgTriangleDown;// 下箭头
+    private RelativeLayout mRlDown, mRlUp;
     private View mRootView;
     private MsgAllBean currentPlayBean;
     private Session session;
@@ -3994,75 +3997,85 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param msgbean
      */
     private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean, final IMenuSelectListener listener) {
-        if (popController == null) {
-            return;
-        }
-        menus = initMenus(msgbean);
-        AdapterPopMenu adapterPopMenu = new AdapterPopMenu(menus, this);
-        popController.setAdapter(adapterPopMenu);
-        adapterPopMenu.setListener(new AdapterPopMenu.IMenuClickListener() {
-            @Override
-            public void onClick(OptionMenu menu) {
-                if (mPopupWindow != null) {
-                    mPopupWindow.dismiss();
+        try {
+            if (popController == null) {
+                return;
+            }
+            menus = initMenus(msgbean);
+            AdapterPopMenu adapterPopMenu = new AdapterPopMenu(menus, this);
+            popController.setAdapter(adapterPopMenu);
+            adapterPopMenu.setListener(new AdapterPopMenu.IMenuClickListener() {
+                @Override
+                public void onClick(OptionMenu menu) {
+                    if (mPopupWindow != null) {
+                        mPopupWindow.dismiss();
+                    }
+                    onBubbleClick((String) menu.getTitle(), msgbean);
                 }
-                onBubbleClick((String) menu.getTitle(), msgbean);
-            }
-        });
+            });
+            // 重新获取自身的长宽高
+            mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            popupWidth = mRootView.getMeasuredWidth();
+            popupHeight = mRootView.getMeasuredHeight();
 
-        // 重新获取自身的长宽高
-        mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        popupWidth = mRootView.getMeasuredWidth();
-        popupHeight = mRootView.getMeasuredHeight();
+            // 获取ActionBar位置，判断消息是否到顶部
+            // 获取ListView在屏幕顶部的位置
+            int[] location = new int[2];
+            mtListView.getLocationOnScreen(location);
+            // 获取View在屏幕的位置
+            int[] locationView = new int[2];
+            v.getLocationOnScreen(locationView);
+            if (mPopupWindow != null && mPopupWindow.isShowing()) mPopupWindow.dismiss();
+            mPopupWindow = null;
+            mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            // 设置弹窗外可点击
+            mPopupWindow.setTouchable(true);
+            mPopupWindow.setOutsideTouchable(true);
+            //popwindow不获取焦点
+            mPopupWindow.setFocusable(false);
+            mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
 
-        // 获取ActionBar位置，判断消息是否到顶部
-        // 获取ListView在屏幕顶部的位置
-        int[] location = new int[2];
-        mtListView.getLocationOnScreen(location);
-        // 获取View在屏幕的位置
-        int[] locationView = new int[2];
-        v.getLocationOnScreen(locationView);
-        if (mPopupWindow != null && mPopupWindow.isShowing()) mPopupWindow.dismiss();
-        mPopupWindow = null;
-        mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        // 设置弹窗外可点击
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.setOutsideTouchable(true);
-        //popwindow不获取焦点
-        mPopupWindow.setFocusable(false);
-        mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+                    return false;
+                    // 这里如果返回true的话，touch事件将被拦截
+                    // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+                }
+            });
 
-                return false;
-                // 这里如果返回true的话，touch事件将被拦截
-                // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
-            }
-        });
-
-        popupWindowDismiss(listener);
-        // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
-        if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < location[1]) {
-            // 内容展示完，向上弹出
-            if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < mtListView.getMeasuredHeight())) {
+            popupWindowDismiss(listener);
+            // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
+            if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < location[1]) {
+                // 内容展示完，向上弹出
+                if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < mtListView.getMeasuredHeight())) {
+                    mRlUp.setVisibility(VISIBLE);
+                    mImgTriangleUp.setVisibility(VISIBLE);
+                    mRlDown.setVisibility(GONE);
+                    setArrowLocation(v, 1, msgbean.isMe());
+                    mPopupWindow.showAsDropDown(v);
+                } else {
+                    // 中间弹出
+                    mRlUp.setVisibility(GONE);
+                    mImgTriangleUp.setVisibility(GONE);
+                    mRlDown.setVisibility(VISIBLE);
+                    setArrowLocation(v, 1, msgbean.isMe());
+                    showPopupWindowUp(v, 1, msgbean.isMe());
+                }
+            } else if (locationView[1] < location[1]) {
+                mRlUp.setVisibility(VISIBLE);
                 mImgTriangleUp.setVisibility(VISIBLE);
-                mImgTriangleDown.setVisibility(GONE);
+                mRlDown.setVisibility(GONE);
+                setArrowLocation(v, 1, msgbean.isMe());
                 mPopupWindow.showAsDropDown(v);
             } else {
-                // 中间弹出
+                mRlUp.setVisibility(GONE);
                 mImgTriangleUp.setVisibility(GONE);
-                mImgTriangleDown.setVisibility(VISIBLE);
-                showPopupWindowUp(v, 1);
+                mRlDown.setVisibility(VISIBLE);
+                setArrowLocation(v, 2, msgbean.isMe());
+                showPopupWindowUp(v, 2, msgbean.isMe());
             }
-        } else if (locationView[1] < location[1]) {
-            mImgTriangleUp.setVisibility(VISIBLE);
-            mImgTriangleDown.setVisibility(GONE);
-            mPopupWindow.showAsDropDown(v);
-        } else {
-            mImgTriangleUp.setVisibility(GONE);
-            mImgTriangleDown.setVisibility(VISIBLE);
-            showPopupWindowUp(v, 2);
+        } catch (Exception e) {
         }
     }
 
@@ -4218,8 +4231,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         popupWidth = mRootView.getMeasuredWidth();
         popupHeight = mRootView.getMeasuredHeight();
 
+        mRlUp = mRootView.findViewById(R.id.rl_up);
         mImgTriangleUp = mRootView.findViewById(R.id.img_triangle_up);
-        mImgTriangleDown = mRootView.findViewById(R.id.img_triangle_down);
+        mRlDown = mRootView.findViewById(R.id.rl_down);
         LinearLayout llContent = mRootView.findViewById(R.id.ll_content);
         popController = new ControllerLinearList(llContent);
     }
@@ -4455,17 +4469,61 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 设置显示在v上方(以v的左边距为开始位置)
      *
      * @param v
+     * @param gravity
+     * @param isMe
      */
-    public void showPopupWindowUp(View v, int gravity) {
+    public void showPopupWindowUp(View v, int gravity, boolean isMe) {
         //获取需要在其上方显示的控件的位置信息
         int[] location = new int[2];
         v.getLocationOnScreen(location);
+        int x = (location[0] + v.getWidth() / 2) - popupWidth / 2;
         if (gravity == 1) {
             DisplayMetrics dm = getResources().getDisplayMetrics();
-            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, dm.heightPixels / 2);
+            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, x, dm.heightPixels / 2);
         } else {
             //在控件上方显示
-            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
+            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, x, location[1] - popupHeight);
+        }
+    }
+
+    /**
+     * 设置气泡箭头的位置
+     *
+     * @param v
+     * @param gravity 1显示向上箭头 2显示向下箭头
+     * @param isMe
+     */
+    private void setArrowLocation(View v, int gravity, boolean isMe) {
+        //获取需要在其上方显示的控件的位置信息
+        int[] location = new int[2];
+        v.getLocationOnScreen(location);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(v.getWidth() - ScreenUtil.dip2px(this, 6), RelativeLayout.LayoutParams.WRAP_CONTENT);
+        int x = (location[0] + v.getWidth() / 2) - popupWidth / 2;
+
+        if (isMe) {
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            if (x < 100) {
+                layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 40), 0);
+            } else {
+                layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+            }
+        } else {
+            if (gravity == 1) {
+                layoutParams.setMargins(ScreenUtil.dip2px(this, 6), 0, 0, 0);
+            } else {
+                if (x < 0) {
+                    layoutParams.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
+                } else {
+                    layoutParams.setMargins(ScreenUtil.dip2px(this, 35), 0, 0, 0);
+                }
+            }
+        }
+        if (gravity == 1) {
+            mRlUp.setLayoutParams(layoutParams);
+        } else {
+            //在控件上方显示
+            layoutParams.addRule(RelativeLayout.BELOW, R.id.ll_content);
+            mRlDown.setLayoutParams(layoutParams);
         }
     }
 
