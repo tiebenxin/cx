@@ -166,12 +166,12 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
     protected void loadData() {
         isFirstUpload = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_UPLOAD_PHONE + UserAction.getMyId(), true);
         SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER + UserAction.getMyId(), "");
-        SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), false);// 标识不在显示第一次进来的红点
 
         userAction = new UserAction();
         phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
             @Override
             public void onList(final List<PhoneBean> list) {
+                SpUtil.getSpUtil().putSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), false);// 标识不在显示第一次进来的红点
                 if (list == null)
                     return;
                 // 保存最新的通讯录
