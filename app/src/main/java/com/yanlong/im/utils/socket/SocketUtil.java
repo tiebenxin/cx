@@ -232,6 +232,7 @@ public class SocketUtil {
             }
         }
     };
+    private long startAuthTime;
 
 
     public boolean isRun() {
@@ -836,7 +837,8 @@ public class SocketUtil {
         if (transmission == null) {
             transmission = Transmission.create(true);
         }
-        LogUtil.getLog().i(TAG, "连接LOG--连接前-status=" + connStatus.get() + "--time=" + System.currentTimeMillis());
+        long startTime = System.currentTimeMillis();
+        LogUtil.getLog().i(TAG, "连接LOG--连接前-status=" + connStatus.get() + "--time=" + startTime);
         if (connStatus.get() == EConnectionStatus.DEFAULT) {
             updateConnectStatus(EConnectionStatus.CONNECTING);
             ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
@@ -847,6 +849,7 @@ public class SocketUtil {
                         public void whenConnected(Transmission trs) {
                             updateConnectStatus(EConnectionStatus.CONNECTED);
                             LogUtil.getLog().i(TAG, "连接LOG--Transmission --whenConnected success" + "--time=" + System.currentTimeMillis());
+                            LogUtil.writeLog(TAG + "--连接LOG --whenConnected success" + "--连接耗时=" + (System.currentTimeMillis() - startTime));
                             TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
                             if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
                                 return;
@@ -854,7 +857,7 @@ public class SocketUtil {
                             LogUtil.getLog().i(TAG, ">>>>发送token=" + tokenBean.getAccessToken());
                             MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
                                     .setAccessToken(tokenBean.getAccessToken()).build();
-
+                            startAuthTime = System.currentTimeMillis();
                             transmission.sendMsg(ProtoConsts.PackageType.AUTH, auth.toByteArray(), new ChannelFutureListener() {
                                 @Override
                                 public void operationComplete(ChannelFuture future) throws Exception {
@@ -873,6 +876,7 @@ public class SocketUtil {
                         @Override
                         public void whenAuthResponse(Transmission trs, byte[] rsp) {
                             LogUtil.getLog().i(TAG, "连接LOG --Transmission --接收到鉴权" + "--time=" + System.currentTimeMillis());
+                            LogUtil.writeLog(TAG + "--连接LOG --whenAuthResponse success" + "--鉴权耗时=" + (System.currentTimeMillis() - startAuthTime));
                             try {
                                 MsgBean.AuthResponseMessage authMessage = MsgBean.AuthResponseMessage.parseFrom(rsp);
                                 if (authMessage != null && authMessage.getAccepted() == 1) {
@@ -938,9 +942,13 @@ public class SocketUtil {
                         @Override
                         public void whenException(Transmission trs, Throwable cause) {
                             LogUtil.getLog().i(TAG, "连接LOG--whenException--" + cause);
-//                            updateConnectStatus(EConnectionStatus.DEFAULT);
                             stopSocket2();
-//                            startSocket2();
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            startSocket2();
                         }
                     });
 
