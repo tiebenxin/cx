@@ -6,29 +6,38 @@
     android:paddingLeft="10dp"
     android:paddingRight="10dp">
 
-
-    <ImageView
-        android:id="@+id/img_triangle_up"
+    <RelativeLayout
+        android:id="@+id/rl_up"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/triangle_up"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/img_triangle_down"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_content"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/triangle_down"
-        android:visibility="visible" />
+        android:layout_height="wrap_content">
+              <ImageView
+                android:id="@+id/img_triangle_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/triangle_up"
+                android:visibility="gone" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/ll_content"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:layout_below="@id/img_triangle_up"
+        android:layout_below="@id/rl_up"
         android:orientation="horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_down"
+        android:layout_width="wrap_content"
+        android:layout_below="@+id/ll_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/img_triangle_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/triangle_down"
+            android:visibility="visible" />
+    </RelativeLayout>
 
 </RelativeLayout>
