@@ -486,6 +486,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             } else if (model == ChatEnum.EForwardMode.MERGE) {
                 ToastUtil.showCenter(MsgForwardActivity.this, "发送成功");
                 MsgForwardActivity.this.finish();
+            }else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
+                ToastUtil.showCenter(MsgForwardActivity.this, "发送成功");
+                MsgForwardActivity.this.finish();
             }
         }
     }
@@ -779,7 +782,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     //处理逻辑
     private void send(MsgAllBean msgAllBean, String content, long toUid, String toGid) {
         if (msgAllBean.getChat() != null) {//转换文字
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 if (allBean != null) {
@@ -796,10 +799,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     sendLeaveMessageForMulti(content, bean.getUid(), bean.getGid());
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         } else if (msgAllBean.getImage() != null) {
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 ImageMessage imagesrc = msgAllBean.getImage();
                 if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                     imagesrc.setReadOrigin(true);
@@ -824,10 +827,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         } else if (msgAllBean.getAtMessage() != null) {
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 if (allBean != null) {
@@ -845,10 +848,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         } else if (msgAllBean.getVideoMessage() != null) {
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 VideoMessage video = msgAllBean.getVideoMessage();
                 VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
@@ -867,11 +870,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         } else if (msgAllBean.getLocationMessage() != null) {
-
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 LocationMessage location = msgAllBean.getLocationMessage();
                 LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location);
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
@@ -891,10 +893,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         } else if (msgAllBean.getShippedExpressionMessage() != null) {
-            if (isSingleSelected) {
+            if (isSingleSelected &&  (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.NORMAL,
                         SocketData.getFixTime(), message);
@@ -913,7 +915,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         } else if (msgAllBean.getSendFileMessage() != null) { //转发文件消息
             //文件分为两种情况：转发他人/自己转发自己，转发他人的文件需要下载，转发自己的文件直接从本地查找
@@ -924,7 +926,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             } else {
                 isFromOther = true;
             }
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(), isFromOther);
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), fileMessage);
                 if (allBean != null) {
@@ -945,7 +947,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 isSingleSelected = true;
             }
         } else if (msgAllBean.getWebMessage() != null) { //分享web消息
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 WebMessage webMessage = SocketData.createWebMessage(SocketData.getUUID(), appName, appIcon, shareTitle, shareDescription, shareWebUrl);
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), webMessage);
                 if (allBean != null) {
@@ -963,10 +965,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         } else if (msgAllBean.getReplyMessage() != null) { //回复消息
-            if (isSingleSelected) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 ReplyMessage replyMessage = msgAllBean.getReplyMessage();
                 String msg = "";
                 if (replyMessage.getChatMessage() != null) {
@@ -1001,7 +1003,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendLeaveMessage(content, bean.getUid(), bean.getGid());
                     }
                 }
-                isSingleSelected = true;
+//                isSingleSelected = true;
             }
         }
     }
@@ -1113,20 +1115,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         filePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
                         if (TextUtils.isEmpty(filePath)) {
                             ToastUtil.show("路径解析异常，分享失败");
-                        } /*else {
-                            if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
-                                PicImgSizeUtil.ImageSize imgSize = PicImgSizeUtil.getAttribute(filePath);
-                                if (imgSize == null) {
-                                    filePath = "";
-                                    return;
-                                } else {
-                                    if (imgSize.getWidth() > 4096 || imgSize.getHeight() > 4096) {
-                                        filePath = "";
-                                        ToastUtil.show("图片过大，发送失败");
-                                    }
-                                }
-                            }
-                        }*/
+                        }
                     } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
                         List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);
                         shareUrls = FileUtils.getUrisForList(MsgForwardActivity.this, uriList);
