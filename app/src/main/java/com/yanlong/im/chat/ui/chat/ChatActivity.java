@@ -753,7 +753,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
         boolean hasClear = taskCleanRead(false);
-        boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
+        if (MyAppLication.INSTANCE().repository != null) {
+            MyAppLication.INSTANCE().repository.updateMsgRead(toGid, toUId);
+        }
         boolean hasChange = updateSessionDraftAndAtMessage();
         if (hasChange) {
             saveReplying(draft);
@@ -2820,7 +2822,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        } else if (TextUtils.isEmpty(toGid) && event.getUid() != null && event.getUid().longValue() == toUId.longValue()) {//PC端操作,删除好友
+        } else if (TextUtils.isEmpty(toGid) && toUId != null && event.getUid() != null && event.getUid().longValue() == toUId.longValue()) {//PC端操作,删除好友
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -2933,7 +2935,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setingReadDestroy(ReadDestroyBean bean) {
         if (TextUtils.isEmpty(bean.gid)) {
-            if (bean.uid == toUId.longValue()) {
+            if (toUId != null && bean.uid == toUId.longValue()) {
                 survivaltime = bean.survivaltime;
                 util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
             }
@@ -4101,7 +4103,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         timeLimit = false;
                     } else if (isAdministrators()) {
                         //如果我是群管理，且这条消息是自己发的，允许撤回，默认有时间限制
-                        if (msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                        if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             showCancel = true;
                             timeLimit = true;
                         } else {
@@ -4770,7 +4772,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 }
             }
-            if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+            if (msg.getFrom_uid() != null && msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                 //自己发送的消息,用本地实时头像
                 userInfo.setHead(UserAction.getMyInfo().getHead());
             }
@@ -6663,7 +6665,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     @Override
                     public void onSure() {
                         mAdapter.removeMsgList(msgList);
-                        msgDao.deleteMsgList(msgList);
+                        if (MyAppLication.INSTANCE().repository != null) {
+                            MyAppLication.INSTANCE().repository.deleteMsgList(msgList);
+                        }
                         notifyData();
                         hideMultiSelect(ivDelete);
                     }
