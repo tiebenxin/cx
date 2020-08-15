@@ -643,7 +643,6 @@ public class MessageRepository {
                     bean.setTimestamp(msgAllBean.getTimestamp());
                     result = saveMessageNew(bean, realm);
                     localDataSource.deleteMsg4Cancel(realm, wrapMessage.getMsgId(), cancelMsgId);
-//                    MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
                     // 处理图片撤回，在预览弹出提示
                     EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
                     event.msg_id = bean.getMsgCancel().getMsgidCancel();
@@ -1046,18 +1045,22 @@ public class MessageRepository {
                     /********通知更新或创建session end************************************/
                 }
             } else {//离线消息，先存储后批量更新
-//                if (offlineMsgAllBean == null) offlineMsgAllBean = new ConcurrentHashMap<>();
-//                offlineMsgAllBean.put(msgAllBean.getMsg_id(), msgAllBean);
-                if (offlineMsgIds == null) {
-                    offlineMsgIds = new CopyOnWriteArrayList<>();
-                }
-                offlineMsgIds.add(msgAllBean.getMsg_id());
+                //撤销消息先存储
+                if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
+                    if (!filterDeleteCancel(msgAllBean.getFrom_uid())) {
+                        localDataSource.updateObject(realm, msgAllBean);
+                    }
+                } else {
+                    if (offlineMsgIds == null) {
+                        offlineMsgIds = new CopyOnWriteArrayList<>();
+                    }
+                    offlineMsgIds.add(msgAllBean.getMsg_id());
 
-                if (offlineMsgAllBean == null) {
-                    offlineMsgAllBean = new CopyOnWriteArrayList<>();
+                    if (offlineMsgAllBean == null) {
+                        offlineMsgAllBean = new CopyOnWriteArrayList<>();
+                    }
+                    offlineMsgAllBean.add(msgAllBean);
                 }
-                offlineMsgAllBean.add(msgAllBean);
-
             }
             result = true;
         } catch (Exception e) {

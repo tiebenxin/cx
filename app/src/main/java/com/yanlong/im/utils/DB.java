@@ -107,12 +107,13 @@ public class DB {
 
             list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
             MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+            boolean isFromRealm = true;
             if (cancel == null && list != null && list.size() > 0) {
                 MsgAllBean bean = list.get(0);
                 if (TextUtils.isEmpty(bean.getMsg_id())) {
                     return;
                 }
-
+                isFromRealm = false;
                 cancel = new MsgAllBean();
                 cancel.setMsg_id(msgid);
                 cancel.setRequest_id("" + System.currentTimeMillis());
@@ -120,7 +121,6 @@ public class DB {
                 cancel.setTo_uid(UserAction.getMyId());
                 cancel.setGid(bean.getGid());
                 cancel.setMsg_type(ChatEnum.EMessageType.MSG_CANCEL);
-
                 int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(), bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgid);
@@ -142,7 +142,11 @@ public class DB {
                 list.deleteAllFromRealm();
             }
             if (cancel != null) {
-                msgAllBean = realm.copyFromRealm(cancel);
+                if (isFromRealm) {
+                    msgAllBean = realm.copyFromRealm(cancel);
+                } else {
+//                    msgAllBean = cancel;
+                }
             }
             realm.commitTransaction();
         } catch (Exception e) {
