@@ -1023,6 +1023,11 @@ public class MainActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
+                    //非强更，若已忽略当前版本，则不再显示安装弹框
+                    if (!TextUtils.isEmpty(bean.getVersion())
+                            && bean.getVersion().equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))) {
+                        return;
+                    }
                     if (updateManage == null) {
                         updateManage = new UpdateManage(context, MainActivity.this);
                         if (!TextUtils.isEmpty(bean.getVersion())) {
@@ -1068,7 +1073,7 @@ public class MainActivity extends AppActivity {
                                         if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
                                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                         } else {
-                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                         }
                                     }
                                 } catch (Exception e) {
@@ -1082,7 +1087,7 @@ public class MainActivity extends AppActivity {
                                     if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
                                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                     } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                     }
                                 } else {
                                     //缓存最新版本
@@ -1094,7 +1099,7 @@ public class MainActivity extends AppActivity {
                                     if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                     } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                         //如有新版本，首页底部提示红点
                                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
