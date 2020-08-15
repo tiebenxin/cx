@@ -745,4 +745,25 @@ public class UserDao {
             DaoUtil.reportException(e);
         }
     }
+
+    /**
+     * 更新用户注销状态
+     * @param type  0 取消注销 1 注销中 -1 完成注销
+     */
+    public void updateUserDeactivateValue(long uid, int type) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (user != null) {
+                user.setFriendDeactivateStat(type);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
 }

@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -430,7 +431,10 @@ public class ChatInfoActivity extends AppActivity {
     }
 
     private void taskDelMsg(String hint) {
-        msgDao.msgDel(fuid, null);
+//        msgDao.msgDel(fuid, null);
+        if (MyAppLication.INSTANCE().repository != null) {
+            MyAppLication.INSTANCE().repository.deleteAllMessage(fuid, null);
+        }
         EventBus.getDefault().post(new EventRefreshChat());
         ToastUtil.show(ChatInfoActivity.this, hint);
     }

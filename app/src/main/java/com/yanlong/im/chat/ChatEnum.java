@@ -460,7 +460,7 @@ public class ChatEnum {
      * 开关变更通知(多人同步消息)
      * */
     @IntDef({ESwitchType.READ, ESwitchType.VIP, ESwitchType.MASTER_READ, ESwitchType.SHUT_UP,
-            ESwitchType.OPEN_UP_RED_ENVELOPER, ESwitchType.SCREENSHOT, ESwitchType.GEO_TRACK, ESwitchType.FRIEND_LOCKED})
+            ESwitchType.OPEN_UP_RED_ENVELOPER, ESwitchType.SCREENSHOT, ESwitchType.GEO_TRACK, ESwitchType.FRIEND_LOCKED ,ESwitchType.FRIEND_DEACTIVATE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESwitchType {
         int READ = 0; // 单聊已读
@@ -471,5 +471,6 @@ public class ChatEnum {
         int SCREENSHOT = 5; // 截屏通知（单聊）
         int GEO_TRACK = 6; // 地理位置准实时跟踪
         int FRIEND_LOCKED = 7; //好友锁状态变更
+        int FRIEND_DEACTIVATE = 8;//好友注销变更
     }
 }
