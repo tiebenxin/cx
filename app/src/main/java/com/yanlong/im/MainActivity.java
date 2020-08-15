@@ -1023,6 +1023,11 @@ public class MainActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
+                    //非强更，若已忽略当前版本，则不再显示安装弹框
+                    if (!TextUtils.isEmpty(bean.getVersion())
+                            && bean.getVersion().equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))) {
+                        return;
+                    }
                     if (updateManage == null) {
                         updateManage = new UpdateManage(context, MainActivity.this);
                         if (!TextUtils.isEmpty(bean.getVersion())) {

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -225,7 +226,15 @@ public class GroupNumbersActivity extends AppActivity {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (!UserUtil.getUserStatus(bean.getLockedstatus())) {
                         if (isChecked) {
-                            listDataTop.add(bean);
+                            //过滤掉已注销的用户
+                            if(bean.getFriendDeactivateStat()==-1){
+                                if(!TextUtils.isEmpty(bean.getName4Show())){
+                                    ToastUtil.show("\""+bean.getName4Show()+"\"账号已注销，无法加入群聊");
+                                }
+                                hd.ckSelect.setChecked(false);
+                            }else {
+                                listDataTop.add(bean);
+                            }
                         } else {
                             listDataTop.remove(bean);
                         }

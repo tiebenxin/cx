@@ -192,6 +192,10 @@ public class DaoMigration implements RealmMigration {
                 updateV43(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 43) {
+                updateV44(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -801,6 +805,16 @@ public class DaoMigration implements RealmMigration {
         schema.create("PhoneBean")
                 .addField("phoneremark", String.class)
                 .addField("phone", String.class);
+    }
+
+    // 增加注销状态字段
+    private final void updateV44(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("deactivateStat", int.class)
+                .addField("friendDeactivateStat", int.class);
+        schema.get("UserBean")
+                .addField("deactivateStat", int.class)
+                .addField("friendDeactivateStat", int.class);
     }
 
 

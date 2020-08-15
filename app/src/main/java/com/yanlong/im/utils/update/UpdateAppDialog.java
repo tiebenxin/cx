@@ -70,23 +70,16 @@ public class UpdateAppDialog {
                 dismiss();
             }
         });
-
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(btnUpdate, new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                if(NetUtil.isNetworkConnected()){
-                    //TODO 进度条抖动问题已定位：多次快速点击导致多个下载任务抢占资源
-                    ClickFilter.onClick(btnUpdate, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            event.onUpdate();
-                        }
-                    });
-                }else {
-                    ToastUtil.show(context,"请检查网络连接是否正常");
+                if (NetUtil.isNetworkConnected()) {
+                    event.onUpdate();
+                } else {
+                    ToastUtil.show(context, "请检查网络连接是否正常");
                 }
             }
         });
-
         btnInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

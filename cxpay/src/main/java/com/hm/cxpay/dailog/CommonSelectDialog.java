@@ -33,10 +33,12 @@ public class CommonSelectDialog extends Dialog {
     private TextView tvRight;//右侧按钮
     private View.OnClickListener leftListener;//左侧监听
     private View.OnClickListener rightListener;//右侧监听
+    private View lineTwo;
 
     private String title;//标题文字
     private String leftText;//左侧按钮文字
     private String rightText;//右侧按钮文字
+    private boolean showLeftText;//是否展示左侧按钮
 
     //重写三个构造方法，传入需要的上下文参数
     public CommonSelectDialog(@NonNull Builder builder) {
@@ -47,6 +49,7 @@ public class CommonSelectDialog extends Dialog {
         rightText = builder.rightText;
         leftListener = builder.leftListener;
         rightListener = builder.rightListener;
+        showLeftText = builder.showLeftText;
     }
 
 
@@ -74,6 +77,7 @@ public class CommonSelectDialog extends Dialog {
         tvContent = view.findViewById(R.id.tv_content);
         tvLeft = view.findViewById(R.id.tv_exit);
         tvRight = view.findViewById(R.id.tv_set);
+        lineTwo = view.findViewById(R.id.line_two);
         //设置标题文字
         tvContent.setText(title);
         //设置左侧文字
@@ -84,6 +88,14 @@ public class CommonSelectDialog extends Dialog {
         tvLeft.setOnClickListener(leftListener);
         //右侧点击
         tvRight.setOnClickListener(rightListener);
+        //是否显示左侧按钮
+        if(showLeftText){
+            tvLeft.setVisibility(View.VISIBLE);
+            lineTwo.setVisibility(View.VISIBLE);
+        }else {
+            tvLeft.setVisibility(View.GONE);
+            lineTwo.setVisibility(View.GONE);
+        }
     }
 
     //建造者模式
@@ -94,6 +106,7 @@ public class CommonSelectDialog extends Dialog {
         private String rightText;
         private View.OnClickListener leftListener;
         private View.OnClickListener rightListener;
+        private boolean showLeftText = true;//默认显示左侧按钮
 
         public Builder(Context context) {
             this.context = context;
@@ -121,6 +134,11 @@ public class CommonSelectDialog extends Dialog {
 
         public Builder setRightOnClickListener(View.OnClickListener listener){
             rightListener = listener;
+            return this;
+        }
+
+        public Builder setShowLeftText(boolean showLeftText) {
+            this.showLeftText = showLeftText;
             return this;
         }
 

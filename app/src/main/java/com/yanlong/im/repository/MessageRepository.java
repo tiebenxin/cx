@@ -577,6 +577,9 @@ public class MessageRepository {
                 updateGroupNumberEvent.uid = userInfoCopy.getUid();
                 EventBus.getDefault().post(updateGroupNumberEvent);
                 break;
+            case ChatEnum.ESwitchType.FRIEND_DEACTIVATE: // 好友注销变更
+                UserDao userDao = new UserDao();
+                userDao.updateUserDeactivateValue(wrapMessage.getFromUid(),switchValue);//只更新本地数据->用户最新注销状态
         }
         return result;
     }
