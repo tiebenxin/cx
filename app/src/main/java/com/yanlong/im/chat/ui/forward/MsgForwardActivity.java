@@ -206,11 +206,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         dismissSendProgress();
         if (viewModel != null) {
             viewModel.onDestroy();
         }
+        sendQueue.clear();
     }
 
     private void dismissSendProgress() {
@@ -232,12 +232,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {
             }.getType());
             if (msgList != null) {
-                sendQueue.clear();
-                for (int i = 0; i < msgList.size(); i++) {
-                    MsgAllBean msg = msgList.get(i);
-                    sendQueue.put(msg.getMsg_id(), msg);
-
-                }
+//                sendQueue.clear();
+//                for (int i = 0; i < msgList.size(); i++) {
+//                    MsgAllBean msg = msgList.get(i);
+//                    addQueue(msg);
+//                }
+            }else {
+                finish();
+                return;
             }
         } else if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
             getSysImgShare();
@@ -245,7 +247,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             mediaType = intent.getIntExtra("cxapi_sendmessagetowx_req_media_type", 0);
             shareTitle = intent.getStringExtra("cxobject_title");
             shareDescription = intent.getStringExtra("cxobject_description");
-
             if (mediaType == CxMediaMessage.EMediaType.UNKNOWN) {//未知
                 finish();
             } else if (mediaType == CxMediaMessage.EMediaType.TEXT) {//文本
@@ -490,8 +491,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     private synchronized void removeQueue(String msgId) {
-        LogUtil.getLog().i("转发", "--remove--" + msgId);
-        sendQueue.remove(msgId);
+        if (sendQueue != null && sendQueue.containsKey(msgId)) {
+            LogUtil.getLog().i("转发", "--remove--" + msgId);
+            sendQueue.remove(msgId);
+        }
     }
 
     @Override
@@ -529,7 +532,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 sendQueue.clear();
                 for (int i = 0; i < msgList.size(); i++) {
                     MsgAllBean msg = msgList.get(i);
-                    sendQueue.put(msg.getMsg_id(), msg);
+                    addQueue(msg);
                 }
             }
         } else if (model == ChatEnum.EForwardMode.SHARE) {
@@ -592,18 +595,18 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             imageUrl = msgAllBean.getImage().getLocalimg();
                         }
                     }
-                    if(msgAllBean.getImage().getHeight()>=msgAllBean.getImage().getWidth()){
+                    if (msgAllBean.getImage().getHeight() >= msgAllBean.getImage().getWidth()) {
                         isVertical = true;
-                    }else {
+                    } else {
                         isVertical = false;
                     }
                 } else if (msgAllBean.getAtMessage() != null) {
                     txt = msgAllBean.getAtMessage().getMsg();
                 } else if (msgAllBean.getVideoMessage() != null) {
                     imageUrl = msgAllBean.getVideoMessage().getBg_url();
-                    if(msgAllBean.getVideoMessage().getHeight()>=msgAllBean.getVideoMessage().getWidth()){
+                    if (msgAllBean.getVideoMessage().getHeight() >= msgAllBean.getVideoMessage().getWidth()) {
                         isVertical = true;
-                    }else {
+                    } else {
                         isVertical = false;
                     }
                 } else if (msgAllBean.getLocationMessage() != null) {
@@ -636,9 +639,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 } else if (type == ChatEnum.EMessageType.IMAGE) {
                     CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
                     imageUrl = bean2.getThumbnail();
-                    if(bean2.getHeight()>=bean2.getWidth()){
+                    if (bean2.getHeight() >= bean2.getWidth()) {
                         isVertical = true;
-                    }else {
+                    } else {
                         isVertical = false;
                     }
                 } else if (type == ChatEnum.EMessageType.AT) {
@@ -647,9 +650,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 } else if (type == ChatEnum.EMessageType.MSG_VIDEO) {
                     CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
                     imageUrl = bean4.getVideoBgURL();
-                    if(bean4.getHeight()>=bean4.getWidth()){
+                    if (bean4.getHeight() >= bean4.getWidth()) {
                         isVertical = true;
-                    }else {
+                    } else {
                         isVertical = false;
                     }
                 } else if (type == ChatEnum.EMessageType.LOCATION) {
@@ -678,7 +681,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             }
         }
 
-        alertForward.init(MsgForwardActivity.this, type, mIcon, mName, txt, imageUrl, btm, toGid,isVertical, new AlertForward.Event() {
+        alertForward.init(MsgForwardActivity.this, type, mIcon, mName, txt, imageUrl, btm, toGid, isVertical, new AlertForward.Event() {
             @Override
             public void onON() {
 
@@ -786,7 +789,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
-
                     ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                     if (allBean != null) {
@@ -1218,7 +1220,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (!sendQueue.containsKey(msgAllBean.getMsg_id())) {
             sendQueue.put(msgAllBean.getMsg_id(), msgAllBean);
             LogUtil.getLog().i("转发", "--add--" + msgAllBean.getMsg_id());
-
         }
     }
 
