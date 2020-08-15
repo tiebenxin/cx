@@ -1073,7 +1073,7 @@ public class MainActivity extends AppActivity {
                                         if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
                                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                         } else {
-                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
                                         }
                                     }
                                 } catch (Exception e) {
@@ -1087,7 +1087,7 @@ public class MainActivity extends AppActivity {
                                     if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
                                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                     } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
                                     }
                                 } else {
                                     //缓存最新版本
@@ -1099,7 +1099,7 @@ public class MainActivity extends AppActivity {
                                     if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                                     } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
                                         //如有新版本，首页底部提示红点
                                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
