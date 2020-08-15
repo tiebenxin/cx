@@ -5837,8 +5837,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         Intent intent = MsgForwardActivity.newIntent(this, model, json);
         startActivity(intent);
-        startActivity(new Intent(getContext(), MsgForwardActivity.class));
-
     }
 
 

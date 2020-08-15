@@ -29,6 +29,8 @@ import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ChatBitmapCache;
 
+import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -152,8 +154,13 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             ckSelect.setChecked(false);
             mAdapter.getSelectedMsg().remove(model);
         } else {
-            ckSelect.setChecked(true);
-            mAdapter.getSelectedMsg().add(model);
+            if (mAdapter.getSelectedMsg().size() < 100) {
+                ckSelect.setChecked(true);
+                mAdapter.getSelectedMsg().add(model);
+            } else {
+                showSelectMaxDialog();
+//                ckSelect.setChecked(false);
+            }
         }
     }
 
@@ -202,7 +209,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 }
             } else if (ckSelect != null && id == ckSelect.getId()) {
                 if (ckSelect.isChecked()) {
-                    mAdapter.getSelectedMsg().add(model);
+                    if (mAdapter.getSelectedMsg().size() < 100) {
+                        mAdapter.getSelectedMsg().add(model);
+                    } else {
+                        showSelectMaxDialog();
+                        ckSelect.setChecked(false);
+                    }
                 } else {
                     mAdapter.getSelectedMsg().remove(model);
                 }
@@ -522,6 +534,28 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 tvNote.setVisibility(View.GONE);
             }
         }
+    }
+
+    private void showSelectMaxDialog() {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mContext == null) {
+                    return;
+                }
+                DialogCommon2 dialogCommon2 = new DialogCommon2(mContext);
+                dialogCommon2.hasTitle(false)
+                        .setButtonTxt("确定")
+                        .setContent("最多可选择100条消息", true)
+                        .setListener(new DialogCommon2.IDialogListener() {
+                            @Override
+                            public void onClick() {
+                                dialogCommon2.dismiss();
+                            }
+                        }).show();
+            }
+        });
+
     }
 
 }
