@@ -477,7 +477,9 @@ public class ChatInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateReadDestroy(fuid, survivalTime);
-                    msgDao.noteMsgAddSurvivaltime(fuid, null);
+                    if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                        msgDao.noteMsgAddSurvivaltime(fuid, null);
+                    }
                 }
             }
         });
@@ -538,10 +540,12 @@ public class ChatInfoActivity extends AppActivity {
                     return;
                 } else {
                     if (response.body().isOk()) {
-                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screenshot);
-                        MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
-                        if (bean != null) {
-                            SocketData.saveMessage(bean);
+                        if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                            MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screenshot);
+                            MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+                            if (bean != null) {
+                                SocketData.saveMessage(bean);
+                            }
                         }
                     }
                 }

@@ -1375,11 +1375,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
 
-                if (mViewModel.userInfo!=null && mViewModel.userInfo.getFriendDeactivateStat()==-1){
-                    //该账号已注销
-                    ToastUtil.show("发送失败，该账号已注销");
-                }
-
                 //test 8.
                 String text = editChat.getText().toString().trim();
                 if (TextUtils.isEmpty(text)) {
