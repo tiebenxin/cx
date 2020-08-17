@@ -946,7 +946,7 @@ public class SocketData {
             msg.setFrom_nickname(bean.getFrom_nickname());
             msg.setFrom_group_nickname(bean.getFrom_group_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, type, getNoticeString(bean, type)));
-            if (type == ChatEnum.ENoticeType.SEAL_ACCOUNT) {
+            if (type == ChatEnum.ENoticeType.SEAL_ACCOUNT || type == ChatEnum.ENoticeType.FRIEND_DEACTIVATE) {
                 MsgNotice msgNotice = msg.getMsgNotice();
                 if (msgNotice != null) {
                     msgNotice.setNote(ack.getDesc());
