@@ -1,10 +1,12 @@
 package com.yanlong.im.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
@@ -18,7 +20,7 @@ import me.kareluo.ui.OptionMenu;
  * @date 2019/12/16
  * Description
  */
-public class AdapterPopMenu extends BaseAdapter {
+public class AdapterPopMenu extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<OptionMenu> mList;
     private final Context context;
@@ -31,14 +33,17 @@ public class AdapterPopMenu extends BaseAdapter {
         inflater = LayoutInflater.from(con);
     }
 
+    @NonNull
     @Override
-    public int getCount() {
-        return mList == null ? 0 : mList.size();
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        return new MenuViewHolder(inflater.inflate(R.layout.item_menu, null));
     }
 
     @Override
-    public Object getItem(int position) {
-        return mList.get(position);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
+        MenuViewHolder holder = (MenuViewHolder) viewHolder;
+        OptionMenu bean = mList.get(position);
+        holder.bindData(bean, position);
     }
 
     @Override
@@ -47,33 +52,27 @@ public class AdapterPopMenu extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        OptionMenu bean = mList.get(position);
-        MenuViewHolder holder;
-        if (convertView == null) {
-            holder = new MenuViewHolder(inflater.inflate(R.layout.item_menu, parent));
-            convertView = holder.getView();
-            convertView.setTag(holder);
-        } else {
-            holder = (MenuViewHolder) convertView.getTag();
-        }
-        holder.bindData(bean, position);
-        return convertView;
+    public int getItemCount() {
+        return mList == null ? 0 : mList.size();
     }
 
     public void setListener(IMenuClickListener l) {
         listener = l;
     }
 
-    class MenuViewHolder {
+    class MenuViewHolder extends RecyclerView.ViewHolder {
         private final View root;
-        private final View viewLine;
         private final TextView tvContent;
+        private final ImageView ivPicture;
+        private final View viewLine;
 
         public MenuViewHolder(View v) {
+            super(v);
             root = v;
-            viewLine = v.findViewById(R.id.view_line);
             tvContent = v.findViewById(R.id.tv_content);
+            ivPicture = v.findViewById(R.id.iv_picture);
+            viewLine = v.findViewById(R.id.view_line);
+
         }
 
         public View getView() {
@@ -82,22 +81,27 @@ public class AdapterPopMenu extends BaseAdapter {
 
         public void bindData(OptionMenu item, int position) {
             tvContent.setText(item.getTitle());
-            if (mList != null) {
-                if (mList.size() == 1) {
-                    viewLine.setVisibility(View.GONE);
-                    tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_all);
-                } else {
-                    if (position == 0) {
-                        viewLine.setVisibility(View.VISIBLE);
-                        tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_left);
-                    } else if (position == mList.size() - 1) {
-                        viewLine.setVisibility(View.GONE);
-                        tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_right);
-                    } else {
-                        tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_center);
-                        viewLine.setVisibility(View.VISIBLE);
-                    }
-                }
+            if (item.getTitle().equals("复制")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_copy);
+            } else if (item.getTitle().equals("回复")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_huifu);
+            } else if (item.getTitle().equals("转发")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_zhuanfa);
+            } else if (item.getTitle().equals("收藏")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_coll);
+            } else if (item.getTitle().equals("删除")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_delete);
+            } else if (item.getTitle().equals("多选")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_duoxuan);
+            } else if (item.getTitle().equals("听筒播放")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_copy);
+            } else if (item.getTitle().equals("撤回")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_back);
+            }
+            if (mList.size() > 4 && position < 4) {
+                viewLine.setVisibility(View.VISIBLE);
+            } else {
+                viewLine.setVisibility(View.GONE);
             }
             root.setOnClickListener(new View.OnClickListener() {
                 @Override

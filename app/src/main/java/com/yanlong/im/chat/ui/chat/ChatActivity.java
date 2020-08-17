@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -153,7 +154,6 @@ import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.cell.OnControllerClickListener;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
-import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
 import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
@@ -214,7 +214,6 @@ import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.bean.VideoSize;
 import net.cb.cb.library.dialog.DialogCommon;
-import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
@@ -357,7 +356,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private int popupHeight;// 气泡高
     private ImageView mImgTriangleUp;// 上箭头
     //    private ImageView mImgTriangleDown;// 下箭头
-    private LinearLayout mLlContent;
+//    private LinearLayout mLlContent;
+    private RecyclerView mRecyclerBubble;
     private RelativeLayout mRlDown, mRlUp;
     private View mRootView;
     private MsgAllBean currentPlayBean;
@@ -377,7 +377,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private LinearLayout llMore;
     private ImageView ivDelete;
     private ImageView ivForward;
-    private ControllerLinearList popController;
+    //    private ControllerLinearList popController;
     //记录软键盘高度
     private String KEY_BOARD = "keyboard_setting";
     //软键盘高度
@@ -1374,7 +1374,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (!checkNetConnectStatus(0)) {
                     return;
                 }
-
                 //test 8.
                 String text = editChat.getText().toString().trim();
                 if (TextUtils.isEmpty(text)) {
@@ -2138,10 +2137,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         if (mViewModel.userInfo != null) {
-                            if(mViewModel.userInfo.getFriendDeactivateStat() == -1){
+                            if (mViewModel.userInfo.getFriendDeactivateStat() == -1) {
                                 showLogOutDialog(-1);
                                 return;
-                            }else if(mViewModel.userInfo.getFriendDeactivateStat() == 1){
+                            } else if (mViewModel.userInfo.getFriendDeactivateStat() == 1) {
                                 showLogOutDialog(1);
                                 return;
                             }
@@ -2157,10 +2156,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         if (mViewModel.userInfo != null) {
-                            if(mViewModel.userInfo.getFriendDeactivateStat() == -1){
+                            if (mViewModel.userInfo.getFriendDeactivateStat() == -1) {
                                 showLogOutDialog(-1);
                                 return;
-                            }else if(mViewModel.userInfo.getFriendDeactivateStat() == 1){
+                            } else if (mViewModel.userInfo.getFriendDeactivateStat() == 1) {
                                 showLogOutDialog(1);
                                 return;
                             }
@@ -3998,12 +3997,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean, final IMenuSelectListener listener) {
         try {
-            if (popController == null) {
-                return;
-            }
             menus = initMenus(msgbean);
             AdapterPopMenu adapterPopMenu = new AdapterPopMenu(menus, this);
-            popController.setAdapter(adapterPopMenu);
+            int spanCount;
+            if (menus.size() == 1) {
+                spanCount = 1;
+            } else if (menus.size() == 2) {
+                spanCount = 2;
+            } else if (menus.size() == 3) {
+                spanCount = 3;
+            } else {
+                spanCount = 4;
+            }
+            mRecyclerBubble.setLayoutManager(new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL, false));
+            mRecyclerBubble.setAdapter(adapterPopMenu);
             adapterPopMenu.setListener(new AdapterPopMenu.IMenuClickListener() {
                 @Override
                 public void onClick(OptionMenu menu) {
@@ -4230,8 +4237,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mRlUp = mRootView.findViewById(R.id.rl_up);
         mImgTriangleUp = mRootView.findViewById(R.id.img_triangle_up);
         mRlDown = mRootView.findViewById(R.id.rl_down);
-        mLlContent = mRootView.findViewById(R.id.ll_content);
-        popController = new ControllerLinearList(mLlContent);
+        mRecyclerBubble = mRootView.findViewById(R.id.recycler_bubble);
     }
 
     /**
@@ -4505,30 +4511,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.BELOW, R.id.rl_up);
         if (isMe) {
-            if (messageType == ChatEnum.EMessageType.STAMP) {// 戳一下消息单独处理
-                params.setMargins(0, 0, ScreenUtil.dip2px(this, 97), 0);
-            } else if (itemCount < 4) {
+            if (itemCount < 4) {
                 params.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
             }
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
         } else {
-            if (messageType == ChatEnum.EMessageType.STAMP) {// 戳一下消息单独处理
-                params.setMargins(ScreenUtil.dip2px(this, 97), 0, 0, 0);
-            } else if (itemCount < 4) {
+            if (itemCount < 4) {
                 params.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
             }
             params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             layoutParams.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
         }
-        mLlContent.setLayoutParams(params);
+        mRecyclerBubble.setLayoutParams(params);
         if (gravity == 1) {
             mRlUp.setLayoutParams(layoutParams);
         } else {
             //在控件上方显示
-            layoutParams.addRule(RelativeLayout.BELOW, R.id.ll_content);
+            layoutParams.addRule(RelativeLayout.BELOW, R.id.recycler_bubble);
             mRlDown.setLayoutParams(layoutParams);
         }
     }
@@ -5761,7 +5763,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     //1 是否被单人禁言
                     if (singleMeberInfoBean.getShutUpDuration() == 0) {
                         //2 该群是否全员禁言
-                        if (mViewModel.groupInfo != null && mViewModel.groupInfo.getWordsNotAllowed() == 0) {
+                        if (mViewModel.groupInfo != null && (mViewModel.groupInfo.getWordsNotAllowed() == 0
+                                || mViewModel.groupInfo.getMaster().equals(UserAction.getMyId().toString()))) {
                             resendFileMsg(reMsg);
                         } else {
                             ToastUtil.showCenter(ChatActivity.this, "本群全员禁言中");
@@ -5875,9 +5878,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
-//        if (mViewModel.isInputText.getValue()) {
-//            mViewModel.isInputText.setValue(false);
-//        }
         switch (type) {
             case ChatEnum.ECellEventType.TXT_CLICK:
                 break;
@@ -6714,11 +6714,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /**
      * 注销提示弹框
      */
-    private void showLogOutDialog(int type){
+    private void showLogOutDialog(int type) {
         String content = "";
-        if(type==1){
+        if (type == 1) {
             content = "该账号正在注销中，为了保障你的资金安全，\n暂时无法交易";
-        }else if(type==-1){
+        } else if (type == -1) {
             content = "该账号已注销，为了保障你的资金安全，\n暂时无法交易";
         }
         dialogOne = builder.setTitle(content)
