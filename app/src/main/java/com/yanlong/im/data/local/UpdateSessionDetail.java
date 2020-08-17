@@ -445,12 +445,12 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 成功");
+//                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 成功");
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 失败");
+//                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 失败");
             }
         });
     }
@@ -473,16 +473,15 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 成功");
+//                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 成功");
                 update(new String[]{sid});
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 失败");
+//                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 失败");
             }
         });
     }
-
 
 }

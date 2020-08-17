@@ -335,8 +335,9 @@ public class GroupInfoActivity extends AppActivity {
 
                     @Override
                     public void onYes() {
-                        MsgDao msgDao = new MsgDao();
-                        msgDao.msgDel(null, gid);
+                        if (MyAppLication.INSTANCE().repository != null) {
+                            MyAppLication.INSTANCE().repository.deleteAllMessage(null, gid);
+                        }
                         EventBus.getDefault().post(new EventRefreshChat());
                         ToastUtil.show(GroupInfoActivity.this, "删除成功");
                     }

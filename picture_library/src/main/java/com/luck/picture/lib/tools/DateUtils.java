@@ -187,6 +187,12 @@ public class DateUtils {
         }
     }
 
+    /**
+     * 判断是否是小于24小时
+     *
+     * @param oldTime
+     * @return
+     */
     public static boolean checkTimeDifferenceHour(long oldTime) {
         if (oldTime > 0) {
             long timeDifference = System.currentTimeMillis() - oldTime;

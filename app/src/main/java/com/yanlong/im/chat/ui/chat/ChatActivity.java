@@ -357,6 +357,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private int popupHeight;// 气泡高
     private ImageView mImgTriangleUp;// 上箭头
     //    private ImageView mImgTriangleDown;// 下箭头
+    private LinearLayout mLlContent;
     private RelativeLayout mRlDown, mRlUp;
     private View mRootView;
     private MsgAllBean currentPlayBean;
@@ -758,7 +759,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
         boolean hasClear = taskCleanRead(false);
-        boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
+        if (MyAppLication.INSTANCE().repository != null) {
+            MyAppLication.INSTANCE().repository.updateMsgRead(toGid, toUId);
+        }
         boolean hasChange = updateSessionDraftAndAtMessage();
         if (hasChange) {
             saveReplying(draft);
@@ -1304,7 +1307,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 actionbar.getTxtTitleMore().setVisibility(GONE);
             }
         }
-        toUId = toUId == 0 ? null : toUId;
+        if (toUId != null) {
+            toUId = toUId == 0 ? null : toUId;
+        }
         refreshUI();
         if (!TextUtils.isEmpty(mViewModel.toGid)) {
             taskGroupInfo();
@@ -2844,7 +2849,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        } else if (TextUtils.isEmpty(toGid) && event.getUid() != null && event.getUid().longValue() == toUId.longValue()) {//PC端操作,删除好友
+        } else if (TextUtils.isEmpty(toGid) && toUId != null && event.getUid() != null && event.getUid().longValue() == toUId.longValue()) {//PC端操作,删除好友
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -2957,7 +2962,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setingReadDestroy(ReadDestroyBean bean) {
         if (TextUtils.isEmpty(bean.gid)) {
-            if (bean.uid == toUId.longValue()) {
+            if (toUId != null && bean.uid == toUId.longValue()) {
                 survivaltime = bean.survivaltime;
                 util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
             }
@@ -4008,11 +4013,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     onBubbleClick((String) menu.getTitle(), msgbean);
                 }
             });
-            // 重新获取自身的长宽高
-            mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            popupWidth = mRootView.getMeasuredWidth();
-            popupHeight = mRootView.getMeasuredHeight();
-
             // 获取ActionBar位置，判断消息是否到顶部
             // 获取ListView在屏幕顶部的位置
             int[] location = new int[2];
@@ -4022,7 +4022,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             v.getLocationOnScreen(locationView);
             if (mPopupWindow != null && mPopupWindow.isShowing()) mPopupWindow.dismiss();
             mPopupWindow = null;
-            mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+            mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
             // 设置弹窗外可点击
             mPopupWindow.setTouchable(true);
             mPopupWindow.setOutsideTouchable(true);
@@ -4047,28 +4048,28 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     mRlUp.setVisibility(VISIBLE);
                     mImgTriangleUp.setVisibility(VISIBLE);
                     mRlDown.setVisibility(GONE);
-                    setArrowLocation(v, 1, msgbean.isMe());
+                    setArrowLocation(v, 1, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
                     mPopupWindow.showAsDropDown(v);
                 } else {
                     // 中间弹出
                     mRlUp.setVisibility(GONE);
                     mImgTriangleUp.setVisibility(GONE);
                     mRlDown.setVisibility(VISIBLE);
-                    setArrowLocation(v, 1, msgbean.isMe());
-                    showPopupWindowUp(v, 1, msgbean.isMe());
+                    setArrowLocation(v, 1, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
+                    showPopupWindowUp(v, 1);
                 }
             } else if (locationView[1] < location[1]) {
                 mRlUp.setVisibility(VISIBLE);
                 mImgTriangleUp.setVisibility(VISIBLE);
                 mRlDown.setVisibility(GONE);
-                setArrowLocation(v, 1, msgbean.isMe());
+                setArrowLocation(v, 1, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
                 mPopupWindow.showAsDropDown(v);
             } else {
                 mRlUp.setVisibility(GONE);
                 mImgTriangleUp.setVisibility(GONE);
                 mRlDown.setVisibility(VISIBLE);
-                setArrowLocation(v, 2, msgbean.isMe());
-                showPopupWindowUp(v, 2, msgbean.isMe());
+                setArrowLocation(v, 2, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
+                showPopupWindowUp(v, 2);
             }
         } catch (Exception e) {
         }
@@ -4125,7 +4126,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         timeLimit = false;
                     } else if (isAdministrators()) {
                         //如果我是群管理，且这条消息是自己发的，允许撤回，默认有时间限制
-                        if (msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                        if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             showCancel = true;
                             timeLimit = true;
                         } else {
@@ -4229,8 +4230,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mRlUp = mRootView.findViewById(R.id.rl_up);
         mImgTriangleUp = mRootView.findViewById(R.id.img_triangle_up);
         mRlDown = mRootView.findViewById(R.id.rl_down);
-        LinearLayout llContent = mRootView.findViewById(R.id.ll_content);
-        popController = new ControllerLinearList(llContent);
+        mLlContent = mRootView.findViewById(R.id.ll_content);
+        popController = new ControllerLinearList(mLlContent);
     }
 
     /**
@@ -4465,9 +4466,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      *
      * @param v
      * @param gravity
-     * @param isMe
      */
-    public void showPopupWindowUp(View v, int gravity, boolean isMe) {
+    public void showPopupWindowUp(View v, int gravity) {
+        // 重新获取自身的长宽高
+        mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popupWidth = mRootView.getMeasuredWidth();
+        popupHeight = mRootView.getMeasuredHeight();
+
         //获取需要在其上方显示的控件的位置信息
         int[] location = new int[2];
         v.getLocationOnScreen(location);
@@ -4485,34 +4490,40 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 设置气泡箭头的位置
      *
      * @param v
-     * @param gravity 1显示向上箭头 2显示向下箭头
+     * @param gravity     1显示向上箭头 2显示向下箭头
      * @param isMe
+     * @param itemCount   选项个数
+     * @param messageType
      */
-    private void setArrowLocation(View v, int gravity, boolean isMe) {
+    private void setArrowLocation(View v, int gravity, boolean isMe, int itemCount, int messageType) {
         //获取需要在其上方显示的控件的位置信息
         int[] location = new int[2];
         v.getLocationOnScreen(location);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(v.getWidth() - ScreenUtil.dip2px(this, 6), RelativeLayout.LayoutParams.WRAP_CONTENT);
-        int x = (location[0] + v.getWidth() / 2) - popupWidth / 2;
-
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(v.getWidth() - ScreenUtil.dip2px(this, 6),
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.BELOW, R.id.rl_up);
         if (isMe) {
+            if (messageType == ChatEnum.EMessageType.STAMP) {// 戳一下消息单独处理
+                params.setMargins(0, 0, ScreenUtil.dip2px(this, 97), 0);
+            } else if (itemCount < 4) {
+                params.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+            }
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            if (x < 100) {
-                layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 40), 0);
-            } else {
-                layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
-            }
+            layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
         } else {
-            if (gravity == 1) {
-                layoutParams.setMargins(ScreenUtil.dip2px(this, 6), 0, 0, 0);
-            } else {
-                if (x < 0) {
-                    layoutParams.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
-                } else {
-                    layoutParams.setMargins(ScreenUtil.dip2px(this, 35), 0, 0, 0);
-                }
+            if (messageType == ChatEnum.EMessageType.STAMP) {// 戳一下消息单独处理
+                params.setMargins(ScreenUtil.dip2px(this, 97), 0, 0, 0);
+            } else if (itemCount < 4) {
+                params.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
             }
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            layoutParams.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
         }
+        mLlContent.setLayoutParams(params);
         if (gravity == 1) {
             mRlUp.setLayoutParams(layoutParams);
         } else {
@@ -4794,7 +4805,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 }
             }
-            if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+            if (msg.getFrom_uid() != null && msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                 //自己发送的消息,用本地实时头像
                 userInfo.setHead(UserAction.getMyInfo().getHead());
             }
@@ -6687,7 +6698,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     @Override
                     public void onSure() {
                         mAdapter.removeMsgList(msgList);
-                        msgDao.deleteMsgList(msgList);
+                        if (MyAppLication.INSTANCE().repository != null) {
+                            MyAppLication.INSTANCE().repository.deleteMsgList(msgList);
+                        }
                         notifyData();
                         hideMultiSelect(ivDelete);
                     }

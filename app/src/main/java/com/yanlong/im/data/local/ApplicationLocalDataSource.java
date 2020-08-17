@@ -2,6 +2,7 @@ package com.yanlong.im.data.local;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
@@ -13,8 +14,12 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -253,6 +258,7 @@ public class ApplicationLocalDataSource {
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
+//                LogUtil.getLog().i("msgDao", error.getMessage());
             }
         });
     }
@@ -262,8 +268,8 @@ public class ApplicationLocalDataSource {
      *
      * @param
      */
-    public void markSessionRead(String sid, int read,String msgId) {
-        updateSessionDetail.markSessionRead(sid, read,msgId);
+    public void markSessionRead(String sid, int read, String msgId) {
+        updateSessionDetail.markSessionRead(sid, read, msgId);
     }
 
     /**
@@ -271,8 +277,97 @@ public class ApplicationLocalDataSource {
      *
      * @param
      */
-    public void updateMsgRead(String sid,String msgId, int read) {
-        updateSessionDetail.updateMsgRead( sid,msgId, read);
+    public void updateMsgRead(String sid, String msgId, int read) {
+        updateSessionDetail.updateMsgRead(sid, msgId, read);
+    }
+
+
+    /**
+     * 批量删除消息
+     */
+    public void deleteMsgList(List<MsgAllBean> list) {
+        List<String> gids = new ArrayList<>();
+        List<Long> uids = new ArrayList<>();
+        //异步线程删除
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                int len = list.size();
+                MsgDao msgDao = new MsgDao();
+                for (int i = 0; i < len; i++) {
+                    MsgAllBean bean = list.get(i);
+                    MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", bean.getMsg_id()).findFirst();
+                    if (msg != null) {
+                        //gid存在时，不取uid
+                        if (TextUtils.isEmpty(msg.getGid())) {
+                            uids.add(msg.getFrom_uid());
+                            uids.add(msg.getTo_uid());
+                        } else {
+                            gids.add(msg.getGid());
+                        }
+                        msgDao.deleteRealmMsg(msg);
+                        msg.deleteFromRealm();
+                    }
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+//                LogUtil.getLog().i("msgDao", error.getMessage());
+            }
+        });
+    }
+
+    /**
+     * 更新session中所有未读消息未已读
+     *
+     * @param
+     */
+    public void updateMsgRead(String gid, Long uid) {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<MsgAllBean> realmResults = null;
+                if (!TextUtils.isEmpty(gid)) {
+                    realmResults = realm.where(MsgAllBean.class)
+                            .beginGroup().equalTo("gid", gid).endGroup()
+                            .and()
+                            .beginGroup().equalTo("isRead", false).endGroup()
+                            .findAll();
+                } else {
+                    realmResults = realm.where(MsgAllBean.class)
+                            .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                            .and()
+                            .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                            .and()
+                            .beginGroup().equalTo("isRead", false).endGroup()
+                            .findAll();
+                }
+                if (realmResults != null) {
+                    for (MsgAllBean bean : realmResults) {
+                        bean.setRead(true);
+                    }
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                LogUtil.getLog().i("msgDao", "updateMsgRead-success");
+
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+                LogUtil.getLog().i("msgDao", error.getMessage());
+
+            }
+        });
     }
 
 
