@@ -2922,10 +2922,14 @@ public class MsgDao {
         }
         String result = group.getName();
         if (TextUtils.isEmpty(result)) {
+            result = "";
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
+                    if (result.length() >= 14) {
+                        break;
+                    }
                     MemberUser info = users.get(i);
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
@@ -2948,12 +2952,15 @@ public class MsgDao {
             return "";
         }
         String result = group.getName();
-//        String result = "";
         if (TextUtils.isEmpty(result)) {
+            result = "";
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
+                    if (result.length() >= 14) {
+                        break;
+                    }
                     MemberUser info = users.get(i);
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
