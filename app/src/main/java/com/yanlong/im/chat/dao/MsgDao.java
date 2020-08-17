@@ -12,9 +12,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
-import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
-import com.yanlong.im.chat.bean.EnvelopeTemp;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
@@ -2272,8 +2270,6 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         List<ApplyBean> beans = new ArrayList<>();
-//        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
-
         //删除错误数据
         RealmResults<ApplyBean> resTemp = realm.where(ApplyBean.class).equalTo("uid", 0).findAll();
         if (resTemp != null) {
