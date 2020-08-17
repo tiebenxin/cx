@@ -155,6 +155,8 @@ public class MessageManager {
     private boolean isDealingMsg = false;
     //是否正在处理消息
     private boolean isReceiveOffline = false;
+    //是否来自推送
+    private boolean isFromPush = false;
 
 
     //取第一个添加的消息,并且移除
@@ -2506,6 +2508,14 @@ public class MessageManager {
     public void setReceiveOffline(boolean b) {
         LogUtil.getLog().i(TAG, "接收离线状态改变--" + b);
         isReceiveOffline = b;
+    }
+
+    public boolean isFromPush() {
+        return isFromPush;
+    }
+
+    public void setFromPush(boolean b) {
+        isFromPush = b;
     }
 
 }
