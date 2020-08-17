@@ -576,7 +576,7 @@ public class MsgDao {
      * @param
      */
     public void groupNumberSave(Group ginfo) {
-        if(ginfo == null){
+        if (ginfo == null) {
             return;
         }
         for (MemberUser sv : ginfo.getUsers()) {
@@ -3320,6 +3320,13 @@ public class MsgDao {
 
     //移出群成员
     public void removeGroupMember(String gid, List<Long> uids) {
+        if (uids == null) {
+            return;
+        }
+        Long[] uidArr = uids.toArray(new Long[uids.size()]);
+        if (uidArr == null) {
+            return;
+        }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3327,18 +3334,22 @@ public class MsgDao {
             if (group != null) {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
-                    List<MemberUser> removeMembers = new ArrayList<>();
-                    for (MemberUser user : list) {
-                        if (uids.contains(user.getUid())) {
-                            removeMembers.add(user);
-                        }
-                        if (removeMembers.size() == uids.size()) {
-                            break;
-                        }
+                    RealmResults<MemberUser> results = list.where().in("uid", uidArr).findAll();
+                    if (results != null) {
+                        results.deleteAllFromRealm();
                     }
-                    if (removeMembers.size() > 0) {
-                        list.removeAll(removeMembers);
-                    }
+//                    List<MemberUser> removeMembers = new ArrayList<>();
+//                    for (MemberUser user : list) {
+//                        if (uids.contains(user.getUid())) {
+//                            removeMembers.add(user);
+//                        }
+//                        if (removeMembers.size() == uids.size()) {
+//                            break;
+//                        }
+//                    }
+//                    if (removeMembers.size() > 0) {
+//                        list.removeAll(removeMembers);
+//                    }
                 }
             }
             realm.commitTransaction();
