@@ -605,12 +605,10 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         try {
             groupInfoBean = new Group();
-            realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
                 groupInfoBean = realm.copyFromRealm(group);
             }
-            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();

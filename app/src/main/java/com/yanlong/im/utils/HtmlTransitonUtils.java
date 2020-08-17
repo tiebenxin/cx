@@ -77,6 +77,14 @@ public class HtmlTransitonUtils {
                     setTypeEnvelopeReceived(context, style, bean, 1);
                     break;
                 case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败
+                    Spanned spannedHtml1 = Html.fromHtml(html);
+                    // subSequence 是去掉换行
+                    SpannableStringBuilder clickableHtmlBuilder1 = new SpannableStringBuilder(spannedHtml1.subSequence(0, spannedHtml1.length()));
+                    URLSpan[] urls1 = clickableHtmlBuilder1.getSpans(0, spannedHtml1.length(), URLSpan.class);
+                    for (int i = 0; i < urls1.length; i++) {
+                        setLinkClickable(context, clickableHtmlBuilder1, urls1[i], bean.getList().get(i).getId(), bean.getGid());
+                    }
+                    return clickableHtmlBuilder1;
                 case ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER:// 领取群红包
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE:// 单人禁言
                 case ChatEnum.ENoticeType.GROUP_OTHER_REMOVE:// 其它人被移出群
