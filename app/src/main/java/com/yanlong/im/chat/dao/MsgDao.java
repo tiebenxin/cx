@@ -3051,9 +3051,6 @@ public class MsgDao {
                     hasChange = true;
                     for (int i = 0; i < len; i++) {
                         MsgAllBean bean = list.get(i);
-//                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//  || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-//                            continue;
-//                        }
                         bean.setRead(isRead);
                         realm.insertOrUpdate(bean);
                     }
@@ -3140,26 +3137,20 @@ public class MsgDao {
      * @param name 群名
      */
     public boolean updateMyGroupName(String gid, String name) {
+        if (UserAction.getMyId() == null) {
+            return false;
+        }
         Realm realm = DaoUtil.open();
         try {
-            realm.beginTransaction();
-
             Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            realm.beginTransaction();
             if (g != null) {//已经存在
                 g.setMygroupName(name);
-                List<MemberUser> users = g.getUsers();
-                if (users != null) {
-                    int len = users.size();
-                    for (int i = 0; i < len; i++) {
-                        MemberUser memberUser = users.get(i);
-                        if (UserAction.getMyId() != null && memberUser.getUid() == UserAction.getMyId().longValue()) {
-                            memberUser.setMembername(name);
-                        } else {
-                            continue;
-                        }
-                    }
+                RealmList<MemberUser> users = g.getUsers();
+                MemberUser memberUser = users.where().equalTo("uid", UserAction.getMyId().longValue()).findFirst();
+                if (memberUser != null) {
+                    memberUser.setMembername(name);
                 }
-                realm.insertOrUpdate(g);
             } else {//不存在
                 return false;
             }
@@ -3170,25 +3161,9 @@ public class MsgDao {
             DaoUtil.reportException(e);
             DaoUtil.close(realm);
         }
-
         return true;
     }
 
-    public boolean insertMessages(List<MsgAllBean> list) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            realm.insert(list);
-            realm.commitTransaction();
-            realm.close();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-            DaoUtil.reportException(e);
-        }
-        return false;
-    }
 
     /***
      * 更新非保存群
@@ -3197,40 +3172,47 @@ public class MsgDao {
     public void updateNoSaveGroup(List<Group> groupList) {
         Realm realm = DaoUtil.open();
         try {
-            realm.beginTransaction();
+            List<Group> resultList = new ArrayList<>();
             if (groupList == null || groupList.size() <= 0) {
                 List<Group> groups = realm.where(Group.class).equalTo("saved", 1).findAll();
-                int len = groups.size();
-                if (len > 0) {
-                    for (int i = 0; i < len; i++) {
-                        Group group = groups.get(i);
-                        group.setSaved(0);
+                List<Group> temp = realm.copyFromRealm(groups);
+                if (temp != null) {
+                    int len = temp.size();
+                    if (len > 0) {
+                        for (int i = 0; i < len; i++) {
+                            Group group = temp.get(i);
+                            group.setSaved(0);
+                        }
+                        resultList.addAll(temp);
                     }
                 }
-                realm.insertOrUpdate(groups);
             } else {
                 List<Group> groups = realm.where(Group.class).equalTo("saved", 1).findAll();
-                int len = groups.size();
-                if (len > 0) {
-                    List<Group> temp = new ArrayList<>();
-                    for (Iterator<Group> it = groups.iterator(); it.hasNext(); ) {
-                        Group group = it.next();
-                        if (!groupList.contains(group)) {
-                            group.setSaved(0);
-                            temp.add(group);
+                List<Group> temp = realm.copyFromRealm(groups);
+                if (temp != null) {
+                    int len = temp.size();
+                    if (len > 0) {
+                        for (Iterator<Group> it = temp.iterator(); it.hasNext(); ) {
+                            Group group = it.next();
+                            if (!groupList.contains(group)) {
+                                group.setSaved(0);
+                                resultList.addAll(temp);
+                            }
                         }
                     }
-                    realm.insertOrUpdate(temp);
                 }
             }
-            realm.commitTransaction();
+            if (resultList != null && resultList.size() > 0) {
+                realm.beginTransaction();
+                realm.insertOrUpdate(resultList);
+                realm.commitTransaction();
+            }
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-
     }
 
 
@@ -3321,18 +3303,6 @@ public class MsgDao {
                     if (results != null) {
                         results.deleteAllFromRealm();
                     }
-//                    List<MemberUser> removeMembers = new ArrayList<>();
-//                    for (MemberUser user : list) {
-//                        if (uids.contains(user.getUid())) {
-//                            removeMembers.add(user);
-//                        }
-//                        if (removeMembers.size() == uids.size()) {
-//                            break;
-//                        }
-//                    }
-//                    if (removeMembers.size() > 0) {
-//                        list.removeAll(removeMembers);
-//                    }
                 }
             }
             realm.commitTransaction();
