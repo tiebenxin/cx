@@ -691,12 +691,6 @@ public class MsgAction {
         NetUtil.getNet().exec(server.robotInfo(robotid, gid), callback);
     }
 
-
-    public void msgRead(String msgId, boolean isRead) {
-        dao.msgRead(msgId, isRead);
-    }
-
-
     /**
      * 转让群
      */

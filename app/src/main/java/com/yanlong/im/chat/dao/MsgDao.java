@@ -2422,26 +2422,6 @@ public class MsgDao {
     }
 
 
-    //7.8 要写语音已读的处理
-    public void msgRead(String msgid, boolean isRead) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
-            if (msgBean != null) {
-                msgBean.setRead(isRead);
-                realm.insertOrUpdate(msgBean);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.reportException(e);
-            DaoUtil.close(realm);
-        }
-
-    }
-
     /***
      * 个人配置修改,为空不修改
      */
@@ -2860,14 +2840,16 @@ public class MsgDao {
     }
 
     //修改播放消息状态
-    public void updatePlayStatus(String msgId, @ChatEnum.EPlayStatus int playStatus) {
-        MsgAllBean ret = null;
+    public void updatePlayStatus(String msgId, @ChatEnum.EPlayStatus int playStatus, boolean isRead) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        VoiceMessage message = realm.where(VoiceMessage.class).equalTo("msgid", msgId).findFirst();
-        if (message != null) {
-            message.setPlayStatus(playStatus);
-            realm.insertOrUpdate(message);
+        MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+        if (msgBean != null && msgBean.getVoiceMessage() != null) {
+            if (isRead) {
+                msgBean.setRead(true);
+            }
+            msgBean.getVoiceMessage().setPlayStatus(playStatus);
+            realm.insertOrUpdate(msgBean);
         }
         realm.commitTransaction();
         realm.close();

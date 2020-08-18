@@ -206,6 +206,7 @@ import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
+import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
@@ -828,14 +829,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onStart() {
         super.onStart();
+        SocketUtil.getSocketUtil().addEvent(msgEvent);
         initEvent();
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
         initData();
-        //注册消息监听
-        SocketUtil.getSocketUtil().addEvent(msgEvent);
     }
 
     @Override
@@ -3946,21 +3946,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    private void updatePlayStatus(MsgAllBean bean, int position,
-                                  @ChatEnum.EPlayStatus int status) {
-//        LogUtil.getLog().i(TAG, "updatePlayStatus--" + status + "--position=" + position);
+    private void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
         bean = amendMsgALlBean(position, bean);
         if (bean == null || bean.getVoiceMessage() == null) {
             return;
         }
         VoiceMessage voiceMessage = bean.getVoiceMessage();
+        boolean isRead = false;
         if (status == ChatEnum.EPlayStatus.NO_PLAY || status == ChatEnum.EPlayStatus.PLAYING) {//已点击下载，或者正在播
             if (bean.isRead() == false) {
-                msgAction.msgRead(bean.getMsg_id(), true);
+                isRead = true;
                 bean.setRead(true);
             }
         }
-        msgDao.updatePlayStatus(voiceMessage.getMsgId(), status);
+        msgDao.updatePlayStatus(voiceMessage.getMsgId(), status, isRead);
         voiceMessage.setPlayStatus(status);
         final MsgAllBean finalBean = bean;
         runOnUiThread(new Runnable() {
@@ -6756,5 +6755,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         intent.putExtra(FriendVerifyActivity.CONTENT, content);
         intent.putExtra(FriendVerifyActivity.USER_ID, uid);
         startActivityForResult(intent, 1);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRunState(EventRunState event) {
+        LogUtil.getLog().i(TAG, "连接LOG_切换前后台--注册监听");
+        if (!event.getRun()) {
+            onlineState = false;
+        }
     }
 }
