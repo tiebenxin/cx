@@ -6714,7 +6714,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setListener(new DialogCommon.IDialogListener() {
                     @Override
                     public void onSure() {
-                        mAdapter.removeMsgList(msgList);
+                        mAdapter.clearSelectedMsg();
                         if (MyAppLication.INSTANCE().repository != null) {
                             MyAppLication.INSTANCE().repository.deleteMsgList(msgList);
                         }
