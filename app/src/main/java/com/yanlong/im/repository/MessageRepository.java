@@ -6,8 +6,6 @@ import android.text.TextUtils;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.common.base.Function;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -22,7 +20,6 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.data.local.MessageLocalDataSource;
 import com.yanlong.im.data.remote.MessageRemoteDataSource;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -42,7 +39,6 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -135,23 +131,42 @@ public class MessageRepository {
 //                wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
 //            return;
 //        }
-        for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
-            ApplyBean applyBean = new ApplyBean();
-            applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
-            applyBean.setChatType(CoreEnum.EChatType.GROUP);
-            applyBean.setGid(wrapMessage.getGid());
-            applyBean.setGroupName(localDataSource.getGroupName(realm, wrapMessage.getGid()));
-            applyBean.setJoinType(wrapMessage.getRequestGroup().getJoinType().getNumber());
-            applyBean.setInviter(wrapMessage.getRequestGroup().getInviter());
-            applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
-            applyBean.setUid(ntm.getUid());
-            applyBean.setNickname(ntm.getNickname());
-            applyBean.setAvatar(ntm.getAvatar());
-            applyBean.setStat(1);
-            localDataSource.saveApplyBean(realm, applyBean);
+        // 先检查是否存在申请，不存在则显示红点
+        MsgDao msgDao = new MsgDao();
+        List<ApplyBean> listData = msgDao.getApplyBeanList();
+        int count = 0;
+        List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
+        if (list != null) {
+            for (MsgBean.GroupNoticeMessage ntm : list) {
+                ApplyBean applyBean = new ApplyBean();
+                applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
+                applyBean.setChatType(CoreEnum.EChatType.GROUP);
+                applyBean.setGid(wrapMessage.getGid());
+                applyBean.setGroupName(localDataSource.getGroupName(realm, wrapMessage.getGid()));
+                applyBean.setJoinType(wrapMessage.getRequestGroup().getJoinType().getNumber());
+                applyBean.setInviter(wrapMessage.getRequestGroup().getInviter());
+                applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
+                applyBean.setUid(ntm.getUid());
+                applyBean.setNickname(ntm.getNickname());
+                applyBean.setAvatar(ntm.getAvatar());
+                applyBean.setStat(1);
+                localDataSource.saveApplyBean(realm, applyBean);
+                // 存在的请求成员数量跟count数一样说明是已经存在
+                if (listData != null) {
+                    for (ApplyBean bean : listData) {
+                        if (!TextUtils.isEmpty(wrapMessage.getGid()) && wrapMessage.getGid().equals(bean.getGid())
+                                && ntm.getUid() == bean.getUid()) {
+                            count++;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (count == 0 || count != wrapMessage.getRequestGroup().getNoticeMessageList().size()) {
+                localDataSource.addRemindCount(realm, Preferences.FRIEND_APPLY);
+            }
+            MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
         }
-        localDataSource.addRemindCount(realm, "friend_apply");
-        MessageManager.getInstance().notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);//刷新首页 通讯录底部小红点
     }
 
 
@@ -182,8 +197,25 @@ public class MessageRepository {
      */
     public void handlerRequestFriendMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
-        //增加好友申请红点数
-        localDataSource.addRemindCount(realm, "friend_apply");
+        // 先检查是否存在，不存在则显示红点
+        MsgDao msgDao = new MsgDao();
+        List<ApplyBean> listData = msgDao.getApplyBeanList();
+        if (listData != null) {
+            boolean isFlg = false;
+            for (ApplyBean applyBean : listData) {
+                if (applyBean.getUid() == wrapMessage.getFromUid()) {
+                    isFlg = true;
+                    break;
+                }
+            }
+            if (!isFlg) {
+                // 增加好友申请红点数
+                localDataSource.addRemindCount(realm, Preferences.FRIEND_APPLY);
+            }
+        } else {
+            // 增加好友申请红点数
+            localDataSource.addRemindCount(realm, Preferences.FRIEND_APPLY);
+        }
         remoteDataSource.getRequestFriends(wrapMessage.getRequestFriend().getContactName(), applyBean -> {
             //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
             Realm realm1 = DaoUtil.open();
@@ -579,7 +611,7 @@ public class MessageRepository {
                 break;
             case ChatEnum.ESwitchType.FRIEND_DEACTIVATE: // 好友注销变更
                 UserDao userDao = new UserDao();
-                userDao.updateUserDeactivateValue(wrapMessage.getFromUid(),switchValue);//只更新本地数据->用户最新注销状态
+                userDao.updateUserDeactivateValue(wrapMessage.getFromUid(), switchValue);//只更新本地数据->用户最新注销状态
         }
         return result;
     }

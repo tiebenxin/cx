@@ -62,9 +62,11 @@ public class ChatCellFile extends ChatCellFileBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         contentMessage = message.getSendFileMessage();
-        if (UserAction.getMyId() != null) {
-            isFromMyPC = message.getFrom_uid() == UserAction.getMyId().intValue() && message.getTo_uid()==0L;
-        }else {
+        // TODO　处理发送文件时出现的Attempt to invoke virtual method 'long java.lang.Long.longValue()' on a null object reference
+        if (UserAction.getMyId() != null && message != null
+                && message.getFrom_uid() != null && message.getTo_uid() != null) {
+            isFromMyPC = message.getFrom_uid() == UserAction.getMyId().intValue() && message.getTo_uid() == 0L;
+        } else {
             isFromMyPC = false;
         }
         showContent(contentMessage);
@@ -77,9 +79,9 @@ public class ChatCellFile extends ChatCellFileBase {
         }
         ivFileIcon.setImageResource(MessageManager.getInstance().getFileIconRid(contentMessage.getFormat()));
         //来自电脑端，且为我发送的
-        if(isFromMyPC){
+        if (isFromMyPC) {
             layoutFromPC.setVisibility(VISIBLE);
-        }else {
+        } else {
             layoutFromPC.setVisibility(View.GONE);
         }
     }

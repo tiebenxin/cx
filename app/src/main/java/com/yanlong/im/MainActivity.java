@@ -311,7 +311,7 @@ public class MainActivity extends AppActivity {
     /**
      * 更新底部未读数
      */
-    private void updateUnReadCount() {
+    private synchronized void updateUnReadCount() {
         LogUtil.getLog().i("未读数", "onChange");
         RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().beginGroup().greaterThan("unread_count", 0).endGroup()
                 .or().beginGroup().greaterThan("markRead", 0).and().equalTo("isMute", 0).endGroup()

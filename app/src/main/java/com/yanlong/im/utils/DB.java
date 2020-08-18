@@ -214,22 +214,21 @@ public class DB {
      */
     public static void removeGroupMember(Realm realm, String gid, List<Long> uids) {
         try {
+            if (uids == null) {
+                return;
+            }
+            Long[] uidArr = uids.toArray(new Long[uids.size()]);
+            if (uidArr == null) {
+                return;
+            }
             realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
-                    List<MemberUser> removeMembers = new ArrayList<>();
-                    for (MemberUser user : list) {
-                        if (uids.contains(user.getUid())) {
-                            removeMembers.add(user);
-                        }
-                        if (removeMembers.size() == uids.size()) {
-                            break;
-                        }
-                    }
-                    if (removeMembers.size() > 0) {
-                        list.removeAll(removeMembers);
+                    RealmResults<MemberUser> results = list.where().in("uid", uidArr).findAll();
+                    if (results != null) {
+                        results.deleteAllFromRealm();
                     }
                 }
             }
@@ -535,13 +534,13 @@ public class DB {
      */
     public static void updateGroup(@NonNull Realm realm, Group ginfo) {
         try {
-            realm.beginTransaction();
             if (ginfo.getUsers() != null) {
                 //更新信息到用户表
                 for (MemberUser sv : ginfo.getUsers()) {
                     sv.init(ginfo.getGid());
                 }
             }
+            realm.beginTransaction();
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
         } catch (Exception e) {
@@ -685,10 +684,14 @@ public class DB {
         }
         String result = group.getName();
         if (TextUtils.isEmpty(result)) {
+            result = "";
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
+                    if (result.length() >= 14) {
+                        break;
+                    }
                     MemberUser info = users.get(i);
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());

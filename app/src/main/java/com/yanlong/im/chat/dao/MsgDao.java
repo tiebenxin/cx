@@ -12,9 +12,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
-import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
-import com.yanlong.im.chat.bean.EnvelopeTemp;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
@@ -576,7 +574,7 @@ public class MsgDao {
      * @param
      */
     public void groupNumberSave(Group ginfo) {
-        if(ginfo == null){
+        if (ginfo == null) {
             return;
         }
         for (MemberUser sv : ginfo.getUsers()) {
@@ -605,12 +603,10 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         try {
             groupInfoBean = new Group();
-            realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
                 groupInfoBean = realm.copyFromRealm(group);
             }
-            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -2274,8 +2270,6 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         List<ApplyBean> beans = new ArrayList<>();
-//        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
-
         //删除错误数据
         RealmResults<ApplyBean> resTemp = realm.where(ApplyBean.class).equalTo("uid", 0).findAll();
         if (resTemp != null) {
@@ -2427,26 +2421,6 @@ public class MsgDao {
         }
     }
 
-
-    //7.8 要写语音已读的处理
-    public void msgRead(String msgid, boolean isRead) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
-            if (msgBean != null) {
-                msgBean.setRead(isRead);
-                realm.insertOrUpdate(msgBean);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.reportException(e);
-            DaoUtil.close(realm);
-        }
-
-    }
 
     /***
      * 个人配置修改,为空不修改
@@ -2866,14 +2840,16 @@ public class MsgDao {
     }
 
     //修改播放消息状态
-    public void updatePlayStatus(String msgId, @ChatEnum.EPlayStatus int playStatus) {
-        MsgAllBean ret = null;
+    public void updatePlayStatus(String msgId, @ChatEnum.EPlayStatus int playStatus, boolean isRead) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        VoiceMessage message = realm.where(VoiceMessage.class).equalTo("msgid", msgId).findFirst();
-        if (message != null) {
-            message.setPlayStatus(playStatus);
-            realm.insertOrUpdate(message);
+        MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+        if (msgBean != null && msgBean.getVoiceMessage() != null) {
+            if (isRead) {
+                msgBean.setRead(true);
+            }
+            msgBean.getVoiceMessage().setPlayStatus(playStatus);
+            realm.insertOrUpdate(msgBean);
         }
         realm.commitTransaction();
         realm.close();
@@ -2922,10 +2898,14 @@ public class MsgDao {
         }
         String result = group.getName();
         if (TextUtils.isEmpty(result)) {
+            result = "";
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
+                    if (result.length() >= 14) {
+                        break;
+                    }
                     MemberUser info = users.get(i);
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
@@ -2948,12 +2928,15 @@ public class MsgDao {
             return "";
         }
         String result = group.getName();
-//        String result = "";
         if (TextUtils.isEmpty(result)) {
+            result = "";
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
+                    if (result.length() >= 14) {
+                        break;
+                    }
                     MemberUser info = users.get(i);
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
@@ -3320,6 +3303,13 @@ public class MsgDao {
 
     //移出群成员
     public void removeGroupMember(String gid, List<Long> uids) {
+        if (uids == null) {
+            return;
+        }
+        Long[] uidArr = uids.toArray(new Long[uids.size()]);
+        if (uidArr == null) {
+            return;
+        }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3327,18 +3317,22 @@ public class MsgDao {
             if (group != null) {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
-                    List<MemberUser> removeMembers = new ArrayList<>();
-                    for (MemberUser user : list) {
-                        if (uids.contains(user.getUid())) {
-                            removeMembers.add(user);
-                        }
-                        if (removeMembers.size() == uids.size()) {
-                            break;
-                        }
+                    RealmResults<MemberUser> results = list.where().in("uid", uidArr).findAll();
+                    if (results != null) {
+                        results.deleteAllFromRealm();
                     }
-                    if (removeMembers.size() > 0) {
-                        list.removeAll(removeMembers);
-                    }
+//                    List<MemberUser> removeMembers = new ArrayList<>();
+//                    for (MemberUser user : list) {
+//                        if (uids.contains(user.getUid())) {
+//                            removeMembers.add(user);
+//                        }
+//                        if (removeMembers.size() == uids.size()) {
+//                            break;
+//                        }
+//                    }
+//                    if (removeMembers.size() > 0) {
+//                        list.removeAll(removeMembers);
+//                    }
                 }
             }
             realm.commitTransaction();

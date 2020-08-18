@@ -741,7 +741,7 @@ public class SocketData {
     }
 
     /**
-     * 创建消息
+     * 创建文件消息
      *
      * @param msgId       消息id
      * @param filePath    文件路径
@@ -950,7 +950,7 @@ public class SocketData {
             msg.setFrom_nickname(bean.getFrom_nickname());
             msg.setFrom_group_nickname(bean.getFrom_group_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, type, getNoticeString(bean, type)));
-            if (type == ChatEnum.ENoticeType.SEAL_ACCOUNT) {
+            if (type == ChatEnum.ENoticeType.SEAL_ACCOUNT || type == ChatEnum.ENoticeType.FRIEND_DEACTIVATE) {
                 MsgNotice msgNotice = msg.getMsgNotice();
                 if (msgNotice != null) {
                     msgNotice.setNote(ack.getDesc());
@@ -992,12 +992,14 @@ public class SocketData {
                 case ChatEnum.ENoticeType.BLACK_ERROR:
                     note = "消息发送成功，但对方已拒收";
                     break;
-                case ChatEnum.ENoticeType.NO_FRI_ERROR:
+                case ChatEnum.ENoticeType.NO_FRI_ADD_FIRST:
                     String name = "";
                     if (bean.getTo_user() != null) {
                         name = bean.getTo_user().getName4Show();
                     }
-                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'><a href=''>" + name + "</a></font>\"" + "的好友, 请先添加对方为好友";
+//                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'><a href=''>" + name + "</a></font>\"" + "的好友, 请先添加对方为好友";
+                    String user = "<user id='" + bean.getTo_uid() + "'>" + name + "</user>";
+                    note = "你已不是\"" + user + "\"的好友，请先" + "<add id='" + bean.getTo_uid() + "'>添加对方为好友</add>";
                     break;
                 case ChatEnum.ENoticeType.LOCK:
                     note = "聊天中所有信息已进行" + "<font color='#1f5305' tag=" + ChatEnum.ETagType.LOCK + ">" + "端对端加密" + "</font>" + "保护";

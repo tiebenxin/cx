@@ -31,6 +31,8 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -71,6 +73,8 @@ public class SocketUtil {
     private ScheduledFuture<?> heardSchedule;
     private Transmission transmission;
     private final AtomicReference<Integer> connStatus = new AtomicReference<>(EConnectionStatus.DEFAULT);
+    private long startAuthTime;
+    private long startTime;
 
     //事件分发
     private static SocketEvent event = new SocketEvent() {
@@ -108,9 +112,13 @@ public class SocketUtil {
                 msgAllBean = SocketData.updateMsgSendStatusByAck(bean, false);
                 if (msgAllBean == null) {
                     SocketData.msgSave4MeFail(bean);
+                } else {
+                    if (msgAllBean.getMsg_type() != null && msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
+                        return;
+                    }
                 }
                 if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
-                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.NO_FRI_ERROR);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.NO_FRI_ADD_FIRST);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
@@ -134,6 +142,12 @@ public class SocketUtil {
                     }
                 } else if (bean.getRejectType() == MsgBean.RejectType.FRIEND_FROZEN) {//账号被冻结
                     MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.FREEZE_ACCOUNT);
+                    //收到直接存表
+                    if (msg != null) {
+                        DaoUtil.update(msg);
+                    }
+                } else if (bean.getRejectType() == MsgBean.RejectType.FRIEND_DEACTIVATE) {//该账号已注销
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.FRIEND_DEACTIVATE);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
@@ -233,7 +247,6 @@ public class SocketUtil {
             }
         }
     };
-    private long startAuthTime;
 
 
     public boolean isRun() {
@@ -445,6 +458,7 @@ public class SocketUtil {
             LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
             return;
         }
+        setRunState(0);
         isStart = true;
         ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
             @Override
@@ -562,8 +576,9 @@ public class SocketUtil {
         //socketChannel =  SocketChannel.open();
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
-        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
-        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
+        startTime = System.currentTimeMillis();
+        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
@@ -608,7 +623,9 @@ public class SocketUtil {
                 //证书问题
                 throw new NetworkErrorException();
             } else {
-                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
+                long endTime = System.currentTimeMillis();
+                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (endTime - ctime));
+                showConnectTime(endTime);
                 receive();
                 //发送认证请求
                 TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
@@ -616,6 +633,16 @@ public class SocketUtil {
             }
         }
 
+    }
+
+    private void showConnectTime(long endTime) {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                double time = (endTime - startTime) * 1.00 / 1000;
+                ToastUtil.show("连接时间为" + time + "s");
+            }
+        });
     }
 
     /***
@@ -838,7 +865,7 @@ public class SocketUtil {
         if (transmission == null) {
             transmission = Transmission.create(true);
         }
-        long startTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
         LogUtil.getLog().i(TAG, "连接LOG--连接前-status=" + connStatus.get() + "--time=" + startTime);
         if (connStatus.get() == EConnectionStatus.DEFAULT) {
             updateConnectStatus(EConnectionStatus.CONNECTING);
@@ -876,12 +903,14 @@ public class SocketUtil {
 
                         @Override
                         public void whenAuthResponse(Transmission trs, byte[] rsp) {
-                            LogUtil.getLog().i(TAG, "连接LOG --Transmission --接收到鉴权" + "--time=" + System.currentTimeMillis());
-                            LogUtil.writeLog(TAG + "--连接LOG --whenAuthResponse success" + "--鉴权耗时=" + (System.currentTimeMillis() - startAuthTime));
+                            long endTime = System.currentTimeMillis();
+                            LogUtil.getLog().i(TAG, "连接LOG --Transmission --接收到鉴权" + "--time=" + endTime);
+                            LogUtil.writeLog(TAG + "--连接LOG --whenAuthResponse success" + "--鉴权耗时=" + (endTime - startAuthTime));
+                            showConnectTime(endTime);
                             try {
                                 MsgBean.AuthResponseMessage authMessage = MsgBean.AuthResponseMessage.parseFrom(rsp);
                                 if (authMessage != null && authMessage.getAccepted() == 1) {
-                                    LogUtil.getLog().i(TAG, "连接LOG --Transmission --鉴权成功" + "--time=" + System.currentTimeMillis());
+                                    LogUtil.getLog().i(TAG, "连接LOG --Transmission --鉴权成功" + "--time=" + endTime);
                                     updateConnectStatus(EConnectionStatus.AUTH);
                                     sendRequestForOffline2();
                                     sendListThread();
@@ -943,7 +972,7 @@ public class SocketUtil {
                             stopSocket2();
                             if (cause instanceof UnknownHostException) {
 
-                            }else {
+                            } else {
                                 try {
                                     Thread.sleep(100);
                                 } catch (InterruptedException e) {

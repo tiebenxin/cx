@@ -12,7 +12,6 @@ import android.text.TextUtils;
 import com.yanlong.im.user.bean.PhoneBean;
 
 import net.cb.cb.library.utils.CheckPermissionUtils;
-import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -187,7 +186,13 @@ public class PhoneListUtil {
                     //号码处理
                     String replace = "";
                     if (!TextUtils.isEmpty(phoneNumber)) {
-                        replace = phoneNumber.replace(" ", "").replace("-", "").replace("+", "");
+                        replace = phoneNumber.replace(" ", "").
+                                replace("-", "").
+                                replace("+", "").
+                                replace("+86", "");
+                    }
+                    if (TextUtils.isEmpty(replace) || replace.length() != 11) {
+                        continue;
                     }
                     //如果联系人Map不包含该contactId
                     PhoneBean contacts = new PhoneBean();
