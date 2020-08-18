@@ -94,7 +94,9 @@ public class AdapterPopMenu extends RecyclerView.Adapter<RecyclerView.ViewHolder
             } else if (item.getTitle().equals("多选")) {
                 ivPicture.setImageResource(R.mipmap.ic_chat_bubble_duoxuan);
             } else if (item.getTitle().equals("听筒播放")) {
-                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_copy);
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_tingtong);
+            } else if (item.getTitle().equals("扬声器播放")) {
+                ivPicture.setImageResource(R.mipmap.ic_chat_bubble_ysq);
             } else if (item.getTitle().equals("撤回")) {
                 ivPicture.setImageResource(R.mipmap.ic_chat_bubble_back);
             }

@@ -94,7 +94,12 @@ public class ChatActionActivity extends AppActivity {
         }else {
             txtName.setText(msgAllbean.getFrom_user().getName());
         }
-        txtMsg.setText(msgAllbean.getStamp().getComment());
+        if(!TextUtils.isEmpty(msgAllbean.getStamp().getComment())){
+            txtMsg.setVisibility(View.VISIBLE);
+            txtMsg.setText(msgAllbean.getStamp().getComment());
+        }else {
+            txtMsg.setVisibility(View.GONE);
+        }
         viewNo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

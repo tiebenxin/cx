@@ -738,7 +738,7 @@ public class SocketData {
     }
 
     /**
-     * 创建消息
+     * 创建文件消息
      *
      * @param msgId       消息id
      * @param filePath    文件路径

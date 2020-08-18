@@ -2531,6 +2531,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 ToastUtil.show(getResources().getString(R.string.to_disable_message));
                                 return;
                             }
+                            // 对方被注销
+                            if(userInfo.getFriendDeactivateStat()!=0){
+                                int status = userInfo.getFriendDeactivateStat();
+                                String content = "";
+                                if(status==-1){
+                                    content = "该账号已注销，无法接通";
+                                }else if(status==1){
+                                    content = "该账号正在注销中，无法接通";
+                                }
+                                //给自己发一条本地通知消息
+                                MsgNotice notice = SocketData.createMsgNotice(SocketData.getUUID(), ChatEnum.ENoticeType.FRIEND_DEACTIVATE,content);
+                                MsgAllBean msgAllBean = SocketData.createMessageBean(userInfo.getUid(), "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+                                SocketData.saveMessage(msgAllBean);
+                                taskRefreshMessage(false);
+                                return;
+                            }
                             EventFactory.CloseMinimizeEvent event = new EventFactory.CloseMinimizeEvent();
                             event.isClose = true;
                             EventBus.getDefault().post(event);
@@ -4528,18 +4544,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         params.addRule(RelativeLayout.BELOW, R.id.rl_up);
         if (isMe) {
             if (itemCount < 4) {
-                params.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+                params.setMargins(0, 0, ScreenUtil.dip2px(this, 52), 0);
             }
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+            layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 52), 0);
         } else {
             if (itemCount < 4) {
-                params.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
+                params.setMargins(ScreenUtil.dip2px(this, 52), 0, 0, 0);
             }
             params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            layoutParams.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
+            layoutParams.setMargins(ScreenUtil.dip2px(this, 52), 0, 0, 0);
         }
         mRecyclerBubble.setLayoutParams(params);
         if (gravity == 1) {
