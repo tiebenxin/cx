@@ -4529,18 +4529,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         params.addRule(RelativeLayout.BELOW, R.id.rl_up);
         if (isMe) {
             if (itemCount < 4) {
-                params.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+                params.setMargins(0, 0, ScreenUtil.dip2px(this, 52), 0);
             }
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+            layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 52), 0);
         } else {
             if (itemCount < 4) {
-                params.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
+                params.setMargins(ScreenUtil.dip2px(this, 52), 0, 0, 0);
             }
             params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            layoutParams.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
+            layoutParams.setMargins(ScreenUtil.dip2px(this, 52), 0, 0, 0);
         }
         mRecyclerBubble.setLayoutParams(params);
         if (gravity == 1) {
