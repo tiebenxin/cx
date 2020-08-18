@@ -57,8 +57,8 @@ public class ChatCellNotice extends ChatCellBase {
                     tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
                 } else {
                     if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
-                            || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
-                            || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN || notice.getMsgType() == ChatEnum.ENoticeType.DEFAULT_USER) {
+                            || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN
+                            || notice.getMsgType() == ChatEnum.ENoticeType.DEFAULT_USER|| notice.getMsgType() == ChatEnum.ENoticeType.NO_FRI_ADD_FIRST) {
                         tv_content.setText(Html.fromHtml(notice.getNote(), null,
                                 new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
                     } else {

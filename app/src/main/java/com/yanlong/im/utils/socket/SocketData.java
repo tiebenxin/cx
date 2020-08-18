@@ -788,12 +788,12 @@ public class SocketData {
         cancel.setTime(cancelMsg.getTimestamp());
         cancel.setUid(cancelMsg.getFrom_uid());//被撤回的消息来源于哪个用户的uid
         cancel.setRole(myType);
-        if(!TextUtils.isEmpty(cancelMsg.getFrom_group_nickname())){
+        if (!TextUtils.isEmpty(cancelMsg.getFrom_group_nickname())) {
             cancel.setAlterantive_name(cancelMsg.getFrom_group_nickname());//被撤回消息用户B的群昵称，不含备注
-        }else {
-            if(!TextUtils.isEmpty(cancelMsg.getFrom_nickname())){
+        } else {
+            if (!TextUtils.isEmpty(cancelMsg.getFrom_nickname())) {
                 cancel.setAlterantive_name(cancelMsg.getFrom_nickname());
-            }else {
+            } else {
                 cancel.setAlterantive_name("");
             }
         }
@@ -988,12 +988,14 @@ public class SocketData {
                 case ChatEnum.ENoticeType.BLACK_ERROR:
                     note = "消息发送成功，但对方已拒收";
                     break;
-                case ChatEnum.ENoticeType.NO_FRI_ERROR:
+                case ChatEnum.ENoticeType.NO_FRI_ADD_FIRST:
                     String name = "";
                     if (bean.getTo_user() != null) {
                         name = bean.getTo_user().getName4Show();
                     }
-                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'><a href=''>" + name + "</a></font>\"" + "的好友, 请先添加对方为好友";
+//                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'><a href=''>" + name + "</a></font>\"" + "的好友, 请先添加对方为好友";
+                    String user = "<user id='" + bean.getTo_uid() + "'>" + name + "</user>";
+                    note = "你已不是\"" + user + "\"的好友，请先" + "<add id='" + bean.getTo_uid() + "'>添加对方为好友</add>";
                     break;
                 case ChatEnum.ENoticeType.LOCK:
                     note = "聊天中所有信息已进行" + "<font color='#1f5305' tag=" + ChatEnum.ETagType.LOCK + ">" + "端对端加密" + "</font>" + "保护";

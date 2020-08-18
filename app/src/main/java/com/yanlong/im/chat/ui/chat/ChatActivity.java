@@ -166,6 +166,7 @@ import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.CollectionActivity;
+import com.yanlong.im.user.ui.FriendVerifyActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -2138,10 +2139,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         if (mViewModel.userInfo != null) {
-                            if(mViewModel.userInfo.getFriendDeactivateStat() == -1){
+                            if (mViewModel.userInfo.getFriendDeactivateStat() == -1) {
                                 showLogOutDialog(-1);
                                 return;
-                            }else if(mViewModel.userInfo.getFriendDeactivateStat() == 1){
+                            } else if (mViewModel.userInfo.getFriendDeactivateStat() == 1) {
                                 showLogOutDialog(1);
                                 return;
                             }
@@ -2157,10 +2158,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         if (mViewModel.userInfo != null) {
-                            if(mViewModel.userInfo.getFriendDeactivateStat() == -1){
+                            if (mViewModel.userInfo.getFriendDeactivateStat() == -1) {
                                 showLogOutDialog(-1);
                                 return;
-                            }else if(mViewModel.userInfo.getFriendDeactivateStat() == 1){
+                            } else if (mViewModel.userInfo.getFriendDeactivateStat() == 1) {
                                 showLogOutDialog(1);
                                 return;
                             }
@@ -3754,6 +3755,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         mViewModel.isInputText.setValue(true);
 
+    }
+
+    @Override
+    public void clickAddFriend(String uid) {
+        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+            ToastUtil.show(getResources().getString(R.string.user_disable_message));
+            return;
+        }
+        try {
+            Long userId = Long.parseLong(uid);
+            if (userId != null && userId.longValue() > 0) {
+                toSendVerifyActivity(userId);
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
@@ -6714,11 +6731,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /**
      * 注销提示弹框
      */
-    private void showLogOutDialog(int type){
+    private void showLogOutDialog(int type) {
         String content = "";
-        if(type==1){
+        if (type == 1) {
             content = "该账号正在注销中，为了保障你的资金安全，\n暂时无法交易";
-        }else if(type==-1){
+        } else if (type == -1) {
             content = "该账号已注销，为了保障你的资金安全，\n暂时无法交易";
         }
         dialogOne = builder.setTitle(content)
@@ -6727,5 +6744,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setRightOnClickListener(v -> dialogOne.dismiss())
                 .build();
         dialogOne.show();
+    }
+
+    private void toSendVerifyActivity(Long uid) {
+        IUser myInfo = UserAction.getMyInfo();
+        if (myInfo == null) {
+            return;
+        }
+        String content = "我是" + myInfo.getName();
+        Intent intent = new Intent(ChatActivity.this, FriendVerifyActivity.class);
+        intent.putExtra(FriendVerifyActivity.CONTENT, content);
+        intent.putExtra(FriendVerifyActivity.USER_ID, uid);
+        startActivityForResult(intent, 1);
     }
 }

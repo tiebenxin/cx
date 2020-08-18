@@ -76,7 +76,7 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE: // 你领取的xxx的云红包
                     setTypeEnvelopeReceived(context, style, bean, 1);
                     break;
-                case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败
+                case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败,已废弃（新的为NO_FRI_ADD_FIRST），为兼容旧数据，不删除
                     Spanned spannedHtml1 = Html.fromHtml(html);
                     // subSequence 是去掉换行
                     SpannableStringBuilder clickableHtmlBuilder1 = new SpannableStringBuilder(spannedHtml1.subSequence(0, spannedHtml1.length()));

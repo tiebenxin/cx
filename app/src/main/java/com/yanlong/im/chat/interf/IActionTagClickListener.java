@@ -22,4 +22,7 @@ public interface IActionTagClickListener {
     //点击撤消息，重新编辑
     void clickEditAgain(String content);
 
+    //点击添加好哟
+    void clickAddFriend(String uid);
+
 }

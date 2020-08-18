@@ -90,9 +90,13 @@ public class SocketUtil {
                 msgAllBean = SocketData.updateMsgSendStatusByAck(bean, false);
                 if (msgAllBean == null) {
                     SocketData.msgSave4MeFail(bean);
+                }else {
+                    if (msgAllBean.getMsg_type() != null && msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
+                        return;
+                    }
                 }
                 if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
-                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.NO_FRI_ERROR);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.NO_FRI_ADD_FIRST);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
