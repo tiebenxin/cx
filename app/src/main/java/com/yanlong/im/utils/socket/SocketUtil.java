@@ -25,6 +25,8 @@ import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ThreadUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -90,7 +92,7 @@ public class SocketUtil {
                 msgAllBean = SocketData.updateMsgSendStatusByAck(bean, false);
                 if (msgAllBean == null) {
                     SocketData.msgSave4MeFail(bean);
-                }else {
+                } else {
                     if (msgAllBean.getMsg_type() != null && msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
                         return;
                     }
@@ -226,6 +228,7 @@ public class SocketUtil {
         }
     };
     private ScheduledFuture<?> heardSchedule;
+    private long startTime;
 
     public boolean isRun() {
         return isRun > 0;
@@ -547,8 +550,9 @@ public class SocketUtil {
         //socketChannel =  SocketChannel.open();
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
-        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
-        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + System.currentTimeMillis());
+        startTime = System.currentTimeMillis();
+        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
@@ -593,7 +597,9 @@ public class SocketUtil {
                 //证书问题
                 throw new NetworkErrorException();
             } else {
-                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
+                long endTime = System.currentTimeMillis();
+                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (endTime - ctime));
+                showConnectTime(endTime);
                 receive();
                 //发送认证请求
                 TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
@@ -601,6 +607,15 @@ public class SocketUtil {
             }
         }
 
+    }
+
+    private void showConnectTime(long endTime) {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.show("连接时间为" + (endTime - startTime) + "ms");
+            }
+        });
     }
 
     /***

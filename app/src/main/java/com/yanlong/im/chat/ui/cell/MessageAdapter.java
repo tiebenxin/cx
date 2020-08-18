@@ -356,6 +356,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
         refreshPositions();
     }
 
+    public void clearSelectedMsg() {
+        if (selectedList != null) {
+            selectedList.clear();
+        }
+    }
+
     //更新数据
     public int updateMessage(MsgAllBean bean) {
         int index = -1;
