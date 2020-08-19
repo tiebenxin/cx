@@ -93,6 +93,38 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <!-- 设置备注 通过验证-->
+        <LinearLayout
+            android:id="@+id/view_setting_note"
+            style="@style/app_layout_list2"
+            android:layout_marginTop="12.5dp"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:textSize="12sp"
+                android:paddingLeft="@dimen/app_margin_main"
+                android:textColor="@color/color_999"
+                android:layout_marginBottom="7dp"
+                android:text="设置备注" />
+
+            <EditText
+                android:id="@+id/et_note"
+                android:paddingLeft="@dimen/app_margin_main"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:textSize="16sp"
+                android:textColor="@color/black_33"
+                android:singleLine="true"
+                android:paddingRight="@dimen/app_margin_main"
+                android:ellipsize="end"
+                android:maxLength="50"
+                android:text=""
+                android:background="@color/white"/>
+
+        </LinearLayout>
+
         <!-- 进群方式-->
         <LinearLayout
             android:id="@+id/view_join_group_type"

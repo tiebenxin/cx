@@ -22,7 +22,6 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:layout_marginTop="18dp"
                 android:text="你需要发送验证申请，等待对方验证通过"
                 android:textColor="#9e9d9d"
@@ -62,10 +61,46 @@
                     android:layout_height="1dp"
                     android:background="#32b053" />
 
-
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tv_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="设置备注"
+                android:textColor="#9e9d9d"
+                android:textSize="12sp" />
 
+            <LinearLayout
+                android:id="@+id/layout_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/et_note"
+                        android:layout_width="0dp"
+                        android:layout_height="30dp"
+                        android:singleLine="true"
+                        android:layout_weight="1"
+                        android:background="@null" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#32b053" />
+
+
+            </LinearLayout>
         </LinearLayout>
 
 

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -17,30 +17,21 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
-import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
-import com.yanlong.im.chat.ui.groupmanager.SetupSysManagerActivity;
 import com.yanlong.im.databinding.ActivityFriendMatchBinding;
-import com.yanlong.im.databinding.ItemFriendMatchBindBinding;
-import com.yanlong.im.databinding.ItemSetupManagerBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -50,22 +41,10 @@ import com.yanlong.im.utils.UserUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.CheckUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SpUtil;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
-import net.cb.cb.library.view.AppActivity;
-import net.cb.cb.library.view.ClearEditText;
-import net.cb.cb.library.view.HeadView;
-import net.cb.cb.library.view.MultiListView;
-import net.cb.cb.library.view.PySortView;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,6 +73,9 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
     private boolean isFirstUpload = true;// 是否第一次匹配
     private List<List<PhoneBean>> subList;//批次上传-切割后的数据
     private UserDao userDao = new UserDao();
+    public static final int SEND_VERIFY = 1;
+    private Long mUid;
+    private int mPostion;
 
     private List<FriendInfoBean> recentFriends = new ArrayList<>();// 最近7天数据
 
@@ -343,7 +325,15 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                             intent.putExtra("sms_body", getResources().getString(R.string.send_note_message));
                             startActivity(intent);
                         } else {
-                            onAddFriend(bean, position);
+                            mUid = bean.getUid();
+                            mPostion = position;
+                            String content = "我是" + UserAction.getMyInfo().getName();
+                            Intent intent = new Intent(FriendMatchActivity.this, FriendVerifyActivity.class);
+                            intent.putExtra(FriendVerifyActivity.CONTENT, content);
+                            intent.putExtra(FriendVerifyActivity.USER_ID, bean.getUid());
+                            intent.putExtra(FriendVerifyActivity.USER_NOTE, bean.getPhoneremark());
+                            startActivityForResult(intent, SEND_VERIFY);
+//                            onAddFriend(bean, position);
                         }
                     }
                 }
@@ -540,4 +530,17 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case SEND_VERIFY:
+                    onDelete(mUid);
+                    listData.remove(mPostion);
+                    bindingView.mtListView.notifyDataSetChange();
+                    break;
+            }
+        }
+    }
 }

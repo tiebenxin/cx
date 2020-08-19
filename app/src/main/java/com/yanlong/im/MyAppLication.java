@@ -85,7 +85,6 @@ public class MyAppLication extends MainApplication {
         super.onCreate();
         initNim();
         AppConfig.setContext(getApplicationContext());
-        HandleWebviewCrash();
         ///推送处理
         initUPushPre();
 
@@ -127,6 +126,12 @@ public class MyAppLication extends MainApplication {
                 WebView.setDataDirectorySuffix(processName);
             }
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        HandleWebviewCrash();
     }
 
     private Intent messageIntentService = null;

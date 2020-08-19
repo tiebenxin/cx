@@ -241,7 +241,7 @@ public class MsgConversionBean {
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
                 //isError true 表示是回执错误导致发送失败,发送者是自己，零钱红包
-                 if (receiveRedEnvelope.getReType().getNumber() == 1) {
+                if (receiveRedEnvelope.getReType().getNumber() == 1) {
                     if (isError) {
                         rbNotice.setMsgType(ENoticeType.RECEIVE_SYS_ENVELOPE);
                         String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
@@ -284,9 +284,14 @@ public class MsgConversionBean {
             //需要保存的通知类消息
             case ACCEPT_BE_FRIENDS:// 接收好友请求
                 msgAllBean.setMsg_type(EMessageType.NOTICE);
+                MsgBean.AcceptBeFriendsMessage receiveMessage = bean.getAcceptBeFriends();
                 MsgNotice msgNotice = new MsgNotice();
                 msgNotice.setMsgid(msgAllBean.getMsg_id());
-                msgNotice.setNote(bean.getNickname() + "已加你为好友");
+                if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getContactName())) {
+                    msgNotice.setNote(receiveMessage.getContactName() + "已加你为好友");
+                } else {
+                    msgNotice.setNote(bean.getNickname() + "已加你为好友");
+                }
                 msgAllBean.setMsgNotice(msgNotice);
                 break;
             case ACCEPT_BE_GROUP://接受入群请求
@@ -588,16 +593,16 @@ public class MsgConversionBean {
                 MsgCancel msgCel = new MsgCancel();
                 if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
                     //我撤回我自己的消息
-                    if(bean.getCancel()!=null){
-                        if(bean.getFromUid()==bean.getCancel().getUid()){
+                    if (bean.getCancel() != null) {
+                        if (bean.getFromUid() == bean.getCancel().getUid()) {
                             msgCel.setNote("你撤回了一条消息");
-                        }else {
+                        } else {
                             //PC端我撤回别人的消息
                             String tempName = "";
-                            if(!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))){
+                            if (!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))) {
                                 tempName = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
-                            }else {
-                                if(!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())){
+                            } else {
+                                if (!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())) {
                                     tempName = bean.getCancel().getAlterantiveName();
                                 }
                             }
@@ -623,14 +628,14 @@ public class MsgConversionBean {
                         String userA = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
                         String userB = "";
                         //如果对方撤回的是你的消息，则提示A撤回了你的一条消息
-                        if(bean.getCancel().getUid() == UserAction.getMyId().longValue()){
+                        if (bean.getCancel().getUid() == UserAction.getMyId().longValue()) {
                             msgCel.setNote("\"" + userA + "\"撤回了你的一条消息");
-                        }else {
+                        } else {
                             //优先取备注名，如果查不到该用户资料，则取传过来的昵称值
-                            if(!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))){
+                            if (!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))) {
                                 userB = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
-                            }else {
-                                if(!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())){
+                            } else {
+                                if (!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())) {
                                     userB = bean.getCancel().getAlterantiveName();
                                 }
                             }

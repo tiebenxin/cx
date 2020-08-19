@@ -54,7 +54,6 @@ public class FriendApplyAcitvity extends AppActivity {
     private MsgAction msgAction = new MsgAction();
     private MsgDao msgDao = new MsgDao();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +85,6 @@ public class FriendApplyAcitvity extends AppActivity {
         mtListView = findViewById(R.id.mtListView);
     }
 
-
     //自动生成的控件事件
     private void initEvent() {
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -104,7 +102,6 @@ public class FriendApplyAcitvity extends AppActivity {
         mtListView.init(new RecyclerViewAdapter());
 
     }
-
 
     private void initData() {
         listData = msgDao.getApplyBeanList();
@@ -141,7 +138,6 @@ public class FriendApplyAcitvity extends AppActivity {
             ApplyBean bean = listData.get(position);
             if (CoreEnum.EChatType.PRIVATE == bean.getChatType()) {
                 holder.txtName.setText(bean.getNickname());
-                // holder.imgHead.setImageURI(bean.getHead());
                 Glide.with(context).load(bean.getAvatar())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
@@ -168,7 +164,11 @@ public class FriendApplyAcitvity extends AppActivity {
                         Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
                         intent.putExtra(UserInfoActivity.ID, bean.getUid());
                         intent.putExtra(UserInfoActivity.SAY_HI, bean.getSayHi());
-                        intent.putExtra(UserInfoActivity.IS_APPLY, 1);
+                        if (bean.getStat() == 2) {
+                            intent.putExtra(UserInfoActivity.IS_APPLY, 0);
+                        } else {
+                            intent.putExtra(UserInfoActivity.IS_APPLY, 1);
+                        }
                         startActivity(intent);
                     }
                 });
@@ -213,15 +213,11 @@ public class FriendApplyAcitvity extends AppActivity {
                         }
                         //拒绝
                         holder.mSwipeLayout.quickClose();
-//                        bean.setStat(3);
-//                        msgDao.applyGroup(bean);
                         msgDao.applyRemove(bean.getAid());
                         initData();
                     }
                 });
             }
-
-            //  holder.txtState.setText("已添加");
 
             holder.btnComit.setVisibility(View.VISIBLE);
             holder.txtState.setVisibility(View.GONE);
@@ -234,12 +230,7 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.btnComit.setBackgroundColor(getResources().getColor(R.color.transparent));
                 holder.btnComit.setEnabled(false);
             }
-//            else if(bean.getStat()==3){
-//                holder.btnComit.setText("已拒绝");
-//                holder.btnComit.setEnabled(false);
-//            }
         }
-
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
@@ -264,7 +255,6 @@ public class FriendApplyAcitvity extends AppActivity {
                 mSwipeLayout = convertView.findViewById(R.id.swipeLayout);
                 mBtnDel = convertView.findViewById(R.id.btn_del);
             }
-
         }
     }
 
@@ -281,8 +271,6 @@ public class FriendApplyAcitvity extends AppActivity {
                     }
                     ToastUtil.show(getContext(), response.body().getMsg());
                     if (response.body().isOk()) {
-//                    bean.setStat(3);
-//                   msgDao.applyFriend(bean);
                         msgDao.applyRemove(bean.getAid());
                         initData();
                     }
@@ -300,13 +288,11 @@ public class FriendApplyAcitvity extends AppActivity {
                         if (response.body().isOk()) {
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
-//                            initData();
                             notifyItem(bean);
                             groupInfo(bean.getGid());
                         } else if (response.body().getCode() == 10005) {//已是群成员
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
-//                            initData();
                             notifyItem(bean);
                             groupInfo(bean.getGid());
                         } else {
@@ -326,17 +312,16 @@ public class FriendApplyAcitvity extends AppActivity {
                     List<String> gids = new ArrayList<>();
                     gids.add(gid);
                     //回主线程调用更新session详情
-                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                    if (MyAppLication.INSTANCE().repository != null)
+                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
                     /********通知更新sessionDetail end************************************/
                 }
             }
         });
     }
 
-
     private void taskFriendAgree(ApplyBean bean) {
-//        bean.getNickname()
-        userAction.friendAgree(bean.getUid(), "", new CallBack<ReturnBean>() {
+        userAction.friendAgree(bean.getUid(), bean.getAlias(), null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
@@ -348,15 +333,11 @@ public class FriendApplyAcitvity extends AppActivity {
                     EventBus.getDefault().post(new EventRefreshFriend());
                     bean.setStat(2);
                     msgDao.applyFriend(bean);
-//                    initData();
                     notifyItem(bean);
-                } else {
-                    // ToastUtil.show(getContext(),response.body().getMsg());
                 }
             }
         });
     }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshApplyEvent(RefreshApplyEvent event) {
