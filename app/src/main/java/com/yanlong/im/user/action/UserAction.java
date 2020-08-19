@@ -1,7 +1,10 @@
 package com.yanlong.im.user.action;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
@@ -12,6 +15,7 @@ import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.bean.AddressBookMatchingBean;
@@ -45,10 +49,16 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
 import cn.jpush.android.api.JPushInterface;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -576,9 +586,7 @@ public class UserAction {
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
-                    //更新库
-                    dao.friendMeUpdate(list);
-
+                    saveRoster(list);
                 }
                 callback.onResponse(call, response);
 
@@ -590,6 +598,50 @@ public class UserAction {
                 callback.onResponse(call, null);
             }
         });
+    }
+
+    @SuppressLint("CheckResult")
+    private void saveRoster(List<UserInfo> list) {
+        if (list == null) {
+            return;
+        }
+        Observable.just(0)
+                .map(new Function<Integer, Boolean>() {
+                    @Override
+                    public Boolean apply(Integer integer) throws Exception {
+                        int len = list.size();
+                        List<Long> longs = new ArrayList<>();
+                        IUser user = UserAction.getMyInfo();
+                        for (int i = 0; i < len; i++) {
+                            UserInfo userInfo = list.get(i);
+                            //文件传输助手
+                            if (user.getUid().longValue() == userInfo.getUid().longValue()) {
+                                long uid = userInfo.getUid().longValue();
+                                userInfo.setUid(-uid);
+                            }
+                            longs.add(userInfo.getUid());
+                            //更新用户相关
+                            userInfo.toTag();
+                            if (userInfo.getStat() == 9) {
+                                userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                                userInfo.setLastonline(System.currentTimeMillis());
+                            } else {
+                                userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                            }
+
+                        }
+                        dao.updateRoster(list, longs);
+                        return true;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<Boolean>empty())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean b) throws Exception {
+
+                    }
+                });
     }
 
     /***

@@ -3,7 +3,6 @@ package com.yanlong.im.chat.action;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
@@ -38,7 +37,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.WeakHashMap;
 
 import okhttp3.MediaType;
@@ -241,20 +239,17 @@ public class MsgAction {
                             if (MessageManager.getInstance().isGroupValid2(group)) {//在群中，才更新
                                 if (MessageManager.getInstance().isGroupValid2(newGroup)) {
                                     dao.groupNumberSave(newGroup);
-//                                    MessageManager.getInstance().updateCacheGroup(group);
                                 } else {
                                     dao.removeGroupMember(group.getGid(), UserAction.getMyId());
                                 }
                             } else {
                                 if (MessageManager.getInstance().isGroupValid2(newGroup)) {//重新被拉进群，更新
                                     dao.groupNumberSave(newGroup);
-//                                    MessageManager.getInstance().updateCacheGroup(group);
                                 }
                             }
                             MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
                         } else {
                             dao.groupNumberSave(newGroup);
-//                            MessageManager.getInstance().updateCacheGroup(group);
                         }
                         //8.8 取消从数据库里读取群成员信息
                         if(callback != null)callback.onResponse(call, response);
@@ -318,8 +313,6 @@ public class MsgAction {
                 public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                     super.onFailure(call, t);
                     LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
-//                    t.printStackTrace();
-//                    MessageManager.getInstance().removeLoadGids(gid);
                     if(callback != null)callback.onFailure(call, new Throwable());
                 }
             });
@@ -341,16 +334,6 @@ public class MsgAction {
         body.setCode(0l);
         body.setData(rdata);
         Response<ReturnBean<Group>> response = Response.success(body);
-        //8.8 取消从数据库里读取群成员信息
-//        for (MemberUser userInfo : response.body().getData().getUsers()) {
-//            GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-//            if (link != null && !TextUtils.isEmpty(link.getMembername())) {
-//                userInfo.setMembername(link.getMembername());
-//                if (userInfo.getUid().equals(UserAction.getMyId())) {
-//                    response.body().getData().setMygroupName(link.getMembername());
-//                }
-//            }
-//        }
         if(callback != null)callback.onResponse(null, response);
     }
 
@@ -367,7 +350,6 @@ public class MsgAction {
      */
     public List<Group> searchGroup4key(String key) {
         return dao.getGroupByKey(key);
-//        return dao.searchGroup4key(key);
     }
 
     /***
@@ -385,34 +367,20 @@ public class MsgAction {
      * @param needVerification
      */
     public void groupSwitch(final String gid, final Integer istop, final Integer notNotify, final Integer saved, final Integer needVerification, final Callback<ReturnBean> cb) {
-
-        //存服务器
-    /*    if (istop != null) {
-            dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
-            return;
-        }*/
-
         Callback<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {//存库
-                    Session session = null;
                     if (istop != null || notNotify != null || needVerification != null) {
-                        boolean isTop = false;
                         if (istop != null) {
-                            session = dao.updateGroupAndSessionTop(gid, istop.intValue());
-                            isTop = true;
                         } else if (notNotify != null) {
                             dao.updateGroupAndSessionDisturb(gid, notNotify.intValue());
-//                            MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
-                            isTop = false;
                         }
                     }
                 }
                 cb.onResponse(call, response);
-
             }
         };
 
@@ -426,7 +394,6 @@ public class MsgAction {
     }
 
     public void groupSwitchIntimately(final String gid, int intimately, Callback<ReturnBean> callback) {
-
         NetUtil.getNet().exec(server.groupSwitchIntimately(gid, intimately), callback);
     }
 
@@ -471,7 +438,6 @@ public class MsgAction {
      * @param callback
      */
     public void setAllForbiddenWords(final String gid, int intimately, Callback<ReturnBean> callback) {
-
         NetUtil.getNet().exec(server.setAllForbiddenWords(gid, intimately), callback);
     }
 
@@ -495,73 +461,7 @@ public class MsgAction {
     }
 
 
-    /**
-     * 查询已保存的群聊
-     */
-    List<Group> groupList = new ArrayList<>();
-    private int i = 0;
-    private int j = 0;
-
-    public void getMySaved(final Callback<ReturnBean<List<Group>>> callback) {
-
-        NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
-                if (response.body() == null)
-                    return;
-//                callback.onResponse(call, response);
-//                List<Group> groupList=new ArrayList<>();
-                i = response.body().getData().size();
-                for (Group ginfo : response.body().getData()) {
-                    //保存群信息到本地
-                    final Group group = new Group();
-                    group.setGid(ginfo.getGid());
-                    group.setAvatar(ginfo.getAvatar());
-                    group.setName(ginfo.getName());
-                    if (null != dao.getGroup4Id(ginfo.getGid())) {
-                        if (null != dao.getGroup4Id(ginfo.getGid()).getUsers() && dao.getGroup4Id(ginfo.getGid()).getUsers().size() > 0) {
-                            group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
-
-                        } else {
-                            groupInfo(ginfo.getGid(), true, new CallBack<ReturnBean<Group>>() {
-                                @Override
-                                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                                    if (response.body().isOk()) {
-                                        Group bean = response.body().getData();
-                                        group.setUsers(bean.getUsers());
-                                    }
-                                }
-                            });
-                        }
-                        dao.groupSave(group);
-                        groupList.add(group);
-                    } else {
-                        groupInfo(ginfo.getGid(), true, new CallBack<ReturnBean<Group>>() {
-                            @Override
-                            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> responseInner) {
-                                if (responseInner.body().isOk()) {
-                                    Group bean = responseInner.body().getData();
-                                    group.setUsers(bean.getUsers());
-                                    group.setGid(bean.getGid());
-                                    group.setAvatar(bean.getAvatar());
-                                    group.setName(bean.getName());
-                                    dao.groupSave(group);
-                                    groupList.add(group);
-
-                                }
-                            }
-                        });
-                    }
-
-                }
-                response.body().setData(groupList);
-                callback.onResponse(call, response);
-            }
-        });
-    }
-
     public void getMySavedGroup(final Callback<ReturnBean<List<Group>>> callback) {
-
         NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
@@ -625,9 +525,6 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 callback.onResponse(call, response);
-//                if (response.body().isOk()) {
-//                    dao.groupAcceptRemove(aid);
-//                }
             }
 
             @Override
@@ -636,14 +533,6 @@ public class MsgAction {
             }
         });
     }
-
-
-//    /**
-//     * 删除群申请
-//     */
-//    public void groupRequestDelect(String aid) {
-//        dao.groupAcceptRemove(aid);
-//    }
 
 
     /**
@@ -832,8 +721,6 @@ public class MsgAction {
     }
 
     private static RequestBody getRequestBody(String json) {
-//        LogUtil.getLog().e("TAG",RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json).toString());
         return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
-
     }
 }
