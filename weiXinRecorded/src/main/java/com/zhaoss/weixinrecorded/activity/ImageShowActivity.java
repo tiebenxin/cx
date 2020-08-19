@@ -15,11 +15,14 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -29,7 +32,6 @@ import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
-import com.zhaoss.weixinrecorded.util.DimenUtils;
 import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.MosaicPaintView;
 import com.zhaoss.weixinrecorded.view.TouchView;
@@ -96,12 +98,24 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                         binding.showRlBig.getHeight());
                 binding.mpvView.setLayoutParams(layoutParams);
 
-                RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        binding.showRlBig.getHeight());
+                int height = getScreenHeight() - dp2px(100);
+                int maxHeight = height < binding.showRlBig.getHeight() ? height : binding.showRlBig.getHeight();
+                RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, maxHeight);
                 binding.imgShowCut.setLayoutParams(layoutParams2);
-                Log.i("1212", "height:" + binding.showRlBig.getMeasuredHeight() + "  " + binding.showRlBig.getHeight());
+                Log.i("1212", "height:" + binding.showRlBig.getMeasuredHeight() + "  " + binding.showRlBig.getHeight() + "  height2:" + height);
             }
         }, 500);// 延迟500毫秒用于获取到图片容器的高度
+    }
+
+    public int getScreenHeight() {
+        DisplayMetrics metric = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(metric);
+        return metric.heightPixels;
+    }
+
+    public int dp2px(int dp) {
+        return (int) TypedValue.applyDimension(1, (float) dp, getResources().getDisplayMetrics());
     }
 
     private void initEvent() {
@@ -222,7 +236,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             // 如果不设置canvas画布为白色，则生成透明
             v.layout(0, 0, w, h);
             v.draw(c);
-            int px = (int) DimenUtils.dp2px(60);
+            int px = 0;//(int) DimenUtils.dp2px(60);
             Bitmap cutBitmap = null;
             if ((30 + cutArr[2]) >= bmp.getWidth() || (px + cutArr[3]) > bmp.getHeight()) {
                 if ((30 + cutArr[2]) >= bmp.getWidth() && (px + cutArr[3]) > bmp.getHeight()) {
@@ -379,6 +393,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             setResult(RESULT_OK, intent);
             finish();
         } else if (v.getId() == R.id.rb_pen) {// 画笔
+            binding.mpvView.setEnabled(true);
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
             binding.imgShowCut.setVisibility(View.GONE);
             if (binding.llColor.getVisibility() == View.VISIBLE) {
@@ -395,6 +410,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                 }
             }
         } else if (v.getId() == R.id.rb_text) {// 輸入文字
+            binding.mpvView.setEnabled(true);
             binding.llColor.setVisibility(View.INVISIBLE);
             binding.imgShowCut.setVisibility(View.GONE);
             binding.rlEditText.setVisibility(View.VISIBLE);
@@ -405,11 +421,16 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             binding.llColor.setVisibility(View.INVISIBLE);
             if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
                 binding.imgShowCut.setVisibility(View.GONE);
+                binding.mpvView.setEnabled(true);
             } else {
-                binding.imgShowCut.setHeight(binding.showRlBig.getHeight());
+                int height = getScreenHeight() - dp2px(100);
+                int maxHeight = height < binding.showRlBig.getHeight() ? height : binding.showRlBig.getHeight();
+                binding.imgShowCut.setHeight(maxHeight);
+                binding.mpvView.setEnabled(false);
                 binding.imgShowCut.setVisibility(View.VISIBLE);
             }
         } else if (v.getId() == R.id.rb_mosaic) {// 马赛克
+            binding.mpvView.setEnabled(true);
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.GRID);
             binding.llColor.setVisibility(View.INVISIBLE);
             binding.imgShowCut.setVisibility(View.GONE);
