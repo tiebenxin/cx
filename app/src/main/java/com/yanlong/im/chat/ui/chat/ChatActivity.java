@@ -428,6 +428,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//注销弹框
+    private CommonSelectDialog dialogTwo;//批量收藏弹框
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -1870,8 +1871,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
                     return;
                 }
-                ToastUtil.show("暂不支持改功能");
-                hideMultiSelect(ivCollection);
+                showCollectListDialog();
             }
         });
 
@@ -4471,8 +4471,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
             CollectSendFileMessage msg = (CollectSendFileMessage) convertCollectBean(ChatEnum.EMessageType.FILE, msgbean);
             collectionInfo.setData(new Gson().toJson(msg));
-            //暂时只对文件进行本地化存储，列表里没有本地路径不方便判断是否下载，避免每次进详情都要下一次
-//            msgDao.saveCollectFileMsg(msg);
         }
         collectionInfo.setFromUid(msgbean.getFrom_uid());
         collectionInfo.setFromUsername(fromUsername);
@@ -4497,6 +4495,74 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
             ToastUtil.show("已收藏");//离线提示
         }
+    }
+
+    //消息类批量转换成收藏类
+    private List<CollectionInfo> convertCollectBean(List<MsgAllBean> msgAllBeanList){
+            List<CollectionInfo> list = new ArrayList<>();//批量保存
+            for(int i=0; i<msgAllBeanList.size(); i++){
+                if(msgAllBeanList.get(i)!=null){
+                    //状态正常且满足可收藏类型
+                    if(msgAllBeanList.get(i).getSend_state() == ChatEnum.ESendStatus.ERROR){
+                        break;
+                    }
+                    if(msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.TEXT || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.AT
+                            || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.VOICE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.LOCATION
+                            || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.IMAGE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                            || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE){
+                        String fromUsername = "";//用户名称
+                        String fromGid = "";//群组id
+                        String fromGroupName = "";//群组名称
+                        MsgAllBean msgbean = msgAllBeanList.get(i);
+                        if (!TextUtils.isEmpty(msgbean.getFrom_nickname())) {
+                            fromUsername = msgbean.getFrom_nickname();
+                        } else {
+                            fromUsername = "";
+                        }
+                        if (!TextUtils.isEmpty(msgbean.getGid())) {
+                            fromGid = msgbean.getGid();
+                        } else {
+                            fromGid = "";
+                        }
+                        if (msgbean.getGroup() != null) {
+                            if (!TextUtils.isEmpty(msgbean.getGroup().getName())) {
+                                fromGroupName = msgbean.getGroup().getName();
+                            } else {
+                                fromGroupName = msgDao.getGroupName(msgbean.getGid());//没有群名称，拿自动生成的群昵称给后台
+                            }
+                        }
+                        CollectionInfo collectionInfo = new CollectionInfo();
+                        //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
+                        if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
+                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
+                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE, msgbean)));
+                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION, msgbean)));
+                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO, msgbean)));
+                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE, msgbean)));
+                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.LOCATION) {
+                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION, msgbean)));
+                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
+                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT, msgbean)));
+                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                            CollectSendFileMessage msg = (CollectSendFileMessage) convertCollectBean(ChatEnum.EMessageType.FILE, msgbean);
+                            collectionInfo.setData(new Gson().toJson(msg));
+                        }
+                        collectionInfo.setFromUid(msgbean.getFrom_uid());
+                        collectionInfo.setFromUsername(fromUsername);
+                        collectionInfo.setType(SocketData.getMessageType(msgbean.getMsg_type()).getNumber());//收藏类型统一改为protobuf类型
+                        collectionInfo.setFromGid(fromGid);
+                        collectionInfo.setFromGroupName(fromGroupName);
+                        collectionInfo.setMsgId(msgbean.getMsg_id());//不同表，id相同
+                        collectionInfo.setCreateTime(System.currentTimeMillis() + "");//收藏时间是现在系统时间
+                        list.add(collectionInfo);
+                    }
+                }
+            }
+        return list;
     }
 
 
@@ -6760,6 +6826,68 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setRightOnClickListener(v -> dialogOne.dismiss())
                 .build();
         dialogOne.show();
+    }
+
+    /**
+     * 批量收藏提示弹框
+     */
+    private void showCollectListDialog() {
+        dialogTwo = builder.setTitle("个人名片/回复/戳一下/红包/转账/语音/\n视频通话/系统消息，暂不支持收藏")
+                .setRightText("收藏")
+                .setLeftText("取消")
+                .setRightOnClickListener(v ->{
+                        //多选直接调批量收藏接口
+                 if (mAdapter.getSelectedMsg().size() > 0) {
+                        List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
+                        if(dataList!=null){
+                            //1 有网收藏
+                            if (checkNetConnectStatus(1)) {
+                                msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
+                                    @Override
+                                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                        super.onResponse(call, response);
+                                        if (response.body() == null) {
+                                            return;
+                                        }
+                                        if (response.body().isOk()) {
+                                            ToastUtil.show("批量收藏成功!");
+                                            dialogTwo.dismiss();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                        super.onFailure(call, t);
+                                        ToastUtil.show("批量收藏失败!");
+                                        dialogTwo.dismiss();
+                                    }
+                                });
+                            } else {
+                                //2 无网收藏
+                                //2-1 如果本地收藏列表不存在这条数据，收藏到列表，并保存收藏操作记录
+                                for (CollectionInfo info : dataList) {
+                                    if (msgDao.findLocalCollection(info.getMsgId()) == null) {
+                                        msgDao.addLocalCollection(info);//保存到本地收藏列表
+                                        OfflineCollect offlineCollect = new OfflineCollect();
+                                        offlineCollect.setMsgId(info.getMsgId());
+                                        offlineCollect.setCollectionInfo(info);
+                                        msgDao.addOfflineCollectRecord(offlineCollect);//保存到离线收藏记录表
+                                    }
+                                }
+                                //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
+                                ToastUtil.show("批量收藏成功!");//离线提示
+                                dialogTwo.dismiss();
+                            }
+                        }
+                        hideMultiSelect(ivCollection);
+                    }
+                })
+                .setLeftOnClickListener(v -> {
+                    dialogTwo.dismiss();
+                    hideMultiSelect(ivCollection);
+                })
+                .build();
+        dialogTwo.show();
     }
 
     private void toSendVerifyActivity(Long uid) {

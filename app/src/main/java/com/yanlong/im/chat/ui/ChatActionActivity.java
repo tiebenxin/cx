@@ -94,7 +94,7 @@ public class ChatActionActivity extends AppActivity {
         }else {
             txtName.setText(msgAllbean.getFrom_user().getName());
         }
-        if(!TextUtils.isEmpty(msgAllbean.getStamp().getComment())){
+        if(!TextUtils.isEmpty(msgAllbean.getStamp().getComment()) && !msgAllbean.getStamp().getComment().trim().equals("")){ //不为纯空字符串
             txtMsg.setVisibility(View.VISIBLE);
             txtMsg.setText(msgAllbean.getStamp().getComment());
         }else {
