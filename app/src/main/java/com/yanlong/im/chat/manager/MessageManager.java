@@ -41,6 +41,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -1921,7 +1922,9 @@ public class MessageManager {
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             );
         } else {
-            playDingDong();
+            if (!AudioPlayManager.getInstance().isPlayingVoice()) {
+                playDingDong();
+            }
         }
     }
 
