@@ -446,6 +446,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             EventBus.getDefault().register(this);
         }
         findViews();
+        initEvent();
         initObserver();
         getOftenUseFace();
         builder = new CommonSelectDialog.Builder(ChatActivity.this);
@@ -830,8 +831,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onStart() {
         super.onStart();
+        initActionBarLoading();
         SocketUtil.getSocketUtil().addEvent(msgEvent);
-        initEvent();
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
@@ -1074,10 +1075,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         onMsgbranch(msg);
                     }
-                    //从数据库读取消息，修改未通过eventbus来刷新
-//                    if (needRefresh && !hasData()) {
-//                        taskRefreshMessage(false);
-//                    }
                     initUnreadCount();
                 }
             });
@@ -1295,20 +1292,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void initEvent() {
         //读取软键盘高度
         mKeyboardHeight = getSharedPreferences(KEY_BOARD, Context.MODE_PRIVATE).getInt(KEY_BOARD, 0);
-        //预先网络监听
-        if (onlineState) {
-            actionbar.getGroupLoadBar().setVisibility(GONE);
-            //联网后，显示单聊标题底部在线状态
-            if (!isGroup() && !UserUtil.isSystemUser(toUId)) {
-                actionbar.getTxtTitleMore().setVisibility(VISIBLE);
-            }
-        } else {
-            actionbar.getGroupLoadBar().setVisibility(VISIBLE);
-            //断网后，隐藏单聊标题底部在线状态
-            if (!isGroup()) {
-                actionbar.getTxtTitleMore().setVisibility(GONE);
-            }
-        }
         if (toUId != null) {
             toUId = toUId == 0 ? null : toUId;
         }
@@ -1885,6 +1868,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 replayMsg = null;
             }
         });
+    }
+
+    private void initActionBarLoading() {
+        //预先网络监听
+        if (onlineState) {
+            actionbar.getGroupLoadBar().setVisibility(GONE);
+            //联网后，显示单聊标题底部在线状态
+            if (!isGroup() && !UserUtil.isSystemUser(toUId)) {
+                actionbar.getTxtTitleMore().setVisibility(VISIBLE);
+            }
+        } else {
+            actionbar.getGroupLoadBar().setVisibility(VISIBLE);
+            //断网后，隐藏单聊标题底部在线状态
+            if (!isGroup()) {
+                actionbar.getTxtTitleMore().setVisibility(GONE);
+            }
+        }
     }
 
     private void initIntent() {
@@ -2532,16 +2532,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 return;
                             }
                             // 对方被注销
-                            if(userInfo.getFriendDeactivateStat()!=0){
+                            if (userInfo.getFriendDeactivateStat() != 0) {
                                 int status = userInfo.getFriendDeactivateStat();
                                 String content = "";
-                                if(status==-1){
+                                if (status == -1) {
                                     content = "该账号已注销，无法接通";
-                                }else if(status==1){
+                                } else if (status == 1) {
                                     content = "该账号正在注销中，无法接通";
                                 }
                                 //给自己发一条本地通知消息
-                                MsgNotice notice = SocketData.createMsgNotice(SocketData.getUUID(), ChatEnum.ENoticeType.FRIEND_DEACTIVATE,content);
+                                MsgNotice notice = SocketData.createMsgNotice(SocketData.getUUID(), ChatEnum.ENoticeType.FRIEND_DEACTIVATE, content);
                                 MsgAllBean msgAllBean = SocketData.createMessageBean(userInfo.getUid(), "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
                                 SocketData.saveMessage(msgAllBean);
                                 taskRefreshMessage(false);
@@ -4497,70 +4497,70 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //消息类批量转换成收藏类
-    private List<CollectionInfo> convertCollectBean(List<MsgAllBean> msgAllBeanList){
-            List<CollectionInfo> list = new ArrayList<>();//批量保存
-            for(int i=0; i<msgAllBeanList.size(); i++){
-                if(msgAllBeanList.get(i)!=null){
-                    //状态正常且满足可收藏类型
-                    if(msgAllBeanList.get(i).getSend_state() == ChatEnum.ESendStatus.ERROR){
-                        break;
+    private List<CollectionInfo> convertCollectBean(List<MsgAllBean> msgAllBeanList) {
+        List<CollectionInfo> list = new ArrayList<>();//批量保存
+        for (int i = 0; i < msgAllBeanList.size(); i++) {
+            if (msgAllBeanList.get(i) != null) {
+                //状态正常且满足可收藏类型
+                if (msgAllBeanList.get(i).getSend_state() == ChatEnum.ESendStatus.ERROR) {
+                    break;
+                }
+                if (msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.TEXT || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.AT
+                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.VOICE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.LOCATION
+                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.IMAGE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE) {
+                    String fromUsername = "";//用户名称
+                    String fromGid = "";//群组id
+                    String fromGroupName = "";//群组名称
+                    MsgAllBean msgbean = msgAllBeanList.get(i);
+                    if (!TextUtils.isEmpty(msgbean.getFrom_nickname())) {
+                        fromUsername = msgbean.getFrom_nickname();
+                    } else {
+                        fromUsername = "";
                     }
-                    if(msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.TEXT || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.AT
-                            || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.VOICE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.LOCATION
-                            || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.IMAGE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-                            || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE){
-                        String fromUsername = "";//用户名称
-                        String fromGid = "";//群组id
-                        String fromGroupName = "";//群组名称
-                        MsgAllBean msgbean = msgAllBeanList.get(i);
-                        if (!TextUtils.isEmpty(msgbean.getFrom_nickname())) {
-                            fromUsername = msgbean.getFrom_nickname();
-                        } else {
-                            fromUsername = "";
-                        }
-                        if (!TextUtils.isEmpty(msgbean.getGid())) {
-                            fromGid = msgbean.getGid();
-                        } else {
-                            fromGid = "";
-                        }
-                        if (msgbean.getGroup() != null) {
-                            if (!TextUtils.isEmpty(msgbean.getGroup().getName())) {
-                                fromGroupName = msgbean.getGroup().getName();
-                            } else {
-                                fromGroupName = msgDao.getGroupName(msgbean.getGid());//没有群名称，拿自动生成的群昵称给后台
-                            }
-                        }
-                        CollectionInfo collectionInfo = new CollectionInfo();
-                        //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
-                        if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
-                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
-                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
-                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE, msgbean)));
-                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION, msgbean)));
-                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
-                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO, msgbean)));
-                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
-                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE, msgbean)));
-                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.LOCATION) {
-                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION, msgbean)));
-                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
-                            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT, msgbean)));
-                        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
-                            CollectSendFileMessage msg = (CollectSendFileMessage) convertCollectBean(ChatEnum.EMessageType.FILE, msgbean);
-                            collectionInfo.setData(new Gson().toJson(msg));
-                        }
-                        collectionInfo.setFromUid(msgbean.getFrom_uid());
-                        collectionInfo.setFromUsername(fromUsername);
-                        collectionInfo.setType(SocketData.getMessageType(msgbean.getMsg_type()).getNumber());//收藏类型统一改为protobuf类型
-                        collectionInfo.setFromGid(fromGid);
-                        collectionInfo.setFromGroupName(fromGroupName);
-                        collectionInfo.setMsgId(msgbean.getMsg_id());//不同表，id相同
-                        collectionInfo.setCreateTime(System.currentTimeMillis() + "");//收藏时间是现在系统时间
-                        list.add(collectionInfo);
+                    if (!TextUtils.isEmpty(msgbean.getGid())) {
+                        fromGid = msgbean.getGid();
+                    } else {
+                        fromGid = "";
                     }
+                    if (msgbean.getGroup() != null) {
+                        if (!TextUtils.isEmpty(msgbean.getGroup().getName())) {
+                            fromGroupName = msgbean.getGroup().getName();
+                        } else {
+                            fromGroupName = msgDao.getGroupName(msgbean.getGid());//没有群名称，拿自动生成的群昵称给后台
+                        }
+                    }
+                    CollectionInfo collectionInfo = new CollectionInfo();
+                    //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
+                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
+                        collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
+                    } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+                        collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE, msgbean)));
+                    } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                        collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION, msgbean)));
+                    } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                        collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO, msgbean)));
+                    } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                        collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE, msgbean)));
+                    } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.LOCATION) {
+                        collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION, msgbean)));
+                    } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
+                        collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT, msgbean)));
+                    } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                        CollectSendFileMessage msg = (CollectSendFileMessage) convertCollectBean(ChatEnum.EMessageType.FILE, msgbean);
+                        collectionInfo.setData(new Gson().toJson(msg));
+                    }
+                    collectionInfo.setFromUid(msgbean.getFrom_uid());
+                    collectionInfo.setFromUsername(fromUsername);
+                    collectionInfo.setType(SocketData.getMessageType(msgbean.getMsg_type()).getNumber());//收藏类型统一改为protobuf类型
+                    collectionInfo.setFromGid(fromGid);
+                    collectionInfo.setFromGroupName(fromGroupName);
+                    collectionInfo.setMsgId(msgbean.getMsg_id());//不同表，id相同
+                    collectionInfo.setCreateTime(System.currentTimeMillis() + "");//收藏时间是现在系统时间
+                    list.add(collectionInfo);
                 }
             }
+        }
         return list;
     }
 
@@ -6283,64 +6283,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    //群聊是否可以cancel
-//    private boolean isGroupBanCancel() {
-//        if (isGroup()) {
-//            if (mViewModel.groupInfo != null && mViewModel.groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
     public void showLockDialog() {
         LockDialog lockDialog = new LockDialog(this, R.style.MyDialogNoFadedTheme);
         lockDialog.setCancelable(true);
         lockDialog.setCanceledOnTouchOutside(true);
         lockDialog.create();
         lockDialog.show();
-    }
-
-
-    private boolean hasData() {
-        if (mAdapter == null) {
-            return false;
-        }
-        MsgAllBean bean;
-        if (isGroup()) {
-            bean = msgDao.msgGetLast4Gid(toGid);
-        } else {
-            bean = msgDao.msgGetLast4FUid(toUId);
-        }
-        if (bean != null && mAdapter.getPosition(bean) >= 0) {
-            return true;
-        }
-        return false;
-    }
-
-    //添加单条消息
-    private void addMsg(MsgAllBean bean) {
-        if (mAdapter == null) {
-            return;
-        }
-        resetName(bean);
-        int position = mAdapter.getItemCount();
-        mAdapter.addMessage(bean);
-        mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
-        fixLastPosition(1);
-        scrollListView(false);
-    }
-
-    //添加单条消息
-    private void addMsg(List<MsgAllBean> list) {
-        if (mAdapter == null) {
-            return;
-        }
-        int position = mAdapter.getItemCount();
-        mAdapter.addMessageList(position, list);
-        mtListView.getListView().getAdapter().notifyItemRangeInserted(position, list.size());//删除刷新
-        fixLastPosition(list.size());
-        scrollListView(false);
     }
 
     /**
@@ -6422,12 +6370,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.showToast(ChatActivity.this, "收藏失败", 1);
                     }
                 });
-    }
-
-    private void initLastPosition() {
-        if (mtListView != null) {
-            lastPosition = ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).findLastVisibleItemPosition();
-        }
     }
 
 
@@ -6834,11 +6776,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         dialogTwo = builder.setTitle("个人名片/回复/戳一下/红包/转账/语音/\n视频通话/系统消息，暂不支持收藏")
                 .setRightText("收藏")
                 .setLeftText("取消")
-                .setRightOnClickListener(v ->{
-                        //多选直接调批量收藏接口
-                 if (mAdapter.getSelectedMsg().size() > 0) {
+                .setRightOnClickListener(v -> {
+                    //多选直接调批量收藏接口
+                    if (mAdapter.getSelectedMsg().size() > 0) {
                         List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
-                        if(dataList!=null){
+                        if (dataList != null) {
                             //1 有网收藏
                             if (checkNetConnectStatus(1)) {
                                 msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {

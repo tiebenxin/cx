@@ -1,5 +1,6 @@
 package com.yanlong.im.repository;
 
+import android.media.AudioManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -26,6 +27,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -502,7 +504,7 @@ public class MessageRepository {
                 for (int i = 0; i < list.size(); i++) {
                     if (uid.equals(list.get(i))) {
                         LogUtil.getLog().e(TAG, "有人@我" + uid);
-                        if (!MessageManager.getInstance().isMsgFromCurrentChat(gid, null)) {
+                        if (!MessageManager.getInstance().isMsgFromCurrentChat(gid, null) && !AudioPlayManager.getInstance().isPlayingVoice()) {
                             localDataSource.updateSessionAtMessage(realm, gid, message, atType);
                             MessageManager.getInstance().playDingDong();
                         }
@@ -515,7 +517,7 @@ public class MessageRepository {
                 requestGroupInfo(gid);
             }
             LogUtil.getLog().e(TAG, "@所有人");
-            if (!MessageManager.getInstance().isMsgFromCurrentChat(gid, null)) {
+            if (!MessageManager.getInstance().isMsgFromCurrentChat(gid, null) && !AudioPlayManager.getInstance().isPlayingVoice()) {
                 localDataSource.updateSessionAtMessage(realm, gid, message, atType);
                 MessageManager.getInstance().playDingDong();
             }

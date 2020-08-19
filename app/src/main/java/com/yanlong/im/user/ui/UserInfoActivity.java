@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -9,6 +10,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
@@ -447,6 +450,7 @@ public class UserInfoActivity extends AppActivity {
     /**
      * @param type 0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setItemShow(int type) {
         System.out.println(UserInfoActivity.class.getSimpleName() + "--stat=" + type);
         viewComplaint.setVisibility(View.VISIBLE);
@@ -475,6 +479,7 @@ public class UserInfoActivity extends AppActivity {
                 mTvRemark.setVisibility(View.GONE);
             } else {
                 mTvRemark.setVisibility(View.VISIBLE);
+                mTvRemark.setTextColor(getColor(R.color.gray_300));
                 mTvRemark.setText(sayHi);
             }
             viewIntroduce.setVisibility(View.GONE);
