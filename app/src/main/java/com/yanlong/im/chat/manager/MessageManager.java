@@ -1747,7 +1747,6 @@ public class MessageManager {
         return isAt;
     }
 
-    @Deprecated
     public void playDingDong() {
         if (System.currentTimeMillis() - playTimeOld < 500) {
             return;

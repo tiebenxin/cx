@@ -18,6 +18,7 @@ import com.yanlong.im.utils.UserUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
@@ -29,6 +30,7 @@ import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -190,12 +192,18 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
                         if (response.body().isOk()) {
                             SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
                             preferencesUtil.save2Json(true);
-                            // 更新用户状态
-                            UserUtil.saveUserStatus(response.body().getData().getUid(), CoreEnum.EUserType.DEFAULT);
-                            Intent intent = new Intent(getContext(), MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            intent.putExtra(MainActivity.IS_LOGIN, true);
-                            startActivity(intent);
+                            TokenBean tokenBean = response.body().getData();
+                            if (tokenBean.isDeactivating()) {
+                                showLogoutAccountDialog();
+                                return;
+                            }else {
+                                // 更新用户状态
+                                UserUtil.saveUserStatus(response.body().getData().getUid(), CoreEnum.EUserType.DEFAULT);
+                                Intent intent = new Intent(getContext(), MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                intent.putExtra(MainActivity.IS_LOGIN, true);
+                                startActivity(intent);
+                            }
                         } else if (response.body().getCode().longValue() == 10004) {//手机号未注册
                             ToastUtil.show(getContext(), response.body().getMsg());
                         } else if (response.body().getCode().longValue() == ErrorCode.ERROR_CODE_10006) {// 被封号
@@ -230,6 +238,50 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
                     CountDownUtil.cancelTimer();
                 }
                 ToastUtil.show(IdentifyingCodeActivity.this, response.body().getMsg());
+            }
+        });
+    }
+
+    //账号注销提示
+    private void showLogoutAccountDialog() {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                DialogCommon dialogConfirm = new DialogCommon(IdentifyingCodeActivity.this);
+                dialogConfirm.setTitleAndSure(false, false)
+                        .setLeft("取消注销并登录")
+                        .setRight("取消")
+                        .setContent("您的账号在申请注销过程中，如果您想取消注销申请，点击'取消注销并登录'", true)
+                        .setListener(new DialogCommon.IDialogListener() {
+                            @Override
+                            public void onSure() {
+                                cancelDeactivate();
+                            }
+
+                            @Override
+                            public void onCancel() {
+
+                            }
+                        }).show();
+            }
+        });
+    }
+
+    //取消注销账号
+    private void cancelDeactivate() {
+        userAction.cancelDeactivate(new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                Intent intent = new Intent(getContext(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.putExtra(MainActivity.IS_LOGIN, true);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
             }
         });
     }

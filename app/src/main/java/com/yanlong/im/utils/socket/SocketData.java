@@ -932,7 +932,7 @@ public class SocketData {
             msg.setMsg_id(msgId);
             msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
             msg.setFrom_uid(bean.getFrom_uid());
-            long time = getSysTime();
+            long time = getFixTime();
             if (ack.getTimestamp() >= time) {
                 msg.setTimestamp(bean.getTimestamp() + 1);
             } else {

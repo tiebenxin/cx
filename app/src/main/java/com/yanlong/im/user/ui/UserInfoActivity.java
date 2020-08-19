@@ -1,14 +1,18 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
@@ -95,6 +99,7 @@ public class UserInfoActivity extends AppActivity {
     private TextView tvSecondName;
     private TextView tvThirdName;
     private TextView mTvRemark;
+    private EditText mEtNote;
     private LinearLayout viewMkname;
     private LinearLayout viewBlack;
     private LinearLayout viewDel;
@@ -105,6 +110,7 @@ public class UserInfoActivity extends AppActivity {
     private LinearLayout mviewSettingLabel;
     private LinearLayout mViewLabel;
     private LinearLayout mViewPower;
+    private LinearLayout mViewSettingNote;
     private Button mBtnAdd;
     private Button btnMsg;
     private TextView txtPower;
@@ -175,11 +181,13 @@ public class UserInfoActivity extends AppActivity {
         mLayoutMsg = findViewById(R.id.layout_msg);
         mBtnAdd = findViewById(R.id.btn_add);
         mTvRemark = findViewById(R.id.tv_remark);
+        mEtNote = findViewById(R.id.et_note);
         mViewSettingName = findViewById(R.id.view_setting_name);
         tvBlack = findViewById(R.id.tv_black);
         viewIntroduce = findViewById(R.id.view_introduce);
         tv_introduce = findViewById(R.id.tv_introduce);
         tvJoinGroupName = findViewById(R.id.tv_join_group_name);
+        mViewSettingNote = findViewById(R.id.view_setting_note);
 
         mViewSettingPower = findViewById(R.id.view_setting_power);
         mviewSettingLabel = findViewById(R.id.view_setting_label);
@@ -338,6 +346,7 @@ public class UserInfoActivity extends AppActivity {
                 }
             });
         } else {
+            mViewSettingNote.setVisibility(View.VISIBLE);
             actionbar.setTitle("朋友验证");
             mBtnAdd.setText("通过验证");
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
@@ -347,7 +356,7 @@ public class UserInfoActivity extends AppActivity {
                         ToastUtil.show(getResources().getString(R.string.user_disable_message));
                         return;
                     }
-                    taskFriendAgree(id, null);
+                    taskFriendAgree(id, null, mEtNote.getText().toString().trim());
                 }
             });
         }
@@ -403,6 +412,9 @@ public class UserInfoActivity extends AppActivity {
         Intent intent = new Intent(UserInfoActivity.this, FriendVerifyActivity.class);
         intent.putExtra(FriendVerifyActivity.CONTENT, content);
         intent.putExtra(FriendVerifyActivity.USER_ID, id);
+        if (userInfoLocal != null) {
+            intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfoLocal.getName());
+        }
         startActivityForResult(intent, SEND_VERIFY);
     }
 
@@ -447,6 +459,7 @@ public class UserInfoActivity extends AppActivity {
     /**
      * @param type 0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setItemShow(int type) {
         System.out.println(UserInfoActivity.class.getSimpleName() + "--stat=" + type);
         viewComplaint.setVisibility(View.VISIBLE);
@@ -471,12 +484,25 @@ public class UserInfoActivity extends AppActivity {
                 mBtnAdd.setVisibility(View.VISIBLE);
             }
             mViewSettingName.setVisibility(View.GONE);
+            String nameNote = mkName;
+            if (TextUtils.isEmpty(nameNote)) {
+                nameNote = name;
+            }
             if (TextUtils.isEmpty(sayHi)) {
                 mTvRemark.setVisibility(View.GONE);
+                mEtNote.setText(nameNote);
+
             } else {
                 mTvRemark.setVisibility(View.VISIBLE);
+                mTvRemark.setTextColor(getColor(R.color.gray_300));
                 mTvRemark.setText(sayHi);
+                if (sayHi.startsWith("我是")) {
+                    mEtNote.setText(sayHi.substring(2));
+                } else {
+                    mEtNote.setText(nameNote);
+                }
             }
+            mEtNote.setSelection(mEtNote.getText().toString().length());
             viewIntroduce.setVisibility(View.GONE);
             checkPower();
         } else if (type == 2) {
@@ -869,8 +895,8 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void taskFriendAgree(final Long uid, String contactName) {
-        userAction.friendAgree(uid, contactName, new CallBack<ReturnBean>() {
+    private void taskFriendAgree(final Long uid, String contactName, String alias) {
+        userAction.friendAgree(uid, contactName, alias, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
