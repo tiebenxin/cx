@@ -271,7 +271,7 @@ public class UserDao {
      * 获取能有效转发用户
      * @return
      */
-    public List<UserInfo> getForwarUserValid() {
+    public List<UserInfo> getForwardUserValid() {
         List<UserInfo> res = null;
         Realm realm = DaoUtil.open();
         try {

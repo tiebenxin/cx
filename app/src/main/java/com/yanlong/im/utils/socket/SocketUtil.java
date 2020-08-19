@@ -433,6 +433,7 @@ public class SocketUtil {
             LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
             return;
         }
+        setRunState(0);
         isStart = true;
         ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
             @Override
@@ -613,7 +614,8 @@ public class SocketUtil {
         ThreadUtil.getInstance().runMainThread(new Runnable() {
             @Override
             public void run() {
-                ToastUtil.show("连接时间为" + (endTime - startTime) + "ms");
+                double time = (endTime - startTime) * 1.00 / 1000;
+                ToastUtil.show("连接时间为" + time + "s");
             }
         });
     }
