@@ -4041,6 +4041,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 spanCount = 4;
             }
+            // 默认一行高度
+            int spacing = ScreenUtil.dip2px(this, 30);
+            if (menus.size() > 4) {// 设置两行高度
+                spacing = ScreenUtil.dip2px(this, 80);
+            }
             mRecyclerBubble.setLayoutManager(new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL, false));
             mRecyclerBubble.setAdapter(adapterPopMenu);
             adapterPopMenu.setListener(new AdapterPopMenu.IMenuClickListener() {
@@ -4097,7 +4102,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     setArrowLocation(v, 1, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
                     showPopupWindowUp(v, 1);
                 }
-            } else if (locationView[1] < location[1]) {
+            } else if (locationView[1] < (location[1] + spacing)) {
                 mRlUp.setVisibility(VISIBLE);
                 mImgTriangleUp.setVisibility(VISIBLE);
                 mRlDown.setVisibility(GONE);
@@ -6894,10 +6899,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (myInfo == null) {
             return;
         }
+        UserInfo userInfo = userAction.getUserInfoInLocal(uid);
         String content = "我是" + myInfo.getName();
         Intent intent = new Intent(ChatActivity.this, FriendVerifyActivity.class);
         intent.putExtra(FriendVerifyActivity.CONTENT, content);
         intent.putExtra(FriendVerifyActivity.USER_ID, uid);
+        if (userInfo != null) {
+            intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfo.getName());
+        }
         startActivityForResult(intent, 1);
     }
 
