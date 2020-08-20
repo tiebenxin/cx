@@ -25,8 +25,8 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/shape_notice_bg"
                 android:gravity="center_vertical"
-                android:textColor="@color/white"
-                android:text="" />
+                android:text=""
+                android:textColor="@color/white" />
 
 
             <LinearLayout
@@ -45,12 +45,12 @@
                     android:id="@+id/ed_money"
                     style="@style/app_edt1"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_marginRight="5dp"
+                    android:layout_weight="1"
                     android:gravity="right|center_vertical"
                     android:hint="0.00"
-                    android:paddingRight="10dp"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    android:paddingRight="10dp" />
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -94,12 +94,12 @@
                     android:id="@+id/ed_red_packet_num"
                     style="@style/app_edt1"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_marginRight="5dp"
+                    android:layout_weight="1"
                     android:gravity="right|center_vertical"
                     android:hint="填写个数"
-                    android:paddingRight="10dp"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    android:paddingRight="10dp" />
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -117,9 +117,42 @@
 
 
             <LinearLayout
+                android:id="@+id/ll_select"
+                style="@style/app_layout_list3_item"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="谁可以领" />
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    style="@style/app_txt_title_2"
+                    android:layout_width="0dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="right|center_vertical"
+                    android:hint="群内所有人"
+                    android:maxLines="1"
+                    android:paddingRight="10dp"
+                    android:textColor="@color/gray_300" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
                 style="@style/app_layout_list3_item"
                 android:layout_height="64dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
 
@@ -127,9 +160,9 @@
                     android:id="@+id/ed_content"
                     style="@style/app_edt1"
                     android:layout_width="match_parent"
-                    android:maxLength="12"
                     android:layout_marginRight="5dp"
-                    android:hint="恭喜发财,好运连连" />
+                    android:hint="恭喜发财,好运连连"
+                    android:maxLength="12" />
 
             </LinearLayout>
 

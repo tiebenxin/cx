@@ -174,13 +174,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void afterTextChanged(Editable s) {
                 String string = s.toString().trim();
-//                if (count < 0) {
-//                    ui.tvNotice.setVisibility(View.GONE);
-////                    ui.tvNotice.setText(getString(R.string.min_count_notice));
-//                    ui.tvMoney.setText("0.00");
-//                    ui.btnCommit.setEnabled(false);
-//                    return;
-//                }
                 updateCommitUI(string, ui.edRedPacketNum.getText().toString().trim());
             }
         });
@@ -199,22 +192,14 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void afterTextChanged(Editable s) {
                 String string = ui.edMoney.getText().toString().trim();
-//                int count = UIUtils.getRedEnvelopeCount(s.toString().trim());
-//                if (count == 0) {
-//                    ui.tvNotice.setVisibility(View.VISIBLE);
-//                    ui.tvNotice.setText(getString(R.string.min_count_notice));
-//                    ui.tvMoney.setText("0.00");
-//                    ui.btnCommit.setEnabled(false);
-//                    return;
-//                } else if (count < 0) {
-//                    ui.tvNotice.setVisibility(View.GONE);
-////                    ui.tvNotice.setText(getString(R.string.min_count_notice));
-//                    ui.tvMoney.setText("0.00");
-//                    ui.btnCommit.setEnabled(false);
-//                    return;
-//                }
-//                long money = UIUtils.getFen(string);
                 updateCommitUI(string, s.toString().trim());
+            }
+        });
+
+        ui.llSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
     }
@@ -394,8 +379,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     }
 
     private void resetMoney() {
-//        long money = UIUtils.getFen(ui.edMoney.getText().toString().trim());
-//        int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
         updateCommitUI(ui.edMoney.getText().toString().trim(), ui.edRedPacketNum.getText().toString().trim());
     }
 
