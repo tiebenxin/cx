@@ -2837,6 +2837,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         LogUtil.getLog().e(TAG, "onBackPressed");
         if (mAdapter != null && mAdapter.isShowCheckBox()) {
             mAdapter.showCheckBox(false, true);
+            mAdapter.clearSelectedMsg();
             showViewMore(false);
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
             return;

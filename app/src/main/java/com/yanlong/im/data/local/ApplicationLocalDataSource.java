@@ -263,14 +263,14 @@ public class ApplicationLocalDataSource {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                LogUtil.getLog().i("msgDao", "deleteAllMsg--删除成功");
+//                LogUtil.getLog().i("msgDao", "deleteAllMsg--删除成功");
                 if (MyAppLication.INSTANCE().repository != null)
                     MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                LogUtil.getLog().i("msgDao", error.getMessage());
+//                LogUtil.getLog().i("msgDao", error.getMessage());
             }
         });
     }
@@ -325,14 +325,14 @@ public class ApplicationLocalDataSource {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                LogUtil.getLog().i("msgDao", "deleteMsgList-删除成功");
+//                LogUtil.getLog().i("msgDao", "deleteMsgList-删除成功");
                 if (MyAppLication.INSTANCE().repository != null)
                     MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                LogUtil.getLog().i("msgDao", error.getMessage());
+//                LogUtil.getLog().i("msgDao", error.getMessage());
             }
         });
     }
