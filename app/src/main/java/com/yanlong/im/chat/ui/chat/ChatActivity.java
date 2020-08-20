@@ -1822,7 +1822,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onClick(View v) {
                 if (mAdapter != null && mAdapter.getSelectedMsg() != null) {
-                    List<MsgAllBean> msgList = mAdapter.getSelectedMsg();
+                    List<MsgAllBean> msgList = new ArrayList<>();
+                    msgList.addAll(mAdapter.getSelectedMsg());
                     int len = msgList.size();
                     if (len > 0) {
                         showDeleteDialog(msgList);
@@ -2836,6 +2837,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         LogUtil.getLog().e(TAG, "onBackPressed");
         if (mAdapter != null && mAdapter.isShowCheckBox()) {
             mAdapter.showCheckBox(false, true);
+            mAdapter.clearSelectedMsg();
             showViewMore(false);
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
             return;
@@ -6742,10 +6744,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setListener(new DialogCommon.IDialogListener() {
                     @Override
                     public void onSure() {
-                        mAdapter.clearSelectedMsg();
                         if (MyAppLication.INSTANCE().repository != null) {
                             MyAppLication.INSTANCE().repository.deleteMsgList(msgList);
                         }
+                        mAdapter.removeMsgList(msgList);
+                        mAdapter.clearSelectedMsg();
                         notifyData();
                         hideMultiSelect(ivDelete);
                     }

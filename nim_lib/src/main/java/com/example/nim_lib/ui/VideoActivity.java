@@ -358,7 +358,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 || v.getId() == R.id.img_refuse || v.getId() == R.id.img_hand_up2) {
             AVChatProfile.getInstance().setCallIng(false);
             if (avChatData != null) {
-                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+                // 调用网易取消、拒绝、挂断 会阻塞主线程，所以新开一个线程去处理
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+                    }
+                }).start();
                 if (v.getId() == R.id.img_cancle) {
                     sendEventBus(Preferences.CANCLE, AVChatExitCode.CANCEL);
                 } else if ((v.getId() == R.id.img_hand_up || v.getId() == R.id.img_hand_up2) && toUId != null && toUId != 0) {
@@ -530,28 +536,31 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy");
-        returnVideoActivity = false;
-        isCallEstablished = false;
-        moveAppToFront();
-        stopPlayer();
-        AVChatProfile.getInstance().setCallEstablished(false);
-        AVChatProfile.getInstance().setCallIng(false);
-        AVChatProfile.getInstance().setAVMinimize(false);
-        AVChatManager.getInstance().disableRtc();
-        releaseVideo();
-        registerObserves(false);
-        EventBus.getDefault().post(new CanStampEvent(true));
-        if (!isFinishing()) {
-            mHandler.removeCallbacks(runnable);
-            mHandler.removeCallbacks(runnableWait);
-            mHandler.removeCallbacks(runnableShowWait);
-            mHandler.removeCallbacks(runnableOutWait);
+        try {
+            returnVideoActivity = false;
+            isCallEstablished = false;
+            moveAppToFront();
+            stopPlayer();
+            AVChatProfile.getInstance().setCallEstablished(false);
+            AVChatProfile.getInstance().setCallIng(false);
+            AVChatProfile.getInstance().setAVMinimize(false);
+//            AVChatManager.getInstance().disableRtc();
+            releaseVideo();
+            registerObserves(false);
+            EventBus.getDefault().post(new CanStampEvent(true));
+            if (!isFinishing()) {
+                mHandler.removeCallbacks(runnable);
+                mHandler.removeCallbacks(runnableWait);
+                mHandler.removeCallbacks(runnableShowWait);
+                mHandler.removeCallbacks(runnableOutWait);
+            }
+            if (EventBus.getDefault().isRegistered(this)) {
+                EventBus.getDefault().unregister(this);
+            }
+            releaseWakeLock();
+        } catch (Exception e) {
+
         }
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
-        releaseWakeLock();
     }
 
     private void releaseWakeLock() {
