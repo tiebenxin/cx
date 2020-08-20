@@ -4515,7 +4515,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.TEXT || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.AT
                         || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.VOICE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.LOCATION
                         || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.IMAGE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE) {
+                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                     String fromUsername = "";//用户名称
                     String fromGid = "";//群组id
                     String fromGroupName = "";//群组名称
