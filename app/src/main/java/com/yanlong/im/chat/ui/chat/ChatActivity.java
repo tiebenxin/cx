@@ -6788,7 +6788,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     //多选直接调批量收藏接口
                     if (mAdapter.getSelectedMsg().size() > 0) {
                         List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
-                        if (dataList != null) {
+                        if (dataList != null && dataList.size()>0) {
                             //1 有网收藏
                             if (checkNetConnectStatus(1)) {
                                 msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
@@ -6827,6 +6827,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 ToastUtil.show("批量收藏成功!");//离线提示
                                 dialogTwo.dismiss();
                             }
+                        }else {
+                            dialogTwo.dismiss();
                         }
                         hideMultiSelect(ivCollection);
                     }
