@@ -212,6 +212,15 @@ public class ApplicationLocalDataSource {
      * @param gid
      */
     public void deleteAllMsg(String sid, Long uid, String gid) {
+        List<String> gids = new ArrayList<>();
+        List<Long> uids = new ArrayList<>();
+        if (!TextUtils.isEmpty(gid)) {
+            gids.add(gid);
+        } else {
+            if (uid != null) {
+                uids.add(uid);
+            }
+        }
         //异步线程删除
         DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
@@ -254,6 +263,9 @@ public class ApplicationLocalDataSource {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
+//                LogUtil.getLog().i("msgDao", "deleteAllMsg--删除成功");
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             }
         }, new Realm.Transaction.OnError() {
             @Override
@@ -313,6 +325,7 @@ public class ApplicationLocalDataSource {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
+//                LogUtil.getLog().i("msgDao", "deleteMsgList-删除成功");
                 if (MyAppLication.INSTANCE().repository != null)
                     MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             }
