@@ -80,6 +80,7 @@ public class WithdrawActivity extends AppActivity {
     private Double withDrawMoney = 0.0;//用户提现金额
     private double balanceValue = 0;//double类型的余额
     private Double realMoney = 0.0;//实际到账金额
+    private TextView tvNoticeTwo;//文案改为按最低提示
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +112,7 @@ public class WithdrawActivity extends AppActivity {
         tvBankName = findViewById(R.id.tv_bank_name);
         tvRateNotice = findViewById(R.id.tv_rate_notice);
         tvWithdrawAll = findViewById(R.id.tv_withdraw_all);
+        tvNoticeTwo = findViewById(R.id.tv_notice_two);
         actionbar = headView.getActionbar();
         tvSubmit.setEnabled(false);
         etWithdraw.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
@@ -293,6 +295,7 @@ public class WithdrawActivity extends AppActivity {
                                 rate = Double.valueOf(rateBean.getRate());
                                 tvRateNotice.setText("服务费 0.0元 (服务费=提现金额x" + rate * 100 + "%+" + extraMoney + "元/笔)");
                             }
+//                            tvNoticeTwo.setText("2.单次提现金额最低" +minMoney+"元，最高2000元\n3.单日最高提现金额6000元");
                         } else {
                             rateBean = new CommonBean();
                         }
@@ -301,6 +304,7 @@ public class WithdrawActivity extends AppActivity {
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         showFailDialog();
+//                        tvNoticeTwo.
                     }
                 });
     }

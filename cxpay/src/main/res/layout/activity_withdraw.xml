@@ -171,14 +171,22 @@
             android:textSize="12sp" />
 
         <TextView
+            android:id="@+id/tv_notice_one"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_account_time"
             android:layout_marginLeft="17dp"
             android:layout_marginTop="50dp"
-            android:text="提现说明：\n
-1.单日提现次数:3次\n
-2.单次提现金额最低10元，最高2000元\n
+            android:text="提现说明：\n 1.单日提现次数:3次"
+            android:textColor="@color/c_868686"
+            android:textSize="12sp" />
+        <TextView
+            android:id="@+id/tv_notice_two"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_notice_one"
+            android:layout_marginLeft="17dp"
+            android:text="2.单次提现金额最低10元，最高2000元\n
 3.单日最高提现金额6000元"
             android:textColor="@color/c_868686"
             android:textSize="12sp" />
