@@ -833,6 +833,11 @@ public class SocketData {
                 MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
                 SocketUtil.getSocketUtil().sendData4Msg(msg);
             }
+        } else {
+            if (needSave) {
+                bean.setSend_state(ChatEnum.ESendStatus.ERROR);
+                saveMessage(bean);
+            }
         }
     }
 
