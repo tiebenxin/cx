@@ -69,6 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="设置备注"
+                android:visibility="gone"
                 android:textColor="#9e9d9d"
                 android:textSize="12sp" />
 
@@ -77,6 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
+                android:visibility="gone"
                 android:orientation="vertical">
 
                 <LinearLayout
