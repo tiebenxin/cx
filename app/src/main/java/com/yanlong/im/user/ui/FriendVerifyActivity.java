@@ -47,11 +47,11 @@ public class FriendVerifyActivity extends AppActivity {
         if (!TextUtils.isEmpty(content)) {
             ui.etTxt.setText(content);
         }
-        if (!TextUtils.isEmpty(userNote)) {
-            ui.etNote.setText(userNote);
-        } else if (!TextUtils.isEmpty(mNickName)) {
-            ui.etNote.setText(mNickName);
-        }
+//        if (!TextUtils.isEmpty(userNote)) {
+//            ui.etNote.setText(userNote);
+//        } else if (!TextUtils.isEmpty(mNickName)) {
+//            ui.etNote.setText(mNickName);
+//        }
         ui.headView.getActionbar().setTxtRight("发送");
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -75,7 +75,8 @@ public class FriendVerifyActivity extends AppActivity {
         if (userId <= 0) {
             ToastUtil.show(this, "无效用户");
         }
-        new UserAction().friendApply(userId, sayHi, ui.etNote.getText().toString().trim(), new CallBack<ReturnBean>() {
+        // ui.etNote.getText().toString().trim()
+        new UserAction().friendApply(userId, sayHi, null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

@@ -125,10 +125,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private boolean isRecordWarning = false;
     private boolean isInReceiveing = false;
     private boolean mIsInComingCall = false;// is incoming call or outgoing call
+
     // 电话是否接通
     private boolean isCallEstablished = false;
     private Long toUId = null;
     private String toGid = null;
+    private boolean mIsHandUp = false;// 是否一方有挂断，用于判断两边同时挂断发重复消息问题
 
     // data
     private TouchZoneCallback touchZoneCallback;
@@ -289,6 +291,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        mIsHandUp = false;
         setContentView(R.layout.activity_video);
         setStatusBarColor(R.color.color_707);
         findSurfaceView();
@@ -357,6 +360,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (v.getId() == R.id.img_cancle || v.getId() == R.id.img_hand_up
                 || v.getId() == R.id.img_refuse || v.getId() == R.id.img_hand_up2) {
             AVChatProfile.getInstance().setCallIng(false);
+            // 是否两边同时挂断，只调用先触发的一方即可，不然会有重复消息
+            if (mIsHandUp) {
+                return;
+            }
+            mIsHandUp = true;
             if (avChatData != null) {
                 // 调用网易取消、拒绝、挂断 会阻塞主线程，所以新开一个线程去处理
                 new Thread(new Runnable() {
@@ -955,6 +963,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 //            avChatData = avChatController.getAvChatData();
             Log.i(TAG, "对方挂断电话");
             AVChatProfile.getInstance().setCallIng(false);
+            if (mIsHandUp) {
+                return;
+            }
+            mIsHandUp = true;
             if (avChatData != null && avChatData.getChatId() == avChatHangUpInfo.getChatId()) {
                 // 电话是否接通
                 if (isCallEstablished) {
