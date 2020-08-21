@@ -1854,8 +1854,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
                     return;
+                }else {
+                    if(mAdapter.getSelectedMsg().size()>0){
+                        showCollectListDialog();
+                    }
                 }
-                showCollectListDialog();
             }
         });
 
