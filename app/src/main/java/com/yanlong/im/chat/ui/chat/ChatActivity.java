@@ -4515,7 +4515,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.TEXT || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.AT
                         || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.VOICE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.LOCATION
                         || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.IMAGE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE) {
+                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                     String fromUsername = "";//用户名称
                     String fromGid = "";//群组id
                     String fromGroupName = "";//群组名称
@@ -6788,7 +6788,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     //多选直接调批量收藏接口
                     if (mAdapter.getSelectedMsg().size() > 0) {
                         List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
-                        if (dataList != null) {
+                        if (dataList != null && dataList.size()>0) {
                             //1 有网收藏
                             if (checkNetConnectStatus(1)) {
                                 msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
@@ -6827,6 +6827,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 ToastUtil.show("批量收藏成功!");//离线提示
                                 dialogTwo.dismiss();
                             }
+                        }else {
+                            dialogTwo.dismiss();
                         }
                         hideMultiSelect(ivCollection);
                     }
