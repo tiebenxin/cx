@@ -6260,7 +6260,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
             if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
-                if (msg.isMe() && isNormalStyle) {
+                if (msg.isMe() && isNormalStyle && !isGroup()) {
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 } else {
                     grabRedEnvelope(msg, tradeId, reType);

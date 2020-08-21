@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_root"
+    style="@style/app_layout_list2_item"
+    android:paddingRight="0dp"
+    android:minHeight="50dp">
+
+    <com.yanlong.im.wight.avatar.MultiImageView
+        android:id="@+id/iv_avatar"
+        style="@style/app_img_head" />
+
+    <TextView
+        style="@style/app_txt_title_2"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_marginLeft="12dp"
+        android:text="群内所有人" />
+
+    <ImageView
+        android:id="@+id/iv_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dimen_16"
+        android:padding="10dp"
+        android:src="@drawable/selector_list_bg"
+        android:visibility="visible" />
+
+</LinearLayout>

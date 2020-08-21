@@ -1,4 +1,4 @@
-package com.yanlong.im.chat.ui.forward;
+package com.yanlong.im.pay.ui.select;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,33 +11,33 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
-import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
-import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
 /**
  * @author Liszt
- * @date 2019/8/12
+ * @date 2020/8/20
  * Description
- *  消息转发 通讯录
  */
-public class AdapterForwardRoster extends AbstractRecyclerAdapter {
+public class AdapterSelectMember extends AbstractRecyclerAdapter {
     private Context context;
-    private IForwardRosterListener listener;
+    private final Group group;
 
-    public AdapterForwardRoster(Context ctx) {
+    public AdapterSelectMember(Context ctx, Group g) {
         super(ctx);
         context = ctx;
+        group = g;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == 0) {
-            return new RCViewMucHolder(mInflater.inflate(R.layout.item_select_muc, parent, false));
+            return new RCViewMucHolder(mInflater.inflate(R.layout.item_select_all, parent, false));
         } else {
             return new RCViewHolder(mInflater.inflate(R.layout.item_msg_friend, parent, false));
         }
@@ -47,7 +47,7 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         if (holder instanceof RCViewHolder) {
-            UserInfo info = (UserInfo) mBeanList.get(position - 1);
+            MemberUser info = (MemberUser) mBeanList.get(position - 1);
             RCViewHolder viewHolder = (RCViewHolder) holder;
             viewHolder.bindData(info, position);
         }
@@ -63,21 +63,19 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
         return mBeanList != null ? mBeanList.size() + 1 : 0;
     }
 
-    public void setForwardListener(IForwardRosterListener l) {
-        listener = l;
-    }
-
-    public UserInfo getUserByPosition(int position) {
+    public MemberUser getUserByPosition(int position) {
         if (position < getItemCount() - 1) {
-            return (UserInfo) mBeanList.get(position);
+//            return viewModel.users.get(position);
+            return (MemberUser) mBeanList.get(position);
         }
         return null;
     }
 
+
     //自动生成ViewHold
     public class RCViewHolder extends RecyclerView.ViewHolder {
         private TextView txtType;
-        private ImageView imgHead,ivSelect;
+        private ImageView imgHead, ivSelect;
         private TextView txtName;
         private TextView txtTime;
         private View viewType;
@@ -91,25 +89,19 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             txtTime = convertView.findViewById(R.id.txt_time);
             viewType = convertView.findViewById(R.id.view_type);
             ivSelect = convertView.findViewById(R.id.iv_select);
+            ivSelect.setVisibility(View.VISIBLE);
         }
 
-        public void bindData(final UserInfo bean, final int position) {
+        public void bindData(final MemberUser bean, final int position) {
             txtType.setText(bean.getTag());
-            //imgHead.setImageURI(Uri.parse("" + bean.getHead()));
-
             Glide.with(context).load(bean.getHead())
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-            txtName.setText(bean.getName4Show());
-            if (bean.getLastonline() > 0) {
-                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
-                txtTime.setVisibility(View.VISIBLE);
-            } else {
-                txtTime.setVisibility(View.GONE);
-            }
+            txtName.setText(bean.getShowName());
+            txtTime.setVisibility(View.GONE);
 
             if (position > 1) {
-                UserInfo lastBean = getUserByPosition(position - 2);
+                MemberUser lastBean = getUserByPosition(position - 2);
                 if (lastBean.getTag().equals(bean.getTag())) {
                     viewType.setVisibility(View.GONE);
                 } else {
@@ -123,51 +115,22 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(ViewUtils.isFastDoubleClick()){
+                    if (ViewUtils.isFastDoubleClick()) {
                         return;
-                    }
-                    if (listener == null) {
-                        return;
-                    }
-
-                    if(MsgForwardActivity.isSingleSelected){
-                        if (listener != null) {
-                            listener.onForward(bean.getUid(), "", bean.getHead(), bean.getName4Show());
-                        }
-                    }else {
-                        if(bean.isChecked()){
-                            bean.setChecked(false);
-                            ivSelect.setSelected(false);
-
-                            MsgForwardActivity.addOrDeleteMoreSessionBeanList(false,bean.getUid(), "", bean.getHead(), bean.getName4Show());
-                        }else {
-
-                            if(MsgForwardActivity.moreSessionBeanList.size()>=MsgForwardActivity.maxNumb){
-                                ToastUtil.show(context, "最多选择"+MsgForwardActivity.maxNumb+"个");
-                                return;
-                            }
-
-                            bean.setChecked(true);
-                            ivSelect.setSelected(true);
-                            MsgForwardActivity.addOrDeleteMoreSessionBeanList(true,bean.getUid(), "", bean.getHead(), bean.getName4Show());
-                        }
-
-//                        LogUtil.getLog().e(getAdapterPosition()+"=信息==="+(finalIsGroup? -1L : bean.getFrom_uid())+"==0=="+ bean.getGid()+ "==0="+finalIcon+"=0===="+ finalTitle);
                     }
                 }
             });
 
-            if(MsgForwardActivity.isSingleSelected){
+            if (MsgForwardActivity.isSingleSelected) {
                 ivSelect.setVisibility(View.GONE);
-            }else {
+            } else {
                 ivSelect.setVisibility(View.VISIBLE);
 
-                boolean hasSelect=MsgForwardActivity.findMoreSessionBeanList(bean.getUid(), "");
-//                LogUtil.getLog().e(getAdapterPosition()+"======hasSelect=="+hasSelect);
-                if(hasSelect){
+                boolean hasSelect = MsgForwardActivity.findMoreSessionBeanList(bean.getUid(), "");
+                if (hasSelect) {
                     bean.setChecked(true);
                     ivSelect.setSelected(true);
-                }else {
+                } else {
                     bean.setChecked(false);
                     ivSelect.setSelected(false);
                 }
@@ -187,13 +150,17 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             ll_root.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (listener == null) {
-                        return;
-                    }
-                    listener.onSelectMuc();
+
+
                 }
             });
         }
-    }
 
+        private void bindData(Group group) {
+            if (group == null) {
+                return;
+            }
+
+        }
+    }
 }
