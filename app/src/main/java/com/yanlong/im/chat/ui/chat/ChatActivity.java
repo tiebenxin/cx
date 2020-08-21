@@ -201,6 +201,7 @@ import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.base.BaseTcpActivity;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventGroupChange;
@@ -287,7 +288,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
-public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
+public class ChatActivity extends BaseTcpActivity implements IActionTagClickListener, ICellEventListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final String IS_VIP = "1";// (0:普通|1:vip)
@@ -1854,8 +1855,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
                     return;
-                }else {
-                    if(mAdapter.getSelectedMsg().size()>0){
+                } else {
+                    if (mAdapter.getSelectedMsg().size() > 0) {
                         showCollectListDialog();
                     }
                 }
@@ -6791,7 +6792,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     //多选直接调批量收藏接口
                     if (mAdapter.getSelectedMsg().size() > 0) {
                         List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
-                        if (dataList != null && dataList.size()>0) {
+                        if (dataList != null && dataList.size() > 0) {
                             //1 有网收藏
                             if (checkNetConnectStatus(1)) {
                                 msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
@@ -6830,7 +6831,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 ToastUtil.show("批量收藏成功!");//离线提示
                                 dialogTwo.dismiss();
                             }
-                        }else {
+                        } else {
                             dialogTwo.dismiss();
                         }
                         mAdapter.clearSelectedMsg();
@@ -6861,11 +6862,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         startActivityForResult(intent, 1);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i(TAG, "连接LOG_切换前后台--注册监听");
-        if (!event.getRun()) {
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void eventRunState(EventRunState event) {
+//        LogUtil.getLog().i(TAG, "连接LOG_切换前后台--注册监听");
+//        if (!event.getRun()) {
+//            onlineState = false;
+//        }
+//    }
+
+    @Override
+    public void switchAppStatus(boolean isRun) {
+        if (!isRun) {
             onlineState = false;
+        }
+        if (msgEvent == null) {
+            return;
+        }
+        LogUtil.getLog().i(TAG, "连接LOG->>>>switchAppStatus--注册监听:" + "--time=" + System.currentTimeMillis());
+        if (isRun) {
+            SocketUtil.getSocketUtil().addEvent(msgEvent);
+        } else {
+            SocketUtil.getSocketUtil().removeEvent(msgEvent);
         }
     }
 }
