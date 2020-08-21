@@ -6839,6 +6839,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 })
                 .setLeftOnClickListener(v -> {
                     dialogTwo.dismiss();
+                    mAdapter.clearSelectedMsg();
                     hideMultiSelect(ivCollection);
                 })
                 .build();
