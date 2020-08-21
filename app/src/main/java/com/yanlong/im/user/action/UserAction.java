@@ -531,8 +531,8 @@ public class UserAction {
     /***
      * 好友同意
      */
-    public void friendAgree(Long uid, String contactName,String alias, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.acceptFriend(uid, contactName,alias), callback);
+    public void friendAgree(Long uid, String contactName, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.acceptFriend(uid, contactName), callback);
     }
 
     /***
