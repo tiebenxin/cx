@@ -89,6 +89,7 @@ import com.zhaoss.weixinrecorded.CanStampEventWX;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.base.BaseTcpActivity;
 import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -150,7 +151,7 @@ import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 
 @Route(path = "/app/MainActivity")
-public class MainActivity extends AppActivity {
+public class MainActivity extends BaseTcpActivity {
     public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;
     private android.support.design.widget.TabLayout bottomTab;
@@ -199,7 +200,9 @@ public class MainActivity extends AppActivity {
         setContentView(R.layout.activity_main);
         //创建仓库-仅登录时会创建
         MyAppLication.INSTANCE().createRepository();
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         findViews();
         initEvent();
         isCreate = true;
@@ -611,7 +614,9 @@ public class MainActivity extends AppActivity {
             unregisterReceiver(mNetworkReceiver);
         }
         AVChatProfile.getInstance().setAVMinimize(false);
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
@@ -762,23 +767,46 @@ public class MainActivity extends AppActivity {
         EventBus.getDefault().post(new String());
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
-        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
-        if (event.getRun()) {
-            if (mMsgMainFragment != null) {
-                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
-            }
+    @Override
+    public void switchAppStatus(boolean isRun) {
+        if (mMsgMainFragment == null) {
+            return;
+        }
+        LogUtil.getLog().i("MainActivity", "连接LOG->>>>switchAppStatus--注册监听:" + "--time=" + System.currentTimeMillis());
+        if (isRun) {
+            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+        } else {
+            SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+        }
+    }
+
+    @Override
+    public void tcpConnect(boolean isRun) {
+        super.tcpConnect(isRun);
+        if (isRun) {
             startChatServer();
         } else {
-            if (mMsgMainFragment != null) {
-                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
-            }
             stopChatService();
         }
-
     }
+
+    //    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void eventRunState(EventRunState event) {
+//        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
+//        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
+//        if (event.getRun()) {
+//            if (mMsgMainFragment != null) {
+//                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+//            }
+//            startChatServer();
+//        } else {
+//            if (mMsgMainFragment != null) {
+//                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+//            }
+//            stopChatService();
+//        }
+//
+//    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
