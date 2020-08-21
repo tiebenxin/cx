@@ -6840,6 +6840,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 })
                 .setLeftOnClickListener(v -> {
                     dialogTwo.dismiss();
+                    mAdapter.clearSelectedMsg();
                     hideMultiSelect(ivCollection);
                 })
                 .build();
