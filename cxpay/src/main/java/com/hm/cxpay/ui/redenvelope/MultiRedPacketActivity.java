@@ -16,6 +16,7 @@ import android.view.View;
 import androidx.annotation.RequiresApi;
 
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.google.gson.JsonArray;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.FromUserBean;
@@ -41,6 +42,8 @@ import net.cb.cb.library.view.PopupSelectView;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -105,7 +108,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         payFailed();
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign());
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign(), toUserList);
         if (envelopeBean != null && !TextUtils.isEmpty(event.getActionId()) && !TextUtils.isEmpty(envelopeBean.getActionId()) && !TextUtils.isEmpty(event.getSign()) && event.getActionId().equals(envelopeBean.getActionId())) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
@@ -121,6 +124,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     private void payFailed() {
         dismissLoadingDialog();
+        ui.btnCommit.setEnabled(true);
         if (isSending()) {
             setSending(false);
             if (handler != null && runnable != null) {
@@ -415,11 +419,17 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), type, note, count, "");
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), type, note, count, "", toUserList);
+        JSONArray uidArr = new JSONArray();
+        if (toUserList != null && toUserList.size() > 0) {
+            for (int i = 0; i < toUserList.size(); i++) {
+                uidArr.put(toUserList.get(i).getUid());
+            }
+        }
         ui.btnCommit.setEnabled(false);
         setSending(true);
         showLoadingDialog();
-        PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, type, note, gid)
+        PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, type, note, gid, uidArr)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UrlBean>>() {

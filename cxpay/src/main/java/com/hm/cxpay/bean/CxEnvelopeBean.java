@@ -7,6 +7,9 @@ import com.hm.cxpay.global.PayEnum;
 
 import net.cb.cb.library.base.BaseBean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Liszt
  * @date 2019/12/9
@@ -23,6 +26,7 @@ public class CxEnvelopeBean extends BaseBean implements Parcelable {
     String message = "";//默认恭喜发财，好运连连
     private int envelopeAmount = 0;//红包个数
     private String sign = "";//签名
+    private List<FromUserBean> allowUses;
 
     public CxEnvelopeBean() {
 
@@ -36,6 +40,7 @@ public class CxEnvelopeBean extends BaseBean implements Parcelable {
         message = in.readString();
         envelopeAmount = in.readInt();
         sign = in.readString();
+        allowUses = in.readArrayList(FromUserBean.class.getClassLoader());
 
     }
 
@@ -115,6 +120,14 @@ public class CxEnvelopeBean extends BaseBean implements Parcelable {
         this.sign = sign;
     }
 
+    public List<FromUserBean> getAllowUses() {
+        return allowUses;
+    }
+
+    public void setAllowUses(List<FromUserBean> allowUses) {
+        this.allowUses = allowUses;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -129,6 +142,7 @@ public class CxEnvelopeBean extends BaseBean implements Parcelable {
         dest.writeString(message);
         dest.writeInt(envelopeAmount);
         dest.writeString(sign);
+        dest.writeList(allowUses);
 
     }
 }

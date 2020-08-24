@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogDefault;
@@ -24,6 +25,8 @@ import com.umeng.commonsdk.debug.E;
 import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.List;
 
 /**
  * @author Liszt
@@ -145,7 +148,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     }
 
 
-    public CxEnvelopeBean initEnvelopeBean(CxEnvelopeBean envelopeBean, String actionId, long tradeId, long createTime, @PayEnum.ERedEnvelopeType int redType, String info, int count, String sign) {
+    public CxEnvelopeBean initEnvelopeBean(CxEnvelopeBean envelopeBean, String actionId, long tradeId, long createTime, @PayEnum.ERedEnvelopeType int redType, String info, int count, String sign, List<FromUserBean> allowUsers) {
         if (envelopeBean == null && !TextUtils.isEmpty(actionId)) {
             envelopeBean = new CxEnvelopeBean();
             envelopeBean.setActionId(actionId);
@@ -163,6 +166,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
             envelopeBean.setTradeId(tradeId);
             envelopeBean.setActionId(actionId);
             envelopeBean.setSign(sign);
+        }
+        if (allowUsers != null && allowUsers.size() > 0) {
+            envelopeBean.setAllowUses(allowUsers);
         }
         return envelopeBean;
     }
