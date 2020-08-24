@@ -2,6 +2,8 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
+import com.yanlong.im.chat.bean.MemberUser;
+
 import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.DynamicRealm;
@@ -194,6 +196,10 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 43) {
                 updateV44(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 44) {
+                updateV45(schema);
                 oldVersion++;
             }
         }
@@ -815,6 +821,14 @@ public class DaoMigration implements RealmMigration {
         schema.get("UserBean")
                 .addField("deactivateStat", int.class)
                 .addField("friendDeactivateStat", int.class);
+    }
+
+    // 增加红包领取人自选
+    private final void updateV45(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addRealmListField("allowUsers", schema.get("MemberUser"));
+        schema.get("EnvelopeInfo")
+                .addRealmListField("allowUsers", schema.get("MemberUser"));
     }
 
 

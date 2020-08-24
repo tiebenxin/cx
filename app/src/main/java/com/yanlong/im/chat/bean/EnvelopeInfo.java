@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.bean;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -20,6 +21,8 @@ public class EnvelopeInfo extends RealmObject {
     String gid;//群聊
     long uid;//单聊 红包接受者
     long amount;//发送金额
+    private RealmList<MemberUser> allowUsers;//设置红包领取人
+
 
     public String getRid() {
         return rid;
@@ -99,5 +102,13 @@ public class EnvelopeInfo extends RealmObject {
 
     public void setAmount(long amount) {
         this.amount = amount;
+    }
+
+    public RealmList<MemberUser> getAllowUsers() {
+        return allowUsers;
+    }
+
+    public void setAllowUsers(RealmList<MemberUser> allowUsers) {
+        this.allowUsers = allowUsers;
     }
 }
