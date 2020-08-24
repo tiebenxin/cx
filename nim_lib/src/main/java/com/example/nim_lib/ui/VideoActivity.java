@@ -364,6 +364,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (mIsHandUp) {
                 return;
             }
+            LogUtil.getLog().i("1212", "onClick");
             mIsHandUp = true;
             if (avChatData != null) {
                 // 调用网易取消、拒绝、挂断 会阻塞主线程，所以新开一个线程去处理
@@ -968,12 +969,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             }
             mIsHandUp = true;
             if (avChatData != null && avChatData.getChatId() == avChatHangUpInfo.getChatId()) {
-                // 电话是否接通
-                if (isCallEstablished) {
-                    hangUpByOther(AVChatExitCode.HANGUP);
-                } else {
-                    hangUpByOther(AVChatExitCode.OTHER_CANCEL);
-                }
                 // toUId != null 主叫挂断不需要在发送消息
                 if (isFirstFlg && toUId != null && toUId != 0) {
                     isFirstFlg = false;
@@ -989,6 +984,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 }
                 if (!isFinishing()) {
                     mHandler.removeCallbacks(runnable);
+                }
+                // 电话是否接通
+                if (isCallEstablished) {
+                    hangUpByOther(AVChatExitCode.HANGUP);
+                } else {
+                    hangUpByOther(AVChatExitCode.OTHER_CANCEL);
                 }
 //                cancelCallingNotifier();
 //                // 如果是incoming call主叫方挂断，那么通知栏有通知
@@ -1014,17 +1015,21 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_BUSY) {
                 // 对方正在忙
                 Log.i(TAG, "对方正在忙");
-                hangUpByOther(AVChatExitCode.PEER_BUSY);
                 AVChatProfile.getInstance().setCallIng(false);
+                hangUpByOther(AVChatExitCode.PEER_BUSY);
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_REJECT) {
                 // 对方拒绝接听
+                if (mIsHandUp) {
+                    return;
+                }
+                mIsHandUp = true;
                 Log.i(TAG, "对方拒绝接听");
                 if (isFirstFlg && toUId != null && toUId != 0) {
                     isFirstFlg = false;
                     sendEventBus(Preferences.REJECT, AVChatExitCode.REJECT);
                 }
-                hangUpByOther(AVChatExitCode.REJECT);
                 AVChatProfile.getInstance().setCallIng(false);
+                hangUpByOther(AVChatExitCode.REJECT);
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_AGREE) {
                 // 对方同意接听
                 Log.i(TAG, "对方同意接听" + ackInfo.getAccount());
@@ -1235,7 +1240,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (exitCode == AVChatExitCode.PEER_BUSY) {
                 showQuitToast(AVChatExitCode.PEER_BUSY);
             }
-            mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+                }
+            }).start();
+            finish();
         } else {
             if (mAVChatType == AVChatType.VIDEO.getValue()) {
                 releaseVideo();
@@ -1415,6 +1426,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (proximitySensor != null && sensorManager != null) {
                 sensorManager.registerListener(sensorEventListener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
             }
+        }
+        // 在次检查是否关闭了最小化按钮，没有则通知关闭
+        if (AVChatProfile.getInstance().isAVMinimize()) {
+            // 关闭不发送消息
+            EventFactory.CloseMinimizeEvent closeMinimizeEvent = new EventFactory.CloseMinimizeEvent();
+            closeMinimizeEvent.isClose = true;
+            EventBus.getDefault().post(closeMinimizeEvent);
         }
         // 延迟1.5秒在关闭，解决可能会先弹出音视频界面，后弹出通知的情况
         if (!isFinishing()) {
