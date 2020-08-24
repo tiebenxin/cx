@@ -3,7 +3,7 @@
     android:id="@+id/ll_root"
     style="@style/app_layout_list2_item"
     android:paddingRight="0dp"
-    android:minHeight="50dp">
+    android:minHeight="68dp">
 
     <com.yanlong.im.wight.avatar.MultiImageView
         android:id="@+id/iv_avatar"

@@ -18,6 +18,7 @@ import androidx.annotation.RequiresApi;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
@@ -41,6 +42,8 @@ import net.cb.cb.library.view.PopupSelectView;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;
@@ -63,6 +66,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     private String note;
     private String actionId;
     private int count;
+    private ArrayList<FromUserBean> toUserList;
 
 
     /**
@@ -199,7 +203,10 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         ui.llSelect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                ARouter.getInstance().build("/app/envelopeReceiver").withString("gid", gid).withParcelableArrayList("data", toUserList).navigation(MultiRedPacketActivity.this, 2);
             }
         });
     }
@@ -256,7 +263,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
-                } */else {
+                } */ else {
                     if (totalMoney > TOTAL_MAX_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
@@ -484,6 +491,53 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     handler.removeCallbacks(runnable);
                 }
                 ui.btnCommit.setEnabled(true);
+            }
+        } else if (requestCode == 2) {//选择红包领取人
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    int mode = data.getIntExtra("mode", 0);
+                    if (mode == 0) {
+                        if (toUserList != null) {
+                            toUserList.clear();
+                        }
+                        ui.tvName.setText("群内所有人");
+                    } else {
+                        toUserList = data.getParcelableArrayListExtra("data");
+                        if (toUserList != null && toUserList.size() > 0) {
+                            int len = toUserList.size();
+                            String name = "";
+                            for (int i = 0; i < len; i++) {
+                                FromUserBean user = toUserList.get(i);
+                                if (i != len - 1) {
+                                    name += user.getNickname() + ",";
+                                } else {
+                                    name += user.getNickname();
+                                }
+                            }
+                            ui.tvName.setText(name);
+
+                        } else {
+                            ui.tvName.setText("群内所有人");
+                        }
+                    }
+                }
+            } else {
+                if (toUserList != null && toUserList.size() > 0) {
+                    int len = toUserList.size();
+                    String name = "";
+                    for (int i = 0; i < len; i++) {
+                        FromUserBean user = toUserList.get(i);
+                        if (i != len - 1) {
+                            name += user.getNickname() + ",";
+                        } else {
+                            name += user.getNickname();
+                        }
+                    }
+                    ui.tvName.setText(name);
+
+                } else {
+                    ui.tvName.setText("群内所有人");
+                }
             }
         }
     }

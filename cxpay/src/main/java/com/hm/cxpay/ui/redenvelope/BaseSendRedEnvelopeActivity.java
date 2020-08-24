@@ -48,7 +48,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         httpGetUserInfo();//更新余额
         PayEnvironment.getInstance().notifyStampUpdate(false);
     }
@@ -62,7 +64,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         PayEnvironment.getInstance().notifyStampUpdate(true);
     }
 

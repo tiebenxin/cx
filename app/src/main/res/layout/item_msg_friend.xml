@@ -109,7 +109,7 @@
             android:layout_marginRight="@dimen/dimen_16"
             android:padding="10dp"
             android:src="@drawable/selector_list_bg"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
     </LinearLayout>
 

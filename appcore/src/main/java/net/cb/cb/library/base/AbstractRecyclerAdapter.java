@@ -26,6 +26,9 @@ public abstract class AbstractRecyclerAdapter<T> extends RecyclerView.Adapter<Re
     }
 
     public void bindData(List<T> l) {
+        if (l == null) {
+            return;
+        }
         if (mBeanList == null) {
             mBeanList = l;
         } else {

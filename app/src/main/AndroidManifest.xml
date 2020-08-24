@@ -131,13 +131,13 @@
         <!--消息处理到数据库 IntentService-->
         <service android:name=".chat.server.MessageIntentService" />
 
-<!--        <service android:name=".chat.server.ChatServer">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />-->
-<!--                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />-->
-<!--                <action android:name="android.net.wifi.STATE_CHANGE" />-->
-<!--            </intent-filter>-->
-<!--        </service>-->
+        <!--        <service android:name=".chat.server.ChatServer">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />-->
+        <!--                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />-->
+        <!--                <action android:name="android.net.wifi.STATE_CHANGE" />-->
+        <!--            </intent-filter>-->
+        <!--        </service>-->
 
         <!-- 新的朋友-->
         <activity
@@ -581,7 +581,7 @@
 
         <activity
             android:name=".chat.ui.VideoPlayActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"/>
+            android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <!--位置-->
         <activity
@@ -692,7 +692,12 @@
         <activity
             android:name=".pay.ui.record.BillDetailListActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".user.ui.UploadLogActivity" />
+        <activity
+            android:name=".user.ui.UploadLogActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pay.ui.select.EnvelopeReceiverActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 
