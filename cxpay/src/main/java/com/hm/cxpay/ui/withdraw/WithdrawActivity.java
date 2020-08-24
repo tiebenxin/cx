@@ -71,7 +71,7 @@ public class WithdrawActivity extends AppActivity {
     private Activity activity;
     private CommonBean rateBean;//银行卡费率
 
-    private Double minMoney = 1000.0;//最低提现金额，默认10元，单位分
+    private Double minMoney = 10.0;//最低提现金额，默认10元
     //    private Double maxMoney = 2000 * 1000.0;//最高提现金额，默认2000元，单位分
     private Double serviceMoney = 0.0;//服务费，单位分
     private Double extraMoney = 0.0;//额外固定费，单位分
@@ -80,6 +80,7 @@ public class WithdrawActivity extends AppActivity {
     private Double withDrawMoney = 0.0;//用户提现金额
     private double balanceValue = 0;//double类型的余额
     private Double realMoney = 0.0;//实际到账金额
+    private TextView tvNoticeTwo;//最低提现金额提示文案改为按接口取
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +112,7 @@ public class WithdrawActivity extends AppActivity {
         tvBankName = findViewById(R.id.tv_bank_name);
         tvRateNotice = findViewById(R.id.tv_rate_notice);
         tvWithdrawAll = findViewById(R.id.tv_withdraw_all);
+        tvNoticeTwo = findViewById(R.id.tv_notice_two);
         actionbar = headView.getActionbar();
         tvSubmit.setEnabled(false);
         etWithdraw.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
@@ -194,11 +196,10 @@ public class WithdrawActivity extends AppActivity {
                 //1 金额不为空
                 if (!TextUtils.isEmpty(etWithdraw.getText().toString())) {
                     //2 格式要正确，单独小数点无法参与计算，以0开头的小数低于默认最低值10的也不参与计算并过滤掉
-                    if (!etWithdraw.getText().toString().equals(".")
-                            && !etWithdraw.getText().toString().startsWith("0")) {
-                        //3 金额最高限制10000 最低取接口值
+                    if (!etWithdraw.getText().toString().equals(".")) {
+                        //3 金额最高限制2000 最低取接口值
                         double inputMoney = Double.valueOf(etWithdraw.getText().toString());
-                        if (inputMoney <= 2000 && inputMoney >= 10) {
+                        if (inputMoney <= 2000 && inputMoney >= minMoney) {
                             withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
                             serviceMoney = Double.valueOf(BigDecimalUtils.add(BigDecimalUtils.mul(withDrawMoney + "", rate + "", 2), extraMoney + "", 2));
                             realMoney = Double.valueOf(BigDecimalUtils.sub(withDrawMoney + "", serviceMoney + "", 2));
@@ -207,7 +208,7 @@ public class WithdrawActivity extends AppActivity {
                             tvRateNotice.setText("服务费 " + serviceMoney + "元 (服务费=提现金额x" + doubleRate + "%+" + extraMoney + "元/笔)");
                             tvSubmit.setText("提现 (实际到账金额 " + realMoney + ")");
                             tvSubmit.setEnabled(true);
-                        } else if (inputMoney < 10) {
+                        } else if (inputMoney < minMoney) {
                             tvSubmit.setText("提现");
                             tvSubmit.setEnabled(false);
                         } else {
@@ -294,6 +295,7 @@ public class WithdrawActivity extends AppActivity {
                                 rate = Double.valueOf(rateBean.getRate());
                                 tvRateNotice.setText("服务费 0.0元 (服务费=提现金额x" + rate * 100 + "%+" + extraMoney + "元/笔)");
                             }
+                            tvNoticeTwo.setText("2.单次提现金额最低" +minMoney+"元，最高2000元");
                         } else {
                             rateBean = new CommonBean();
                         }
@@ -302,6 +304,7 @@ public class WithdrawActivity extends AppActivity {
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         showFailDialog();
+                        tvNoticeTwo.setText("2.单次提现金额最低" +minMoney+"元，最高2000元");
                     }
                 });
     }

@@ -2,42 +2,32 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.VersionBean;
-import com.yanlong.im.utils.update.UpdateAppDialog;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.FileUtils;
-import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.WebPageActivity;
-
-import java.io.File;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -48,8 +38,6 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
     private Button mBtnRegister;
     private ImageView mIvWechat;
     private TextView mTvMattersNeedAttention;
-    private InstallAppUtil installAppUtil;
-    private UpdateAppDialog installDialog;
     private UpdateManage updateManage;
 
     @Override
@@ -165,84 +153,28 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    //非强更，若已忽略当前版本，则不再显示安装弹框
-                    if (!TextUtils.isEmpty(bean.getVersion())
-                            && bean.getVersion().equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))) {
-                        return;
-                    }
                     if(updateManage==null){
                         updateManage = new UpdateManage(context, SelectLoginActivity.this);
-                        if(!TextUtils.isEmpty(bean.getVersion())){
-                            //场景一：判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
-                            if(FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)+"/changxin_"+bean.getVersion()+".apk")
-                                    && VersionUtil.isLowerVersion(context,bean.getVersion())) {
-                                try {
-                                    //1-1 当前的版本必须要低于安装包才允许安装
-                                    //1-2 检查安装包是否完整，若安装包已经下载成功，只是取消了安装，则提示是否现在安装
-                                    if(FileUtils.getFileSize(new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk"))
-                                            == new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE).getLong("new_apk_size")){
-                                        if (installDialog == null) {
-                                            installDialog = new UpdateAppDialog();
-                                            installDialog.init(SelectLoginActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
-                                                @Override
-                                                public void onON() {
-
-                                                }
-
-                                                @Override
-                                                public void onUpdate() {
-
-                                                }
-
-                                                @Override
-                                                public void onInstall() {
-                                                    if (installAppUtil == null) {
-                                                        installAppUtil = new InstallAppUtil();
-                                                    }
-                                                    installAppUtil.install(SelectLoginActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk");
-                                                }
-                                            });
-                                            installDialog.downloadComplete();
-                                            if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                                                installDialog.showCancle(false);
-                                            } else {
-                                                installDialog.showCancle(true);
-                                            }
-                                        }
-                                        installDialog.show();
-                                    }else {
-                                        //若安装包没有下载完成，如强行杀掉进程，则还需要重新下载
-                                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                                        } else {
-                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }else {
-                                //场景二：没有下载过新版本的安装包，按正常逻辑往下走
-                                //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
-                                if (bean.getForceUpdate() != 0) {
-                                    //有最低不需要强制升级版本
-                                    if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                                    } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                                    }
+                        if (!TextUtils.isEmpty(bean.getVersion())) {
+                            //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
+                            if (bean.getForceUpdate() != 0) {
+                                //有最低不需要强制升级版本
+                                if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                                 } else {
-                                    //缓存最新版本
-                                    SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                                    VersionBean versionBean = new VersionBean();
-                                    versionBean.setVersion(bean.getVersion());
-                                    preferencesUtil.save2Json(versionBean);
-                                    //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                                    if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                                    } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                                    }
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                }
+                            } else {
+                                //缓存最新版本
+                                SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                                VersionBean versionBean = new VersionBean();
+                                versionBean.setVersion(bean.getVersion());
+                                preferencesUtil.save2Json(versionBean);
+                                //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                                } else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                                 }
                             }
                         }

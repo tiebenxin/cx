@@ -13,6 +13,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -76,6 +77,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private boolean isOpenRead = true;//是否开启已读开关
     private int unreadPosition;
     private TextView tvNote;
+    private LinearLayout llSelect;
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -159,7 +161,6 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 mAdapter.getSelectedMsg().add(model);
             } else {
                 showSelectMaxDialog();
-//                ckSelect.setChecked(false);
             }
         }
     }
@@ -179,6 +180,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         tvRead = viewRoot.findViewById(R.id.tv_read);
         tvReadTime = viewRoot.findViewById(R.id.tv_read_time);
         tvNote = viewRoot.findViewById(R.id.tv_broadcast);
+        llSelect = viewRoot.findViewById(R.id.ll_select);
 
     }
 
@@ -475,11 +477,11 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     private void setCheckView() {
-        if (ckSelect == null) {
+        if (llSelect == null || ckSelect == null) {
             return;
         }
         if (mAdapter.isShowCheckBox()) {
-            ckSelect.setVisibility(VISIBLE);
+            llSelect.setVisibility(VISIBLE);
             List<MsgAllBean> selectedMsgs = mAdapter.getSelectedMsg();
             if (selectedMsgs != null && selectedMsgs.contains(model)) {
                 ckSelect.setChecked(true);
@@ -487,7 +489,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 ckSelect.setChecked(false);
             }
         } else {
-            ckSelect.setVisibility(View.GONE);
+            llSelect.setVisibility(View.GONE);
         }
     }
 

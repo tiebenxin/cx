@@ -201,6 +201,7 @@ import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.base.BaseTcpActivity;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventGroupChange;
@@ -263,6 +264,7 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -287,7 +289,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
-public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
+public class ChatActivity extends BaseTcpActivity implements IActionTagClickListener, ICellEventListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final String IS_VIP = "1";// (0:普通|1:vip)
@@ -429,7 +431,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//注销弹框
-    private CommonSelectDialog dialogTwo;//批量收藏弹框
+    private CommonSelectDialog dialogTwo;//批量收藏提示弹框
+    private CommonSelectDialog dialogThree;//批量转发提示弹框
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -1822,7 +1825,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onClick(View v) {
                 if (mAdapter != null && mAdapter.getSelectedMsg() != null) {
-                    List<MsgAllBean> msgList = mAdapter.getSelectedMsg();
+                    List<MsgAllBean> msgList = new ArrayList<>();
+                    msgList.addAll(mAdapter.getSelectedMsg());
                     int len = msgList.size();
                     if (len > 0) {
                         showDeleteDialog(msgList);
@@ -1839,8 +1843,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
                     return;
+                }else {
+                    if (mAdapter.getSelectedMsg().size() > 0) {
+                        boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
+                        for(MsgAllBean bean : mAdapter.getSelectedMsg()){//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
+                            if(bean.getMsg_type() == ChatEnum.EMessageType.VOICE){
+                                haveDisallowedMsg = true;
+                                break;
+                            }
+                        }
+                        if(haveDisallowedMsg){
+                            showForwardListDialog();
+                        }else {
+                            showForwardDialog();
+                        }
+                    }
                 }
-                showForwardDialog();
+
             }
         });
 
@@ -1853,8 +1872,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
                     return;
+                } else {
+                    if (mAdapter.getSelectedMsg().size() > 0) {
+                        boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
+                        for(MsgAllBean bean : mAdapter.getSelectedMsg()){//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
+                            if(bean.getMsg_type() != ChatEnum.EMessageType.TEXT && bean.getMsg_type() != ChatEnum.EMessageType.AT
+                                    && bean.getMsg_type() != ChatEnum.EMessageType.VOICE && bean.getMsg_type() != ChatEnum.EMessageType.LOCATION
+                                    && bean.getMsg_type() != ChatEnum.EMessageType.IMAGE && bean.getMsg_type() != ChatEnum.EMessageType.MSG_VIDEO
+                                    && bean.getMsg_type() != ChatEnum.EMessageType.FILE && bean.getMsg_type() != ChatEnum.EMessageType.SHIPPED_EXPRESSION){
+                                haveDisallowedMsg = true;
+                                break;
+                            }
+                        }
+                        if(haveDisallowedMsg){
+                            showCollectListDialog();
+                        }else {
+                            toCollectList();
+                        }
+                    }
                 }
-                showCollectListDialog();
             }
         });
 
@@ -2836,6 +2872,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         LogUtil.getLog().e(TAG, "onBackPressed");
         if (mAdapter != null && mAdapter.isShowCheckBox()) {
             mAdapter.showCheckBox(false, true);
+            mAdapter.clearSelectedMsg();
             showViewMore(false);
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
             return;
@@ -4437,7 +4474,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mtListView.scrollToEnd();
     }
 
-    //收藏
+    //单条消息收藏
     private void onCollect(MsgAllBean msgbean) {
         String fromUsername = "";//用户名称
         String fromGid = "";//群组id
@@ -4516,7 +4553,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.TEXT || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.AT
                         || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.VOICE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.LOCATION
                         || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.IMAGE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE) {
+                        || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.FILE || msgAllBeanList.get(i).getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                     String fromUsername = "";//用户名称
                     String fromGid = "";//群组id
                     String fromGroupName = "";//群组名称
@@ -5902,12 +5939,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onOneForward() {
                 List<MsgAllBean> list = mAdapter.getSelectedMsg();
-                if (list != null) {
-                    int len = list.size();
-                    if (len > 0) {
+                if (list != null && list.size()>0) {
+                    //过滤掉语音消息
+                    Iterator<MsgAllBean> iterator = list.iterator();
+                    while (iterator.hasNext()){
+                        MsgAllBean obj = iterator.next();
+                        if(obj.getMsg_type()==ChatEnum.EMessageType.VOICE){
+                            iterator.remove();
+                        }
+                    }
+                    //过滤后若仍存在元素则允许转发
+
+                    if (list.size() > 0) {
                         onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
                     }
                 }
+                mAdapter.clearSelectedMsg();
                 hideMultiSelect(ivForward);
             }
 
@@ -5920,6 +5967,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         onForwardActivity(ChatEnum.EForwardMode.MERGE, new Gson().toJson(list));
                     }
                 }
+                mAdapter.clearSelectedMsg();
                 hideMultiSelect(ivForward);
             }
 
@@ -6745,10 +6793,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setListener(new DialogCommon.IDialogListener() {
                     @Override
                     public void onSure() {
-                        mAdapter.clearSelectedMsg();
                         if (MyAppLication.INSTANCE().repository != null) {
                             MyAppLication.INSTANCE().repository.deleteMsgList(msgList);
                         }
+                        mAdapter.removeMsgList(msgList);
+                        mAdapter.clearSelectedMsg();
                         notifyData();
                         hideMultiSelect(ivDelete);
                     }
@@ -6781,64 +6830,39 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 批量收藏提示弹框
      */
     private void showCollectListDialog() {
-        dialogTwo = builder.setTitle("个人名片/回复/戳一下/红包/转账/语音/\n视频通话/系统消息，暂不支持收藏")
-                .setRightText("收藏")
+        dialogTwo = builder.setTitle("暂不支持收藏：个人名片/回复/戳一下/\n红包/转账/音视频通话/系统消息，\n本次转发将会过滤掉此类型消息。")
+                .setRightText("确定")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     //多选直接调批量收藏接口
-                    if (mAdapter.getSelectedMsg().size() > 0) {
-                        List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
-                        if (dataList != null) {
-                            //1 有网收藏
-                            if (checkNetConnectStatus(1)) {
-                                msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
-                                    @Override
-                                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                                        super.onResponse(call, response);
-                                        if (response.body() == null) {
-                                            return;
-                                        }
-                                        if (response.body().isOk()) {
-                                            ToastUtil.show("批量收藏成功!");
-                                            dialogTwo.dismiss();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<ReturnBean> call, Throwable t) {
-                                        super.onFailure(call, t);
-                                        ToastUtil.show("批量收藏失败!");
-                                        dialogTwo.dismiss();
-                                    }
-                                });
-                            } else {
-                                //2 无网收藏
-                                //2-1 如果本地收藏列表不存在这条数据，收藏到列表，并保存收藏操作记录
-                                for (CollectionInfo info : dataList) {
-                                    if (msgDao.findLocalCollection(info.getMsgId()) == null) {
-                                        msgDao.addLocalCollection(info);//保存到本地收藏列表
-                                        OfflineCollect offlineCollect = new OfflineCollect();
-                                        offlineCollect.setMsgId(info.getMsgId());
-                                        offlineCollect.setCollectionInfo(info);
-                                        msgDao.addOfflineCollectRecord(offlineCollect);//保存到离线收藏记录表
-                                    }
-                                }
-                                //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
-                                ToastUtil.show("批量收藏成功!");//离线提示
-                                dialogTwo.dismiss();
-                            }
-                        }
-                        hideMultiSelect(ivCollection);
-                    }
+                    toCollectList();
                 })
                 .setLeftOnClickListener(v -> {
                     dialogTwo.dismiss();
+                    mAdapter.clearSelectedMsg();
                     hideMultiSelect(ivCollection);
                 })
                 .build();
         dialogTwo.show();
     }
 
+    /**
+     * 批量转发提示弹框
+     */
+    private void showForwardListDialog() {
+        dialogThree = builder.setTitle("暂不支持转发：语音消息，\n本次转发将会过滤掉此类型消息。")
+                .setRightText("确定")
+                .setLeftText("取消")
+                .setRightOnClickListener(v -> {
+                    showForwardDialog();
+                    dialogThree.dismiss();
+                })
+                .setLeftOnClickListener(v -> {
+                    dialogThree.dismiss();
+                })
+                .build();
+        dialogThree.show();
+    }
     private void toSendVerifyActivity(Long uid) {
         IUser myInfo = UserAction.getMyInfo();
         if (myInfo == null) {
@@ -6855,11 +6879,89 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         startActivityForResult(intent, 1);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i(TAG, "连接LOG_切换前后台--注册监听");
-        if (!event.getRun()) {
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void eventRunState(EventRunState event) {
+//        LogUtil.getLog().i(TAG, "连接LOG_切换前后台--注册监听");
+//        if (!event.getRun()) {
+//            onlineState = false;
+//        }
+//    }
+
+    @Override
+    public void switchAppStatus(boolean isRun) {
+        if (!isRun) {
             onlineState = false;
         }
+        if (msgEvent == null) {
+            return;
+        }
+        LogUtil.getLog().i(TAG, "连接LOG->>>>switchAppStatus--注册监听:" + "--time=" + System.currentTimeMillis());
+        if (isRun) {
+            SocketUtil.getSocketUtil().addEvent(msgEvent);
+        } else {
+            SocketUtil.getSocketUtil().removeEvent(msgEvent);
+        }
     }
+
+
+    //批量收藏
+    public void toCollectList(){
+        if (mAdapter.getSelectedMsg().size() > 0) {
+            List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
+            if (dataList != null && dataList.size() > 0) {
+                //1 有网收藏
+                if (checkNetConnectStatus(1)) {
+                    msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
+                        @Override
+                        public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                            super.onResponse(call, response);
+                            if (response.body() == null) {
+                                return;
+                            }
+                            if (response.body().isOk()) {
+                                ToastUtil.show("批量收藏成功!");
+                                if(dialogTwo!=null){
+                                    dialogTwo.dismiss();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ReturnBean> call, Throwable t) {
+                            super.onFailure(call, t);
+                            ToastUtil.show("批量收藏失败!");
+                            if(dialogTwo!=null){
+                                dialogTwo.dismiss();
+                            }
+                        }
+                    });
+                } else {
+                    //2 无网收藏
+                    //2-1 如果本地收藏列表不存在这条数据，收藏到列表，并保存收藏操作记录
+                    for (CollectionInfo info : dataList) {
+                        if (msgDao.findLocalCollection(info.getMsgId()) == null) {
+                            msgDao.addLocalCollection(info);//保存到本地收藏列表
+                            OfflineCollect offlineCollect = new OfflineCollect();
+                            offlineCollect.setMsgId(info.getMsgId());
+                            offlineCollect.setCollectionInfo(info);
+                            msgDao.addOfflineCollectRecord(offlineCollect);//保存到离线收藏记录表
+                        }
+                    }
+                    //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
+                    ToastUtil.show("批量收藏成功!");//离线提示
+                    if(dialogTwo!=null){
+                        dialogTwo.dismiss();
+                    }
+                }
+            } else {
+                if(dialogTwo!=null){
+                    dialogTwo.dismiss();
+                }
+            }
+            mAdapter.clearSelectedMsg();
+            hideMultiSelect(ivCollection);
+        }
+    }
+
+
 }

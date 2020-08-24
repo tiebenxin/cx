@@ -7,7 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.IntDef;
@@ -83,12 +82,12 @@ import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
-import com.yanlong.im.utils.update.UpdateAppDialog;
 import com.yanlong.im.utils.update.UpdateManage;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.base.BaseTcpActivity;
 import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -96,7 +95,6 @@ import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
-import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
@@ -107,8 +105,6 @@ import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.FileUtils;
-import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -123,7 +119,6 @@ import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
-import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ImageMoveView;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.view.ViewPagerSlide;
@@ -150,7 +145,7 @@ import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 
 @Route(path = "/app/MainActivity")
-public class MainActivity extends AppActivity {
+public class MainActivity extends BaseTcpActivity {
     public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;
     private android.support.design.widget.TabLayout bottomTab;
@@ -188,8 +183,6 @@ public class MainActivity extends AppActivity {
     private int currentTab = EMainTab.MSG;
     private long firstPressTime = 0;//第一次双击时间
     private boolean isFromLogin;
-    private InstallAppUtil installAppUtil;
-    private UpdateAppDialog installDialog;//安装提示弹框
     private UpdateManage updateManage;
 
 
@@ -199,7 +192,9 @@ public class MainActivity extends AppActivity {
         setContentView(R.layout.activity_main);
         //创建仓库-仅登录时会创建
         MyAppLication.INSTANCE().createRepository();
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         findViews();
         initEvent();
         isCreate = true;
@@ -611,7 +606,9 @@ public class MainActivity extends AppActivity {
             unregisterReceiver(mNetworkReceiver);
         }
         AVChatProfile.getInstance().setAVMinimize(false);
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
@@ -762,23 +759,46 @@ public class MainActivity extends AppActivity {
         EventBus.getDefault().post(new String());
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
-        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
-        if (event.getRun()) {
-            if (mMsgMainFragment != null) {
-                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
-            }
+    @Override
+    public void switchAppStatus(boolean isRun) {
+        if (mMsgMainFragment == null) {
+            return;
+        }
+        LogUtil.getLog().i("MainActivity", "连接LOG->>>>switchAppStatus--注册监听:" + "--time=" + System.currentTimeMillis());
+        if (isRun) {
+            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+        } else {
+            SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+        }
+    }
+
+    @Override
+    public void tcpConnect(boolean isRun) {
+        super.tcpConnect(isRun);
+        if (isRun) {
             startChatServer();
         } else {
-            if (mMsgMainFragment != null) {
-                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
-            }
             stopChatService();
         }
-
     }
+
+    //    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void eventRunState(EventRunState event) {
+//        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
+//        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
+//        if (event.getRun()) {
+//            if (mMsgMainFragment != null) {
+//                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+//            }
+//            startChatServer();
+//        } else {
+//            if (mMsgMainFragment != null) {
+//                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+//            }
+//            stopChatService();
+//        }
+//
+//    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
@@ -833,12 +853,12 @@ public class MainActivity extends AppActivity {
                 MsgAllBean msgAllbean = null;
                 if (event.avChatType == AVChatType.AUDIO.getValue()) {
                     P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Audio.getNumber(), event.operation, event.txt);
-                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
 //                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
                 } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
                     P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Vedio.getNumber(), event.operation, event.txt);
-                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
 //                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
                 }
@@ -1023,90 +1043,34 @@ public class MainActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    //非强更，若已忽略当前版本，则不再显示安装弹框
-                    if (!TextUtils.isEmpty(bean.getVersion())
-                            && bean.getVersion().equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))) {
-                        return;
-                    }
                     if (updateManage == null) {
                         updateManage = new UpdateManage(context, MainActivity.this);
                         if (!TextUtils.isEmpty(bean.getVersion())) {
-                            //场景一：判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载
-                            if (FileUtils.fileIsExist(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk")
-                                    && VersionUtil.isLowerVersion(context, bean.getVersion())) {
-                                try {
-                                    //1-1 当前的版本必须要低于安装包才允许安装
-                                    //1-2 检查安装包是否完整，若安装包已经下载成功，只是取消了安装，则提示是否现在安装
-                                    if (FileUtils.getFileSize(new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk"))
-                                            == new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE).getLong("new_apk_size")) {
-                                        if (installDialog == null) {
-                                            installDialog = new UpdateAppDialog();
-                                            installDialog.init(MainActivity.this, bean.getVersion(), "", new UpdateAppDialog.Event() {
-                                                @Override
-                                                public void onON() {
-
-                                                }
-
-                                                @Override
-                                                public void onUpdate() {
-
-                                                }
-
-                                                @Override
-                                                public void onInstall() {
-                                                    if (installAppUtil == null) {
-                                                        installAppUtil = new InstallAppUtil();
-                                                    }
-                                                    installAppUtil.install(MainActivity.this, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/changxin_" + bean.getVersion() + ".apk");
-                                                }
-                                            });
-                                            installDialog.downloadComplete();
-                                            if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                                                installDialog.showCancle(false);
-                                            } else {
-                                                installDialog.showCancle(true);
-                                            }
-                                        }
-                                        installDialog.show();
-                                    } else {
-                                        //若安装包没有下载完成，如强行杀掉进程，则还需要重新下载
-                                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                                        } else {
-                                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                            //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
+                            if (bean.getForceUpdate() != 0) {
+                                //有最低不需要强制升级版本
+                                if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                                } else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                                 }
                             } else {
-                                //场景二：没有下载过新版本的安装包，按正常逻辑往下走
-                                //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
-                                if (bean.getForceUpdate() != 0) {
-                                    //有最低不需要强制升级版本
-                                    if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                                    } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                                    }
+                                //缓存最新版本
+                                SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                                VersionBean versionBean = new VersionBean();
+                                versionBean.setVersion(bean.getVersion());
+                                preferencesUtil.save2Json(versionBean);
+                                //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                                 } else {
-                                    //缓存最新版本
-                                    SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                                    VersionBean versionBean = new VersionBean();
-                                    versionBean.setVersion(bean.getVersion());
-                                    preferencesUtil.save2Json(versionBean);
-                                    //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                                    if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                                    } else {
-                                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                                        //如有新版本，首页底部提示红点
-                                        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
-                                            if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                                sbme.setNum(1, true);
-                                            } else {
-                                                sbme.setNum(0, true);
-                                            }
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                    //如有新版本，首页底部提示红点
+                                    if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                                        if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
+                                            sbme.setNum(1, true);
+                                        } else {
+                                            sbme.setNum(0, true);
                                         }
                                     }
                                 }

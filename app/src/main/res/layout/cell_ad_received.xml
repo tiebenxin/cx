@@ -25,16 +25,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <CheckBox
-            android:id="@+id/ck_select"
-            style="@style/app_check_green"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="5dp"
-            android:gravity="center"
-            android:padding="5dp"
-            android:visibility="visible" />
+        <LinearLayout
+            android:id="@+id/ll_select"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:visibility="visible">
+
+            <CheckBox
+                android:id="@+id/ck_select"
+                style="@style/app_check_green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:padding="5dp"
+                android:visibility="visible" />
+        </LinearLayout>
 
         <com.yanlong.im.wight.avatar.RoundImageView
             android:id="@+id/iv_avatar"

@@ -837,6 +837,11 @@ public class SocketData {
 //                SocketUtil.getSocketUtil().sendData4Msg(msg);
                 SocketUtil.getSocketUtil().sendMsg(msg.build());
             }
+        } else {
+            if (needSave) {
+                bean.setSend_state(ChatEnum.ESendStatus.ERROR);
+                saveMessage(bean);
+            }
         }
     }
 
