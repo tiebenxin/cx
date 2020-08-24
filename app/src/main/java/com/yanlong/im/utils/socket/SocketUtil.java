@@ -267,7 +267,7 @@ public class SocketUtil {
 //            event.onLine(true);
 //        }
         connStatus.set(state);
-        if (connStatus.get() == EConnectionStatus.DEFAULT) {
+        if (connStatus.get() == EConnectionStatus.DEFAULT || connStatus.get() == EConnectionStatus.CONNECTING) {
             event.onLine(false);
         }
         if (connStatus.get() == EConnectionStatus.AUTH) {
