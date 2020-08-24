@@ -563,11 +563,6 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    //非强更，若已忽略当前版本，则不再显示安装弹框
-                    if (!TextUtils.isEmpty(bean.getVersion())
-                            && bean.getVersion().equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))) {
-                        return;
-                    }
                     UpdateManage updateManage = new UpdateManage(context, LoginActivity.this);
                     if(!TextUtils.isEmpty(bean.getVersion())){
                         //场景一：判断是否已经下载过新版本的安装包，有则直接安装，无需再重复下载

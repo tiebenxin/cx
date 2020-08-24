@@ -107,12 +107,6 @@ public class UpdateManage {
      *                    (MainActivity/SelectLoginActivity/LoginActivity则不再弹框，AboutAsActivity仍然允许点击唤起更新弹框)
      */
     public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean allowIgnore) {
-        //如果是用户忽略的版本，则不再弹框提示
-        if(allowIgnore){
-            if(versions.equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))){
-                return;
-            }
-        }
         if (check(versions)) {
             updateURL = url;
             dialog = new UpdateAppDialog();
@@ -123,7 +117,6 @@ public class UpdateManage {
                     if (call != null) {
                         call.cancel();
                     }
-                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).save2Json(versions);
                 }
 
 

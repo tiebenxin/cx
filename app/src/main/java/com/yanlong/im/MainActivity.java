@@ -861,12 +861,12 @@ public class MainActivity extends BaseTcpActivity {
                 MsgAllBean msgAllbean = null;
                 if (event.avChatType == AVChatType.AUDIO.getValue()) {
                     P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Audio.getNumber(), event.operation, event.txt);
-                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
 //                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
                 } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
                     P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Vedio.getNumber(), event.operation, event.txt);
-                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
 //                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
                 }
@@ -1051,11 +1051,6 @@ public class MainActivity extends BaseTcpActivity {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    //非强更，若已忽略当前版本，则不再显示安装弹框
-                    if (!TextUtils.isEmpty(bean.getVersion())
-                            && bean.getVersion().equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))) {
-                        return;
-                    }
                     if (updateManage == null) {
                         updateManage = new UpdateManage(context, MainActivity.this);
                         if (!TextUtils.isEmpty(bean.getVersion())) {
