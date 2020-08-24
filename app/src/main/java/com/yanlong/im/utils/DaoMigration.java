@@ -827,6 +827,8 @@ public class DaoMigration implements RealmMigration {
     private final void updateV45(RealmSchema schema) {
         schema.get("RedEnvelopeMessage")
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
+        schema.get("EnvelopeInfo")
+                .addRealmListField("allowUsers", schema.get("MemberUser"));
     }
 
 
