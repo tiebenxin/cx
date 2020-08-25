@@ -3801,6 +3801,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     @Override
     public void clickUser(String userId, String gid) {
+        if (mAdapter != null && mAdapter.isShowCheckBox()) {
+            return;
+        }
         try {
             long user = Long.valueOf(userId);
             if (user > 0) {
@@ -3814,6 +3817,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     @Override
     public void clickEnvelope(String rid) {
+        if (mAdapter != null && mAdapter.isShowCheckBox()) {
+            return;
+        }
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
             Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
@@ -3823,6 +3829,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     @Override
     public void clickTransfer(String rid, String msgId) {
+        if (mAdapter != null && mAdapter.isShowCheckBox()) {
+            return;
+        }
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
             MsgAllBean msgAllBean = msgDao.getMsgByRid(tradeId);
@@ -3835,6 +3844,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
+        if (mAdapter != null && mAdapter.isShowCheckBox()) {
+            return;
+        }
         showLockDialog();
     }
 
@@ -3843,7 +3855,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
-
+        if (mAdapter != null && mAdapter.isShowCheckBox()) {
+            return;
+        }
         //br标签替换为换行，存之前将换行替换为br标签
         content = content.replace("<br>", "\n");
         showDraftContent(editChat.getText().toString() + content);
@@ -3858,6 +3872,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     @Override
     public void clickAddFriend(String uid) {
+        if (mAdapter != null && mAdapter.isShowCheckBox()){
+            return;
+        }
         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
             ToastUtil.show(getResources().getString(R.string.user_disable_message));
             return;
