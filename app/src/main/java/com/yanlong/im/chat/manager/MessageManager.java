@@ -2520,4 +2520,16 @@ public class MessageManager {
         isFromPush = b;
     }
 
+    public String[] getMemberIds(List<MemberUser> members) {
+        if (members == null || members.size() <= 0) {
+            return null;
+        }
+        String[] memberIDs = new String[members.size()];
+        for (int i = 0; i < members.size(); i++) {
+            memberIDs[i] = members.get(i).getMemberId();
+        }
+        return memberIDs;
+
+    }
+
 }

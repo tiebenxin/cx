@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -1509,18 +1510,21 @@ public class SocketData {
      * @param reType, 红包运营商，如支付宝红包，魔方红包
      * @param style   红包玩法风格，0 普通玩法 ； 1 拼手气玩法
      */
-    public static RedEnvelopeMessage createRbMessage(String msgId, String rid, String info, int reType, int style) {
+    public static RedEnvelopeMessage createRbMessage(String msgId, String rid, String info, int reType, int style, RealmList<MemberUser> memberUsers) {
         RedEnvelopeMessage message = new RedEnvelopeMessage();
         message.setMsgid(msgId);
         message.setId(rid);
         message.setComment(info);
         message.setRe_type(reType);
         message.setStyle(style);
+        if (memberUsers != null) {
+            message.setAllowUsers(memberUsers);
+        }
         return message;
     }
 
     //创建系统红包消息
-    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
+    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign, RealmList<MemberUser> allowUsers, int envelopeStatus) {
         RedEnvelopeMessage message = new RedEnvelopeMessage();
         message.setMsgid(msgId);
         message.setTraceId(traceId);
@@ -1529,6 +1533,10 @@ public class SocketData {
         message.setRe_type(reType);
         message.setStyle(style);
         message.setSign(sign);
+        message.setEnvelopStatus(envelopeStatus);
+        if (allowUsers != null) {
+            message.setAllowUsers(allowUsers);
+        }
         return message;
     }
 
@@ -1870,6 +1878,29 @@ public class SocketData {
                                     .setComment(red.getComment())
                                     .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
                                     .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                            if (red.getAllowUsers() != null) {
+                                int len = red.getAllowUsers().size();
+                                if (len > 0) {
+                                    List<MsgBean.BaseUser> allowUsers = new ArrayList<>();
+                                    for (int i = 0; i < len; i++) {
+                                        MemberUser memberUser = red.getAllowUsers().get(i);
+                                        if (memberUser != null) {
+                                            MsgBean.BaseUser.Builder userBuilder = MsgBean.BaseUser.newBuilder();
+                                            if (!TextUtils.isEmpty(memberUser.getHead())) {
+                                                userBuilder.setAvatar(memberUser.getHead());
+                                            }
+                                            userBuilder.setUid(memberUser.getUid());
+                                            if (!TextUtils.isEmpty(memberUser.getShowName())) {
+                                                userBuilder.setNickname(memberUser.getShowName());
+                                            }
+                                            allowUsers.add(userBuilder.build());
+                                        }
+                                    }
+                                    if (allowUsers.size() > 0) {
+                                        redBuild.addAllAllowUsers(allowUsers);
+                                    }
+                                }
+                            }
                             if (!TextUtils.isEmpty(red.getSign())) {
                                 redBuild.setSign(red.getSign());
                             }

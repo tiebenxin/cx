@@ -22,8 +22,9 @@
             android:paddingBottom="1dp"
             android:text="xxx" />
 
-        <View style="@style/app_line"
-            android:visibility="gone"/>
+        <View
+            style="@style/app_line"
+            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout
@@ -70,29 +71,29 @@
                         android:text="xxxx" />
 
                     <TextView
-                        android:visibility="gone"
                         android:id="@+id/txt_time"
                         style="@style/app_txt_content_1"
                         android:layout_marginTop="5dp"
                         android:gravity="center_vertical"
-                        android:text="xxxx" />
+                        android:text="xxxx"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
                 <TextView
-                    android:visibility="gone"
                     android:id="@+id/usertype_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
                     android:background="@drawable/shape_stroke_bule5"
-                    android:textSize="@dimen/font_size8"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="5dp"
+                    android:paddingBottom="2dp"
+                    android:text="官方"
                     android:textColor="@color/blue_title"
-                    android:text="官方" />
+                    android:textSize="@dimen/font_size8"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -109,7 +110,7 @@
             android:layout_marginRight="@dimen/dimen_16"
             android:padding="10dp"
             android:src="@drawable/selector_list_bg"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
     </LinearLayout>
 

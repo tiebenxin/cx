@@ -2,6 +2,7 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -21,6 +22,8 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.List;
 
 import io.realm.RealmList;
 
@@ -229,6 +232,32 @@ public class MsgConversionBean {
                 }
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
                 envelopeMessage.setStyle(bean.getRedEnvelope().getStyleValue());
+
+                if (bean.getRedEnvelope().getAllowUsersCount() > 0) {
+                    List<MsgBean.BaseUser> list = bean.getRedEnvelope().getAllowUsersList();
+                    long uid = -1;
+                    if (UserAction.getMyId() != null) {
+                        uid = UserAction.getMyId();
+                    }
+                    String[] memberIds = new String[list.size()];
+                    boolean allowMe = false;
+                    for (int i = 0; i < list.size(); i++) {
+                        MsgBean.BaseUser user = list.get(i);
+                        memberIds[i] = bean.getGid() + user.getUid();
+                        if (user.getUid() == uid) {
+                            allowMe = true;
+                        }
+                    }
+                    List<MemberUser> members = msgDao.getMembers(bean.getGid(), memberIds);
+                    if (members != null) {
+                        RealmList<MemberUser> allowUsers = new RealmList<>();
+                        allowUsers.addAll(members);
+                        envelopeMessage.setAllowUsers(allowUsers);
+                        if (!allowMe) {
+                            envelopeMessage.setEnvelopStatus(PayEnum.EEnvelopeStatus.NO_ALLOW);
+                        }
+                    }
+                }
                 msgAllBean.setRed_envelope(envelopeMessage);
                 msgAllBean.setMsg_type(EMessageType.RED_ENVELOPE);
                 break;

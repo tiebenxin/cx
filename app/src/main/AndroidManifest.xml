@@ -698,6 +698,7 @@
         <activity
             android:name=".pay.ui.select.EnvelopeReceiverActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".pay.ui.select.ViewAllowMemberActivity" />
 
     </application>
 

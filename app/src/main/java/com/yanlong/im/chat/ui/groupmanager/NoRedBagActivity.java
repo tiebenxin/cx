@@ -32,6 +32,7 @@ import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.databinding.ActivityNoRedBagBinding;
 import com.yanlong.im.databinding.ItemNoRedbagBinding;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
+import com.yanlong.im.pay.ui.select.ViewAllowMemberActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -90,7 +91,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 RedEnvelopeMessage message = msgAllBean.getRed_envelope();
                 int reType = message.getRe_type().intValue();//红包类型
                 String type = "";
-                 if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                     type = "零钱红包";
                 }
                 binding.txtOtRpBt.setText(type);
@@ -197,6 +198,12 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
             @Override
             public void viewRecord(long rid, String token, int style) {
                 getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0);
+            }
+
+            @Override
+            public void viewAllowUser() {
+                Intent intent = ViewAllowMemberActivity.newIntent(NoRedBagActivity.this, msgBean.getGid(), MessageManager.getInstance().getMemberIds(msgBean.getRed_envelope().getAllowUsers()));
+                startActivity(intent);
             }
         });
         RedEnvelopeMessage message = msgBean.getRed_envelope();

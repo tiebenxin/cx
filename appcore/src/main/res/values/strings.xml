@@ -33,5 +33,7 @@
     <string name="to_disable_message">对方被封号，不能发起音视频通话</string>
 
     <string name="send_note_message">终于遇见你。快快来下载注册使用常信吧。点击下方链接下载常信http://xz.bdcagg.cn/，从此沟通零距离</string>
+    <string name="can_not_receive">发送者限制\n你不可以领取</string>
+
 
 </resources>

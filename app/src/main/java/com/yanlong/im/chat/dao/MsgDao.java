@@ -3638,4 +3638,23 @@ public class MsgDao {
         }
         return bean;
     }
+
+    public List<MemberUser> getMembers(String gid, String[] memberIds) {
+        if (TextUtils.isEmpty(gid) || memberIds == null) {
+            return null;
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null && group.getUsers() != null) {
+            String[] orderFiled = {"tag"};
+            Sort[] sorts = {Sort.ASCENDING};
+            RealmResults<MemberUser> members = group.getUsers().where().in("memberId", memberIds).sort(orderFiled, sorts).findAll();
+            if (members != null) {
+                memberUsers = realm.copyFromRealm(members);
+            }
+        }
+        realm.close();
+        return memberUsers;
+    }
 }
