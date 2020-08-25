@@ -169,17 +169,20 @@ public class UpdateAppDialog {
 
 
     public void show() {
-        alertDialog.show();
-        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
-        alertDialog.getWindow().setGravity(Gravity.CENTER);
-        WindowManager manager = alertDialog.getWindow().getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.65
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.65);
-        alertDialog.getWindow().setAttributes(lp);
+        //判断活动是否仍然存活 TODO bugly #315427
+        if(context!=null && !((Activity)context).isFinishing()){
+            alertDialog.show();
+            alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
+            alertDialog.getWindow().setGravity(Gravity.CENTER);
+            WindowManager manager = alertDialog.getWindow().getWindowManager();
+            DisplayMetrics metrics = new DisplayMetrics();
+            manager.getDefaultDisplay().getMetrics(metrics);
+            //设置宽高，高度自适应，宽度屏幕0.65
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            lp.width = (int) (metrics.widthPixels*0.65);
+            alertDialog.getWindow().setAttributes(lp);
+        }
     }
 
 
