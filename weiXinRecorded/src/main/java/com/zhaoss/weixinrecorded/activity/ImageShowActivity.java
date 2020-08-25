@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -216,18 +217,24 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         return bmp;
     }
 
+    /**
+     * Bitmap 保存图片
+     *
+     * @param bmp
+     * @param quality 质量 0-100
+     * @return
+     */
     private String saveImage(Bitmap bmp, int quality) {
         if (bmp == null) {
             return null;
         }
-        File appDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        if (appDir == null) {
-            return null;
-        }
-        String fileName = System.currentTimeMillis() + ".jpg";
-        File file = new File(appDir, fileName);
         FileOutputStream fos = null;
         try {
+            String fileName = System.currentTimeMillis() + ".jpg";
+            File file = new File(Utils.PATH_CACHE + fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
             fos = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.JPEG, quality, fos);
             fos.flush();
@@ -328,6 +335,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             Intent intent = new Intent();
             Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
             String savePath = saveImage(bitmap, 100);
+            Log.i("1212", "savePath:" + savePath);
             intent.putExtra("showResult", true);
             intent.putExtra("showPath", savePath);
             intent.putExtra("index", index);
@@ -412,11 +420,9 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         try {
             File file = new File(path);
             if (file != null && file.exists()) {
-//                System.out.println("文件删除--" + file.getAbsolutePath());
                 File fileParent = file.getParentFile();
                 file.delete();
                 if (fileParent != null && fileParent.exists() && fileParent.getAbsolutePath().toLowerCase().contains("changxin")) {
-//                    System.out.println("文件删除--根目录--" + fileParent.getAbsolutePath());
                     fileParent.delete();
                 }
             }
