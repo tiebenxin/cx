@@ -168,7 +168,7 @@ public class ChatEnum {
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
             ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
             ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL, ECellEventType.EXPRESS_CLICK,
-            ECellEventType.REPLY_CLICK, ECellEventType.AD_CLICK})
+            ECellEventType.REPLY_CLICK, ECellEventType.AD_CLICK, ECellEventType.SELECT_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -191,6 +191,7 @@ public class ChatEnum {
         int EXPRESS_CLICK = 17;//点击表情
         int REPLY_CLICK = 18;//点击回复
         int AD_CLICK = 19;//点击小助手推广消息
+        int SELECT_CLICK = 20;//点击选择
     }
 
 
@@ -298,7 +299,7 @@ public class ChatEnum {
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
             ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT, ENoticeType.DEFAULT_USER, ENoticeType.GROUP_OTHER_REMOVE,
-            ENoticeType.SEAL_ACCOUNT,ENoticeType.FRIEND_DEACTIVATE,ENoticeType.NO_FRI_ADD_FIRST})
+            ENoticeType.SEAL_ACCOUNT, ENoticeType.FRIEND_DEACTIVATE, ENoticeType.NO_FRI_ADD_FIRST})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int DEFAULT = 0;//默认，简单文本
@@ -462,7 +463,7 @@ public class ChatEnum {
      * 开关变更通知(多人同步消息)
      * */
     @IntDef({ESwitchType.READ, ESwitchType.VIP, ESwitchType.MASTER_READ, ESwitchType.SHUT_UP,
-            ESwitchType.OPEN_UP_RED_ENVELOPER, ESwitchType.SCREENSHOT, ESwitchType.GEO_TRACK, ESwitchType.FRIEND_LOCKED ,ESwitchType.FRIEND_DEACTIVATE})
+            ESwitchType.OPEN_UP_RED_ENVELOPER, ESwitchType.SCREENSHOT, ESwitchType.GEO_TRACK, ESwitchType.FRIEND_LOCKED, ESwitchType.FRIEND_DEACTIVATE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESwitchType {
         int READ = 0; // 单聊已读
