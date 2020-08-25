@@ -4445,7 +4445,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 headView.getActionbar().getRightImage().setVisibility(VISIBLE);
             }
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
-            actionbar.showDisturb(true);
+            setDisturb();
             actionbar.setTxtRight("");
         } else {
             headView.getActionbar().getRightImage().setVisibility(GONE);
