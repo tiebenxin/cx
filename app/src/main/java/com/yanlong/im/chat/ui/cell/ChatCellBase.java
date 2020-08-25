@@ -167,6 +167,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     private boolean updateCheckBox() {
+        if (ckSelect == null) {
+            return false;
+        }
         if (ckSelect.isChecked()) {
             ckSelect.setChecked(false);
             mAdapter.getSelectedMsg().remove(model);
