@@ -9,27 +9,30 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.tools.PictureFileUtils;
+import com.yalantis.ucrop.UCrop;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
 import com.zhaoss.weixinrecorded.util.Utils;
@@ -70,20 +73,23 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.activity_img_show, null, false);
         setContentView(binding.getRoot());
-        init();
+        init(false);
         initEvent();
     }
 
-    private void init() {
-        mPath = getIntent().getExtras().getString("imgpath");
-        index = getIntent().getExtras().getInt("index");
-        from = getIntent().getIntExtra("from", 0);
+    private void init(boolean isCut) {
+        if (!isCut) {
+            mPath = getIntent().getExtras().getString("imgpath");
+            index = getIntent().getExtras().getInt("index");
+            from = getIntent().getIntExtra("from", 0);
+            initColors();
+        }
+
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
         Glide.with(this).load(mPath).into(binding.imgShow);
         mManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        initColors();
         setHeight();
     }
 
@@ -91,31 +97,14 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
      * 设置画笔、裁剪的画布的高度
      */
     private void setHeight() {
-        binding.showRlBig.postDelayed(new Runnable() {
+        binding.imgShow.postDelayed(new Runnable() {
             @Override
             public void run() {
                 RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        binding.showRlBig.getHeight());
+                        binding.imgShow.getHeight());
                 binding.mpvView.setLayoutParams(layoutParams);
-
-                int height = getScreenHeight() - dp2px(100);
-                int maxHeight = height < binding.showRlBig.getHeight() ? height : binding.showRlBig.getHeight();
-                RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, maxHeight);
-                binding.imgShowCut.setLayoutParams(layoutParams2);
-                Log.i("1212", "height:" + binding.showRlBig.getMeasuredHeight() + "  " + binding.showRlBig.getHeight() + "  height2:" + height);
             }
         }, 500);// 延迟500毫秒用于获取到图片容器的高度
-    }
-
-    public int getScreenHeight() {
-        DisplayMetrics metric = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(metric);
-        return metric.heightPixels;
-    }
-
-    public int dp2px(int dp) {
-        return (int) TypedValue.applyDimension(1, (float) dp, getResources().getDisplayMetrics());
     }
 
     private void initEvent() {
@@ -123,7 +112,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
         binding.mpvView.setPenColor(getResources().getColor(mColors[0]));
         binding.mpvView.setVisibility(View.VISIBLE);
-        binding.imgShowCut.setVisibility(View.GONE);
         binding.llColor.setVisibility(View.VISIBLE);
         binding.rbPen.setChecked(true);
 
@@ -153,14 +141,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         binding.rbText.setOnClickListener(this);
         binding.rbCut.setOnClickListener(this);
         binding.rbMosaic.setOnClickListener(this);
-        binding.textureViewCut.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                binding.imgShowCut.setMargin(binding.textureViewCut.getLeft(), binding.textureViewCut.getTop(),
-                        binding.textureViewCut.getRight() - binding.textureViewCut.getWidth(),
-                        binding.textureViewCut.getBottom() - binding.textureViewCut.getHeight());
-            }
-        });
         binding.mpvView.setLister(new IClickCallLister() {
             @Override
             public void onClickLister(boolean isShow) {
@@ -225,60 +205,36 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     }
 
     private Bitmap loadBitmapFromView(View v) {
-        if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
-            int w = v.getWidth();
-            int h = v.getHeight();
-            Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            float[] cutArr = binding.imgShowCut.getCutArr();
-            Log.e("TAG", cutArr[0] + "-----" + cutArr[1] + "-----" + cutArr[2] + "-----" + cutArr[3] + "-----");
-            Canvas c = new Canvas(bmp);
-            c.drawColor(Color.BLACK);
-            // 如果不设置canvas画布为白色，则生成透明
-            v.layout(0, 0, w, h);
-            v.draw(c);
-            int px = 0;//(int) DimenUtils.dp2px(60);
-            Bitmap cutBitmap = null;
-            if ((30 + cutArr[2]) >= bmp.getWidth() || (px + cutArr[3]) > bmp.getHeight()) {
-                if ((30 + cutArr[2]) >= bmp.getWidth() && (px + cutArr[3]) > bmp.getHeight()) {
-                    cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - ((int) cutArr[1] + px));
-                } else {
-                    if ((30 + cutArr[2]) >= bmp.getWidth()) {
-                        cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - (int) cutArr[1]);
-                    } else {
-                        cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - ((int) cutArr[1] + px));
-                    }
-                }
-            } else {
-                cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - (int) cutArr[1]);
-            }
-            return cutBitmap;
+        int w = v.getWidth();
+        int h = v.getHeight();
+        Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmp);
 
-        } else {
-            int w = v.getWidth();
-            int h = v.getHeight();
-            Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(bmp);
-
-            c.drawColor(Color.BLACK);
-            //  如果不设置canvas画布为白色，则生成透明
-            v.layout(0, 0, w, h);
-            v.draw(c);
-            return bmp;
-        }
+        c.drawColor(Color.BLACK);
+        //  如果不设置canvas画布为白色，则生成透明
+        v.layout(0, 0, w, h);
+        v.draw(c);
+        return bmp;
     }
 
+    /**
+     * Bitmap 保存图片
+     *
+     * @param bmp
+     * @param quality 质量 0-100
+     * @return
+     */
     private String saveImage(Bitmap bmp, int quality) {
         if (bmp == null) {
             return null;
         }
-        File appDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        if (appDir == null) {
-            return null;
-        }
-        String fileName = System.currentTimeMillis() + ".jpg";
-        File file = new File(appDir, fileName);
         FileOutputStream fos = null;
         try {
+            String fileName = System.currentTimeMillis() + ".jpg";
+            File file = new File(Utils.PATH_CACHE + fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
             fos = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.JPEG, quality, fos);
             fos.flush();
@@ -379,6 +335,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             Intent intent = new Intent();
             Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
             String savePath = saveImage(bitmap, 100);
+            Log.i("1212", "savePath:" + savePath);
             intent.putExtra("showResult", true);
             intent.putExtra("showPath", savePath);
             intent.putExtra("index", index);
@@ -395,7 +352,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         } else if (v.getId() == R.id.rb_pen) {// 画笔
             binding.mpvView.setEnabled(true);
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
-            binding.imgShowCut.setVisibility(View.GONE);
             if (binding.llColor.getVisibility() == View.VISIBLE) {
                 binding.llColor.setVisibility(View.INVISIBLE);
             } else {
@@ -412,28 +368,16 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         } else if (v.getId() == R.id.rb_text) {// 輸入文字
             binding.mpvView.setEnabled(true);
             binding.llColor.setVisibility(View.INVISIBLE);
-            binding.imgShowCut.setVisibility(View.GONE);
             binding.rlEditText.setVisibility(View.VISIBLE);
             showSoftInputFromWindow(binding.etTag);
             startAnim(binding.rlEditText.getY(), 0, null);
-
         } else if (v.getId() == R.id.rb_cut) {// 裁剪
-            binding.llColor.setVisibility(View.INVISIBLE);
-            if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
-                binding.imgShowCut.setVisibility(View.GONE);
-                binding.mpvView.setEnabled(true);
-            } else {
-                int height = getScreenHeight() - dp2px(100);
-                int maxHeight = height < binding.showRlBig.getHeight() ? height : binding.showRlBig.getHeight();
-                binding.imgShowCut.setHeight(maxHeight);
-                binding.mpvView.setEnabled(false);
-                binding.imgShowCut.setVisibility(View.VISIBLE);
-            }
+            binding.rbCut.setChecked(false);
+            startCrop(mPath);
         } else if (v.getId() == R.id.rb_mosaic) {// 马赛克
             binding.mpvView.setEnabled(true);
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.GRID);
             binding.llColor.setVisibility(View.INVISIBLE);
-            binding.imgShowCut.setVisibility(View.GONE);
             binding.mpvView.setVisibility(View.VISIBLE);
             if (!TextUtils.isEmpty(mPath)) {
                 binding.imgShow.setDrawingCacheEnabled(true);
@@ -476,11 +420,9 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         try {
             File file = new File(path);
             if (file != null && file.exists()) {
-//                System.out.println("文件删除--" + file.getAbsolutePath());
                 File fileParent = file.getParentFile();
                 file.delete();
                 if (fileParent != null && fileParent.exists() && fileParent.getAbsolutePath().toLowerCase().contains("changxin")) {
-//                    System.out.println("文件删除--根目录--" + fileParent.getAbsolutePath());
                     fileParent.delete();
                 }
             }
@@ -489,6 +431,58 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * 跳转去裁剪
+     *
+     * @param originalPath
+     */
+    protected void startCrop(String originalPath) {
+        if (TextUtils.isEmpty(originalPath)) {
+            return;
+        }
+        UCrop.Options options = new UCrop.Options();
+        options.setToolbarColor(getResources().getColor(R.color.bar_grey));
+        options.setStatusBarColor(getResources().getColor(R.color.bar_grey));
+        options.setToolbarWidgetColor(getResources().getColor(R.color.white));
+        // 如果希望暗显层中有一个圆，请将其设置为true
+        options.setCircleDimmedLayer(false);
+        // 是否显示裁剪框
+        options.setShowCropFrame(true);
+        // 是否显示裁剪框网格
+        options.setShowCropGrid(true);
+        // 设置裁剪的图片质量，取值0-100
+        options.setCompressionQuality(90);
+        // 是否隐藏底部容器，默认显示
+        options.setHideBottomControls(true);
+        // 是否能调整裁剪框
+        options.setFreeStyleCropEnabled(true);
+        boolean isHttp = PictureMimeType.isHttp(originalPath);
+        String imgType = PictureMimeType.getLastImgType(originalPath);
+        Uri uri = isHttp ? Uri.parse(originalPath) : Uri.fromFile(new File(originalPath));
+        UCrop.of(uri, Uri.fromFile(new File(PictureFileUtils.getDiskCacheDir(this),
+                System.currentTimeMillis() + imgType)))
+                .withAspectRatio(1, 1)// 裁剪比例
+                .withOptions(options)
+                .start(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            try {
+                // 图片选择结果回调
+                Uri resultUri = UCrop.getOutput(data);
+                mPath = resultUri.getPath();
+                if (TextUtils.isEmpty(mPath)) {
+                    return;
+                }
+                init(true);
+            } catch (Exception e) {
+
+            }
+        }
+    }
 
     public interface IClickCallLister {
         void onClickLister(boolean isShow);

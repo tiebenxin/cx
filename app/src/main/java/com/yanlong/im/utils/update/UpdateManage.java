@@ -103,10 +103,8 @@ public class UpdateManage {
      * @param content 更新内容
      * @param url
      * @param isEnforcement 是否强制更新
-     * @param allowIgnore 非强制更新->用户点取消->是否允许忽略此次更新
-     *                    (MainActivity/SelectLoginActivity/LoginActivity则不再弹框，AboutAsActivity仍然允许点击唤起更新弹框)
      */
-    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean allowIgnore) {
+    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement) {
         if (check(versions)) {
             updateURL = url;
             dialog = new UpdateAppDialog();
@@ -142,10 +140,10 @@ public class UpdateManage {
                                 }
                                 long length = response.body().contentLength();
                                 //缓存新安装包大小，用于检查安装包的完整性
-                                if(startsPoint==0){
-                                    SharedPreferencesUtil newApkSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE);
-                                    newApkSize.saveLong("new_apk_size", length);
-                                }
+//                                if(startsPoint==0){
+//                                    SharedPreferencesUtil newApkSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE);
+//                                    newApkSize.saveLong("new_apk_size", length);
+//                                }
                                 if (length == 0) {
                                     // 说明文件已经下载完，直接跳转安装就好
                                     downloadListener.complete(String.valueOf(getFile().getAbsoluteFile()));
@@ -211,7 +209,7 @@ public class UpdateManage {
 
                 @Override
                 public void onInstall() {
-                    installAppUtil.install(activity, installAppUtil.getApkPath());
+                    installAppUtil.install(activity);
                 }
             });
             //强制升级不显示取消按钮
@@ -333,7 +331,7 @@ public class UpdateManage {
                 case COMPLETE:
                     String path = (String) msg.obj;
                     installAppUtil = new InstallAppUtil();
-                    installAppUtil.install(activity, path);
+                    installAppUtil.setApkPath(path);
                     if (dialog != null) {
                         dialog.downloadComplete();
                     }

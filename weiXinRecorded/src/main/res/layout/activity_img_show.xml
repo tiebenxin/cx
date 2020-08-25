@@ -65,6 +65,7 @@
                 android:id="@+id/ll_bottom"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:orientation="horizontal"
                 android:background="#80353535">
 
                 <RadioGroup
@@ -102,19 +103,20 @@
                         android:drawableStart="@drawable/image_edit_txt_selector"
                         android:gravity="center" />
 
-                    <com.zhaoss.weixinrecorded.view.CustomRadioButton
-                        android:id="@+id/rb_cut"
-                        android:layout_width="0dp"
-                        android:layout_height="50dp"
-                        android:layout_weight="1"
-                        android:button="@null"
-                        android:drawableStart="@drawable/image_edit_cut_selector"
-                        android:gravity="center" />
                 </RadioGroup>
+
+                <com.zhaoss.weixinrecorded.view.CustomRadioButton
+                    android:id="@+id/rb_cut"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1.5"
+                    android:button="@null"
+                    android:drawableStart="@drawable/image_edit_cut_selector"
+                    android:gravity="center" />
 
                 <RelativeLayout
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="2">
 
                     <RelativeLayout

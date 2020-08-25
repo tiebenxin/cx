@@ -503,13 +503,18 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
     }
 
     private void onDelete(Long uid) {
-        if (recentFriends != null && recentFriends.size() > 0) {
-            for (int i = recentFriends.size() - 1; i >= 0; i--) {
-                if (uid != null && uid.longValue() == recentFriends.get(i).getUid().longValue()) {
-                    recentFriends.remove(i);
-                    break;
+        try {
+            if (recentFriends != null && recentFriends.size() > 0) {
+                for (int i = recentFriends.size() - 1; i >= 0; i--) {
+                    if (uid != null && recentFriends.get(i).getUid() != null &&
+                            uid.longValue() == recentFriends.get(i).getUid().longValue()) {
+                        recentFriends.remove(i);
+                        break;
+                    }
                 }
             }
+        } catch (Exception e) {
+
         }
     }
 
@@ -521,7 +526,9 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                     return;
                 }
                 if (response.body().isOk()) {
-                    onDelete(uid);
+                    if (uid != null) {
+                        onDelete(uid);
+                    }
                     listData.remove(position);
                     bindingView.mtListView.notifyDataSetChange();
                 }
