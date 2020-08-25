@@ -102,7 +102,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 @Override
                 public boolean onLongClick(View v) {
                     if (mAdapter != null && mAdapter.isShowCheckBox()) {
-                        updateCheckBox();
+                        boolean result = updateCheckBox();
+                        if (result) {
+                            if (mCellListener != null) {
+                                mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                            }
+                        }
                         return true;
                     }
                     if (mCellListener != null) {
@@ -122,7 +127,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                     @Override
                     public boolean onLongClick(View v) {
                         if (mAdapter != null && mAdapter.isShowCheckBox()) {
-                            updateCheckBox();
+                            boolean result = updateCheckBox();
+                            if (result) {
+                                if (mCellListener != null) {
+                                    mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                                }
+                            }
                             return true;
                         }
                         if (mCellListener != null) {
@@ -144,23 +154,31 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 @Override
                 public void onClick(View v) {
                     if (mAdapter != null && mAdapter.isShowCheckBox()) {
-                        updateCheckBox();
+                        boolean result = updateCheckBox();
+                        if (result) {
+                            if (mCellListener != null) {
+                                mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                            }
+                        }
                     }
                 }
             });
         }
     }
 
-    private void updateCheckBox() {
+    private boolean updateCheckBox() {
         if (ckSelect.isChecked()) {
             ckSelect.setChecked(false);
             mAdapter.getSelectedMsg().remove(model);
+            return true;
         } else {
             if (mAdapter.getSelectedMsg().size() < 100) {
                 ckSelect.setChecked(true);
                 mAdapter.getSelectedMsg().add(model);
+                return true;
             } else {
                 showSelectMaxDialog();
+                return false;
             }
         }
     }
@@ -190,13 +208,23 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             int id = view.getId();
             if (bubbleLayout != null && id == bubbleLayout.getId()) {
                 if (mAdapter != null && mAdapter.isShowCheckBox()) {
-                    updateCheckBox();
+                    boolean result = updateCheckBox();
+                    if (result) {
+                        if (mCellListener != null) {
+                            mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                        }
+                    }
                     return;
                 }
                 onBubbleClick();
             } else if (iv_avatar != null && id == iv_avatar.getId()) {
                 if (mAdapter != null && mAdapter.isShowCheckBox()) {
-                    updateCheckBox();
+                    boolean result = updateCheckBox();
+                    if (result) {
+                        if (mCellListener != null) {
+                            mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                        }
+                    }
                     return;
                 }
                 if (mCellListener != null && !isMe) {
@@ -213,12 +241,18 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 if (ckSelect.isChecked()) {
                     if (mAdapter.getSelectedMsg().size() < 100) {
                         mAdapter.getSelectedMsg().add(model);
+                        if (mCellListener != null) {
+                            mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                        }
                     } else {
                         showSelectMaxDialog();
                         ckSelect.setChecked(false);
                     }
                 } else {
                     mAdapter.getSelectedMsg().remove(model);
+                    if (mCellListener != null) {
+                        mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                    }
                 }
             }
         } catch (Exception e) {
