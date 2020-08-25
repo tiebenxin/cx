@@ -1,6 +1,7 @@
 package com.zhaoss.weixinrecorded.util;
 
 import android.app.Activity;
+import android.os.Environment;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,6 +9,11 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class Utils {
+
+    /** 应用根目录 */
+    public static final String PATH_BASE = Environment.getExternalStorageDirectory().getAbsolutePath() + "/changxin/";
+    /** 应用图片缓存 */
+    public static final String PATH_CACHE = PATH_BASE + "cache/image/";
 
     public static float formatFloat(float value){
         DecimalFormat decimalFormat = new DecimalFormat(".0");
