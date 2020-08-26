@@ -132,7 +132,7 @@ public class ApplyBean extends RealmObject {
     }
 
     public String getNickname() {
-        return StringUtil.isNotNull(alias) ? alias : nickname;
+        return nickname;// TODO　不能直接先取好友备注，新的申请列表显示会有问题，因为通讯匹配默认会设置好友备注
     }
 
     public void setNickname(String nickname) {

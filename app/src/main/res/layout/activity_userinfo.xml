@@ -69,6 +69,39 @@
                 android:singleLine="false"
                 android:visibility="gone" />
 
+            <!-- 设置备注 通过验证-->
+            <LinearLayout
+                android:id="@+id/view_setting_note"
+                style="@style/app_layout_list2"
+                android:layout_marginTop="12.5dp"
+                android:paddingLeft="@dimen/app_margin_main"
+                android:paddingRight="@dimen/app_margin_main"
+                android:layout_marginBottom="15dp"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:textSize="12sp"
+                    android:textColor="@color/color_999"
+                    android:layout_marginBottom="7dp"
+                    android:text="设置备注" />
+
+                <EditText
+                    android:id="@+id/et_note"
+                    android:paddingLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:textSize="16sp"
+                    android:textColor="@color/black_33"
+                    android:singleLine="true"
+                    android:paddingRight="@dimen/app_margin_main"
+                    android:ellipsize="end"
+                    android:maxLength="50"
+                    android:background="@drawable/shape_search_bg"
+                    android:text=""/>
+
+            </LinearLayout>
+
         </LinearLayout>
         <!-- 设置备注-->
         <LinearLayout
@@ -91,37 +124,6 @@
                     android:layout_height="wrap_content"
                     android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- 设置备注 通过验证-->
-        <LinearLayout
-            android:id="@+id/view_setting_note"
-            style="@style/app_layout_list2"
-            android:layout_marginTop="12.5dp"
-            android:visibility="gone">
-
-            <TextView
-                style="@style/app_txt_title_2"
-                android:textSize="12sp"
-                android:paddingLeft="@dimen/app_margin_main"
-                android:textColor="@color/color_999"
-                android:layout_marginBottom="7dp"
-                android:text="设置备注" />
-
-            <EditText
-                android:id="@+id/et_note"
-                android:paddingLeft="@dimen/app_margin_main"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:textSize="16sp"
-                android:textColor="@color/black_33"
-                android:singleLine="true"
-                android:paddingRight="@dimen/app_margin_main"
-                android:ellipsize="end"
-                android:maxLength="50"
-                android:text=""
-                android:background="@color/white"/>
 
         </LinearLayout>
 
