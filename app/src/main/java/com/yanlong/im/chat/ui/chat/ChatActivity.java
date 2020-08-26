@@ -6896,7 +6896,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      */
     private void showCollectListDialog() {
         dialogTwo = builder.setTitle("你所选的消息包含了不支持收藏的类型。\n系统已自动过滤此类型消息。")
-                .setRightText("确定")
+                .setRightText("收藏")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     //多选直接调批量收藏接口
