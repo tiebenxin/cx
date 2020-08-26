@@ -14417,14 +14417,147 @@ public final class MsgBean {
       com.google.protobuf.MessageOrBuilder {
 
     /**
+     * <pre>
+     *为老版本兼容
+     * </pre>
+     *
      * <code>string msg = 1;</code>
      */
     java.lang.String getMsg();
     /**
+     * <pre>
+     *为老版本兼容
+     * </pre>
+     *
      * <code>string msg = 1;</code>
      */
     com.google.protobuf.ByteString
         getMsgBytes();
+
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 2;</code>
+     */
+    java.lang.String getTitle();
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getTitleBytes();
+
+    /**
+     * <pre>
+     *时间
+     * </pre>
+     *
+     * <code>uint64 time = 3;</code>
+     */
+    long getTime();
+
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> 
+        getItemList();
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.LabelValueItem getItem(int index);
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    int getItemCount();
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+        getItemOrBuilderList();
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder getItemOrBuilder(
+        int index);
+
+    /**
+     * <pre>
+     * 内容
+     * </pre>
+     *
+     * <code>string content = 5;</code>
+     */
+    java.lang.String getContent();
+    /**
+     * <pre>
+     * 内容
+     * </pre>
+     *
+     * <code>string content = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getContentBytes();
+
+    /**
+     * <pre>
+     * 落款
+     * </pre>
+     *
+     * <code>string signature = 6;</code>
+     */
+    java.lang.String getSignature();
+    /**
+     * <pre>
+     * 落款
+     * </pre>
+     *
+     * <code>string signature = 6;</code>
+     */
+    com.google.protobuf.ByteString
+        getSignatureBytes();
+
+    /**
+     * <pre>
+     * 落款时间
+     * </pre>
+     *
+     * <code>uint64 signature_time = 7;</code>
+     */
+    long getSignatureTime();
+
+    /**
+     * <pre>
+     * 0:分发给多端|1:分发给手机端
+     * </pre>
+     *
+     * <code>uint32 dispatch_type = 100;</code>
+     */
+    int getDispatchType();
 
     /**
      * <pre>
@@ -14469,6 +14602,13 @@ public final class MsgBean {
     }
     private AssistantMessage() {
       msg_ = "";
+      title_ = "";
+      time_ = 0L;
+      item_ = java.util.Collections.emptyList();
+      content_ = "";
+      signature_ = "";
+      signatureTime_ = 0L;
+      dispatchType_ = 0;
       uidList_ = java.util.Collections.emptyList();
     }
 
@@ -14509,10 +14649,52 @@ public final class MsgBean {
               msg_ = s;
               break;
             }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              title_ = s;
+              break;
+            }
+            case 24: {
+
+              time_ = input.readUInt64();
+              break;
+            }
+            case 34: {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                item_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.LabelValueItem>();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              item_.add(
+                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.LabelValueItem.parser(), extensionRegistry));
+              break;
+            }
+            case 42: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              content_ = s;
+              break;
+            }
+            case 50: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              signature_ = s;
+              break;
+            }
+            case 56: {
+
+              signatureTime_ = input.readUInt64();
+              break;
+            }
+            case 800: {
+
+              dispatchType_ = input.readUInt32();
+              break;
+            }
             case 808: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
                 uidList_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000002;
+                mutable_bitField0_ |= 0x00000100;
               }
               uidList_.add(input.readUInt64());
               break;
@@ -14520,9 +14702,9 @@ public final class MsgBean {
             case 810: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100) && input.getBytesUntilLimit() > 0) {
                 uidList_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000002;
+                mutable_bitField0_ |= 0x00000100;
               }
               while (input.getBytesUntilLimit() > 0) {
                 uidList_.add(input.readUInt64());
@@ -14538,7 +14720,10 @@ public final class MsgBean {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+          item_ = java.util.Collections.unmodifiableList(item_);
+        }
+        if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
           uidList_ = java.util.Collections.unmodifiableList(uidList_);
         }
         this.unknownFields = unknownFields.build();
@@ -14561,6 +14746,10 @@ public final class MsgBean {
     public static final int MSG_FIELD_NUMBER = 1;
     private volatile java.lang.Object msg_;
     /**
+     * <pre>
+     *为老版本兼容
+     * </pre>
+     *
      * <code>string msg = 1;</code>
      */
     public java.lang.String getMsg() {
@@ -14576,6 +14765,10 @@ public final class MsgBean {
       }
     }
     /**
+     * <pre>
+     *为老版本兼容
+     * </pre>
+     *
      * <code>string msg = 1;</code>
      */
     public com.google.protobuf.ByteString
@@ -14590,6 +14783,226 @@ public final class MsgBean {
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
+    }
+
+    public static final int TITLE_FIELD_NUMBER = 2;
+    private volatile java.lang.Object title_;
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 2;</code>
+     */
+    public java.lang.String getTitle() {
+      java.lang.Object ref = title_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        title_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTitleBytes() {
+      java.lang.Object ref = title_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        title_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int TIME_FIELD_NUMBER = 3;
+    private long time_;
+    /**
+     * <pre>
+     *时间
+     * </pre>
+     *
+     * <code>uint64 time = 3;</code>
+     */
+    public long getTime() {
+      return time_;
+    }
+
+    public static final int ITEM_FIELD_NUMBER = 4;
+    private java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> item_;
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    public java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> getItemList() {
+      return item_;
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+        getItemOrBuilderList() {
+      return item_;
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    public int getItemCount() {
+      return item_.size();
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.LabelValueItem getItem(int index) {
+      return item_.get(index);
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 4;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder getItemOrBuilder(
+        int index) {
+      return item_.get(index);
+    }
+
+    public static final int CONTENT_FIELD_NUMBER = 5;
+    private volatile java.lang.Object content_;
+    /**
+     * <pre>
+     * 内容
+     * </pre>
+     *
+     * <code>string content = 5;</code>
+     */
+    public java.lang.String getContent() {
+      java.lang.Object ref = content_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        content_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 内容
+     * </pre>
+     *
+     * <code>string content = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getContentBytes() {
+      java.lang.Object ref = content_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        content_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int SIGNATURE_FIELD_NUMBER = 6;
+    private volatile java.lang.Object signature_;
+    /**
+     * <pre>
+     * 落款
+     * </pre>
+     *
+     * <code>string signature = 6;</code>
+     */
+    public java.lang.String getSignature() {
+      java.lang.Object ref = signature_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        signature_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 落款
+     * </pre>
+     *
+     * <code>string signature = 6;</code>
+     */
+    public com.google.protobuf.ByteString
+        getSignatureBytes() {
+      java.lang.Object ref = signature_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        signature_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int SIGNATURE_TIME_FIELD_NUMBER = 7;
+    private long signatureTime_;
+    /**
+     * <pre>
+     * 落款时间
+     * </pre>
+     *
+     * <code>uint64 signature_time = 7;</code>
+     */
+    public long getSignatureTime() {
+      return signatureTime_;
+    }
+
+    public static final int DISPATCH_TYPE_FIELD_NUMBER = 100;
+    private int dispatchType_;
+    /**
+     * <pre>
+     * 0:分发给多端|1:分发给手机端
+     * </pre>
+     *
+     * <code>uint32 dispatch_type = 100;</code>
+     */
+    public int getDispatchType() {
+      return dispatchType_;
     }
 
     public static final int UID_LIST_FIELD_NUMBER = 101;
@@ -14643,6 +15056,27 @@ public final class MsgBean {
       if (!getMsgBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, msg_);
       }
+      if (!getTitleBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, title_);
+      }
+      if (time_ != 0L) {
+        output.writeUInt64(3, time_);
+      }
+      for (int i = 0; i < item_.size(); i++) {
+        output.writeMessage(4, item_.get(i));
+      }
+      if (!getContentBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, content_);
+      }
+      if (!getSignatureBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, signature_);
+      }
+      if (signatureTime_ != 0L) {
+        output.writeUInt64(7, signatureTime_);
+      }
+      if (dispatchType_ != 0) {
+        output.writeUInt32(100, dispatchType_);
+      }
       if (getUidListList().size() > 0) {
         output.writeUInt32NoTag(810);
         output.writeUInt32NoTag(uidListMemoizedSerializedSize);
@@ -14660,6 +15094,31 @@ public final class MsgBean {
       size = 0;
       if (!getMsgBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, msg_);
+      }
+      if (!getTitleBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, title_);
+      }
+      if (time_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(3, time_);
+      }
+      for (int i = 0; i < item_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, item_.get(i));
+      }
+      if (!getContentBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, content_);
+      }
+      if (!getSignatureBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, signature_);
+      }
+      if (signatureTime_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(7, signatureTime_);
+      }
+      if (dispatchType_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(100, dispatchType_);
       }
       {
         int dataSize = 0;
@@ -14693,6 +15152,20 @@ public final class MsgBean {
       boolean result = true;
       result = result && getMsg()
           .equals(other.getMsg());
+      result = result && getTitle()
+          .equals(other.getTitle());
+      result = result && (getTime()
+          == other.getTime());
+      result = result && getItemList()
+          .equals(other.getItemList());
+      result = result && getContent()
+          .equals(other.getContent());
+      result = result && getSignature()
+          .equals(other.getSignature());
+      result = result && (getSignatureTime()
+          == other.getSignatureTime());
+      result = result && (getDispatchType()
+          == other.getDispatchType());
       result = result && getUidListList()
           .equals(other.getUidListList());
       result = result && unknownFields.equals(other.unknownFields);
@@ -14708,6 +15181,24 @@ public final class MsgBean {
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + MSG_FIELD_NUMBER;
       hash = (53 * hash) + getMsg().hashCode();
+      hash = (37 * hash) + TITLE_FIELD_NUMBER;
+      hash = (53 * hash) + getTitle().hashCode();
+      hash = (37 * hash) + TIME_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTime());
+      if (getItemCount() > 0) {
+        hash = (37 * hash) + ITEM_FIELD_NUMBER;
+        hash = (53 * hash) + getItemList().hashCode();
+      }
+      hash = (37 * hash) + CONTENT_FIELD_NUMBER;
+      hash = (53 * hash) + getContent().hashCode();
+      hash = (37 * hash) + SIGNATURE_FIELD_NUMBER;
+      hash = (53 * hash) + getSignature().hashCode();
+      hash = (37 * hash) + SIGNATURE_TIME_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getSignatureTime());
+      hash = (37 * hash) + DISPATCH_TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + getDispatchType();
       if (getUidListCount() > 0) {
         hash = (37 * hash) + UID_LIST_FIELD_NUMBER;
         hash = (53 * hash) + getUidListList().hashCode();
@@ -14841,14 +15332,33 @@ public final class MsgBean {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
+          getItemFieldBuilder();
         }
       }
       public Builder clear() {
         super.clear();
         msg_ = "";
 
+        title_ = "";
+
+        time_ = 0L;
+
+        if (itemBuilder_ == null) {
+          item_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000008);
+        } else {
+          itemBuilder_.clear();
+        }
+        content_ = "";
+
+        signature_ = "";
+
+        signatureTime_ = 0L;
+
+        dispatchType_ = 0;
+
         uidList_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
 
@@ -14874,9 +15384,24 @@ public final class MsgBean {
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         result.msg_ = msg_;
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        result.title_ = title_;
+        result.time_ = time_;
+        if (itemBuilder_ == null) {
+          if (((bitField0_ & 0x00000008) == 0x00000008)) {
+            item_ = java.util.Collections.unmodifiableList(item_);
+            bitField0_ = (bitField0_ & ~0x00000008);
+          }
+          result.item_ = item_;
+        } else {
+          result.item_ = itemBuilder_.build();
+        }
+        result.content_ = content_;
+        result.signature_ = signature_;
+        result.signatureTime_ = signatureTime_;
+        result.dispatchType_ = dispatchType_;
+        if (((bitField0_ & 0x00000100) == 0x00000100)) {
           uidList_ = java.util.Collections.unmodifiableList(uidList_);
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000100);
         }
         result.uidList_ = uidList_;
         result.bitField0_ = to_bitField0_;
@@ -14925,10 +15450,57 @@ public final class MsgBean {
           msg_ = other.msg_;
           onChanged();
         }
+        if (!other.getTitle().isEmpty()) {
+          title_ = other.title_;
+          onChanged();
+        }
+        if (other.getTime() != 0L) {
+          setTime(other.getTime());
+        }
+        if (itemBuilder_ == null) {
+          if (!other.item_.isEmpty()) {
+            if (item_.isEmpty()) {
+              item_ = other.item_;
+              bitField0_ = (bitField0_ & ~0x00000008);
+            } else {
+              ensureItemIsMutable();
+              item_.addAll(other.item_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.item_.isEmpty()) {
+            if (itemBuilder_.isEmpty()) {
+              itemBuilder_.dispose();
+              itemBuilder_ = null;
+              item_ = other.item_;
+              bitField0_ = (bitField0_ & ~0x00000008);
+              itemBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getItemFieldBuilder() : null;
+            } else {
+              itemBuilder_.addAllMessages(other.item_);
+            }
+          }
+        }
+        if (!other.getContent().isEmpty()) {
+          content_ = other.content_;
+          onChanged();
+        }
+        if (!other.getSignature().isEmpty()) {
+          signature_ = other.signature_;
+          onChanged();
+        }
+        if (other.getSignatureTime() != 0L) {
+          setSignatureTime(other.getSignatureTime());
+        }
+        if (other.getDispatchType() != 0) {
+          setDispatchType(other.getDispatchType());
+        }
         if (!other.uidList_.isEmpty()) {
           if (uidList_.isEmpty()) {
             uidList_ = other.uidList_;
-            bitField0_ = (bitField0_ & ~0x00000002);
+            bitField0_ = (bitField0_ & ~0x00000100);
           } else {
             ensureUidListIsMutable();
             uidList_.addAll(other.uidList_);
@@ -14965,6 +15537,10 @@ public final class MsgBean {
 
       private java.lang.Object msg_ = "";
       /**
+       * <pre>
+       *为老版本兼容
+       * </pre>
+       *
        * <code>string msg = 1;</code>
        */
       public java.lang.String getMsg() {
@@ -14980,6 +15556,10 @@ public final class MsgBean {
         }
       }
       /**
+       * <pre>
+       *为老版本兼容
+       * </pre>
+       *
        * <code>string msg = 1;</code>
        */
       public com.google.protobuf.ByteString
@@ -14996,6 +15576,10 @@ public final class MsgBean {
         }
       }
       /**
+       * <pre>
+       *为老版本兼容
+       * </pre>
+       *
        * <code>string msg = 1;</code>
        */
       public Builder setMsg(
@@ -15009,6 +15593,10 @@ public final class MsgBean {
         return this;
       }
       /**
+       * <pre>
+       *为老版本兼容
+       * </pre>
+       *
        * <code>string msg = 1;</code>
        */
       public Builder clearMsg() {
@@ -15018,6 +15606,10 @@ public final class MsgBean {
         return this;
       }
       /**
+       * <pre>
+       *为老版本兼容
+       * </pre>
+       *
        * <code>string msg = 1;</code>
        */
       public Builder setMsgBytes(
@@ -15032,11 +15624,704 @@ public final class MsgBean {
         return this;
       }
 
+      private java.lang.Object title_ = "";
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 2;</code>
+       */
+      public java.lang.String getTitle() {
+        java.lang.Object ref = title_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          title_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTitleBytes() {
+        java.lang.Object ref = title_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          title_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 2;</code>
+       */
+      public Builder setTitle(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        title_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 2;</code>
+       */
+      public Builder clearTitle() {
+        
+        title_ = getDefaultInstance().getTitle();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 2;</code>
+       */
+      public Builder setTitleBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        title_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long time_ ;
+      /**
+       * <pre>
+       *时间
+       * </pre>
+       *
+       * <code>uint64 time = 3;</code>
+       */
+      public long getTime() {
+        return time_;
+      }
+      /**
+       * <pre>
+       *时间
+       * </pre>
+       *
+       * <code>uint64 time = 3;</code>
+       */
+      public Builder setTime(long value) {
+        
+        time_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *时间
+       * </pre>
+       *
+       * <code>uint64 time = 3;</code>
+       */
+      public Builder clearTime() {
+        
+        time_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> item_ =
+        java.util.Collections.emptyList();
+      private void ensureItemIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          item_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.LabelValueItem>(item_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.yanlong.im.utils.socket.MsgBean.LabelValueItem, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder, com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> itemBuilder_;
+
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> getItemList() {
+        if (itemBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(item_);
+        } else {
+          return itemBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public int getItemCount() {
+        if (itemBuilder_ == null) {
+          return item_.size();
+        } else {
+          return itemBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem getItem(int index) {
+        if (itemBuilder_ == null) {
+          return item_.get(index);
+        } else {
+          return itemBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder setItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem value) {
+        if (itemBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureItemIsMutable();
+          item_.set(index, value);
+          onChanged();
+        } else {
+          itemBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder setItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder builderForValue) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          itemBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder addItem(com.yanlong.im.utils.socket.MsgBean.LabelValueItem value) {
+        if (itemBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureItemIsMutable();
+          item_.add(value);
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder addItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem value) {
+        if (itemBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureItemIsMutable();
+          item_.add(index, value);
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder addItem(
+          com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder builderForValue) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.add(builderForValue.build());
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder addItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder builderForValue) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder addAllItem(
+          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItem> values) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, item_);
+          onChanged();
+        } else {
+          itemBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder clearItem() {
+        if (itemBuilder_ == null) {
+          item_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000008);
+          onChanged();
+        } else {
+          itemBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public Builder removeItem(int index) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.remove(index);
+          onChanged();
+        } else {
+          itemBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder getItemBuilder(
+          int index) {
+        return getItemFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder getItemOrBuilder(
+          int index) {
+        if (itemBuilder_ == null) {
+          return item_.get(index);  } else {
+          return itemBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+           getItemOrBuilderList() {
+        if (itemBuilder_ != null) {
+          return itemBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(item_);
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder addItemBuilder() {
+        return getItemFieldBuilder().addBuilder(
+            com.yanlong.im.utils.socket.MsgBean.LabelValueItem.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder addItemBuilder(
+          int index) {
+        return getItemFieldBuilder().addBuilder(
+            index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 4;</code>
+       */
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder> 
+           getItemBuilderList() {
+        return getItemFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.yanlong.im.utils.socket.MsgBean.LabelValueItem, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder, com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+          getItemFieldBuilder() {
+        if (itemBuilder_ == null) {
+          itemBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.yanlong.im.utils.socket.MsgBean.LabelValueItem, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder, com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder>(
+                  item_,
+                  ((bitField0_ & 0x00000008) == 0x00000008),
+                  getParentForChildren(),
+                  isClean());
+          item_ = null;
+        }
+        return itemBuilder_;
+      }
+
+      private java.lang.Object content_ = "";
+      /**
+       * <pre>
+       * 内容
+       * </pre>
+       *
+       * <code>string content = 5;</code>
+       */
+      public java.lang.String getContent() {
+        java.lang.Object ref = content_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          content_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 内容
+       * </pre>
+       *
+       * <code>string content = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getContentBytes() {
+        java.lang.Object ref = content_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          content_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 内容
+       * </pre>
+       *
+       * <code>string content = 5;</code>
+       */
+      public Builder setContent(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        content_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 内容
+       * </pre>
+       *
+       * <code>string content = 5;</code>
+       */
+      public Builder clearContent() {
+        
+        content_ = getDefaultInstance().getContent();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 内容
+       * </pre>
+       *
+       * <code>string content = 5;</code>
+       */
+      public Builder setContentBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        content_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object signature_ = "";
+      /**
+       * <pre>
+       * 落款
+       * </pre>
+       *
+       * <code>string signature = 6;</code>
+       */
+      public java.lang.String getSignature() {
+        java.lang.Object ref = signature_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          signature_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 落款
+       * </pre>
+       *
+       * <code>string signature = 6;</code>
+       */
+      public com.google.protobuf.ByteString
+          getSignatureBytes() {
+        java.lang.Object ref = signature_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          signature_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 落款
+       * </pre>
+       *
+       * <code>string signature = 6;</code>
+       */
+      public Builder setSignature(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        signature_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 落款
+       * </pre>
+       *
+       * <code>string signature = 6;</code>
+       */
+      public Builder clearSignature() {
+        
+        signature_ = getDefaultInstance().getSignature();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 落款
+       * </pre>
+       *
+       * <code>string signature = 6;</code>
+       */
+      public Builder setSignatureBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        signature_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long signatureTime_ ;
+      /**
+       * <pre>
+       * 落款时间
+       * </pre>
+       *
+       * <code>uint64 signature_time = 7;</code>
+       */
+      public long getSignatureTime() {
+        return signatureTime_;
+      }
+      /**
+       * <pre>
+       * 落款时间
+       * </pre>
+       *
+       * <code>uint64 signature_time = 7;</code>
+       */
+      public Builder setSignatureTime(long value) {
+        
+        signatureTime_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 落款时间
+       * </pre>
+       *
+       * <code>uint64 signature_time = 7;</code>
+       */
+      public Builder clearSignatureTime() {
+        
+        signatureTime_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private int dispatchType_ ;
+      /**
+       * <pre>
+       * 0:分发给多端|1:分发给手机端
+       * </pre>
+       *
+       * <code>uint32 dispatch_type = 100;</code>
+       */
+      public int getDispatchType() {
+        return dispatchType_;
+      }
+      /**
+       * <pre>
+       * 0:分发给多端|1:分发给手机端
+       * </pre>
+       *
+       * <code>uint32 dispatch_type = 100;</code>
+       */
+      public Builder setDispatchType(int value) {
+        
+        dispatchType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 0:分发给多端|1:分发给手机端
+       * </pre>
+       *
+       * <code>uint32 dispatch_type = 100;</code>
+       */
+      public Builder clearDispatchType() {
+        
+        dispatchType_ = 0;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<java.lang.Long> uidList_ = java.util.Collections.emptyList();
       private void ensureUidListIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
           uidList_ = new java.util.ArrayList<java.lang.Long>(uidList_);
-          bitField0_ |= 0x00000002;
+          bitField0_ |= 0x00000100;
          }
       }
       /**
@@ -15121,7 +16406,7 @@ public final class MsgBean {
        */
       public Builder clearUidList() {
         uidList_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000100);
         onChanged();
         return this;
       }
@@ -65250,219 +66535,223 @@ public final class MsgBean {
       "r\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\022\017\n\007comment\030\004 \001" +
       "(\t\"j\n\tAtMessage\022\"\n\007at_type\030\001 \001(\0162\021.AtMes" +
       "sage.AtType\022\013\n\003uid\030\002 \003(\004\022\013\n\003msg\030\003 \001(\t\"\037\n" +
-      "\006AtType\022\014\n\010MULTIPLE\020\000\022\007\n\003ALL\020\001\"1\n\020Assist" +
-      "antMessage\022\013\n\003msg\030\001 \001(\t\022\020\n\010uid_list\030e \003(" +
-      "\004\"\250\002\n\031AssistantPromotionMessage\022\r\n\005title" +
-      "\030\001 \001(\t\022\017\n\007summary\030\002 \001(\t\022\021\n\tcover_img\030\003 \001" +
-      "(\t\022\022\n\nbutton_txt\030\004 \001(\t\022\016\n\006h5_url\030\005 \001(\t\0224" +
-      "\n\010app_call\030\006 \001(\0132\".AssistantPromotionMes" +
-      "sage.AppCall\032~\n\007AppCall\022\022\n\nios_app_id\030\001 " +
-      "\001(\t\022\026\n\016android_app_id\030\002 \001(\t\022\027\n\017ios_url_s" +
-      "chemes\030\003 \001(\t\022\033\n\023android_url_schemes\030\004 \001(" +
-      "\t\022\021\n\tpc_app_id\030\005 \001(\t\"\231\001\n\rCancelMessage\022\016" +
-      "\n\006msg_id\030\001 \001(\t\022\013\n\003uid\030\002 \001(\004\022\030\n\020alteranti" +
-      "ve_name\030\003 \001(\t\022!\n\004role\030\004 \001(\0162\023.CancelMess" +
-      "age.Role\".\n\004Role\022\n\n\006MEMBER\020\000\022\n\n\006MASTER\020\001" +
-      "\022\016\n\nVICE_ADMIN\020\002\"a\n\021ShortVideoMessage\022\020\n" +
-      "\010duration\030\001 \001(\r\022\016\n\006bg_url\030\002 \001(\t\022\r\n\005width" +
-      "\030\003 \001(\r\022\016\n\006height\030\004 \001(\r\022\013\n\003url\030\005 \001(\t\"\\\n\027S" +
-      "napshotLocationMessage\022\013\n\003lat\030\001 \001(\r\022\013\n\003l" +
-      "on\030\002 \001(\r\022\014\n\004addr\030\003 \001(\t\022\014\n\004desc\030\004 \001(\t\022\013\n\003" +
-      "img\030\005 \001(\t\"<\n\024RequestFriendMessage\022\016\n\006say" +
-      "_hi\030\001 \001(\t\022\024\n\014contact_name\030\002 \001(\t\">\n\026Accep" +
-      "tBeFriendsMessage\022\016\n\006say_hi\030\001 \001(\t\022\024\n\014con" +
-      "tact_name\030\002 \001(\t\"\025\n\023RemoveFriendMessage\"C" +
-      "\n\022GroupNoticeMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006ava" +
-      "tar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\"E\n\026InviteJoi" +
-      "nGroupMessage\022+\n\016notice_message\030\001 \001(\0132\023." +
-      "GroupNoticeMessage\"\240\001\n\023RequestGroupMessa" +
-      "ge\022+\n\016notice_message\030\001 \003(\0132\023.GroupNotice" +
-      "Message\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 " +
-      "\001(\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004 \001(" +
-      "\t\022\022\n\nadditional\030\005 \001(\t\"\215\001\n\024AcceptBeGroupM" +
-      "essage\022+\n\016notice_message\030\001 \003(\0132\023.GroupNo" +
-      "ticeMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_typ" +
-      "e\030\003 \001(\0162\016.JoinGroupType\022\024\n\014inviter_name\030" +
-      "\004 \001(\t\"E\n\030RemoveGroupMemberMessage\022\013\n\003gid" +
-      "\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"U\n\031" +
-      "RemoveGroupMember2Message\022\013\n\003uid\030\001 \003(\004\022+" +
-      "\n\016notice_message\030\002 \003(\0132\023.GroupNoticeMess" +
-      "age\";\n\030ChangeGroupMasterMessage\022\013\n\003uid\030\001" +
-      " \001(\004\022\022\n\nmembername\030\002 \001(\t\"\211\001\n\027ChangeViceA" +
-      "dminsMessage\022$\n\007members\030\001 \003(\0132\023.GroupNot" +
-      "iceMessage\022)\n\003opt\030\002 \001(\0162\034.ChangeViceAdmi" +
-      "nsMessage.Opt\"\035\n\003Opt\022\n\n\006REMOVE\020\000\022\n\n\006APPE" +
-      "ND\020\001\"\253\001\n\026ChangeGroupMetaMessage\022\016\n\004name\030" +
-      "\001 \001(\tH\000\022\030\n\016protect_member\030\002 \001(\010H\000\022\020\n\006ava" +
-      "tar\030\003 \001(\tH\000\022\021\n\007shut_up\030\004 \001(\010H\000\022!\n\027screen" +
-      "shot_notification\030\005 \001(\010H\000\022\023\n\tforbbiden\030\006" +
-      " \001(\010H\000B\n\n\010real_msg\"@\n\023DestroyGroupMessag" +
-      "e\022\013\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003" +
-      " \001(\t\"2\n\031ChangeSurvivalTimeMessage\022\025\n\rsur" +
-      "vival_time\030\001 \001(\021\"S\n\021P2PAuVideoMessage\022\035\n" +
-      "\007av_type\030\001 \001(\0162\014.AuVideoType\022\021\n\toperatio" +
-      "n\030\002 \001(\t\022\014\n\004desc\030\003 \001(\t\"6\n\025P2PAuVideoDialM" +
-      "essage\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoType\"H\n" +
-      "\023ForceOfflineMessage\0221\n\024force_offline_re" +
-      "ason\030\001 \001(\0162\023.ForceOfflineReason\"\036\n\017OutGr" +
-      "oupMessage\022\013\n\003gid\030\001 \001(\t\".\n\020RecommendMess" +
-      "age\022\013\n\003uid\030\001 \001(\004\022\r\n\005phone\030\002 \001(\004\"\215\001\n\027Acti" +
-      "veStatChangeMessage\0228\n\013active_type\030\001 \001(\016" +
-      "2#.ActiveStatChangeMessage.ActiveType\022\021\n" +
-      "\ttimestamp\030\002 \001(\004\"%\n\nActiveType\022\013\n\007OFFLIN" +
-      "E\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023ResourceLockMessage\022" +
-      "A\n\022resource_lock_type\030\001 \001(\0162%.ResourceLo" +
-      "ckMessage.ResourceLockType\022\014\n\004lock\030\002 \001(\r" +
-      "\"(\n\020ResourceLockType\022\024\n\020CLOUDREDENVELOPE" +
-      "\020\000\" \n\013ReadMessage\022\021\n\ttimestamp\030\001 \001(\004\"\027\n\025" +
-      "TakeScreenshotMessage\"\025\n\023HistoryCleanMes" +
-      "sage\"\235\001\n\nRefMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036" +
-      "\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id" +
-      "\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\020\n\010nickname\030\005 \001" +
-      "(\t\022\016\n\006avatar\030\006 \001(\t\022\013\n\003url\030\007 \001(\t\022\013\n\003msg\030\010" +
-      " \001(\t\"\200\001\n\024ReplySpecificMessage\022\034\n\007ref_msg" +
-      "\030\001 \001(\0132\013.RefMessage\022 \n\010chat_msg\030\002 \001(\0132\014." +
-      "ChatMessageH\000\022\034\n\006at_msg\030\003 \001(\0132\n.AtMessag" +
-      "eH\000B\n\n\010real_msg\"\253\002\n\023SwitchChangeMessage\022" +
-      "4\n\013switch_type\030\001 \001(\0162\037.SwitchChangeMessa" +
-      "ge.SwitchType\022\024\n\014switch_value\030\002 \001(\005\022$\n\007m" +
-      "embers\030\003 \003(\0132\023.GroupNoticeMessage\"\241\001\n\nSw" +
-      "itchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013MASTER_RE" +
-      "AD\020\002\022\013\n\007SHUT_UP\020\003\022\031\n\025OPEN_UP_RED_ENVELOP" +
-      "ER\020\004\022\016\n\nSCREENSHOT\020\005\022\r\n\tGEO_TRACK\020\006\022\021\n\rF" +
-      "RIEND_LOCKED\020\007\022\025\n\021FRIEND_DEACTIVATE\020\010\"\265\001" +
-      "\n\020PayResultMessage\022+\n\006result\030\001 \001(\0162\033.Pay" +
-      "ResultMessage.PayResult\022\020\n\010trade_id\030\002 \001(" +
-      "\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\terror_msg\030\004 \001(\t\022" +
-      "\014\n\004sign\030\005 \001(\t\".\n\tPayResult\022\013\n\007SUCCESS\020\000\022" +
-      "\010\n\004FAIL\020\001\022\n\n\006REFUND\020\002\"&\n\022TransNotifyMess" +
-      "age\022\020\n\010trade_id\030\001 \001(\004\".\n\016LabelValueItem\022" +
-      "\r\n\005label\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\366\001\n\027Balanc" +
-      "eAssistantMessage\022\020\n\010trade_id\030\001 \001(\004\0228\n\013d" +
-      "etail_type\030\002 \001(\0162#.BalanceAssistantMessa" +
-      "ge.DetailType\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 \001" +
-      "(\t\022\021\n\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004it" +
-      "em\030\007 \003(\0132\017.LabelValueItem\"3\n\nDetailType\022" +
-      "\010\n\004NONE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"5" +
-      "\n\021OfflineMsgRequest\022\020\n\010reqCount\030\001 \001(\005\022\016\n" +
-      "\006latest\030\002 \001(\010\"1\n\022ChangeOnlineStatus\022\033\n\004s" +
-      "tat\030\001 \001(\0162\r.OnlineStatus\"J\n\tReportMsg\0221\n" +
-      "\022changeOnlineStatus\030d \001(\0132\023.ChangeOnline" +
-      "StatusH\000B\n\n\010real_msg\"H\n\tReqRspMsg\022/\n\021off" +
-      "lineMsgRequest\030d \001(\0132\022.OfflineMsgRequest" +
-      "H\000B\n\n\010real_msg\"\236\001\n\nAckMessage\022 \n\013reject_" +
-      "type\030\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 " +
-      "\001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\022\014" +
-      "\n\004desc\030\005 \001(\t\022)\n\rmergedNextReq\030\006 \001(\0132\022.Of" +
-      "flineMsgRequest\"*\n\022AuthRequestMessage\022\024\n" +
-      "\014access_token\030\001 \001(\t\":\n\023AuthResponseMessa" +
-      "ge\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030\002 \001(\004\"" +
-      "\241\024\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t" +
-      "\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001(\r\022/\n\007wr" +
-      "apMsg\030\221N \003(\0132\035.UniversalMessage.WrapMess" +
-      "age\032\245\023\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036" +
-      "\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id" +
-      "\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n" +
-      "\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmembe" +
-      "rname\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\023\n\013de" +
-      "vice_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\020\n\010execu" +
-      "tor\030\014 \001(\004\022\017\n\007read_ts\030\r \001(\004\022\031\n\021executor_n" +
-      "ickname\030\016 \001(\004\022\027\n\017executor_avatar\030\017 \001(\004\022\035" +
-      "\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221" +
-      "N \001(\0132\r.ImageMessageH\000\022,\n\014red_envelope\030\222" +
-      "N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024receive_" +
-      "red_envelope\030\223N \001(\0132\032.ReceiveRedEnvelope" +
-      "MessageH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferM" +
-      "essageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH" +
-      "\000\022.\n\rbusiness_card\030\226N \001(\0132\024.BusinessCard" +
-      "MessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessage" +
-      "H\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassista" +
-      "nt\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006cancel" +
-      "\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013short_video" +
-      "\030\233N \001(\0132\022.ShortVideoMessageH\000\0226\n\021snapsho" +
-      "t_location\030\234N \001(\0132\030.SnapshotLocationMess" +
-      "ageH\000\0222\n\017take_scrennshot\030\235N \001(\0132\026.TakeSc" +
-      "reenshotMessageH\000\0228\n\022shipped_expression\030" +
-      "\236N \001(\0132\031.ShippedExpressionMessageH\000\022:\n\023a" +
-      "ssistant_promotion\030\237N \001(\0132\032.AssistantPro" +
-      "motionMessageH\000\0220\n\016request_friend\030\364N \001(\013" +
-      "2\025.RequestFriendMessageH\000\0225\n\021accept_be_f" +
-      "riends\030\365N \001(\0132\027.AcceptBeFriendsMessageH\000" +
-      "\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveFriendM" +
-      "essageH\000\022.\n\rhistory_clean\030\367N \001(\0132\024.Histo" +
-      "ryCleanMessageH\000\022\'\n\005reply\030\370N \001(\0132\025.Reply" +
-      "SpecificMessageH\000\022.\n\rrequest_group\030\330O \001(" +
-      "\0132\024.RequestGroupMessageH\000\0221\n\017accept_be_g" +
-      "roup\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023" +
-      "remove_group_member\030\332O \001(\0132\031.RemoveGroup" +
-      "MemberMessageH\000\0229\n\023change_group_master\030\333" +
-      "O \001(\0132\031.ChangeGroupMasterMessageH\000\022.\n\rde" +
-      "stroy_group\030\336O \001(\0132\024.DestroyGroupMessage" +
-      "H\000\022;\n\024remove_group_member2\030\337O \001(\0132\032.Remo" +
-      "veGroupMember2MessageH\000\022&\n\tout_group\030\342O " +
-      "\001(\0132\020.OutGroupMessageH\000\0225\n\021change_group_" +
-      "meta\030\344O \001(\0132\027.ChangeGroupMetaMessageH\000\022;" +
-      "\n\024change_survival_time\030\345O \001(\0132\032.ChangeSu" +
-      "rvivalTimeMessageH\000\022+\n\014p2p_au_video\030\352O \001" +
-      "(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_au_video" +
-      "_dial\030\353O \001(\0132\026.P2PAuVideoDialMessageH\000\022\035" +
-      "\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022&\n\tsend_fi" +
-      "le\030\355O \001(\0132\020.SendFileMessageH\000\0227\n\022change_" +
-      "vice_admins\030\356O \001(\0132\030.ChangeViceAdminsMes" +
-      "sageH\000\022\'\n\trecommend\030\360O \001(\0132\021.RecommendMe" +
-      "ssageH\000\022.\n\rforce_offline\030\274P \001(\0132\024.ForceO" +
-      "fflineMessageH\000\0227\n\022active_stat_change\030\275P" +
-      " \001(\0132\030.ActiveStatChangeMessageH\000\022.\n\rreso" +
-      "urce_lock\030\276P \001(\0132\024.ResourceLockMessageH\000" +
-      "\022.\n\rswitch_change\030\277P \001(\0132\024.SwitchChangeM" +
-      "essageH\000\0222\n\023multi_terminal_sync\030\300P \001(\0132\022" +
-      ".MultiTerminalSyncH\000\0229\n\023report_geo_posit" +
-      "ion\030\301P \001(\0132\031.ReportGeoPositionMessageH\000\022" +
-      "(\n\npay_result\030\261T \001(\0132\021.PayResultMessageH" +
-      "\000\0226\n\021balance_assistant\030\262T \001(\0132\030.BalanceA" +
-      "ssistantMessageH\000\022,\n\014trans_notify\030\263T \001(\013" +
-      "2\023.TransNotifyMessageH\000B\n\n\010real_msg*\212\007\n\013" +
-      "MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_" +
-      "ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014" +
-      "\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD" +
-      "\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006" +
-      "CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LO" +
-      "CATION\020\014\022\023\n\017TAKE_SCREENSHOT\020\r\022\026\n\022SHIPPED" +
-      "_EXPRESSION\020\016\022\021\n\rHISTORY_CLEAN\020\017\022\022\n\016REPL" +
-      "Y_SPECIFIC\020\020\022\027\n\023ASSISTANT_PROMOTION\020\021\022\022\n" +
-      "\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e" +
-      "\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023" +
-      "\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMB" +
-      "ER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_" +
-      "GROUP_MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOU" +
-      "T_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHAN" +
-      "GE_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021" +
-      "P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022\r\n\tSEND_FI" +
-      "LE\020y\022\026\n\022CHANGE_VICE_ADMINS\020z\022\026\n\022GROUP_AN" +
-      "NOUNCEMENT\020{\022\r\n\tRECOMMEND\020|\022\022\n\rFORCE_OFF" +
-      "LINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRESO" +
-      "URCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\030\n\023MULT" +
-      "I_TERMINAL_SYNC\020\314\001\022\030\n\023REPORT_GEO_POSITIO" +
-      "N\020\315\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BALANCE_ASSISTA" +
-      "NT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*&\n\014OnlineStatus" +
-      "\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*\205\001\n\022ForceOfflin" +
-      "eReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED\020\001\022\024\n\020PAS" +
-      "SWORD_CHANGED\020\002\022\025\n\021USER_DEACTIVATING\020\003\022\027" +
-      "\n\023BOUND_PHONE_CHANGED\020\004\022\017\n\013APPEAL_PASS\020\005" +
-      "*\333\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRI" +
-      "ENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020\002" +
-      "\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\021\n\rFRIEND_FROZEN" +
-      "\020\004\022\017\n\013SELF_LOCKED\020\005\022\021\n\rFRIEND_LOCKED\020\006\022\025" +
-      "\n\021FRIEND_DEACTIVATE\020\007\022\016\n\nRATE_LIMIT\020c\022\027\n" +
-      "\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGroupType\022" +
-      "\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*\226\001\n\025MultiTermin" +
-      "alSyncType\022\023\n\017MY_SELF_CHANGED\020\000\022\025\n\021MY_FR" +
-      "IEND_CHANGED\020\001\022\024\n\020MY_GROUP_CHANGED\020\002\022\025\n\021" +
-      "MY_FRIEND_DELETED\020\003\022\021\n\rMY_GROUP_QUIT\020\004\022\021" +
-      "\n\rMY_GROUP_READ\020\005*(\n\017RedEnvelopeType\022\t\n\005" +
-      "MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuVideoType\022\t\n\005Au" +
-      "dio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im.utils" +
-      ".socketB\007MsgBeanb\006proto3"
+      "\006AtType\022\014\n\010MULTIPLE\020\000\022\007\n\003ALL\020\001\"\300\001\n\020Assis" +
+      "tantMessage\022\013\n\003msg\030\001 \001(\t\022\r\n\005title\030\002 \001(\t\022" +
+      "\014\n\004time\030\003 \001(\004\022\035\n\004item\030\004 \003(\0132\017.LabelValue" +
+      "Item\022\017\n\007content\030\005 \001(\t\022\021\n\tsignature\030\006 \001(\t" +
+      "\022\026\n\016signature_time\030\007 \001(\004\022\025\n\rdispatch_typ" +
+      "e\030d \001(\r\022\020\n\010uid_list\030e \003(\004\"\250\002\n\031AssistantP" +
+      "romotionMessage\022\r\n\005title\030\001 \001(\t\022\017\n\007summar" +
+      "y\030\002 \001(\t\022\021\n\tcover_img\030\003 \001(\t\022\022\n\nbutton_txt" +
+      "\030\004 \001(\t\022\016\n\006h5_url\030\005 \001(\t\0224\n\010app_call\030\006 \001(\013" +
+      "2\".AssistantPromotionMessage.AppCall\032~\n\007" +
+      "AppCall\022\022\n\nios_app_id\030\001 \001(\t\022\026\n\016android_a" +
+      "pp_id\030\002 \001(\t\022\027\n\017ios_url_schemes\030\003 \001(\t\022\033\n\023" +
+      "android_url_schemes\030\004 \001(\t\022\021\n\tpc_app_id\030\005" +
+      " \001(\t\"\231\001\n\rCancelMessage\022\016\n\006msg_id\030\001 \001(\t\022\013" +
+      "\n\003uid\030\002 \001(\004\022\030\n\020alterantive_name\030\003 \001(\t\022!\n" +
+      "\004role\030\004 \001(\0162\023.CancelMessage.Role\".\n\004Role" +
+      "\022\n\n\006MEMBER\020\000\022\n\n\006MASTER\020\001\022\016\n\nVICE_ADMIN\020\002" +
+      "\"a\n\021ShortVideoMessage\022\020\n\010duration\030\001 \001(\r\022" +
+      "\016\n\006bg_url\030\002 \001(\t\022\r\n\005width\030\003 \001(\r\022\016\n\006height" +
+      "\030\004 \001(\r\022\013\n\003url\030\005 \001(\t\"\\\n\027SnapshotLocationM" +
+      "essage\022\013\n\003lat\030\001 \001(\r\022\013\n\003lon\030\002 \001(\r\022\014\n\004addr" +
+      "\030\003 \001(\t\022\014\n\004desc\030\004 \001(\t\022\013\n\003img\030\005 \001(\t\"<\n\024Req" +
+      "uestFriendMessage\022\016\n\006say_hi\030\001 \001(\t\022\024\n\014con" +
+      "tact_name\030\002 \001(\t\">\n\026AcceptBeFriendsMessag" +
+      "e\022\016\n\006say_hi\030\001 \001(\t\022\024\n\014contact_name\030\002 \001(\t\"" +
+      "\025\n\023RemoveFriendMessage\"C\n\022GroupNoticeMes" +
+      "sage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n\010nic" +
+      "kname\030\003 \001(\t\"E\n\026InviteJoinGroupMessage\022+\n" +
+      "\016notice_message\030\001 \001(\0132\023.GroupNoticeMessa" +
+      "ge\"\240\001\n\023RequestGroupMessage\022+\n\016notice_mes" +
+      "sage\030\001 \003(\0132\023.GroupNoticeMessage\022\017\n\007invit" +
+      "er\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGroupT" +
+      "ype\022\024\n\014inviter_name\030\004 \001(\t\022\022\n\nadditional\030" +
+      "\005 \001(\t\"\215\001\n\024AcceptBeGroupMessage\022+\n\016notice" +
+      "_message\030\001 \003(\0132\023.GroupNoticeMessage\022\017\n\007i" +
+      "nviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGr" +
+      "oupType\022\024\n\014inviter_name\030\004 \001(\t\"E\n\030RemoveG" +
+      "roupMemberMessage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar" +
+      "\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"U\n\031RemoveGroupMembe" +
+      "r2Message\022\013\n\003uid\030\001 \003(\004\022+\n\016notice_message" +
+      "\030\002 \003(\0132\023.GroupNoticeMessage\";\n\030ChangeGro" +
+      "upMasterMessage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmemberna" +
+      "me\030\002 \001(\t\"\211\001\n\027ChangeViceAdminsMessage\022$\n\007" +
+      "members\030\001 \003(\0132\023.GroupNoticeMessage\022)\n\003op" +
+      "t\030\002 \001(\0162\034.ChangeViceAdminsMessage.Opt\"\035\n" +
+      "\003Opt\022\n\n\006REMOVE\020\000\022\n\n\006APPEND\020\001\"\253\001\n\026ChangeG" +
+      "roupMetaMessage\022\016\n\004name\030\001 \001(\tH\000\022\030\n\016prote" +
+      "ct_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(\tH\000\022\021\n\007s" +
+      "hut_up\030\004 \001(\010H\000\022!\n\027screenshot_notificatio" +
+      "n\030\005 \001(\010H\000\022\023\n\tforbbiden\030\006 \001(\010H\000B\n\n\010real_m" +
+      "sg\"@\n\023DestroyGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016" +
+      "\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2\n\031ChangeSu" +
+      "rvivalTimeMessage\022\025\n\rsurvival_time\030\001 \001(\021" +
+      "\"S\n\021P2PAuVideoMessage\022\035\n\007av_type\030\001 \001(\0162\014" +
+      ".AuVideoType\022\021\n\toperation\030\002 \001(\t\022\014\n\004desc\030" +
+      "\003 \001(\t\"6\n\025P2PAuVideoDialMessage\022\035\n\007av_typ" +
+      "e\030\001 \001(\0162\014.AuVideoType\"H\n\023ForceOfflineMes" +
+      "sage\0221\n\024force_offline_reason\030\001 \001(\0162\023.For" +
+      "ceOfflineReason\"\036\n\017OutGroupMessage\022\013\n\003gi" +
+      "d\030\001 \001(\t\".\n\020RecommendMessage\022\013\n\003uid\030\001 \001(\004" +
+      "\022\r\n\005phone\030\002 \001(\004\"\215\001\n\027ActiveStatChangeMess" +
+      "age\0228\n\013active_type\030\001 \001(\0162#.ActiveStatCha" +
+      "ngeMessage.ActiveType\022\021\n\ttimestamp\030\002 \001(\004" +
+      "\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"" +
+      "\220\001\n\023ResourceLockMessage\022A\n\022resource_lock" +
+      "_type\030\001 \001(\0162%.ResourceLockMessage.Resour" +
+      "ceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLock" +
+      "Type\022\024\n\020CLOUDREDENVELOPE\020\000\" \n\013ReadMessag" +
+      "e\022\021\n\ttimestamp\030\001 \001(\004\"\027\n\025TakeScreenshotMe" +
+      "ssage\"\025\n\023HistoryCleanMessage\"\235\001\n\nRefMess" +
+      "age\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\016" +
+      "2\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_u" +
+      "id\030\004 \001(\004\022\020\n\010nickname\030\005 \001(\t\022\016\n\006avatar\030\006 \001" +
+      "(\t\022\013\n\003url\030\007 \001(\t\022\013\n\003msg\030\010 \001(\t\"\200\001\n\024ReplySp" +
+      "ecificMessage\022\034\n\007ref_msg\030\001 \001(\0132\013.RefMess" +
+      "age\022 \n\010chat_msg\030\002 \001(\0132\014.ChatMessageH\000\022\034\n" +
+      "\006at_msg\030\003 \001(\0132\n.AtMessageH\000B\n\n\010real_msg\"" +
+      "\253\002\n\023SwitchChangeMessage\0224\n\013switch_type\030\001" +
+      " \001(\0162\037.SwitchChangeMessage.SwitchType\022\024\n" +
+      "\014switch_value\030\002 \001(\005\022$\n\007members\030\003 \003(\0132\023.G" +
+      "roupNoticeMessage\"\241\001\n\nSwitchType\022\010\n\004READ" +
+      "\020\000\022\007\n\003VIP\020\001\022\017\n\013MASTER_READ\020\002\022\013\n\007SHUT_UP\020" +
+      "\003\022\031\n\025OPEN_UP_RED_ENVELOPER\020\004\022\016\n\nSCREENSH" +
+      "OT\020\005\022\r\n\tGEO_TRACK\020\006\022\021\n\rFRIEND_LOCKED\020\007\022\025" +
+      "\n\021FRIEND_DEACTIVATE\020\010\"\265\001\n\020PayResultMessa" +
+      "ge\022+\n\006result\030\001 \001(\0162\033.PayResultMessage.Pa" +
+      "yResult\022\020\n\010trade_id\030\002 \001(\004\022\021\n\taction_id\030\003" +
+      " \001(\t\022\021\n\terror_msg\030\004 \001(\t\022\014\n\004sign\030\005 \001(\t\".\n" +
+      "\tPayResult\022\013\n\007SUCCESS\020\000\022\010\n\004FAIL\020\001\022\n\n\006REF" +
+      "UND\020\002\"&\n\022TransNotifyMessage\022\020\n\010trade_id\030" +
+      "\001 \001(\004\".\n\016LabelValueItem\022\r\n\005label\030\001 \001(\t\022\r" +
+      "\n\005value\030\002 \001(\t\"\366\001\n\027BalanceAssistantMessag" +
+      "e\022\020\n\010trade_id\030\001 \001(\004\0228\n\013detail_type\030\002 \001(\016" +
+      "2#.BalanceAssistantMessage.DetailType\022\014\n" +
+      "\004time\030\003 \001(\004\022\r\n\005title\030\004 \001(\t\022\021\n\tamt_label\030" +
+      "\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004item\030\007 \003(\0132\017.Label" +
+      "ValueItem\"3\n\nDetailType\022\010\n\004NONE\020\000\022\020\n\014RED" +
+      "_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"5\n\021OfflineMsgRequ" +
+      "est\022\020\n\010reqCount\030\001 \001(\005\022\016\n\006latest\030\002 \001(\010\"1\n" +
+      "\022ChangeOnlineStatus\022\033\n\004stat\030\001 \001(\0162\r.Onli" +
+      "neStatus\"J\n\tReportMsg\0221\n\022changeOnlineSta" +
+      "tus\030d \001(\0132\023.ChangeOnlineStatusH\000B\n\n\010real" +
+      "_msg\"H\n\tReqRspMsg\022/\n\021offlineMsgRequest\030d" +
+      " \001(\0132\022.OfflineMsgRequestH\000B\n\n\010real_msg\"\236" +
+      "\001\n\nAckMessage\022 \n\013reject_type\030\001 \001(\0162\013.Rej" +
+      "ectType\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 " +
+      "\003(\t\022\021\n\ttimestamp\030\004 \001(\004\022\014\n\004desc\030\005 \001(\t\022)\n\r" +
+      "mergedNextReq\030\006 \001(\0132\022.OfflineMsgRequest\"" +
+      "*\n\022AuthRequestMessage\022\024\n\014access_token\030\001 " +
+      "\001(\t\":\n\023AuthResponseMessage\022\020\n\010accepted\030\001" +
+      " \001(\021\022\021\n\ttimestamp\030\002 \001(\004\"\241\024\n\020UniversalMes" +
+      "sage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004" +
+      "\022\020\n\010msg_from\030\003 \001(\r\022/\n\007wrapMsg\030\221N \003(\0132\035.U" +
+      "niversalMessage.WrapMessage\032\245\023\n\013WrapMess" +
+      "age\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\016" +
+      "2\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_u" +
+      "id\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022" +
+      "\016\n\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\025\n\rs" +
+      "urvival_time\030\t \001(\021\022\023\n\013device_type\030\n \001(\r\022" +
+      "\016\n\006to_uid\030\013 \001(\004\022\020\n\010executor\030\014 \001(\004\022\017\n\007rea" +
+      "d_ts\030\r \001(\004\022\031\n\021executor_nickname\030\016 \001(\004\022\027\n" +
+      "\017executor_avatar\030\017 \001(\004\022\035\n\004chat\030\220N \001(\0132\014." +
+      "ChatMessageH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMes" +
+      "sageH\000\022,\n\014red_envelope\030\222N \001(\0132\023.RedEnvel" +
+      "opeMessageH\000\022;\n\024receive_red_envelope\030\223N " +
+      "\001(\0132\032.ReceiveRedEnvelopeMessageH\000\022%\n\010tra" +
+      "nsfer\030\224N \001(\0132\020.TransferMessageH\000\022\037\n\005stam" +
+      "p\030\225N \001(\0132\r.StampMessageH\000\022.\n\rbusiness_ca" +
+      "rd\030\226N \001(\0132\024.BusinessCardMessageH\000\022\037\n\005voi" +
+      "ce\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132" +
+      "\n.AtMessageH\000\022\'\n\tassistant\030\231N \001(\0132\021.Assi" +
+      "stantMessageH\000\022!\n\006cancel\030\232N \001(\0132\016.Cancel" +
+      "MessageH\000\022*\n\013short_video\030\233N \001(\0132\022.ShortV" +
+      "ideoMessageH\000\0226\n\021snapshot_location\030\234N \001(" +
+      "\0132\030.SnapshotLocationMessageH\000\0222\n\017take_sc" +
+      "rennshot\030\235N \001(\0132\026.TakeScreenshotMessageH" +
+      "\000\0228\n\022shipped_expression\030\236N \001(\0132\031.Shipped" +
+      "ExpressionMessageH\000\022:\n\023assistant_promoti" +
+      "on\030\237N \001(\0132\032.AssistantPromotionMessageH\000\022" +
+      "0\n\016request_friend\030\364N \001(\0132\025.RequestFriend" +
+      "MessageH\000\0225\n\021accept_be_friends\030\365N \001(\0132\027." +
+      "AcceptBeFriendsMessageH\000\022.\n\rremove_frien" +
+      "d\030\366N \001(\0132\024.RemoveFriendMessageH\000\022.\n\rhist" +
+      "ory_clean\030\367N \001(\0132\024.HistoryCleanMessageH\000" +
+      "\022\'\n\005reply\030\370N \001(\0132\025.ReplySpecificMessageH" +
+      "\000\022.\n\rrequest_group\030\330O \001(\0132\024.RequestGroup" +
+      "MessageH\000\0221\n\017accept_be_group\030\331O \001(\0132\025.Ac" +
+      "ceptBeGroupMessageH\000\0229\n\023remove_group_mem" +
+      "ber\030\332O \001(\0132\031.RemoveGroupMemberMessageH\000\022" +
+      "9\n\023change_group_master\030\333O \001(\0132\031.ChangeGr" +
+      "oupMasterMessageH\000\022.\n\rdestroy_group\030\336O \001" +
+      "(\0132\024.DestroyGroupMessageH\000\022;\n\024remove_gro" +
+      "up_member2\030\337O \001(\0132\032.RemoveGroupMember2Me" +
+      "ssageH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGroupMe" +
+      "ssageH\000\0225\n\021change_group_meta\030\344O \001(\0132\027.Ch" +
+      "angeGroupMetaMessageH\000\022;\n\024change_surviva" +
+      "l_time\030\345O \001(\0132\032.ChangeSurvivalTimeMessag" +
+      "eH\000\022+\n\014p2p_au_video\030\352O \001(\0132\022.P2PAuVideoM" +
+      "essageH\000\0224\n\021p2p_au_video_dial\030\353O \001(\0132\026.P" +
+      "2PAuVideoDialMessageH\000\022\035\n\004read\030\354O \001(\0132\014." +
+      "ReadMessageH\000\022&\n\tsend_file\030\355O \001(\0132\020.Send" +
+      "FileMessageH\000\0227\n\022change_vice_admins\030\356O \001" +
+      "(\0132\030.ChangeViceAdminsMessageH\000\022\'\n\trecomm" +
+      "end\030\360O \001(\0132\021.RecommendMessageH\000\022.\n\rforce" +
+      "_offline\030\274P \001(\0132\024.ForceOfflineMessageH\000\022" +
+      "7\n\022active_stat_change\030\275P \001(\0132\030.ActiveSta" +
+      "tChangeMessageH\000\022.\n\rresource_lock\030\276P \001(\013" +
+      "2\024.ResourceLockMessageH\000\022.\n\rswitch_chang" +
+      "e\030\277P \001(\0132\024.SwitchChangeMessageH\000\0222\n\023mult" +
+      "i_terminal_sync\030\300P \001(\0132\022.MultiTerminalSy" +
+      "ncH\000\0229\n\023report_geo_position\030\301P \001(\0132\031.Rep" +
+      "ortGeoPositionMessageH\000\022(\n\npay_result\030\261T" +
+      " \001(\0132\021.PayResultMessageH\000\0226\n\021balance_ass" +
+      "istant\030\262T \001(\0132\030.BalanceAssistantMessageH" +
+      "\000\022,\n\014trans_notify\030\263T \001(\0132\023.TransNotifyMe" +
+      "ssageH\000B\n\n\010real_msg*\212\007\n\013MessageType\022\010\n\004C" +
+      "HAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025R" +
+      "ECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005" +
+      "STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n" +
+      "\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHOR" +
+      "T_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020\014\022\023\n\017TAKE" +
+      "_SCREENSHOT\020\r\022\026\n\022SHIPPED_EXPRESSION\020\016\022\021\n" +
+      "\rHISTORY_CLEAN\020\017\022\022\n\016REPLY_SPECIFIC\020\020\022\027\n\023" +
+      "ASSISTANT_PROMOTION\020\021\022\022\n\016REQUEST_FRIEND\020" +
+      "d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEN" +
+      "D\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROU" +
+      "P\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_G" +
+      "ROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022" +
+      "\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHA" +
+      "NGE_GROUP_META\020p\022\030\n\024CHANGE_SURVIVAL_TIME" +
+      "\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIA" +
+      "L\020w\022\010\n\004READ\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_V" +
+      "ICE_ADMINS\020z\022\026\n\022GROUP_ANNOUNCEMENT\020{\022\r\n\t" +
+      "RECOMMEND\020|\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIV" +
+      "E_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\r" +
+      "SWITCH_CHANGE\020\313\001\022\030\n\023MULTI_TERMINAL_SYNC\020" +
+      "\314\001\022\030\n\023REPORT_GEO_POSITION\020\315\001\022\017\n\nPAY_RESU" +
+      "LT\020\264\002\022\026\n\021BALANCE_ASSISTANT\020\265\002\022\021\n\014TRANS_N" +
+      "OTIFY\020\266\002*&\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022\n\n\006" +
+      "HIDDEN\020\001*\205\001\n\022ForceOfflineReason\022\014\n\010CONFL" +
+      "ICT\020\000\022\n\n\006LOCKED\020\001\022\024\n\020PASSWORD_CHANGED\020\002\022" +
+      "\025\n\021USER_DEACTIVATING\020\003\022\027\n\023BOUND_PHONE_CH" +
+      "ANGED\020\004\022\017\n\013APPEAL_PASS\020\005*\333\001\n\nRejectType\022" +
+      "\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_ME" +
+      "MBER\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_NOT_AL" +
+      "LOWED\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\017\n\013SELF_LOCKE" +
+      "D\020\005\022\021\n\rFRIEND_LOCKED\020\006\022\025\n\021FRIEND_DEACTIV" +
+      "ATE\020\007\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAIL" +
+      "ABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007P" +
+      "ASSIVE\020\001*\226\001\n\025MultiTerminalSyncType\022\023\n\017MY" +
+      "_SELF_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001\022\024" +
+      "\n\020MY_GROUP_CHANGED\020\002\022\025\n\021MY_FRIEND_DELETE" +
+      "D\020\003\022\021\n\rMY_GROUP_QUIT\020\004\022\021\n\rMY_GROUP_READ\020" +
+      "\005*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYSTE" +
+      "M\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001" +
+      "B&\n\033com.yanlong.im.utils.socketB\007MsgBean" +
+      "b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -65565,7 +66854,7 @@ public final class MsgBean {
     internal_static_AssistantMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AssistantMessage_descriptor,
-        new java.lang.String[] { "Msg", "UidList", });
+        new java.lang.String[] { "Msg", "Title", "Time", "Item", "Content", "Signature", "SignatureTime", "DispatchType", "UidList", });
     internal_static_AssistantPromotionMessage_descriptor =
       getDescriptor().getMessageTypes().get(15);
     internal_static_AssistantPromotionMessage_fieldAccessorTable = new
