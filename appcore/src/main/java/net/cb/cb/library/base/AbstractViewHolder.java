@@ -14,6 +14,6 @@ public abstract class AbstractViewHolder<T> extends RecyclerView.ViewHolder {
         super(itemView);
     }
 
-    public abstract void bindHolder(T bean);
+    public abstract void bindData(T bean);
 
 }
