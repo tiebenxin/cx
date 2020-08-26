@@ -35,7 +35,7 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
     private final Group group;
     private List<MemberUser> selectList = new ArrayList<>();
     private int currentMode = -1;//默认无选择，0 选择了所有人，1 选择群成员
-    private int MAX = 5;
+    private int MAX = 9;
     private IEditAvatarListener listener;
 
     public AdapterSelectMember(Context ctx, Group g) {

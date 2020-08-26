@@ -162,8 +162,9 @@ public class EnvelopeReceiverActivity extends AppActivity {
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        group = msgDao.getGroup4Id(gid);
-        if (group == null) {
+        group = msgDao.getSortGroup(gid);
+        List<MemberUser> memberUsers = msgDao.getMembers(gid);
+        if (group == null || memberUsers == null) {
             return;
         }
         mAdapter = new AdapterSelectMember(this, group);

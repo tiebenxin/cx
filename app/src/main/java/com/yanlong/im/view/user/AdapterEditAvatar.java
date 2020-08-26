@@ -49,7 +49,11 @@ public class AdapterEditAvatar extends AbstractRecyclerAdapter<EditAvatarBean> {
         @Override
         public void bindData(EditAvatarBean bean) {
             if (bean.getUser() != null) {
-                Glide.with(getContext()).load(bean.getUser().getHead()).apply(GlideOptionsUtil.headImageOptions()).into(ivAvatar);
+                if (bean.getDeleteCount() == 2) {
+                    Glide.with(getContext()).load(bean.getUser().getHead()).apply(GlideOptionsUtil.headImageOptions()).into(ivAvatar);
+                }else if (bean.getDeleteCount() == 1){
+                    ivAvatar.setAlpha(0.6f);
+                }
             }
         }
     }

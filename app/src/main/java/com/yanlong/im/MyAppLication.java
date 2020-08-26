@@ -74,7 +74,6 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
 
     public LocationService locationService;
-    //    public Vibrator mVibrator;
     //全局数据仓库
     public ApplicationRepository repository;
     public Handler handler = new Handler();
@@ -101,9 +100,7 @@ public class MyAppLication extends MainApplication {
         createRepository();
         initWeixinConfig();
         initRunstate();
-        initRedPacket();
-//        LogcatHelper.getInstance(this).start();
-//        initException();
+        initException();
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
             initBugly();
@@ -140,7 +137,6 @@ public class MyAppLication extends MainApplication {
         if (messageIntentService == null) {
             messageIntentService = new Intent(this, MessageIntentService.class);
         }
-//        LogUtil.getLog().i("Liszt_test", "接收到消息-启动服务");
         startService(messageIntentService);
     }
 
@@ -356,17 +352,6 @@ public class MyAppLication extends MainApplication {
         myException.init(getApplicationContext());
     }
 
-    /***
-     * 初始化红包
-     */
-    private void initRedPacket() {
-        //改为正式环境
-//        JrmfClient.isDebug(false);
-//        /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
-//        JrmfClient.init(this);
-//        com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);
-
-    }
 
     private void initUPushPre() {
         UMConfigure.init(this, "5d53659c570df3d281000225",

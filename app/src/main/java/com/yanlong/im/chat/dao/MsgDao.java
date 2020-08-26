@@ -3657,4 +3657,50 @@ public class MsgDao {
         realm.close();
         return memberUsers;
     }
+
+    public List<MemberUser> getMembers(String gid) {
+        if (TextUtils.isEmpty(gid)) {
+            return null;
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null && group.getUsers() != null) {
+            String[] orderFiled = {"tag"};
+            Sort[] sorts = {Sort.ASCENDING};
+            RealmResults<MemberUser> members = group.getUsers().sort(orderFiled, sorts);
+            if (members != null) {
+                memberUsers = realm.copyFromRealm(members);
+            }
+        }
+        realm.close();
+        return memberUsers;
+    }
+
+    //获取群成员被首字母排序的group
+    public Group getSortGroup(String gid) {
+        if (TextUtils.isEmpty(gid)) {
+            return null;
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group resultGroup = null;
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null) {
+            resultGroup = realm.copyFromRealm(group);
+            if (group.getUsers() != null) {
+                String[] orderFiled = {"tag"};
+                Sort[] sorts = {Sort.ASCENDING};
+                RealmResults<MemberUser> members = group.getUsers().sort(orderFiled, sorts);
+                if (members != null) {
+                    memberUsers = realm.copyFromRealm(members);
+                    RealmList<MemberUser> resultMembers = new RealmList<>();
+                    resultMembers.addAll(memberUsers);
+                    resultGroup.setUsers(resultMembers);
+                }
+            }
+        }
+        realm.close();
+        return resultGroup;
+    }
 }
