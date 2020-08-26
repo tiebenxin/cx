@@ -1859,8 +1859,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
                             if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
                                     || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER || bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
-                                    || bean.getMsg_type() == ChatEnum.EMessageType.STAMP || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
-                                    || bean.getSend_state() == ChatEnum.ESendStatus.ERROR) {
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.STAMP || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
                                 haveDisallowedMsg = true;
                                 break;
                             }
@@ -1891,8 +1890,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
                             if (bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD || bean.getMsg_type() == ChatEnum.EMessageType.STAMP
                                     || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER
-                                    || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
-                                    || bean.getSend_state() == ChatEnum.ESendStatus.ERROR) {
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
                                 haveDisallowedMsg = true;
                                 break;
                             }
@@ -5983,16 +5981,18 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void onOneForward() {
                 List<MsgAllBean> list = mAdapter.getSelectedMsg();
                 if (list != null && list.size() > 0) {
-                    //过滤掉语音消息
+                    //过滤掉不符合类型和发送失败状态消息
                     Iterator<MsgAllBean> iterator = list.iterator();
                     while (iterator.hasNext()) {
                         MsgAllBean obj = iterator.next();
-                        if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                        if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE || obj.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
+                                || obj.getMsg_type() == ChatEnum.EMessageType.TRANSFER || obj.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
+                                || obj.getMsg_type() == ChatEnum.EMessageType.STAMP || obj.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
+                                || obj.getSend_state() == ChatEnum.ESendStatus.ERROR) {
                             iterator.remove();
                         }
                     }
                     //过滤后若仍存在元素则允许转发
-
                     if (list.size() > 0) {
                         onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
                     }
@@ -6891,7 +6891,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量收藏提示弹框
      */
     private void showCollectListDialog() {
-        dialogTwo = builder.setTitle("暂不支持收藏：个人名片/回复/戳一下/红包/\n转账/音视频通话/以及发送失败的消息，\n本次收藏将会过滤掉此类型消息。")
+        dialogTwo = builder.setTitle("你所选的消息包含了不支持收藏的类型。\n系统已自动过滤此类型消息。")
                 .setRightText("确定")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
@@ -6911,8 +6911,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量转发提示弹框
      */
     private void showForwardListDialog() {
-        dialogThree = builder.setTitle("暂不支持转发：红包/转账/语音/个人名片/\n戳一下/音视频通话/以及发送失败的消息，\n本次转发将会过滤掉此类型消息。")
-                .setRightText("确定")
+        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型。\n系统已自动过滤此类型消息。")
+                .setRightText("继续发送")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     showForwardDialog();
