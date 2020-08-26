@@ -1857,7 +1857,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     if (mAdapter.getSelectedMsg().size() > 0) {
                         boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
                         for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
-                            if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                            if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER || bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.STAMP || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO ) {
                                 haveDisallowedMsg = true;
                                 break;
                             }
@@ -6908,16 +6910,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量转发提示弹框
      */
     private void showForwardListDialog() {
-        dialogThree = builder.setTitle("暂不支持转发：语音消息，\n本次转发将会过滤掉此类型消息。")
+        dialogThree = builder.setTitle("暂不支持转发：红包/转账/语音/\n个人名片/戳一下/音视频通话消息，\n本次转发将会过滤掉此类型消息。")
                 .setRightText("确定")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     showForwardDialog();
                     dialogThree.dismiss();
                 })
-                .setLeftOnClickListener(v -> {
-                    dialogThree.dismiss();
-                })
+                .setLeftOnClickListener(v ->
+                    dialogThree.dismiss()
+                )
                 .build();
         dialogThree.show();
     }
