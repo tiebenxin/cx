@@ -3835,7 +3835,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     @Override
     public void clickAddFriend(String uid) {
-        if (mAdapter != null && mAdapter.isShowCheckBox()){
+        if (mAdapter != null && mAdapter.isShowCheckBox()) {
             return;
         }
         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
@@ -6928,23 +6928,21 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             return;
         }
         UserInfo userInfo = userAction.getUserInfoInLocal(uid);
-        String content = "我是" + myInfo.getName();
-        Intent intent = new Intent(ChatActivity.this, FriendVerifyActivity.class);
-        intent.putExtra(FriendVerifyActivity.CONTENT, content);
-        intent.putExtra(FriendVerifyActivity.USER_ID, uid);
-        if (userInfo != null) {
-            intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfo.getName());
+        if (userInfo != null && userInfo.getuType() == ChatEnum.EUserType.FRIEND) {
+            if (uid != null) {
+                toUserInfoActivity(uid);
+            }
+        } else {
+            String content = "我是" + myInfo.getName();
+            Intent intent = new Intent(ChatActivity.this, FriendVerifyActivity.class);
+            intent.putExtra(FriendVerifyActivity.CONTENT, content);
+            intent.putExtra(FriendVerifyActivity.USER_ID, uid);
+            if (userInfo != null) {
+                intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfo.getName());
+            }
+            startActivityForResult(intent, 1);
         }
-        startActivityForResult(intent, 1);
     }
-
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void eventRunState(EventRunState event) {
-//        LogUtil.getLog().i(TAG, "连接LOG_切换前后台--注册监听");
-//        if (!event.getRun()) {
-//            onlineState = false;
-//        }
-//    }
 
     @Override
     public void switchAppStatus(boolean isRun) {
