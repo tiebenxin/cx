@@ -87,7 +87,9 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         phone = getIntent().getStringExtra(PHONE);
         if (!TextUtils.isEmpty(phone)) {
             mEtPhoneContent.setText(phone);
-            mEtPhoneContent.setSelection(phone.length());
+            if(phone.length()<=11){ //TODO bugly #284425
+                mEtPhoneContent.setSelection(phone.length());
+            }
         }
 
     }

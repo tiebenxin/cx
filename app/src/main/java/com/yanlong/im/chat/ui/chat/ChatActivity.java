@@ -1066,7 +1066,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
-                                needRefresh = msg.getFromUid() == toUId.longValue();
+                                if(toUId!=null){ //TODO bugly #324411
+                                    if(msg.getFromUid() == toUId.longValue()){
+                                        needRefresh = true;
+                                    }
+                                }
                             }
 
                             if (msg.getMsgType() == MsgBean.MessageType.OUT_GROUP) {//提出群的消息是以个人形式发的
@@ -6103,7 +6107,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 case ChatEnum.ECellEventType.CARD_CLICK:
                     if (args[0] != null && args[0] instanceof BusinessCardMessage) {
                         BusinessCardMessage card = (BusinessCardMessage) args[0];
-                        if (card.getUid().longValue() != UserAction.getMyId().longValue()) {
+                        if (card.getUid()!=null && card.getUid().longValue() != UserAction.getMyId().longValue()) { //TODO bugly #324411
                             if (isGroup() && !master.equals(card.getUid().toString())) {
                                 startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
                                         card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
