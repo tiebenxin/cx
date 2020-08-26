@@ -1859,7 +1859,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
                             if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
                                     || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER || bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
-                                    || bean.getMsg_type() == ChatEnum.EMessageType.STAMP || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO ) {
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.STAMP || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
+                                    || bean.getSend_state() == ChatEnum.ESendStatus.ERROR) {
                                 haveDisallowedMsg = true;
                                 break;
                             }
@@ -1888,10 +1889,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     if (mAdapter.getSelectedMsg().size() > 0) {
                         boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
                         for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
-                            if (bean.getMsg_type() != ChatEnum.EMessageType.TEXT && bean.getMsg_type() != ChatEnum.EMessageType.AT
-                                    && bean.getMsg_type() != ChatEnum.EMessageType.VOICE && bean.getMsg_type() != ChatEnum.EMessageType.LOCATION
-                                    && bean.getMsg_type() != ChatEnum.EMessageType.IMAGE && bean.getMsg_type() != ChatEnum.EMessageType.MSG_VIDEO
-                                    && bean.getMsg_type() != ChatEnum.EMessageType.FILE && bean.getMsg_type() != ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                            if (bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD || bean.getMsg_type() == ChatEnum.EMessageType.STAMP
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
+                                    || bean.getSend_state() == ChatEnum.ESendStatus.ERROR) {
                                 haveDisallowedMsg = true;
                                 break;
                             }
@@ -6890,7 +6891,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量收藏提示弹框
      */
     private void showCollectListDialog() {
-        dialogTwo = builder.setTitle("暂不支持收藏：个人名片/回复/戳一下/\n红包/转账/音视频通话/系统消息，\n本次转发将会过滤掉此类型消息。")
+        dialogTwo = builder.setTitle("暂不支持收藏：个人名片/回复/戳一下/红包/\n转账/音视频通话/以及发送失败的消息，\n本次收藏将会过滤掉此类型消息。")
                 .setRightText("确定")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
@@ -6910,7 +6911,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量转发提示弹框
      */
     private void showForwardListDialog() {
-        dialogThree = builder.setTitle("暂不支持转发：红包/转账/语音/\n个人名片/戳一下/音视频通话消息，\n本次转发将会过滤掉此类型消息。")
+        dialogThree = builder.setTitle("暂不支持转发：红包/转账/语音/个人名片/\n戳一下/音视频通话/以及发送失败的消息，\n本次转发将会过滤掉此类型消息。")
                 .setRightText("确定")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
