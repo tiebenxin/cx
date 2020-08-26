@@ -71,6 +71,7 @@
                     android:layout_height="match_parent"
                     android:singleLine="true"
                     android:textSize="16sp"
+                    android:maxLength="60"
                     android:text=""
                     android:background="@null" />
 

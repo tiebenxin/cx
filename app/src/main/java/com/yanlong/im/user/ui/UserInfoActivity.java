@@ -423,18 +423,21 @@ public class UserInfoActivity extends AppActivity {
                 if (TextUtils.isEmpty(userName)) {
                     userName = myInfo.getName();
                 }
-                content = "我是" + "\"" + name + "\"" + "的" + userName;
+                content = "我是群聊" + "\"" + name + "\"" + "的" + userName;
             }
         }
         Intent intent = new Intent(UserInfoActivity.this, FriendVerifyActivity.class);
         intent.putExtra(FriendVerifyActivity.CONTENT, content);
         intent.putExtra(FriendVerifyActivity.USER_ID, id);
         if (userInfoLocal != null) {
-            intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfoLocal.getName());
+            if (TextUtils.isEmpty(mAlias)) {
+                intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfoLocal.getName());
+            } else {
+                intent.putExtra(FriendVerifyActivity.NICK_NAME, mAlias);
+            }
         }
         startActivityForResult(intent, SEND_VERIFY);
     }
-
 
     private void initData() {
         userAction = new UserAction();
@@ -514,7 +517,7 @@ public class UserInfoActivity extends AppActivity {
                 mTvRemark.setVisibility(View.VISIBLE);
                 mTvRemark.setTextColor(getColor(R.color.gray_300));
                 mTvRemark.setText(sayHi);
-                if (sayHi.startsWith("我是")) {
+                if (sayHi.startsWith("我是") && !sayHi.startsWith("我是群聊")) {
                     mEtNote.setHint(sayHi.substring(2));
                     userNote = sayHi.substring(2);
                 } else {

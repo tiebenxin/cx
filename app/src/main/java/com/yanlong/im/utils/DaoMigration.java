@@ -6,6 +6,8 @@ import com.yanlong.im.chat.bean.MemberUser;
 
 import net.cb.cb.library.utils.LogUtil;
 
+import java.util.List;
+
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
@@ -200,6 +202,10 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 44) {
                 updateV45(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 45) {
+                updateV46(schema);
                 oldVersion++;
             }
         }
@@ -829,6 +835,21 @@ public class DaoMigration implements RealmMigration {
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
         schema.get("EnvelopeInfo")
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
+    }
+
+    // 小助手新版
+    private final void updateV46(RealmSchema schema) {
+        schema.get("AssistantMessage")
+                .addField("version", int.class)
+                .addField("title", String.class)
+                .addField("time", long.class)
+                .addField("content", String.class)
+                .addField("signature", String.class)
+                .addField("signature_time", long.class)
+                .addField("items", String.class);
+
+        schema.get("RedEnvelopeMessage")
+                .addRealmListField("canReview", int.class);
     }
 
 
