@@ -26,6 +26,7 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     private int envelopStatus;// 红包状态：0-正常， 1-已领取  2-已过期
     String sign;//签名信息
     private RealmList<MemberUser> allowUsers;//设置红包领取人
+    private int canReview;//是否可以查看详情，0 不可，1 可以
 
     public int getStyle() {
         return style;
@@ -126,6 +127,14 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
 
     public void setAllowUsers(RealmList<MemberUser> allowUsers) {
         this.allowUsers = allowUsers;
+    }
+
+    public int getCanReview() {
+        return canReview;
+    }
+
+    public void setCanReview(int canReview) {
+        this.canReview = canReview;
     }
 
     @Override

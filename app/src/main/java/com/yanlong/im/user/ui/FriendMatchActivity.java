@@ -341,8 +341,10 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
             holder.viewRoot.setOnClickListener(o -> {
                 if (!DoubleUtils.isFastDoubleClick()) {
                     if (!bean.isRegister()) {
-                        startActivity(new Intent(context, UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, bean.getUid()));
+                        Intent intent = new Intent(context, UserInfoActivity.class);
+                        intent.putExtra(UserInfoActivity.ID, bean.getUid());
+                        intent.putExtra(UserInfoActivity.ALIAS, bean.getPhoneremark());
+                        startActivity(intent);
                     }
                 }
             });

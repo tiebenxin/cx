@@ -164,6 +164,7 @@ public class FriendApplyAcitvity extends AppActivity {
                         Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
                         intent.putExtra(UserInfoActivity.ID, bean.getUid());
                         intent.putExtra(UserInfoActivity.SAY_HI, bean.getSayHi());
+                        intent.putExtra(UserInfoActivity.ALIAS, bean.getAlias());
                         if (bean.getStat() == 2) {
                             intent.putExtra(UserInfoActivity.IS_APPLY, 0);
                         } else {
@@ -321,7 +322,7 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
     private void taskFriendAgree(ApplyBean bean) {
-        userAction.friendAgree(bean.getUid(), bean.getAlias(), new CallBack<ReturnBean>() {
+        userAction.friendAgree(bean.getUid(), bean.getAlias(), bean.getNickname(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

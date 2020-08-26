@@ -612,8 +612,22 @@ public class MsgConversionBean {
                 break;
             case ASSISTANT:
                 AssistantMessage assistant = new AssistantMessage();
-                assistant.setMsg(bean.getAssistant().getMsg());
+                MsgBean.AssistantMessage assistantMsg = bean.getAssistant();
+                assistant.setVersion(1);// 新版小助手标识
+                assistant.setMsg(assistantMsg.getMsg());
                 assistant.setMsgId(bean.getMsgId());
+                assistant.setContent(assistantMsg.getContent());
+                assistant.setDispatch_type(assistantMsg.getDispatchType());
+                String assisItems = GsonUtils.optObject(assistantMsg.getItemList());
+                if (!TextUtils.isEmpty(assisItems)) {
+                    assistant.setItems(assisItems);
+                }
+                assistant.setSignature(assistantMsg.getSignature());
+                assistant.setTime(assistantMsg.getTime());
+                assistant.setSignature_time(assistantMsg.getSignatureTime());
+                assistant.setUid_list(assistantMsg.getUidListList());
+                assistant.setTitle(assistantMsg.getTitle());
+
                 msgAllBean.setMsg_type(EMessageType.ASSISTANT);
                 msgAllBean.setAssistantMessage(assistant);
                 break;

@@ -1070,7 +1070,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
-                                needRefresh = msg.getFromUid() == toUId.longValue();
+                                if(toUId!=null){ //TODO bugly #324411
+                                    if(msg.getFromUid() == toUId.longValue()){
+                                        needRefresh = true;
+                                    }
+                                }
                             }
 
                             if (msg.getMsgType() == MsgBean.MessageType.OUT_GROUP) {//提出群的消息是以个人形式发的
@@ -1861,7 +1865,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     if (mAdapter.getSelectedMsg().size() > 0) {
                         boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
                         for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
-                            if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                            if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER || bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.STAMP || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
                                 haveDisallowedMsg = true;
                                 break;
                             }
@@ -1890,10 +1896,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     if (mAdapter.getSelectedMsg().size() > 0) {
                         boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
                         for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
-                            if (bean.getMsg_type() != ChatEnum.EMessageType.TEXT && bean.getMsg_type() != ChatEnum.EMessageType.AT
-                                    && bean.getMsg_type() != ChatEnum.EMessageType.VOICE && bean.getMsg_type() != ChatEnum.EMessageType.LOCATION
-                                    && bean.getMsg_type() != ChatEnum.EMessageType.IMAGE && bean.getMsg_type() != ChatEnum.EMessageType.MSG_VIDEO
-                                    && bean.getMsg_type() != ChatEnum.EMessageType.FILE && bean.getMsg_type() != ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                            if (bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD || bean.getMsg_type() == ChatEnum.EMessageType.STAMP
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER
+                                    || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
                                 haveDisallowedMsg = true;
                                 break;
                             }
@@ -3872,7 +3877,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     @Override
     public void clickAddFriend(String uid) {
-        if (mAdapter != null && mAdapter.isShowCheckBox()){
+        if (mAdapter != null && mAdapter.isShowCheckBox()) {
             return;
         }
         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
@@ -4353,10 +4358,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
-        if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
+        if (type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
-                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.TRANSFER || !isEixt()) {
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER || !isEixt()) {
             return true;
         }
         return false;
@@ -6066,16 +6071,18 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void onOneForward() {
                 List<MsgAllBean> list = mAdapter.getSelectedMsg();
                 if (list != null && list.size() > 0) {
-                    //过滤掉语音消息
+                    //过滤掉不符合类型和发送失败状态消息
                     Iterator<MsgAllBean> iterator = list.iterator();
                     while (iterator.hasNext()) {
                         MsgAllBean obj = iterator.next();
-                        if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                        if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE || obj.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
+                                || obj.getMsg_type() == ChatEnum.EMessageType.TRANSFER || obj.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
+                                || obj.getMsg_type() == ChatEnum.EMessageType.STAMP || obj.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
+                                || obj.getSend_state() == ChatEnum.ESendStatus.ERROR) {
                             iterator.remove();
                         }
                     }
                     //过滤后若仍存在元素则允许转发
-
                     if (list.size() > 0) {
                         onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
                     }
@@ -6186,7 +6193,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 case ChatEnum.ECellEventType.CARD_CLICK:
                     if (args[0] != null && args[0] instanceof BusinessCardMessage) {
                         BusinessCardMessage card = (BusinessCardMessage) args[0];
-                        if (card.getUid().longValue() != UserAction.getMyId().longValue()) {
+                        if (card.getUid()!=null && card.getUid().longValue() != UserAction.getMyId().longValue()) { //TODO bugly #324411
                             if (isGroup() && !master.equals(card.getUid().toString())) {
                                 startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
                                         card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
@@ -6981,8 +6988,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量收藏提示弹框
      */
     private void showCollectListDialog() {
-        dialogTwo = builder.setTitle("暂不支持收藏：个人名片/回复/戳一下/\n红包/转账/音视频通话/系统消息，\n本次转发将会过滤掉此类型消息。")
-                .setRightText("确定")
+        dialogTwo = builder.setTitle("你所选的消息包含了不支持收藏的类型。\n系统已自动过滤此类型消息。")
+                .setRightText("收藏")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     //多选直接调批量收藏接口
@@ -7001,16 +7008,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量转发提示弹框
      */
     private void showForwardListDialog() {
-        dialogThree = builder.setTitle("暂不支持转发：语音消息，\n本次转发将会过滤掉此类型消息。")
-                .setRightText("确定")
+        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型。\n系统已自动过滤此类型消息。")
+                .setRightText("继续发送")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     showForwardDialog();
                     dialogThree.dismiss();
                 })
-                .setLeftOnClickListener(v -> {
-                    dialogThree.dismiss();
-                })
+                .setLeftOnClickListener(v ->
+                        dialogThree.dismiss()
+                )
                 .build();
         dialogThree.show();
     }
@@ -7021,23 +7028,21 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             return;
         }
         UserInfo userInfo = userAction.getUserInfoInLocal(uid);
-        String content = "我是" + myInfo.getName();
-        Intent intent = new Intent(ChatActivity.this, FriendVerifyActivity.class);
-        intent.putExtra(FriendVerifyActivity.CONTENT, content);
-        intent.putExtra(FriendVerifyActivity.USER_ID, uid);
-        if (userInfo != null) {
-            intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfo.getName());
+        if (userInfo != null && userInfo.getuType() == ChatEnum.EUserType.FRIEND) {
+            if (uid != null) {
+                toUserInfoActivity(uid);
+            }
+        } else {
+            String content = "我是" + myInfo.getName();
+            Intent intent = new Intent(ChatActivity.this, FriendVerifyActivity.class);
+            intent.putExtra(FriendVerifyActivity.CONTENT, content);
+            intent.putExtra(FriendVerifyActivity.USER_ID, uid);
+            if (userInfo != null) {
+                intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfo.getName());
+            }
+            startActivityForResult(intent, 1);
         }
-        startActivityForResult(intent, 1);
     }
-
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void eventRunState(EventRunState event) {
-//        LogUtil.getLog().i(TAG, "连接LOG_切换前后台--注册监听");
-//        if (!event.getRun()) {
-//            onlineState = false;
-//        }
-//    }
 
     @Override
     public void switchAppStatus(boolean isRun) {
