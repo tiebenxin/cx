@@ -78,7 +78,7 @@ public interface UserServer {
 
     @POST("/friends/accept-friend")
     @FormUrlEncoded
-    Call<ReturnBean> acceptFriend(@Field("friend") Long uid, @Field("contactName") String contactName);
+    Call<ReturnBean> acceptFriend(@Field("friend") Long uid, @Field("contactName") String contactName, @Field("alias") String alias);
 
     @POST("/friends/add-black-list")
     @FormUrlEncoded

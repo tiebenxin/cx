@@ -335,7 +335,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             Intent intent = new Intent();
             Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
             String savePath = saveImage(bitmap, 100);
-            Log.i("1212", "savePath:" + savePath);
             intent.putExtra("showResult", true);
             intent.putExtra("showPath", savePath);
             intent.putExtra("index", index);
