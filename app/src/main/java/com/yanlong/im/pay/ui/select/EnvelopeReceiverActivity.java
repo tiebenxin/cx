@@ -14,7 +14,6 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityEnvelopeReceiverBinding;
-import com.yanlong.im.view.user.SearchAndEditAvatarView;
 
 import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -163,8 +162,7 @@ public class EnvelopeReceiverActivity extends AppActivity {
             return;
         }
         group = msgDao.getSortGroup(gid);
-        List<MemberUser> memberUsers = msgDao.getMembers(gid);
-        if (group == null || memberUsers == null) {
+        if (group == null || group.getUsers() == null) {
             return;
         }
         mAdapter = new AdapterSelectMember(this, group);

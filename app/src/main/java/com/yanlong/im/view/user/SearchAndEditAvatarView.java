@@ -2,7 +2,6 @@ package com.yanlong.im.view.user;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -11,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.pay.ui.select.IEditAvatarListener;
 
 import net.cb.cb.library.utils.LogUtil;
@@ -37,14 +38,15 @@ public class SearchAndEditAvatarView extends LinearLayout {
     private final String TAG = getClass().getSimpleName();
 
     private View viewRoot;
-    private RecyclerView recyclerView;
     private ImageView ivSearch;
     private ClearEditText etSearch;
-    private AdapterEditAvatar mAdapter;
+    private EditAvatarAdapter mAdapter;
     private List<EditAvatarBean> userList = new ArrayList<>();
     private IEditAvatarListener listener;
     private LinearLayout llSearch;
-    private LinearLayoutManager manager;
+    private HorizontalScrollView scrollView;
+    private LinearLayout llList;
+    private ControllerLinearList viewList;
 
     public SearchAndEditAvatarView(Context context) {
         this(context, null);
@@ -61,15 +63,16 @@ public class SearchAndEditAvatarView extends LinearLayout {
 
     private void initView() {
         viewRoot = LayoutInflater.from(getContext()).inflate(R.layout.view_edit_avatar, this, true);
-        recyclerView = viewRoot.findViewById(R.id.recycler_view);
         llSearch = viewRoot.findViewById(R.id.ll_search);
         ivSearch = viewRoot.findViewById(R.id.iv_search);
         etSearch = viewRoot.findViewById(R.id.et_search);
-        manager = new LinearLayoutManager(getContext());
-        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        recyclerView.setLayoutManager(manager);
-        mAdapter = new AdapterEditAvatar(getContext());
-        recyclerView.setAdapter(mAdapter);
+
+        scrollView = viewRoot.findViewById(R.id.sv_view);
+        llList = viewRoot.findViewById(R.id.ll_list);
+        viewList = new ControllerLinearList(llList);
+        mAdapter = new EditAvatarAdapter(getContext());
+        viewList.setAdapter(mAdapter);
+
         etSearch.setOnKeyListener(new OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -162,13 +165,13 @@ public class SearchAndEditAvatarView extends LinearLayout {
 
     public void updateXY() {
         int screenWidth = ScreenUtil.getScreenWidth(getContext());
-        int recyclerWidth = recyclerView.getWidth();
+        int recyclerWidth = scrollView.getWidth();
         int maxWidth = screenWidth - 150;
         if (recyclerWidth >= maxWidth) {
-            ViewGroup.LayoutParams layoutParams = recyclerView.getLayoutParams();
+            ViewGroup.LayoutParams layoutParams = scrollView.getLayoutParams();
             layoutParams.width = maxWidth;
-            recyclerView.setLayoutParams(layoutParams);
-            scrollRecycler(recyclerWidth - maxWidth);
+            scrollView.setLayoutParams(layoutParams);
+            scrollRecycler();
         } else {
             ViewGroup.LayoutParams layoutParams = llSearch.getLayoutParams();
             layoutParams.width = screenWidth - recyclerWidth;
@@ -180,22 +183,18 @@ public class SearchAndEditAvatarView extends LinearLayout {
         int screenWidth = ScreenUtil.getScreenWidth(getContext());
         ViewGroup.LayoutParams layoutParams = llSearch.getLayoutParams();
         layoutParams.width = screenWidth;
-        recyclerView.setLayoutParams(layoutParams);
+        scrollView.setLayoutParams(layoutParams);
     }
 
-    private void scrollRecycler(int scrollX) {
+    private void scrollRecycler() {
         if (userList.size() > 0) {
             //父布局不拦截子控件触摸事件
-//            this.requestDisallowInterceptTouchEvent(true);
-//            recyclerView.requestFocus();
-            recyclerView.postDelayed(new Runnable() {
+            scrollView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    manager.scrollToPosition(userList.size());
-//            recyclerView.scrollToPosition(userList.size());
-//            recyclerView.scrollBy(scrollX, 0);
+                    scrollView.fullScroll(View.FOCUS_RIGHT);
                 }
-            }, 500);
+            }, 100);
 
         }
     }
