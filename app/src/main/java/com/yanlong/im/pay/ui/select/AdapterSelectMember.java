@@ -36,6 +36,7 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
     private List<MemberUser> selectList = new ArrayList<>();
     private int currentMode = -1;//默认无选择，0 选择了所有人，1 选择群成员
     private int MAX = 5;
+    private IEditAvatarListener listener;
 
     public AdapterSelectMember(Context ctx, Group g) {
         super(ctx);
@@ -89,33 +90,45 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
             if (mode == 0) {
                 if (selectList.size() > 0) {
                     selectList.clear();
+                    if (listener != null) {
+                        listener.clear();
+                    }
                 }
             } else if (mode == 1) {
                 if (selectList.size() > 0) {
                     selectList.clear();
                 }
                 selectList.add(user);
+                if (listener != null) {
+                    listener.add(user);
+                }
             }
             notifyDataSetChanged();
         } else {
             if (mode == 1) {
                 if (selectList.contains(user)) {
                     selectList.remove(user);
+                    if (listener != null) {
+                        listener.remove(user);
+                    }
                 } else {
                     if (selectList.size() < MAX) {
                         selectList.add(user);
+                        if (listener != null) {
+                            listener.add(user);
+                        }
                     } else {
                         ToastUtil.show(getContext(), "最多选择5人");
                     }
                 }
             }
         }
-
     }
 
     public void switchModel(int model) {
         currentMode = model;
     }
+
 
     public int getMode() {
         if (currentMode == -1) {
@@ -123,6 +136,19 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
         } else {
             return currentMode;
         }
+    }
+
+    public void removeMember(MemberUser user) {
+        if (currentMode == 1) {
+            if (selectList.contains(user)) {
+                selectList.remove(user);
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+    public void setListener(IEditAvatarListener l) {
+        listener = l;
     }
 
 
@@ -172,8 +198,12 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
+                    if (!ivSelect.isSelected() && selectList.size() < MAX) {
+                        ivSelect.setSelected(!ivSelect.isSelected());
+                    } else if (ivSelect.isSelected()) {
+                        ivSelect.setSelected(!ivSelect.isSelected());
+                    }
                     switchSelectMode(1, bean);
-                    ivSelect.setSelected(!ivSelect.isSelected());
                 }
             });
             if (selectList.contains(bean)) {
@@ -182,7 +212,6 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
                 ivSelect.setSelected(false);
             }
         }
-
     }
 
     public ArrayList<FromUserBean> getSelectList() {

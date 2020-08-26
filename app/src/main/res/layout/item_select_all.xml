@@ -2,18 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_root"
     style="@style/app_layout_list2_item"
-    android:paddingRight="0dp"
-    android:minHeight="68dp">
+    android:layout_height="68dp"
+    android:minHeight="68dp"
+    android:paddingRight="0dp">
 
     <com.yanlong.im.wight.avatar.MultiImageView
         android:id="@+id/iv_avatar"
-        style="@style/app_img_head" />
+        style="@style/app_img_head"
+        android:layout_width="39dp"
+        android:layout_height="39dp" />
 
     <TextView
         style="@style/app_txt_title_2"
         android:layout_width="0dp"
-        android:layout_weight="1"
         android:layout_marginLeft="12dp"
+        android:layout_weight="1"
         android:text="群内所有人" />
 
     <ImageView

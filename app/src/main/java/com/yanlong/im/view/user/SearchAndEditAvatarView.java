@@ -4,16 +4,22 @@ import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.pay.ui.select.IEditAvatarListener;
 
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ClearEditText;
 
 import java.util.ArrayList;
@@ -32,6 +38,7 @@ public class SearchAndEditAvatarView extends LinearLayout {
     private ClearEditText etSearch;
     private AdapterEditAvatar mAdapter;
     private List<EditAvatarBean> userList = new ArrayList<>();
+    private IEditAvatarListener listener;
 
     public SearchAndEditAvatarView(Context context) {
         this(context, null);
@@ -56,11 +63,34 @@ public class SearchAndEditAvatarView extends LinearLayout {
         recyclerView.setLayoutManager(manager);
         mAdapter = new AdapterEditAvatar(getContext());
         recyclerView.setAdapter(mAdapter);
-//        etSearch.setLIs
+        etSearch.setOnKeyListener(new OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (etSearch.getText().length() > 0) {
+                    return false;
+                } else {
+                    if (keyCode == KeyEvent.KEYCODE_DEL) {
+                        if (ViewUtils.isFastDoubleClick()) {
+                            return false;
+                        }
+                        LogUtil.getLog().i("EditView", "KEYCODE_DEL");
+                        deleteUser();
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     public void addUser(MemberUser user) {
         userList.add(new EditAvatarBean(user));
+        showSearchIcon(false);
+        mAdapter.bindData(userList);
+    }
+
+    public void clear() {
+        userList.clear();
+        showSearchIcon(true);
         mAdapter.bindData(userList);
     }
 
@@ -68,14 +98,22 @@ public class SearchAndEditAvatarView extends LinearLayout {
     private void deleteUser() {
         if (userList != null || userList.size() > 0) {
             int len = userList.size();
-            EditAvatarBean bean = userList.get(len - 1);
-            if (bean.getDeleteCount() > 1) {
-                int count = bean.getDeleteCount() - 1;
-                bean.setDeleteCount(count);
-            } else {
-                userList.remove(bean);
+            if (len > 0) {
+                EditAvatarBean bean = userList.get(len - 1);
+                if (bean.getDeleteCount() > 1) {
+                    int count = bean.getDeleteCount() - 1;
+                    bean.setDeleteCount(count);
+                } else {
+                    userList.remove(bean);
+                    if (userList.size() == 0) {
+                        showSearchIcon(true);
+                    }
+                    if (listener != null) {
+                        listener.remove(bean.getUser());
+                    }
+                }
+                mAdapter.bindData(userList);
             }
-            mAdapter.bindData(userList);
         }
     }
 
@@ -84,4 +122,14 @@ public class SearchAndEditAvatarView extends LinearLayout {
         userList.remove(bean);
         mAdapter.bindData(userList);
     }
+
+    public void setListener(IEditAvatarListener l) {
+        listener = l;
+    }
+
+    public void showSearchIcon(boolean b) {
+        ivSearch.setVisibility(b ? VISIBLE : GONE);
+    }
+
+
 }

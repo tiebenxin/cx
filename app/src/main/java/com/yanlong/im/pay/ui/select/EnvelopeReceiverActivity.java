@@ -14,7 +14,9 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityEnvelopeReceiverBinding;
+import com.yanlong.im.view.user.SearchAndEditAvatarView;
 
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -95,6 +97,63 @@ public class EnvelopeReceiverActivity extends AppActivity {
                 intent.putExtras(bundle);
                 setResult(RESULT_OK, intent);
                 finish();
+            }
+        });
+
+        ui.viewEditAvatar.setListener(new IEditAvatarListener() {
+
+            @Override
+            public void remove(MemberUser user) {
+                if (mAdapter != null && user != null) {
+                    ThreadUtil.getInstance().runMainThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.removeMember(user);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void add(MemberUser user) {
+
+            }
+
+            @Override
+            public void clear() {
+
+            }
+        });
+
+        mAdapter.setListener(new IEditAvatarListener() {
+            @Override
+            public void remove(MemberUser user) {
+                ThreadUtil.getInstance().runMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ui.viewEditAvatar.removeUser(user);
+                    }
+                });
+            }
+
+            @Override
+            public void add(MemberUser user) {
+                ThreadUtil.getInstance().runMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ui.viewEditAvatar.addUser(user);
+                    }
+                });
+            }
+
+            @Override
+            public void clear() {
+                ThreadUtil.getInstance().runMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ui.viewEditAvatar.clear();
+                    }
+                });
             }
         });
     }
