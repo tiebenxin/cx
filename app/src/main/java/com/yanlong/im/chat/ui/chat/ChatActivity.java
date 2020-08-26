@@ -6917,9 +6917,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     showForwardDialog();
                     dialogThree.dismiss();
                 })
-                .setLeftOnClickListener(v -> {
-                    dialogThree.dismiss();
-                })
+                .setLeftOnClickListener(v ->
+                    dialogThree.dismiss()
+                )
                 .build();
         dialogThree.show();
     }
