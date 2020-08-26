@@ -849,7 +849,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("items", String.class);
 
         schema.get("RedEnvelopeMessage")
-                .addRealmListField("canReview", int.class);
+                .addField("canReview", int.class);
     }
 
 
