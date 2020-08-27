@@ -255,6 +255,7 @@ public class MsgConversionBean {
                         envelopeMessage.setAllowUsers(allowUsers);
                         if (!allowMe) {
                             envelopeMessage.setEnvelopStatus(PayEnum.EEnvelopeStatus.NO_ALLOW);
+                            envelopeMessage.setCanReview(0);
                         }
                     }
                 }

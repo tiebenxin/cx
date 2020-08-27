@@ -1070,8 +1070,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
-                                if(toUId!=null){ //TODO bugly #324411
-                                    if(msg.getFromUid() == toUId.longValue()){
+                                if (toUId != null) { //TODO bugly #324411
+                                    if (msg.getFromUid() == toUId.longValue()) {
                                         needRefresh = true;
                                     }
                                 }
@@ -5223,6 +5223,30 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         });
     }
 
+    /***
+     * 红包是否已经被抢,红包改为失效
+     * @param rid
+     */
+    private void updateEnvelopeDetail(MsgAllBean msgAllBean, String rid, int reType, String token, int envelopeStatus, int canReview) {
+        if (envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL) {
+            msgAllBean.getRed_envelope().setIsInvalid(1);
+            msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
+        }
+        if (!TextUtils.isEmpty(token)) {
+            msgAllBean.getRed_envelope().setAccessToken(token);
+        }
+        if (canReview == 1) {
+            msgAllBean.getRed_envelope().setCanReview(canReview);
+        }
+        msgDao.updateEnvelopeDetail(rid, envelopeStatus, reType, token, canReview);
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                replaceListDataAndNotify(msgAllBean);
+            }
+        });
+    }
+
     //抢红包后，更新红包token
     private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
         if (!TextUtils.isEmpty(token)) {
@@ -5509,7 +5533,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     status = getGrabEnvelopeStatus(bean.getStat());
                                 }
                                 updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
-                                getEnvelopeDetail(rid, bean.getAccessToken(), envelopeStatus, msgBean);
+                                getEnvelopeDetail(rid, bean.getAccessToken(), envelopeStatus, msgBean, msgBean.isMe() ? true : false);
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5651,7 +5675,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     if (isNormalStyle) {//普通玩法红包需要保存
                                         taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), getGrabEnvelopeStatus(bean.getStat()));
                                     }
-                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true);
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5667,11 +5691,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true);
         }
     }
 
-    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean) {
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean, boolean isAllow) {
         PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
@@ -5683,11 +5707,19 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (bean != null) {
                                 if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean)) {
                                     taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
+                                } else {
+                                    if (envelopeStatus == PayEnum.EEnvelopeStatus.NO_ALLOW && (bean.getRecvList() != null && bean.getRecvList().size() > 0)) {
+                                        updateEnvelopeDetail(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, envelopeStatus, 1);
+                                    }
                                 }
                                 bean.setChatType(isGroup() ? 1 : 0);
                                 bean.setEnvelopeStatus(envelopeStatus);
-                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
-                                startActivity(intent);
+                                if (!isAllow && (bean.getRecvList() != null && bean.getRecvList().size() <= 0)) {
+
+                                } else {
+                                    Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
+                                    startActivity(intent);
+                                }
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -6193,7 +6225,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 case ChatEnum.ECellEventType.CARD_CLICK:
                     if (args[0] != null && args[0] instanceof BusinessCardMessage) {
                         BusinessCardMessage card = (BusinessCardMessage) args[0];
-                        if (card.getUid()!=null && card.getUid().longValue() != UserAction.getMyId().longValue()) { //TODO bugly #324411
+                        if (card.getUid() != null && card.getUid().longValue() != UserAction.getMyId().longValue()) { //TODO bugly #324411
                             if (isGroup() && !master.equals(card.getUid().toString())) {
                                 startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
                                         card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
@@ -6491,7 +6523,15 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     grabRedEnvelopeNoAllow(msg, tradeId, reType, envelopeStatus);
                 } else {
 //                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-                    getEnvelopeDetail(tradeId, rb.getAccessToken(), envelopeStatus, msg);
+                    boolean isAllow = false;
+                    if (msg.isMe()) {
+                        isAllow = true;
+                    } else {
+                        if (rb.getCanReview() == 1) {
+                            isAllow = true;
+                        }
+                    }
+                    getEnvelopeDetail(tradeId, rb.getAccessToken(), envelopeStatus, msg, isAllow);
                 }
             }
         }

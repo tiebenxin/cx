@@ -1536,6 +1536,7 @@ public class SocketData {
         message.setEnvelopStatus(envelopeStatus);
         if (allowUsers != null) {
             message.setAllowUsers(allowUsers);
+            message.setCanReview(1);
         }
         return message;
     }

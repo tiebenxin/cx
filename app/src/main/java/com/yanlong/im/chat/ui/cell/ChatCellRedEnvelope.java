@@ -57,7 +57,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
             }
         }
         setMessage(isInvalid, title, info, typeName, typeIcon);
-        if (redEnvelopeMessage.getEnvelopStatus() == PayEnum.EEnvelopeStatus.NO_ALLOW) {
+        if (redEnvelopeMessage.getEnvelopStatus() == PayEnum.EEnvelopeStatus.NO_ALLOW && redEnvelopeMessage.getCanReview() == 1) {
             tvVieMore.setVisibility(View.VISIBLE);
         } else {
             tvVieMore.setVisibility(View.GONE);
@@ -75,7 +75,11 @@ public class ChatCellRedEnvelope extends ChatCellBase {
 
     private void setMessage(boolean invalid, String title, String info, String typeName, int typeIcon) {
         if (invalid) {//失效
-            iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
+            if (redEnvelopeMessage.getEnvelopStatus() == PayEnum.EEnvelopeStatus.NO_ALLOW) {
+                iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
+            } else {
+                iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
+            }
             bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_light : R.drawable.selector_rp_other_light);
         } else {
             iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);

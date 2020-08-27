@@ -2007,6 +2007,58 @@ public class MsgDao {
         }
     }
 
+    /**
+     * 红包开
+     *
+     * @param rid
+     * @param
+     */
+    public void updateEnvelopeDetail(String rid, int envelopeStatus, int reType, String token, int canReview) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RedEnvelopeMessage envelopeMessage = null;
+            if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
+            } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                long traceId = Long.parseLong(rid);
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", traceId).findFirst();
+                if (envelopeMessage != null) {
+                    if (!TextUtils.isEmpty(token)) {
+                        envelopeMessage.setAccessToken(token);
+                    }
+                    envelopeMessage.setEnvelopStatus(envelopeStatus);
+                    envelopeMessage.setCanReview(1);
+                }
+            }
+            if (envelopeMessage != null) {
+                if (envelopeMessage.getIsInvalid() == 0) {//没拆才更新，已经拆过了不更新
+                    envelopeMessage.setIsInvalid(envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL ? 1 : 0);
+                }
+                envelopeMessage.setEnvelopStatus(envelopeStatus);
+                realm.insertOrUpdate(envelopeMessage);
+            }
+
+            //删除红包备份消息
+            if (envelopeStatus > 0) {
+                long traceId = Long.parseLong(rid);
+                MessageDBTemp msgTemp = realm.where(MessageDBTemp.class).equalTo("envelopeMessage.traceId", traceId).findFirst();
+                if (msgTemp != null) {
+                    if (msgTemp.getRedEnvelope() != null) {
+                        msgTemp.getRedEnvelope().deleteFromRealm();
+                    }
+                    msgTemp.deleteFromRealm();
+                }
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
 
     /***
      * 个人配置修改,为空不修改
