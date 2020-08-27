@@ -28,6 +28,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.LooseChangeActivity;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
@@ -42,7 +43,9 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.update.UpdateManage;
+import com.yanlong.im.view.WebActivity;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
@@ -53,6 +56,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
+import net.cb.cb.library.view.WebPageActivity;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -190,7 +194,13 @@ public class MyFragment extends Fragment {
         mViewHelp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getActivity(), HelpActivity.class));
+                if (DoubleUtils.isFastDoubleClick()) {
+                    return;
+                }
+                Intent intent = new Intent(getActivity(), WebActivity.class);
+                intent.putExtra(WebActivity.AGM_URL, AppConfig.HELP_URL);
+                intent.putExtra(WebActivity.AGM_TITLE, "帮助");
+                startActivity(intent);
             }
         });
 
@@ -321,7 +331,6 @@ public class MyFragment extends Fragment {
             //将扫描出的信息显示出来
         }
     }
-
 
 
     private void taskAddFriend(Long id) {

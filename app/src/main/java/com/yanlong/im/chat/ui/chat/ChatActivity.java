@@ -4295,7 +4295,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
-                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER || !isEixt()) {
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER
+                || type == ChatEnum.EMessageType.ASSISTANT_NEW || !isEixt()) {
             return true;
         }
         return false;

@@ -1852,7 +1852,7 @@ public class MsgDao {
 
 
     //查询申请列表
-    public List<ApplyBean> getApplyBeanList() {
+    public List<ApplyBean> getApplyBeanList(int stat) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         List<ApplyBean> beans = new ArrayList<>();
@@ -1861,11 +1861,17 @@ public class MsgDao {
         if (resTemp != null) {
             resTemp.deleteAllFromRealm();
         }
-
-        RealmResults<ApplyBean> res = realm.where(ApplyBean.class)
-                .isNotNull("aid")
-                .sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
-
+        RealmResults<ApplyBean> res = null;
+        if (stat != -1) {
+            res = realm.where(ApplyBean.class)
+                    .isNotNull("aid")
+                    .equalTo("stat", stat)
+                    .sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
+        } else {
+            res = realm.where(ApplyBean.class)
+                    .isNotNull("aid")
+                    .sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
+        }
         if (res != null) {
             beans = realm.copyFromRealm(res);
         }

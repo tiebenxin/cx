@@ -40,7 +40,7 @@ public class MessageRemoteDataSource {
     /**
      * 切换环境时，service得重置
      */
-    public void clear(){
+    public void clear() {
         userService = null;
         msgService = null;
     }
@@ -48,9 +48,9 @@ public class MessageRemoteDataSource {
     /**
      * 检查sevice 是否需要重新构建
      */
-    public void checkService(){
-        if(userService==null)userService = NetUtil.getNet().create(UserServer.class);
-        if(msgService==null)msgService = NetUtil.getNet().create(MsgServer.class);
+    public void checkService() {
+        if (userService == null) userService = NetUtil.getNet().create(UserServer.class);
+        if (msgService == null) msgService = NetUtil.getNet().create(MsgServer.class);
     }
 
     /**
@@ -59,7 +59,8 @@ public class MessageRemoteDataSource {
      * @param friendContactName 好友备注名，可为null
      * @param saveToDB          保存好友信息到数据库
      */
-    public void getRequestFriends(String friendContactName, Function<ApplyBean, Boolean> saveToDB) {
+    public void getRequestFriends(String friendContactName, long uid, List<ApplyBean> listData,
+                                  Function<ApplyBean, Boolean> saveToDB) {
         checkService();
         //同步请求
         NetUtil.getNet().exec(userService.requestFriendsGet(), new CallBack<ReturnBean<List<ApplyBean>>>() {
@@ -72,12 +73,23 @@ public class MessageRemoteDataSource {
                 List<ApplyBean> applyBeanList = response.body().getData();
                 for (int i = 0; i < applyBeanList.size(); i++) {
                     ApplyBean applyBean = applyBeanList.get(i);
-                    applyBeanList.get(i).setAid(applyBean.getUid() + "");
-                    applyBeanList.get(i).setChatType(CoreEnum.EChatType.PRIVATE);
+                    applyBean.setAid(applyBean.getUid() + "");
+                    applyBean.setChatType(CoreEnum.EChatType.PRIVATE);
                     if (!TextUtils.isEmpty(friendContactName)) {
-                        applyBeanList.get(i).setAlias(friendContactName);
+                        applyBean.setAlias(friendContactName);
                     }
-                    applyBeanList.get(i).setStat(1);
+                    // 每次只更新本次请求的好友，方便后面排序
+                    if (uid == applyBean.getUid()) {
+                        applyBean.setTime(System.currentTimeMillis());
+                    } else if (listData != null && listData.size() > 0) {// 取出原来的时间
+                        for (ApplyBean bean : listData) {
+                            if (applyBean.getUid() == bean.getUid()) {
+                                applyBean.setTime(bean.getTime());
+                                break;
+                            }
+                        }
+                    }
+                    applyBean.setStat(1);
                     saveToDB.apply(applyBean);
                 }
             }
@@ -120,15 +132,17 @@ public class MessageRemoteDataSource {
             }
         });
     }
-    private List<Long> loadingFriends=new ArrayList<>();
+
+    private List<Long> loadingFriends = new ArrayList<>();
+
     /**
      * 更新好友信息
      */
     public void getFriend(Long usrid, Function<UserInfo, Boolean> saveToDB) {
         checkService();
-        if(usrid == null)
+        if (usrid == null)
             return;
-        if(loadingFriends.contains(usrid))
+        if (loadingFriends.contains(usrid))
             return;
         loadingFriends.add(usrid);
         //同步请求
@@ -165,7 +179,8 @@ public class MessageRemoteDataSource {
         });
     }
 
-    private List<String> loadingGroups=new ArrayList<>();
+    private List<String> loadingGroups = new ArrayList<>();
+
     /***
      * 获取群信息,并缓存
      * @param gid
@@ -175,7 +190,7 @@ public class MessageRemoteDataSource {
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        if(loadingGroups.contains(gid))
+        if (loadingGroups.contains(gid))
             return;
         loadingGroups.add(gid);
         //同步请求

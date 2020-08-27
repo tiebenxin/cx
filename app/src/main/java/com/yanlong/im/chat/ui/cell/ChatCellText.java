@@ -79,11 +79,9 @@ public class ChatCellText extends ChatCellBase {
 //            setText(message.getAtMessage().getMsg());
             tv_content.setText(getSpan(message.getAtMessage().getMsg()));
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
-            if (message.getAssistantMessage().getVersion() == 1) {
-                setNewAssistantMessage(message.getAssistantMessage());
-            } else {
-                setText(message.getAssistantMessage().getMsg());
-            }
+            setText(message.getAssistantMessage().getMsg());
+        } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT_NEW) {
+            setNewAssistantMessage(message.getAssistantMessage());
         } else if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
             tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent(), null,
                     new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
@@ -94,7 +92,7 @@ public class ChatCellText extends ChatCellBase {
     private void setNewAssistantMessage(AssistantMessage message) {
         tvTitle.setText(message.getTitle());
         if (message.getTime() != 0 && message.getTime() != -1) {
-            tvLoginTime.setText(DateUtils.getTransferTime(message.getTime()));
+            tvLoginTime.setText(DateUtils.getFullTime(message.getTime()));
             tvLoginTime.setVisibility(View.VISIBLE);
         } else {
             tvLoginTime.setVisibility(View.GONE);
@@ -112,12 +110,12 @@ public class ChatCellText extends ChatCellBase {
             tvTemaName.setVisibility(View.GONE);
         }
         if (message.getSignature_time() != 0 && message.getSignature_time() != -1) {
-            tvDate.setText(DateUtils.getTransferTime(message.getSignature_time()));
+            tvDate.setText(DateUtils.getFullTime(message.getSignature_time()));
             tvDate.setVisibility(View.VISIBLE);
         } else {
             tvDate.setVisibility(View.GONE);
         }
-        if (TextUtils.isEmpty(message.getItems())) {
+        if (TextUtils.isEmpty(message.getItems()) || "[]".equals(message.getItems())) {
             llLabelParent.setVisibility(View.GONE);
         } else {
             llLabelParent.setVisibility(View.VISIBLE);
