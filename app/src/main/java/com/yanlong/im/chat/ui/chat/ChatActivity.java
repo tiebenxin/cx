@@ -6213,10 +6213,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             ivForward.setEnabled(false);
                             ivDelete.setEnabled(false);
                             ivCollection.setEnabled(false);
+                            ivForward.setAlpha(0.6f);
+                            ivDelete.setAlpha(0.6f);
+                            ivCollection.setAlpha(0.6f);
                         } else {
                             ivForward.setEnabled(true);
                             ivDelete.setEnabled(true);
                             ivCollection.setEnabled(true);
+                            ivForward.setAlpha(1f);
+                            ivDelete.setAlpha(1f);
+                            ivCollection.setAlpha(1f);
                         }
                     }
                     break;
