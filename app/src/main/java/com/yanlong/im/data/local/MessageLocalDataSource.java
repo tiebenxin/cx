@@ -77,7 +77,6 @@ public class MessageLocalDataSource {
         try {
             checkInTransaction(realm);
             realm.beginTransaction();
-            bean.setTime(System.currentTimeMillis());
             realm.insertOrUpdate(bean);
             realm.commitTransaction();
         } catch (Exception e) {

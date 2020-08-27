@@ -34,7 +34,7 @@ public class FactoryChatCell {
             case TEXT_SEND:
 
             case ASSISTANT:
-
+            case ASSISTANT_NEW:
             case AT_RECEIVED:
             case AT_SEND:
                 cell = new ChatCellText(mContext, view, mListener, mAdapter);

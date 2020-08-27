@@ -233,7 +233,7 @@ public class AppActivity extends AppCompatActivity {
         ThreadUtil.getInstance().runMainThread(new Runnable() {
             @Override
             public void run() {
-                if (payWaitDialog != null) {
+                if (isActivityValid() && payWaitDialog != null) {
                     payWaitDialog.dismiss();
                 }
             }

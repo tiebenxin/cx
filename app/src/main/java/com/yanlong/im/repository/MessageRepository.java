@@ -135,7 +135,7 @@ public class MessageRepository {
 //        }
         // 先检查是否存在申请，不存在则显示红点
         MsgDao msgDao = new MsgDao();
-        List<ApplyBean> listData = msgDao.getApplyBeanList();
+        List<ApplyBean> listData = msgDao.getApplyBeanList(1);
         int count = 0;
         List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
         if (list != null) {
@@ -201,7 +201,7 @@ public class MessageRepository {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         // 先检查是否存在，不存在则显示红点
         MsgDao msgDao = new MsgDao();
-        List<ApplyBean> listData = msgDao.getApplyBeanList();
+        List<ApplyBean> listData = msgDao.getApplyBeanList(1);
         if (listData != null) {
             boolean isFlg = false;
             for (ApplyBean applyBean : listData) {
@@ -218,12 +218,13 @@ public class MessageRepository {
             // 增加好友申请红点数
             localDataSource.addRemindCount(realm, Preferences.FRIEND_APPLY);
         }
-        remoteDataSource.getRequestFriends(wrapMessage.getRequestFriend().getContactName(), applyBean -> {
-            //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
-            Realm realm1 = DaoUtil.open();
-            localDataSource.saveApplyBean(realm1, applyBean);
-            return true;
-        });
+        remoteDataSource.getRequestFriends(wrapMessage.getRequestFriend().getContactName(),
+                isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(),listData, applyBean -> {
+                    //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
+                    Realm realm1 = DaoUtil.open();
+                    localDataSource.saveApplyBean(realm1, applyBean);
+                    return true;
+                });
         //通知UI刷新
         MessageManager.getInstance().notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
     }

@@ -614,7 +614,6 @@ public class MsgConversionBean {
             case ASSISTANT:
                 AssistantMessage assistant = new AssistantMessage();
                 MsgBean.AssistantMessage assistantMsg = bean.getAssistant();
-                assistant.setVersion(1);// 新版小助手标识
                 assistant.setMsg(assistantMsg.getMsg());
                 assistant.setMsgId(bean.getMsgId());
                 assistant.setContent(assistantMsg.getContent());
@@ -629,7 +628,7 @@ public class MsgConversionBean {
                 assistant.setUid_list(assistantMsg.getUidListList());
                 assistant.setTitle(assistantMsg.getTitle());
 
-                msgAllBean.setMsg_type(EMessageType.ASSISTANT);
+                msgAllBean.setMsg_type(EMessageType.ASSISTANT_NEW);
                 msgAllBean.setAssistantMessage(assistant);
                 break;
             case CANCEL://撤回消息

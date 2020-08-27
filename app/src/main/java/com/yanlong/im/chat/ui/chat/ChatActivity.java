@@ -210,7 +210,6 @@ import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
@@ -220,6 +219,7 @@ import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.bean.VideoSize;
 import net.cb.cb.library.dialog.DialogCommon;
+import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
@@ -254,7 +254,6 @@ import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
-import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.WebPageActivity;
 
@@ -267,7 +266,6 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -1863,20 +1861,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-                        boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
-                        for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
-                            if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
-                                    || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER || bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
-                                    || bean.getMsg_type() == ChatEnum.EMessageType.STAMP || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
-                                haveDisallowedMsg = true;
-                                break;
-                            }
-                        }
-                        if (haveDisallowedMsg) {
-                            showForwardListDialog();
-                        } else {
-                            toForward();
-                        }
+                        filterMsgForward(mAdapter.getSelectedMsg());
                     }
                 }
 
@@ -1894,20 +1879,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-                        boolean haveDisallowedMsg = false;//是否含有不支持类型的消息，若有则需要弹框提示并过滤掉这条消息
-                        for (MsgAllBean bean : mAdapter.getSelectedMsg()) {//循环查询，发现有不符合支持类型的消息则跳出，不再继续查询
-                            if (bean.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD || bean.getMsg_type() == ChatEnum.EMessageType.STAMP
-                                    || bean.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE || bean.getMsg_type() == ChatEnum.EMessageType.TRANSFER
-                                    || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
-                                haveDisallowedMsg = true;
-                                break;
-                            }
-                        }
-                        if (haveDisallowedMsg) {
-                            showCollectListDialog();
-                        } else {
-                            toCollectList();
-                        }
+                        filterMsgCollection(mAdapter.getSelectedMsg());
                     }
                 }
             }
@@ -4361,7 +4333,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
-                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER || !isEixt()) {
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER
+                || type == ChatEnum.EMessageType.ASSISTANT_NEW || !isEixt()) {
             return true;
         }
         return false;
@@ -6095,24 +6068,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         });
     }
 
-    private void toForward() {
-        List<MsgAllBean> list = mAdapter.getSelectedMsg();
+    private void toForward(List<MsgAllBean> list) {
         if (list != null && list.size() > 0) {
-            //过滤掉不符合类型和发送失败状态消息
-            Iterator<MsgAllBean> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                MsgAllBean obj = iterator.next();
-                if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE || obj.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
-                        || obj.getMsg_type() == ChatEnum.EMessageType.TRANSFER || obj.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
-                        || obj.getMsg_type() == ChatEnum.EMessageType.STAMP || obj.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
-                        || obj.getSend_state() == ChatEnum.ESendStatus.ERROR) {
-                    iterator.remove();
-                }
-            }
-            //过滤后若仍存在元素则允许转发
-            if (list.size() > 0) {
-                onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
-            }
+            onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
         }
         mAdapter.clearSelectedMsg();
         hideMultiSelect(ivForward);
@@ -7001,13 +6959,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 批量收藏提示弹框
      */
-    private void showCollectListDialog() {
-        dialogTwo = builder.setTitle("你所选的消息包含了不支持收藏的类型。\n系统已自动过滤此类型消息。")
+    private void showCollectListDialog(List<MsgAllBean> list) {
+        dialogTwo = builder.setTitle("你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。")
                 .setRightText("收藏")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     //多选直接调批量收藏接口
-                    toCollectList();
+                    toCollectList(list);
                 })
                 .setLeftOnClickListener(v -> {
                     dialogTwo.dismiss();
@@ -7021,12 +6979,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 批量转发提示弹框
      */
-    private void showForwardListDialog() {
-        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型。\n系统已自动过滤此类型消息。")
+    private void showForwardListDialog(List<MsgAllBean> list) {
+        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型或\n或已失效，系统已自动过滤此类型消息。")
                 .setRightText("继续发送")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
-                    toForward();
+                    toForward(list);
                     dialogThree.dismiss();
                 })
                 .setLeftOnClickListener(v ->
@@ -7076,9 +7034,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
 
     //批量收藏
-    public void toCollectList() {
-        if (mAdapter.getSelectedMsg().size() > 0) {
-            List<CollectionInfo> dataList = convertCollectBean(mAdapter.getSelectedMsg());
+    public void toCollectList(List<MsgAllBean> list) {
+        if (list.size() > 0) {
+            List<CollectionInfo> dataList = convertCollectBean(list);
             if (dataList != null && dataList.size() > 0) {
                 //1 有网收藏
                 if (checkNetConnectStatus(1)) {
@@ -7132,6 +7090,109 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             mAdapter.clearSelectedMsg();
             hideMultiSelect(ivCollection);
         }
+    }
+
+
+    /**
+     * 过滤多选转发消息
+     *
+     * @param sourList 源数据
+     */
+    @SuppressLint("CheckResult")
+    private void filterMsgForward(final List<MsgAllBean> sourList) {
+        int sourLen = sourList.size();
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        if (sourLen > 0) {
+                            String[] msgIds = new String[sourLen];
+                            for (int i = 0; i < sourLen; i++) {
+                                MsgAllBean msgAllBean = sourList.get(i);
+                                msgIds[i] = msgAllBean.getMsg_id();
+                            }
+                            return msgDao.filterMsgForForward(msgIds);
+                        }
+                        return null;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                        if (list != null) {
+                            int len = list.size();
+                            if (len > 0) {
+                                if (len == sourLen) {
+                                    toForward(list);
+                                } else if (len < sourLen) {
+                                    showForwardListDialog(list);
+                                }
+                            } else {
+                                showValidMsgDialog();
+                            }
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 过滤多选收藏消息
+     *
+     * @param sourList 源数据
+     */
+    @SuppressLint("CheckResult")
+    private void filterMsgCollection(final List<MsgAllBean> sourList) {
+        int sourLen = sourList.size();
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        if (sourLen > 0) {
+                            String[] msgIds = new String[sourLen];
+                            for (int i = 0; i < sourLen; i++) {
+                                MsgAllBean msgAllBean = sourList.get(i);
+                                msgIds[i] = msgAllBean.getMsg_id();
+                            }
+                            return msgDao.filterMsgForCollection(msgIds);
+                        }
+                        return null;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                        if (list != null) {
+                            int len = list.size();
+                            if (len > 0) {
+                                if (len == sourLen) {
+                                    toCollectList(list);
+                                } else if (len < sourLen) {
+                                    showCollectListDialog(list);
+                                }
+                            } else {
+                                showValidMsgDialog();
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void showValidMsgDialog() {
+        DialogCommon2 dialogValid = new DialogCommon2(this);
+        dialogValid.setContent("你选的消息包含不支持消息或已失效", true)
+                .setButtonTxt("确定")
+                .setListener(new DialogCommon2.IDialogListener() {
+                    @Override
+                    public void onClick() {
+                        dialogValid.dismiss();
+//                        mAdapter.clearSelectedMsg();
+//                        hideMultiSelect(ivForward);
+                    }
+                }).show();
     }
 
 
