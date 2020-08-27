@@ -80,7 +80,7 @@ public class ChatCellImage extends ChatCellFileBase {
         resetSize();
         checkSendStatus();
         //获取圆角
-        RequestOptions rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
+        RequestOptions rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 1))*/;
         rOptions.dontAnimate();
         rOptions.override(width, height);
         String tag = (String) imageView.getTag(R.id.tag_img);
