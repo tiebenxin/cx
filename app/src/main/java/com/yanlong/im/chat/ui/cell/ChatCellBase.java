@@ -167,6 +167,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     private boolean updateCheckBox() {
+        if (ckSelect == null){
+            return false;
+        }
         if (ckSelect.isChecked()) {
             ckSelect.setChecked(false);
             mAdapter.getSelectedMsg().remove(model);
@@ -238,6 +241,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                     mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
                 }
             } else if (ckSelect != null && id == ckSelect.getId()) {
+                if (ckSelect == null){
+                    return;
+                }
                 if (ckSelect.isChecked()) {
                     if (mAdapter.getSelectedMsg().size() < 100) {
                         mAdapter.getSelectedMsg().add(model);
