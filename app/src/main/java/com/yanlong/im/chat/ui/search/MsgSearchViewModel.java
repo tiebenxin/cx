@@ -12,17 +12,12 @@ import com.yanlong.im.repository.MsgSearchRepository;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.realm.OrderedCollectionChangeSet;
@@ -101,16 +96,21 @@ public class MsgSearchViewModel extends ViewModel {
      * 停止并发任务-session聊天记录查询
      */
     public void stopConcurrentTask() {
-        //停止离线任务，
-        if (executor != null && executor.getActiveCount() > 0) {
-            /**向线程池中所有的线程发出中断(interrupted)。
-             * 会尝试interrupt线程池中正在执行的线程
-             * 等待执行的线程也会被取消
-             * 但是并不能保证一定能成功的interrupt线程池中的线程。可能必须要等待所有正在执行的任务都执行完成了才能退出
-             */
-            executor.shutdownNow();
-            executor = null;
+        try {
+            //停止离线任务，
+            if (executor != null && executor.getActiveCount() > 0) {
+                /**向线程池中所有的线程发出中断(interrupted)。
+                 * 会尝试interrupt线程池中正在执行的线程
+                 * 等待执行的线程也会被取消
+                 * 但是并不能保证一定能成功的interrupt线程池中的线程。可能必须要等待所有正在执行的任务都执行完成了才能退出
+                 */
+                executor.shutdownNow();
+                executor = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     public void search(String searchKey) {
@@ -142,7 +142,7 @@ public class MsgSearchViewModel extends ViewModel {
                 allSessions.addChangeListener((sessions, changeSet) -> {
                     if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
                         for (Session session : sessions) {
-                            if (sessionSearch.size() >= MIN_LIMIT) {//已经查到4个了，直接不启动并发任务了
+                            if (sessionSearch != null && sessionSearch.size() >= MIN_LIMIT) {//已经查到4个了，直接不启动并发任务了
                                 isSessionLoadCompleted = true;
                                 //搜索全部时，最大数量只要查4个就够了，停止并发任务
                                 stopConcurrentTask();

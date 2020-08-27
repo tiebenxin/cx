@@ -19,7 +19,6 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.UrlBean;
-import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.global.PayEnum;
@@ -58,7 +57,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     private String gid;
     private int memberCount;
     private String money;
-    private DialogErrorPassword dialogErrorPassword;
     private CxEnvelopeBean envelopeBean;
     private String note;
     private String actionId;
@@ -91,10 +89,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     @Override
     protected void onDestroy() {
-        if (dialogErrorPassword != null) {
-            dialogErrorPassword.dismiss();
-            dialogErrorPassword = null;
-        }
         super.onDestroy();
     }
 
