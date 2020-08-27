@@ -7,17 +7,23 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.hm.cxpay.utils.DateUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.adapter.AdapterBalanceLabel;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.MsgTagHandler;
+import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.chat.ui.view.YLinkMovementMethod;
 import com.yanlong.im.utils.ExpressionUtil;
 
@@ -35,6 +41,11 @@ import java.util.regex.Matcher;
 public class ChatCellText extends ChatCellBase {
 
     private TextView tv_content;
+    private TextView tvTitle;
+    private TextView tvLoginTime;
+    private TextView tvTemaName;
+    private TextView tvDate;
+    private LinearLayout llLabelParent;
 
     protected ChatCellText(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -44,6 +55,12 @@ public class ChatCellText extends ChatCellBase {
     protected void initView() {
         super.initView();
         tv_content = getView().findViewById(R.id.tv_content);
+        tvTitle = getView().findViewById(R.id.tv_title);
+        tvLoginTime = getView().findViewById(R.id.tv_login_time);
+        tvTemaName = getView().findViewById(R.id.tv_tema_name);
+        tvDate = getView().findViewById(R.id.tv_date);
+        llLabelParent = getView().findViewById(R.id.ll_parent);
+
         //设置自定义文字大小
         Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
         if (fontSize != null) {
@@ -62,11 +79,52 @@ public class ChatCellText extends ChatCellBase {
 //            setText(message.getAtMessage().getMsg());
             tv_content.setText(getSpan(message.getAtMessage().getMsg()));
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
-            setText(message.getAssistantMessage().getMsg());
+            if (message.getAssistantMessage().getVersion() == 1) {
+                setNewAssistantMessage(message.getAssistantMessage());
+            } else {
+                setText(message.getAssistantMessage().getMsg());
+            }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
             tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent(), null,
                     new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
             tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+        }
+    }
+
+    private void setNewAssistantMessage(AssistantMessage message) {
+        tvTitle.setText(message.getTitle());
+        if (message.getTime() != 0 && message.getTime() != -1) {
+            tvLoginTime.setText(DateUtils.getTransferTime(message.getTime()));
+            tvLoginTime.setVisibility(View.VISIBLE);
+        } else {
+            tvLoginTime.setVisibility(View.GONE);
+        }
+        if (!TextUtils.isEmpty(message.getContent())) {
+            tv_content.setText(message.getContent());
+            tv_content.setVisibility(View.VISIBLE);
+        } else {
+            tv_content.setVisibility(View.GONE);
+        }
+        if (!TextUtils.isEmpty(message.getSignature())) {
+            tvTemaName.setText(message.getSignature());
+            tvTemaName.setVisibility(View.VISIBLE);
+        } else {
+            tvTemaName.setVisibility(View.GONE);
+        }
+        if (message.getSignature_time() != 0 && message.getSignature_time() != -1) {
+            tvDate.setText(DateUtils.getTransferTime(message.getSignature_time()));
+            tvDate.setVisibility(View.VISIBLE);
+        } else {
+            tvDate.setVisibility(View.GONE);
+        }
+        if (TextUtils.isEmpty(message.getItems())) {
+            llLabelParent.setVisibility(View.GONE);
+        } else {
+            llLabelParent.setVisibility(View.VISIBLE);
+            tv_content.setVisibility(View.GONE);
+            ControllerLinearList controller = new ControllerLinearList(llLabelParent);
+            AdapterBalanceLabel adapterLabel = new AdapterBalanceLabel(message.getLabelItems(), getContext());
+            controller.setAdapter(adapterLabel);
         }
     }
 

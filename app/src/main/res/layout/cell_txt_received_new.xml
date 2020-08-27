@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
-        android:text="" />
+        android:text="2019" />
 
     <TextView
         android:id="@+id/tv_broadcast"
@@ -51,10 +51,13 @@
                 style="@style/app_check_green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
                 android:layout_gravity="center"
                 android:layout_marginLeft="5dp"
                 android:padding="5dp"
                 android:visibility="visible" />
+
         </LinearLayout>
 
         <com.yanlong.im.wight.avatar.RoundImageView
@@ -98,92 +101,71 @@
                     android:orientation="vertical"
                     android:visibility="visible">
 
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/tv_title"
                         android:layout_width="wrap_content"
+                        android:textSize="15sp"
+                        android:textColor="@color/color_353"
+                        android:layout_marginTop="5dp"
+                        android:text="系统通知"
+                        android:textStyle="bold"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tv_login_time"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:id="@+id/iv_ref_image"
-                            android:layout_width="45dp"
-                            android:layout_height="45dp"
-                            android:gravity="center_vertical"
-                            android:scaleType="fitXY"
-                            android:selectAllOnFocus="true"
-                            android:src="@drawable/ic_info_head" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:orientation="vertical">
-
-                            <android.support.v7.widget.AppCompatTextView
-                                android:id="@+id/tv_ref_name"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="normal"
-                                android:gravity="center_vertical"
-                                android:maxWidth="210dp"
-                                android:selectAllOnFocus="true"
-                                android:text="name"
-                                android:textColor="@color/c_259048"
-                                android:textIsSelectable="false"
-                                android:textSize="13sp" />
-
-                            <android.support.v7.widget.AppCompatTextView
-                                android:id="@+id/tv_ref_content"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="5dp"
-                                android:fontFamily="normal"
-                                android:gravity="center_vertical"
-                                android:maxWidth="210dp"
-                                android:selectAllOnFocus="true"
-                                android:text="图片"
-                                android:textColor="@color/c_727272"
-                                android:textIsSelectable="false"
-                                android:textSize="11sp" />
-
-
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1px"
-                        android:background="@color/c_259048" />
+                        android:layout_width="wrap_content"
+                        android:textColor="@color/gray_808"
+                        android:layout_marginTop="5dp"
+                        android:textSize="11sp"
+                        android:visibility="gone"
+                        android:text="2020-09-10 12:12" />
 
                     <android.support.v7.widget.AppCompatTextView
                         android:id="@+id/tv_content"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="normal"
                         android:gravity="center_vertical"
                         android:maxWidth="210dp"
+                        android:layout_marginTop="14dp"
                         android:selectAllOnFocus="true"
                         android:text=""
                         android:textColor="@color/black"
                         android:textIsSelectable="false"
                         android:textSize="15sp" />
 
+                    <LinearLayout
+                        android:id="@+id/ll_parent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/tv_tema_name"
+                        android:layout_width="wrap_content"
+                        android:textSize="13sp"
+                        android:textColor="@color/color_353"
+                        android:text="常信运营团队"
+                        android:layout_gravity="right"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginTop="18dp"
+                        android:textStyle="bold"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tv_date"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_gravity="right"
+                        android:textColor="@color/gray_808"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="10dp"
+                        android:textSize="11sp"
+                        android:text="" />
                 </LinearLayout>
-
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/iv_bell"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right|bottom"
-                    android:src="@mipmap/icon_st_1"
-                    android:visibility="visible" />
             </FrameLayout>
-
-
         </LinearLayout>
-
-
     </LinearLayout>
 </LinearLayout>
