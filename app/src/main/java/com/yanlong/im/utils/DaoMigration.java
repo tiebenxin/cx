@@ -854,12 +854,9 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("RedEnvelopeMessage")
                 .addField("canReview", int.class);
-
-        schema.get("Remind")
-                .addField("uid", long.class);
     }
 
-    // 小助手新版消息
+    // 新的申请需要增加uid字段
     private final void updateV47(RealmSchema schema) {
         schema.get("Remind")
                 .addField("uid", long.class);
