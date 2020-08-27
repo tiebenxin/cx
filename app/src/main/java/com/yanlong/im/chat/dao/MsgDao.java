@@ -3665,6 +3665,8 @@ public class MsgDao {
                     .and()
                     .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.MSG_VOICE_VIDEO).endGroup()
                     .and()
+                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.TRANSFER_NOTICE).endGroup()
+                    .and()
                     .beginGroup().equalTo("send_state", ChatEnum.ESendStatus.NORMAL).endGroup()
                     .sort("timestamp", Sort.ASCENDING)
                     .findAll();
