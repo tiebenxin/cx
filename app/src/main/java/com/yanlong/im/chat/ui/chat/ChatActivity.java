@@ -7077,7 +7077,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         DialogCommon2 dialogValid = new DialogCommon2(this);
         dialogValid.setContent("你选的消息包含不支持消息或已失效", true)
                 .setButtonTxt("确定")
-                .setTitle("")
+                .hasTitle(false)
                 .setListener(new DialogCommon2.IDialogListener() {
                     @Override
                     public void onClick() {

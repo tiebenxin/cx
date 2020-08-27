@@ -3,8 +3,12 @@ package net.cb.cb.library.dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 
@@ -35,6 +39,15 @@ public class DialogCommon extends BaseDialog {
     @Override
     public void initView() {
         setContentView(R.layout.dialog_default);
+        Window window = getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels*0.8);
+        window.setAttributes(lp);
         tvTitle = findViewById(R.id.tv_title);
         tvContent = findViewById(R.id.tv_content);
         tvLeft = findViewById(R.id.tv_left);
