@@ -119,9 +119,8 @@ public class ChatCellText extends ChatCellBase {
             llLabelParent.setVisibility(View.GONE);
         } else {
             llLabelParent.setVisibility(View.VISIBLE);
-            tv_content.setVisibility(View.GONE);
             ControllerLinearList controller = new ControllerLinearList(llLabelParent);
-            AdapterBalanceLabel adapterLabel = new AdapterBalanceLabel(message.getLabelItems(), getContext());
+            AdapterBalanceLabel adapterLabel = new AdapterBalanceLabel(message.getLabelItems(), getContext(),1);
             controller.setAdapter(adapterLabel);
         }
     }

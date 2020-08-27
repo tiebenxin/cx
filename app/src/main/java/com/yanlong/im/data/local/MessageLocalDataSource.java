@@ -131,6 +131,42 @@ public class MessageLocalDataSource {
         }
     }
 
+    /***
+     * 红点数量加一 根据uid
+     * @param type
+     */
+    public void addRemindCount(@NonNull Realm realm, String type, long uid) {
+        try {
+            checkInTransaction(realm);
+            realm.beginTransaction();
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("uid", uid).findFirst();
+            int readnum = remind == null ? 1 : remind.getNumber() + 1;
+            Remind newreamid = new Remind();
+            newreamid.setNumber(readnum);
+            newreamid.setUid(uid);
+            newreamid.setRemid_type(type);
+            realm.insertOrUpdate(newreamid);
+            realm.commitTransaction();
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
+    }
+
+    /***
+     * 获取红点的值
+     * @param type
+     * @return
+     */
+    public int getRemindCount(@NonNull Realm realm, String type, long uid) {
+        Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("uid", uid).findFirst();
+        int num = remind == null ? 0 : remind.getNumber();
+        return num;
+    }
+
 
     /***双向删除
      * 删除好友某时间戳之前的聊天记录-单聊
