@@ -1066,8 +1066,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
-                                if(toUId!=null){ //TODO bugly #324411
-                                    if(msg.getFromUid() == toUId.longValue()){
+                                if (toUId != null) { //TODO bugly #324411
+                                    if (msg.getFromUid() == toUId.longValue()) {
                                         needRefresh = true;
                                     }
                                 }
@@ -4324,7 +4324,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
-                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER || !isEixt()) {
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER
+                || type == ChatEnum.EMessageType.ASSISTANT_NEW || !isEixt()) {
             return true;
         }
         return false;
@@ -6081,7 +6082,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 case ChatEnum.ECellEventType.CARD_CLICK:
                     if (args[0] != null && args[0] instanceof BusinessCardMessage) {
                         BusinessCardMessage card = (BusinessCardMessage) args[0];
-                        if (card.getUid()!=null && card.getUid().longValue() != UserAction.getMyId().longValue()) { //TODO bugly #324411
+                        if (card.getUid() != null && card.getUid().longValue() != UserAction.getMyId().longValue()) { //TODO bugly #324411
                             if (isGroup() && !master.equals(card.getUid().toString())) {
                                 startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
                                         card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
