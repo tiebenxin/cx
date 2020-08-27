@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.View;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.hm.cxpay.bean.FromUserBean;
@@ -155,6 +158,31 @@ public class EnvelopeReceiverActivity extends AppActivity {
                 });
             }
         });
+
+        ui.viewEditAvatar.getEtSearch().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String key = s.toString().trim();
+                if (!TextUtils.isEmpty(key)) {
+                    ui.viewEditAvatar.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            search(gid, key);
+                        }
+                    }, 100);
+                }
+            }
+        });
     }
 
     private void initData() {
@@ -198,6 +226,34 @@ public class EnvelopeReceiverActivity extends AppActivity {
                     public void accept(List<MemberUser> list) throws Exception {
                         if (list != null) {
                             mAdapter.setSelectList(list);
+                            ui.viewEmpty.setVisibility(View.GONE);
+                        } else {
+                            ui.viewEmpty.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
+    }
+
+    @SuppressLint("CheckResult")
+    private void search(String gid, String key) {
+        Observable.just(0).map(new Function<Integer, List<MemberUser>>() {
+            @Override
+            public List<MemberUser> apply(Integer integer) throws Exception {
+                return msgDao.searchMemberByKey(gid, key);
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MemberUser>>empty())
+                .subscribe(new Consumer<List<MemberUser>>() {
+                    @Override
+                    public void accept(List<MemberUser> list) throws Exception {
+                        if (list != null) {
+                            ui.viewEmpty.setVisibility(View.GONE);
+                            mAdapter.bindData(list);
+                        } else {
+                            ui.viewEmpty.setVisibility(View.VISIBLE);
+
                         }
                     }
                 });

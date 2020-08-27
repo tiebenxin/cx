@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -90,25 +91,10 @@ public class SearchAndEditAvatarView extends LinearLayout {
                 return false;
             }
         });
-        etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String key = s.toString().trim();
-                if (!TextUtils.isEmpty(key)) {
-
-                }
-            }
-        });
+    public EditText getEtSearch() {
+        return etSearch;
     }
 
     public void addUser(MemberUser user) {

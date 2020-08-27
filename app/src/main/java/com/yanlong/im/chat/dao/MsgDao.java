@@ -3755,4 +3755,31 @@ public class MsgDao {
         realm.close();
         return resultGroup;
     }
+
+    //模糊搜索群成员
+    public List<MemberUser> searchMemberByKey(String gid, String key) {
+        if (TextUtils.isEmpty(gid) || TextUtils.isEmpty(key)) {
+            return null;
+        }
+        if (!TextUtils.isEmpty(key)) {
+            key = String.format("*%s*", key);
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null && group.getUsers() != null) {
+            String[] orderFiled = {"tag"};
+            Sort[] sorts = {Sort.ASCENDING};
+            RealmResults<MemberUser> members = group.getUsers().where()
+                    .beginGroup().like("name", key, Case.INSENSITIVE).endGroup()
+                    .or()
+                    .beginGroup().like("membername", key, Case.INSENSITIVE).endGroup()
+                    .sort(orderFiled, sorts).findAll();
+            if (members != null) {
+                memberUsers = realm.copyFromRealm(members);
+            }
+        }
+        realm.close();
+        return memberUsers;
+    }
 }
