@@ -1875,7 +1875,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (haveDisallowedMsg) {
                             showForwardListDialog();
                         } else {
-                            showForwardDialog();
+                            toForward();
                         }
                     }
                 }
@@ -6095,53 +6095,27 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         });
     }
 
-    private void showForwardDialog() {
-        ForwardDialog forwardDialog = new ForwardDialog(this);
-        forwardDialog.setCancelable(true);
-        forwardDialog.setListener(new ForwardDialog.IForwardListener() {
-            @Override
-            public void onOneForward() {
-                List<MsgAllBean> list = mAdapter.getSelectedMsg();
-                if (list != null && list.size() > 0) {
-                    //过滤掉不符合类型和发送失败状态消息
-                    Iterator<MsgAllBean> iterator = list.iterator();
-                    while (iterator.hasNext()) {
-                        MsgAllBean obj = iterator.next();
-                        if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE || obj.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
-                                || obj.getMsg_type() == ChatEnum.EMessageType.TRANSFER || obj.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
-                                || obj.getMsg_type() == ChatEnum.EMessageType.STAMP || obj.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
-                                || obj.getSend_state() == ChatEnum.ESendStatus.ERROR) {
-                            iterator.remove();
-                        }
-                    }
-                    //过滤后若仍存在元素则允许转发
-                    if (list.size() > 0) {
-                        onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
-                    }
+    private void toForward() {
+        List<MsgAllBean> list = mAdapter.getSelectedMsg();
+        if (list != null && list.size() > 0) {
+            //过滤掉不符合类型和发送失败状态消息
+            Iterator<MsgAllBean> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                MsgAllBean obj = iterator.next();
+                if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE || obj.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
+                        || obj.getMsg_type() == ChatEnum.EMessageType.TRANSFER || obj.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
+                        || obj.getMsg_type() == ChatEnum.EMessageType.STAMP || obj.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
+                        || obj.getSend_state() == ChatEnum.ESendStatus.ERROR) {
+                    iterator.remove();
                 }
-                mAdapter.clearSelectedMsg();
-                hideMultiSelect(ivForward);
             }
-
-            @Override
-            public void onMergeForward() {
-                List<MsgAllBean> list = mAdapter.getSelectedMsg();
-                if (list != null) {
-                    int len = list.size();
-                    if (len > 0) {
-                        onForwardActivity(ChatEnum.EForwardMode.MERGE, new Gson().toJson(list));
-                    }
-                }
-                mAdapter.clearSelectedMsg();
-                hideMultiSelect(ivForward);
+            //过滤后若仍存在元素则允许转发
+            if (list.size() > 0) {
+                onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
             }
-
-            @Override
-            public void onCancel() {
-
-            }
-        });
-        forwardDialog.show();
+        }
+        mAdapter.clearSelectedMsg();
+        hideMultiSelect(ivForward);
     }
 
     //隐藏多选功能
@@ -7052,7 +7026,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 .setRightText("继续发送")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
-                    showForwardDialog();
+                    toForward();
                     dialogThree.dismiss();
                 })
                 .setLeftOnClickListener(v ->
