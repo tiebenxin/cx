@@ -10,6 +10,7 @@ public class Remind extends RealmObject {
     @PrimaryKey
     private String remid_type;//friend_apply:申请包括群和好友,me_update:系统更新
     private Integer number;
+    private long uid;// 需要根据uid来判断是显示新的申请红点
 
     public String getRemid_type() {
         return remid_type;
@@ -25,5 +26,13 @@ public class Remind extends RealmObject {
 
     public void setNumber(Integer number) {
         this.number = number;
+    }
+
+    public long getUid() {
+        return uid;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
     }
 }

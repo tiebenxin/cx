@@ -208,6 +208,10 @@ public class DaoMigration implements RealmMigration {
                 updateV46(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 46) {
+                updateV47(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -837,7 +841,7 @@ public class DaoMigration implements RealmMigration {
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
     }
 
-    // 小助手新版
+    // 小助手新版消息
     private final void updateV46(RealmSchema schema) {
         schema.get("AssistantMessage")
                 .addField("version", int.class)
@@ -850,6 +854,12 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("RedEnvelopeMessage")
                 .addField("canReview", int.class);
+    }
+
+    // 新的申请需要增加uid字段
+    private final void updateV47(RealmSchema schema) {
+        schema.get("Remind")
+                .addField("uid", long.class);
     }
 
 

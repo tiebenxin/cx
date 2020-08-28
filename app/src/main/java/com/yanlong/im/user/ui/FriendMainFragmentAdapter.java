@@ -95,7 +95,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                     context.startActivity(new Intent(context, FriendMatchActivity.class));
                 }
             });
-            hd.sbApply.setNum(viewModel.getRemindCount("friend_apply"), false);
+            hd.sbApply.setNum(viewModel.getRemindCount(Preferences.FRIEND_APPLY), false);
             boolean isFirst = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), true);
             if (isFirst) {
                 hd.ivDisturbUnread.setVisibility(View.VISIBLE);

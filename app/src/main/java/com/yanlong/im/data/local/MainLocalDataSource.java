@@ -1,5 +1,6 @@
 package com.yanlong.im.data.local;
 
+import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Remind;
@@ -77,8 +78,18 @@ public class MainLocalDataSource {
      * @return
      */
     public int getRemindCount(String type) {
-        Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
-        int num = remind == null ? 0 : remind.getNumber();
+        int num = 0;
+        if (Preferences.FRIEND_APPLY.equals(type)) {
+            RealmResults<Remind> reminds = realm.where(Remind.class).equalTo("remid_type", type).findAll();
+            if (reminds != null) {
+                for (Remind remind : reminds) {
+                    num += remind.getNumber();
+                }
+            }
+        } else {
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+            num = remind == null ? 0 : remind.getNumber();
+        }
         return num;
     }
 
@@ -88,11 +99,22 @@ public class MainLocalDataSource {
      * @return
      */
     public void clearRemindCount(String type) {
-        Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
-        if (remind != null) {
-            beginTransaction();
-            remind.setNumber(0);
-            commitTransaction();
+        if (Preferences.FRIEND_APPLY.equals(type)) {
+            RealmResults<Remind> reminds = realm.where(Remind.class).equalTo("remid_type", type).findAll();
+            if (reminds != null) {
+                beginTransaction();
+                for (Remind remind : reminds) {
+                    remind.setNumber(0);
+                }
+                commitTransaction();
+            }
+        } else {
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+            if (remind != null) {
+                beginTransaction();
+                remind.setNumber(0);
+                commitTransaction();
+            }
         }
     }
 
