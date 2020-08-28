@@ -500,8 +500,8 @@ public class MosaicPaintView extends View {
                 / (float) mImageWidth;
         x = (int) ((x - mImageRect.left) / ratio);
         y = (int) ((y - mImageRect.top) / ratio);
-        mTouchPath = new Path();
         if (action == MotionEvent.ACTION_DOWN) {
+            mTouchPath = new Path();
             mTouchPath.moveTo(x, y);
             if (mMosaic) {
                 mTouchPaths.add(mTouchPath);
@@ -509,9 +509,11 @@ public class MosaicPaintView extends View {
                 mErasePaths.add(mTouchPath);
             }
         } else if (action == MotionEvent.ACTION_MOVE) {
-            mTouchPath.lineTo(x, y);
-            updatePathMosaic();
-            invalidate();
+            if (mTouchPath != null) {
+                mTouchPath.lineTo(x, y);
+                updatePathMosaic();
+                invalidate();
+            }
         }
     }
 
