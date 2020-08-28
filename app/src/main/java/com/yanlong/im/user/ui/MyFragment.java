@@ -199,7 +199,7 @@ public class MyFragment extends Fragment {
                 }
                 Intent intent = new Intent(getActivity(), WebActivity.class);
                 intent.putExtra(WebActivity.AGM_URL, AppConfig.HELP_URL);
-                intent.putExtra(WebActivity.AGM_TITLE, "帮助");
+                intent.putExtra(WebActivity.AGM_TITLE, "帮助与反馈");
                 startActivity(intent);
             }
         });

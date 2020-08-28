@@ -6312,10 +6312,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             ivForward.setEnabled(false);
                             ivDelete.setEnabled(false);
                             ivCollection.setEnabled(false);
+                            ivForward.setAlpha(0.6f);
+                            ivDelete.setAlpha(0.6f);
+                            ivCollection.setAlpha(0.6f);
                         } else {
                             ivForward.setEnabled(true);
                             ivDelete.setEnabled(true);
                             ivCollection.setEnabled(true);
+                            ivForward.setAlpha(1f);
+                            ivDelete.setAlpha(1f);
+                            ivCollection.setAlpha(1f);
                         }
                     }
                     break;
@@ -7185,6 +7191,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         DialogCommon2 dialogValid = new DialogCommon2(this);
         dialogValid.setContent("你选的消息包含不支持消息或已失效", true)
                 .setButtonTxt("确定")
+                .hasTitle(false)
                 .setListener(new DialogCommon2.IDialogListener() {
                     @Override
                     public void onClick() {

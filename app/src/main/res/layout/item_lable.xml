@@ -26,4 +26,24 @@
         android:textColor="@color/c_353535"
         android:textSize="13sp" />
 
+
+    <TextView
+        android:id="@+id/tv_title_cx"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="title"
+        android:textColor="@color/c_353535"
+        android:visibility="gone"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tv_content_cx"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="内容"
+        android:visibility="gone"
+        android:textColor="@color/c_353535"
+        android:textSize="13sp" />
 </LinearLayout>
