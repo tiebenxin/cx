@@ -155,8 +155,6 @@ import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.cell.OnControllerClickListener;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
-import com.yanlong.im.chat.ui.groupmanager.NoRedBagActivity;
-import com.yanlong.im.dialog.ForwardDialog;
 import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
@@ -254,8 +252,9 @@ import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
-import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.WebPageActivity;
+import net.cb.cb.library.view.recycler.IRefreshListener;
+import net.cb.cb.library.view.recycler.MultiRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -305,7 +304,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     // public static final int REQ_REFRESH = 7779;
     private HeadView2 headView;
     private ActionbarView actionbar;
-    private MultiListView mtListView;
+    private MultiRecyclerView mtListView;
     private ImageView btnVoice;
     private CustomerEditText editChat;
     private ImageView btnEmj;
@@ -1236,7 +1235,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (msgAllbean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
             int size = mAdapter.getItemCount();
             mAdapter.addMessage(msgAllbean);
-            mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
+            mAdapter.notifyItemRangeInserted(size, 1);
             //红包通知 不滚动到底部
             if (msgAllbean.getMsgNotice() != null && (msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
                     || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
@@ -1339,7 +1338,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     mAdapter.showCheckBox(false, true);
                     mAdapter.clearSelectedMsg();
                     showViewMore(false);
-                    mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+                    mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
                     return;
                 }
                 // 封号
@@ -1660,28 +1659,39 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         mAdapter.setTagListener(this);
         mAdapter.setHasStableIds(true);
         mAdapter.setReadStatus(checkIsRead());
-        mtListView.init(mAdapter);
-        mtListView.setAnimation(null);
+        mtListView.setAdapter(mAdapter);
+//        mtListView.setAnimation(null);
 
-        mtListView.getLoadView().setStateNormal();
-        mtListView.setEvent(new MultiListView.Event() {
-
-
+//        mtListView.getLoadView().setStateNormal();
+        mtListView.setListener(new IRefreshListener() {
             @Override
             public void onRefresh() {
                 taskMoreMessage();
             }
 
             @Override
-            public void onLoadMore() {
-
-            }
-
-            @Override
-            public void onLoadFail() {
+            public void loadMore() {
 
             }
         });
+//        mtListView.setEvent(new MultiListView.Event() {
+//
+//
+//            @Override
+//            public void onRefresh() {
+//                taskMoreMessage();
+//            }
+//
+//            @Override
+//            public void onLoadMore() {
+//
+//            }
+//
+//            @Override
+//            public void onLoadFail() {
+//
+//            }
+//        });
 
         mtListView.getListView().setOnTouchListener(new View.OnTouchListener() {
             int isRun = 0;
@@ -2337,7 +2347,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
         }
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
 
     //消息发送
@@ -2865,7 +2875,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             mAdapter.showCheckBox(false, true);
             mAdapter.clearSelectedMsg();
             showViewMore(false);
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+            mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
             return;
         }
         clearScrollPosition();
@@ -3564,7 +3574,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+            mAdapter.notifyItemChanged(position, position);
         }
 
     }
@@ -3579,7 +3589,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+            mAdapter.notifyItemChanged(position, position);
         }
     }
 
@@ -3594,7 +3604,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         int len = mAdapter.getItemCount();
         for (int i = 0; i < len; i++) {
             if (mAdapter.getMessage(i).getMsg_id().equals(msgid)) {
-                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
+                mAdapter.notifyItemChanged(i, i);
             }
         }
     }
@@ -4451,7 +4461,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         showViewMore(true);
         mAdapter.getSelectedMsg().add(msgBean);
         mAdapter.showCheckBox(true, true);
-        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+        mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
     }
 
     private void changeRightBtn(boolean isShow) {
@@ -4759,7 +4769,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 //        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null && mAdapter.getItemCount() > 0) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+            mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
         }
         mtListView.getSwipeLayout().setRefreshing(false);
     }
@@ -5960,7 +5970,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             AudioPlayManager.getInstance().stopPlay();
         }
         mAdapter.removeItem(bean);
-        mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
+        mAdapter.notifyItemRemoved(position);//删除刷新
         removeUnreadCount(1);
         fixLastPosition(-1);
     }
@@ -6082,7 +6092,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void run() {
                 showViewMore(false);
                 mAdapter.showCheckBox(false, true);
-                mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+                mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
             }
         }, 100);
     }
@@ -6703,9 +6713,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (mAdapter != null) {
                             mAdapter.bindData(list, false);
                             mAdapter.setReadStatus(checkIsRead());
-                            notifyData();
+//                            notifyData();
                             //TODO：此时滚动会引起索引越界
-//                            mtListView.getListView().smoothScrollToPosition(0);
+                            mtListView.getListView().smoothScrollToPosition(0);
                         }
                     }
                 });

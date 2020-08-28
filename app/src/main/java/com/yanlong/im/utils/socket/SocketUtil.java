@@ -426,7 +426,7 @@ public class SocketUtil {
     private boolean isStart = false;
 
     /***
-     * 启动，纳入线程池管理，连接速度无影响
+     * 启动，纳入线程池管理,偶尔有延时，所以暂不纳入线程池管理
      */
     public void startSocket() {
         if (isStart && isRun()) {
@@ -435,14 +435,13 @@ public class SocketUtil {
         }
         setRunState(0);
         isStart = true;
-        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
                 if (socketChannel != null) {
                     LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
                 }
-
                 //启动，并且未鉴权成功
                 while (isStart && !getOnlineState()) {
                     LogUtil.getLog().i(TAG, ">>>>>服务器链接检查isRun: " + isRun);
@@ -460,13 +459,18 @@ public class SocketUtil {
 
                     try {
                         Thread.sleep(recontTime);
-//                        LogUtil.getLog().i(TAG, ">>>>>sleep--recontTime" + recontTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }
-        });
+        }).start();
+//        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        });
     }
 
     /***

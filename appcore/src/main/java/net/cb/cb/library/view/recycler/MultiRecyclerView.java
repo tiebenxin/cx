@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.LoadView;
 import net.cb.cb.library.view.MaterialDrawable;
 import net.cb.cb.library.view.NewPullRefreshLayout;
@@ -72,6 +73,7 @@ public class MultiRecyclerView extends LinearLayout {
     }
 
     public void setListener(IRefreshListener l) {
+        pullRefreshLayout.setEnabled(true);
         listener = l;
     }
 
@@ -79,4 +81,28 @@ public class MultiRecyclerView extends LinearLayout {
         mAdapter = adapter;
         recyclerView.setAdapter(mAdapter);
     }
+
+    public RecyclerView getListView() {
+        return recyclerView;
+    }
+
+    public LinearLayoutManager getLayoutManager() {
+        return layoutManager;
+    }
+
+    public NewPullRefreshLayout getSwipeLayout() {
+        return pullRefreshLayout;
+    }
+
+
+    /**
+     * 滑到列表底部
+     */
+    public void scrollToEnd() {
+        if (layoutManager == null || mAdapter == null) {
+            return;
+        }
+        layoutManager.scrollToPositionWithOffset(mAdapter.getItemCount() - 1, Integer.MIN_VALUE);
+    }
+
 }
