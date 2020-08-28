@@ -21,9 +21,7 @@ import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SendFileMessage;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.utils.DownloadUtil;
@@ -139,44 +137,48 @@ public class FileDownloadActivity extends AppActivity {
         });
         if(!TextUtils.isEmpty(msgString)){
             msgAllBean = new Gson().fromJson(msgString, MsgAllBean.class);
-            sendFileMessage = msgAllBean.getSendFileMessage();
-        }
-
-        //显示文件名
-        if(!TextUtils.isEmpty(sendFileMessage.getFile_name())){
-            fileName = sendFileMessage.getFile_name();
-            //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
-            //若没有同名文件，则按默认新文件来保存
-            fileName = FileUtils.getFileRename(fileName);
-            tvFileName.setText(fileName);
-        }
-        //根据文件类型，显示图标
-        if(!TextUtils.isEmpty(sendFileMessage.getFormat())){
-            fileFormat = sendFileMessage.getFormat();
-            if(fileFormat.equals("txt")){
-                ivFileImage.setImageResource(R.mipmap.ic_txt);
-            }else if(fileFormat.equals("xls") || fileFormat.equals("xlsx")){
-                ivFileImage.setImageResource(R.mipmap.ic_excel);
-            }else if(fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")){ //PDF暂用此图标
-                ivFileImage.setImageResource(R.mipmap.ic_ppt);
-            }else if(fileFormat.equals("doc") || fileFormat.equals("docx")){
-                ivFileImage.setImageResource(R.mipmap.ic_word);
-            }else if(fileFormat.equals("rar") || fileFormat.equals("zip")){
-                ivFileImage.setImageResource(R.mipmap.ic_zip);
-            }else if(fileFormat.equals("exe")){
-                ivFileImage.setImageResource(R.mipmap.ic_exe);
-            }else {
-                ivFileImage.setImageResource(R.mipmap.ic_unknow);
+            if(msgAllBean!=null && msgAllBean.getSendFileMessage()!=null){
+                sendFileMessage = msgAllBean.getSendFileMessage();
             }
         }
-        //获取文件消息id
-        if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
-            fileMsgId = sendFileMessage.getMsgId();
-        }
 
-        //获取文件消息大小
-        if(sendFileMessage.getSize()!=0L){
-            tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
+        if(sendFileMessage!=null){
+            //显示文件名
+            if(!TextUtils.isEmpty(sendFileMessage.getFile_name())){
+                fileName = sendFileMessage.getFile_name();
+                //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
+                //若没有同名文件，则按默认新文件来保存
+                fileName = FileUtils.getFileRename(fileName);
+                tvFileName.setText(fileName);
+            }
+            //根据文件类型，显示图标
+            if(!TextUtils.isEmpty(sendFileMessage.getFormat())){
+                fileFormat = sendFileMessage.getFormat();
+                if(fileFormat.equals("txt")){
+                    ivFileImage.setImageResource(R.mipmap.ic_txt);
+                }else if(fileFormat.equals("xls") || fileFormat.equals("xlsx")){
+                    ivFileImage.setImageResource(R.mipmap.ic_excel);
+                }else if(fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")){ //PDF暂用此图标
+                    ivFileImage.setImageResource(R.mipmap.ic_ppt);
+                }else if(fileFormat.equals("doc") || fileFormat.equals("docx")){
+                    ivFileImage.setImageResource(R.mipmap.ic_word);
+                }else if(fileFormat.equals("rar") || fileFormat.equals("zip")){
+                    ivFileImage.setImageResource(R.mipmap.ic_zip);
+                }else if(fileFormat.equals("exe")){
+                    ivFileImage.setImageResource(R.mipmap.ic_exe);
+                }else {
+                    ivFileImage.setImageResource(R.mipmap.ic_unknow);
+                }
+            }
+            //获取文件消息id
+            if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
+                fileMsgId = sendFileMessage.getMsgId();
+            }
+
+            //获取文件消息大小
+            if(sendFileMessage.getSize()!=0L){
+                tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
+            }
         }
 
         tvDownload.setOnClickListener(new View.OnClickListener() {
@@ -206,10 +208,6 @@ public class FileDownloadActivity extends AppActivity {
     @Override
     protected void onStop() {
         super.onStop();
-//        handler.removeCallbacks(runnable);
-        //退出重置状态
-//        tvDownload.setText("点击下载");
-//        downloadStatus = 3;//默认状态：未下载
     }
 
     /**

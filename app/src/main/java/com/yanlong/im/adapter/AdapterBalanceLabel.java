@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
@@ -75,6 +76,7 @@ public class AdapterBalanceLabel extends BaseAdapter {
         private final TextView tvContent;
         private final TextView tvTitleCx;
         private final TextView tvContentCx;
+        private final LinearLayout layoutRoot;
 
         public LabelViewHolder(View v) {
             root = v;
@@ -82,6 +84,7 @@ public class AdapterBalanceLabel extends BaseAdapter {
             tvContent = v.findViewById(R.id.tv_content);
             tvTitleCx = v.findViewById(R.id.tv_title_cx);
             tvContentCx = v.findViewById(R.id.tv_content_cx);
+            layoutRoot = v.findViewById(R.id.layout_root);
         }
 
         public View getView() {
@@ -91,14 +94,12 @@ public class AdapterBalanceLabel extends BaseAdapter {
         public void bindData(LabelItem item) {
             if (type == 1) {
                 tvContentCx.setVisibility(View.VISIBLE);
-                tvTitle.setVisibility(View.GONE);
-                tvContent.setVisibility(View.GONE);
+                layoutRoot.setVisibility(View.GONE);
                 if (TextUtils.isEmpty(item.getLabel())) {
                     tvTitleCx.setVisibility(View.GONE);
                 } else {
                     tvTitleCx.setVisibility(View.VISIBLE);
                 }
-
                 tvTitleCx.setText(item.getLabel());
                 tvContentCx.setText(item.getValue());
             } else {
