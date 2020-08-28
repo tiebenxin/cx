@@ -138,6 +138,9 @@ public class SearchAndEditAvatarView extends LinearLayout {
     public void removeUser(MemberUser user) {
         EditAvatarBean bean = new EditAvatarBean(user);
         userList.remove(bean);
+        if (userList.size() == 0) {
+            showSearchIcon(true);
+        }
         mAdapter.bindData(userList);
     }
 

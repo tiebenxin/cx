@@ -5622,8 +5622,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     //获取红包详情
-    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
-                                     boolean isNormalStyle) {
+    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle) {
         if (TextUtils.isEmpty(token) && (msgBean != null && !msgBean.isMe())) {
             String from = "";
             if (isGroup()) {
