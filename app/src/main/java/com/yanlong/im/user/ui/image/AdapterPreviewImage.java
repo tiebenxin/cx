@@ -344,9 +344,10 @@ public class AdapterPreviewImage extends PagerAdapter {
                         pbLoading.setVisibility(View.GONE);
                     }
                     if (e.getMessage().contains("FileNotFoundException")) {
-                        if (isCurrent) {
-                            ToastUtil.show("图片已过期");
-                        }
+                        ivZoom.setImageResource(R.mipmap.ic_img_past);
+//                        if (isCurrent) {
+//                            ToastUtil.show("图片已过期");
+//                        }
                     } else {
                         ivZoom.postDelayed(new Runnable() {
                             @Override
@@ -566,9 +567,10 @@ public class AdapterPreviewImage extends PagerAdapter {
                             pbLoading.setVisibility(View.GONE);
                         }
                         if (e.getMessage().contains("FileNotFoundException")) {
-                            if (isCurrent) {
-                                ToastUtil.show("图片已过期");
-                            }
+                            ivZoom.setImageResource(R.mipmap.ic_img_past);
+//                            if (isCurrent) {
+//                                ToastUtil.show("图片已过期");
+//                            }
                         } else {
                             ivZoom.postDelayed(new Runnable() {
                                 @Override
@@ -609,9 +611,10 @@ public class AdapterPreviewImage extends PagerAdapter {
                     pbLoading.setVisibility(View.GONE);
                 }
                 if (e.getMessage().contains("FileNotFoundException")) {
-                    if (isCurrent) {
-                        ToastUtil.show("图片已过期");
-                    }
+                    ivZoom.setImageResource(R.mipmap.ic_img_past);
+//                    if (isCurrent) {
+//                        ToastUtil.show("图片已过期");
+//                    }
                 } else {
                     if (isCurrent) {
                         ivZoom.postDelayed(new Runnable() {
