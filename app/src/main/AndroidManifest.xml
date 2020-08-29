@@ -266,7 +266,9 @@
         <activity
             android:name=".user.ui.RegisterActivity"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name=".view.WebActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.RegisterUserNameActivity"
             android:screenOrientation="portrait" />

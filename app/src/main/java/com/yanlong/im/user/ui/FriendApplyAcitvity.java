@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.utils.DateUtils;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
@@ -28,6 +29,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -104,7 +106,7 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
     private void initData() {
-        listData = msgDao.getApplyBeanList();
+        listData = msgDao.getApplyBeanList(-1);
         mtListView.notifyDataSetChange();
     }
 
@@ -136,6 +138,7 @@ public class FriendApplyAcitvity extends AppActivity {
         @Override
         public void onBindViewHolder(final RCViewHolder holder, int position) {
             ApplyBean bean = listData.get(position);
+            LogUtil.getLog().i("1212", "time:" + DateUtils.getTransferTime(bean.getTime()));
             if (CoreEnum.EChatType.PRIVATE == bean.getChatType()) {
                 holder.txtName.setText(bean.getNickname());
                 Glide.with(context).load(bean.getAvatar())

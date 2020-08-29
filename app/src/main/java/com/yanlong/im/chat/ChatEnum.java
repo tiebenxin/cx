@@ -103,6 +103,8 @@ public class ChatEnum {
 
         //常信小助手消息
         ASSISTANT(R.layout.cell_txt_received),
+        //常信小助手消息 新版
+        ASSISTANT_NEW(R.layout.cell_txt_received_new),
 
         //端到端加密消息
         LOCK(R.layout.cell_lock),
@@ -201,7 +203,8 @@ public class ChatEnum {
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
             EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT, EMessageType.SHIPPED_EXPRESSION,
-            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE, EMessageType.REPLY, EMessageType.GROUP_ANNOUNCEMENT, EMessageType.ASSISTANT_PROMOTION})
+            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE, EMessageType.REPLY, EMessageType.GROUP_ANNOUNCEMENT, EMessageType.ASSISTANT_PROMOTION,
+            EMessageType.ASSISTANT_NEW})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -227,6 +230,7 @@ public class ChatEnum {
         int TRANSFER_NOTICE = 19; //转账提醒
         int REPLY = 20; //回复消息
         int ASSISTANT_PROMOTION = 21; //小助手广告消息
+        int ASSISTANT_NEW = 22; //小助手 新版消息
 
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚

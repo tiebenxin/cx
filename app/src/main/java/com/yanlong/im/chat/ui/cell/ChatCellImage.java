@@ -3,26 +3,19 @@ package com.yanlong.im.chat.ui.cell;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -45,9 +38,6 @@ public class ChatCellImage extends ChatCellFileBase {
     private ImageView imageView;
     private ImageMessage imageMessage;
     String currentUrl = "";
-//    private ProgressBar progressBar;
-//    private TextView tv_progress;
-//    private LinearLayout ll_progress;
 
     protected ChatCellImage(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -58,9 +48,6 @@ public class ChatCellImage extends ChatCellFileBase {
     protected void initView() {
         super.initView();
         imageView = getView().findViewById(R.id.iv_img);
-//        ll_progress = getView().findViewById(R.id.ll_progress);
-//        progressBar = getView().findViewById(R.id.progress_bar);
-//        tv_progress = getView().findViewById(R.id.tv_progress);
     }
 
     @SuppressLint("CheckResult")
@@ -80,7 +67,7 @@ public class ChatCellImage extends ChatCellFileBase {
         resetSize();
         checkSendStatus();
         //获取圆角
-        RequestOptions rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
+        RequestOptions rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 1))*/;
         rOptions.dontAnimate();
         rOptions.override(width, height);
         String tag = (String) imageView.getTag(R.id.tag_img);
@@ -111,9 +98,7 @@ public class ChatCellImage extends ChatCellFileBase {
             } else {//复用
                 glide(rOptions, tag);
             }
-
         }
-
     }
 
     public void glide(RequestOptions rOptions, String url) {
@@ -225,7 +210,6 @@ public class ChatCellImage extends ChatCellFileBase {
             case ChatEnum.ESendStatus.SENDING:
                 ll_progress.setVisibility(VISIBLE);
                 break;
-
         }
     }
 }

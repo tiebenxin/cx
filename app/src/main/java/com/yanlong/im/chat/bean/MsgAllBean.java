@@ -419,7 +419,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 str = "[语音]";
             } else if (msg_type == ChatEnum.EMessageType.AT) {
                 str = getAtMessage().getMsg();
-            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
+            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT ||
+                    msg_type == ChatEnum.EMessageType.ASSISTANT_NEW) {
                 str = "[常信通知]";
             } else if (msg_type == ChatEnum.EMessageType.MSG_CANCEL) {//撤回消息
                 str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
@@ -749,6 +750,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             case ChatEnum.EMessageType.ASSISTANT://小助手
                 layout = ChatEnum.EChatCellLayout.ASSISTANT;
                 break;
+            case ChatEnum.EMessageType.ASSISTANT_NEW://小助手
+                layout = ChatEnum.EChatCellLayout.ASSISTANT_NEW;
+                break;
             case ChatEnum.EMessageType.LOCK://端对端加密消息
                 layout = ChatEnum.EChatCellLayout.LOCK;
                 break;
@@ -971,6 +975,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 content = atMessage;
                 break;
             case ChatEnum.EMessageType.ASSISTANT://小助手
+            case ChatEnum.EMessageType.ASSISTANT_NEW://小助手
                 break;
             case ChatEnum.EMessageType.LOCK://端对端加密消息
                 break;

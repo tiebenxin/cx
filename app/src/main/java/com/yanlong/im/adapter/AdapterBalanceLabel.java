@@ -1,10 +1,13 @@
 package com.yanlong.im.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
@@ -22,11 +25,19 @@ public class AdapterBalanceLabel extends BaseAdapter {
     private final List<LabelItem> mList;
     private final Context context;
     private final LayoutInflater inflater;
+    private int type;// 1 表示常信小助手电话端登录通知
 
     public AdapterBalanceLabel(List<LabelItem> l, Context con) {
         mList = l;
         context = con;
         inflater = LayoutInflater.from(con);
+    }
+
+    public AdapterBalanceLabel(List<LabelItem> l, Context con, int type) {
+        mList = l;
+        context = con;
+        inflater = LayoutInflater.from(con);
+        this.type = type;
     }
 
     @Override
@@ -63,11 +74,17 @@ public class AdapterBalanceLabel extends BaseAdapter {
         private final View root;
         private final TextView tvTitle;
         private final TextView tvContent;
+        private final TextView tvTitleCx;
+        private final TextView tvContentCx;
+        private final LinearLayout layoutRoot;
 
         public LabelViewHolder(View v) {
             root = v;
             tvTitle = v.findViewById(R.id.tv_title);
             tvContent = v.findViewById(R.id.tv_content);
+            tvTitleCx = v.findViewById(R.id.tv_title_cx);
+            tvContentCx = v.findViewById(R.id.tv_content_cx);
+            layoutRoot = v.findViewById(R.id.layout_root);
         }
 
         public View getView() {
@@ -75,8 +92,20 @@ public class AdapterBalanceLabel extends BaseAdapter {
         }
 
         public void bindData(LabelItem item) {
-            tvTitle.setText(item.getLabel());
-            tvContent.setText(item.getValue());
+            if (type == 1) {
+                tvContentCx.setVisibility(View.VISIBLE);
+                layoutRoot.setVisibility(View.GONE);
+                if (TextUtils.isEmpty(item.getLabel())) {
+                    tvTitleCx.setVisibility(View.GONE);
+                } else {
+                    tvTitleCx.setVisibility(View.VISIBLE);
+                }
+                tvTitleCx.setText(item.getLabel());
+                tvContentCx.setText(item.getValue());
+            } else {
+                tvTitle.setText(item.getLabel());
+                tvContent.setText(item.getValue());
+            }
         }
     }
 }
