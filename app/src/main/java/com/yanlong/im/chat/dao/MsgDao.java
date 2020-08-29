@@ -3867,4 +3867,30 @@ public class MsgDao {
         realm.close();
         return memberUsers;
     }
+
+
+    //获取图片，视频语音，文件消息
+    public List<MsgAllBean> getUploadMessage(String[] msgIds) {
+        List<MsgAllBean> list = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.VOICE, ChatEnum.EMessageType.MSG_VIDEO, ChatEnum.EMessageType.FILE};
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<MsgAllBean> all = realm.where(MsgAllBean.class)
+                    .beginGroup().in("msg_id", msgIds).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
+                    .and()
+                    .beginGroup().equalTo("send_state", ChatEnum.ESendStatus.NORMAL).endGroup()
+                    .sort("timestamp", Sort.ASCENDING)
+                    .findAll();
+            if (all != null) {
+                list = realm.copyFromRealm(all);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+    }
 }

@@ -213,6 +213,7 @@ import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
+import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.bean.VideoSize;
@@ -1872,7 +1873,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-                        filterMsgForward(mAdapter.getSelectedMsg());
+//                        filterMsgForward(mAdapter.getSelectedMsg());
+                        filterMessageValid(mAdapter.getSelectedMsg(), 1);
                     }
                 }
 
@@ -1890,7 +1892,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-                        filterMsgCollection(mAdapter.getSelectedMsg());
+//                        filterMsgCollection(mAdapter.getSelectedMsg());
+                        filterMessageValid(mAdapter.getSelectedMsg(), 2);
                     }
                 }
             }
@@ -1948,16 +1951,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             replayMsg = null;
             mViewModel.isReplying.setValue(false);
         }
-    }
-
-    //设置键盘高度
-    private void setPanelHeight(int h, View view) {
-//        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
-//        if (linearParams.height != h) {
-//            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
-//            linearParams.height = Math.max(h, minHeight);
-//            view.setLayoutParams(linearParams);
-//        }
     }
 
     private void checkScrollFirst(int first) {
@@ -7227,6 +7220,94 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 //                        hideMultiSelect(ivForward);
                     }
                 }).show();
+    }
+
+    //检测图片，语音，文件，视频消息是否过期，过期则过滤。 action 1 转发，2收藏
+    @SuppressLint("CheckResult")
+    private void filterMessageValid(List<MsgAllBean> sourList, int action) {
+        int sourLen = sourList.size();
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        if (sourLen > 0) {
+                            String[] msgIds = new String[sourLen];
+                            for (int i = 0; i < sourLen; i++) {
+                                MsgAllBean msgAllBean = sourList.get(i);
+                                msgIds[i] = msgAllBean.getMsg_id();
+                            }
+                            List<MsgAllBean> uploadMessages = msgDao.getUploadMessage(msgIds);
+                            if (uploadMessages != null) {
+                                int len = uploadMessages.size();
+                                if (len > 0) {
+                                    ArrayList<FileBean> fileBeans = new ArrayList<>();
+                                    for (int i = 0; i < len; i++) {
+                                        MsgAllBean msgAllBean = uploadMessages.get(i);
+                                        String md5 = "";
+                                        String url = "";
+                                        if (msgAllBean.getImage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getImage().getPreview());
+                                            url = msgAllBean.getImage().getPreview();
+                                        } else if (msgAllBean.getVoiceMessage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVoiceMessage().getUrl());
+                                            url = msgAllBean.getVoiceMessage().getUrl();
+                                        } else if (msgAllBean.getVideoMessage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getUrl());
+                                            url = msgAllBean.getVideoMessage().getUrl();
+                                        } else if (msgAllBean.getSendFileMessage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getSendFileMessage().getUrl());
+                                            url = msgAllBean.getSendFileMessage().getUrl();
+                                        }
+                                        if (!TextUtils.isEmpty(md5)) {
+                                            FileBean fileBean = new FileBean();
+                                            fileBean.setMd5(md5);
+                                            fileBean.setUrl(url);
+                                            fileBeans.add(fileBean);
+                                        }
+                                    }
+
+                                    if (fileBeans.size() > 0) {
+                                        UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<List<String>>>() {
+                                            @Override
+                                            public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                                                super.onResponse(call, response);
+                                                if (response != null && response.body() != null) {
+                                                    List<String> urls = response.body().getData();
+
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                                                super.onFailure(call, t);
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    if (action == 1) {
+                                        filterMsgForward(sourList);
+                                    } else if (action == 2) {
+                                        filterMsgCollection(sourList);
+                                    }
+                                }
+                            } else {
+                                if (action == 1) {
+                                    filterMsgForward(sourList);
+                                } else if (action == 2) {
+                                    filterMsgCollection(sourList);
+                                }
+                            }
+                        }
+                        return null;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                    }
+                });
     }
 
 
