@@ -7284,9 +7284,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                         if (msgAllBean.getImage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getImage().getPreview());
                                             url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getImage().getPreview(), msgAllBean.getMsg_type());
-                                        } else if (msgAllBean.getVoiceMessage() != null) {
-                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVoiceMessage().getUrl());
-                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVoiceMessage().getUrl(), msgAllBean.getMsg_type());
                                         } else if (msgAllBean.getVideoMessage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getUrl());
                                             url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getUrl(), msgAllBean.getMsg_type());
