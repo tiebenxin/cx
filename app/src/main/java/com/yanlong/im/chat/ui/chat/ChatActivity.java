@@ -4391,8 +4391,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
                 ArrayList<FileBean> list = new ArrayList<>();
                 FileBean fileBean = new FileBean();
-                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
-                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
+                if (msgbean.getImage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
+                } else if (msgbean.getVideoMessage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getUrl()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getUrl(), msgbean.getMsg_type()));
+                } else if (msgbean.getSendFileMessage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getSendFileMessage().getUrl()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getSendFileMessage().getUrl(), msgbean.getMsg_type()));
+                }
                 list.add(fileBean);
                 UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
                     @Override
