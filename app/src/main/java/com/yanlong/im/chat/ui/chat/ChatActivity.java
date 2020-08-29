@@ -83,6 +83,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.widgt.ReturnButton;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.MainActivity;
@@ -7312,20 +7313,36 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                             public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                                                 super.onResponse(call, response);
                                                 if (response != null && response.body() != null) {
-                                                    List<String> urls = response.body().getData();
-                                                    int size = urls.size();
-                                                    if (size == fileBeans.size()) {
-                                                        //都未过期
-                                                        if (action == 1) {
-                                                            filterMsgForward(sourList);
-                                                        } else if (action == 2) {
-                                                            filterMsgCollection(sourList);
+                                                    ReturnBean returnButton = response.body();
+                                                    if (returnButton != null && returnButton.isOk()) {
+                                                        List<String> urls = response.body().getData();
+                                                        int size = urls.size();
+                                                        if (size == fileBeans.size()) {
+                                                            //都未过期
+                                                            if (action == 1) {
+                                                                filterMsgForward(sourList);
+                                                            } else if (action == 2) {
+                                                                filterMsgCollection(sourList);
+                                                            }
+                                                        } else {
+                                                            for (int i = 0; i < size; i++) {
+                                                                String md5 = urls.get(i);
+                                                                filterMsgList.remove(md5);
+                                                            }
+                                                            if (filterMsgList.size() > 0) {
+                                                                Iterator iterator = filterMsgList.keySet().iterator();
+                                                                while (iterator.hasNext()) {
+                                                                    MsgAllBean bean = filterMsgList.get(iterator.next().toString());
+                                                                    sourList.remove(bean);
+                                                                }
+                                                            }
+                                                            if (action == 1) {
+                                                                filterMsgForward(sourList);
+                                                            } else if (action == 2) {
+                                                                filterMsgCollection(sourList);
+                                                            }
                                                         }
-                                                    } else {
-                                                        for (int i = 0; i < size; i++) {
-                                                            String md5 = urls.get(i);
-                                                            filterMsgList.remove(md5);
-                                                        }
+                                                    } else {//都是过期的
                                                         if (filterMsgList.size() > 0) {
                                                             Iterator iterator = filterMsgList.keySet().iterator();
                                                             while (iterator.hasNext()) {
