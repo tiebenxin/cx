@@ -1014,7 +1014,7 @@ public class MainActivity extends BaseTcpActivity {
     private void taskGetFriendNum() {
         //  ToastUtil.show(getContext(),"更新好友的提示数量");
         int sum = 0;
-        sum += msgDao.remidGet("friend_apply");
+        sum += msgDao.remidGet(Preferences.FRIEND_APPLY);
         sum += msgDao.remidGet(Preferences.RECENT_FRIENDS_NEW);// 手机通讯录匹配
         // sum+=msgDao.remidGet("friend_apply");
         //  sum+=msgDao.remidGet("friend_apply");

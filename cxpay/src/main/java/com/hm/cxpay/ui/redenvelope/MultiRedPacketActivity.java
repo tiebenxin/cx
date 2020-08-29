@@ -16,8 +16,10 @@ import android.view.View;
 import androidx.annotation.RequiresApi;
 
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.google.gson.JsonArray;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
@@ -39,6 +41,10 @@ import net.cb.cb.library.view.PopupSelectView;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
@@ -61,6 +67,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     private String note;
     private String actionId;
     private int count;
+    private ArrayList<FromUserBean> toUserList;
 
 
     /**
@@ -95,7 +102,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         payFailed();
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign());
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign(), toUserList);
         if (envelopeBean != null && !TextUtils.isEmpty(event.getActionId()) && !TextUtils.isEmpty(envelopeBean.getActionId()) && !TextUtils.isEmpty(event.getSign()) && event.getActionId().equals(envelopeBean.getActionId())) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
@@ -111,6 +118,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     private void payFailed() {
         dismissLoadingDialog();
+        ui.btnCommit.setEnabled(true);
         if (isSending()) {
             setSending(false);
             if (handler != null && runnable != null) {
@@ -168,13 +176,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void afterTextChanged(Editable s) {
                 String string = s.toString().trim();
-//                if (count < 0) {
-//                    ui.tvNotice.setVisibility(View.GONE);
-////                    ui.tvNotice.setText(getString(R.string.min_count_notice));
-//                    ui.tvMoney.setText("0.00");
-//                    ui.btnCommit.setEnabled(false);
-//                    return;
-//                }
                 updateCommitUI(string, ui.edRedPacketNum.getText().toString().trim());
             }
         });
@@ -193,22 +194,17 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void afterTextChanged(Editable s) {
                 String string = ui.edMoney.getText().toString().trim();
-//                int count = UIUtils.getRedEnvelopeCount(s.toString().trim());
-//                if (count == 0) {
-//                    ui.tvNotice.setVisibility(View.VISIBLE);
-//                    ui.tvNotice.setText(getString(R.string.min_count_notice));
-//                    ui.tvMoney.setText("0.00");
-//                    ui.btnCommit.setEnabled(false);
-//                    return;
-//                } else if (count < 0) {
-//                    ui.tvNotice.setVisibility(View.GONE);
-////                    ui.tvNotice.setText(getString(R.string.min_count_notice));
-//                    ui.tvMoney.setText("0.00");
-//                    ui.btnCommit.setEnabled(false);
-//                    return;
-//                }
-//                long money = UIUtils.getFen(string);
                 updateCommitUI(string, s.toString().trim());
+            }
+        });
+
+        ui.llSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                ARouter.getInstance().build("/app/envelopeReceiver").withString("gid", gid).withParcelableArrayList("data", toUserList).navigation(MultiRedPacketActivity.this, 2);
             }
         });
     }
@@ -265,7 +261,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
-                } */else {
+                } */ else {
                     if (totalMoney > TOTAL_MAX_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
@@ -388,8 +384,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     }
 
     private void resetMoney() {
-//        long money = UIUtils.getFen(ui.edMoney.getText().toString().trim());
-//        int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
         updateCommitUI(ui.edMoney.getText().toString().trim(), ui.edRedPacketNum.getText().toString().trim());
     }
 
@@ -419,11 +413,17 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), type, note, count, "");
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), type, note, count, "", toUserList);
+        JSONArray uidArr = new JSONArray();
+        if (toUserList != null && toUserList.size() > 0) {
+            for (int i = 0; i < toUserList.size(); i++) {
+                uidArr.put(toUserList.get(i).getUid());
+            }
+        }
         ui.btnCommit.setEnabled(false);
         setSending(true);
         showLoadingDialog();
-        PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, type, note, gid)
+        PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, type, note, gid, uidArr)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UrlBean>>() {
@@ -495,6 +495,53 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     handler.removeCallbacks(runnable);
                 }
                 ui.btnCommit.setEnabled(true);
+            }
+        } else if (requestCode == 2) {//选择红包领取人
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    int mode = data.getIntExtra("mode", 0);
+                    if (mode == 0) {
+                        if (toUserList != null) {
+                            toUserList.clear();
+                        }
+                        ui.tvName.setText("群内所有人");
+                    } else {
+                        toUserList = data.getParcelableArrayListExtra("data");
+                        if (toUserList != null && toUserList.size() > 0) {
+                            int len = toUserList.size();
+                            String name = "";
+                            for (int i = 0; i < len; i++) {
+                                FromUserBean user = toUserList.get(i);
+                                if (i != len - 1) {
+                                    name += user.getNickname() + ",";
+                                } else {
+                                    name += user.getNickname();
+                                }
+                            }
+                            ui.tvName.setText(name);
+
+                        } else {
+                            ui.tvName.setText("群内所有人");
+                        }
+                    }
+                }
+            } else {
+                if (toUserList != null && toUserList.size() > 0) {
+                    int len = toUserList.size();
+                    String name = "";
+                    for (int i = 0; i < len; i++) {
+                        FromUserBean user = toUserList.get(i);
+                        if (i != len - 1) {
+                            name += user.getNickname() + ",";
+                        } else {
+                            name += user.getNickname();
+                        }
+                    }
+                    ui.tvName.setText(name);
+
+                } else {
+                    ui.tvName.setText("群内所有人");
+                }
             }
         }
     }

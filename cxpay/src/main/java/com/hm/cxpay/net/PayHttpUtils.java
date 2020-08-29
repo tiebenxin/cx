@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.BankInfo;
 import com.hm.cxpay.bean.BillBean;
@@ -24,7 +25,12 @@ import com.hm.cxpay.utils.PayUtils;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.encrypt.MD5;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +59,10 @@ public class PayHttpUtils {
 
     private static RequestBody getRequestBody(Map<String, String> map) {
         return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), mapToJSON(map));
+    }
+
+    private static RequestBody getRequestBody(String content) {
+        return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), content);
     }
 
     /**
@@ -343,15 +353,23 @@ public class PayHttpUtils {
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气1或者普通红包0，
      * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，好运连连，uid-红包发送给谁
      */
-    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count, int type, String note, String gid) {
-        Map<String, String> map = new HashMap<>();
-        map.put("actionId", actionId);
-        map.put("amt", amt + "");
-        map.put("cnt", count + "");
-        map.put("note", note);
-        map.put("type", type + "");
-        map.put("toGid", gid);
-        return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map), getAuthMap());
+    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count, int type, String note, String gid, JSONArray allowUids) {
+        try {
+            JSONObject object = new JSONObject();
+            object.put("actionId", actionId);
+            object.put("amt", amt + "");
+            object.put("cnt", count + "");
+            object.put("note", note);
+            object.put("type", type + "");
+            object.put("toGid", gid);
+            if (allowUids != null) {
+                object.put("allowUids", allowUids);
+            }
+            return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(object.toString()), getAuthMap());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

@@ -63,6 +63,14 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
         getTag();
     }
 
+    public String getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
+    }
+
     public boolean isChecked() {
         return isChecked;
     }

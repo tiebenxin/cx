@@ -56,6 +56,7 @@ import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.CxTransferBean;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
@@ -158,6 +159,7 @@ import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
+import com.yanlong.im.pay.ui.select.ViewAllowMemberActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.CollectionInfo;
@@ -211,6 +213,7 @@ import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
+import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.bean.VideoSize;
@@ -250,8 +253,9 @@ import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
-import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.WebPageActivity;
+import net.cb.cb.library.view.recycler.IRefreshListener;
+import net.cb.cb.library.view.recycler.MultiRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -262,6 +266,7 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -272,6 +277,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.ObjectChangeSet;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.RealmObject;
 import io.realm.RealmObjectChangeListener;
@@ -300,7 +306,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     // public static final int REQ_REFRESH = 7779;
     private HeadView2 headView;
     private ActionbarView actionbar;
-    private MultiListView mtListView;
+    private MultiRecyclerView mtListView;
     private ImageView btnVoice;
     private CustomerEditText editChat;
     private ImageView btnEmj;
@@ -1232,7 +1238,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (msgAllbean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
             int size = mAdapter.getItemCount();
             mAdapter.addMessage(msgAllbean);
-            mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
+            mAdapter.notifyItemRangeInserted(size, 1);
             //红包通知 不滚动到底部
             if (msgAllbean.getMsgNotice() != null && (msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
                     || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
@@ -1335,7 +1341,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     mAdapter.showCheckBox(false, true);
                     mAdapter.clearSelectedMsg();
                     showViewMore(false);
-                    mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+                    mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
                     return;
                 }
                 // 封号
@@ -1656,28 +1662,39 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         mAdapter.setTagListener(this);
         mAdapter.setHasStableIds(true);
         mAdapter.setReadStatus(checkIsRead());
-        mtListView.init(mAdapter);
-        mtListView.setAnimation(null);
+        mtListView.setAdapter(mAdapter);
+//        mtListView.setAnimation(null);
 
-        mtListView.getLoadView().setStateNormal();
-        mtListView.setEvent(new MultiListView.Event() {
-
-
+//        mtListView.getLoadView().setStateNormal();
+        mtListView.setListener(new IRefreshListener() {
             @Override
             public void onRefresh() {
                 taskMoreMessage();
             }
 
             @Override
-            public void onLoadMore() {
-
-            }
-
-            @Override
-            public void onLoadFail() {
+            public void loadMore() {
 
             }
         });
+//        mtListView.setEvent(new MultiListView.Event() {
+//
+//
+//            @Override
+//            public void onRefresh() {
+//                taskMoreMessage();
+//            }
+//
+//            @Override
+//            public void onLoadMore() {
+//
+//            }
+//
+//            @Override
+//            public void onLoadFail() {
+//
+//            }
+//        });
 
         mtListView.getListView().setOnTouchListener(new View.OnTouchListener() {
             int isRun = 0;
@@ -1857,7 +1874,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-                        filterMsgForward(mAdapter.getSelectedMsg());
+//                        filterMsgForward(mAdapter.getSelectedMsg());
+                        filterMessageValid(mAdapter.getSelectedMsg(), 1);
                     }
                 }
 
@@ -1875,7 +1893,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-                        filterMsgCollection(mAdapter.getSelectedMsg());
+//                        filterMsgCollection(mAdapter.getSelectedMsg());
+                        filterMessageValid(mAdapter.getSelectedMsg(), 2);
                     }
                 }
             }
@@ -1933,16 +1952,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             replayMsg = null;
             mViewModel.isReplying.setValue(false);
         }
-    }
-
-    //设置键盘高度
-    private void setPanelHeight(int h, View view) {
-//        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
-//        if (linearParams.height != h) {
-//            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
-//            linearParams.height = Math.max(h, minHeight);
-//            view.setLayoutParams(linearParams);
-//        }
     }
 
     private void checkScrollFirst(int first) {
@@ -2333,7 +2342,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
         }
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
 
     //消息发送
@@ -2861,7 +2870,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             mAdapter.showCheckBox(false, true);
             mAdapter.clearSelectedMsg();
             showViewMore(false);
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+            mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
             return;
         }
         clearScrollPosition();
@@ -3211,8 +3220,21 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
                     if (envelopeBean != null && currentTradeId != envelopeBean.getTradeId()) {
                         currentTradeId = envelopeBean.getTradeId();
+                        RealmList<MemberUser> allowUses = null;
+                        if (envelopeBean.getAllowUses() != null && envelopeBean.getAllowUses().size() > 0) {
+                            allowUses = convertMemberList(envelopeBean.getAllowUses());
+                        }
+                        int envelopeStatus = PayEnum.EEnvelopeStatus.NORMAL;
+                        if (isGroup() && allowUses != null && UserAction.getMyId() != null) {
+                            MemberUser user = new MemberUser();
+                            user.setUid(UserAction.getMyId().longValue());
+                            user.init(toGid);
+                            if (!allowUses.contains(user)) {
+                                envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
+                            }
+                        }
                         RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(),
-                                envelopeBean.getMessage(), MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign());
+                                envelopeBean.getMessage(), MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign(), allowUses, envelopeStatus);
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
                     }
                     break;
@@ -3329,6 +3351,26 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             BusinessCardMessage cardMessage = SocketData.createCardMessage(SocketData.getUUID(), userInfo.getHead(), userInfo.getName(), userInfo.getImid(), userInfo.getUid());
             sendMessage(cardMessage, ChatEnum.EMessageType.BUSINESS_CARD);
         }
+    }
+
+    private RealmList<MemberUser> convertMemberList(List<FromUserBean> list) {
+        if (!isGroup() || mViewModel.groupInfo == null || list == null) {
+            return null;
+        }
+        int len = list.size();
+        if (len > 0) {
+            String[] memberIds = new String[len];
+            for (int i = 0; i < len; i++) {
+                FromUserBean bean = list.get(i);
+                memberIds[i] = toGid + bean.getUid();
+            }
+            List<MemberUser> members = msgDao.getMembers(toGid, memberIds);
+            RealmList<MemberUser> allowUsers = new RealmList<>();
+            allowUsers.addAll(members);
+            return allowUsers;
+        }
+        return null;
+
     }
 
     private void sendVideo(String videofile) {
@@ -3533,7 +3575,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+            mAdapter.notifyItemChanged(position, position);
         }
 
     }
@@ -3548,7 +3590,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+            mAdapter.notifyItemChanged(position, position);
         }
     }
 
@@ -3563,7 +3605,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         int len = mAdapter.getItemCount();
         for (int i = 0; i < len; i++) {
             if (mAdapter.getMessage(i).getMsg_id().equals(msgid)) {
-                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
+                mAdapter.notifyItemChanged(i, i);
             }
         }
     }
@@ -4345,7 +4387,39 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(getResources().getString(R.string.user_disable_message));
                 return;
             }
-            onRetransmission(msgbean);
+            if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                    || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                ArrayList<FileBean> list = new ArrayList<>();
+                FileBean fileBean = new FileBean();
+                if (msgbean.getImage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
+                } else if (msgbean.getVideoMessage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getUrl()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getUrl(), msgbean.getMsg_type()));
+                } else if (msgbean.getSendFileMessage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getSendFileMessage().getUrl()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getSendFileMessage().getUrl(), msgbean.getMsg_type()));
+                }
+                list.add(fileBean);
+                UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                        super.onResponse(call, response);
+                        if (response.body() != null && response.body().isOk()) {
+                            onRetransmission(msgbean);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        ToastUtil.show(getResources().getString(R.string.to_message_fail));
+                    }
+                });
+            } else {
+                onRetransmission(msgbean);
+            }
         } else if ("撤回".equals(value)) {
             // 封号
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
@@ -4421,7 +4495,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         showViewMore(true);
         mAdapter.getSelectedMsg().add(msgBean);
         mAdapter.showCheckBox(true, true);
-        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+        mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
     }
 
     private void changeRightBtn(boolean isShow) {
@@ -4729,7 +4803,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 //        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null && mAdapter.getItemCount() > 0) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+            mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
         }
         mtListView.getSwipeLayout().setRefreshing(false);
     }
@@ -5173,6 +5247,30 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         });
     }
 
+    /***
+     * 红包是否已经被抢,红包改为失效
+     * @param rid
+     */
+    private void updateEnvelopeDetail(MsgAllBean msgAllBean, String rid, int reType, String token, int envelopeStatus, int canReview) {
+        if (envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL) {
+            msgAllBean.getRed_envelope().setIsInvalid(1);
+            msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
+        }
+        if (!TextUtils.isEmpty(token)) {
+            msgAllBean.getRed_envelope().setAccessToken(token);
+        }
+        if (canReview == 1) {
+            msgAllBean.getRed_envelope().setCanReview(canReview);
+        }
+        msgDao.updateEnvelopeDetail(rid, envelopeStatus, reType, token, canReview);
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                replaceListDataAndNotify(msgAllBean);
+            }
+        });
+    }
+
     //抢红包后，更新红包token
     private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
         if (!TextUtils.isEmpty(token)) {
@@ -5388,7 +5486,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     //抢红包，获取token
-    public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType) {
+    public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType, final int envelopeStatus) {
         String from = "";
         if (isGroup()) {
             from = toGid;
@@ -5408,15 +5506,58 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             GrabEnvelopeBean bean = baseResponse.getData();
+                            int status = envelopeStatus;
                             if (bean != null) {
-                                int status = getGrabEnvelopeStatus(bean.getStat());
+                                if (status == PayEnum.EEnvelopeStatus.NORMAL) {
+                                    status = getGrabEnvelopeStatus(bean.getStat());
+                                }
                                 updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
                                 showEnvelopeDialog(bean.getAccessToken(), status, msgBean, reType);
-//                                if (bean.getStat() == 1) {//1 未领取
-//                                    showEnvelopeDialog(bean.getAccessToken(), bean.getStat(), msgBean, reType);
-//                                } else {
-//
-//                                }
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
+    }
+
+    //抢定向红包，获取token
+    public void grabRedEnvelopeNoAllow(MsgAllBean msgBean, long rid, int reType, final int envelopeStatus) {
+        String from = "";
+        if (isGroup()) {
+            from = toGid;
+        } else {
+            if (msgBean != null && msgBean.getFrom_uid() != null) {
+                from = msgBean.getFrom_uid().longValue() + "";
+            }
+        }
+        if (TextUtils.isEmpty(from)) {
+            return;
+        }
+        PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            GrabEnvelopeBean bean = baseResponse.getData();
+                            int status = envelopeStatus;
+                            if (bean != null) {
+                                if (status == PayEnum.EEnvelopeStatus.NORMAL) {
+                                    status = getGrabEnvelopeStatus(bean.getStat());
+                                }
+                                updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
+                                getEnvelopeDetail(rid, bean.getAccessToken(), envelopeStatus, msgBean, msgBean.isMe() ? true : false);
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5519,6 +5660,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void viewRecord(long rid, String token, int style) {
                 getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0);
             }
+
+            @Override
+            public void viewAllowUser() {
+                Intent intent = ViewAllowMemberActivity.newIntent(ChatActivity.this, msgBean.getGid(), MessageManager.getInstance().getMemberIds(msgBean.getRed_envelope().getAllowUsers()));
+                startActivity(intent);
+            }
         });
         RedEnvelopeMessage message = msgBean.getRed_envelope();
         dialogEnvelope.setInfo(token, status, msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), getEnvelopeId(message.getId(), message.getTraceId()), message.getComment(), message.getStyle());
@@ -5526,8 +5673,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     //获取红包详情
-    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
-                                     boolean isNormalStyle) {
+    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle) {
         if (TextUtils.isEmpty(token) && (msgBean != null && !msgBean.isMe())) {
             String from = "";
             if (isGroup()) {
@@ -5552,7 +5698,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     if (isNormalStyle) {//普通玩法红包需要保存
                                         taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), getGrabEnvelopeStatus(bean.getStat()));
                                     }
-                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true);
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5568,11 +5714,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true);
         }
     }
 
-    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean) {
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean, boolean isAllow) {
         PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
@@ -5584,11 +5730,19 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (bean != null) {
                                 if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean)) {
                                     taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
+                                } else {
+                                    if (envelopeStatus == PayEnum.EEnvelopeStatus.NO_ALLOW && (bean.getRecvList() != null && bean.getRecvList().size() > 0)) {
+                                        updateEnvelopeDetail(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, envelopeStatus, 1);
+                                    }
                                 }
                                 bean.setChatType(isGroup() ? 1 : 0);
                                 bean.setEnvelopeStatus(envelopeStatus);
-                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
-                                startActivity(intent);
+                                if (!isAllow && (bean.getRecvList() != null && bean.getRecvList().size() <= 0)) {
+
+                                } else {
+                                    Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
+                                    startActivity(intent);
+                                }
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5743,7 +5897,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         RedEnvelopeMessage message = null;
                         deleteEnvelopInfo(info);
                         if (info.getReType() == 0) {
-                            message = SocketData.createRbMessage(SocketData.getUUID(), info.getRid(), info.getComment(), info.getReType(), info.getEnvelopeStyle());
+                            message = SocketData.createRbMessage(SocketData.getUUID(), info.getRid(), info.getComment(), info.getReType(), info.getEnvelopeStyle(), info.getAllowUsers());
                         } else {
 //                            message = SocketData.creat(SocketData.getUUID(),info.getRid(),info.getComment(),info.getReType(),info.getEnvelopeStyle());
                         }
@@ -5857,7 +6011,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             AudioPlayManager.getInstance().stopPlay();
         }
         mAdapter.removeItem(bean);
-        mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
+        mAdapter.notifyItemRemoved(position);//删除刷新
         removeUnreadCount(1);
         fixLastPosition(-1);
     }
@@ -5968,26 +6122,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (list != null && list.size() > 0) {
             onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
         }
-//        mAdapter.clearSelectedMsg();
-//        hideMultiSelect(ivForward);
-//        List<MsgAllBean> list = mAdapter.getSelectedMsg();
-//        if (list != null && list.size() > 0) {
-//            //过滤掉不符合类型和发送失败状态消息
-//            Iterator<MsgAllBean> iterator = list.iterator();
-//            while (iterator.hasNext()) {
-//                MsgAllBean obj = iterator.next();
-//                if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE || obj.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
-//                        || obj.getMsg_type() == ChatEnum.EMessageType.TRANSFER || obj.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
-//                        || obj.getMsg_type() == ChatEnum.EMessageType.STAMP || obj.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
-//                        || obj.getSend_state() == ChatEnum.ESendStatus.ERROR) {
-//                    iterator.remove();
-//                }
-//            }
-//            //过滤后若仍存在元素则允许转发
-//            if (list.size() > 0) {
-//                onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
-//            }
-//        }
+        mAdapter.clearSelectedMsg();
+        hideMultiSelect(ivForward);
     }
 
     //隐藏多选功能
@@ -6000,7 +6136,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void run() {
                 showViewMore(false);
                 mAdapter.showCheckBox(false, true);
-                mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+                mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
             }
         }, 100);
     }
@@ -6312,13 +6448,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void clickEnvelope(MsgAllBean msg, RedEnvelopeMessage rb) {
-        Boolean isInvalid = rb.getIsInvalid() == 0 ? false : true;
-        String info = getEnvelopeInfo(rb.getEnvelopStatus());
-        if (rb.getEnvelopStatus() == PayEnum.EEnvelopeStatus.PAST) {
-            isInvalid = true;
-        }
         final String rid = rb.getId();
-        final Long touid = msg.getFrom_uid();
         final int style = msg.getRed_envelope().getStyle();
         int reType = rb.getRe_type().intValue();//红包类型
         if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -6345,12 +6475,18 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(ChatActivity.this, "无红包id");
                 return;
             }
+            if (isGroup() && rb.getAllowUsers() != null) {
+                MemberUser user = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), toGid);
+                if (!rb.getAllowUsers().contains(user)) {
+                    envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
+                }
+            }
             boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
             if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
-                if (msg.isMe() && isNormalStyle) {
+                if (msg.isMe() && isNormalStyle && !isGroup()) {
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 } else {
-                    grabRedEnvelope(msg, tradeId, reType);
+                    grabRedEnvelope(msg, tradeId, reType, envelopeStatus);
 //                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
 //                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
 //                    } else {
@@ -6372,6 +6508,21 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                 } else {
                     showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+                }
+            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.NO_ALLOW) {
+                if (TextUtils.isEmpty(rb.getAccessToken())) {
+                    grabRedEnvelopeNoAllow(msg, tradeId, reType, envelopeStatus);
+                } else {
+//                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+                    boolean isAllow = false;
+                    if (msg.isMe()) {
+                        isAllow = true;
+                    } else {
+                        if (rb.getCanReview() == 1) {
+                            isAllow = true;
+                        }
+                    }
+                    getEnvelopeDetail(tradeId, rb.getAccessToken(), envelopeStatus, msg, isAllow);
                 }
             }
         }
@@ -6606,9 +6757,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (mAdapter != null) {
                             mAdapter.bindData(list, false);
                             mAdapter.setReadStatus(checkIsRead());
-                            notifyData();
+//                            notifyData();
                             //TODO：此时滚动会引起索引越界
-//                            mtListView.getListView().smoothScrollToPosition(0);
+                            mtListView.getListView().smoothScrollToPosition(0);
                         }
                     }
                 });
@@ -7008,6 +7159,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      */
     @SuppressLint("CheckResult")
     private void filterMsgForward(final List<MsgAllBean> sourList) {
+        int totalSize = mAdapter.getSelectedMsg().size();
         int sourLen = sourList.size();
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
@@ -7032,9 +7184,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
-                                if (len == sourLen) {
+                                if (len == totalSize) {
                                     toForward(list);
-                                } else if (len < sourLen) {
+                                } else if (len < totalSize) {
                                     showForwardListDialog(list);
                                 }
                             } else {
@@ -7052,6 +7204,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      */
     @SuppressLint("CheckResult")
     private void filterMsgCollection(final List<MsgAllBean> sourList) {
+        int totalSize = mAdapter.getSelectedMsg().size();
         int sourLen = sourList.size();
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
@@ -7076,9 +7229,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
-                                if (len == sourLen) {
+                                if (len == totalSize) {
                                     toCollectList(list);
-                                } else if (len < sourLen) {
+                                } else if (len < totalSize) {
                                     showCollectListDialog(list);
                                 }
                             } else {
@@ -7102,6 +7255,133 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 //                        hideMultiSelect(ivForward);
                     }
                 }).show();
+    }
+
+    //检测图片，语音，文件，视频消息是否过期，过期则过滤。 action 1 转发，2收藏
+    @SuppressLint("CheckResult")
+    private void filterMessageValid(List<MsgAllBean> sourList, int action) {
+        int sourLen = sourList.size();
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        if (sourLen > 0) {
+                            String[] msgIds = new String[sourLen];
+                            for (int i = 0; i < sourLen; i++) {
+                                MsgAllBean msgAllBean = sourList.get(i);
+                                msgIds[i] = msgAllBean.getMsg_id();
+                            }
+                            List<MsgAllBean> uploadMessages = msgDao.getUploadMessage(msgIds);
+                            if (uploadMessages != null) {
+                                int len = uploadMessages.size();
+                                if (len > 0) {
+                                    ArrayList<FileBean> fileBeans = new ArrayList<>();
+                                    Map<String, MsgAllBean> filterMsgList = new HashMap<>();
+                                    for (int i = 0; i < len; i++) {
+                                        MsgAllBean msgAllBean = uploadMessages.get(i);
+                                        String md5 = "";
+                                        String url = "";
+                                        if (msgAllBean.getImage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getImage().getPreview());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getImage().getPreview(), msgAllBean.getMsg_type());
+                                        } else if (msgAllBean.getVideoMessage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getUrl());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getUrl(), msgAllBean.getMsg_type());
+                                        } else if (msgAllBean.getSendFileMessage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getSendFileMessage().getUrl());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getMsg_type());
+                                        }
+                                        if (!TextUtils.isEmpty(md5)) {
+                                            FileBean fileBean = new FileBean();
+                                            fileBean.setMd5(md5);
+                                            fileBean.setUrl(url);
+                                            fileBeans.add(fileBean);
+                                            filterMsgList.put(md5, msgAllBean);
+                                        }
+                                    }
+
+                                    if (fileBeans.size() > 0) {
+                                        UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<List<String>>>() {
+                                            @Override
+                                            public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                                                super.onResponse(call, response);
+                                                if (response != null && response.body() != null) {
+                                                    List<String> urls = response.body().getData();
+                                                    int size = urls.size();
+                                                    if (size == fileBeans.size()) {
+                                                        //都未过期
+                                                        if (action == 1) {
+                                                            filterMsgForward(sourList);
+                                                        } else if (action == 2) {
+                                                            filterMsgCollection(sourList);
+                                                        }
+                                                    } else {
+                                                        for (int i = 0; i < size; i++) {
+                                                            String md5 = urls.get(i);
+                                                            filterMsgList.remove(md5);
+                                                        }
+                                                        if (filterMsgList.size() > 0) {
+                                                            Iterator iterator = filterMsgList.keySet().iterator();
+                                                            while (iterator.hasNext()) {
+                                                                MsgAllBean bean = filterMsgList.get(iterator.next().toString());
+                                                                sourList.remove(bean);
+                                                            }
+                                                        }
+                                                        if (action == 1) {
+                                                            filterMsgForward(sourList);
+                                                        } else if (action == 2) {
+                                                            filterMsgCollection(sourList);
+                                                        }
+                                                    }
+                                                } else {
+                                                    if (action == 1) {
+                                                        ToastUtil.show("批量转发失败");
+//                                                        filterMsgForward(sourList);
+                                                    } else if (action == 2) {
+                                                        ToastUtil.show("批量收藏失败");
+//                                                        filterMsgCollection(sourList);
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                                                super.onFailure(call, t);
+                                                if (action == 1) {
+                                                    ToastUtil.show("批量转发失败");
+//                                                        filterMsgForward(sourList);
+                                                } else if (action == 2) {
+                                                    ToastUtil.show("批量收藏失败");
+//                                                        filterMsgCollection(sourList);
+                                                }
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    if (action == 1) {
+                                        filterMsgForward(sourList);
+                                    } else if (action == 2) {
+                                        filterMsgCollection(sourList);
+                                    }
+                                }
+                            } else {
+                                if (action == 1) {
+                                    filterMsgForward(sourList);
+                                } else if (action == 2) {
+                                    filterMsgCollection(sourList);
+                                }
+                            }
+                        }
+                        return null;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                    }
+                });
     }
 
 

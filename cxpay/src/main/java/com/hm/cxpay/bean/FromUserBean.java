@@ -15,6 +15,10 @@ public class FromUserBean extends BaseBean implements Parcelable {
     String nickname="";
     long uid;
 
+    public FromUserBean(){
+
+    }
+
     public String getAvatar() {
         return avatar;
     }

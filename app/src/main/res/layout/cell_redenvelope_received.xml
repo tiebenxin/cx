@@ -144,15 +144,22 @@
                         <TextView
                             android:id="@+id/tv_rb_type"
                             style="@style/app_txt_content_1"
-                            android:layout_width="180dp"
+                            android:layout_width="0dp"
                             android:layout_weight="1"
                             android:text="支付宝红包" />
+
+                        <TextView
+                            android:id="@+id/tv_view_more"
+                            style="@style/app_txt_content_1"
+                            android:layout_width="wrap_content"
+                            android:text="查看领取详情>" />
 
                         <ImageView
                             android:id="@+id/iv_rb_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@mipmap/ic_rb_zfb" />
+                            android:src="@mipmap/ic_rb_zfb"
+                            android:visibility="gone" />
 
                     </LinearLayout>
 

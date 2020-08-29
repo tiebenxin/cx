@@ -2,6 +2,7 @@ package net.cb.cb.library;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.LocaleList;
@@ -187,5 +188,24 @@ public class AppConfig {
 
     public static void setAppRuning(boolean appRuning) {
         isAppRunning = appRuning;
+    }
+
+    public static String getVersionName() {
+        if (getContext() == null) {
+            return "";
+        }
+        try {
+            PackageManager packageManager = APP_CONTEXT.getPackageManager();
+            if (packageManager != null) {
+                //注意此处为ApplicationInfo，因为友盟设置的meta-data是在application标签中
+                PackageInfo packageInfo = packageManager.getPackageInfo(APP_CONTEXT.getPackageName(), 0);
+                if (packageInfo != null) {
+                    return packageInfo.versionName;
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+
+        }
+        return "";
     }
 }
