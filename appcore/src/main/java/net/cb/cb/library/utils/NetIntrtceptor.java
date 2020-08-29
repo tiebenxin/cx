@@ -57,8 +57,14 @@ public class NetIntrtceptor implements Interceptor {
 //            }
 //            chain.call().cancel();
 //        }
+//        Headers.Builder builder = new Headers.Builder();
+//        builder.add("X-Access-Token", headers.get("X-Access-Token"))
+//                .add("cli-platform", "Android")
+//                .add("cli-version", AppConfig.getVersionName());
         Request request = chain.request().newBuilder()
                 .headers(headers)
+                .addHeader("cli-platform", "Android")
+                .addHeader("cli-version", AppConfig.getVersionName())
                 .build();
         request = interceptor4Front(chain, request);
         Response resp = chain.proceed(request);
