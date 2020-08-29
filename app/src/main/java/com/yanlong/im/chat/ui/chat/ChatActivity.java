@@ -266,6 +266,7 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -7150,6 +7151,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      */
     @SuppressLint("CheckResult")
     private void filterMsgForward(final List<MsgAllBean> sourList) {
+        int totalSize = mAdapter.getSelectedMsg().size();
         int sourLen = sourList.size();
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
@@ -7174,9 +7176,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
-                                if (len == sourLen) {
+                                if (len == totalSize) {
                                     toForward(list);
-                                } else if (len < sourLen) {
+                                } else if (len < totalSize) {
                                     showForwardListDialog(list);
                                 }
                             } else {
@@ -7194,6 +7196,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      */
     @SuppressLint("CheckResult")
     private void filterMsgCollection(final List<MsgAllBean> sourList) {
+        int totalSize = mAdapter.getSelectedMsg().size();
         int sourLen = sourList.size();
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
@@ -7218,9 +7221,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
-                                if (len == sourLen) {
+                                if (len == totalSize) {
                                     toCollectList(list);
-                                } else if (len < sourLen) {
+                                } else if (len < totalSize) {
                                     showCollectListDialog(list);
                                 }
                             } else {
@@ -7265,6 +7268,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 int len = uploadMessages.size();
                                 if (len > 0) {
                                     ArrayList<FileBean> fileBeans = new ArrayList<>();
+                                    Map<String, MsgAllBean> filterMsgList = new HashMap<>();
                                     for (int i = 0; i < len; i++) {
                                         MsgAllBean msgAllBean = uploadMessages.get(i);
                                         String md5 = "";
@@ -7287,16 +7291,43 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                             fileBean.setMd5(md5);
                                             fileBean.setUrl(url);
                                             fileBeans.add(fileBean);
+                                            filterMsgList.put(md5, msgAllBean);
                                         }
                                     }
 
                                     if (fileBeans.size() > 0) {
-                                        UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<String>>() {
+                                        UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<List<String>>>() {
                                             @Override
-                                            public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
+                                            public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                                                 super.onResponse(call, response);
                                                 if (response != null && response.body() != null) {
-                                                    String urls = response.body().getData();
+                                                    List<String> urls = response.body().getData();
+                                                    int size = urls.size();
+                                                    if (size == fileBeans.size()) {
+                                                        //都未过期
+                                                        if (action == 1) {
+                                                            filterMsgForward(sourList);
+                                                        } else if (action == 2) {
+                                                            filterMsgCollection(sourList);
+                                                        }
+                                                    } else {
+                                                        for (int i = 0; i < size; i++) {
+                                                            String md5 = urls.get(i);
+                                                            filterMsgList.remove(md5);
+                                                        }
+                                                        if (filterMsgList.size() > 0) {
+                                                            Iterator iterator = filterMsgList.keySet().iterator();
+                                                            while (iterator.hasNext()) {
+                                                                MsgAllBean bean = filterMsgList.get(iterator.next().toString());
+                                                                sourList.remove(bean);
+                                                            }
+                                                        }
+                                                        if (action == 1) {
+                                                            filterMsgForward(sourList);
+                                                        } else if (action == 2) {
+                                                            filterMsgCollection(sourList);
+                                                        }
+                                                    }
                                                 } else {
                                                     if (action == 1) {
                                                         ToastUtil.show("批量转发失败");
@@ -7309,7 +7340,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                             }
 
                                             @Override
-                                            public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
+                                            public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
                                                 super.onFailure(call, t);
                                                 if (action == 1) {
                                                     ToastUtil.show("批量转发失败");
