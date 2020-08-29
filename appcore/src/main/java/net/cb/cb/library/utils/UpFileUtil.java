@@ -363,6 +363,8 @@ public class UpFileUtil {
                 url = "video" + url;
             } else if (msgType == 17) {
                 url = "file" + url;
+            } else if (msgType == 7) {
+                url = "voice" + url;
             }
             return url;
         } catch (Exception e) {
