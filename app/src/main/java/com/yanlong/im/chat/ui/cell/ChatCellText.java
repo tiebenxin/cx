@@ -73,24 +73,34 @@ public class ChatCellText extends ChatCellBase {
         super.showMessage(message);
         updateWidth();
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
-//            setText(message.getChat().getMsg());
-            tv_content.setText(getSpan(message.getChat().getMsg()));
+            if(message.getChat()!=null && !TextUtils.isEmpty(message.getChat().getMsg())){
+                tv_content.setText(getSpan(message.getChat().getMsg()));
+            }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.AT) {
-//            setText(message.getAtMessage().getMsg());
-            tv_content.setText(getSpan(message.getAtMessage().getMsg()));
+            if(message.getAtMessage()!=null && !TextUtils.isEmpty(message.getAtMessage().getMsg())){
+                tv_content.setText(getSpan(message.getAtMessage().getMsg()));
+            }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
-            setText(message.getAssistantMessage().getMsg());
+            if(message.getAssistantMessage()!=null && !TextUtils.isEmpty(message.getAssistantMessage().getMsg())){
+                setText(message.getAssistantMessage().getMsg());
+            }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT_NEW) {
-            setNewAssistantMessage(message.getAssistantMessage());
+            if(message.getAssistantMessage()!=null){
+                setNewAssistantMessage(message.getAssistantMessage());
+            }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
-            tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent(), null,
-                    new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
-            tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+            if(message.getTransferNoticeMessage()!=null && !TextUtils.isEmpty(message.getTransferNoticeMessage().getContent())){
+                tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent(), null,
+                        new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
+                tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+            }
         }
     }
 
     private void setNewAssistantMessage(AssistantMessage message) {
-        tvTitle.setText(message.getTitle());
+        if(!TextUtils.isEmpty(message.getTitle())){
+            tvTitle.setText(message.getTitle());
+        }
         if (message.getTime() != 0 && message.getTime() != -1) {
             tvLoginTime.setText(DateUtils.getFullTime(message.getTime()));
             tvLoginTime.setVisibility(View.VISIBLE);
