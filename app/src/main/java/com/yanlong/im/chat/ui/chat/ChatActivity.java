@@ -7271,16 +7271,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                         String url = "";
                                         if (msgAllBean.getImage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getImage().getPreview());
-                                            url = msgAllBean.getImage().getPreview();
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getImage().getPreview(), msgAllBean.getMsg_type());
                                         } else if (msgAllBean.getVoiceMessage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVoiceMessage().getUrl());
-                                            url = msgAllBean.getVoiceMessage().getUrl();
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVoiceMessage().getUrl(), msgAllBean.getMsg_type());
                                         } else if (msgAllBean.getVideoMessage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getUrl());
-                                            url = msgAllBean.getVideoMessage().getUrl();
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getUrl(), msgAllBean.getMsg_type());
                                         } else if (msgAllBean.getSendFileMessage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getSendFileMessage().getUrl());
-                                            url = msgAllBean.getSendFileMessage().getUrl();
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getMsg_type());
                                         }
                                         if (!TextUtils.isEmpty(md5)) {
                                             FileBean fileBean = new FileBean();
@@ -7291,19 +7291,33 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     }
 
                                     if (fileBeans.size() > 0) {
-                                        UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<List<String>>>() {
+                                        UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<String>>() {
                                             @Override
-                                            public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                                            public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
                                                 super.onResponse(call, response);
                                                 if (response != null && response.body() != null) {
-                                                    List<String> urls = response.body().getData();
-
+                                                    String urls = response.body().getData();
+                                                } else {
+                                                    if (action == 1) {
+                                                        ToastUtil.show("批量转发失败");
+//                                                        filterMsgForward(sourList);
+                                                    } else if (action == 2) {
+                                                        ToastUtil.show("批量收藏失败");
+//                                                        filterMsgCollection(sourList);
+                                                    }
                                                 }
                                             }
 
                                             @Override
-                                            public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                                            public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
                                                 super.onFailure(call, t);
+                                                if (action == 1) {
+                                                    ToastUtil.show("批量转发失败");
+//                                                        filterMsgForward(sourList);
+                                                } else if (action == 2) {
+                                                    ToastUtil.show("批量收藏失败");
+//                                                        filterMsgCollection(sourList);
+                                                }
                                             }
                                         });
                                     }

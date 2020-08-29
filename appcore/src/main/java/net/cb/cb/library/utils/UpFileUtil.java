@@ -322,6 +322,11 @@ public class UpFileUtil {
             if (TextUtils.isEmpty(path)) {
                 return "";
             }
+            if (path.contains("/below-20k")) {
+                path = path.replace("/below-20k", "");
+            } else if (path.contains("/below-200k")) {
+                path = path.replace("/below-200k", "");
+            }
             md5 = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
             return md5;
         } catch (Exception e) {
@@ -334,6 +339,13 @@ public class UpFileUtil {
             String url = "";
             if (TextUtils.isEmpty(path)) {
                 return "";
+            }
+            if (msgType == 4) {
+                if (path.contains("/below-20k")) {
+                    path = path.replace("/below-20k", "");
+                } else if (path.contains("/below-200k")) {
+                    path = path.replace("/below-200k", "");
+                }
             }
             url = path.substring(path.lastIndexOf("/"));
             if (msgType == 4) {
