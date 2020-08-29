@@ -2,6 +2,7 @@ package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
 
+import com.example.nim_lib.config.Preferences;
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
@@ -1391,8 +1392,20 @@ public class MsgDao {
      * @return
      */
     public int remidGet(String type) {
-        Remind remind = DaoUtil.findOne(Remind.class, "remid_type", type);
-        int num = remind == null ? 0 : remind.getNumber();
+
+        int num = 0;
+        Realm realm = DaoUtil.open();
+        if (Preferences.FRIEND_APPLY.equals(type)) {
+            RealmResults<Remind> reminds = realm.where(Remind.class).equalTo("remid_type", type).findAll();
+            if (reminds != null) {
+                for (Remind remind : reminds) {
+                    num += remind.getNumber();
+                }
+            }
+        } else {
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+            num = remind == null ? 0 : remind.getNumber();
+        }
         return num;
     }
 

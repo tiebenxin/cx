@@ -47,6 +47,7 @@ public class FriendVerifyActivity extends AppActivity {
         mNickName = intent.getStringExtra(NICK_NAME);
         if (!TextUtils.isEmpty(content)) {
             ui.etTxt.setText(content);
+            ui.etTxt.setSelection(content.length());
         }
         if (!TextUtils.isEmpty(userNote)) {
             ui.etNote.setHint(userNote);

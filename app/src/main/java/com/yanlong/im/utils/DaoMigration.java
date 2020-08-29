@@ -212,6 +212,10 @@ public class DaoMigration implements RealmMigration {
                 updateV47(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 47) {
+                updateV48(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -862,6 +866,10 @@ public class DaoMigration implements RealmMigration {
                 .addField("uid", long.class);
     }
 
+    // 删除主键，用于新的申请红点累加
+    private final void updateV48(RealmSchema schema) {
+        schema.get("Remind").removePrimaryKey();
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {
