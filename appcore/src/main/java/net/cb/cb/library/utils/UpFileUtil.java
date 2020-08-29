@@ -20,13 +20,16 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.google.gson.Gson;
+import com.umeng.commonsdk.debug.E;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.AliObsConfigBean;
+import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -251,6 +254,8 @@ public class UpFileUtil {
                     WeakHashMap<String, Object> param = new WeakHashMap<>();
                     param.put("md5", md5Rresult);
                     param.put("url", objkey);
+                    LogUtil.getLog().i("1212", "md5:" + md5Rresult + "   截取：" + getFilePathMd5(objkey));
+
                     NetUtil.getNet().exec(
                             server.fileCheck(param)
                             , new CallBack<ReturnBean<String>>() {
@@ -279,6 +284,53 @@ public class UpFileUtil {
                 ossUpCallback.fail();
             }
         });
+    }
+
+    /**
+     * 批量检查文件是否存在
+     *
+     * @param list
+     * @param callBack
+     */
+    public void batchFileCheck(ArrayList<FileBean> list, final CallBack<ReturnBean<String>> callBack) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        WeakHashMap<String, Object> param = new WeakHashMap<>();
+        param.put("md5BodyList", list);
+        NetUtil.getNet().exec(
+                server.fileCheck(param)
+                , new CallBack<ReturnBean<String>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
+                        callBack.onResponse(call, response);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        callBack.onFailure(call, t);
+                    }
+                });
+    }
+
+    /**
+     * 获取文件路径的文件名
+     *
+     * @param path
+     * @return
+     */
+    public String getFilePathMd5(String path) {
+        try {
+            String md5 = "";
+            if (TextUtils.isEmpty(path)) {
+                return "";
+            }
+            md5 = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
+            return md5;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /**

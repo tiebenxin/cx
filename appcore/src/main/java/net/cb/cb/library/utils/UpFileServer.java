@@ -38,4 +38,12 @@ public interface UpFileServer {
      */
     @POST("/high-speed/check")
     Call<ReturnBean<String>> fileCheck(@Body WeakHashMap<String, Object> param);
+    /**
+     * 批量检查文件是否存在
+     *
+     * @param param
+     * @return
+     */
+    @POST("/high-speed/batch-check")
+    Call<ReturnBean<String>> batchFileCheck(@Body WeakHashMap<String, Object> param);
 }
