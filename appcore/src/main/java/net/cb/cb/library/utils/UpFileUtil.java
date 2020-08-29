@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -290,20 +291,21 @@ public class UpFileUtil {
      * @param list
      * @param callBack
      */
-    public void batchFileCheck(ArrayList<FileBean> list, final CallBack<ReturnBean<String>> callBack) {
+    public void batchFileCheck(ArrayList<FileBean> list, final CallBack<ReturnBean<List<String>>> callBack) {
         if (list == null || list.size() == 0) {
             return;
         }
         NetUtil.getNet().exec(
                 server.batchFileCheck(list)
-                , new CallBack<ReturnBean<String>>() {
+                , new CallBack<ReturnBean<List<String>>>() {
                     @Override
-                    public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
+                    public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                        super.onResponse(call, response);
                         callBack.onResponse(call, response);
                     }
 
                     @Override
-                    public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
+                    public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
                         super.onFailure(call, t);
                         callBack.onFailure(call, t);
                     }
@@ -334,6 +336,13 @@ public class UpFileUtil {
         }
     }
 
+    /**
+     * 获取文件后缀
+     *
+     * @param path
+     * @param msgType
+     * @return
+     */
     public String getFileUrl(String path, int msgType) {
         try {
             String url = "";

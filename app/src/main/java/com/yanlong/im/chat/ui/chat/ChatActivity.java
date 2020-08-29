@@ -4393,9 +4393,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
                 fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
                 list.add(fileBean);
-                UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<String>>() {
+                UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
                     @Override
-                    public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
+                    public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                         super.onResponse(call, response);
                         if (response.body() != null && response.body().isOk()) {
                             onRetransmission(msgbean);
@@ -4403,7 +4403,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     }
 
                     @Override
-                    public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
+                    public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
                         super.onFailure(call, t);
                         ToastUtil.show(getResources().getString(R.string.to_message_fail));
                     }

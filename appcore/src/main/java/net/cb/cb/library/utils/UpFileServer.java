@@ -6,6 +6,7 @@ import net.cb.cb.library.bean.HuaweiObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.WeakHashMap;
 
 import io.reactivex.Observable;
@@ -48,5 +49,5 @@ public interface UpFileServer {
      * @return
      */
     @POST("/high-speed/batch-check")
-    Call<ReturnBean<String>> batchFileCheck(@Body ArrayList<FileBean> param);
+    Call<ReturnBean<List<String>>> batchFileCheck(@Body ArrayList<FileBean> param);
 }
