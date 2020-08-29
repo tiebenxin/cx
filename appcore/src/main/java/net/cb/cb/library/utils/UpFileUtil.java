@@ -254,8 +254,6 @@ public class UpFileUtil {
                     WeakHashMap<String, Object> param = new WeakHashMap<>();
                     param.put("md5", md5Rresult);
                     param.put("url", objkey);
-                    LogUtil.getLog().i("1212", "md5:" + md5Rresult + "   截取：" + getFilePathMd5(objkey));
-
                     NetUtil.getNet().exec(
                             server.fileCheck(param)
                             , new CallBack<ReturnBean<String>>() {
@@ -296,10 +294,8 @@ public class UpFileUtil {
         if (list == null || list.size() == 0) {
             return;
         }
-        WeakHashMap<String, Object> param = new WeakHashMap<>();
-        param.put("md5BodyList", list);
         NetUtil.getNet().exec(
-                server.fileCheck(param)
+                server.batchFileCheck(list)
                 , new CallBack<ReturnBean<String>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
@@ -328,6 +324,26 @@ public class UpFileUtil {
             }
             md5 = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
             return md5;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String getFileUrl(String path, int msgType) {
+        try {
+            String url = "";
+            if (TextUtils.isEmpty(path)) {
+                return "";
+            }
+            url = path.substring(path.lastIndexOf("/"));
+            if (msgType == 4) {
+                url = "image" + url;
+            } else if (msgType == 11) {
+                url = "video" + url;
+            } else if (msgType == 17) {
+                url = "file" + url;
+            }
+            return url;
         } catch (Exception e) {
             return "";
         }

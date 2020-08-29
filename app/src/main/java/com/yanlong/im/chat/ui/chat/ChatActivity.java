@@ -213,6 +213,7 @@ import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
+import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.bean.VideoSize;
@@ -4393,7 +4394,31 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(getResources().getString(R.string.user_disable_message));
                 return;
             }
-            onRetransmission(msgbean);
+            if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                    || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                ArrayList<FileBean> list = new ArrayList<>();
+                FileBean fileBean = new FileBean();
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
+                list.add(fileBean);
+                UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<String>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
+                        super.onResponse(call, response);
+                        if (response.body() != null && response.body().isOk()) {
+                            onRetransmission(msgbean);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        ToastUtil.show(getResources().getString(R.string.to_message_fail));
+                    }
+                });
+            } else {
+                onRetransmission(msgbean);
+            }
         } else if ("撤回".equals(value)) {
             // 封号
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {

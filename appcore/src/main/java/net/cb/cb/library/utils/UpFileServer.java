@@ -1,9 +1,11 @@
 package net.cb.cb.library.utils;
 
 import net.cb.cb.library.bean.AliObsConfigBean;
+import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.HuaweiObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
 
+import java.util.ArrayList;
 import java.util.WeakHashMap;
 
 import io.reactivex.Observable;
@@ -38,6 +40,7 @@ public interface UpFileServer {
      */
     @POST("/high-speed/check")
     Call<ReturnBean<String>> fileCheck(@Body WeakHashMap<String, Object> param);
+
     /**
      * 批量检查文件是否存在
      *
@@ -45,5 +48,5 @@ public interface UpFileServer {
      * @return
      */
     @POST("/high-speed/batch-check")
-    Call<ReturnBean<String>> batchFileCheck(@Body WeakHashMap<String, Object> param);
+    Call<ReturnBean<String>> batchFileCheck(@Body ArrayList<FileBean> param);
 }
