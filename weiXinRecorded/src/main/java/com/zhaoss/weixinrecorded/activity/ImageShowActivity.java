@@ -460,7 +460,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         Uri uri = isHttp ? Uri.parse(originalPath) : Uri.fromFile(new File(originalPath));
         UCrop.of(uri, Uri.fromFile(new File(PictureFileUtils.getDiskCacheDir(this),
                 System.currentTimeMillis() + imgType)))
-                .withAspectRatio(1, 1)// 裁剪比例
                 .withOptions(options)
                 .start(this);
     }

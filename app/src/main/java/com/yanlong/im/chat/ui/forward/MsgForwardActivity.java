@@ -237,7 +237,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                    MsgAllBean msg = msgList.get(i);
 //                    addQueue(msg);
 //                }
-            }else {
+            } else {
                 finish();
                 return;
             }
@@ -293,11 +293,12 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             @Override
             public void onBack() {
                 if (isSingleSelected) {
-                    onBackPressed();
+//                    onBackPressed();
+                    setResult(RESULT_CANCELED);
+                    finish();
                 } else {
                     isSingleSelected = true;
                     resetRightText();
-
                     EventBus.getDefault().post(new SingleOrMoreEvent(isSingleSelected));
                 }
             }
@@ -486,7 +487,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             } else if (model == ChatEnum.EForwardMode.MERGE) {
                 ToastUtil.showCenter(MsgForwardActivity.this, "发送成功");
                 MsgForwardActivity.this.finish();
-            }else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
+            } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
                 ToastUtil.showCenter(MsgForwardActivity.this, "发送成功");
                 MsgForwardActivity.this.finish();
             }
@@ -896,7 +897,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                isSingleSelected = true;
             }
         } else if (msgAllBean.getShippedExpressionMessage() != null) {
-            if (isSingleSelected &&  (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
+            if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.NORMAL,
                         SocketData.getFixTime(), message);
@@ -1036,6 +1037,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     public void doSendSuccess() {
         ToastUtil.showCenter(this, getResources().getString(R.string.forward_success));
+        setResult(RESULT_OK);
         finish();
     }
 

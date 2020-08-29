@@ -340,6 +340,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     public static final int VIDEO_RP = 9419;
     public static final int REQUEST_RED_ENVELOPE = 1 << 2;
     public static final int REQUEST_TRANSFER = 1 << 3;
+    public static final int REQUEST_FORWORD = 1 << 4;
 
     private int lastOffset = -1;
     private int lastPosition = -1;
@@ -3339,6 +3340,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     }
                     break;
+                case REQUEST_FORWORD:
+                    if (mAdapter != null) {
+                        mAdapter.clearSelectedMsg();
+                        hideMultiSelect(ivForward);
+                    }
+                    break;
 
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
@@ -5164,8 +5171,15 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         } else if (isDisable) {
             tvBan.setText(getResources().getString(R.string.user_disable_message));
         }
-        viewChatBottomc.setVisibility(isExited || isForbid || isDisable ? GONE : VISIBLE);
-        llMore.setVisibility(GONE);
+        boolean isSelecting = false;
+        if (mAdapter != null) {
+            if (mAdapter.isShowCheckBox()) {
+                isSelecting = true;
+            } else {
+                llMore.setVisibility(GONE);
+            }
+        }
+        viewChatBottomc.setVisibility(isExited || isForbid || isDisable || isSelecting ? GONE : VISIBLE);
     }
 
     /*
@@ -6088,6 +6102,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //隐藏多选功能
     private void hideMultiSelect(ImageView iv) {
+        if (iv == null) {
+            return;
+        }
         iv.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -6106,7 +6123,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             return;
         }
         Intent intent = MsgForwardActivity.newIntent(this, model, json);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_FORWORD);
     }
 
 
