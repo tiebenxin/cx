@@ -6485,7 +6485,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(ChatActivity.this, "无红包id");
                 return;
             }
-            if (isGroup() && rb.getAllowUsers() != null) {
+            if (isGroup() && rb.getAllowUsers() != null && rb.getAllowUsers().size() > 0) {
                 MemberUser user = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), toGid);
                 if (!rb.getAllowUsers().contains(user)) {
                     envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;

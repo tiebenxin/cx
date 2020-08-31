@@ -362,7 +362,7 @@ public class PayHttpUtils {
             object.put("note", note);
             object.put("type", type + "");
             object.put("toGid", gid);
-            if (allowUids != null) {
+            if (allowUids != null && allowUids.length() > 0) {
                 object.put("allowUids", allowUids);
             }
             return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(object.toString()), getAuthMap());
