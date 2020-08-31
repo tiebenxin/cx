@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityEnvelopeReceiverBinding;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.view.user.EditAvatarBean;
 
 import net.cb.cb.library.utils.ThreadUtil;
@@ -222,8 +223,10 @@ public class EnvelopeReceiverActivity extends AppActivity {
                     if (selectUserList.size() > 0) {
                         selectUserList.clear();
                     }
+                    List<MemberUser> memberUsers = group.getUsers();
+                    new UserDao().getMemberUserName(memberUsers);
                     for (FromUserBean bean : toList) {
-                        for (MemberUser user : group.getUsers()) {
+                        for (MemberUser user : memberUsers) {
                             if (bean.getUid() == user.getUid()) {
                                 selectMember.add(user);
                                 selectUserList.add(new EditAvatarBean(user));
@@ -256,7 +259,11 @@ public class EnvelopeReceiverActivity extends AppActivity {
         Observable.just(0).map(new Function<Integer, List<MemberUser>>() {
             @Override
             public List<MemberUser> apply(Integer integer) throws Exception {
-                return msgDao.searchMemberByKey(gid, key);
+                List<MemberUser> memberUsers = msgDao.searchMemberByKey(gid, key);
+                if (memberUsers != null && memberUsers.size() > 0) {
+                    new UserDao().getMemberUserName(memberUsers);
+                }
+                return memberUsers;
             }
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
