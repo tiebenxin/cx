@@ -116,32 +116,20 @@ public class CommonSetingActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                String content = mEdContent.getText().toString();
+                String content = mEdContent.getText().toString().trim();
                 //2-1 若为纯空格
-                if (!TextUtils.isEmpty(setting) && setting.equals(content.trim())) {
+                if (!TextUtils.isEmpty(setting) && setting.equals(content)) {
                     Intent intent = new Intent();
                     intent.putExtra(CONTENT, content);
                     setResult(RESULT_CANCELED, intent);
                     onBackPressed();
                 } else {
-                    if (TextUtils.isEmpty(content.trim())) {
-                        //群昵称可以为纯空格，回传""字符串改为取用户自己的昵称
-                        if ("我在本群的昵称".equals(mHeadView.getActionbar().getTitle())) {
-                            content = content.trim();
-                        }
-//                        else {
-//                            //用户名设置和备注不可以用纯空格
-//                            ToastUtil.show(CommonSetingActivity.this, "不能全部用空格");
-//                            return;
-//                        }
-                    } else {
-                        content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
-                        //截取前两位判断开头是否为emoji
-                        if (content.length() >= 2) {
-                            String emoji = content.substring(0, 2);
-                            if (StringUtil.ifContainEmoji(emoji)) {
-                                content = " " + content;
-                            }
+                    //群昵称可以为空格，过滤空格并传""则取原来昵称
+                    //截取前两位判断开头是否为emoji
+                    if (content.length() >= 2) {
+                        String emoji = content.substring(0, 2);
+                        if (StringUtil.ifContainEmoji(emoji)) {
+                            content = " " + content;
                         }
                     }
                 }

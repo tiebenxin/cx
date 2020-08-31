@@ -804,8 +804,8 @@ public class DB {
     /**
      * 撤回消息
      *
-     * @param msgid       消息ID
-     * @param msgCancelId
+     * @param msgId       消息ID
+     * @param realm
      */
     public static void deleteMsg(Realm realm, String msgId) {
         MsgAllBean msgAllBean = null;
