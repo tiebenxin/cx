@@ -4331,11 +4331,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         return false;
     }
 
-    //是否禁止转发
+    //是否禁止转发，仅文本，图片，@，视频，位置，表情，文件消息支持转发，其他均禁止
     public boolean isBanForward(@ChatEnum.EMessageType int type) {
-        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.ASSISTANT_PROMOTION
-                || type == ChatEnum.EMessageType.TRANSFER || type == ChatEnum.EMessageType.ASSISTANT_NEW || type == ChatEnum.EMessageType.ASSISTANT) {
+        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO
+                || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.TRANSFER
+                || type == ChatEnum.EMessageType.TRANSFER_NOTICE || type == ChatEnum.EMessageType.ASSISTANT_NEW || type == ChatEnum.EMessageType.ASSISTANT) {
             return true;
         }
         return false;
@@ -4347,7 +4347,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
                 type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER
-                || type == ChatEnum.EMessageType.ASSISTANT_NEW || !isEixt()) {
+                || type == ChatEnum.EMessageType.ASSISTANT_NEW || type == ChatEnum.EMessageType.TRANSFER_NOTICE || !isEixt()) {
             return true;
         }
         return false;
@@ -6232,9 +6232,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     List<OptionMenu> menus = (List<OptionMenu>) args[0];
                     View v = (View) args[1];
                     IMenuSelectListener listener = (IMenuSelectListener) args[2];
-                    if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
-                        return;
-                    }
+//                    if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
+//                        return;
+//                    }
                     showPop(v, menus, message, listener);
                     break;
                 case ChatEnum.ECellEventType.TRANSFER_CLICK:

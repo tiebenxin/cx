@@ -3715,26 +3715,13 @@ public class MsgDao {
         List<MsgAllBean> list = null;
         Realm realm = DaoUtil.open();
         try {
+            //转发支持消息类型
+            Integer[] supportType = new Integer[]{ChatEnum.EMessageType.TEXT, ChatEnum.EMessageType.AT, ChatEnum.EMessageType.LOCATION,
+                    ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO, ChatEnum.EMessageType.FILE, ChatEnum.EMessageType.SHIPPED_EXPRESSION};
             RealmResults<MsgAllBean> all = realm.where(MsgAllBean.class)
                     .beginGroup().in("msg_id", msgIds).endGroup()
                     .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.RED_ENVELOPE).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.TRANSFER).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.BUSINESS_CARD).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.STAMP).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.MSG_VOICE_VIDEO).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.TRANSFER_NOTICE).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.ASSISTANT).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.ASSISTANT_NEW).endGroup()
+                    .beginGroup().in("msg_type", supportType).endGroup()
                     .and()
                     .beginGroup().equalTo("send_state", ChatEnum.ESendStatus.NORMAL).endGroup()
                     .sort("timestamp", Sort.ASCENDING)
@@ -3753,6 +3740,7 @@ public class MsgDao {
     //过滤收藏消息：1. 去除不存在消息，2,过滤不支持该操作或发送不成功消息，3，按时间重新排序
     public List<MsgAllBean> filterMsgForCollection(String[] msgIds) {
         List<MsgAllBean> list = null;
+        //收藏支持消息类型
         Integer[] supportType = new Integer[]{ChatEnum.EMessageType.TEXT, ChatEnum.EMessageType.AT, ChatEnum.EMessageType.VOICE, ChatEnum.EMessageType.LOCATION,
                 ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO, ChatEnum.EMessageType.FILE, ChatEnum.EMessageType.SHIPPED_EXPRESSION};
         Realm realm = DaoUtil.open();

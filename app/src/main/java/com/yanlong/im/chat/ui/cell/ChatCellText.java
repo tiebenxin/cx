@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui.cell;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -8,7 +9,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
@@ -26,11 +26,13 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.chat.ui.view.YLinkMovementMethod;
 import com.yanlong.im.utils.ExpressionUtil;
+import com.yanlong.im.view.MyTVTouchListener;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.regex.Matcher;
@@ -68,37 +70,39 @@ public class ChatCellText extends ChatCellBase {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         updateWidth();
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
-            if(message.getChat()!=null && !TextUtils.isEmpty(message.getChat().getMsg())){
+            if (message.getChat() != null && !TextUtils.isEmpty(message.getChat().getMsg())) {
                 tv_content.setText(getSpan(message.getChat().getMsg()));
             }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.AT) {
-            if(message.getAtMessage()!=null && !TextUtils.isEmpty(message.getAtMessage().getMsg())){
+            if (message.getAtMessage() != null && !TextUtils.isEmpty(message.getAtMessage().getMsg())) {
                 tv_content.setText(getSpan(message.getAtMessage().getMsg()));
             }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
-            if(message.getAssistantMessage()!=null && !TextUtils.isEmpty(message.getAssistantMessage().getMsg())){
+            if (message.getAssistantMessage() != null && !TextUtils.isEmpty(message.getAssistantMessage().getMsg())) {
                 setText(message.getAssistantMessage().getMsg());
             }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT_NEW) {
-            if(message.getAssistantMessage()!=null){
+            if (message.getAssistantMessage() != null) {
                 setNewAssistantMessage(message.getAssistantMessage());
             }
         } else if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
-            if(message.getTransferNoticeMessage()!=null && !TextUtils.isEmpty(message.getTransferNoticeMessage().getContent())){
+            if (message.getTransferNoticeMessage() != null && !TextUtils.isEmpty(message.getTransferNoticeMessage().getContent())) {
                 tv_content.setText(Html.fromHtml(message.getTransferNoticeMessage().getContent(), null,
                         new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
-                tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+//                tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+                tv_content.setOnTouchListener(new MyTVTouchListener(onClickListener, onLongClickListener));
             }
         }
     }
 
     private void setNewAssistantMessage(AssistantMessage message) {
-        if(!TextUtils.isEmpty(message.getTitle())){
+        if (!TextUtils.isEmpty(message.getTitle())) {
             tvTitle.setText(message.getTitle());
         }
         if (message.getTime() != 0 && message.getTime() != -1) {
@@ -130,7 +134,7 @@ public class ChatCellText extends ChatCellBase {
         } else {
             llLabelParent.setVisibility(View.VISIBLE);
             ControllerLinearList controller = new ControllerLinearList(llLabelParent);
-            AdapterBalanceLabel adapterLabel = new AdapterBalanceLabel(message.getLabelItems(), getContext(),1);
+            AdapterBalanceLabel adapterLabel = new AdapterBalanceLabel(message.getLabelItems(), getContext(), 1);
             controller.setAdapter(adapterLabel);
         }
     }
@@ -216,4 +220,26 @@ public class ChatCellText extends ChatCellBase {
             LogUtil.getLog().i("ChatCellText", "");
         }
     }
+
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            LogUtil.getLog().i("ChatCellText", "onClickListener");
+        }
+    };
+
+    private View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (ViewUtils.isFastDoubleClick()) {
+                return true;
+            }
+            LogUtil.getLog().i("ChatCellText", "onLongClickListener");
+            if (mCellListener != null) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout, menuListener);
+            }
+            return true;
+        }
+    };
 }
