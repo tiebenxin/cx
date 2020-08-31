@@ -54,7 +54,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     public int currentPosition;
     private ImageView iv_error;
     public View bubbleLayout;
-    private List<OptionMenu> menus;
+    public List<OptionMenu> menus;
 
     IMenuSelectListener menuListener = new IMenuSelectListener() {
         @Override
