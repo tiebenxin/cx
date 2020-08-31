@@ -83,7 +83,6 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.widgt.ReturnButton;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.MainActivity;
@@ -6614,8 +6613,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             return;
                         }
                         if (response.body().isOk()) {
-                            ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
-                            msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
+                            //正常情况data为null，若含有值则代表有"源文件不存在"的情况
+                            if(response.body().getData()==null){
+                                ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
+                                msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
+                            }else {
+                                ToastUtil.showToast(ChatActivity.this, "收藏失败，该文件已失效", 1);
+                            }
                         }
                     }
 
@@ -7028,18 +7032,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 批量收藏提示弹框
      */
-    private void showCollectListDialog(List<MsgAllBean> list) {
+    private void showCollectListDialog() {
         dialogTwo = builder.setTitle("你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。")
-                .setRightText("收藏")
-                .setLeftText("取消")
+                .setShowLeftText(false)
+                .setRightText("确定")
                 .setRightOnClickListener(v -> {
-                    //多选直接调批量收藏接口
-                    toCollectList(list);
-                })
-                .setLeftOnClickListener(v -> {
                     dialogTwo.dismiss();
-                    mAdapter.clearSelectedMsg();
-                    hideMultiSelect(ivCollection);
                 })
                 .build();
         dialogTwo.show();
@@ -7101,9 +7099,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
-
-    //批量收藏
-    public void toCollectList(List<MsgAllBean> list) {
+    /**
+     * 批量收藏  (流程有变化，过滤掉不支持类型后，先调接口，再弹框，目前需求只显示一次)
+     * @param list 已过滤后的数据
+     * @param isNormal 正常类型true 含有不支持类型false
+     */
+    public void toCollectList(List<MsgAllBean> list,boolean isNormal) {
         if (list.size() > 0) {
             List<CollectionInfo> dataList = convertCollectBean(list);
             if (dataList != null && dataList.size() > 0) {
@@ -7118,8 +7119,22 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             }
                             if (response.body().isOk()) {
                                 ToastUtil.show("批量收藏成功!");
-                                if (dialogTwo != null) {
-                                    dialogTwo.dismiss();
+                                if(isNormal){
+                                    // data!=null代表有"源文件不存在"情况，提示弹框
+                                    if (response.body().getData() != null) {
+                                        if (dialogTwo != null) {
+                                            dialogTwo.show();
+                                        }else {
+                                            showCollectListDialog();
+                                        }
+                                    }
+                                }else {
+                                    //用户选过不支持的类型，因此无论如何都要提示弹框
+                                    if (dialogTwo != null) {
+                                        dialogTwo.show();
+                                    }else {
+                                        showCollectListDialog();
+                                    }
                                 }
                             }
                         }
@@ -7128,9 +7143,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         public void onFailure(Call<ReturnBean> call, Throwable t) {
                             super.onFailure(call, t);
                             ToastUtil.show("批量收藏失败!");
-                            if (dialogTwo != null) {
-                                dialogTwo.dismiss();
-                            }
                         }
                     });
                 } else {
@@ -7147,13 +7159,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     }
                     //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
                     ToastUtil.show("批量收藏成功!");//离线提示
-                    if (dialogTwo != null) {
-                        dialogTwo.dismiss();
+                    if(!isNormal){
+                        //用户选过不支持的类型，因此无论如何都要提示弹框
+                        if (dialogTwo != null) {
+                            dialogTwo.show();
+                        }else {
+                            showCollectListDialog();
+                        }
                     }
-                }
-            } else {
-                if (dialogTwo != null) {
-                    dialogTwo.dismiss();
                 }
             }
             mAdapter.clearSelectedMsg();
@@ -7240,9 +7253,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             int len = list.size();
                             if (len > 0) {
                                 if (len == totalSize) {
-                                    toCollectList(list);
+                                    toCollectList(list,true);//正常类型收藏
                                 } else if (len < totalSize) {
-                                    showCollectListDialog(list);
+                                    toCollectList(list,false);//存在不支持类型的收藏
                                 }
                             } else {
                                 showValidMsgDialog();
