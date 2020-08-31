@@ -180,6 +180,15 @@ public class EnvelopeReceiverActivity extends AppActivity {
                             search(gid, key);
                         }
                     }, 100);
+                } else {
+                    if (mAdapter != null && group != null && group.getUsers() != null) {
+                        ui.viewEditAvatar.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.bindData(group.getUsers());
+                            }
+                        }, 100);
+                    }
                 }
             }
         });
