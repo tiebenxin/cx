@@ -258,17 +258,20 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            float[] dis = event.values;
-            //听筒模式，靠近则息屏，远离则亮屏
-            LogUtil.getLog().i(TAG, "语音播放模式--" + AVChatManager.getInstance().speakerEnabled());
-            if (AVChatManager.getInstance().speakerEnabled()) {
-                if (0.0f == dis[0]) {
-                    //靠近，设置为听筒模式
-                    switchWakeLock(false);
-                } else {
-                    //离开，复原
-                    switchWakeLock(true);
+            try {
+                float[] dis = event.values;
+                //听筒模式，靠近则息屏，远离则亮屏
+                LogUtil.getLog().i(TAG, "语音播放模式--" + AVChatManager.getInstance().speakerEnabled());
+                if (AVChatManager.getInstance().speakerEnabled()) {
+                    if (0.0f == dis[0]) {
+                        //靠近，设置为听筒模式
+                        switchWakeLock(false);
+                    } else {
+                        //离开，复原
+                        switchWakeLock(true);
+                    }
                 }
+            } catch (Exception e) {
             }
         }
 

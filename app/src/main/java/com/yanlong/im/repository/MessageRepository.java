@@ -199,7 +199,8 @@ public class MessageRepository {
             localDataSource.addRemindCount(realm, Preferences.FRIEND_APPLY, uid);
         }
         remoteDataSource.getRequestFriends(wrapMessage.getRequestFriend().getContactName(),
-                isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), listData, applyBean -> {
+                isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRequestFriend().getPhone() + "",
+                listData, applyBean -> {
                     //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
                     Realm realm1 = DaoUtil.open();
                     localDataSource.saveApplyBean(realm1, applyBean);

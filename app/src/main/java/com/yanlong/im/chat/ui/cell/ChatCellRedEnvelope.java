@@ -57,7 +57,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
             }
         }
         setMessage(isInvalid, title, info, typeName, typeIcon);
-        if (redEnvelopeMessage.getEnvelopStatus() == PayEnum.EEnvelopeStatus.NO_ALLOW && redEnvelopeMessage.getCanReview() == 1) {
+        if (!isMe && redEnvelopeMessage.getEnvelopStatus() == PayEnum.EEnvelopeStatus.NO_ALLOW && redEnvelopeMessage.getCanReview() == 1) {
             tvVieMore.setVisibility(View.VISIBLE);
         } else {
             tvVieMore.setVisibility(View.GONE);

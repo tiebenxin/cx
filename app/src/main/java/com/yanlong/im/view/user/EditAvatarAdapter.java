@@ -83,6 +83,7 @@ public class EditAvatarAdapter extends BaseAdapter {
                 if (bean.getDeleteCount() == 2) {
                     Glide.with(context).load(bean.getUser().getHead()).apply(GlideOptionsUtil.headImageOptions()).into(ivAvatar);
                 } else if (bean.getDeleteCount() == 1) {
+                    Glide.with(context).load(bean.getUser().getHead()).apply(GlideOptionsUtil.headImageOptions()).into(ivAvatar);
                     ivAvatar.setAlpha(0.6f);
                 }
             }

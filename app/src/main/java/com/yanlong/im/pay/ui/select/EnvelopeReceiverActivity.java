@@ -17,6 +17,8 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityEnvelopeReceiverBinding;
+import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.view.user.EditAvatarBean;
 
 import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -42,8 +44,10 @@ public class EnvelopeReceiverActivity extends AppActivity {
     private ActivityEnvelopeReceiverBinding ui;
     private String gid;
     private final MsgDao msgDao = new MsgDao();
+    private final UserDao userDao = new UserDao();
     private AdapterSelectMember mAdapter;
     private ArrayList<FromUserBean> toUserList;
+    private ArrayList<EditAvatarBean> selectUserList = new ArrayList<>();
     private Group group;
 
     @Override
@@ -203,11 +207,7 @@ public class EnvelopeReceiverActivity extends AppActivity {
             return;
         }
         mAdapter = new AdapterSelectMember(this, group);
-        mAdapter.bindData(group.getUsers());
-        if (toUserList != null && toUserList.size() > 0 && group.getUsers() != null) {
-            convertUserList(toUserList);
-        }
-
+        taskSetName(group.getUsers());
     }
 
     @SuppressLint("CheckResult")
@@ -217,10 +217,16 @@ public class EnvelopeReceiverActivity extends AppActivity {
             public List<MemberUser> apply(Integer integer) throws Exception {
                 List<MemberUser> selectMember = new ArrayList<>();
                 if (group.getUsers() != null && group.getUsers().size() > 0) {
+                    if (selectUserList.size() > 0) {
+                        selectUserList.clear();
+                    }
+                    List<MemberUser> memberUsers = group.getUsers();
+                    new UserDao().getMemberUserName(memberUsers);
                     for (FromUserBean bean : toList) {
-                        for (MemberUser user : group.getUsers()) {
+                        for (MemberUser user : memberUsers) {
                             if (bean.getUid() == user.getUid()) {
                                 selectMember.add(user);
+                                selectUserList.add(new EditAvatarBean(user));
                             }
                         }
                     }
@@ -236,6 +242,7 @@ public class EnvelopeReceiverActivity extends AppActivity {
                         if (list != null) {
                             mAdapter.setSelectList(list);
                             ui.viewEmpty.setVisibility(View.GONE);
+                            ui.viewEditAvatar.addUsers(selectUserList);
                         } else {
                             ui.viewEmpty.setVisibility(View.VISIBLE);
                         }
@@ -249,7 +256,11 @@ public class EnvelopeReceiverActivity extends AppActivity {
         Observable.just(0).map(new Function<Integer, List<MemberUser>>() {
             @Override
             public List<MemberUser> apply(Integer integer) throws Exception {
-                return msgDao.searchMemberByKey(gid, key);
+                List<MemberUser> memberUsers = msgDao.searchMemberByKey(gid, key);
+                if (memberUsers != null && memberUsers.size() > 0) {
+                    new UserDao().getMemberUserName(memberUsers);
+                }
+                return memberUsers;
             }
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -266,6 +277,28 @@ public class EnvelopeReceiverActivity extends AppActivity {
                         }
                     }
                 });
+    }
 
+    @SuppressLint("CheckResult")
+    private void taskSetName(List<MemberUser> list) {
+        Observable.just(0)
+                .map(new Function<Integer, List<MemberUser>>() {
+                    @Override
+                    public List<MemberUser> apply(Integer integer) throws Exception {
+                        userDao.getMemberUserName(list);
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MemberUser>>empty())
+                .subscribe(new Consumer<List<MemberUser>>() {
+                    @Override
+                    public void accept(List<MemberUser> list) throws Exception {
+                        mAdapter.bindData(list);
+                        if (toUserList != null && toUserList.size() > 0 && group.getUsers() != null) {
+                            convertUserList(toUserList);
+                        }
+                    }
+                });
     }
 }

@@ -19,6 +19,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
@@ -177,7 +178,7 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
             Glide.with(context).load(bean.getHead())
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-            txtName.setText(bean.getShowName());
+            txtName.setText(StringUtil.getUserName(bean.getMarkerName(), bean.getMembername(), bean.getName()));
             txtTime.setVisibility(View.GONE);
 
             if (position > 1) {
@@ -222,7 +223,7 @@ public class AdapterSelectMember extends AbstractRecyclerAdapter {
                 FromUserBean bean = new FromUserBean();
                 bean.setUid(user.getUid());
                 bean.setAvatar(user.getHead());
-                bean.setNickname(!TextUtils.isEmpty(user.getMembername()) ? user.getMembername() : user.getName());
+                bean.setNickname(StringUtil.getUserName(user.getMarkerName(), user.getMembername(), user.getName()));
                 list.add(bean);
             }
         }

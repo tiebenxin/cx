@@ -129,7 +129,6 @@ public class MainRepository {
                     }
                     localDataSource.updateFriend(userInfo);
                     MessageManager.getInstance().updateSessionTopAndDisturb("", usrid, userInfo.getIstop(), userInfo.getDisturb());
-                    MessageManager.getInstance().updateCacheUser(userInfo);
                 } else {
                     MessageManager.getInstance().removeLoadUids(usrid);
                 }

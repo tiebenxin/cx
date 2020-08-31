@@ -46,14 +46,7 @@ public class TaskSession extends AsyncTask<Void, Integer, Boolean> {
             return;
         }
         if (session.getType() == 1) {
-            Group group = MessageManager.getInstance().getCacheGroup(session.getGid());
-            if (group != null) {
-                session.setName(msgDao.getGroupName(group));
-                session.setIsMute(group.getNotNotify());
-                session.setAvatar(group.getAvatar());
-            } else {
-                session.setName(msgDao.getGroupName(session.getGid()));
-            }
+            session.setName(msgDao.getGroupName(session.getGid()));
             MsgAllBean msg = msgDao.msgGetLast4Gid(session.getGid());
             if (msg != null) {
                 session.setMessage(msg);
