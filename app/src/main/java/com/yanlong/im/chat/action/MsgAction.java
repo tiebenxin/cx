@@ -300,7 +300,6 @@ public class MsgAction {
                         Group newGroup = response.body().getData();
                         newGroup.getMygroupName();
                         dao.groupNumberSave(newGroup);
-                        MessageManager.getInstance().updateCacheGroup(newGroup);
                         if(callback != null)callback.onResponse(call, response);
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
