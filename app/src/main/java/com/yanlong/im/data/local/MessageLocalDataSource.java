@@ -140,12 +140,16 @@ public class MessageLocalDataSource {
             checkInTransaction(realm);
             realm.beginTransaction();
             Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("uid", uid).findFirst();
-            int readnum = remind == null ? 1 : remind.getNumber() + 1;
-            Remind newreamid = new Remind();
-            newreamid.setNumber(readnum);
-            newreamid.setUid(uid);
-            newreamid.setRemid_type(type);
-            realm.insertOrUpdate(newreamid);
+            if (remind == null) {
+                Remind newreamid = new Remind();
+                newreamid.setNumber(1);
+                newreamid.setUid(uid);
+                newreamid.setRemid_type(type);
+                realm.insertOrUpdate(newreamid);
+            } else {
+                remind.setNumber(remind.getNumber() + 1);
+                realm.insertOrUpdate(remind);
+            }
             realm.commitTransaction();
         } catch (Exception e) {
             if (realm.isInTransaction()) {
