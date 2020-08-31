@@ -102,7 +102,19 @@ public class SearchAndEditAvatarView extends LinearLayout {
         showSearchIcon(false);
         mAdapter.bindData(userList);
         updateXY();
+    }
 
+    public void addUsers(List<EditAvatarBean> users) {
+        if (users == null || users.size() <= 0) {
+            return;
+        }
+        if (userList.size() > 0) {
+            userList.clear();
+        }
+        userList.addAll(users);
+        showSearchIcon(false);
+        mAdapter.bindData(userList);
+        updateXY();
     }
 
     public void clear() {
@@ -172,7 +184,7 @@ public class SearchAndEditAvatarView extends LinearLayout {
         int screenWidth = ScreenUtil.getScreenWidth(getContext());
         ViewGroup.LayoutParams layoutParams = llSearch.getLayoutParams();
         layoutParams.width = screenWidth;
-        scrollView.setLayoutParams(layoutParams);
+        llSearch.setLayoutParams(layoutParams);
     }
 
     private void scrollRecycler() {

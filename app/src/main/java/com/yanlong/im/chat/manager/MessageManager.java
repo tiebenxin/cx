@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -14,7 +13,6 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
-import com.yanlong.im.chat.bean.EnvelopeTemp;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MessageDBTemp;

@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityEnvelopeReceiverBinding;
+import com.yanlong.im.view.user.EditAvatarBean;
 
 import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -44,6 +45,7 @@ public class EnvelopeReceiverActivity extends AppActivity {
     private final MsgDao msgDao = new MsgDao();
     private AdapterSelectMember mAdapter;
     private ArrayList<FromUserBean> toUserList;
+    private ArrayList<EditAvatarBean> selectUserList = new ArrayList<>();
     private Group group;
 
     @Override
@@ -217,10 +219,14 @@ public class EnvelopeReceiverActivity extends AppActivity {
             public List<MemberUser> apply(Integer integer) throws Exception {
                 List<MemberUser> selectMember = new ArrayList<>();
                 if (group.getUsers() != null && group.getUsers().size() > 0) {
+                    if (selectUserList.size() > 0) {
+                        selectUserList.clear();
+                    }
                     for (FromUserBean bean : toList) {
                         for (MemberUser user : group.getUsers()) {
                             if (bean.getUid() == user.getUid()) {
                                 selectMember.add(user);
+                                selectUserList.add(new EditAvatarBean(user));
                             }
                         }
                     }
@@ -236,6 +242,7 @@ public class EnvelopeReceiverActivity extends AppActivity {
                         if (list != null) {
                             mAdapter.setSelectList(list);
                             ui.viewEmpty.setVisibility(View.GONE);
+                            ui.viewEditAvatar.addUsers(selectUserList);
                         } else {
                             ui.viewEmpty.setVisibility(View.VISIBLE);
                         }
