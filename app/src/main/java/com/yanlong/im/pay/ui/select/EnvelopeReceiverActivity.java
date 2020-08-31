@@ -44,6 +44,7 @@ public class EnvelopeReceiverActivity extends AppActivity {
     private ActivityEnvelopeReceiverBinding ui;
     private String gid;
     private final MsgDao msgDao = new MsgDao();
+    private final UserDao userDao = new UserDao();
     private AdapterSelectMember mAdapter;
     private ArrayList<FromUserBean> toUserList;
     private ArrayList<EditAvatarBean> selectUserList = new ArrayList<>();
@@ -206,11 +207,7 @@ public class EnvelopeReceiverActivity extends AppActivity {
             return;
         }
         mAdapter = new AdapterSelectMember(this, group);
-        mAdapter.bindData(group.getUsers());
-        if (toUserList != null && toUserList.size() > 0 && group.getUsers() != null) {
-            convertUserList(toUserList);
-        }
-
+        taskSetName(group.getUsers());
     }
 
     @SuppressLint("CheckResult")
@@ -280,6 +277,28 @@ public class EnvelopeReceiverActivity extends AppActivity {
                         }
                     }
                 });
+    }
 
+    @SuppressLint("CheckResult")
+    private void taskSetName(List<MemberUser> list) {
+        Observable.just(0)
+                .map(new Function<Integer, List<MemberUser>>() {
+                    @Override
+                    public List<MemberUser> apply(Integer integer) throws Exception {
+                        userDao.getMemberUserName(list);
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MemberUser>>empty())
+                .subscribe(new Consumer<List<MemberUser>>() {
+                    @Override
+                    public void accept(List<MemberUser> list) throws Exception {
+                        mAdapter.bindData(list);
+                        if (toUserList != null && toUserList.size() > 0 && group.getUsers() != null) {
+                            convertUserList(toUserList);
+                        }
+                    }
+                });
     }
 }
