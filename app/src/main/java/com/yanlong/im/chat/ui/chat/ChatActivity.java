@@ -1874,9 +1874,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
                     return;
                 } else {
-                    if (mAdapter.getSelectedMsg().size() > 0) {
+                    int size = mAdapter.getSelectedMsg().size();
+                    if (size > 0) {
 //                        filterMsgForward(mAdapter.getSelectedMsg());
-                        filterMessageValid(mAdapter.getSelectedMsg(), 1);
+                        if (size > 30) {
+                            showMoreMsgDialog();
+                        } else {
+                            filterMessageValid(mAdapter.getSelectedMsg(), 1);
+                        }
                     }
                 }
 
@@ -7409,6 +7414,20 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void accept(List<MsgAllBean> list) throws Exception {
                     }
                 });
+    }
+
+    //多选转发消息过多
+    private void showMoreMsgDialog() {
+        DialogCommon2 dialogValid = new DialogCommon2(this);
+        dialogValid.setContent("转发消息不能超过30条", true)
+                .setButtonTxt("确定")
+                .hasTitle(false)
+                .setListener(new DialogCommon2.IDialogListener() {
+                    @Override
+                    public void onClick() {
+                        dialogValid.dismiss();
+                    }
+                }).show();
     }
 
 
