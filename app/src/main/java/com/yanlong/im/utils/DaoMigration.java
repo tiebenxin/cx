@@ -220,6 +220,10 @@ public class DaoMigration implements RealmMigration {
                 updateV49(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 49) {
+                updateV50(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -878,6 +882,11 @@ public class DaoMigration implements RealmMigration {
     private final void updateV49(RealmSchema schema) {
         schema.get("ApplyBean")
                 .addField("phone", String.class);
+    }
+
+    private final void updateV50(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addField("hasPermission", boolean.class);
     }
 
     @Override

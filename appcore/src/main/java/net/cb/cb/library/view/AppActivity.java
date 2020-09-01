@@ -223,7 +223,9 @@ public class AppActivity extends AppCompatActivity {
                 if (payWaitDialog == null) {
                     payWaitDialog = new DialogLoadingProgress(AppActivity.this);
                 }
-                payWaitDialog.show();
+                if (isActivityValid()) {
+                    payWaitDialog.show();
+                }
             }
         });
 
