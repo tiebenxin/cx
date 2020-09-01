@@ -13,9 +13,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
 import android.view.View;
-import android.widget.TextView;
 
-import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
@@ -23,7 +21,6 @@ import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.user.ui.InviteDetailsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
 import org.jsoup.Jsoup;
@@ -93,7 +90,7 @@ public class HtmlTransitonUtils {
                     SpannableStringBuilder clickableHtmlBuilder1 = new SpannableStringBuilder(spannedHtml1.subSequence(0, spannedHtml1.length()));
                     URLSpan[] urls1 = clickableHtmlBuilder1.getSpans(0, spannedHtml1.length(), URLSpan.class);
                     for (int i = 0; i < urls1.length; i++) {
-                        setLinkClickable(context, clickableHtmlBuilder1, urls1[i], bean.getList().get(i).getId(), bean.getGid());
+                        setLinkClickable(context, clickableHtmlBuilder1, urls1[i], bean.getList().get(i).getId(), bean.getGid(),type,null,"");
                     }
                     return clickableHtmlBuilder1;
                 case ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER:// 领取群红包
