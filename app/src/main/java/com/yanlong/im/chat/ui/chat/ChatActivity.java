@@ -5606,8 +5606,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         int status = PayEnum.EEnvelopeStatus.NORMAL;
         if (stat == 0) {//1 正常待领取状态
             status = PayEnum.EEnvelopeStatus.NORMAL;
-        }
-        if (stat == 1) {//1 领取
+        } else if (stat == 1) {//1 领取
             status = PayEnum.EEnvelopeStatus.RECEIVED;
         } else if (stat == 2) {//已领完
             status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;

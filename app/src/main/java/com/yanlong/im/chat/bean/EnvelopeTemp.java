@@ -2,6 +2,7 @@ package com.yanlong.im.chat.bean;
 
 import androidx.annotation.Nullable;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -26,6 +27,9 @@ public class EnvelopeTemp extends RealmObject implements IMsgContent {
     private String accessToken;//查看系统红包token
     private int envelopStatus;// 红包状态：0-正常， 1-已领取  2-已过期
     String sign;//签名信息
+    private RealmList<MemberUser> allowUsers;//设置红包领取人
+    private int canReview;//是否可以查看详情，0 不可，1 可以
+    private boolean hasPermission = true;//是否有权限领取，true 有，false 无
 
     public int getStyle() {
         return style;
@@ -114,6 +118,30 @@ public class EnvelopeTemp extends RealmObject implements IMsgContent {
 
     public void setSign(String sign) {
         this.sign = sign;
+    }
+
+    public RealmList<MemberUser> getAllowUsers() {
+        return allowUsers;
+    }
+
+    public void setAllowUsers(RealmList<MemberUser> allowUsers) {
+        this.allowUsers = allowUsers;
+    }
+
+    public int getCanReview() {
+        return canReview;
+    }
+
+    public void setCanReview(int canReview) {
+        this.canReview = canReview;
+    }
+
+    public boolean isHasPermission() {
+        return hasPermission;
+    }
+
+    public void setHasPermission(boolean hasPermission) {
+        this.hasPermission = hasPermission;
     }
 
     @Override
