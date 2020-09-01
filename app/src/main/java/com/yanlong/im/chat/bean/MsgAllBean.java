@@ -419,9 +419,12 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 str = "[语音]";
             } else if (msg_type == ChatEnum.EMessageType.AT) {
                 str = getAtMessage().getMsg();
-            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT ||
-                    msg_type == ChatEnum.EMessageType.ASSISTANT_NEW) {
-                str = "[常信通知]";
+            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT || msg_type == ChatEnum.EMessageType.ASSISTANT_NEW) {
+                if (getAssistantMessage() != null && !TextUtils.isEmpty(getAssistantMessage().getTitle())) {
+                    str = getAssistantMessage().getTitle();
+                } else {
+                    str = "常信通知";
+                }
             } else if (msg_type == ChatEnum.EMessageType.MSG_CANCEL) {//撤回消息
                 str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
             } else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
