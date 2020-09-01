@@ -353,6 +353,11 @@ public class BurnManager {
                     envelopeTemp.setStyle(msg.getRed_envelope().getStyle());
                     envelopeTemp.setSign(msg.getRed_envelope().getSign());
                     envelopeTemp.setTraceId(msg.getRed_envelope().getTraceId());
+                    if (msg.getRed_envelope().getAllowUsers() != null && msg.getRed_envelope().getAllowUsers().size() > 0) {
+                        envelopeTemp.setAllowUsers(msg.getRed_envelope().getAllowUsers());
+                    }
+                    envelopeTemp.setCanReview(msg.getRed_envelope().getCanReview());
+                    envelopeTemp.setHasPermission(msg.getRed_envelope().isHasPermission());
 
                     MessageDBTemp message = new MessageDBTemp();
                     message.setMsg_id(msg.getMsg_id());

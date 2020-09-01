@@ -5724,7 +5724,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true, hasPermission);
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, hasPermission, hasPermission);
         }
     }
 

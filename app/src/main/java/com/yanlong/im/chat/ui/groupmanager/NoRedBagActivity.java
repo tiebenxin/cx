@@ -181,7 +181,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                     grabRedEnvelopeNoAllow(bean, message.getTraceId(), message.getRe_type(), message.getEnvelopStatus());
                 } else {
                     boolean isAllow = false;
-                    if (bean.isMe()) {
+                    if (bean.isMe() /*|| message.getEnvelopStatus() == PayEnum.EEnvelopeStatus.ERROR*/) {
                         isAllow = true;
                     } else {
                         if (message.getCanReview() == 1) {
@@ -456,7 +456,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
             if (envelopeStatus != 0) {
                 mViewAdapter.remove(msgAllBean);
             }
-        }else {
+        } else {
             mViewAdapter.notifyItemChange(msgAllBean);
         }
     }

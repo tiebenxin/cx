@@ -144,7 +144,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 } else {
                     if (envelopeDetailBean.getEnvelopeStatus() == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {//红包已经被抢完，未领到
                         ui.llSend.setVisibility(View.GONE);
-                        ui.llRecord.setVisibility(View.GONE);
+                        ui.llRecord.setVisibility(View.VISIBLE);
                         ui.tvNote.setVisibility(View.VISIBLE);
                         ui.tvNote.setText("红包已经被领完");
                         ui.tvMoney.setVisibility(View.GONE);
