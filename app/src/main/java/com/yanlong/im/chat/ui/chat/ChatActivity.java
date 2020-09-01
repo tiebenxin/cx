@@ -6521,8 +6521,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
 
                 }
-            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
-//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED || envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_UNDONE) {
                 if (msg.isMe() || !rb.isHasPermission()) {
                     getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
                 } else {

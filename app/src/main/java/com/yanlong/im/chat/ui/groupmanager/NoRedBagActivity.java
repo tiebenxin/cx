@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
@@ -105,6 +106,11 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 } else {
                     binding.imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
                     binding.layoutRedBag.setBackgroundResource(R.mipmap.ic_rb_received);
+                }
+                if (!msgAllBean.isMe() && !message.isHasPermission() && message.getCanReview() == 1) {
+                    binding.tvViewMore.setVisibility(View.VISIBLE);
+                } else {
+                    binding.tvViewMore.setVisibility(View.GONE);
                 }
                 binding.layoutRedBag.setOnClickListener(o -> {
                     if (ViewUtils.isFastDoubleClick()) {

@@ -20,7 +20,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
     private TextView tv_rb_title, tv_rb_info, tv_rb_type;
     private ImageView iv_rb_state, iv_rb_icon;
     private RedEnvelopeMessage contentMsg;
-    private TextView tvVieMore;
+    private TextView tvViewMore;
 
     protected ChatCellRedEnvelope(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -34,7 +34,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
         tv_rb_type = getView().findViewById(R.id.tv_rb_type);
         iv_rb_state = getView().findViewById(R.id.iv_rb_state);
         iv_rb_icon = getView().findViewById(R.id.iv_rb_icon);
-        tvVieMore = getView().findViewById(R.id.tv_view_more);
+        tvViewMore = getView().findViewById(R.id.tv_view_more);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class ChatCellRedEnvelope extends ChatCellBase {
         }
         setMessage(isInvalid, title, info, typeName, typeIcon);
         if (!isMe && !contentMsg.isHasPermission() && contentMsg.getCanReview() == 1) {
-            tvVieMore.setVisibility(View.VISIBLE);
+            tvViewMore.setVisibility(View.VISIBLE);
         } else {
-            tvVieMore.setVisibility(View.GONE);
+            tvViewMore.setVisibility(View.GONE);
         }
     }
 
