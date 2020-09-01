@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
@@ -17,20 +18,21 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
         android:text="" />
+
     <TextView
         android:id="@+id/tv_broadcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/bg_chat_gray_shape"
         android:gravity="center"
+        android:padding="3dp"
         android:singleLine="false"
         android:text="----以下是新消息----"
-        android:padding="3dp"
         android:textColor="@color/gray_500"
         android:textSize="12sp"
-        android:layout_marginBottom="5dp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/ll_root"
@@ -38,13 +40,31 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <LinearLayout
+            android:id="@+id/ll_select"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:visibility="visible">
+
+            <CheckBox
+                android:id="@+id/ck_select"
+                style="@style/app_check_green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:padding="5dp"
+                android:visibility="visible" />
+        </LinearLayout>
+
         <com.yanlong.im.wight.avatar.RoundImageView
-            app:radius="3dp"
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginRight="10dp"
+            app:radius="3dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -69,10 +89,10 @@
                     android:id="@+id/view_bubble"
                     android:layout_width="200dp"
                     android:layout_height="80dp"
-                    android:background="@drawable/bg_chat_other_rp"
-                    android:gravity="left|center_vertical"
-                    android:layout_marginBottom="4dp"
                     android:layout_marginRight="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/bg_rp_other_deep_unselected"
+                    android:gravity="left|center_vertical"
                     android:orientation="vertical"
                     android:visibility="visible">
 
@@ -81,7 +101,7 @@
                         android:layout_height="60dp"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:paddingLeft="3dp"
+                        android:paddingLeft="10dp"
                         android:paddingRight="10dp">
 
                         <ImageView
@@ -93,15 +113,15 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="2dp"
+                            android:layout_marginLeft="6dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:id="@+id/tv_rb_title"
                                 style="@style/app_txt_title_2"
-                                android:textSize="15sp"
                                 android:text="恭喜发财，好运连连"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="15sp" />
 
                             <TextView
                                 android:id="@+id/tv_rb_info"
@@ -124,15 +144,23 @@
                         <TextView
                             android:id="@+id/tv_rb_type"
                             style="@style/app_txt_content_1"
-                            android:layout_width="180dp"
+                            android:layout_width="0dp"
                             android:layout_weight="1"
                             android:text="支付宝红包" />
+
+                        <TextView
+                            android:id="@+id/tv_view_more"
+                            style="@style/app_txt_content_1"
+                            android:layout_width="wrap_content"
+                            android:text="查看领取详情>"
+                            android:visibility="gone"/>
 
                         <ImageView
                             android:id="@+id/iv_rb_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@mipmap/ic_rb_zfb" />
+                            android:src="@mipmap/ic_rb_zfb"
+                            android:visibility="gone" />
 
                     </LinearLayout>
 

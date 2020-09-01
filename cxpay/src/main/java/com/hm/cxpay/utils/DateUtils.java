@@ -118,6 +118,10 @@ public class DateUtils {
         return format.format(new Date(time));
     }
 
+    public static String getFullTime(long time) {
+        return getTime(time, "yyyy-MM-dd  HH:mm");
+    }
+
     public static String getTransferTime(long time) {
         return getTime(time, "yyyy-MM-dd  HH:mm:ss");
     }

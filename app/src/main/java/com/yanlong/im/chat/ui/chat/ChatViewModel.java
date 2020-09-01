@@ -56,12 +56,12 @@ public class ChatViewModel extends ViewModel {
         observerToAddBurnMsgs();
     }
 
-    /**观察
+    /**
+     * 观察
      * 1.群聊或单聊
      * 2.好友发送的消息
      * 3.未添加到阅后即焚的消息
      * 打开聊天界面说明 已读，有新消息则立即加入到阅后即焚队列
-     *
      */
     public void observerToAddBurnMsgs() {
         if (toAddBurnForDBMsgs != null) {
@@ -154,21 +154,24 @@ public class ChatViewModel extends ViewModel {
     }
 
     public void onDestroy() {
-        if (toAddBurnForDBMsgs != null){
+        if (toAddBurnForDBMsgs != null) {
             toAddBurnForDBMsgs.removeAllChangeListeners();
         }
 
-        if (userInfo != null){
+        if (userInfo != null) {
             userInfo.removeAllChangeListeners();
+            userInfo = null;
         }
-
-        if (groupInfo != null){
+        if (toGid != null) {
+            toGid = null;
+        }
+        if (groupInfo != null) {
             groupInfo.removeAllChangeListeners();
+            groupInfo = null;
         }
 
-        if (repository != null){
+        if (repository != null) {
             repository.onDestory();
         }
-
     }
 }

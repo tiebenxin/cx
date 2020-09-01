@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
+    android:id="@+id/view_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -22,14 +23,34 @@
 
     <LinearLayout
         android:id="@+id/ll_root"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
         android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/ll_select"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:visibility="visible">
+
+            <CheckBox
+                android:id="@+id/ck_select"
+                style="@style/app_check_green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:padding="5dp"
+                android:visibility="visible" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -46,6 +67,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -55,7 +77,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="5dp"
                     android:src="@mipmap/ic_net_err"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/view_read"
@@ -94,7 +116,7 @@
                         android:layout_width="200dp"
                         android:layout_height="80dp"
                         android:layout_marginTop="4dp"
-                        android:background="@drawable/bg_chat_me_rp"
+                        android:background="@drawable/bg_rp_me_deep_unselected"
                         android:gravity="right|center_vertical"
                         android:orientation="vertical"
                         android:visibility="visible">
@@ -104,19 +126,19 @@
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:orientation="horizontal"
-                            android:paddingLeft="3dp"
+                            android:paddingLeft="10dp"
                             android:paddingRight="10dp">
 
                             <ImageView
                                 android:id="@+id/iv_rb_state"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@mipmap/ic_rb_zfb_n" />
+                                android:src="@mipmap/ic_rb_zfb_un" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="2dp"
+                                android:layout_marginLeft="6dp"
                                 android:orientation="vertical">
 
                                 <TextView
@@ -148,7 +170,8 @@
                                 android:id="@+id/iv_rb_icon"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@mipmap/ic_rb_zfb" />
+                                android:src="@mipmap/ic_rb_zfb"
+                                android:visibility="gone" />
 
                             <TextView
                                 android:id="@+id/tv_rb_type"
@@ -156,6 +179,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_weight="1"
                                 android:text="支付宝红包" />
+
+                            <TextView
+                                android:id="@+id/tv_view_more"
+                                style="@style/app_txt_content_1"
+                                android:layout_width="wrap_content"
+                                android:text="查看领取详情>"
+                                android:visibility="gone" />
 
                         </LinearLayout>
 

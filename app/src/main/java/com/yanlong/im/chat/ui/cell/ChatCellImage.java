@@ -3,29 +3,30 @@ package com.yanlong.im.chat.ui.cell;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.request.target.Target;
 import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.io.File;
 
@@ -43,10 +44,7 @@ public class ChatCellImage extends ChatCellFileBase {
 
     private ImageView imageView;
     private ImageMessage imageMessage;
-    String currentUrl="";
-//    private ProgressBar progressBar;
-//    private TextView tv_progress;
-//    private LinearLayout ll_progress;
+    String currentUrl = "";
 
     protected ChatCellImage(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -57,9 +55,6 @@ public class ChatCellImage extends ChatCellFileBase {
     protected void initView() {
         super.initView();
         imageView = getView().findViewById(R.id.iv_img);
-//        ll_progress = getView().findViewById(R.id.ll_progress);
-//        progressBar = getView().findViewById(R.id.progress_bar);
-//        tv_progress = getView().findViewById(R.id.tv_progress);
     }
 
     @SuppressLint("CheckResult")
@@ -73,12 +68,13 @@ public class ChatCellImage extends ChatCellFileBase {
         loadImage(message);
     }
 
+    @SuppressLint("CheckResult")
     private void loadImage(MsgAllBean message) {
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
         checkSendStatus();
         //获取圆角
-        RequestOptions rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
+        RequestOptions rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 1))*/;
         rOptions.dontAnimate();
         rOptions.override(width, height);
         String tag = (String) imageView.getTag(R.id.tag_img);
@@ -86,25 +82,18 @@ public class ChatCellImage extends ChatCellFileBase {
             String gif = message.getImage().getPreview();
             if (!TextUtils.equals(tag, gif)) {
                 imageView.setTag(R.id.tag_img, gif);
-                rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+                rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+//                rOptions.priority(Priority.LOW);
+//                rOptions.skipMemoryCache(true);
                 imageView.setImageResource(R.mipmap.ic_image_bg);
                 File local = CustomGlideModule.getCacheFile(gif);
                 if (local == null) {
-                    Glide.with(getContext())
-                            .load(gif)
-                            .apply(rOptions)
-                            .into(imageView);
+                    glideGif(rOptions, gif);
                 } else {
-                    Glide.with(getContext())
-                            .load(local)
-                            .into(imageView);
+                    glideGif(rOptions, local.getAbsolutePath());
                 }
             } else {
-                Glide.with(getContext())
-                        .load(gif)
-                        .apply(rOptions)
-//                    .thumbnail(0.2f)
-                        .into(imageView);
+                glideGif(rOptions, gif);
             }
         } else {
             rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -116,13 +105,11 @@ public class ChatCellImage extends ChatCellFileBase {
             } else {//复用
                 glide(rOptions, tag);
             }
-
         }
-
     }
 
     public void glide(RequestOptions rOptions, String url) {
-        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         currentUrl = url;
@@ -138,11 +125,57 @@ public class ChatCellImage extends ChatCellFileBase {
                     .asBitmap()
                     .load(url)
                     .apply(rOptions)
+                    .listener(new RequestListener<Bitmap>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                            if (e.getMessage().contains("FileNotFoundException")) {
+//                                imageView.postDelayed(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        imageView.setImageResource(R.mipmap.ic_img_past);
+//                                    }
+//                                },100);
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
                     .into(imageView);
         } else {
             imageView.setImageBitmap(localBitmap);
         }
 
+    }
+
+    private void glideGif(RequestOptions rOptions, String url) {
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        currentUrl = url;
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
+        //TODO:设置options后gif图片不动
+        Glide.with(getContext())
+                .load(url)
+//                .apply(rOptions)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+//                        if (e.getMessage().contains("FileNotFoundException")) {
+                            imageView.setImageResource(R.mipmap.ic_img_past);
+//                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })
+                .into(imageView);
     }
 
 
@@ -217,7 +250,6 @@ public class ChatCellImage extends ChatCellFileBase {
             case ChatEnum.ESendStatus.SENDING:
                 ll_progress.setVisibility(VISIBLE);
                 break;
-
         }
     }
 }

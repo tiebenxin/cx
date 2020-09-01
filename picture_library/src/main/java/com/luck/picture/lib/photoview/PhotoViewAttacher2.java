@@ -17,6 +17,7 @@ package com.luck.picture.lib.photoview;
 
 import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_DOWN;
+import static android.view.MotionEvent.ACTION_MOVE;
 import static android.view.MotionEvent.ACTION_UP;
 
 import android.annotation.SuppressLint;
@@ -61,6 +62,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     static final int EDGE_LEFT = 0;
     static final int EDGE_RIGHT = 1;
     static final int EDGE_BOTH = 2;
+    protected static final float FLIP_DISTANCE = 50;
 
     static int SINGLE_TOUCH = 1;
 
@@ -72,6 +74,8 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     private boolean mBlockParentIntercept = false;
     private boolean isOrigin = false;
     private boolean isGif = false;
+    private int downY;
+    private boolean isMultiPoint = false;//是否是多点触控
 
     private static void checkZoomLevels(float minZoom, float midZoom,
                                         float maxZoom) {
@@ -508,12 +512,20 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                     } else {
                         LogManager.getLogger().i(LOG_TAG, "onTouch getParent() returned null");
                     }
-
+                    if (!isMultiPoint) {
+                        isMultiPoint = ev.getPointerCount() > 1;
+                    }
+                    downY = (int) ev.getY();
                     // If we're flinging, and the user presses down, cancel
                     // fling
                     cancelFling();
                     break;
-
+                case ACTION_MOVE:
+                    if (!isMultiPoint) {
+                        isMultiPoint = ev.getPointerCount() > 1;
+                    }
+//                    LogManager.getLogger().i(LOG_TAG, "move---pointCount=" + ev.getPointerCount());
+                    break;
                 case ACTION_CANCEL:
                 case ACTION_UP:
                     // If the user has zoomed less than min scale, zoom back
@@ -524,6 +536,14 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                             v.post(new AnimatedZoomRunnable(getScale(), mMinScale,
                                     rect.centerX(), rect.centerY()));
                             handled = true;
+                        }
+                    }
+                    if (!isMultiPoint) {
+                        int upY = (int) ev.getY();
+                        if (upY - downY > FLIP_DISTANCE) {
+                            if (mViewTapListener != null) {
+                                mViewTapListener.onViewTap(v, ev.getX(), ev.getY());
+                            }
                         }
                     }
                     break;
@@ -551,6 +571,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
 
         return handled;
     }
+
 
     @Override
     public void setAllowParentInterceptOnEdge(boolean allow) {

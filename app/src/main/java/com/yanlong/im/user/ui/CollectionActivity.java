@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -31,6 +33,7 @@ import com.google.gson.Gson;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.utils.DateUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -75,6 +78,7 @@ import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -87,6 +91,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import me.kareluo.ui.OptionMenu;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -132,6 +137,8 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//确认删除弹框
     private boolean isVertical = true;//竖图(true)还是横图(false)  默认竖图
+
+    private RecyclerView mRecyclerBubble;
 
     //加载布局
     @Override
@@ -444,7 +451,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                         //Do Nothing
                     }else {
                         //默认模式，长按弹框
-                        showPop(view, bean.getMsgId(), position);
+                        showPop(view, position);
                     }
                     return true;
                 } else {
@@ -606,124 +613,154 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private TextView mTxtView3;//更多
     private View layoutContent;
     private View mRootView;
+    private RelativeLayout mRlDown, mRlUp;
+
+    /**
+     * 初始化弹出项
+     */
+    private List<OptionMenu> initMenus() {
+        List<OptionMenu> menus = new ArrayList<>();
+        menus.add(new OptionMenu("转发"));
+        menus.add(new OptionMenu("删除"));
+        menus.add(new OptionMenu("更多"));
+        return menus;
+    }
 
     /**
      * 初始化PopupWindow
      */
     private void initPopupWindow() {
-        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null, false);
+        mRootView = getLayoutInflater().inflate(R.layout.view_chat_pop, null, false);
         //获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popupWidth = mRootView.getMeasuredWidth();
         popupHeight = mRootView.getMeasuredHeight();
+
+        mRlUp = mRootView.findViewById(R.id.rl_up);
         mImgTriangleUp = mRootView.findViewById(R.id.img_triangle_up);
-        mImgTriangleDown = mRootView.findViewById(R.id.img_triangle_down);
-        layoutContent = mRootView.findViewById(R.id.layout_content);
-        mTxtView1 = mRootView.findViewById(R.id.txt_value1);
-        mTxtView2 = mRootView.findViewById(R.id.txt_value2);
-        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
-        layoutContent.setVisibility(VISIBLE);
-        mTxtView1.setVisibility(VISIBLE);
-        mTxtView2.setVisibility(VISIBLE);
-        mTxtView3.setVisibility(VISIBLE);
-        mTxtView1.setText("转发");
-        mTxtView2.setText("删除");
-        mTxtView3.setText("更多");
+        mRlDown = mRootView.findViewById(R.id.rl_down);
+        mRecyclerBubble = mRootView.findViewById(R.id.recycler_bubble);
     }
 
     /***
      * 长按的气泡处理
      * @param v
      */
-    private void showPop(View v, String msgId, int postion) {
-        // 重新获取自身的长宽高
-        mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        popupWidth = mRootView.getMeasuredWidth();
-        popupHeight = mRootView.getMeasuredHeight();
-
-        // 获取ActionBar位置，判断消息是否到顶部
-        // 获取ListView在屏幕顶部的位置
-        int[] location = new int[2];
-        bindingView.recyclerView.getLocationOnScreen(location);
-        // 获取View在屏幕的位置
-        int[] locationView = new int[2];
-        v.getLocationOnScreen(locationView);
-
-        mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        // 设置弹窗外可点击
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                return false;
-                // 这里如果返回true的话，touch事件将被拦截
-                // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+    private void showPop(View v, int postion) {
+        try {
+            List<OptionMenu> menus = initMenus();
+            AdapterPopMenu adapterPopMenu = new AdapterPopMenu(initMenus(), this);
+            int spanCount;
+            if (menus.size() == 1) {
+                spanCount = 1;
+            } else if (menus.size() == 2) {
+                spanCount = 2;
+            } else if (menus.size() == 3) {
+                spanCount = 3;
+            } else {
+                spanCount = 4;
             }
-        });
+            mRecyclerBubble.setLayoutManager(new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL, false));
+            mRecyclerBubble.setAdapter(adapterPopMenu);
+            adapterPopMenu.setListener(new AdapterPopMenu.IMenuClickListener() {
+                @Override
+                public void onClick(OptionMenu menu) {
+                    if (mPopupWindow != null) {
+                        mPopupWindow.dismiss();
+                    }
+                    if(menu.getTitle().equals("转发")){
+                        if (mPopupWindow != null) {
+                            mPopupWindow.dismiss();
+                        }
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getResources().getString(R.string.user_disable_message));
+                            return;
+                        }
+                        if (CommonUtils.transformMsgType(mList.get(postion).getType()) == ChatEnum.EMessageType.VOICE) {
+                            ToastUtil.showToast(CollectionActivity.this,"收藏的语音信息不可以转发",1);
+                        } else {
+                            if (NetUtil.isNetworkConnected()) {
+                                startActivity(new Intent(context, MsgForwardActivity.class)
+                                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(mList.get(postion))).putExtra("from_collect", true));
+                            } else {
+                                ToastUtil.show("请检查网络连接是否正常");
+                            }
+                        }
+                    }else if(menu.getTitle().equals("删除")){
+                        if (mPopupWindow != null) {
+                            mPopupWindow.dismiss();
+                        }
+                        if (mList.get(postion) != null) {
+                            httpCancelCollect(mList.get(postion).getId(), postion,mList.get(postion).getMsgId());
+                        }
+                    }else if(menu.getTitle().equals("更多")){
+                        if (mPopupWindow != null) {
+                            mPopupWindow.dismiss();
+                        }
+                        //打开编辑模式
+                        switchEditMode(true);
+                    }
+                }
+            });
+            // 获取ActionBar位置，判断消息是否到顶部
+            // 获取ListView在屏幕顶部的位置
+            int[] location = new int[2];
+            bindingView.recyclerView.getLocationOnScreen(location);
+            // 获取View在屏幕的位置
+            int[] locationView = new int[2];
+            v.getLocationOnScreen(locationView);
+            if (mPopupWindow != null && mPopupWindow.isShowing()) mPopupWindow.dismiss();
+            mPopupWindow = null;
 
-        // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
-        if (v.getMeasuredHeight() >= bindingView.recyclerView.getMeasuredHeight() && locationView[1] < location[1]) {
-            // 内容展示完，向上弹出
-            if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < bindingView.recyclerView.getMeasuredHeight())) {
+            mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            // 设置弹窗外可点击
+            mPopupWindow.setTouchable(true);
+            mPopupWindow.setOutsideTouchable(true);
+            //popwindow不获取焦点
+            mPopupWindow.setFocusable(false);
+            mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+
+                    return false;
+                    // 这里如果返回true的话，touch事件将被拦截
+                    // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+                }
+            });
+            // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
+            if (v.getMeasuredHeight() >= bindingView.recyclerView.getMeasuredHeight() && locationView[1] < location[1]) {
+                // 内容展示完，向上弹出
+                if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < bindingView.recyclerView.getMeasuredHeight())) {
+                    mRlUp.setVisibility(VISIBLE);
+                    mImgTriangleUp.setVisibility(VISIBLE);
+                    mRlDown.setVisibility(GONE);
+                    setArrowLocation(v, 1, menus.size());
+                    mPopupWindow.showAsDropDown(v);
+                } else {
+                    // 中间弹出
+                    mRlUp.setVisibility(GONE);
+                    mImgTriangleUp.setVisibility(GONE);
+                    mRlDown.setVisibility(VISIBLE);
+                    setArrowLocation(v, 1, menus.size());
+                    showPopupWindowUp(v, 1);
+                }
+            } else if (locationView[1] < location[1]) {
+                mRlUp.setVisibility(VISIBLE);
                 mImgTriangleUp.setVisibility(VISIBLE);
-                mImgTriangleDown.setVisibility(GONE);
+                mRlDown.setVisibility(GONE);
+                setArrowLocation(v, 1, menus.size());
                 mPopupWindow.showAsDropDown(v);
             } else {
-                // 中间弹出
+                mRlUp.setVisibility(GONE);
                 mImgTriangleUp.setVisibility(GONE);
-                mImgTriangleDown.setVisibility(VISIBLE);
-                showPopupWindowUp(v, 1);
+                mRlDown.setVisibility(VISIBLE);
+                setArrowLocation(v, 2, menus.size());
+                showPopupWindowUp(v, 2);
             }
-        } else if (locationView[1] < location[1]) {
-            mImgTriangleUp.setVisibility(VISIBLE);
-            mImgTriangleDown.setVisibility(GONE);
-            mPopupWindow.showAsDropDown(v);
-        } else {
-            mImgTriangleUp.setVisibility(GONE);
-            mImgTriangleDown.setVisibility(VISIBLE);
-            showPopupWindowUp(v, 2);
+        } catch (Exception e) {
         }
-        //转发
-        mTxtView1.setOnClickListener(o -> {
-            if (mPopupWindow != null) {
-                mPopupWindow.dismiss();
-            }
-            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
-                ToastUtil.show(getResources().getString(R.string.user_disable_message));
-                return;
-            }
-            if (CommonUtils.transformMsgType(mList.get(postion).getType()) == ChatEnum.EMessageType.VOICE) {
-                ToastUtil.showToast(CollectionActivity.this,"收藏的语音信息不可以转发",1);
-            } else {
-                if (NetUtil.isNetworkConnected()) {
-                    startActivity(new Intent(context, MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(mList.get(postion))).putExtra("from_collect", true));
-//                Intent intent = MsgForwardActivity.newIntent(this, ChatEnum.EForwardMode.DEFAULT, new Gson().toJson(mList.get(postion)));//传collectinfo
-//                startActivity(intent);
-                } else {
-                    ToastUtil.show("请检查网络连接是否正常");
-                }
-            }
-        });
-        //删除
-        mTxtView2.setOnClickListener(o -> {
-            if (mPopupWindow != null) {
-                mPopupWindow.dismiss();
-            }
-            if (mList.get(postion) != null) {
-                httpCancelCollect(mList.get(postion).getId(), postion,mList.get(postion).getMsgId());
-            }
-        });
-        //更多
-        mTxtView3.setOnClickListener(o -> {
-            if (mPopupWindow != null) {
-                mPopupWindow.dismiss();
-            }
-            //打开编辑模式
-            switchEditMode(true);
-        });
+
     }
 
 
@@ -1303,5 +1340,46 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 })
                 .build();
         dialogOne.show();
+    }
+
+    /**
+     * 设置气泡箭头的位置
+     *
+     * @param v
+     * @param gravity     1显示向上箭头 2显示向下箭头
+     * @param itemCount   选项个数
+     */
+    private void setArrowLocation(View v, int gravity,  int itemCount) {
+        //获取需要在其上方显示的控件的位置信息
+        int[] location = new int[2];
+        v.getLocationOnScreen(location);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(v.getWidth() - ScreenUtil.dip2px(this, 6),
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.BELOW, R.id.rl_up);
+//        if (isMe) {
+            if (itemCount < 4) {
+                params.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+            }
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            layoutParams.setMargins(0, 0, ScreenUtil.dip2px(this, 57), 0);
+//        } else {
+//            if (itemCount < 4) {
+//                params.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
+//            }
+//            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//            layoutParams.setMargins(ScreenUtil.dip2px(this, 57), 0, 0, 0);
+//        }
+        mRecyclerBubble.setLayoutParams(params);
+        if (gravity == 1) {
+            mRlUp.setLayoutParams(layoutParams);
+        } else {
+            //在控件上方显示
+            layoutParams.addRule(RelativeLayout.BELOW, R.id.recycler_bubble);
+            mRlDown.setLayoutParams(layoutParams);
+        }
     }
 }

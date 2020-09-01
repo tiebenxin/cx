@@ -123,7 +123,7 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
     public void setUnread_count(int unread_count) {
-        LogUtil.getLog().i("未读数", "设置未读数count=" + unread_count + "--gid=" + gid + "--uid=" + from_uid);
+//        LogUtil.getLog().i("未读数", "设置未读数count=" + unread_count + "--gid=" + gid + "--uid=" + from_uid);
         this.unread_count = unread_count;
     }
 
@@ -136,11 +136,6 @@ public class Session extends RealmObject implements Comparable<Session> {
     public void setMessage(MsgAllBean message) {
 
     }
-
-
-//    public void setHasInitDisturb(boolean hasInitDisturb) {
-//        this.hasInitDisturb = hasInitDisturb;
-//    }
 
 
     public void setAvatar(String avatar) {

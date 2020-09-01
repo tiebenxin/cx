@@ -50,7 +50,7 @@ public class PhoneListUtil {
             //获取联系人姓名
             String name = cursor.getString(cursor
                     .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            temp.setName(name);
+            temp.setPhoneremark(name);
 
             //获取联系人电话号码
             Cursor phoneCursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -114,7 +114,10 @@ public class PhoneListUtil {
                     //号码处理
                     String replace = "";
                     if (!TextUtils.isEmpty(phoneNumber)) {
-                        replace = phoneNumber.replace(" ", "").replace("-", "").replace("+", "");
+                        replace = phoneNumber.replace(" ", "").
+                                replace("-", "").
+                                replace("+", "").
+                                replace("+86", "");
                     }
                     //判断号码是否符合手机号
            /*     if (CheckUtils.checkPhoneNumber(replace)) {
@@ -135,9 +138,12 @@ public class PhoneListUtil {
                     //如果联系人Map不包含该contactId
                     PhoneBean contacts = new PhoneBean();
                     //  contacts.setRecordId(contactId);
-                    contacts.setName(name);
+                    contacts.setPhoneremark(name);
                     //  String[] strings = new String[1];
                     //  strings[0] = PhoneBean;
+                    if (TextUtils.isEmpty(replace) || replace.length() != 11) {
+                        continue;
+                    }
                     contacts.setPhone(replace);
                     data.add(contacts);
                     contactIdMap.put(contactId, data.size() - 1);
@@ -151,6 +157,60 @@ public class PhoneListUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<PhoneBean> getContacts(Context context) {
+        Cursor contactsCursor = null;
+        //联系人集合
+        List<PhoneBean> data = new ArrayList<>();
+        try {
+            ContentResolver resolver = context.getContentResolver();
+            //搜索字段
+            String[] projection = new String[]{
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.Contacts.DISPLAY_NAME};
+            // 获取手机联系人
+            contactsCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    projection, null, null, null);
+            if (contactsCursor != null) {
+                //key: contactId,value: 该contactId在联系人集合data的index
+                Map<Integer, Integer> contactIdMap = new HashMap<>();
+                while (contactsCursor.moveToNext()) {
+                    //获取联系人的ID
+                    int contactId = contactsCursor.getInt(0);
+                    //获取联系人的姓名
+                    String name = contactsCursor.getString(2);
+                    //获取联系人的号码
+                    String phoneNumber = contactsCursor.getString(1);
+                    //号码处理
+                    String replace = "";
+                    if (!TextUtils.isEmpty(phoneNumber)) {
+                        replace = phoneNumber.replace(" ", "").
+                                replace("-", "").
+                                replace("+", "").
+                                replace("+86", "");
+                    }
+                    if (TextUtils.isEmpty(replace) || replace.length() != 11) {
+                        continue;
+                    }
+                    //如果联系人Map不包含该contactId
+                    PhoneBean contacts = new PhoneBean();
+                    contacts.setPhoneremark(name);
+                    contacts.setPhone(replace);
+                    data.add(contacts);
+                    contactIdMap.put(contactId, data.size() - 1);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (contactsCursor != null) {
+                contactsCursor.close();
+            }
+        }
+        return data;
     }
 
 

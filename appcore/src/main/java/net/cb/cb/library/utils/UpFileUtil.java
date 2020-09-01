@@ -20,15 +20,19 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.google.gson.Gson;
+import com.umeng.commonsdk.debug.E;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.AliObsConfigBean;
+import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -207,6 +211,8 @@ public class UpFileUtil {
     private void uploadMd5File(final String path, final Context context, final String keyid, final String secret,
                                final String token, final String endpoint, final String btName, final OssUpCallback ossUpCallback,
                                final String imgPath, final byte[] imgbyte, final boolean isLocalTakeVideo) {
+
+        getOSs(context, keyid, secret, token, endpoint);
         // 获取文件的md5值，用于判断文件是否上传过
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
 
@@ -217,8 +223,10 @@ public class UpFileUtil {
 
             @Override
             public void onFinish(final String md5Rresult) {
-                getOSs(context, keyid, secret, token, endpoint);
-
+                if (TextUtils.isEmpty(md5Rresult)) {
+                    ossUpCallback.fail();
+                    return;
+                }
                 if (imgPath != null) {
                     int sEx = imgPath.lastIndexOf(".");
 
@@ -235,7 +243,6 @@ public class UpFileUtil {
                 }
 
                 final String objkey = path + img_name;
-                LogUtil.getLog().i("h===", "objkey:" + objkey);
                 if (StringUtil.isNotNull(imgPath)) {
                     putObjectRequest = new PutObjectRequest(btName, objkey, imgPath);
                 } else {
@@ -273,9 +280,94 @@ public class UpFileUtil {
 
             @Override
             public void onError(Throwable e) {
-
+                ossUpCallback.fail();
             }
         });
+    }
+
+    /**
+     * 批量检查文件是否存在
+     *
+     * @param list
+     * @param callBack
+     */
+    public void batchFileCheck(ArrayList<FileBean> list, final CallBack<ReturnBean<List<String>>> callBack) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        NetUtil.getNet().exec(
+                server.batchFileCheck(list)
+                , new CallBack<ReturnBean<List<String>>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                        super.onResponse(call, response);
+                        callBack.onResponse(call, response);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        callBack.onFailure(call, t);
+                    }
+                });
+    }
+
+    /**
+     * 获取文件路径的文件名
+     *
+     * @param path
+     * @return
+     */
+    public String getFilePathMd5(String path) {
+        try {
+            String md5 = "";
+            if (TextUtils.isEmpty(path)) {
+                return "";
+            }
+            if (path.contains("/below-20k")) {
+                path = path.replace("/below-20k", "");
+            } else if (path.contains("/below-200k")) {
+                path = path.replace("/below-200k", "");
+            }
+            md5 = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
+            return md5;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /**
+     * 获取文件后缀
+     *
+     * @param path
+     * @param msgType
+     * @return
+     */
+    public String getFileUrl(String path, int msgType) {
+        try {
+            String url = "";
+            if (TextUtils.isEmpty(path)) {
+                return "";
+            }
+            if (msgType == 4) {
+                if (path.contains("/below-20k")) {
+                    path = path.replace("/below-20k", "");
+                } else if (path.contains("/below-200k")) {
+                    path = path.replace("/below-200k", "");
+                }
+            }
+            url = path.substring(path.lastIndexOf("/"));
+            if (msgType == 4) {
+                url = "image" + url;
+            } else if (msgType == 11) {
+                url = "video" + url;
+            } else if (msgType == 17) {
+                url = "file" + url;
+            }
+            return url;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     /**

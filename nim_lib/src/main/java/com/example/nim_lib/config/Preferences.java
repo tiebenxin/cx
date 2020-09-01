@@ -42,4 +42,14 @@ public class Preferences {
     public static final String FACE_SERVER_PATH = "face_server_path";
 
     public static final String USER_STATUS = "user_status";
+
+    public static final String CONTENTS_PHONE = "location_contents_phones";
+    public static final String FRIEND_APPLY = "friend_apply";
+
+    public static final String IS_FIRST_UPLOAD_PHONE = "is_first_upload_phone";
+    public static final String RECENT_FRIENDS_NEW = "recent_friends_new";
+    public static final String RECENT_FRIENDS_UIDS = "recent_friends_uids";
+    public static final String CHECK_FRIENDS_TIME = "check_friends_time";
+    public static final String RECENT_FRIENDS_RED_NUMBER = "recent_friends_red_number";
+    public static final String IS_FIRST_NEW_RED = "is_first_new_red";// 第一次进来显示红点，只显示一次
 }

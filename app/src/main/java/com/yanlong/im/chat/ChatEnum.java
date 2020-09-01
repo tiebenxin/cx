@@ -103,6 +103,8 @@ public class ChatEnum {
 
         //常信小助手消息
         ASSISTANT(R.layout.cell_txt_received),
+        //常信小助手消息 新版
+        ASSISTANT_NEW(R.layout.cell_txt_received_new),
 
         //端到端加密消息
         LOCK(R.layout.cell_lock),
@@ -168,7 +170,7 @@ public class ChatEnum {
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
             ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
             ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL, ECellEventType.EXPRESS_CLICK,
-            ECellEventType.REPLY_CLICK, ECellEventType.AD_CLICK})
+            ECellEventType.REPLY_CLICK, ECellEventType.AD_CLICK, ECellEventType.SELECT_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -191,6 +193,7 @@ public class ChatEnum {
         int EXPRESS_CLICK = 17;//点击表情
         int REPLY_CLICK = 18;//点击回复
         int AD_CLICK = 19;//点击小助手推广消息
+        int SELECT_CLICK = 20;//点击选择
     }
 
 
@@ -200,7 +203,8 @@ public class ChatEnum {
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
             EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT, EMessageType.SHIPPED_EXPRESSION,
-            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE, EMessageType.REPLY, EMessageType.GROUP_ANNOUNCEMENT, EMessageType.ASSISTANT_PROMOTION})
+            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE, EMessageType.REPLY, EMessageType.GROUP_ANNOUNCEMENT, EMessageType.ASSISTANT_PROMOTION,
+            EMessageType.ASSISTANT_NEW})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -226,6 +230,7 @@ public class ChatEnum {
         int TRANSFER_NOTICE = 19; //转账提醒
         int REPLY = 20; //回复消息
         int ASSISTANT_PROMOTION = 21; //小助手广告消息
+        int ASSISTANT_NEW = 22; //小助手 新版消息
 
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
@@ -298,7 +303,7 @@ public class ChatEnum {
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
             ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT, ENoticeType.DEFAULT_USER, ENoticeType.GROUP_OTHER_REMOVE,
-            ENoticeType.SEAL_ACCOUNT,ENoticeType.INVITE_VERIFICATION})
+            ENoticeType.SEAL_ACCOUNT, ENoticeType.FRIEND_DEACTIVATE, ENoticeType.NO_FRI_ADD_FIRST,ENoticeType.INVITE_VERIFICATION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int DEFAULT = 0;//默认，简单文本
@@ -333,7 +338,9 @@ public class ChatEnum {
         int DEFAULT_USER = 29;//默认user标签
         int GROUP_OTHER_REMOVE = 30;//其它人被移出群
         int SEAL_ACCOUNT = 31;// 封号
-        int INVITE_VERIFICATION = 32;//普通群员拉人，新增群验证通知
+        int FRIEND_DEACTIVATE = 32;// 该账号已注销
+        int NO_FRI_ADD_FIRST = 33;//被删好友提示先添加好友
+        int INVITE_VERIFICATION = 34;//普通群员拉人，新增群验证通知
     }
 
     /*
@@ -461,7 +468,7 @@ public class ChatEnum {
      * 开关变更通知(多人同步消息)
      * */
     @IntDef({ESwitchType.READ, ESwitchType.VIP, ESwitchType.MASTER_READ, ESwitchType.SHUT_UP,
-            ESwitchType.OPEN_UP_RED_ENVELOPER, ESwitchType.SCREENSHOT, ESwitchType.GEO_TRACK, ESwitchType.FRIEND_LOCKED})
+            ESwitchType.OPEN_UP_RED_ENVELOPER, ESwitchType.SCREENSHOT, ESwitchType.GEO_TRACK, ESwitchType.FRIEND_LOCKED, ESwitchType.FRIEND_DEACTIVATE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESwitchType {
         int READ = 0; // 单聊已读
@@ -472,5 +479,6 @@ public class ChatEnum {
         int SCREENSHOT = 5; // 截屏通知（单聊）
         int GEO_TRACK = 6; // 地理位置准实时跟踪
         int FRIEND_LOCKED = 7; //好友锁状态变更
+        int FRIEND_DEACTIVATE = 8;//好友注销变更
     }
 }

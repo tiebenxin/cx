@@ -1,14 +1,18 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
@@ -28,6 +32,7 @@ import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
 import com.yanlong.im.chat.ui.groupmanager.SetupGroupMemberLableActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DataUtils;
@@ -85,6 +90,7 @@ public class UserInfoActivity extends AppActivity {
     public static final String FROM = "from";//从哪个页面跳转过来
     public static final String IS_GROUP = "isGroup";// 是否是群跳转过来
     public static final String IS_ADMINS = "isAdmins";// 是否是群主
+    public static final String ALIAS = "alias";
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -94,6 +100,7 @@ public class UserInfoActivity extends AppActivity {
     private TextView tvSecondName;
     private TextView tvThirdName;
     private TextView mTvRemark;
+    private EditText mEtNote;
     private LinearLayout viewMkname;
     private LinearLayout viewBlack;
     private LinearLayout viewDel;
@@ -104,6 +111,7 @@ public class UserInfoActivity extends AppActivity {
     private LinearLayout mviewSettingLabel;
     private LinearLayout mViewLabel;
     private LinearLayout mViewPower;
+    private LinearLayout mViewSettingNote;
     private Button mBtnAdd;
     private Button btnMsg;
     private TextView txtPower;
@@ -115,12 +123,13 @@ public class UserInfoActivity extends AppActivity {
     private int joinTypeShow;//0 不显示  1.显示
     private int joinType;
     private String gid;
+    private String mAlias;// 通讯录昵称
     private String inviterName;
     private boolean mIsFromGroup;// 是否是来自群聊
     private boolean mIsAdmin;// 是否是群主或管理员
     private long inviter;
     private long id;
-    private String sayHi;
+    private String sayHi, userNote;
     private UserAction userAction;
     private String mkName;
     private String name;
@@ -139,6 +148,8 @@ public class UserInfoActivity extends AppActivity {
     @ChatEnum.EFromType
     private int from;
     private AlertYesNo alertYesNo = null;
+
+    private int friendDeactivateStat = 0;//该用户的注销状态
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,11 +183,13 @@ public class UserInfoActivity extends AppActivity {
         mLayoutMsg = findViewById(R.id.layout_msg);
         mBtnAdd = findViewById(R.id.btn_add);
         mTvRemark = findViewById(R.id.tv_remark);
+        mEtNote = findViewById(R.id.et_note);
         mViewSettingName = findViewById(R.id.view_setting_name);
         tvBlack = findViewById(R.id.tv_black);
         viewIntroduce = findViewById(R.id.view_introduce);
         tv_introduce = findViewById(R.id.tv_introduce);
         tvJoinGroupName = findViewById(R.id.tv_join_group_name);
+        mViewSettingNote = findViewById(R.id.view_setting_note);
 
         mViewSettingPower = findViewById(R.id.view_setting_power);
         mviewSettingLabel = findViewById(R.id.view_setting_label);
@@ -294,6 +307,17 @@ public class UserInfoActivity extends AppActivity {
             }
         });
 
+        mEtNote.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus && TextUtils.isEmpty(mEtNote.getText().toString())) {
+                    if (!TextUtils.isEmpty(userNote)) {
+                        mEtNote.setText(userNote);
+                    }
+                }
+            }
+        });
+
         mViewLabel.setOnClickListener(o -> {
             if (ViewUtils.isFastDoubleClick()) {
                 return;
@@ -327,10 +351,15 @@ public class UserInfoActivity extends AppActivity {
                         ToastUtil.show(getResources().getString(R.string.user_disable_message));
                         return;
                     }
+                    if (friendDeactivateStat == -1) {// 已注销
+                        ToastUtil.show("该账号不存在");
+                        return;
+                    }
                     toSendVerifyActivity();
                 }
             });
         } else {
+            mViewSettingNote.setVisibility(View.VISIBLE);
             actionbar.setTitle("朋友验证");
             mBtnAdd.setText("通过验证");
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
@@ -340,7 +369,11 @@ public class UserInfoActivity extends AppActivity {
                         ToastUtil.show(getResources().getString(R.string.user_disable_message));
                         return;
                     }
-                    taskFriendAgree(id, null);
+                    if (TextUtils.isEmpty(mEtNote.getText().toString().trim())) {
+                        taskFriendAgree(id, userNote);
+                    } else {
+                        taskFriendAgree(id, mEtNote.getText().toString().trim());
+                    }
                 }
             });
         }
@@ -378,23 +411,33 @@ public class UserInfoActivity extends AppActivity {
     }
 
     private void toSendVerifyActivity() {
-        String content = "我是" + UserAction.getMyInfo().getName();
+        IUser myInfo = UserAction.getMyInfo();
+        if (myInfo == null) {
+            return;
+        }
+        String content = "我是" + myInfo.getName();
         if (group != null) {
             String name = group.getName();
             if (!TextUtils.isEmpty(name)) {
                 String userName = group.getMygroupName();
                 if (TextUtils.isEmpty(userName)) {
-                    userName = UserAction.getMyInfo().getName();
+                    userName = myInfo.getName();
                 }
-                content = "我是" + "\"" + name + "\"" + "的" + userName;
+                content = "我是群聊" + "\"" + name + "\"" + "的" + userName;
             }
         }
         Intent intent = new Intent(UserInfoActivity.this, FriendVerifyActivity.class);
         intent.putExtra(FriendVerifyActivity.CONTENT, content);
         intent.putExtra(FriendVerifyActivity.USER_ID, id);
+        if (userInfoLocal != null) {
+            if (TextUtils.isEmpty(mAlias)) {
+                intent.putExtra(FriendVerifyActivity.NICK_NAME, userInfoLocal.getName());
+            } else {
+                intent.putExtra(FriendVerifyActivity.NICK_NAME, mAlias);
+            }
+        }
         startActivityForResult(intent, SEND_VERIFY);
     }
-
 
     private void initData() {
         userAction = new UserAction();
@@ -409,6 +452,7 @@ public class UserInfoActivity extends AppActivity {
         from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFAULT);
         mIsFromGroup = intent.getBooleanExtra(IS_GROUP, false);
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
+        mAlias = intent.getStringExtra(ALIAS);
         taskFindExist();
         if (!TextUtils.isEmpty(gid)) {
             taskGroupInfo(gid);
@@ -436,6 +480,7 @@ public class UserInfoActivity extends AppActivity {
     /**
      * @param type 0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setItemShow(int type) {
         System.out.println(UserInfoActivity.class.getSimpleName() + "--stat=" + type);
         viewComplaint.setVisibility(View.VISIBLE);
@@ -460,12 +505,26 @@ public class UserInfoActivity extends AppActivity {
                 mBtnAdd.setVisibility(View.VISIBLE);
             }
             mViewSettingName.setVisibility(View.GONE);
+            String nameNote = mkName;
+            if (TextUtils.isEmpty(nameNote)) {
+                nameNote = name;
+                userNote = nameNote;
+            }
             if (TextUtils.isEmpty(sayHi)) {
                 mTvRemark.setVisibility(View.GONE);
+                mEtNote.setHint(nameNote);
             } else {
                 mTvRemark.setVisibility(View.VISIBLE);
+                mTvRemark.setTextColor(getColor(R.color.gray_300));
                 mTvRemark.setText(sayHi);
+                if (sayHi.startsWith("我是") && !sayHi.startsWith("我是群聊")) {
+                    mEtNote.setHint(sayHi.substring(2));
+                    userNote = sayHi.substring(2);
+                } else {
+                    mEtNote.setHint(nameNote);
+                }
             }
+            mEtNote.setSelection(mEtNote.getText().toString().length());
             viewIntroduce.setVisibility(View.GONE);
             checkPower();
         } else if (type == 2) {
@@ -552,8 +611,9 @@ public class UserInfoActivity extends AppActivity {
                     if (userInfoLocal == null) {
                         userInfoLocal = userInfo;
                     }
+                    userDao.updateUserinfo(userInfo);//刷新用户数据，主要更新注销状态
                     setData(userInfo);
-
+                    friendDeactivateStat = userInfo.getFriendDeactivateStat();
                 }
             });
         }
@@ -858,7 +918,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskFriendAgree(final Long uid, String contactName) {
-        userAction.friendAgree(uid, contactName, new CallBack<ReturnBean>() {
+        userAction.friendAgree(uid, mAlias, contactName, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

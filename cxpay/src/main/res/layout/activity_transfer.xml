@@ -126,7 +126,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/shape_collection_bg"
+                    android:background="@drawable/bg_btn_green3"
                     android:paddingLeft="50dp"
                     android:paddingTop="10dp"
                     android:paddingRight="50dp"

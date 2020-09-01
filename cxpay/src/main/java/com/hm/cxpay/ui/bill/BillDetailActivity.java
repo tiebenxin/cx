@@ -122,6 +122,8 @@ public class BillDetailActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
+        headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         layoutQuestion = findViewById(R.id.layout_question);
         ivTitleImage = findViewById(R.id.iv_title_image);
         tvTitle = findViewById(R.id.tv_title);
@@ -510,7 +512,7 @@ public class BillDetailActivity extends AppActivity {
             if (data.getBillType() == 1) {
                 tvPayStyleValue.setText("零钱");
             } else {
-                tvTransferSendPayStyle.setText("银行卡");
+                tvPayStyleValue.setText("银行卡");
             }
             tvPayNumberValue.setText(data.getTradeId() + "");
         }

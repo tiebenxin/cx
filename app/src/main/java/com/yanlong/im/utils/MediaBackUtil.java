@@ -33,16 +33,21 @@ public class MediaBackUtil {
         if (!setting.isVoice()) {//读配置,来控制是否声音
             return;
         }
-
-//        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//        Ringtone r = RingtoneManager.getRingtone(context, notification);
-//        r.play();
         try {
             // 播放自定义铃声
             PlayerManager.getManager().init(context, PlayerManager.MESSAGE_TYPE);
             // 铃声为静音或振動时不播放
             if (PlayerManager.getManager().getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
                 PlayerManager.getManager().play(PlayerManager.MODE_SPEAKER);
+                Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                if (vibrator.hasVibrator()) {
+                    vibrator.vibrate(200);
+                }
+            }else if (PlayerManager.getManager().getRingerMode() == AudioManager.RINGER_MODE_VIBRATE){
+                Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                if (vibrator.hasVibrator()) {
+                    vibrator.vibrate(200);
+                }
             }
         }catch (RuntimeException e){
 

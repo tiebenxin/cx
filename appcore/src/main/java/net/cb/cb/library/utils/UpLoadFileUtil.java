@@ -3,7 +3,6 @@ package net.cb.cb.library.utils;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.entity.LocalMedia;
 
 import net.cb.cb.library.dialog.DialogLoadingProgress;
@@ -75,9 +74,7 @@ public class UpLoadFileUtil {
         ThreadUtil.getInstance().runMainThread(new Runnable() {
             @Override
             public void run() {
-                if (mPayWaitDialog == null) {
-                    mPayWaitDialog = new DialogLoadingProgress(context);
-                }
+                mPayWaitDialog = new DialogLoadingProgress(context);
                 mPayWaitDialog.show();
             }
         });

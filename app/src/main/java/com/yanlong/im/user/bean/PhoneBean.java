@@ -1,21 +1,22 @@
 package com.yanlong.im.user.bean;
 
-import net.cb.cb.library.base.BaseBean;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * @author Liszt
  * @date 2020/3/11
  * Description
  */
-public class PhoneBean extends BaseBean {
+public class PhoneBean extends RealmObject {
     private String phoneremark;
     private String phone;
 
-    public String getName() {
+    public String getPhoneremark() {
         return phoneremark;
     }
 
-    public void setName(String phoneremark) {
+    public void setPhoneremark(String phoneremark) {
         this.phoneremark = phoneremark;
     }
 

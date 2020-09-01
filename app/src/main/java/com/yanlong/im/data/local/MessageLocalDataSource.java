@@ -77,7 +77,6 @@ public class MessageLocalDataSource {
         try {
             checkInTransaction(realm);
             realm.beginTransaction();
-            bean.setTime(System.currentTimeMillis());
             realm.insertOrUpdate(bean);
             realm.commitTransaction();
         } catch (Exception e) {
@@ -130,6 +129,46 @@ public class MessageLocalDataSource {
             DaoUtil.reportException(e);
             LogUtil.writeError(e);
         }
+    }
+
+    /***
+     * 红点数量加一 根据uid
+     * @param type
+     */
+    public void addRemindCount(@NonNull Realm realm, String type, long uid) {
+        try {
+            checkInTransaction(realm);
+            realm.beginTransaction();
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("uid", uid).findFirst();
+            if (remind == null) {
+                Remind newreamid = new Remind();
+                newreamid.setNumber(1);
+                newreamid.setUid(uid);
+                newreamid.setRemid_type(type);
+                realm.insertOrUpdate(newreamid);
+            } else {
+                remind.setNumber(remind.getNumber() + 1);
+                realm.insertOrUpdate(remind);
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
+    }
+
+    /***
+     * 获取红点的值
+     * @param type
+     * @return
+     */
+    public int getRemindCount(@NonNull Realm realm, String type, long uid) {
+        Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("uid", uid).findFirst();
+        int num = remind == null ? 0 : remind.getNumber();
+        return num;
     }
 
 
@@ -383,10 +422,12 @@ public class MessageLocalDataSource {
         checkInTransaction(realm);
         try {
             ApplyBean applyBean1 = realm.where(ApplyBean.class).equalTo("aid", aid).findFirst();
-            realm.beginTransaction();
-            applyBean1.setStat(2);
-            applyBean1.setTime(System.currentTimeMillis());
-            realm.commitTransaction();
+            if (applyBean1 != null) {
+                realm.beginTransaction();
+                applyBean1.setStat(2);
+                applyBean1.setTime(System.currentTimeMillis());
+                realm.commitTransaction();
+            }
         } catch (Exception e) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();
@@ -446,7 +487,7 @@ public class MessageLocalDataSource {
     /**
      * 撤回-删除消息
      *
-     * @param msgId       消息ID
+     * @param msgId 消息ID
      */
     public void deleteMsg(@NonNull Realm realm, String msgId) {
         checkInTransaction(realm);
@@ -683,7 +724,7 @@ public class MessageLocalDataSource {
         try {
             Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
                     realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-            if (session != null) {
+            if (session != null && session.getIsMute() != 1) {
                 //好友之后发送的未读消息数量
                 long unReadCount = TextUtils.isEmpty(gid) ? realm.where(MsgAllBean.class)
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()

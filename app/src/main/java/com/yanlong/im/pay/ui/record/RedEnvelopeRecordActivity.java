@@ -228,4 +228,12 @@ public class RedEnvelopeRecordActivity extends AppActivity {
             }
         }
     }
+
+    public void initRecDetailBean(RedDetailsBean bean) {
+        recDetailBean = bean;
+    }
+
+    public void initSendDetailBean(RedDetailsBean bean) {
+        sendDetailBean = bean;
+    }
 }

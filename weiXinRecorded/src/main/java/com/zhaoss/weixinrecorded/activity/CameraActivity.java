@@ -1,6 +1,7 @@
 package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
@@ -222,7 +223,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         if (orientationEventListener != null) {
             orientationEventListener.disable();
         }
-       mCameraView.CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//重置为后置摄像头，静态变量没回收
+        mCameraView.CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;//重置为后置摄像头，静态变量没回收
 
     }
 
@@ -442,5 +443,14 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            System.out.println(TAG + "--onConfigurationChanged--横屏");
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            System.out.println(TAG + "--onOrientationChanged--竖屏");
+        }
+    }
 }
 

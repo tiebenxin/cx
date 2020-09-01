@@ -50,7 +50,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:paddingLeft="@dimen/dimen_10"
+                    android:paddingLeft="@dimen/dimen_my10"
                     android:text="移除"
                     android:textColor="@color/red_400"
                     android:textSize="16sp" />

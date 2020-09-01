@@ -48,7 +48,7 @@ import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 //发送单个红包界面
 public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
-    private String[] strings = {"红包记录", "取消"};
+    private String[] strings = {"查看零钱红包记录", "取消"};
     private PopupSelectView popupSelectView;
     private ActivitySingleRedPacketBinding ui;
     private long uid;
@@ -89,11 +89,13 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         payFailed();
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign());
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign(), null);
         if (envelopeBean != null && !TextUtils.isEmpty(event.getActionId()) && !TextUtils.isEmpty(envelopeBean.getActionId()) && !TextUtils.isEmpty(event.getSign()) && event.getActionId().equals(envelopeBean.getActionId())) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
                 PayEnvironment.getInstance().notifyRefreshBalance();
+            } else if (event.getResult() == PayEnum.EPayResult.FAIL) {
+
             } else {
                 ToastUtil.show(this, R.string.send_fail_note);
             }
@@ -164,8 +166,12 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                 } else {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
-                    ui.tvNotice.setVisibility(View.VISIBLE);
-                    ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                    if (!TextUtils.isEmpty(string)) {
+                        ui.tvNotice.setVisibility(View.VISIBLE);
+                        ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                    } else {
+                        ui.tvNotice.setVisibility(View.GONE);
+                    }
                 }
 
             }
@@ -215,7 +221,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
         if (uid <= 0) {
             return;
         }
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, "");
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, "", null);
         setSending(true);
         ui.btnCommit.setEnabled(false);
         PayHttpUtils.getInstance().sendRedEnvelopeToUser(actionId, money, 1, 0, note, uid)
@@ -276,6 +282,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                         if (handler != null && handler != null) {
                             handler.removeCallbacks(runnable);
                         }
+                        payFailed();
                     } else {
                         showLoadingDialog();
                         if (handler != null && handler != null) {

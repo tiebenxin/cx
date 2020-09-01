@@ -73,13 +73,13 @@ public abstract class BaseObserver<T> implements Observer<T> {
     public void onError(Throwable e) {
         String message = e.getMessage();
         if (e instanceof SocketTimeoutException) {
-            Log.e(TAG, "请求超时，请检查您的网络状态");
+            Log.e(TAG, "请求超时，请检查你的网络状态");
             message = "请求超时";
             if (listener != null) {
                 listener.interruptedNetwork();
             }
         } else if (e instanceof ConnectException) {
-            Log.e(TAG, "网络中断，请检查您的网络状态");
+            Log.e(TAG, "网络中断，请检查你的网络状态");
             message = "网络连接不可用，请稍后重试";
             if (listener != null) {
                 listener.interruptedNetwork();

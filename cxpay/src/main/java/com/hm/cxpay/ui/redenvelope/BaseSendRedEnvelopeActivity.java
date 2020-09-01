@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogDefault;
@@ -24,6 +25,8 @@ import com.umeng.commonsdk.debug.E;
 import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.List;
 
 /**
  * @author Liszt
@@ -48,7 +51,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         httpGetUserInfo();//更新余额
         PayEnvironment.getInstance().notifyStampUpdate(false);
     }
@@ -62,7 +67,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         PayEnvironment.getInstance().notifyStampUpdate(true);
     }
 
@@ -141,7 +148,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     }
 
 
-    public CxEnvelopeBean initEnvelopeBean(CxEnvelopeBean envelopeBean, String actionId, long tradeId, long createTime, @PayEnum.ERedEnvelopeType int redType, String info, int count, String sign) {
+    public CxEnvelopeBean initEnvelopeBean(CxEnvelopeBean envelopeBean, String actionId, long tradeId, long createTime, @PayEnum.ERedEnvelopeType int redType, String info, int count, String sign, List<FromUserBean> allowUsers) {
         if (envelopeBean == null && !TextUtils.isEmpty(actionId)) {
             envelopeBean = new CxEnvelopeBean();
             envelopeBean.setActionId(actionId);
@@ -160,6 +167,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
             envelopeBean.setActionId(actionId);
             envelopeBean.setSign(sign);
         }
+        if (allowUsers != null && allowUsers.size() > 0) {
+            envelopeBean.setAllowUses(allowUsers);
+        }
         return envelopeBean;
     }
 
@@ -175,7 +185,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     public void showBackNoticeDialog() {
         final DialogDefault dialogBack = new DialogDefault(this);
         dialogBack.setTitleAndSure(false, true)
-                .setContent("红包正在发送中，此时返回，将导致红包发送失败。如已扣款，将会在24小时内自动退回您的零钱账户", true)
+                .setContent("红包正在发送中，此时返回，将导致红包发送失败。如已扣款，将会在24小时内自动退回你的零钱账户", true)
                 .setLeft("取消").setRight("继续返回")
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override

@@ -76,6 +76,25 @@ public class StringUtil {
         return name;
     }
 
+    /*
+     * @param userRemarkName 好友备注名
+     * @param mucNick 用户群昵称
+     * @param userNick 用户昵称
+     * 优先级：userRemarkName>mucNick>userNick>uid
+     * */
+    public static String getUserName(String userRemarkName, String mucNick, String userNick) {
+        String name = "";
+        if (!TextUtils.isEmpty(userRemarkName)) {
+            name = userRemarkName;
+        } else if (!TextUtils.isEmpty(mucNick)) {
+            name = mucNick;
+        } else if (!TextUtils.isEmpty(userNick)) {
+            name = userNick;
+        }
+        return name;
+    }
+
+
     public static int[] getVersionArr(String version) {
         if (TextUtils.isEmpty(version)) {
             return null;
@@ -115,6 +134,7 @@ public class StringUtil {
         }
         return content.substring(start, end);
     }
+
     /**
      * 截取之前，检测是否包含emoji
      *
@@ -135,8 +155,8 @@ public class StringUtil {
                 end = first;//只能少，不能多，左闭右开
             }
         }
-        String emoj=(content.substring(start, end));
-        return splitEmojiString2(emoj,0,emoj.length());
+        String emoj = (content.substring(start, end));
+        return splitEmojiString2(emoj, 0, emoj.length());
     }
 
     /**
@@ -175,7 +195,7 @@ public class StringUtil {
         } catch (PackageManager.NameNotFoundException e) {
             return "";
         }
-        if(TextUtils.isEmpty(resultData)){
+        if (TextUtils.isEmpty(resultData)) {
             resultData = "";
         }
         return resultData;

@@ -486,6 +486,7 @@
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
+                        android:gravity="center"
                         android:text="清空聊天记录" />
 
                 </LinearLayout>

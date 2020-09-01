@@ -57,7 +57,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SingleRedPacketDetailsActivity extends BasePayActivity {
     private List<EnvelopeReceiverBean> list = new ArrayList<>();
 
-    private String[] strings = {"红包记录", "取消"};
+    private String[] strings = {"查看零钱红包记录", "取消"};
     private PopupSelectView popupSelectView;
     private EnvelopeDetailBean envelopeDetailBean;
     private ActivityRedPacketDetailsBinding ui;

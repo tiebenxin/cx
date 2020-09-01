@@ -3,8 +3,6 @@ package com.yanlong.im.chat.ui.cell;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.SpannableString;
-import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,7 +21,7 @@ import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ScreenUtils;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 /*
@@ -92,7 +90,7 @@ public class ChatCellReplyImage extends ChatCellImage {
     }
 
     private void updateWidth() {
-        int width = ScreenUtils.getScreenWidth(getContext());
+        int width = ScreenUtil.getScreenWidth(getContext());
         double maxWidth = 0.6 * width;
         if (maxWidth > 0 && tv_content != null) {
             tv_content.setMaxWidth((int) maxWidth);

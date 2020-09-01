@@ -19,6 +19,7 @@ import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.view.recycler.MultiRecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +42,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private FactoryChatCell factoryChatCell;
     private final boolean isGroup;//是否群聊
 
-    //    private Map<Integer, ChatCellBase> cellMap = new HashMap<>();
     private boolean isShowCheckBox;
     private int unreadCount = 0;
     private List<MsgAllBean> selectedList = new ArrayList<>();
@@ -56,10 +56,10 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private MsgDao msgDao = new MsgDao();
     private IActionTagClickListener actionListener;
     private boolean isOpenRead;
-    private MultiListView listView;
+    private MultiRecyclerView listView;
 
 
-    public MessageAdapter(Context c, ICellEventListener l, boolean isG, MultiListView listView) {
+    public MessageAdapter(Context c, ICellEventListener l, boolean isG, MultiRecyclerView listView) {
         context = c;
         this.listView = listView;
         eventListener = l;
@@ -318,9 +318,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     public void showCheckBox(boolean flag, boolean update) {
         isShowCheckBox = flag;
-        if (update) {
-            notifyDataSetChanged();
-        }
+//        if (update) {
+//            notifyDataSetChanged();
+//        }
     }
 
     public boolean isShowCheckBox() {
@@ -355,6 +355,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList.removeAll(list);
         }
         refreshPositions();
+    }
+
+    public void clearSelectedMsg() {
+        if (selectedList != null) {
+            selectedList.clear();
+        }
     }
 
     //更新数据

@@ -19,10 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.hm.cxpay.eventbus.RefreshBalanceEvent;
-import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.HttpChannel;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -41,7 +38,6 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon;
@@ -59,6 +55,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -98,6 +95,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private boolean isShowIPSelector;//是否显示ip选择器
     private UserAction userAction = new UserAction();
     private String showTitle = "";//要显示的用户名或手机号
+    private UpdateManage updateManage;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshBalance(EventFactory.ExitActivityEvent event) {
@@ -558,27 +556,28 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    UpdateManage updateManage = new UpdateManage(context, LoginActivity.this);
-                    //强制更新
-                    if (bean.getForceUpdate() != 0) {
-                        //有最低不需要强制升级版本
-                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                    if (updateManage == null) {
+                        updateManage = new UpdateManage(context, LoginActivity.this);
+                        //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
+                        if (bean.getForceUpdate() != 0) {
+                            //有最低不需要强制升级版本
+                            if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                            } else {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                            }
                         } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                        }
-                    } else {
-                        //缓存最新版本
-                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                        VersionBean versionBean = new VersionBean();
-                        versionBean.setVersion(bean.getVersion());
-                        preferencesUtil.save2Json(versionBean);
-                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                            //如有新版本，首页底部提示红点
+                            //缓存最新版本
+                            SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                            VersionBean versionBean = new VersionBean();
+                            versionBean.setVersion(bean.getVersion());
+                            preferencesUtil.save2Json(versionBean);
+                            //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                            if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                            } else {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                            }
                         }
                     }
                 }

@@ -12,16 +12,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.FriendViewModel;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.StrikeButton;
@@ -87,10 +90,21 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                         ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
                         return;
                     }
+                    viewModel.clearRemindCount(Preferences.RECENT_FRIENDS_NEW);
+                    hd.sbMatching.setNum(0, false);
                     context.startActivity(new Intent(context, FriendMatchActivity.class));
                 }
             });
-            hd.sbApply.setNum(viewModel.getRemindCount("friend_apply"), false);
+            hd.sbApply.setNum(viewModel.getRemindCount(Preferences.FRIEND_APPLY), false);
+            boolean isFirst = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), true);
+            if (isFirst) {
+                hd.ivDisturbUnread.setVisibility(View.VISIBLE);
+                hd.sbMatching.setVisibility(View.GONE);
+            } else {
+                hd.ivDisturbUnread.setVisibility(View.GONE);
+                hd.sbMatching.setVisibility(View.VISIBLE);
+                hd.sbMatching.setNum(viewModel.getRemindCount(Preferences.RECENT_FRIENDS_NEW), false);
+            }
         } else if (holder instanceof RCViewBtnHolder) {
             final RCViewBtnHolder hd = (RCViewBtnHolder) holder;
             hd.friend_numb_tv.setText("共" + viewModel.getFriendSize() + "位联系人");
@@ -218,6 +232,8 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         private LinearLayout viewMatch;
         private LinearLayout viewGroup;
         private StrikeButton sbApply;
+        private StrikeButton sbMatching;
+        private ImageView ivDisturbUnread;
 
         //自动寻找ViewHold
         public RCViewFuncHolder(View convertView) {
@@ -227,6 +243,8 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             viewMatch = convertView.findViewById(R.id.view_match);
             viewGroup = convertView.findViewById(R.id.view_group);
             sbApply = convertView.findViewById(R.id.sb_apply);
+            sbMatching = convertView.findViewById(R.id.sb_matching);
+            ivDisturbUnread = convertView.findViewById(R.id.iv_disturb_unread);
         }
     }
 

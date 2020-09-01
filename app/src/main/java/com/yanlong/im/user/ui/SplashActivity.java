@@ -16,6 +16,7 @@ import android.widget.ImageView;
 
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.ApkUtils;
@@ -53,14 +54,17 @@ public class SplashActivity extends AppActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
         //外部app启动本应用本解析参数  分享到本app
-        ApkUtils.startThisApp(this);
+//        ApkUtils.startThisApp(this);
 
-        //6.27 如果已经启动则不在启动这个页面
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+        //6.27 如果已经启动则不在启动这个页面,解决点击推送不能唤起appbug
+        boolean isFromPush = MessageManager.getInstance().isFromPush();
+        if (!isFromPush && (getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             finish();
             return;
         }
-
+        if (isFromPush) {
+            MessageManager.getInstance().setFromPush(false);
+        }
         setContentView(R.layout.activity_start_page);
         initView();
         initEvent();
@@ -68,11 +72,9 @@ public class SplashActivity extends AppActivity {
     }
 
 
-
     private void initView() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
     }
-
 
 
     private void startTimer() {
@@ -168,7 +170,6 @@ public class SplashActivity extends AppActivity {
     }
 
 
-
     private void showPage() {
         new CheckPermission2Util().requestPermissions(this, new CheckPermission2Util.Event() {
             @Override
@@ -185,7 +186,8 @@ public class SplashActivity extends AppActivity {
         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE
                 , Manifest.permission.READ_EXTERNAL_STORAGE
                 , Manifest.permission.ACCESS_FINE_LOCATION
-                , Manifest.permission.ACCESS_COARSE_LOCATION});
+                , Manifest.permission.ACCESS_COARSE_LOCATION
+                , Manifest.permission.READ_PHONE_STATE});
     }
 
 

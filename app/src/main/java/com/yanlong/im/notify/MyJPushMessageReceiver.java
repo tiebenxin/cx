@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.google.gson.Gson;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.socket.MsgBean;
 
@@ -86,8 +87,14 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     public void onNotifyMessageOpened(Context context, NotificationMessage notificationMessage) {
         super.onNotifyMessageOpened(context, notificationMessage);
         LogUtil.getLog().i("JIGUANG--MyJPushMessageReceiver", "onNotifyMessageOpened");
-        Intent intent = new Intent(context, SplashActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        try {
+            Intent intent = new Intent(context, SplashActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            MessageManager.getInstance().setFromPush(true);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

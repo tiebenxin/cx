@@ -16,10 +16,11 @@ import android.view.View;
 import androidx.annotation.RequiresApi;
 
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.google.gson.JsonArray;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.UrlBean;
-import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.global.PayEnum;
@@ -40,6 +41,10 @@ import net.cb.cb.library.view.PopupSelectView;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
@@ -50,7 +55,7 @@ import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 //发送群红包界面
 public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implements View.OnClickListener {
-    private String[] strings = {"红包记录", "取消"};
+    private String[] strings = {"查看零钱红包记录", "取消"};
     private PopupSelectView popupSelectView;
     @PayEnum.ERedEnvelopeType
     private int redPacketType = PayEnum.ERedEnvelopeType.LUCK;
@@ -58,11 +63,11 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     private String gid;
     private int memberCount;
     private String money;
-    private DialogErrorPassword dialogErrorPassword;
     private CxEnvelopeBean envelopeBean;
     private String note;
     private String actionId;
     private int count;
+    private ArrayList<FromUserBean> toUserList;
 
 
     /**
@@ -91,21 +96,19 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     @Override
     protected void onDestroy() {
-        if (dialogErrorPassword != null) {
-            dialogErrorPassword.dismiss();
-            dialogErrorPassword = null;
-        }
         super.onDestroy();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         payFailed();
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign());
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, event.getTradeId(), System.currentTimeMillis(), PayEnum.ERedEnvelopeType.NORMAL, note, 1, event.getSign(), toUserList);
         if (envelopeBean != null && !TextUtils.isEmpty(event.getActionId()) && !TextUtils.isEmpty(envelopeBean.getActionId()) && !TextUtils.isEmpty(event.getSign()) && event.getActionId().equals(envelopeBean.getActionId())) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
                 PayEnvironment.getInstance().notifyRefreshBalance();
+            } else if (event.getResult() == PayEnum.EPayResult.FAIL) {
+
             } else {
                 ToastUtil.show(this, R.string.send_fail_note);
             }
@@ -115,6 +118,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     private void payFailed() {
         dismissLoadingDialog();
+        ui.btnCommit.setEnabled(true);
         if (isSending()) {
             setSending(false);
             if (handler != null && runnable != null) {
@@ -172,9 +176,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void afterTextChanged(Editable s) {
                 String string = s.toString().trim();
-                long money = UIUtils.getFen(string);
-                int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
-                updateCommitUI(money, count);
+                updateCommitUI(string, ui.edRedPacketNum.getText().toString().trim());
             }
         });
 
@@ -192,58 +194,74 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void afterTextChanged(Editable s) {
                 String string = ui.edMoney.getText().toString().trim();
-                int count = UIUtils.getRedEnvelopeCount(s.toString().trim());
-                if (count == 0) {
-                    ui.tvNotice.setVisibility(View.VISIBLE);
-                    ui.tvNotice.setText(getString(R.string.min_count_notice));
-                    ui.tvMoney.setText("0.00");
-                    ui.btnCommit.setEnabled(false);
+                updateCommitUI(string, s.toString().trim());
+            }
+        });
+
+        ui.llSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
                     return;
-                } else if (count < 0) {
-                    count = 0;
                 }
-                long money = UIUtils.getFen(string);
-                updateCommitUI(money, count);
+                ARouter.getInstance().build("/app/envelopeReceiver").withString("gid", gid).withParcelableArrayList("data", toUserList).navigation(MultiRedPacketActivity.this, 2);
             }
         });
     }
 
-    private void updateCommitUI(long money, int count) {
+    private void updateCommitUI(String m, String c) {
+        boolean isMoneyEmpty = false;
+        boolean isCountEmpty = false;
+        if (TextUtils.isEmpty(m)) {
+            isMoneyEmpty = true;
+        }
+        if (TextUtils.isEmpty(c)) {
+            isCountEmpty = true;
+        }
+        long money = UIUtils.getFen(m);
+        int count = UIUtils.getRedEnvelopeCount(c);
         long totalMoney;
         double singleMoney;
         if (count < 0) {
             count = 0;
         }
+        ui.tvNotice.setVisibility(View.GONE);
         if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
             totalMoney = money * count;
             singleMoney = money;
             if (singleMoney < MIN_AMOUNT) {
                 ui.btnCommit.setEnabled(false);
-                ui.tvNotice.setVisibility(View.VISIBLE);
-                ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                if (!isMoneyEmpty) {
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                }
                 ui.tvMoney.setText("0.00");
             } else if (singleMoney > MAX_AMOUNT) {
                 ui.btnCommit.setEnabled(false);
                 ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
-                ui.tvNotice.setVisibility(View.VISIBLE);
-                ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
+                if (!isMoneyEmpty) {
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
+                }
             } else {
                 if (count == 0) {
-                    ui.tvNotice.setText(getString(R.string.min_count_notice));
+                    if (!isCountEmpty) {
+                        ui.tvNotice.setText(getString(R.string.min_count_notice));
+                        ui.tvNotice.setVisibility(View.VISIBLE);
+                    }
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
-                    ui.tvNotice.setVisibility(View.VISIBLE);
                 } else if (count > 100) {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.max_count_notice));
-                } else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
+                } /*else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
-                } else {
+                } */ else {
                     if (totalMoney > TOTAL_MAX_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
@@ -266,8 +284,10 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
             if (totalMoney == 0) {
                 ui.btnCommit.setEnabled(false);
-                ui.tvNotice.setVisibility(View.VISIBLE);
-                ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                if (!isMoneyEmpty) {
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                }
                 ui.tvMoney.setText("0.00");
             } else if (totalMoney > TOTAL_MAX_AMOUNT) {
                 ui.btnCommit.setEnabled(false);
@@ -276,26 +296,30 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
             } else {
                 if (count == 0) {
-                    ui.tvNotice.setText(getString(R.string.min_count_notice));
+                    if (!isCountEmpty) {
+                        ui.tvNotice.setText(getString(R.string.min_count_notice));
+                        ui.tvNotice.setVisibility(View.VISIBLE);
+                    }
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
-                    ui.tvNotice.setVisibility(View.VISIBLE);
                 } else if (count > 100) {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.max_count_notice));
-                } else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
+                }/* else if (memberCount > 0 && memberCount <= 100 && count > memberCount) {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
-                } else {
+                }*/ else {
                     if (singleMoney < MIN_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
-                        ui.tvNotice.setVisibility(View.VISIBLE);
-                        ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                        if (!isMoneyEmpty) {
+                            ui.tvNotice.setVisibility(View.VISIBLE);
+                            ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                        }
                     } else if (singleMoney > MAX_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
@@ -360,9 +384,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     }
 
     private void resetMoney() {
-        long money = UIUtils.getFen(ui.edMoney.getText().toString().trim());
-        int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
-        updateCommitUI(money, count);
+        updateCommitUI(ui.edMoney.getText().toString().trim(), ui.edRedPacketNum.getText().toString().trim());
     }
 
 
@@ -391,11 +413,17 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), type, note, count, "");
+        envelopeBean = initEnvelopeBean(envelopeBean, actionId, -1, System.currentTimeMillis(), type, note, count, "", toUserList);
+        JSONArray uidArr = new JSONArray();
+        if (toUserList != null && toUserList.size() > 0) {
+            for (int i = 0; i < toUserList.size(); i++) {
+                uidArr.put(toUserList.get(i).getUid());
+            }
+        }
         ui.btnCommit.setEnabled(false);
         setSending(true);
         showLoadingDialog();
-        PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, type, note, gid)
+        PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, type, note, gid, uidArr)
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UrlBean>>() {
@@ -403,7 +431,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             UrlBean urlBean = baseResponse.getData();
-                            LogUtil.writeLog("支付--群红包--actionId=" + actionId+ "--time" + System.currentTimeMillis());
+                            LogUtil.writeLog("支付--群红包--actionId=" + actionId + "--time" + System.currentTimeMillis());
                             if (urlBean != null) {
                                 Intent intent = new Intent(MultiRedPacketActivity.this, YiBaoWebActivity.class);
                                 intent.putExtra(YiBaoWebActivity.AGM_URL, urlBean.getUrl());
@@ -452,6 +480,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                         if (handler != null && handler != null) {
                             handler.removeCallbacks(runnable);
                         }
+                        payFailed();
                     } else {
                         showLoadingDialog();
                         if (handler != null && handler != null) {
@@ -466,6 +495,53 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     handler.removeCallbacks(runnable);
                 }
                 ui.btnCommit.setEnabled(true);
+            }
+        } else if (requestCode == 2) {//选择红包领取人
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    int mode = data.getIntExtra("mode", 0);
+                    if (mode == 0) {
+                        if (toUserList != null) {
+                            toUserList.clear();
+                        }
+                        ui.tvName.setText("群内所有人");
+                    } else {
+                        toUserList = data.getParcelableArrayListExtra("data");
+                        if (toUserList != null && toUserList.size() > 0) {
+                            int len = toUserList.size();
+                            String name = "";
+                            for (int i = 0; i < len; i++) {
+                                FromUserBean user = toUserList.get(i);
+                                if (i != len - 1) {
+                                    name += user.getNickname() + ",";
+                                } else {
+                                    name += user.getNickname();
+                                }
+                            }
+                            ui.tvName.setText(name);
+
+                        } else {
+                            ui.tvName.setText("群内所有人");
+                        }
+                    }
+                }
+            } else {
+                if (toUserList != null && toUserList.size() > 0) {
+                    int len = toUserList.size();
+                    String name = "";
+                    for (int i = 0; i < len; i++) {
+                        FromUserBean user = toUserList.get(i);
+                        if (i != len - 1) {
+                            name += user.getNickname() + ",";
+                        } else {
+                            name += user.getNickname();
+                        }
+                    }
+                    ui.tvName.setText(name);
+
+                } else {
+                    ui.tvName.setText("群内所有人");
+                }
             }
         }
     }

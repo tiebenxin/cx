@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
@@ -35,6 +34,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;

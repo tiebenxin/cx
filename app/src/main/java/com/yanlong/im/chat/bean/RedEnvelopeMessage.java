@@ -1,7 +1,12 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
 
+import java.util.List;
+
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -11,17 +16,17 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     private String id;//红包id,MF
     private Integer re_type;    // MFPAY = 0; SYSTEM =1
     private String comment;
-
     //红包的状态0:没拆,1拆了
     private int isInvalid = 0;
     //红包玩法种类:0普通1拼手气
     private int style = 0;
-
     private long traceId;//交易订单号
     private String actionId;
     private String accessToken;//查看系统红包token
     private int envelopStatus;// 红包状态：0-正常， 1-已领取  2-已过期
     String sign;//签名信息
+    private RealmList<MemberUser> allowUsers;//设置红包领取人
+    private int canReview;//是否可以查看详情，0 不可，1 可以
 
     public int getStyle() {
         return style;
@@ -105,11 +110,31 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     }
 
     public String getSign() {
-        return sign;
+        if (!TextUtils.isEmpty(sign)) {
+            return sign;
+        } else {
+            return "";
+        }
     }
 
     public void setSign(String sign) {
         this.sign = sign;
+    }
+
+    public RealmList<MemberUser> getAllowUsers() {
+        return allowUsers;
+    }
+
+    public void setAllowUsers(RealmList<MemberUser> allowUsers) {
+        this.allowUsers = allowUsers;
+    }
+
+    public int getCanReview() {
+        return canReview;
+    }
+
+    public void setCanReview(int canReview) {
+        this.canReview = canReview;
     }
 
     @Override

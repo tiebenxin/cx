@@ -78,6 +78,7 @@ public class ChatCellTransfer extends ChatCellBase {
             case PayEnum.ETransferOpType.TRANS_SEND:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_rb);
                 bubbleLayout.setBackgroundResource(isMe ? R.drawable.bg_transfer_me_deep : R.drawable.bg_transfer_other_deep);
+
                 break;
             case PayEnum.ETransferOpType.TRANS_RECEIVE:
                 iv_rb_state.setImageResource(R.mipmap.ic_transfer_receive_rb);

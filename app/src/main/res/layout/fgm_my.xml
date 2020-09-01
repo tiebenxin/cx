@@ -134,27 +134,6 @@
                     android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/view_wallet"
-                style="@style/app_layout_list2_item">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:src="@mipmap/ic_zfb_hb" />
-
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="云红包" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_btn_goto" />
-            </LinearLayout>
         </LinearLayout>
 
 

@@ -98,13 +98,16 @@ public class NetUtil {
      * 永久设定host
      */
     public static void resetHost() {
-        retrofit = new Retrofit.Builder()
-                .baseUrl(AppHostUtil.getHttpHost())
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(httpClient)
-                .build();
-
+        if (httpClient != null) {
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(AppHostUtil.getHttpHost())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .client(httpClient)
+                    .build();
+        } else {
+            init();
+        }
     }
 
     /***
@@ -116,7 +119,7 @@ public class NetUtil {
      * @return
      */
     public <T> T create(String host, Class<T> service) {
-        if (host != null) {
+        if (host != null && httpClient != null) {
             Retrofit newRT = new Retrofit.Builder()
                     .baseUrl(host)
                     .addConverterFactory(GsonConverterFactory.create())
@@ -126,9 +129,10 @@ public class NetUtil {
 
             return newRT.create(service);
         }
-
+        if (retrofit == null) {
+            init();
+        }
         return retrofit.create(service);
-
     }
 
     /***

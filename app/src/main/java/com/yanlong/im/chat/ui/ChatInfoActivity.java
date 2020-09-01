@@ -14,6 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.dailog.CommonSelectDialog;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -86,6 +88,10 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime, tvTwoWayClearChat, tvTwoWayClearChatHint;
     private CheckBox ckSetRead;
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//提示弹框：该账号已注销
+
+    private boolean canAdd = true;//是否允许点击+号拉人
 
 
     @Override
@@ -119,6 +125,7 @@ public class ChatInfoActivity extends AppActivity {
         ckScreenshot = findViewById(R.id.ck_screenshot);
         tvTwoWayClearChat = findViewById(R.id.tv_two_way_clear_chat);
         tvTwoWayClearChatHint = findViewById(R.id.tv_two_way_clear_chat_hint);
+        builder = new CommonSelectDialog.Builder(ChatInfoActivity.this);
     }
 
     private final String IS_VIP = "1";// (0:普通|1:vip)
@@ -361,10 +368,14 @@ public class ChatInfoActivity extends AppActivity {
                     holder.imgHead.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            if(canAdd==false){
+                                showAddDialog();
+                                return;
+                            }
+
                             if (fUserInfo.getuType() == 2) {//是好友
                                 finish();
                                 EventBus.getDefault().post(new EventExitChat());
-
                                 startActivity(new Intent(getContext(), GroupCreateActivity.class).putExtra(GroupCreateActivity.AGM_SELECT_UID, "" + fUserInfo.getUid()));
                             }
                         }
@@ -416,6 +427,10 @@ public class ChatInfoActivity extends AppActivity {
             ckTop.setEnabled(true);
 
         }
+        //已注销的用户不允许点击+号
+        if(fUserInfo.getFriendDeactivateStat()==-1){
+            canAdd = false;
+        }
     }
 
     @Override
@@ -430,7 +445,10 @@ public class ChatInfoActivity extends AppActivity {
     }
 
     private void taskDelMsg(String hint) {
-        msgDao.msgDel(fuid, null);
+//        msgDao.msgDel(fuid, null);
+        if (MyAppLication.INSTANCE().repository != null) {
+            MyAppLication.INSTANCE().repository.deleteAllMessage(fuid, null);
+        }
         EventBus.getDefault().post(new EventRefreshChat());
         ToastUtil.show(ChatInfoActivity.this, hint);
     }
@@ -473,7 +491,9 @@ public class ChatInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateReadDestroy(fuid, survivalTime);
-                    msgDao.noteMsgAddSurvivaltime(fuid, null);
+                    if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                        msgDao.noteMsgAddSurvivaltime(fuid, null);
+                    }
                 }
             }
         });
@@ -534,10 +554,12 @@ public class ChatInfoActivity extends AppActivity {
                     return;
                 } else {
                     if (response.body().isOk()) {
-                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screenshot);
-                        MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
-                        if (bean != null) {
-                            SocketData.saveMessage(bean);
+                        if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                            MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screenshot);
+                            MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+                            if (bean != null) {
+                                SocketData.saveMessage(bean);
+                            }
                         }
                     }
                 }
@@ -549,6 +571,24 @@ public class ChatInfoActivity extends AppActivity {
 
             }
         });
+    }
+
+    /**
+     * 确认是否退出弹框
+     */
+    private void showAddDialog(){
+        dialogOne = builder.setTitle("该账号已注销，无法加入群聊。")
+                .setShowLeftText(false)
+                .setRightText("知道了")
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //继续认证
+                        dialogOne.dismiss();
+                    }
+                })
+                .build();
+        dialogOne.show();
     }
 
 }

@@ -47,7 +47,7 @@ public class StrikeButton extends RelativeLayout {
         tv.setVisibility(View.INVISIBLE);
         small.setVisibility(View.INVISIBLE);
 
-        setNum(0,false);
+        setNum(0, false);
     }
 
 
@@ -78,6 +78,7 @@ public class StrikeButton extends RelativeLayout {
 
         switch (sktype) {
             case 0:
+                small.setVisibility(View.INVISIBLE);
                 if (num > 0) {
                     tv.setVisibility(View.VISIBLE);
                     tv.setText(numStr);
@@ -90,6 +91,7 @@ public class StrikeButton extends RelativeLayout {
 
                 break;
             case 1:
+                tv.setVisibility(View.INVISIBLE);
                 if (num > 0) {
                     small.setVisibility(View.VISIBLE);
 

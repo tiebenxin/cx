@@ -20,6 +20,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
     private TextView tv_rb_title, tv_rb_info, tv_rb_type;
     private ImageView iv_rb_state, iv_rb_icon;
     private RedEnvelopeMessage redEnvelopeMessage;
+    private TextView tvVieMore;
 
     protected ChatCellRedEnvelope(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -33,6 +34,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
         tv_rb_type = getView().findViewById(R.id.tv_rb_type);
         iv_rb_state = getView().findViewById(R.id.iv_rb_state);
         iv_rb_icon = getView().findViewById(R.id.iv_rb_icon);
+        tvVieMore = getView().findViewById(R.id.tv_view_more);
     }
 
     @Override
@@ -55,6 +57,11 @@ public class ChatCellRedEnvelope extends ChatCellBase {
             }
         }
         setMessage(isInvalid, title, info, typeName, typeIcon);
+        if (!isMe && redEnvelopeMessage.getEnvelopStatus() == PayEnum.EEnvelopeStatus.NO_ALLOW && redEnvelopeMessage.getCanReview() == 1) {
+            tvVieMore.setVisibility(View.VISIBLE);
+        } else {
+            tvVieMore.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -68,11 +75,15 @@ public class ChatCellRedEnvelope extends ChatCellBase {
 
     private void setMessage(boolean invalid, String title, String info, String typeName, int typeIcon) {
         if (invalid) {//失效
-            iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
-            bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_h_me_touch : R.drawable.selector_rp_h_other_touch);
+            if (redEnvelopeMessage.getEnvelopStatus() == PayEnum.EEnvelopeStatus.NO_ALLOW) {
+                iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
+            } else {
+                iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
+            }
+            bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_light : R.drawable.selector_rp_other_light);
         } else {
             iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
-            bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_touch : R.drawable.selector_rp_other_touch);
+            bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_deep : R.drawable.selector_rp_other_deep);
         }
         tv_rb_title.setText(title);
         tv_rb_info.setText(info);
@@ -94,6 +105,9 @@ public class ChatCellRedEnvelope extends ChatCellBase {
                 break;
             case PayEnum.EEnvelopeStatus.PAST:
                 info = "已过期";
+                break;
+            case PayEnum.EEnvelopeStatus.NO_ALLOW:
+                info = "权限限制，不可领取";
                 break;
         }
         return info;

@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -69,23 +70,20 @@ public class UpdateAppDialog {
                 dismiss();
             }
         });
-
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(btnUpdate, new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                if(NetUtil.isNetworkConnected()){
+                if (NetUtil.isNetworkConnected()) {
                     event.onUpdate();
-                }else {
-                    ToastUtil.show(context,"请检查网络连接是否正常");
+                } else {
+                    ToastUtil.show(context, "请检查网络连接是否正常");
                 }
-
             }
         });
-
         btnInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 event.onInstall();
-                dismiss();
             }
         });
 
@@ -171,17 +169,20 @@ public class UpdateAppDialog {
 
 
     public void show() {
-        alertDialog.show();
-        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
-        alertDialog.getWindow().setGravity(Gravity.CENTER);
-        WindowManager manager = alertDialog.getWindow().getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.65
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.65);
-        alertDialog.getWindow().setAttributes(lp);
+        //判断活动是否仍然存活 TODO bugly #315427
+        if(context!=null && !((Activity)context).isFinishing()){
+            alertDialog.show();
+            alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
+            alertDialog.getWindow().setGravity(Gravity.CENTER);
+            WindowManager manager = alertDialog.getWindow().getWindowManager();
+            DisplayMetrics metrics = new DisplayMetrics();
+            manager.getDefaultDisplay().getMetrics(metrics);
+            //设置宽高，高度自适应，宽度屏幕0.65
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            lp.width = (int) (metrics.widthPixels*0.65);
+            alertDialog.getWindow().setAttributes(lp);
+        }
     }
 
 
@@ -190,7 +191,7 @@ public class UpdateAppDialog {
      */
     public void setPos(int progress) {
         int w = DensityUtil.dip2px(context, 200);
-        LogUtil.getLog().i("w=====", "" + w);
+        LogUtil.getLog().i("w=====", "" + progress);
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvUpdatePercent.getLayoutParams();
 //        int pro = mProgressNum.getProgress();//进度是不断变化的，原来是1此时可能是2，又去从进度条获取则进度会忽大忽小
         if(progress>=0 && progress<=100){

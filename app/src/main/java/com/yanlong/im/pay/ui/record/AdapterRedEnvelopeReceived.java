@@ -65,7 +65,7 @@ public class AdapterRedEnvelopeReceived extends AbstractRecyclerAdapter<RedEnvel
                 tvName.setText(bean.getFromUser().getNickname());
             }
             tvMoney.setText(UIUtils.getYuan(bean.getAmt()) + "元");
-            tvTime.setText(DateUtils.getGrabTime(bean.getTime()));
+            tvTime.setText(DateUtils.getFullTime(bean.getTime()));
         }
     }
 }

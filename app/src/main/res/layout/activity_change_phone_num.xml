@@ -41,7 +41,7 @@
                 android:maxLines="1"
                 android:maxLength="18"
                 android:layout_marginRight="17dp"
-                android:textColor="@color/color_333333"
+                android:textColor="@color/black_33"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -83,7 +83,7 @@
                 android:inputType="number"
                 android:maxLength="11"
                 android:layout_marginRight="17dp"
-                android:textColor="@color/color_333333"
+                android:textColor="@color/black_33"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -117,7 +117,7 @@
                 android:inputType="number"
                 android:maxLines="1"
                 android:text=""
-                android:textColor="@color/color_333333"
+                android:textColor="@color/black_33"
                 android:textSize="14sp" />
 
             <TextView

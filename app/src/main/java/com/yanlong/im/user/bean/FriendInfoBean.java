@@ -3,20 +3,25 @@ package com.yanlong.im.user.bean;
 import android.text.TextUtils;
 
 import net.cb.cb.library.base.BaseBean;
+import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.PinyinUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
 public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBean> {
-    private String nickname;
-    private Long uid;
-    private String avatar;
-    private String tag;
+    private String nickname;// 用户昵称
+    private Long uid;//　用户ｉｄ
+    private String avatar;// 头像
+    private String tag;// 首字母拼音
     private String imid;
-    private int gender;
+    private int gender;// 性别
     private int switchmask;
     private String alias;
-    private String phoneremark;
+    private String phoneremark;// 电话备注
+    private String phone;// 手机号
+    private boolean isShowPinYin;// 是否显示拼音
+    private boolean isRegister;// 是否显示邀请
+    private long createTime;// 创建时间
 
     public String getPhoneremark() {
         return phoneremark;
@@ -43,12 +48,28 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
         toTag();
     }
 
+    public boolean isShowPinYin() {
+        return isShowPinYin;
+    }
+
+    public void setShowPinYin(boolean showPinYin) {
+        isShowPinYin = showPinYin;
+    }
+
     public Long getUid() {
         return uid;
     }
 
     public void setUid(Long uid) {
         this.uid = uid;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getAvatar() {
@@ -81,6 +102,22 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
 
     public void setSwitchmask(int switchmask) {
         this.switchmask = switchmask;
+    }
+
+    public boolean isRegister() {
+        return isRegister;
+    }
+
+    public void setRegister(boolean register) {
+        isRegister = register;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
     }
 
     /***

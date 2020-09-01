@@ -663,14 +663,18 @@ public class PictureFileUtils {
 
     //获取保存图片地址的文件名
     public static String getFileName(String url) {
-        if (TextUtils.isEmpty(url)) {
-            return "";
+        try {
+            if (TextUtils.isEmpty(url)) {
+                return "";
+            }
+            int start = url.lastIndexOf("/");
+            int end = url.lastIndexOf(".");
+            start = start < 0 ? 0 : start;
+            end = end < 0 ? url.length() : end;
+            return url.substring(start + 1, end);
+        } catch (Exception e) {
+            return "exception";
         }
-        int start = url.lastIndexOf("/");
-        int end = url.lastIndexOf(".");
-        start = start < 0 ? 0 : start;
-        end = end < 0 ? url.length() : end;
-        return url.substring(start + 1, end);
     }
 
     //获取文件格式名

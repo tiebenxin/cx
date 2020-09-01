@@ -13,7 +13,6 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
-import com.yanlong.im.chat.bean.EnvelopeTemp;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MessageDBTemp;
@@ -40,6 +39,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -152,6 +152,10 @@ public class MessageManager {
 
     //是否正在处理消息
     private boolean isDealingMsg = false;
+    //是否正在处理消息
+    private boolean isReceiveOffline = false;
+    //是否来自推送
+    private boolean isFromPush = false;
 
 
     //取第一个添加的消息,并且移除
@@ -244,6 +248,7 @@ public class MessageManager {
             }
         } else {
             offlineMsgDispatch.dispatch(bean, null);
+            isReceiveOffline = true;
         }
     }
 
@@ -1037,10 +1042,6 @@ public class MessageManager {
         }
     }
 
-    private boolean isCancelValid(MsgBean.MessageType type, boolean isValid) {
-        return type == MsgBean.MessageType.CANCEL && isValid;
-    }
-
     private void notifyOnlineChange(UserInfo info) {
         EventUserOnlineChange event = new EventUserOnlineChange();
         event.setObject(info);
@@ -1299,10 +1300,6 @@ public class MessageManager {
 
     public void setMessageChange(boolean isChange) {
         this.isMessageChange = isChange;
-    }
-
-    public void createSession(String gid, Long uid) {
-        msgDao.sessionCreate(gid, uid);
     }
 
     /*
@@ -1567,87 +1564,14 @@ public class MessageManager {
     }
 
     /*
-     * 获取缓存信息中用户信息
-     * */
-    public UserInfo getCacheUserInfo(Long uid) {
-        UserInfo info = null;
-//        if (uid != null && uid > 0) {
-//            info = cacheUsers.get(uid);
-//            if (info == null) {
-//                info = userDao.findUserInfo(uid);
-//                if (info != null) {
-//                    cacheUsers.push(uid, info);
-//                }
-//            }
-//        }
-        return info;
-    }
-
-    /*
-     * 获取缓存数据中群信息
-     * */
-    public Group getCacheGroup(String gid) {
-        Group group = null;
-//        if (!TextUtils.isEmpty(gid)) {
-//            group = cacheGroups.get(gid);
-//            if (group == null) {
-//                group = msgDao.getGroup4Id(gid);
-//                if (group != null) {
-//                    cacheGroups.push(gid, group);
-//                }
-//            }
-//        }
-        return group;
-    }
-
-    /*
      * 更新用户头像和昵称
      * */
     @Deprecated
     public boolean updateUserAvatarAndNick(long uid, String avatar, String nickName) {
         boolean hasChange = userDao.userHeadNameUpdate(uid, avatar, nickName);
-        if (hasChange) {
-//            updateCacheUserAvatarAndName(uid, avatar, nickName);
-        }
         return hasChange;
     }
 
-    /*
-     * 更新缓存用户头像及昵称
-     * */
-    private void updateCacheUserAvatarAndName(long uid, String avatar, String nickName) {
-//        if (cacheUsers != null) {
-//            UserInfo info = getCacheUserInfo(uid);
-//            if (info != null) {
-//                info.setHead(avatar);
-//                info.setName(nickName);
-//                cacheUsers.remove(info);
-//                cacheUsers.push(uid, info);
-//            }
-//        }
-    }
-
-    /*
-     * 更新缓存用户在线状态及最后在线时间
-     * */
-    public void updateCacheUserOnlineStatus(long uid, int onlineType, long time) {
-//        if (cacheUsers != null) {
-//            UserInfo info = getCacheUserInfo(uid);
-//            if (info != null) {
-//                info.setLastonline(time);
-//                info.setActiveType(onlineType);
-//                cacheUsers.remove(info);
-//                cacheUsers.push(uid, info);
-//            }
-//        }
-    }
-
-    /*
-     * 获取内存缓存中session数据
-     * */
-    public List<Session> getCacheSession() {
-        return null /* cacheSessions*/;
-    }
 
     //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送,招呼语消息要在好友通知前面
     private void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
@@ -1741,7 +1665,6 @@ public class MessageManager {
         return isAt;
     }
 
-    @Deprecated
     public void playDingDong() {
         if (System.currentTimeMillis() - playTimeOld < 500) {
             return;
@@ -1916,7 +1839,9 @@ public class MessageManager {
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             );
         } else {
-            playDingDong();
+            if (!AudioPlayManager.getInstance().isPlayingVoice()) {
+                playDingDong();
+            }
         }
     }
 
@@ -1929,51 +1854,6 @@ public class MessageManager {
         MediaBackUtil.playVibration(AppConfig.getContext(), 200);
     }
 
-    /*
-     * 更新缓存群头像
-     * */
-    public void updateCacheGroupAvatar(String gid, String url) {
-//        if (!TextUtils.isEmpty(gid) && !TextUtils.isEmpty(url)) {
-//            Group group = getCacheGroup(gid);
-//            if (group != null) {
-//                group.setAvatar(url);
-//                cacheGroups.remove(gid);
-//                cacheGroups.push(gid, group);
-//            }
-//        }
-    }
-
-    /*
-     * 更新缓存置顶或者免打扰
-     * */
-    public void updateCacheTopOrDisturb(String gid, int top, int disturb) {
-//        if (!TextUtils.isEmpty(gid)) {
-//            Group group = getCacheGroup(gid);
-//            if (group != null) {
-//                cacheGroups.remove(gid);
-//                cacheGroups.push(gid, group);
-//            }
-//        }
-    }
-
-    public void updateCacheGroup(Group group) {
-//        if (cacheGroups != null && group != null) {
-//            if (cacheGroups.containsValue(group)) {
-//                cacheGroups.remove(group.getGid());
-//            }
-//            cacheGroups.push(group.getGid(), group);
-//        }
-    }
-
-    public void updateCacheUser(UserInfo user) {
-//        if (cacheUsers != null && user != null) {
-//            if (cacheUsers.containsValue(user)) {
-//                cacheUsers.remove(user.getUid());
-//            }
-//            cacheUsers.push(user.getUid(), user);
-//
-//        }
-    }
 
     /*
      * 更新session 置顶及免打扰字段
@@ -2385,60 +2265,6 @@ public class MessageManager {
         }
     }
 
-    //备份表数据转换
-    private List<MessageDBTemp> getMsgTempList(List<MsgAllBean> list) {
-        List<MessageDBTemp> messageDBTemps = null;
-        try {
-            if (list != null) {
-                messageDBTemps = new ArrayList<>();
-                for (MsgAllBean msg : list) {
-                    if (msg.getRed_envelope() == null) {
-                        continue;
-                    }
-                    EnvelopeTemp envelopeTemp = new EnvelopeTemp();
-                    envelopeTemp.setMsgId(msg.getRed_envelope().getMsgId());
-                    envelopeTemp.setAccessToken(msg.getRed_envelope().getAccessToken());
-                    envelopeTemp.setId(msg.getRed_envelope().getId());
-                    envelopeTemp.setActionId(msg.getRed_envelope().getActionId());
-                    envelopeTemp.setComment(msg.getRed_envelope().getComment());
-                    envelopeTemp.setEnvelopStatus(msg.getRed_envelope().getEnvelopStatus());
-                    envelopeTemp.setIsInvalid(msg.getRed_envelope().getIsInvalid());
-                    envelopeTemp.setRe_type(msg.getRed_envelope().getRe_type());
-                    envelopeTemp.setStyle(msg.getRed_envelope().getStyle());
-                    envelopeTemp.setSign(msg.getRed_envelope().getSign());
-                    envelopeTemp.setTraceId(msg.getRed_envelope().getTraceId());
-
-                    MessageDBTemp message = new MessageDBTemp();
-                    message.setMsg_id(msg.getMsg_id());
-                    message.setRequest_id(msg.getRequest_id());
-                    message.setMsg_type(msg.getMsg_type());
-                    message.setTimestamp(msg.getTimestamp());
-                    message.setGid(msg.getGid());
-                    message.setFrom_uid(msg.getFrom_uid());
-                    message.setTo_uid(msg.getTo_uid());
-                    message.setFrom_avatar(msg.getFrom_avatar());
-                    message.setFrom_nickname(msg.getFrom_nickname());
-                    message.setFrom_group_nickname(msg.getFrom_group_nickname());
-                    message.setSend_state(msg.getSend_state());
-                    message.setSend_data(msg.getSend_data());
-                    message.setIsLocal(msg.getIsLocal());
-                    message.setRead(msg.isRead());
-                    message.setRead(msg.getRead());
-                    message.setSurvival_time(msg.getSurvival_time());
-                    message.setStartTime(msg.getStartTime());
-                    message.setReadTime(msg.getReadTime());
-                    message.setEndTime(msg.getEndTime());
-                    message.setServerTime(msg.getServerTime());
-                    message.setIsReplying(msg.getIsReplying());
-                    message.setRedEnvelope(envelopeTemp);
-                    messageDBTemps.add(message);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return messageDBTemps;
-    }
 
     //备份表数据转换
     public List<MsgAllBean> getMsgList(List<MessageDBTemp> list) {
@@ -2495,4 +2321,31 @@ public class MessageManager {
         return messageList;
     }
 
+    public boolean isReceivingOffline() {
+        return isReceiveOffline;
+    }
+
+    public void setReceiveOffline(boolean b) {
+        LogUtil.getLog().i(TAG, "接收离线状态改变--" + b);
+        isReceiveOffline = b;
+    }
+
+    public boolean isFromPush() {
+        return isFromPush;
+    }
+
+    public void setFromPush(boolean b) {
+        isFromPush = b;
+    }
+
+    public String[] getMemberIds(List<MemberUser> members) {
+        if (members == null || members.size() <= 0) {
+            return null;
+        }
+        String[] memberIDs = new String[members.size()];
+        for (int i = 0; i < members.size(); i++) {
+            memberIDs[i] = members.get(i).getMemberId();
+        }
+        return memberIDs;
+    }
 }

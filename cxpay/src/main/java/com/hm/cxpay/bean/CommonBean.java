@@ -69,6 +69,7 @@ public class CommonBean extends BaseBean implements Parcelable {
         toGroup = in.readInt();
         tradeId = in.readLong();
         tradeType = in.readInt();
+        refundType = in.readInt();
         phone = in.readString();
         token = in.readString();
         url = in.readString();

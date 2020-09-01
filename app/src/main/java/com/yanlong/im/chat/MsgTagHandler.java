@@ -34,6 +34,7 @@ public class MsgTagHandler implements TagHandler {
     public static final String ENVELOPE = "envelope";//红包
     public static final String USER = "user";//用户
     public static final String CANCEL = "cancel";//撤消息
+    public static final String ADD = "add";//添加好友
 
     private int sIndex = 0;
     private int eIndex = 0;
@@ -123,6 +124,8 @@ public class MsgTagHandler implements TagHandler {
             propertyValue.push(getProperty(xmlReader, "id"));
         } else if (tag.equalsIgnoreCase(CANCEL)) {
             propertyValue.push(getProperty(xmlReader, "content"));
+        }else if (tag.equalsIgnoreCase(ADD)) {
+            propertyValue.push(getProperty(xmlReader, "id"));
         }
     }
 
@@ -201,6 +204,10 @@ public class MsgTagHandler implements TagHandler {
             } else if (tag.equalsIgnoreCase(CANCEL)) {
                 if (actionListener != null && !TextUtils.isEmpty(content)) {
                     actionListener.clickEditAgain(content);
+                }
+            } else if (tag.equalsIgnoreCase(ADD)) {
+                if (actionListener != null && !TextUtils.isEmpty(id)) {
+                    actionListener.clickAddFriend(id);
                 }
             }
         }

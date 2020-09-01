@@ -1,15 +1,13 @@
 package net.cb.cb.library.manager;
 
 import android.os.Environment;
-import android.telephony.mbms.FileInfo;
 
-import com.jrmf360.tools.utils.ThreadUtil;
 
 import net.cb.cb.library.utils.FileConfig;
+import net.cb.cb.library.utils.ThreadUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

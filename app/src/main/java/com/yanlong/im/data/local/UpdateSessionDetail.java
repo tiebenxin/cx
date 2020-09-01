@@ -394,10 +394,14 @@ public class UpdateSessionDetail {
         try {
             result = group.getName();
             if (TextUtils.isEmpty(result)) {
+                result = "";
                 List<MemberUser> users = group.getUsers();
                 if (users != null && users.size() > 0) {
                     int len = users.size();
                     for (int i = 0; i < len; i++) {
+                        if (result.length() >= 14) {
+                            break;
+                        }
                         MemberUser info = users.get(i);
                         if (i == len - 1) {
                             result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
@@ -445,12 +449,12 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 成功");
+//                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 成功");
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 失败");
+//                LogUtil.getLog().i("update-Liszt", "markSessionRead -- 失败");
             }
         });
     }
@@ -473,16 +477,15 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 成功");
+//                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 成功");
                 update(new String[]{sid});
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 失败");
+//                LogUtil.getLog().i("update-Liszt", "updateMsgRead -- 失败");
             }
         });
     }
-
 
 }

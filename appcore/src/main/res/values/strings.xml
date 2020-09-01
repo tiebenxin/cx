@@ -1,4 +1,4 @@
-<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Library</string>
     <string name="app_link_err">(づ￣3￣)づ服务器君打野去了!</string>
     <string name="rmb">¥&#160;</string>
@@ -23,6 +23,7 @@
     <string name="group_forbid">该群因涉及违规，已被封停</string>
     <string name="group_disband">群功能已经解封</string>
     <string name="be_removed_group">你已经被移除群聊，无法发送消息</string>
+    <string name="to_message_fail">你所选的消息已失效</string>
 
     <string name="two_way_clear_chat">双向清除聊天记录</string>
     <string name="two_way_clear_chat_hint">清除双方的聊天记录，请谨慎操作。</string>
@@ -31,5 +32,9 @@
     <string name="user_disable_message">你已被限制使用此功能</string>
     <string name="friend_disable_message">该账号因涉嫌违规,已被停用</string>
     <string name="to_disable_message">对方被封号，不能发起音视频通话</string>
+
+    <string name="send_note_message">终于遇见你。快快来下载注册使用常信吧。点击下方链接下载常信http://xz.bdcagg.cn/，从此沟通零距离</string>
+    <string name="can_not_receive">发送者限制\n你不可以领取</string>
+
 
 </resources>

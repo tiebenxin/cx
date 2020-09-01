@@ -53,7 +53,7 @@ public class SendList {
             sl.setReSendNum(1);
             SEND_LIST.put(keyId, sl);
             //5.28 如果非在线发送,直接失败
-            if (!SocketUtil.getSocketUtil().getOnLineState()) {
+            if (!SocketUtil.getSocketUtil().getOnlineState()) {
                 removeSendList(keyId);
             }
         }
@@ -83,7 +83,7 @@ public class SendList {
             sl.setReSendNum(1);
             SEND_LIST.put(keyId, sl);
             //5.28 如果非在线发送,直接失败
-            if (!SocketUtil.getSocketUtil().getOnLineState()) {
+            if (!SocketUtil.getSocketUtil().getOnlineState()) {
                 removeSendList(keyId);
             }
         }

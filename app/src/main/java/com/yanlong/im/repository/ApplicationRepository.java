@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.data.local.ApplicationLocalDataSource;
 import com.yanlong.im.user.bean.UserInfo;
@@ -396,6 +397,19 @@ public class ApplicationRepository {
         //回主线程调用清除session详情
         //更新Detail详情
         localDataSource.updateMsgRead(sid, msgId, read);
+    }
+
+    //清空聊天记录
+    public void deleteAllMessage(Long toUid, String gid) {
+        localDataSource.deleteAllMsg("", toUid, gid);
+    }
+
+    public void deleteMsgList(List<MsgAllBean> list) {
+        localDataSource.deleteMsgList(list);
+    }
+
+    public void updateMsgRead(String gid, Long uid) {
+        localDataSource.updateMsgRead(gid, uid);
     }
 
 

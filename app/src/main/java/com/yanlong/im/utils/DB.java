@@ -107,12 +107,13 @@ public class DB {
 
             list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
             MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+            boolean isFromRealm = true;
             if (cancel == null && list != null && list.size() > 0) {
                 MsgAllBean bean = list.get(0);
                 if (TextUtils.isEmpty(bean.getMsg_id())) {
                     return;
                 }
-
+                isFromRealm = false;
                 cancel = new MsgAllBean();
                 cancel.setMsg_id(msgid);
                 cancel.setRequest_id("" + System.currentTimeMillis());
@@ -120,7 +121,6 @@ public class DB {
                 cancel.setTo_uid(UserAction.getMyId());
                 cancel.setGid(bean.getGid());
                 cancel.setMsg_type(ChatEnum.EMessageType.MSG_CANCEL);
-
                 int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(), bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgid);
@@ -142,7 +142,11 @@ public class DB {
                 list.deleteAllFromRealm();
             }
             if (cancel != null) {
-                msgAllBean = realm.copyFromRealm(cancel);
+                if (isFromRealm) {
+                    msgAllBean = realm.copyFromRealm(cancel);
+                } else {
+//                    msgAllBean = cancel;
+                }
             }
             realm.commitTransaction();
         } catch (Exception e) {
@@ -210,22 +214,21 @@ public class DB {
      */
     public static void removeGroupMember(Realm realm, String gid, List<Long> uids) {
         try {
+            if (uids == null) {
+                return;
+            }
+            Long[] uidArr = uids.toArray(new Long[uids.size()]);
+            if (uidArr == null) {
+                return;
+            }
             realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
-                    List<MemberUser> removeMembers = new ArrayList<>();
-                    for (MemberUser user : list) {
-                        if (uids.contains(user.getUid())) {
-                            removeMembers.add(user);
-                        }
-                        if (removeMembers.size() == uids.size()) {
-                            break;
-                        }
-                    }
-                    if (removeMembers.size() > 0) {
-                        list.removeAll(removeMembers);
+                    RealmResults<MemberUser> results = list.where().in("uid", uidArr).findAll();
+                    if (results != null) {
+                        results.deleteAllFromRealm();
                     }
                 }
             }
@@ -531,13 +534,13 @@ public class DB {
      */
     public static void updateGroup(@NonNull Realm realm, Group ginfo) {
         try {
-            realm.beginTransaction();
             if (ginfo.getUsers() != null) {
                 //更新信息到用户表
                 for (MemberUser sv : ginfo.getUsers()) {
                     sv.init(ginfo.getGid());
                 }
             }
+            realm.beginTransaction();
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
         } catch (Exception e) {
@@ -681,10 +684,14 @@ public class DB {
         }
         String result = group.getName();
         if (TextUtils.isEmpty(result)) {
+            result = "";
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
+                    if (result.length() >= 14) {
+                        break;
+                    }
                     MemberUser info = users.get(i);
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
@@ -797,8 +804,8 @@ public class DB {
     /**
      * 撤回消息
      *
-     * @param msgid       消息ID
-     * @param msgCancelId
+     * @param msgId       消息ID
+     * @param realm
      */
     public static void deleteMsg(Realm realm, String msgId) {
         MsgAllBean msgAllBean = null;

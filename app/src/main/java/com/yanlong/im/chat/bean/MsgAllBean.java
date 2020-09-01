@@ -376,8 +376,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     int reType = envelopeMessage.getRe_type();
                     if (reType == 1) {
                         str = "[零钱红包]" + getRed_envelope().getComment();
-                    } else {
-                        str = "[云红包]" + getRed_envelope().getComment();
                     }
                 }
             } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
@@ -421,7 +419,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 str = "[语音]";
             } else if (msg_type == ChatEnum.EMessageType.AT) {
                 str = getAtMessage().getMsg();
-            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
+            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT ||
+                    msg_type == ChatEnum.EMessageType.ASSISTANT_NEW) {
                 str = "[常信通知]";
             } else if (msg_type == ChatEnum.EMessageType.MSG_CANCEL) {//撤回消息
                 str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
@@ -438,7 +437,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
                 str = "[位置]";
             } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
-                str = "[零钱小助手消息]";
+                str = getBalanceAssistantMessage().getTitle();
             } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
                 if (getSendFileMessage() != null) {
                     if (!TextUtils.isEmpty(getSendFileMessage().getFile_name())) {
@@ -751,6 +750,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             case ChatEnum.EMessageType.ASSISTANT://小助手
                 layout = ChatEnum.EChatCellLayout.ASSISTANT;
                 break;
+            case ChatEnum.EMessageType.ASSISTANT_NEW://小助手
+                layout = ChatEnum.EChatCellLayout.ASSISTANT_NEW;
+                break;
             case ChatEnum.EMessageType.LOCK://端对端加密消息
                 layout = ChatEnum.EChatCellLayout.LOCK;
                 break;
@@ -973,6 +975,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 content = atMessage;
                 break;
             case ChatEnum.EMessageType.ASSISTANT://小助手
+            case ChatEnum.EMessageType.ASSISTANT_NEW://小助手
                 break;
             case ChatEnum.EMessageType.LOCK://端对端加密消息
                 break;

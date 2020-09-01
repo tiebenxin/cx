@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000"
-    >
+    android:background="#000">
 
     <SurfaceView
         android:id="@+id/textureView"
@@ -23,8 +22,7 @@
         android:layout_height="77dp"
         android:clickable="true"
         android:background="@mipmap/video_play_play"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="300dp"
+        android:layout_centerInParent="true"
         android:visibility="invisible"
         />
 
@@ -35,7 +33,7 @@
         android:clickable="true"
         android:background="@mipmap/img_video_load"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="300dp"
+        android:layout_centerInParent="true"
         android:visibility="visible"/>
 
 
@@ -61,7 +59,7 @@
                 android:layout_height="38dp"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="94dp"
+                android:layout_marginBottom="10dp"
                 android:background="#80000000">
 
                 <ImageView

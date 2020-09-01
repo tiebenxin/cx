@@ -1,18 +1,22 @@
 package com.yanlong.im.utils.socket;
 
-import android.accounts.NetworkErrorException;
-
 import com.yanlong.im.chat.tcp.SocketEndException;
 
 import net.cb.cb.library.utils.LogUtil;
 
-import java.net.*;
-import java.nio.*;
-import java.nio.channels.*;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SocketChannel;
 
-import javax.net.ssl.*;
-
-import java.io.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLEngineResult;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
 
 
 /**
@@ -127,6 +131,7 @@ public class SSLSocketChannel2 {
         } catch (Exception e) {
             e.printStackTrace(System.out);
             LogUtil.getLog().e(TAG, "SSL tryTLS的异常:" + e.toString());
+            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.toString());
             SSL = 0;
             //  throw new NetworkErrorException();
         }

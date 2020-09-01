@@ -9,6 +9,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -40,32 +41,39 @@ public class InstallAppUtil {
     }
 
 
-    public String getApkPath() {
-        return apkPath;
+//    public String getApkPath() {
+//        return apkPath;
+//    }
+
+    public void setApkPath(String path) {
+        apkPath = path;
     }
 
-    public void install(Activity act, String apkPath) {
-        activity = act;
-        this.apkPath = apkPath;
-        if (Build.VERSION.SDK_INT >= 26) {
-            //来判断应用是否有权限安装apk
-            boolean installAllowed = activity.getPackageManager().canRequestPackageInstalls();
-            //有权限
-            if (installAllowed) {
-                //安装apk
-                install();
-            } else {
-                //无权限 申请权限
+    public void install(Activity act) {
+        if(!TextUtils.isEmpty(apkPath)){
+            activity = act;
+            if (Build.VERSION.SDK_INT >= 26) {
+                //来判断应用是否有权限安装apk
+                boolean installAllowed = activity.getPackageManager().canRequestPackageInstalls();
+                //有权限
+                if (installAllowed) {
+                    //安装apk
+                    install();
+                } else {
+                    //无权限 申请权限
 //                      ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.REQUEST_INSTALL_PACKAGES}, INSTALL_APK_REQUESTCODE);
-                Log.v("InstallAppUtil", "没有权限申请权限");
-                Uri packageURI = Uri.parse("package:" + activity.getPackageName());
-                Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
-                intent.putExtra("apkPath", apkPath);
-                activity.startActivityForResult(intent, GET_UNKNOWN_APP_SOURCES);
-                ToastUtil.show(activity.getApplicationContext(), "请开启允许安装应用开关");
+                    Log.v("InstallAppUtil", "没有权限申请权限");
+                    Uri packageURI = Uri.parse("package:" + activity.getPackageName());
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
+                    intent.putExtra("apkPath", apkPath);
+                    activity.startActivityForResult(intent, GET_UNKNOWN_APP_SOURCES);
+                    ToastUtil.show(activity.getApplicationContext(), "请开启允许安装应用开关");
+                }
+            } else {
+                install();
             }
-        } else {
-            install();
+        }else {
+            ToastUtil.show("安装包出错");
         }
     }
 

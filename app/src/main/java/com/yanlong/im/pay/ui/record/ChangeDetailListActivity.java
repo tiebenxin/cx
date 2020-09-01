@@ -88,6 +88,8 @@ public class ChangeDetailListActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
+        headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         recyclerView = findViewById(R.id.rc_list);
         noDataLayout = findViewById(R.id.no_data_layout);
         tvChangeSelectDate = findViewById(R.id.tv_change_select_date);

@@ -30,6 +30,7 @@ public class ApplyBean extends RealmObject {
     private String avatar; // 头像
     private String sayHi;// 申请说明
     private int stat = 1; //好友状态 或 群状态 1申请 2同意 3拒绝 即隐藏删除
+    private String phone;// 申请人手机号
 
     //群
     private String gid; // 群gid
@@ -72,6 +73,13 @@ public class ApplyBean extends RealmObject {
         this.time = time;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     public String getGroupName() {
         groupName = groupName == null ? "" : groupName;
@@ -132,7 +140,7 @@ public class ApplyBean extends RealmObject {
     }
 
     public String getNickname() {
-        return StringUtil.isNotNull(alias) ? alias : nickname;
+        return nickname;// TODO　不能直接先取好友备注，新的申请列表显示会有问题，因为通讯匹配默认会设置好友备注
     }
 
     public void setNickname(String nickname) {

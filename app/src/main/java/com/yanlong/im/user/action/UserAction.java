@@ -1,26 +1,24 @@
 package com.yanlong.im.user.action;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.google.gson.Gson;
 import com.hm.cxpay.global.PayEnvironment;
-import com.jrmf360.rplib.JrmfRpClient;
-import com.jrmf360.rplib.http.model.BaseModel;
-import com.jrmf360.tools.http.OkHttpModelCallBack;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
-import com.yanlong.im.BuildConfig;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.pay.action.PayAction;
-import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.user.bean.AddressBookMatchingBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
@@ -51,10 +49,16 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
 import cn.jpush.android.api.JPushInterface;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -200,7 +204,7 @@ public class UserAction {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
-                ToastUtil.show("登录失败，请检查您的网络环境或联系客服");
+                ToastUtil.show("登录失败，请检查你的网络环境或联系客服");
             }
         });
     }
@@ -234,7 +238,7 @@ public class UserAction {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
-                ToastUtil.show("登录失败，请检查您的网络环境或联系客服");
+                ToastUtil.show("登录失败，请检查你的网络环境或联系客服");
             }
         });
     }
@@ -376,7 +380,6 @@ public class UserAction {
                     }
                     dao.updateUserinfo(userInfo);
                     MessageManager.getInstance().updateSessionTopAndDisturb("", usrid, userInfo.getIstop(), userInfo.getDisturb());
-                    MessageManager.getInstance().updateCacheUser(userInfo);
                     cb.onResponse(call, response);
                 } else {
                     cb.onFailure(call, new Throwable());
@@ -527,8 +530,8 @@ public class UserAction {
     /***
      * 好友同意
      */
-    public void friendAgree(Long uid, String contactName, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.acceptFriend(uid, contactName), callback);
+    public void friendAgree(Long uid, String contactName,String alias, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.acceptFriend(uid, contactName,alias), callback);
     }
 
     /***
@@ -582,9 +585,7 @@ public class UserAction {
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
-                    //更新库
-                    dao.friendMeUpdate(list);
-
+                    saveRoster(list);
                 }
                 callback.onResponse(call, response);
 
@@ -596,6 +597,50 @@ public class UserAction {
                 callback.onResponse(call, null);
             }
         });
+    }
+
+    @SuppressLint("CheckResult")
+    private void saveRoster(List<UserInfo> list) {
+        if (list == null) {
+            return;
+        }
+        Observable.just(0)
+                .map(new Function<Integer, Boolean>() {
+                    @Override
+                    public Boolean apply(Integer integer) throws Exception {
+                        int len = list.size();
+                        List<Long> longs = new ArrayList<>();
+                        IUser user = UserAction.getMyInfo();
+                        for (int i = 0; i < len; i++) {
+                            UserInfo userInfo = list.get(i);
+                            //文件传输助手
+                            if (user.getUid().longValue() == userInfo.getUid().longValue()) {
+                                long uid = userInfo.getUid().longValue();
+                                userInfo.setUid(-uid);
+                            }
+                            longs.add(userInfo.getUid());
+                            //更新用户相关
+                            userInfo.toTag();
+                            if (userInfo.getStat() == 9) {
+                                userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                                userInfo.setLastonline(System.currentTimeMillis());
+                            } else {
+                                userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                            }
+
+                        }
+                        dao.updateRoster(list, longs);
+                        return true;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<Boolean>empty())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean b) throws Exception {
+
+                    }
+                });
     }
 
     /***
@@ -617,35 +662,6 @@ public class UserAction {
      */
     public void friendGet4All(CallBack<ReturnBean<List<UserInfo>>> callback) {
         NetUtil.getNet().exec(server.getAllFriendsGet(), callback);
-    }
-
-
-    private void upMyinfoToPay() {
-        PayAction payAction = new PayAction();
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    JrmfRpClient.updateUserInfo(myInfo.getUid() + "", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
-                        @Override
-                        public void onSuccess(BaseModel baseModel) {
-
-                        }
-
-                        @Override
-                        public void onFail(String s) {
-
-                        }
-                    });
-
-
-                }
-            }
-        });
     }
 
     /**
@@ -670,7 +686,6 @@ public class UserAction {
                             if (gender != null)
                                 myInfo.setSex(gender);
                             updateUser2DB(myInfo);
-                            upMyinfoToPay();
                         }
                     }
                 } catch (Exception e) {
@@ -715,8 +730,11 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
+                    TokenBean tokenBean = response.body().getData();
+                    doNeteaseLogin(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    saveNeteaseAccid(tokenBean.getNeteaseAccid(), tokenBean.getNeteaseToken());
+                    initDB("" + tokenBean.getUid());
+                    setToken(tokenBean, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
@@ -785,8 +803,15 @@ public class UserAction {
     /**
      * 通讯录匹配
      */
-    public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
-        NetUtil.getNet().exec(server.getUserMatchPhone(phoneList), callback);
+    public void getUserMatchPhone(WeakHashMap<String, Object> params, CallBack<ReturnBean<AddressBookMatchingBean>> callback) {
+        NetUtil.getNet().exec(server.getUserMatchPhone(params), callback);
+    }
+
+    /**
+     * 通讯录匹配 增量
+     */
+    public void getIncrementContacts(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.getIncrementContacts(params), callback);
     }
 
     /**

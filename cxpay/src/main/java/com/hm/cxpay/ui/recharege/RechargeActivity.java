@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -103,6 +104,8 @@ public class RechargeActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        headView.getActionbar().setChangeStyleBg();
+        headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         tvBalance = findViewById(R.id.tv_balance);
         etRecharge = findViewById(R.id.et_recharge);
         tvSubmit = findViewById(R.id.tv_submit);
@@ -115,6 +118,8 @@ public class RechargeActivity extends AppActivity {
         tvQuestion = findViewById(R.id.tv_question);
         actionbar = headView.getActionbar();
         noticeDialog = new DialogCommon2(RechargeActivity.this);
+        //只能输入整数
+        etRecharge.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
     }
 
     private void initData() {
@@ -162,7 +167,7 @@ public class RechargeActivity extends AppActivity {
                                     }).show();
                         }
                     } else {
-                        noticeDialog.setContent("最低充值金额10元", true)
+                        noticeDialog.setContent("充值金额不能低于10元", true)
                                 .setButtonTxt("确定")
                                 .hasTitle(false)
                                 .setListener(new DialogCommon2.IDialogListener() {
@@ -381,11 +386,13 @@ public class RechargeActivity extends AppActivity {
             return;
         }
         if (requestCode == REQUEST_PAY) {
-            int result = data.getIntExtra(RESULT, 0);
-            if (result == 99) {
-                startActivity(new Intent(activity, RechargeSuccessActivity.class).putExtra("money", etRecharge.getText().toString()));
-            } else {
-                ToastUtil.show("充值失败");
+            if (resultCode == RESULT_OK) {
+                int result = data.getIntExtra(RESULT, 0);
+                if (result == 99) {
+                    startActivity(new Intent(activity, RechargeSuccessActivity.class).putExtra("money", etRecharge.getText().toString()));
+                } else {
+                    ToastUtil.show("充值失败");
+                }
             }
         }
     }

@@ -56,6 +56,7 @@ public class AudioPlayManager implements SensorEventListener {
     private int currentPosition;
     private MsgAllBean currentDownBean;
     public String msg_id;// 当前播放的语音ID
+    public boolean isPlaying = false;//正在播放语音
 
     public AudioPlayManager() {
     }
@@ -272,6 +273,7 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
+                        isPlaying = false;
                         LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
                         if (AudioPlayManager.this.voicePlayListener != null) {
                             AudioPlayManager.this.voicePlayListener.onComplete(bean);
@@ -283,6 +285,7 @@ public class AudioPlayManager implements SensorEventListener {
                 });
                 this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                     public boolean onError(MediaPlayer mp, int what, int extra) {
+                        isPlaying = false;
                         AudioPlayManager.this.reset(false);
                         return true;
                     }
@@ -300,6 +303,7 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
                 this._mediaPlayer.prepare();
                 this._mediaPlayer.start();
+                isPlaying = true;
                 if (this.voicePlayListener != null) {
                     this.voicePlayListener.onStart(bean);
                 }
@@ -310,6 +314,7 @@ public class AudioPlayManager implements SensorEventListener {
                     this.voicePlayListener = null;
                 }
                 this.reset(false);
+                isPlaying = false;
             }
 
         } else {
@@ -356,16 +361,6 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
 
-    private void downloadAudio(final Context context, final String url) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String path = context.getExternalCacheDir().getAbsolutePath();
-                DownloadUtil.get().download(url, path, getFileName(url));
-            }
-        }).start();
-    }
-
     public void downloadAudio(final Context context, final MsgAllBean bean, final DownloadUtil.IDownloadVoiceListener listener) {
 //        LogUtil.getLog().i(TAG, "downloadAudio");
         new Thread(new Runnable() {
@@ -411,10 +406,6 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
 
-    public void setPlayListener(IVoicePlayListener listener) {
-        this.voicePlayListener = listener;
-    }
-
     public void stopPlay() {
 //        LogUtil.getLog().i(TAG, "stopPlay--" + "voicePlayListener=" + voicePlayListener + "_playingUri=" + _playingUri);
         if (this.voicePlayListener != null && this.currentPlayingMsg != null) {
@@ -426,6 +417,9 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     private void reset(boolean isCompleted) {
+        if (isPlaying) {
+            isPlaying = true;
+        }
         this.resetMediaPlayer();
         this.resetAudioPlayManager(isCompleted);
     }
@@ -676,6 +670,11 @@ public class AudioPlayManager implements SensorEventListener {
                 });
             }
         }).start();
+    }
+
+    //是否正在播放语音
+    public boolean isPlayingVoice() {
+        return isPlaying;
     }
 
 

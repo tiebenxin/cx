@@ -50,7 +50,9 @@ public class GroupNoteDetailActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {  //TODO bugly #114810
+            EventBus.getDefault().register(this);
+        }
         ui = DataBindingUtil.setContentView(this, R.layout.activity_group_note_detail);
         Intent intent = getIntent();
         boolean isOwner = intent.getBooleanExtra(IS_OWNER, false);
@@ -193,6 +195,8 @@ public class GroupNoteDetailActivity extends AppActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 }

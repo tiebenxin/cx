@@ -7,7 +7,6 @@ import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.IModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -45,7 +44,7 @@ public class ForwardModel implements IModel {
                 if (userDao == null) {
                     userDao = new UserDao();
                 }
-                List<UserInfo> list = userDao.getForwarUserValid();
+                List<UserInfo> list = userDao.getForwardUserValid();
                 e.onNext(list);
             }
         });

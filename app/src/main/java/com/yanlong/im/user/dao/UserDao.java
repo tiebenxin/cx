@@ -1,5 +1,6 @@
 package com.yanlong.im.user.dao;
 
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
@@ -7,6 +8,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
+import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -16,9 +18,11 @@ import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.manager.Constants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -270,7 +274,7 @@ public class UserDao {
      * 获取能有效转发用户
      * @return
      */
-    public List<UserInfo> getForwarUserValid() {
+    public List<UserInfo> getForwardUserValid() {
         List<UserInfo> res = null;
         Realm realm = DaoUtil.open();
         try {
@@ -440,10 +444,50 @@ public class UserDao {
      * 更新好友
      * @param list
      */
-    public void updateRoster(List<UserInfo> list) {
+    public void updateRoster(List<UserInfo> list, List<Long> newUserIds) {
         Realm realm = DaoUtil.open();
         try {
-            realm.beginTransaction();
+            boolean hasBeganTransaction = false;
+            //本地数据库中的所有好友
+            RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("stat", 9).endGroup().findAll();
+            //需要筛出本地好友中已经不是好友的数据
+            if (ls != null) {
+                List<Long> localUserIds = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    localUserIds = ls.stream().map(UserInfo::getUid).collect(Collectors.toList());
+                    if (localUserIds != null) {
+                        newUserIds.removeAll(localUserIds);
+                    }
+                    if (newUserIds.size() > 0) {
+                        //本地不在好友列表中的数据
+                        Long[] outUserIds = newUserIds.toArray(new Long[newUserIds.size()]);
+                        RealmResults<UserInfo> outUsers = ls.where().in("uid", outUserIds).findAll();
+                        hasBeganTransaction = true;
+                        realm.beginTransaction();
+                        if (outUsers != null) {
+                            for (UserInfo info : outUsers) {
+                                info.setuType(0);
+                            }
+                        }
+                    }
+                } else {
+                    List<UserInfo> totalUsers = realm.copyFromRealm(ls);
+                    if (totalUsers != null) {
+                        totalUsers.removeAll(list);
+                        if (totalUsers.size() > 0) {
+                            for (UserInfo info : totalUsers) {
+                                info.setuType(0);
+                            }
+                            hasBeganTransaction = true;
+                            realm.beginTransaction();
+                            realm.insertOrUpdate(totalUsers);
+                        }
+                    }
+                }
+            }
+            if (!hasBeganTransaction) {
+                realm.beginTransaction();
+            }
             realm.insertOrUpdate(list);
             realm.commitTransaction();
             realm.close();
@@ -706,6 +750,59 @@ public class UserDao {
                     member.setMarkerName(user.getMkName());
                 }
             }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    public List<PhoneBean> getLocaPhones() {
+        List<PhoneBean> res = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<PhoneBean> ls = realm.where(PhoneBean.class).findAll();
+            res = realm.copyFromRealm(ls);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return res;
+    }
+
+    public void updateLocaPhones(List<PhoneBean> list) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<PhoneBean> ls = realm.where(PhoneBean.class).findAll();
+            ls.deleteAllFromRealm();
+            realm.insertOrUpdate(list);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    /**
+     * 更新用户注销状态
+     *
+     * @param type 0 取消注销 1 注销中 -1 完成注销
+     */
+    public void updateUserDeactivateValue(long uid, int type) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (user != null) {
+                user.setFriendDeactivateStat(type);
+            }
+            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();

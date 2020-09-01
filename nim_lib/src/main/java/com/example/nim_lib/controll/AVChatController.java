@@ -73,48 +73,52 @@ public class AVChatController {
      * @param avChatType AVChatType.VIDEO AVChatType.AUDIO\e
      */
     public void hangUp2(long chatId, int type, int avChatType, Long toUId) {
-        if ((type == AVChatExitCode.HANGUP || type == AVChatExitCode.PEER_NO_RESPONSE
-                || type == AVChatExitCode.CANCEL || type == AVChatExitCode.REJECT)) {
-            AVChatManager.getInstance().hangUp2(chatId, new AVChatCallback<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
+        try {
+            if ((type == AVChatExitCode.HANGUP || type == AVChatExitCode.PEER_NO_RESPONSE
+                    || type == AVChatExitCode.CANCEL || type == AVChatExitCode.REJECT)) {
+                AVChatManager.getInstance().hangUp2(chatId, new AVChatCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
 //                    AVChatProfile.getInstance().setAVChatting(false);
-                    AVChatProfile.getInstance().setCallIng(false);
-                    PlayerManager.getManager().stop();
-                    AVChatSoundPlayer.instance().stop();
-                    auVideoHandup(toUId, avChatType, getUUID());
-                    if (context != null && !((Activity) context).isFinishing()) {
-                        ((Activity) context).finish();
+                        AVChatProfile.getInstance().setCallIng(false);
+                        PlayerManager.getManager().stop();
+                        AVChatSoundPlayer.instance().stop();
+                        auVideoHandup(toUId, avChatType, getUUID());
+                        if (context != null && !((Activity) context).isFinishing()) {
+                            ((Activity) context).finish();
+                        }
+                        Log.d(TAG, "onSuccess");
                     }
-                    Log.d(TAG, "onSuccess");
-                }
 
-                @Override
-                public void onFailed(int code) {
-                    Log.d(TAG, "onSuccess");
-                    if (context != null && !((Activity) context).isFinishing()) {
-                        ToastUtil.show(context, AVChatExitCode.getCodeString(code));
-                        ((Activity) context).finish();
+                    @Override
+                    public void onFailed(int code) {
+                        Log.d(TAG, "onSuccess");
+                        if (context != null && !((Activity) context).isFinishing()) {
+                            ToastUtil.show(context, AVChatExitCode.getCodeString(code));
+                            ((Activity) context).finish();
+                        }
                     }
-                }
 
-                @Override
-                public void onException(Throwable throwable) {
-                    Log.d(TAG, "throwable");
-                    if (context != null && !((Activity) context).isFinishing()) {
-                        ((Activity) context).finish();
+                    @Override
+                    public void onException(Throwable throwable) {
+                        Log.d(TAG, "throwable");
+                        if (context != null && !((Activity) context).isFinishing()) {
+                            ((Activity) context).finish();
+                        }
                     }
-                }
-            });
+                });
+            }
+            if (avChatType == AVChatType.VIDEO.getValue()) {
+                // 如果是视频通话，关闭视频模块
+                AVChatManager.getInstance().disableVideo();
+                // 如果是视频通话，需要先关闭本地预览
+                AVChatManager.getInstance().stopVideoPreview();
+            }
+            //销毁音视频引擎和释放资源
+            AVChatManager.getInstance().disableRtc();
+        } catch (Exception e) {
+
         }
-        if (avChatType == AVChatType.VIDEO.getValue()) {
-            // 如果是视频通话，关闭视频模块
-            AVChatManager.getInstance().disableVideo();
-            // 如果是视频通话，需要先关闭本地预览
-            AVChatManager.getInstance().stopVideoPreview();
-        }
-        //销毁音视频引擎和释放资源
-        AVChatManager.getInstance().disableRtc();
     }
 
     /**

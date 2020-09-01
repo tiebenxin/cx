@@ -2,7 +2,11 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
+import com.yanlong.im.chat.bean.MemberUser;
+
 import net.cb.cb.library.utils.LogUtil;
+
+import java.util.List;
 
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
@@ -182,6 +186,42 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 40) {
                 updateV41(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 41) {
+                updateV42(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 42) {
+                updateV43(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 43) {
+                updateV44(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 44) {
+                updateV45(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 45) {
+                updateV46(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 46) {
+                updateV47(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 47) {
+                updateV48(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 48) {
+                updateV49(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 49) {
+                updateV50(schema);
                 oldVersion++;
             }
         }
@@ -773,11 +813,78 @@ public class DaoMigration implements RealmMigration {
                 .addField("isLocal", int.class)
                 .addField("isReplying", int.class)
                 .addRealmObjectField("envelopeMessage", schema.get("EnvelopeTemp"))
-                ;
+        ;
     }
 
-    //通知消息新增入群备注字段
+    //增加撤回消息新字段
     private final void updateV41(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("role", int.class);
+    }
+
+    //增加撤回消息新字段
+    private final void updateV42(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("alterantive_name", String.class);
+    }
+
+    // 增加手机通讯录表
+    private final void updateV43(RealmSchema schema) {
+        schema.create("PhoneBean")
+                .addField("phoneremark", String.class)
+                .addField("phone", String.class);
+    }
+
+    // 增加注销状态字段
+    private final void updateV44(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("deactivateStat", int.class)
+                .addField("friendDeactivateStat", int.class);
+        schema.get("UserBean")
+                .addField("deactivateStat", int.class)
+                .addField("friendDeactivateStat", int.class);
+    }
+
+    // 增加红包领取人自选
+    private final void updateV45(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addRealmListField("allowUsers", schema.get("MemberUser"));
+        schema.get("EnvelopeInfo")
+                .addRealmListField("allowUsers", schema.get("MemberUser"));
+    }
+
+    // 小助手新版消息
+    private final void updateV46(RealmSchema schema) {
+        schema.get("AssistantMessage")
+                .addField("version", int.class)
+                .addField("title", String.class)
+                .addField("time", long.class)
+                .addField("content", String.class)
+                .addField("signature", String.class)
+                .addField("signature_time", long.class)
+                .addField("items", String.class);
+
+        schema.get("RedEnvelopeMessage")
+                .addField("canReview", int.class);
+    }
+
+    // 新的申请需要增加uid字段
+    private final void updateV47(RealmSchema schema) {
+        schema.get("Remind")
+                .addField("uid", long.class);
+    }
+
+    // 删除主键，用于新的申请红点累加
+    private final void updateV48(RealmSchema schema) {
+        schema.get("Remind").removePrimaryKey();
+    }
+
+    private final void updateV49(RealmSchema schema) {
+        schema.get("ApplyBean")
+                .addField("phone", String.class);
+    }
+    //通知消息新增入群备注字段
+    private final void updateV50(RealmSchema schema) {
         schema.get("MsgNotice")
                 .addField("remark", String.class);
     }

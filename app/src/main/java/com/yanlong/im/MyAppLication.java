@@ -18,7 +18,6 @@ import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.jrmf360.tools.JrmfClient;
 import com.kye.net.NetRequestHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
@@ -40,7 +39,6 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
-import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
@@ -76,7 +74,6 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
 
     public LocationService locationService;
-    //    public Vibrator mVibrator;
     //全局数据仓库
     public ApplicationRepository repository;
     public Handler handler = new Handler();
@@ -103,8 +100,6 @@ public class MyAppLication extends MainApplication {
         createRepository();
         initWeixinConfig();
         initRunstate();
-        initRedPacket();
-//        LogcatHelper.getInstance(this).start();
         initException();
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
@@ -113,10 +108,9 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
-        initLocation();//初始化定位  TODO #124911
+        initLocation();//初始化定位
         initARouter();//初始化路由
         initVolley();
-        HandleWebviewCrash();
     }
 
     /**
@@ -124,11 +118,17 @@ public class MyAppLication extends MainApplication {
      */
     private void HandleWebviewCrash() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            String processName = getCurrentProcessName();
+            String processName = getProcessName(this);
             if (!"com.yanlong.im".equals(processName)) {//判断不等于默认进程名称
                 WebView.setDataDirectorySuffix(processName);
             }
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        HandleWebviewCrash();
     }
 
     private Intent messageIntentService = null;
@@ -137,7 +137,6 @@ public class MyAppLication extends MainApplication {
         if (messageIntentService == null) {
             messageIntentService = new Intent(this, MessageIntentService.class);
         }
-//        LogUtil.getLog().i("Liszt_test", "接收到消息-启动服务");
         startService(messageIntentService);
     }
 
@@ -286,8 +285,8 @@ public class MyAppLication extends MainApplication {
      */
     private LoginInfo getLoginInfo() {
         SpUtil spUtil = SpUtil.getSpUtil();
-        String account = spUtil.getSPValue("account", "");
-        String token = spUtil.getSPValue("token", "");
+        String account = spUtil.getSPValue(Preferences.KEY_USER_ACCOUNT, "");
+        String token = spUtil.getSPValue(Preferences.KEY_USER_TOKEN, "");
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             return new LoginInfo(account, token);
         } else {
@@ -353,17 +352,6 @@ public class MyAppLication extends MainApplication {
         myException.init(getApplicationContext());
     }
 
-    /***
-     * 初始化红包
-     */
-    private void initRedPacket() {
-        //改为正式环境
-        JrmfClient.isDebug(false);
-        /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
-        JrmfClient.init(this);
-        com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);
-
-    }
 
     private void initUPushPre() {
         UMConfigure.init(this, "5d53659c570df3d281000225",
@@ -498,5 +486,23 @@ public class MyAppLication extends MainApplication {
             // TODO oppo 必须要改开机自启动，或开启悬浮窗权限才能生效 ，文章地址：https://www.jianshu.com/p/5f6d8379533b
             startActivity(intent);
         }
+    }
+
+    public String getProcessName(Context context) {
+        try {
+            if (context == null)
+                return null;
+            ActivityManager manager = (ActivityManager)
+                    context.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningAppProcessInfo processInfo :
+                    manager.getRunningAppProcesses()) {
+                if (processInfo.pid == android.os.Process.myPid()) {
+                    return processInfo.processName;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

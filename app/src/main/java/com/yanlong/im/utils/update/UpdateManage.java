@@ -53,6 +53,7 @@ public class UpdateManage {
 
     private CommonSelectDialog.Builder builder;
     private CommonSelectDialog dialogOne;//通用提示选择弹框：4G数据流量情况下是否确认更新
+    private String newVersion = "";//新版本号
 
     public UpdateManage(Context context, Activity activity) {
         this.context = context;
@@ -102,25 +103,18 @@ public class UpdateManage {
      * @param content 更新内容
      * @param url
      * @param isEnforcement 是否强制更新
-     * @param fromMainActivity 是否来自主页 (MainActivity则不再弹框提示用户忽略的版本，AboutAsActivity仍然允许点击唤起更新弹框)
      */
-    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean fromMainActivity) {
-        //如果是用户忽略的版本，则不再弹框提示
-        if(fromMainActivity){
-            if(versions.equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))){
-                return;
-            }
-        }
+    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement) {
         if (check(versions)) {
             updateURL = url;
             dialog = new UpdateAppDialog();
+            newVersion = versions;
             dialog.init(activity, versions, content, new UpdateAppDialog.Event() {
                 @Override
                 public void onON() {
                     if (call != null) {
                         call.cancel();
                     }
-                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).save2Json(versions);
                 }
 
 
@@ -145,6 +139,11 @@ public class UpdateManage {
                                     return;
                                 }
                                 long length = response.body().contentLength();
+                                //缓存新安装包大小，用于检查安装包的完整性
+//                                if(startsPoint==0){
+//                                    SharedPreferencesUtil newApkSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_APK_SIZE);
+//                                    newApkSize.saveLong("new_apk_size", length);
+//                                }
                                 if (length == 0) {
                                     // 说明文件已经下载完，直接跳转安装就好
                                     downloadListener.complete(String.valueOf(getFile().getAbsoluteFile()));
@@ -210,7 +209,7 @@ public class UpdateManage {
 
                 @Override
                 public void onInstall() {
-                    installAppUtil.install(activity, installAppUtil.getApkPath());
+                    installAppUtil.install(activity);
                 }
             });
             //强制升级不显示取消按钮
@@ -230,19 +229,19 @@ public class UpdateManage {
 
     private File getFile() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         return file;
     }
 
     private long getFileStart() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         return file.length();
     }
 
     private File clearApk() {
         String root = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "";
-        File file = new File(root, "yanlong.apk");
+        File file = new File(root, "changxin_"+newVersion+".apk");
         if (file.exists()) {
             file.delete();
         }
@@ -332,7 +331,7 @@ public class UpdateManage {
                 case COMPLETE:
                     String path = (String) msg.obj;
                     installAppUtil = new InstallAppUtil();
-                    installAppUtil.install(activity, path);
+                    installAppUtil.setApkPath(path);
                     if (dialog != null) {
                         dialog.downloadComplete();
                     }

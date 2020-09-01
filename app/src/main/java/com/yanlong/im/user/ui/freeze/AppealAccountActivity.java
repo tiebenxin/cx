@@ -354,7 +354,7 @@ public class AppealAccountActivity extends BaseBindActivity<ActivityAppealAccoun
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response != null && response.body().isOk()) {
+                if (response != null && response.body() != null && response.body().isOk()) {
                     EventFactory.UpdateAppealStatusEvent event = new EventFactory.UpdateAppealStatusEvent();
                     event.status = true;
                     EventBus.getDefault().post(event);

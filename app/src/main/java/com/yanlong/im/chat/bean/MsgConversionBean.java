@@ -2,6 +2,7 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -21,6 +22,8 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.List;
 
 import io.realm.RealmList;
 
@@ -176,7 +179,6 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(EMessageType.VOICE);
                 break;
             case SHORT_VIDEO:
-                MsgAllBean videoMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
                 VideoMessage videoMessage = new VideoMessage();
                 videoMessage.setMsgId(msgAllBean.getMsg_id());
                 videoMessage.setUrl(bean.getShortVideo().getUrl());
@@ -186,9 +188,6 @@ public class MsgConversionBean {
                 videoMessage.setDuration(bean.getShortVideo().getDuration());
                 msgAllBean.setMsg_type(EMessageType.MSG_VIDEO);
                 msgAllBean.setVideoMessage(videoMessage);
-//                videoMsg.setMsg_type(ChatEnum.EMessageType.MSG_VIDEO);
-//                videoMsg.setVideoMessage(videoMessage);
-//                videoMessage.setLocalUrl(bean.getShortVideo().getLocalUrl());
                 break;
             case TRANSFER:
                 if (bean.getTransfer().getOpType() == MsgBean.TransferMessage.OpType.UNRECOGNIZED) {
@@ -233,41 +232,46 @@ public class MsgConversionBean {
                 }
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
                 envelopeMessage.setStyle(bean.getRedEnvelope().getStyleValue());
+
+                if (bean.getRedEnvelope().getAllowUsersCount() > 0) {
+                    List<MsgBean.BaseUser> list = bean.getRedEnvelope().getAllowUsersList();
+                    long uid = -1;
+                    if (UserAction.getMyId() != null) {
+                        uid = UserAction.getMyId();
+                    }
+                    String[] memberIds = new String[list.size()];
+                    boolean allowMe = false;
+                    for (int i = 0; i < list.size(); i++) {
+                        MsgBean.BaseUser user = list.get(i);
+                        memberIds[i] = bean.getGid() + user.getUid();
+                        if (user.getUid() == uid) {
+                            allowMe = true;
+                        }
+                    }
+                    List<MemberUser> members = msgDao.getMembers(bean.getGid(), memberIds);
+                    if (members != null) {
+                        RealmList<MemberUser> allowUsers = new RealmList<>();
+                        allowUsers.addAll(members);
+                        envelopeMessage.setAllowUsers(allowUsers);
+                        if (!allowMe) {
+                            envelopeMessage.setEnvelopStatus(PayEnum.EEnvelopeStatus.NO_ALLOW);
+                            envelopeMessage.setCanReview(0);
+                        }
+                    }
+                }
                 msgAllBean.setRed_envelope(envelopeMessage);
                 msgAllBean.setMsg_type(EMessageType.RED_ENVELOPE);
                 break;
             case RECEIVE_RED_ENVELOPER:
-                if (bean.getReceiveRedEnvelope().getReType() == MsgBean.RedEnvelopeType.UNRECOGNIZED) {
+                if (bean.getReceiveRedEnvelope() == null || bean.getReceiveRedEnvelope().getReType() == MsgBean.RedEnvelopeType.UNRECOGNIZED) {
                     return null;
                 }
+                MsgBean.ReceiveRedEnvelopeMessage receiveRedEnvelope = bean.getReceiveRedEnvelope();
                 msgAllBean.setMsg_type(EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-                //isError true 表示是回执错误导致发送失败,发送者是自己
-                if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
-                    if (isError) {
-                        rbNotice.setMsgType(ENoticeType.RECEIVE_RED_ENVELOPE);
-                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
-                        if (TextUtils.isEmpty(nick)) {
-                            if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
-                                nick = bean.getMembername();
-                            } else {
-                                nick = bean.getNickname();
-                            }
-                        }
-                        name = "<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick + "</font>";
-                        rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
-                    } else {
-
-                        if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
-                            rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
-                            rbNotice.setMsgType(ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
-                        } else {
-                            rbNotice.setMsgType(ENoticeType.RED_ENVELOPE_RECEIVED);
-                            rbNotice.setNote("\"<font color='#276baa' id='" + fromUid + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
-                        }
-                    }
-                } else if (bean.getReceiveRedEnvelope().getReType().getNumber() == 1) {
+                //isError true 表示是回执错误导致发送失败,发送者是自己，零钱红包
+                if (receiveRedEnvelope.getReType().getNumber() == 1) {
                     if (isError) {
                         rbNotice.setMsgType(ENoticeType.RECEIVE_SYS_ENVELOPE);
                         String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
@@ -279,10 +283,10 @@ public class MsgConversionBean {
                             }
                         }
                         String user = "<user id='" + bean.getToUid() + "' gid= " + bean.getGid() + ">" + nick + "</user>";
-                        rbNotice.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                        rbNotice.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + receiveRedEnvelope.getId() + ">零钱红包</envelope>");
                     } else {
                         if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
-                            rbNotice.setNote("你领取了自己的<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                            rbNotice.setNote("你领取了自己的<envelope id=" + receiveRedEnvelope.getId() + ">零钱红包</envelope>");
                             rbNotice.setMsgType(ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
                         } else {
                             String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
@@ -295,10 +299,13 @@ public class MsgConversionBean {
                             }
                             rbNotice.setMsgType(ENoticeType.SYS_ENVELOPE_RECEIVED);
                             String user = "<user id='" + fromUid + "' gid=" + bean.getGid() + ">" + nick + "</user>";
-                            rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                            if (receiveRedEnvelope.getFinished()) {
+                                rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + receiveRedEnvelope.getId() + ">零钱红包</envelope>" + ",红包已被领完");
+                            } else {
+                                rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + receiveRedEnvelope.getId() + ">零钱红包</envelope>");
+                            }
                         }
                     }
-
                 }
 
                 msgAllBean.setMsgNotice(rbNotice);
@@ -307,9 +314,14 @@ public class MsgConversionBean {
             //需要保存的通知类消息
             case ACCEPT_BE_FRIENDS:// 接收好友请求
                 msgAllBean.setMsg_type(EMessageType.NOTICE);
+                MsgBean.AcceptBeFriendsMessage receiveMessage = bean.getAcceptBeFriends();
                 MsgNotice msgNotice = new MsgNotice();
                 msgNotice.setMsgid(msgAllBean.getMsg_id());
-                msgNotice.setNote(bean.getNickname() + "已加你为好友");
+                if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getContactName())) {
+                    msgNotice.setNote(receiveMessage.getContactName() + "已加你为好友");
+                } else {
+                    msgNotice.setNote(bean.getNickname() + "已加你为好友");
+                }
                 msgAllBean.setMsgNotice(msgNotice);
                 break;
             case ACCEPT_BE_GROUP://接受入群请求
@@ -644,40 +656,92 @@ public class MsgConversionBean {
                 break;
             case ASSISTANT:
                 AssistantMessage assistant = new AssistantMessage();
-                assistant.setMsg(bean.getAssistant().getMsg());
+                MsgBean.AssistantMessage assistantMsg = bean.getAssistant();
+                assistant.setMsg(assistantMsg.getMsg());
                 assistant.setMsgId(bean.getMsgId());
-                msgAllBean.setMsg_type(EMessageType.ASSISTANT);
+                assistant.setContent(assistantMsg.getContent());
+                assistant.setDispatch_type(assistantMsg.getDispatchType());
+                String assisItems = GsonUtils.optObject(assistantMsg.getItemList());
+                if (!TextUtils.isEmpty(assisItems)) {
+                    assistant.setItems(assisItems);
+                }
+                assistant.setSignature(assistantMsg.getSignature());
+                assistant.setTime(assistantMsg.getTime());
+                assistant.setSignature_time(assistantMsg.getSignatureTime());
+                assistant.setUid_list(assistantMsg.getUidListList());
+                assistant.setTitle(assistantMsg.getTitle());
+
+                msgAllBean.setMsg_type(EMessageType.ASSISTANT_NEW);
                 msgAllBean.setAssistantMessage(assistant);
                 break;
             case CANCEL://撤回消息
                 String rname = "";
                 MsgCancel msgCel = new MsgCancel();
                 if (UserAction.getMyId() != null && fromUid == UserAction.getMyId().longValue()) {
-                    rname = "你";
-                } else {//对方撤回的消息当通知处理
-                    msgCel.setMsgType(9);
-                    rname = "\"<font color='#276baa' id='" + fromUid + "'>" + msgDao.getUsername4Show(bean.getGid(), fromUid) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
-                    String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
-                    if (TextUtils.isEmpty(nick)) {
-                        if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
-                            nick = bean.getMembername();
+                    //我撤回我自己的消息
+                    if (bean.getCancel() != null) {
+                        if (bean.getFromUid() == bean.getCancel().getUid()) {
+                            msgCel.setNote("你撤回了一条消息");
                         } else {
-                            nick = bean.getNickname();
+                            //PC端我撤回别人的消息
+                            String tempName = "";
+                            if (!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))) {
+                                tempName = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+                            } else {
+                                if (!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())) {
+                                    tempName = bean.getCancel().getAlterantiveName();
+                                }
+                            }
+                            msgCel.setNote("你撤回了\"" + tempName + "\"的一条消息");//被撤回消息用户B的群昵称，含备注
                         }
                     }
-                    rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
+                } else {//对方撤回的消息当通知处理
+                    msgCel.setMsgType(9);
+                    //如果对方撤回的是他自己的消息，则提示A撤回了一条消息
+                    if (bean.getCancel().getUid() == 0L || bean.getCancel().getUid() == fromUid) {
+                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                        if (TextUtils.isEmpty(nick)) {
+                            if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
+                                nick = bean.getMembername();
+                            } else {
+                                nick = bean.getNickname();
+                            }
+                        }
+                        rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + nick + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
+                        msgCel.setNote(rname + "撤回了一条消息");
+                    } else {
+                        //如果对方撤回的是别人的消息，则提示A撤回了B的一条消息
+                        String userA = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                        String userB = "";
+                        //如果对方撤回的是你的消息，则提示A撤回了你的一条消息
+                        if (bean.getCancel().getUid() == UserAction.getMyId().longValue()) {
+                            msgCel.setNote("\"" + userA + "\"撤回了你的一条消息");
+                        } else {
+                            //优先取备注名，如果查不到该用户资料，则取传过来的昵称值
+                            if (!TextUtils.isEmpty(msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid()))) {
+                                userB = msgDao.getUsername4Show(bean.getGid(), bean.getCancel().getUid());
+                            } else {
+                                if (!TextUtils.isEmpty(bean.getCancel().getAlterantiveName())) {
+                                    userB = bean.getCancel().getAlterantiveName();
+                                }
+                            }
+                            msgCel.setNote("\"" + userA + "\"撤回了\"" + userB + "\"的一条消息");
+                        }
+
+                    }
                 }
                 msgAllBean.setMsg_type(EMessageType.MSG_CANCEL);
                 msgCel.setMsgid(msgAllBean.getMsg_id());
-                msgCel.setNote(rname + "撤回了一条消息");
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
+                msgCel.setUid(bean.getCancel().getUid());
+                msgCel.setRole(bean.getCancel().getRoleValue());
+                msgCel.setAlterantive_name(bean.getCancel().getAlterantiveName());
                 // 查出本地数据库的消息
                 MsgAllBean msgAllBean1 = msgDao.getMsgById(bean.getMsgId());
                 if (msgAllBean1 != null) {
                     msgCel.setCancelContent(msgAllBean1.getMsgCancel().getCancelContent());
                     msgCel.setCancelContentType(msgAllBean1.getMsgCancel().getCancelContentType());
                 }
-
                 msgAllBean.setMsgCancel(msgCel);
                 msgAllBean.setRead(0);
                 LogUtil.getLog().i("撤回消息", bean.getMsgId() + "------" + bean.getSurvivalTime() + "-----");

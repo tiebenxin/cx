@@ -93,6 +93,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     private String bankReqSignKey;//支付签名
     private int lockedFunctions;//封锁功能：0 不封，1 封
 
+    private int deactivateStat;//注销状态 0 正常 1 注销中 -1 已注销
+    private int friendDeactivateStat;//好友注销状态 0 正常 1 注销中 -1 已注销
 
     public String getPinyin() {
         return pinyin;
@@ -550,6 +552,22 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
     public void setLockedFunctions(int lockedFunctions) {
         this.lockedFunctions = lockedFunctions;
+    }
+
+    public int getDeactivateStat() {
+        return deactivateStat;
+    }
+
+    public void setDeactivateStat(int deactivateStat) {
+        this.deactivateStat = deactivateStat;
+    }
+
+    public int getFriendDeactivateStat() {
+        return friendDeactivateStat;
+    }
+
+    public void setFriendDeactivateStat(int friendDeactivateStat) {
+        this.friendDeactivateStat = friendDeactivateStat;
     }
 
     @Override

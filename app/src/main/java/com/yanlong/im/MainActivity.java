@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,8 +31,6 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
@@ -41,7 +40,6 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.DateUtils;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -89,6 +87,7 @@ import com.zhaoss.weixinrecorded.CanStampEventWX;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.base.BaseTcpActivity;
 import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -96,7 +95,6 @@ import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
-import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
@@ -114,13 +112,13 @@ import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
-import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ImageMoveView;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.view.ViewPagerSlide;
@@ -147,7 +145,7 @@ import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 
 @Route(path = "/app/MainActivity")
-public class MainActivity extends AppActivity {
+public class MainActivity extends BaseTcpActivity {
     public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;
     private android.support.design.widget.TabLayout bottomTab;
@@ -177,7 +175,7 @@ public class MainActivity extends AppActivity {
     private BDAbstractLocationListener listener;
 
     private UserAction userAction = new UserAction();
-    private boolean testMe = true;
+    private MsgDao msgDao = new MsgDao();
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
     private ShopFragemnt mShowFragment;
@@ -185,6 +183,7 @@ public class MainActivity extends AppActivity {
     private int currentTab = EMainTab.MSG;
     private long firstPressTime = 0;//第一次双击时间
     private boolean isFromLogin;
+    private UpdateManage updateManage;
 
 
     @Override
@@ -193,7 +192,9 @@ public class MainActivity extends AppActivity {
         setContentView(R.layout.activity_main);
         //创建仓库-仅登录时会创建
         MyAppLication.INSTANCE().createRepository();
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         findViews();
         initEvent();
         isCreate = true;
@@ -246,10 +247,9 @@ public class MainActivity extends AppActivity {
                                 LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录失败，重新登录了:" + NIMClient.getStatus());
                                 LogUtil.writeLog(">>>>>>>>>网易云登录失败，重新登录了 状态是: " + NIMClient.getStatus());
                                 NIMClient.getService(AuthService.class).logout();// 需要先登出网易登录，在重新登录
-                                UserAction userAction = new UserAction();
                                 SpUtil spUtil = SpUtil.getSpUtil();
-                                String account = spUtil.getSPValue("account", "");
-                                String token = spUtil.getSPValue("token", "");
+                                String account = spUtil.getSPValue(Preferences.KEY_USER_ACCOUNT, "");
+                                String token = spUtil.getSPValue(Preferences.KEY_USER_TOKEN, "");
                                 userAction.doNeteaseLogin(account, token);
                             } else {
                                 LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录成功");
@@ -257,7 +257,7 @@ public class MainActivity extends AppActivity {
                             }
                         }
                     } catch (Exception e) {
-
+                        LogUtil.writeLog(">>>>>>>>>网易云登录出现了异常>>>>>>>>> " + e.getMessage());
                     }
                 }
             }, 10000);
@@ -270,14 +270,13 @@ public class MainActivity extends AppActivity {
         super.onStart();
         if (isCreate) {
             LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
-            uploadApp();
             checkRosters();
             checkNeteaseLogin();
             checkPermission();
             initLocation();
             FileManager.getInstance().clearLogDir();
         }
-
+        uploadApp();
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
@@ -307,7 +306,7 @@ public class MainActivity extends AppActivity {
     /**
      * 更新底部未读数
      */
-    private void updateUnReadCount() {
+    private synchronized void updateUnReadCount() {
         LogUtil.getLog().i("未读数", "onChange");
         RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().beginGroup().greaterThan("unread_count", 0).endGroup()
                 .or().beginGroup().greaterThan("markRead", 0).and().equalTo("isMute", 0).endGroup()
@@ -445,6 +444,7 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
+            ImageView ivRed = rootView.findViewById(R.id.iv_disturb_unread);
             if (i == EMainTab.SHOP) {
                 sb.setSktype(1);
                 //设置值
@@ -474,7 +474,9 @@ public class MainActivity extends AppActivity {
         bottomTab.getTabAt(1).select();
         bottomTab.getTabAt(0).select();
 
-
+        if (mMsgMainFragment != null) {
+            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+        }
         // 启动聊天服务
         startChatServer();
 
@@ -568,7 +570,6 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
-
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
@@ -598,11 +599,16 @@ public class MainActivity extends AppActivity {
             stopChatService();
         }
         SocketUtil.getSocketUtil().setMainLive(false);
+        if (mMsgMainFragment != null) {
+            SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+        }
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
         AVChatProfile.getInstance().setAVMinimize(false);
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
@@ -642,7 +648,6 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
-//        checkTokenValid();
     }
 
     //检测支付环境的初始化
@@ -754,23 +759,54 @@ public class MainActivity extends AppActivity {
         EventBus.getDefault().post(new String());
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i("TAG", ">>>>EventRunState:" + event.getRun());
-        if (event.getRun()) {
+    @Override
+    public void switchAppStatus(boolean isRun) {
+        if (mMsgMainFragment == null) {
+            return;
+        }
+        LogUtil.getLog().i("MainActivity", "连接LOG->>>>switchAppStatus--注册监听:" + "--time=" + System.currentTimeMillis());
+        if (isRun) {
+            SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+        } else {
+            SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+        }
+    }
+
+    @Override
+    public void tcpConnect(boolean isRun) {
+        super.tcpConnect(isRun);
+        if (isRun) {
             startChatServer();
         } else {
             stopChatService();
         }
-
     }
+
+    //    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void eventRunState(EventRunState event) {
+//        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
+//        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
+//        if (event.getRun()) {
+//            if (mMsgMainFragment != null) {
+//                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
+//            }
+//            startChatServer();
+//        } else {
+//            if (mMsgMainFragment != null) {
+//                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
+//            }
+//            stopChatService();
+//        }
+//
+//    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
-        if (event.isOn()) {
-//            MessageManager.getInstance().testReceiveMsg();
-        }
-
+//        if (!event.isOn()) {
+//            Glide.with(this).pauseRequests();
+//        } else {
+//            Glide.with(this).resumeRequests();
+//        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -778,7 +814,8 @@ public class MainActivity extends AppActivity {
         if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
         } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND
-                || event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
+                || event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT
+                || event.getRosterAction() == CoreEnum.ERosterAction.PHONE_MATCH) {//请求添加为好友 申请进群
             taskGetFriendNum();
         }
     }
@@ -816,14 +853,12 @@ public class MainActivity extends AppActivity {
                 MsgAllBean msgAllbean = null;
                 if (event.avChatType == AVChatType.AUDIO.getValue()) {
                     P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Audio.getNumber(), event.operation, event.txt);
-                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
-//                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
                 } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
                     P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), MsgBean.AuVideoType.Vedio.getNumber(), event.operation, event.txt);
-                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), message);
                     SocketData.sendAndSaveMessage(msgAllbean);
-//                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
                 }
                 EventRefreshChat eventRefreshChat = new EventRefreshChat();
                 eventRefreshChat.isScrollBottom = true;
@@ -960,9 +995,6 @@ public class MainActivity extends AppActivity {
         taskNewVersion();
     }
 
-
-    private MsgDao msgDao = new MsgDao();
-
     /***
      * 未读消息
      * @return
@@ -982,11 +1014,19 @@ public class MainActivity extends AppActivity {
     private void taskGetFriendNum() {
         //  ToastUtil.show(getContext(),"更新好友的提示数量");
         int sum = 0;
-        sum += msgDao.remidGet("friend_apply");
+        sum += msgDao.remidGet(Preferences.FRIEND_APPLY);
+        sum += msgDao.remidGet(Preferences.RECENT_FRIENDS_NEW);// 手机通讯录匹配
         // sum+=msgDao.remidGet("friend_apply");
         //  sum+=msgDao.remidGet("friend_apply");
-        sbfriend.setNum(sum, true);
-
+        // 手机通讯匹配第一次显示红点
+        boolean isFirst = SpUtil.getSpUtil().getSPValue(Preferences.IS_FIRST_NEW_RED + UserAction.getMyId(), true);
+        if (isFirst && sum == 0) {
+            sbfriend.setSktype(1);
+            sbfriend.setNum(1, true);
+        } else {
+            sbfriend.setSktype(0);
+            sbfriend.setNum(sum, true);
+        }
     }
 
     /**
@@ -1001,32 +1041,36 @@ public class MainActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
-                    //强制更新
-                    if (bean.getForceUpdate() != 0) {
-                        //有最低不需要强制升级版本
-                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                        }
-                    } else {
-                        //缓存最新版本
-                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                        VersionBean versionBean = new VersionBean();
-                        versionBean.setVersion(bean.getVersion());
-                        preferencesUtil.save2Json(versionBean);
-                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                            //如有新版本，首页底部提示红点
-                            if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
-                                if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                    sbme.setNum(1, true);
+                    if (updateManage == null) {
+                        updateManage = new UpdateManage(context, MainActivity.this);
+                        if (!TextUtils.isEmpty(bean.getVersion())) {
+                            //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
+                            if (bean.getForceUpdate() != 0) {
+                                //有最低不需要强制升级版本
+                                if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                                 } else {
-                                    sbme.setNum(0, true);
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                }
+                            } else {
+                                //缓存最新版本
+                                SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                                VersionBean versionBean = new VersionBean();
+                                versionBean.setVersion(bean.getVersion());
+                                preferencesUtil.save2Json(versionBean);
+                                //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                                } else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                    //如有新版本，首页底部提示红点
+                                    if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                                        if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
+                                            sbme.setNum(1, true);
+                                        } else {
+                                            sbme.setNum(0, true);
+                                        }
+                                    }
                                 }
                             }
                         }

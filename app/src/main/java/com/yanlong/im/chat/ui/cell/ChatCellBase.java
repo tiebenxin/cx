@@ -13,6 +13,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -29,6 +30,8 @@ import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ChatBitmapCache;
 
+import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -51,7 +54,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     public int currentPosition;
     private ImageView iv_error;
     public View bubbleLayout;
-    private List<OptionMenu> menus;
+    public List<OptionMenu> menus;
 
     IMenuSelectListener menuListener = new IMenuSelectListener() {
         @Override
@@ -72,8 +75,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private TextView tvReadTime;
     public IActionTagClickListener actionTagClickListener;
     private boolean isOpenRead = true;//是否开启已读开关
-    private int unreadPostion;
+    private int unreadPosition;
     private TextView tvNote;
+    private LinearLayout llSelect;
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -97,6 +101,15 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             bubbleLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                        boolean result = updateCheckBox();
+                        if (result) {
+                            if (mCellListener != null) {
+                                mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                            }
+                        }
+                        return true;
+                    }
                     if (mCellListener != null) {
                         updateSelectedBG(true);
                         checkCancelMenu();//临时检测撤回menu
@@ -113,6 +126,15 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 iv_avatar.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
+                        if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                            boolean result = updateCheckBox();
+                            if (result) {
+                                if (mCellListener != null) {
+                                    mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                                }
+                            }
+                            return true;
+                        }
                         if (mCellListener != null) {
                             mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_LONG_CLICK, model, new Object());
                         }
@@ -123,6 +145,44 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
         if (iv_error != null) {
             iv_error.setOnClickListener(this);
+        }
+        if (ckSelect != null) {
+            ckSelect.setOnClickListener(this);
+        }
+        if (viewRoot != null) {
+            viewRoot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                        boolean result = updateCheckBox();
+                        if (result) {
+                            if (mCellListener != null) {
+                                mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private boolean updateCheckBox() {
+        if (ckSelect == null) {
+            return false;
+        }
+        if (ckSelect.isChecked()) {
+            ckSelect.setChecked(false);
+            mAdapter.getSelectedMsg().remove(model);
+            return true;
+        } else {
+            if (mAdapter.getSelectedMsg().size() < 100) {
+                ckSelect.setChecked(true);
+                mAdapter.getSelectedMsg().add(model);
+                return true;
+            } else {
+                showSelectMaxDialog();
+                return false;
+            }
         }
     }
 
@@ -141,22 +201,68 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         tvRead = viewRoot.findViewById(R.id.tv_read);
         tvReadTime = viewRoot.findViewById(R.id.tv_read_time);
         tvNote = viewRoot.findViewById(R.id.tv_broadcast);
+        llSelect = viewRoot.findViewById(R.id.ll_select);
 
     }
 
     @Override
     public void onClick(View view) {
-        int id = view.getId();
-        if (id == bubbleLayout.getId()) {
-            onBubbleClick();
-        } else if (id == iv_avatar.getId()) {
-            if (mCellListener != null && !isMe) {
-                mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_CLICK, model, new Object());
+        try {
+            int id = view.getId();
+            if (bubbleLayout != null && id == bubbleLayout.getId()) {
+                if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                    boolean result = updateCheckBox();
+                    if (result) {
+                        if (mCellListener != null) {
+                            mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                        }
+                    }
+                    return;
+                }
+                onBubbleClick();
+            } else if (iv_avatar != null && id == iv_avatar.getId()) {
+                if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                    boolean result = updateCheckBox();
+                    if (result) {
+                        if (mCellListener != null) {
+                            mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                        }
+                    }
+                    return;
+                }
+                if (mCellListener != null && !isMe) {
+                    mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_CLICK, model, new Object());
+                }
+            } else if (iv_error != null && id == iv_error.getId()) {
+                if (mAdapter != null && mAdapter.isShowCheckBox()) {
+                    return;
+                }
+                if (mCellListener != null) {
+                    mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
+                }
+            } else if (ckSelect != null && id == ckSelect.getId()) {
+                if (ckSelect == null){
+                    return;
+                }
+                if (ckSelect.isChecked()) {
+                    if (mAdapter.getSelectedMsg().size() < 100) {
+                        mAdapter.getSelectedMsg().add(model);
+                        if (mCellListener != null) {
+                            mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                        }
+                    } else {
+                        showSelectMaxDialog();
+                        ckSelect.setChecked(false);
+                    }
+                } else {
+                    mAdapter.getSelectedMsg().remove(model);
+                    if (mCellListener != null) {
+                        mCellListener.onEvent(ChatEnum.ECellEventType.SELECT_CLICK, model, mAdapter.getSelectedMsg());
+                    }
+                }
             }
-        } else if (id == iv_error.getId()) {
-            if (mCellListener != null) {
-                mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -411,13 +517,19 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     private void setCheckView() {
-        if (ckSelect == null) {
+        if (llSelect == null || ckSelect == null) {
             return;
         }
         if (mAdapter.isShowCheckBox()) {
-            ckSelect.setVisibility(VISIBLE);
+            llSelect.setVisibility(VISIBLE);
+            List<MsgAllBean> selectedMsgs = mAdapter.getSelectedMsg();
+            if (selectedMsgs != null && selectedMsgs.contains(model)) {
+                ckSelect.setChecked(true);
+            } else {
+                ckSelect.setChecked(false);
+            }
         } else {
-            ckSelect.setVisibility(View.GONE);
+            llSelect.setVisibility(View.GONE);
         }
     }
 
@@ -452,18 +564,40 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     public void setFirstUnreadPosition(int position) {
-        unreadPostion = position;
+        unreadPosition = position;
     }
 
     private void showNewMessage() {
         if (tvNote != null) {
-            if (unreadPostion > 0 && currentPosition == unreadPostion) {
+            if (unreadPosition > 0 && currentPosition == unreadPosition) {
                 tvNote.setVisibility(VISIBLE);
                 tvNote.setText("----以下是新消息----");
             } else {
                 tvNote.setVisibility(View.GONE);
             }
         }
+    }
+
+    private void showSelectMaxDialog() {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mContext == null) {
+                    return;
+                }
+                DialogCommon2 dialogCommon2 = new DialogCommon2(mContext);
+                dialogCommon2.hasTitle(false)
+                        .setButtonTxt("确定")
+                        .setContent("最多可选择100条消息", true)
+                        .setListener(new DialogCommon2.IDialogListener() {
+                            @Override
+                            public void onClick() {
+                                dialogCommon2.dismiss();
+                            }
+                        }).show();
+            }
+        });
+
     }
 
 }

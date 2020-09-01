@@ -39,15 +39,17 @@ import java.util.List;
  * @创建时间 2019/8/16 0016 15:00
  */
 public class HtmlTransitonUtils {
+
     /**
      *
      * @param context
      * @param html
      * @param type
      * @param remark 默认为""，邀请入群验证才有备注
+     * @param isAdmin 1 群主 2 管理员 0 普通成员(默认)
      * @return
      */
-    public SpannableStringBuilder getSpannableString(Context context, String html, int type,String remark) {
+    public SpannableStringBuilder getSpannableString(Context context, String html, int type,int isAdmin,String remark) {
         SpannableStringBuilder style = new SpannableStringBuilder();
         if (!TextUtils.isEmpty(html)) {
             HtmlBean bean = htmlTransition(html);
@@ -74,7 +76,7 @@ public class HtmlTransitonUtils {
                     setType8(context, style, bean);
                     break;
                 case ChatEnum.ENoticeType.CANCEL: //消息撤回
-                    setType9(context, style, bean);
+                    setType9(context, style, bean,isAdmin);
                     break;
                 case ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF://自己领取了自己的云红包
 
@@ -85,7 +87,15 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE: // 你领取的xxx的云红包
                     setTypeEnvelopeReceived(context, style, bean, 1);
                     break;
-                case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败
+                case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败,已废弃（新的为NO_FRI_ADD_FIRST），为兼容旧数据，不删除
+                    Spanned spannedHtml1 = Html.fromHtml(html);
+                    // subSequence 是去掉换行
+                    SpannableStringBuilder clickableHtmlBuilder1 = new SpannableStringBuilder(spannedHtml1.subSequence(0, spannedHtml1.length()));
+                    URLSpan[] urls1 = clickableHtmlBuilder1.getSpans(0, spannedHtml1.length(), URLSpan.class);
+                    for (int i = 0; i < urls1.length; i++) {
+                        setLinkClickable(context, clickableHtmlBuilder1, urls1[i], bean.getList().get(i).getId(), bean.getGid());
+                    }
+                    return clickableHtmlBuilder1;
                 case ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER:// 领取群红包
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE:// 单人禁言
                 case ChatEnum.ENoticeType.GROUP_OTHER_REMOVE:// 其它人被移出群
@@ -461,10 +471,15 @@ public class HtmlTransitonUtils {
         builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private void setType9(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+    private void setType9(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int isAdmin) {
         List<HtmlBeanList> list = htmlBean.getList();
         for (final HtmlBeanList bean : list) {
             final String content = "\"" + bean.getName() + "\"";
+            if(isAdmin==1){
+                builder.append("群主");
+            }else if(isAdmin==2){
+                builder.append("管理员");
+            }
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;
