@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.hm.cxpay.utils.DateUtils;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
@@ -176,16 +177,9 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.mLayoutItem.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID, bean.getUid());
-                        intent.putExtra(UserInfoActivity.SAY_HI, bean.getSayHi());
-                        intent.putExtra(UserInfoActivity.ALIAS, bean.getAlias());
-                        if (bean.getStat() == 2) {
-                            intent.putExtra(UserInfoActivity.IS_APPLY, 0);
-                        } else {
-                            intent.putExtra(UserInfoActivity.IS_APPLY, 1);
+                        if (!DoubleUtils.isFastDoubleClick()) {
+                            checkContactsPhone(bean);
                         }
-                        startActivity(intent);
                     }
                 });
                 holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
@@ -411,5 +405,62 @@ public class FriendApplyAcitvity extends AppActivity {
                 initData();
             }
         }
+    }
+
+    /**
+     * 检查是否打开访问通讯录权限，判断通讯录是否存在该手机号，存在则取手机备注
+     *
+     * @param bean
+     */
+    private void checkContactsPhone(ApplyBean bean) {
+        try {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+                PhoneListUtil phoneListUtil = new PhoneListUtil();
+                RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<List<PhoneBean>>() {
+
+                    @Override
+                    public List<PhoneBean> doInBackground() throws Throwable {
+                        return phoneListUtil.getContacts(getContext());
+                    }
+
+                    @Override
+                    public void onFinish(List<PhoneBean> newList) {
+                        String contactName = "";
+                        if (newList != null) {
+                            for (PhoneBean phoneBean : newList) {
+                                if (phoneBean.getPhone().equals(bean.getPhone())) {
+                                    contactName = phoneBean.getPhoneremark();
+                                    break;
+                                }
+                            }
+                        }
+                        gotoUserInfoActivity(bean, contactName);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        gotoUserInfoActivity(bean, "");
+                    }
+                });
+            } else {
+                gotoUserInfoActivity(bean, "");
+            }
+        } catch (Exception e) {
+            gotoUserInfoActivity(bean, "");
+        }
+    }
+
+    private void gotoUserInfoActivity(ApplyBean bean, String contactName) {
+        Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
+        intent.putExtra(UserInfoActivity.ID, bean.getUid());
+        intent.putExtra(UserInfoActivity.SAY_HI, bean.getSayHi());
+        intent.putExtra(UserInfoActivity.ALIAS, bean.getAlias());
+        intent.putExtra(UserInfoActivity.CONTACT_NAME, contactName);
+        if (bean.getStat() == 2) {
+            intent.putExtra(UserInfoActivity.IS_APPLY, 0);
+        } else {
+            intent.putExtra(UserInfoActivity.IS_APPLY, 1);
+        }
+        startActivity(intent);
     }
 }

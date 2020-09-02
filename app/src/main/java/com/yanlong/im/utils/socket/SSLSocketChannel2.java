@@ -257,12 +257,21 @@ public class SSLSocketChannel2 {
 
     public void close() throws IOException {
         if (SSL == 4) {
-            sslEngine.closeOutbound();
-            clientOut.clear();
-            sc.write(wrap(clientOut));
-            sc.close();
-        } else
-            sc.close();
+            if (sslEngine != null) {
+                sslEngine.closeOutbound();
+            }
+            if (clientOut != null) {
+                clientOut.clear();
+            }
+            if (sc != null) {
+                sc.write(wrap(clientOut));
+                sc.close();
+            }
+        } else {
+            if (sc != null) {
+                sc.close();
+            }
+        }
     }
 
     public SelectableChannel configureBlocking(boolean b) throws IOException {

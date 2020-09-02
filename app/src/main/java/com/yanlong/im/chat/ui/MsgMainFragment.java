@@ -631,7 +631,7 @@ public class MsgMainFragment extends Fragment {
                                 return;
                             }
                             if (response.body().isOk()) {
-                                LogUtil.getLog().i("TAG", "批量收藏成功!");
+//                                LogUtil.getLog().i("TAG", "收藏成功");
                                 msgDao.deleteAllOfflineCollectRecords();//清空本地离线收藏记录
                             }
                         }
@@ -639,7 +639,7 @@ public class MsgMainFragment extends Fragment {
                         @Override
                         public void onFailure(Call<ReturnBean> call, Throwable t) {
                             super.onFailure(call, t);
-                            LogUtil.getLog().i("TAG", "批量收藏失败 " + t.getMessage());
+//                            LogUtil.getLog().i("TAG", "收藏失败" + t.getMessage());
                         }
                     });
                 }
@@ -661,7 +661,7 @@ public class MsgMainFragment extends Fragment {
                                 return;
                             }
                             if (response.body().isOk()) {
-                                LogUtil.getLog().i("TAG", "批量删除成功!");
+//                                LogUtil.getLog().i("TAG", "删除成功");
                                 msgDao.deleteAllOfflineDeleteRecords();//清空本地离线删除记录
                             }
                         }
@@ -669,7 +669,7 @@ public class MsgMainFragment extends Fragment {
                         @Override
                         public void onFailure(Call<ReturnBean> call, Throwable t) {
                             super.onFailure(call, t);
-                            LogUtil.getLog().i("TAG", "批量删除失败 " + t.getMessage());
+//                            LogUtil.getLog().i("TAG", "删除失败" + t.getMessage());
                         }
                     });
                 }

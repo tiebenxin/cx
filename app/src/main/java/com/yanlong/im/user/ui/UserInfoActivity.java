@@ -91,6 +91,7 @@ public class UserInfoActivity extends AppActivity {
     public static final String IS_GROUP = "isGroup";// 是否是群跳转过来
     public static final String IS_ADMINS = "isAdmins";// 是否是群主
     public static final String ALIAS = "alias";
+    public static final String CONTACT_NAME = "contactName";// 通讯录名称
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -133,6 +134,7 @@ public class UserInfoActivity extends AppActivity {
     private UserAction userAction;
     private String mkName;
     private String name;
+    private String contactName;
     private TextView tvBlack;
     private LinearLayout viewJoinGroupType;
     private TextView tvJoinGroupType;
@@ -370,7 +372,11 @@ public class UserInfoActivity extends AppActivity {
                         return;
                     }
                     if (TextUtils.isEmpty(mEtNote.getText().toString().trim())) {
-                        taskFriendAgree(id, userNote);
+                        if (TextUtils.isEmpty(contactName)) {
+                            taskFriendAgree(id, userNote);
+                        } else {
+                            taskFriendAgree(id, contactName);
+                        }
                     } else {
                         taskFriendAgree(id, mEtNote.getText().toString().trim());
                     }
@@ -453,6 +459,8 @@ public class UserInfoActivity extends AppActivity {
         mIsFromGroup = intent.getBooleanExtra(IS_GROUP, false);
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         mAlias = intent.getStringExtra(ALIAS);
+        contactName = intent.getStringExtra(CONTACT_NAME);
+
         taskFindExist();
         if (!TextUtils.isEmpty(gid)) {
             taskGroupInfo(gid);
@@ -512,16 +520,24 @@ public class UserInfoActivity extends AppActivity {
             }
             if (TextUtils.isEmpty(sayHi)) {
                 mTvRemark.setVisibility(View.GONE);
-                mEtNote.setHint(nameNote);
+                if (TextUtils.isEmpty(contactName)) {
+                    mEtNote.setHint(nameNote);
+                } else {
+                    mEtNote.setHint(contactName);
+                }
             } else {
                 mTvRemark.setVisibility(View.VISIBLE);
                 mTvRemark.setTextColor(getColor(R.color.gray_300));
                 mTvRemark.setText(sayHi);
-                if (sayHi.startsWith("我是") && !sayHi.startsWith("我是群聊")) {
-                    mEtNote.setHint(sayHi.substring(2));
-                    userNote = sayHi.substring(2);
+                if (TextUtils.isEmpty(contactName)) {
+                    if (sayHi.startsWith("我是") && !sayHi.startsWith("我是群聊")) {
+                        mEtNote.setHint(sayHi.substring(2));
+                        userNote = sayHi.substring(2);
+                    } else {
+                        mEtNote.setHint(nameNote);
+                    }
                 } else {
-                    mEtNote.setHint(nameNote);
+                    mEtNote.setHint(contactName);
                 }
             }
             mEtNote.setSelection(mEtNote.getText().toString().length());
