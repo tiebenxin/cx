@@ -238,10 +238,14 @@ public class NetUtil {
      */
     public static boolean isNetworkConnected() {
         Context context = AppConfig.APP_CONTEXT;
-        ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return info != null && info.isConnected();
+        if (context != null) {
+            ConnectivityManager cm = (ConnectivityManager) context
+                    .getSystemService(CONNECTIVITY_SERVICE);
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            return info != null && info.isConnected();
+        } else {
+            return false;
+        }
     }
 
     /**

@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +19,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
@@ -140,6 +143,13 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
 
             @Override
             public void afterTextChanged(Editable s) {
+            }
+        });
+        bindingView.mtListView.getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                showInput(false);
             }
         });
     }
