@@ -1911,14 +1911,19 @@ public class MsgDao {
 
     }
 
-    //根据uid批量查询状态为申请的人
-    public List<ApplyBean> getApplysByUid(List<String> uidList) {
+    /**
+     * 根据uid批量查询入群申请列表的用户信息
+     * @param uidList
+     * @param stat  1 申请中 2 已同意
+     * @return
+     */
+    public List<ApplyBean> getApplysByUid(List<String> uidList,int stat) {
         Realm realm = DaoUtil.open();
         List<ApplyBean> list = new ArrayList<>();
         if(uidList!=null && uidList.size()>0){
             for(int i=0; i<uidList.size(); i++){
                 ApplyBean bean;
-                ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat",1).findFirst();
+                ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat",stat).findFirst();
                 if (applyBean != null) {
                     bean = realm.copyFromRealm(applyBean);
                     list.add(bean);
@@ -3918,5 +3923,33 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return list;
+    }
+
+    /**
+     * 修改邀请入群通知消息 (将"去确认"改为"已确认")
+     * @param msgId
+     * @return
+     */
+    public MsgAllBean updateInviteNoticeMsg(String msgId) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+        if (msgAllBean != null) {
+            if(msgAllBean.getMsgNotice()!=null){
+                if(!TextUtils.isEmpty(msgAllBean.getMsgNotice().getNote()) && msgAllBean.getMsgNotice().getNote().contains("去确认")){
+                    //从后到前找到"去确认"
+                    int startIndex = msgAllBean.getMsgNotice().getNote().lastIndexOf("去");
+                    msgAllBean.getMsgNotice().setNote(new StringBuilder().replace(startIndex,startIndex+1,"已").toString());
+                }
+            }
+            realm.insertOrUpdate(msgAllBean);
+            ret = realm.copyFromRealm(msgAllBean);
+        }
+        realm.commitTransaction();
+        realm.close();
+
+        return ret;
+
     }
 }

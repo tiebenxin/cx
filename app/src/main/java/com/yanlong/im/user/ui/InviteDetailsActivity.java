@@ -1,6 +1,5 @@
 package com.yanlong.im.user.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.JsonNull;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -54,17 +52,20 @@ public class InviteDetailsActivity extends AppActivity {
     private TextView tvContent;//入群备注内容
 
 
-    public static final String ALL_IDS = "ids";//邀请入群验证通知消息的全部id，从数据库找出此次申请入群用户
+    public static final String ALL_INVITE_IDS = "ids";//邀请入群验证通知消息的全部id，从数据库找出此次申请入群用户
     public static final String REMARK = "remark";//邀请入群备注
+    public static final String MSG_ID = "msg_id";//消息id
 
     private List<ApplyBean> listData;
     private List<String> ids;
     private MsgDao msgDao;
     private MsgAction msgAction;
+    private boolean hadAgree = false;//是否已经同意入群(是否不再申请入群列表中)，若已经同意则不需再调接口
 
-    private int needRequestTimes = 0;//需要请求的次数 TODO 同意入群暂无批量接口
+    private int needRequestTimes = 0;//需要请求的次数 TODO 批准同意入群暂无批量接口
     private int realRequestTimes = 0;//实际请求的次数
     private String remark;//备注内容
+    private String msgId;//消息id
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,24 +94,33 @@ public class InviteDetailsActivity extends AppActivity {
         msgDao = new MsgDao();
         msgAction = new MsgAction();
         listData = new ArrayList<>();
-        if(msgDao.getApplysByUid(ids)!=null && msgDao.getApplysByUid(ids).size()>0){
-            listData.addAll(msgDao.getApplysByUid(ids));
+        //默认情况，从申请入群列表查找用户信息
+        if(msgDao.getApplysByUid(ids,1)!=null && msgDao.getApplysByUid(ids,1).size()>0){
+            listData.addAll(msgDao.getApplysByUid(ids,1));
             needRequestTimes = listData.size();
-            //每个申请人信息中含有邀请人的id和昵称
-            if(listData!=null && listData.size()>0){
-                if(!TextUtils.isEmpty(listData.get(0).getInviterName())){
-                    tvInviteName.setText("\""+listData.get(0).getInviterName()+"\"");
-                }else {
-                    tvInviteName.setText("\"未知用户\"");
-                }
+            hadAgree = false;
+        }else {
+            //若申请入群列表不存在用户信息，可能是已经同意，此时需要查最近同意申请入群的用户信息，因为如果有多条邀请入群申请，可以重复点"去确认"跳到此界面，需要展示
+            if(msgDao.getApplysByUid(ids,2)!=null && msgDao.getApplysByUid(ids,2).size()>0){
+                listData.addAll(msgDao.getApplysByUid(ids,2));
+                hadAgree = true;
+            }
+        }
+        //显示邀请人的信息，每个申请人信息中含有邀请人的id和昵称
+        if(listData!=null && listData.size()>0){
+            if(!TextUtils.isEmpty(listData.get(0).getInviterName())){
+                tvInviteName.setText("\""+listData.get(0).getInviterName()+"\"");
+            }else {
+                tvInviteName.setText("\"未知用户\"");
             }
         }
         mtListView.notifyDataSetChange();
     }
 
     private void initEvent() {
-        ids = getIntent().getStringArrayListExtra(ALL_IDS);
+        ids = getIntent().getStringArrayListExtra(ALL_INVITE_IDS);
         remark = getIntent().getStringExtra(REMARK);
+        msgId = getIntent().getStringExtra(MSG_ID);
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLayoutManager().setOrientation(LinearLayoutManager.HORIZONTAL);
         mtListView.getLoadView().setStateNormal();
@@ -128,8 +138,12 @@ public class InviteDetailsActivity extends AppActivity {
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for(int i=0;i<listData.size();i++){
-                    httpAgreeJoinGroup(listData.get(i));
+                if(hadAgree){
+                    finish();
+                }else {
+                    for(int i=0;i<listData.size();i++){
+                        httpAgreeJoinGroup(listData.get(i));
+                    }
                 }
             }
         });
@@ -217,7 +231,7 @@ public class InviteDetailsActivity extends AppActivity {
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
                             groupInfo(bean.getGid());
-                            //TODO 新增->群主或管理员允许通过验证后，需要andorid端本地通知消息给自己，A邀请了B入群，与IOS一致
+                            //TODO 新增->群主或管理员允许通过验证后，需要android端本地通知消息给自己，A邀请了B入群，与IOS一致
                             SocketData.invitePersonLocalNotice(bean.getGid(),bean.getInviter(),bean.getInviterName(),bean.getUid(),bean.getNickname());
                         } else if (response.body().getCode() == 10005) {//已是群成员
                             bean.setStat(2);
@@ -229,6 +243,9 @@ public class InviteDetailsActivity extends AppActivity {
                         }
                         //请求完毕，通知群信息刷新
                         if(realRequestTimes==needRequestTimes){
+                            if(!TextUtils.isEmpty(msgId)){
+                                msgDao.updateInviteNoticeMsg(msgId);
+                            }
                             MessageManager.getInstance().notifyGroupChange(true);
                             finish();
                         }
