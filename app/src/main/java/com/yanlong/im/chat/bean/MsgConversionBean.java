@@ -232,7 +232,7 @@ public class MsgConversionBean {
                 }
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
                 envelopeMessage.setStyle(bean.getRedEnvelope().getStyleValue());
-
+                boolean hasPermission = true;
                 if (bean.getRedEnvelope().getAllowUsersCount() > 0) {
                     List<MsgBean.BaseUser> list = bean.getRedEnvelope().getAllowUsersList();
                     long uid = -1;
@@ -246,6 +246,7 @@ public class MsgConversionBean {
                         memberIds[i] = bean.getGid() + user.getUid();
                         if (user.getUid() == uid) {
                             allowMe = true;
+                            break;
                         }
                     }
                     List<MemberUser> members = msgDao.getMembers(bean.getGid(), memberIds);
@@ -254,11 +255,13 @@ public class MsgConversionBean {
                         allowUsers.addAll(members);
                         envelopeMessage.setAllowUsers(allowUsers);
                         if (!allowMe) {
-                            envelopeMessage.setEnvelopStatus(PayEnum.EEnvelopeStatus.NO_ALLOW);
+                            hasPermission = false;
+//                            envelopeMessage.setEnvelopStatus(PayEnum.EEnvelopeStatus.NO_ALLOW);
                             envelopeMessage.setCanReview(0);
                         }
                     }
                 }
+                envelopeMessage.setHasPermission(hasPermission);
                 msgAllBean.setRed_envelope(envelopeMessage);
                 msgAllBean.setMsg_type(EMessageType.RED_ENVELOPE);
                 break;

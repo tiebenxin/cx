@@ -2278,16 +2278,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
 
-        if (!isGroup && !isSystemUser) {
-            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
-        }
-        if (!isGroup && !isSystemUser) {
-            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
-        }
+//        if (!isGroup && !isSystemUser) {
+//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+//        }
+//        if (!isGroup && !isSystemUser) {
+//            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+//        }
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
-        if (isGroup) {
-            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
-        }
+//        if (isGroup) {
+//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+//        }
         if (!isGroup) { //单聊，且对方不为客服小助手，显示戳一下
             if (!isSystemUser) {
                 list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
@@ -3230,16 +3230,18 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             allowUses = convertMemberList(envelopeBean.getAllowUses());
                         }
                         int envelopeStatus = PayEnum.EEnvelopeStatus.NORMAL;
+                        boolean permission = true;
                         if (isGroup() && allowUses != null && UserAction.getMyId() != null) {
                             MemberUser user = new MemberUser();
                             user.setUid(UserAction.getMyId().longValue());
                             user.init(toGid);
                             if (!allowUses.contains(user)) {
-                                envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
+//                                envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
+                                permission = false;
                             }
                         }
-                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(),
-                                envelopeBean.getMessage(), MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign(), allowUses, envelopeStatus);
+                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(), envelopeBean.getMessage(),
+                                MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign(), allowUses, envelopeStatus, permission);
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
                     }
                     break;
@@ -5566,7 +5568,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     status = getGrabEnvelopeStatus(bean.getStat());
                                 }
                                 updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
-                                getEnvelopeDetail(rid, bean.getAccessToken(), envelopeStatus, msgBean, msgBean.isMe() ? true : false);
+                                getEnvelopeDetail(rid, bean.getAccessToken(), envelopeStatus, msgBean, msgBean.isMe() ? true : false, false);
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5593,8 +5595,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
         } else if (stat == 3) {//已过期
             status = PayEnum.EEnvelopeStatus.PAST;
-        } else if (stat == 4) {//领到
-            status = PayEnum.EEnvelopeStatus.RECEIVED;
+        } else if (stat == 4) {//未领到，出错了
+            status = PayEnum.EEnvelopeStatus.ERROR;
         }
         return status;
     }
@@ -5604,8 +5606,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         int status = PayEnum.EEnvelopeStatus.NORMAL;
         if (stat == 0) {//1 正常待领取状态
             status = PayEnum.EEnvelopeStatus.NORMAL;
-        }
-        if (stat == 1) {//1 领取
+        } else if (stat == 1) {//1 领取
             status = PayEnum.EEnvelopeStatus.RECEIVED;
         } else if (stat == 2) {//已领完
             status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
@@ -5667,7 +5668,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
             @Override
             public void viewRecord(long rid, String token, int style) {
-                getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0);
+                getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0, false);
             }
 
             @Override
@@ -5682,7 +5683,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     //获取红包详情
-    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle) {
+    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle, boolean hasPermission) {
         if (TextUtils.isEmpty(token) && (msgBean != null && !msgBean.isMe())) {
             String from = "";
             if (isGroup()) {
@@ -5707,7 +5708,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     if (isNormalStyle) {//普通玩法红包需要保存
                                         taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), getGrabEnvelopeStatus(bean.getStat()));
                                     }
-                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true);
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true, hasPermission);
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5723,11 +5724,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true);
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, hasPermission, hasPermission);
         }
     }
 
-    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean, boolean isAllow) {
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean, boolean isAllow, boolean hasPermission) {
         PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
@@ -5737,11 +5738,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (baseResponse.isSuccess()) {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
-                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean)) {
-                                    taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
+                                if (!hasPermission && (bean.getRecvList() != null && bean.getRecvList().size() > 0)) {
+                                    updateEnvelopeDetail(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, envelopeStatus, 1);
                                 } else {
-                                    if (envelopeStatus == PayEnum.EEnvelopeStatus.NO_ALLOW && (bean.getRecvList() != null && bean.getRecvList().size() > 0)) {
-                                        updateEnvelopeDetail(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, envelopeStatus, 1);
+                                    if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean)) {
+                                        taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
                                     }
                                 }
                                 bean.setChatType(isGroup() ? 1 : 0);
@@ -6484,54 +6485,59 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(ChatActivity.this, "无红包id");
                 return;
             }
-            if (isGroup() && rb.getAllowUsers() != null && rb.getAllowUsers().size() > 0) {
-                MemberUser user = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), toGid);
-                if (!rb.getAllowUsers().contains(user)) {
-                    envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
-                }
-            }
+//            if (isGroup() && rb.getAllowUsers() != null && rb.getAllowUsers().size() > 0) {
+//                MemberUser user = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), toGid);
+//                if (!rb.getAllowUsers().contains(user)) {
+//                    envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
+//                }
+//            }
             boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
             if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
-                if (msg.isMe() && isNormalStyle && !isGroup()) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (!rb.isHasPermission()) {
+                    if (TextUtils.isEmpty(rb.getAccessToken())) {
+                        grabRedEnvelopeNoAllow(msg, tradeId, reType, envelopeStatus);
+                    } else {
+                        boolean isAllow = false;
+                        if (msg.isMe()) {
+                            isAllow = true;
+                        } else {
+                            if (rb.getCanReview() == 1) {
+                                isAllow = true;
+                            }
+                        }
+                        getEnvelopeDetail(tradeId, rb.getAccessToken(), envelopeStatus, msg, isAllow, rb.isHasPermission());
+                    }
                 } else {
-                    grabRedEnvelope(msg, tradeId, reType, envelopeStatus);
-//                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
-//                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-//                    } else {
-//                        grabRedEnvelope(msg, tradeId, reType);
-//                    }
+                    if (msg.isMe() && isNormalStyle && !isGroup()) {
+                        getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
+                    } else {
+                        grabRedEnvelope(msg, tradeId, reType, envelopeStatus);
+                    }
                 }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
-                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
-//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-                if (msg.isMe()) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (!rb.isHasPermission()) {
+                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+                } else {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
+
+                }
+            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED || envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_UNDONE) {
+                if (msg.isMe() || !rb.isHasPermission()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
                 } else {
                     showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
                 }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {
-//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-                if (msg.isMe()) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (msg.isMe() || !rb.isHasPermission()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
                 } else {
                     showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
                 }
-            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.NO_ALLOW) {
-                if (TextUtils.isEmpty(rb.getAccessToken())) {
-                    grabRedEnvelopeNoAllow(msg, tradeId, reType, envelopeStatus);
+            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.ERROR) {
+                if (msg.isMe() || !rb.isHasPermission()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
                 } else {
-//                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-                    boolean isAllow = false;
-                    if (msg.isMe()) {
-                        isAllow = true;
-                    } else {
-                        if (rb.getCanReview() == 1) {
-                            isAllow = true;
-                        }
-                    }
-                    getEnvelopeDetail(tradeId, rb.getAccessToken(), envelopeStatus, msg, isAllow);
+                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
                 }
             }
         }
@@ -6614,10 +6620,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                         if (response.body().isOk()) {
                             //正常情况data为null，若含有值则代表有"源文件不存在"的情况
-                            if(response.body().getData()==null){
+                            if (response.body().getData() == null) {
                                 ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
                                 msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
-                            }else {
+                            } else {
                                 ToastUtil.showToast(ChatActivity.this, "收藏失败，该文件已失效", 1);
                             }
                         }
@@ -7112,7 +7118,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * @param list 已过滤后的数据
      * @param isNormal 正常类型true 含有不支持类型false
      */
-    public void toCollectList(List<MsgAllBean> list,boolean isNormal) {
+    public void toCollectList(List<MsgAllBean> list, boolean isNormal) {
         if (list.size() > 0) {
             List<CollectionInfo> dataList = convertCollectBean(list);
             if (dataList != null && dataList.size() > 0) {
@@ -7133,7 +7139,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     }else {
                                         ToastUtil.show("收藏成功");
                                     }
-                                }else {
+                                } else {
                                     //用户选过不支持的类型，因此无论如何都要提示弹框
                                     showCollectListDialog(1);
                                 }

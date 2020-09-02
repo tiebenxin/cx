@@ -890,6 +890,15 @@ public class DaoMigration implements RealmMigration {
     }
 
 
+    private final void updateV50(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addField("hasPermission", boolean.class);
+        schema.get("EnvelopeTemp")
+                .addField("hasPermission", boolean.class)
+                .addField("canReview", int.class)
+                .addRealmListField("allowUsers", schema.get("MemberUser"));
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         return obj instanceof DaoMigration;

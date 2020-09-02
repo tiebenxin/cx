@@ -56,14 +56,15 @@ public class PayEnum {
     }
 
     //红包状态
-    @IntDef({EEnvelopeStatus.NORMAL, EEnvelopeStatus.RECEIVED, EEnvelopeStatus.PAST, EEnvelopeStatus.RECEIVED_FINISHED, EEnvelopeStatus.NO_ALLOW})
+    @IntDef({EEnvelopeStatus.NORMAL, EEnvelopeStatus.RECEIVED, EEnvelopeStatus.PAST, EEnvelopeStatus.RECEIVED_FINISHED, EEnvelopeStatus.ERROR, EEnvelopeStatus.RECEIVED_UNDONE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EEnvelopeStatus {
         int NORMAL = 0;//正常
-        int RECEIVED = 1;//已经领取
+        int RECEIVED = 1;//自己已经领取
         int PAST = 2;//过期
         int RECEIVED_FINISHED = 3;//已领完,自己未领导
-        int NO_ALLOW = 4;//不允许领取
+        int ERROR = 4;//领取出错
+        int RECEIVED_UNDONE = 5;//部分领取，未领完
     }
 
     //转账操作type

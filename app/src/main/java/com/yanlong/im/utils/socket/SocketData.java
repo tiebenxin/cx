@@ -1524,7 +1524,7 @@ public class SocketData {
     }
 
     //创建系统红包消息
-    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign, RealmList<MemberUser> allowUsers, int envelopeStatus) {
+    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign, RealmList<MemberUser> allowUsers, int envelopeStatus, boolean permission) {
         RedEnvelopeMessage message = new RedEnvelopeMessage();
         message.setMsgid(msgId);
         message.setTraceId(traceId);
@@ -1538,6 +1538,7 @@ public class SocketData {
             message.setAllowUsers(allowUsers);
             message.setCanReview(1);
         }
+        message.setHasPermission(permission);
         return message;
     }
 

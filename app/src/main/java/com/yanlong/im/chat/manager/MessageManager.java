@@ -2288,6 +2288,11 @@ public class MessageManager {
                     envelope.setStyle(msg.getRedEnvelope().getStyle());
                     envelope.setSign(msg.getRedEnvelope().getSign());
                     envelope.setTraceId(msg.getRedEnvelope().getTraceId());
+                    if (msg.getRedEnvelope().getAllowUsers() != null && msg.getRedEnvelope().getAllowUsers().size() > 0) {
+                        envelope.setAllowUsers(msg.getRedEnvelope().getAllowUsers());
+                    }
+                    envelope.setCanReview(msg.getRedEnvelope().getCanReview());
+                    envelope.setHasPermission(msg.getRedEnvelope().isHasPermission());
 
                     MsgAllBean message = new MsgAllBean();
                     message.setMsg_id(msg.getMsg_id());

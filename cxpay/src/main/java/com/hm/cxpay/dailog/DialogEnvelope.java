@@ -150,14 +150,6 @@ public class DialogEnvelope extends BaseDialog {
             tvMore.setEnabled(true);
             tvMore.setText("查看领取详情>");
             tvMore.setVisibility(View.VISIBLE);
-        } else if (envelopeStatus == PayEnum.EEnvelopeStatus.NO_ALLOW) {//不允许抢
-            ivOpen.setVisibility(View.GONE);
-            tvMember.setVisibility(View.VISIBLE);
-            tvInfo.setText(AppConfig.getString(R.string.can_not_receive));
-//            tvInfo.setText("发送者限制 " + System.lineSeparator() + "你不可以领取");
-            tvMore.setEnabled(true);
-            tvMore.setText("查看领取详情>");
-            tvMore.setVisibility(View.VISIBLE);
         }
     }
 
