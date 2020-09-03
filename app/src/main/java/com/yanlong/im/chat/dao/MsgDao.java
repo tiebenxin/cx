@@ -3936,7 +3936,7 @@ public class MsgDao {
                 if(!TextUtils.isEmpty(msgAllBean.getMsgNotice().getNote()) && msgAllBean.getMsgNotice().getNote().contains("去确认")){
                     //从后到前找到"去确认"
                     int startIndex = msgAllBean.getMsgNotice().getNote().lastIndexOf("去");
-                    msgAllBean.getMsgNotice().setNote(new StringBuilder().replace(startIndex,startIndex+1,"已").toString());
+                    msgAllBean.getMsgNotice().setNote(new StringBuilder(msgAllBean.getMsgNotice().getNote()).replace(startIndex,startIndex+1,"已").toString());
                 }
             }
             realm.insertOrUpdate(msgAllBean);

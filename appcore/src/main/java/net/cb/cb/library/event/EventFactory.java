@@ -179,4 +179,19 @@ public class EventFactory extends BaseEvent {
             this.status = status;
         }
     }
+
+    /**
+     * 刷新聊天界面的某一条消息
+     */
+    public static class UpdateOneMsgEvent extends BaseEvent{
+        private String msgId;
+
+        public String getMsgId() {
+            return msgId;
+        }
+
+        public void setMsgId(String msgId) {
+            this.msgId = msgId;
+        }
+    }
 }

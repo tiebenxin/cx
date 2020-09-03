@@ -24,11 +24,14 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +55,10 @@ public class InviteDetailsActivity extends AppActivity {
     private TextView tvContent;//入群备注内容
 
 
-    public static final String ALL_INVITE_IDS = "ids";//邀请入群验证通知消息的全部id，从数据库找出此次申请入群用户
-    public static final String REMARK = "remark";//邀请入群备注
-    public static final String MSG_ID = "msg_id";//消息id
+    public static final String ALL_INVITE_IDS = "IDS";//邀请入群验证通知消息的全部id，从数据库找出此次申请入群用户
+    public static final String REMARK = "REMARK";//邀请入群备注
+    public static final String MSG_ID = "MSG_ID";//消息id
+    public static final String CONFIRM_STATE = "CONFIRM_STATE";//确认状态(true 去确认/ false 已确认)
 
     private List<ApplyBean> listData;
     private List<String> ids;
@@ -66,6 +70,7 @@ public class InviteDetailsActivity extends AppActivity {
     private int realRequestTimes = 0;//实际请求的次数
     private String remark;//备注内容
     private String msgId;//消息id
+    private boolean confirmState;//确认状态(true 去确认/ false 已确认)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +126,12 @@ public class InviteDetailsActivity extends AppActivity {
         ids = getIntent().getStringArrayListExtra(ALL_INVITE_IDS);
         remark = getIntent().getStringExtra(REMARK);
         msgId = getIntent().getStringExtra(MSG_ID);
+        confirmState = getIntent().getBooleanExtra(CONFIRM_STATE,false);
+        if(confirmState){
+            tvSubmit.setBackgroundResource(R.drawable.shape_5radius_solid_32b053);
+        }else {
+            tvSubmit.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+        }
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLayoutManager().setOrientation(LinearLayoutManager.HORIZONTAL);
         mtListView.getLoadView().setStateNormal();
@@ -138,12 +149,16 @@ public class InviteDetailsActivity extends AppActivity {
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(hadAgree){
-                    finish();
-                }else {
-                    for(int i=0;i<listData.size();i++){
-                        httpAgreeJoinGroup(listData.get(i));
+                if(confirmState){ //去确认，按逻辑走
+                    if(hadAgree){
+                        finish();
+                    }else {
+                        for(int i=0;i<listData.size();i++){
+                            httpAgreeJoinGroup(listData.get(i));
+                        }
                     }
+                }else { //如果是已确认，仍然允许点击，直接finish
+                    finish();
                 }
             }
         });
@@ -244,7 +259,10 @@ public class InviteDetailsActivity extends AppActivity {
                         //请求完毕，通知群信息刷新
                         if(realRequestTimes==needRequestTimes){
                             if(!TextUtils.isEmpty(msgId)){
-                                msgDao.updateInviteNoticeMsg(msgId);
+                                msgDao.updateInviteNoticeMsg(msgId);//数据库先更新，入群通知消息改为"已确认"
+                                EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
+                                event.setMsgId(msgId);
+                                EventBus.getDefault().post(event);
                             }
                             MessageManager.getInstance().notifyGroupChange(true);
                             finish();
