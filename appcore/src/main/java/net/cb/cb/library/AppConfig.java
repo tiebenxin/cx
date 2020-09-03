@@ -34,7 +34,7 @@ public class AppConfig {
     public static final String UPLOAD_BACK_TEST = "https://e7.callback.zhixun6.com:58181/file-uploaded";
     public static final String UPLOAD_BACK_RELEASE = "https://im-app.zhixun6.com:19009/file-uploaded";
     // 帮助
-    public static final String HELP_URL = "https://helper.zhixun6.com:8089/";
+    public static final String HELP_URL = "https://helper.zhixun6.com:8089/base.html";
     private static boolean isOnline;
     private static String uploadParent;
 
