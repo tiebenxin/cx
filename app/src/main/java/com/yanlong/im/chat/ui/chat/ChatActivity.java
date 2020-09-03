@@ -7045,7 +7045,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private void showCollectListDialog(int type) {
         String content;
         if (type==1) {
-            content= "收藏成功！\n你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
+            content= "收藏成功\n\n你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
         }else {
             content= "你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
         }
