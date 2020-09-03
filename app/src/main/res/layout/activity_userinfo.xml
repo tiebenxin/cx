@@ -77,6 +77,8 @@
                 android:paddingLeft="@dimen/app_margin_main"
                 android:paddingRight="@dimen/app_margin_main"
                 android:layout_marginBottom="15dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:visibility="gone">
 
                 <TextView

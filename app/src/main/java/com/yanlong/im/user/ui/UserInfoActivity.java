@@ -313,7 +313,9 @@ public class UserInfoActivity extends AppActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus && TextUtils.isEmpty(mEtNote.getText().toString())) {
-                    if (!TextUtils.isEmpty(userNote)) {
+                    if (!TextUtils.isEmpty(contactName)) {
+                        mEtNote.setText(contactName);
+                    } else if (!TextUtils.isEmpty(userNote)) {
                         mEtNote.setText(userNote);
                     }
                 }
