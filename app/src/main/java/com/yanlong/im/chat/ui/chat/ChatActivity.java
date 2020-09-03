@@ -437,6 +437,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogOne;//注销弹框
     private CommonSelectDialog dialogTwo;//批量收藏提示弹框
     private CommonSelectDialog dialogThree;//批量转发提示弹框
+    private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -1879,7 +1880,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (size > 30) {
                             showMoreMsgDialog();
                         } else {
-                            filterMessageValid(mAdapter.getSelectedMsg(), 1);
+                            List<MsgAllBean> dataList = new ArrayList<>();
+                            dataList.addAll(mAdapter.getSelectedMsg());
+                            filterMessageValid(dataList, 1);
                         }
                     }
                 }
@@ -4420,14 +4423,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (response.body() != null && response.body().isOk()) {
                             onRetransmission(msgbean);
                         }else {
-                            ToastUtil.show(getResources().getString(R.string.to_message_fail));
+                            showMsgFailDialog();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
                         super.onFailure(call, t);
-                        ToastUtil.show(getResources().getString(R.string.to_message_fail));
+                        showMsgFailDialog();
                     }
                 });
             } else {
@@ -6626,7 +6629,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
                                 msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
                             } else {
-                                ToastUtil.showToast(ChatActivity.this, "收藏失败，该文件已失效", 1);
+                                showMsgFailDialog();
                             }
                         }
                     }
@@ -7076,6 +7079,20 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 )
                 .build();
         dialogThree.show();
+    }
+
+    /**
+     * 单选转发/收藏失效消息提示弹框
+     */
+    private void showMsgFailDialog() {
+        dialogFour = builder.setTitle("你所选的消息已失效")
+                .setShowLeftText(false)
+                .setRightText("确定")
+                .setRightOnClickListener(v -> {
+                    dialogFour.dismiss();
+                })
+                .build();
+        dialogFour.show();
     }
 
     private void toSendVerifyActivity(Long uid) {
