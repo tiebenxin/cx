@@ -358,7 +358,11 @@ public class UpFileUtil {
             }
             url = path.substring(path.lastIndexOf("/"));
             if (msgType == 4) {
-                url = "image" + url;
+                if (path.contains("/video/")) {
+                    url = "video" + url;
+                } else {
+                    url = "image" + url;
+                }
             } else if (msgType == 11) {
                 url = "video" + url;
             } else if (msgType == 17) {
