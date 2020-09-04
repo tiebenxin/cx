@@ -111,11 +111,12 @@ public class AdapterPreviewImage extends PagerAdapter {
     private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
     private String collectJson = "";//收藏详情点击大图转发需要的数据
     private LocalMedia currentMedia;
+    private IPreviewImage mIPreviewImage;
 
-
-    public AdapterPreviewImage(Activity c, int fromWhere, String collectJson) {
+    public AdapterPreviewImage(Activity c, int fromWhere, String collectJson, IPreviewImage iPreviewImage) {
         context = c;
         inflater = LayoutInflater.from(c);
+        mIPreviewImage = iPreviewImage;
         this.fromWhere = fromWhere;
         this.collectJson = collectJson;
     }
@@ -352,7 +353,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                             public void run() {
                                 ivZoom.setImageResource(R.mipmap.ic_img_past);
                             }
-                        },100);
+                        }, 100);
                     } else {
                         ivZoom.postDelayed(new Runnable() {
                             @Override
@@ -574,7 +575,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 public void run() {
                                     ivZoom.setImageResource(R.mipmap.ic_img_past);
                                 }
-                            },100);
+                            }, 100);
 
                         } else {
                             ivZoom.postDelayed(new Runnable() {
@@ -1100,24 +1101,7 @@ public class AdapterPreviewImage extends PagerAdapter {
      * @param msgId
      */
     private void sendToFriend(String msgId, int fromWhere) {
-        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
-            if (NetUtil.isNetworkConnected()) {
-                context.startActivity(new Intent(context, MsgForwardActivity.class)
-                        .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
-            } else {
-                ToastUtil.show("请检查网络连接是否正常");
-            }
-        } else {
-            if (!TextUtils.isEmpty(msgId)) {
-                MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-                if (msgAllBean != null) {
-                    context.startActivity(new Intent(context, MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
-                } else {
-                    ToastUtil.show("消息已被删除或者被焚毁，不能转发");
-                }
-            }
-        }
+        mIPreviewImage.onClick(msgId, fromWhere);
     }
 
 }

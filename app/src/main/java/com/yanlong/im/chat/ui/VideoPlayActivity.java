@@ -31,10 +31,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.CollectVideoMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
@@ -45,11 +47,15 @@ import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCache;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 
+import net.cb.cb.library.bean.FileBean;
+import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 
@@ -59,9 +65,14 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
 import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
@@ -105,7 +116,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private boolean showFinishDownloadToast = false;//是否显示下载完成提示
     private int downloadState = 0;//当前视频下载状态 0 无操作/下载失败 1 下载中 2 下载完成
     private VideoMessage videoMessage;
-
+    private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
+    private CommonSelectDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +135,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         bgUrl = getIntent().getExtras().getString("bg_url");
         canCollect = getIntent().getExtras().getBoolean("can_collect");
         collectJson = getIntent().getStringExtra(PictureConfig.COLLECT_JSON);
-        if(getIntent().getExtras().getInt("from")!= PictureConfig.FROM_DEFAULT){
+        if (getIntent().getExtras().getInt("from") != PictureConfig.FROM_DEFAULT) {
             from = getIntent().getExtras().getInt("from");
         }
         initView();
@@ -134,7 +146,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             Glide.with(this).load(bgUrl).into(img_bg);
         }
         if (!TextUtils.isEmpty(msgAllBean)) {
-            if(from==PictureConfig.FROM_COLLECT_DETAIL){
+            if (from == PictureConfig.FROM_COLLECT_DETAIL) {
                 CollectVideoMessage collectVideoMessage = new Gson().fromJson(msgAllBean, CollectVideoMessage.class);
                 if (mPath.contains("http://")) {
                     //直接复用视频下载，由于收藏消息结构变化，CollectVideoMessage临时拼凑成VideoMessage
@@ -143,10 +155,10 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     videoMessage.setMsgId(collectVideoMessage.getMsgId());
                     downVideo(videoMessage);
                 }
-            }else {
+            } else {
                 MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
                 if (mPath.contains("http://")) {
-                    if(msgAllBeanForm.getVideoMessage()!=null){
+                    if (msgAllBeanForm.getVideoMessage() != null) {
                         videoMessage = msgAllBeanForm.getVideoMessage();
                         downVideo(videoMessage);
                     }
@@ -154,12 +166,14 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             }
         }
         MessageManager.getInstance().setCanStamp(false);
+
+        builder = new CommonSelectDialog.Builder(this);
     }
 
 
     private void downVideo(final VideoMessage videoMessage) {
 
-        final File appDir = new File(Environment.getExternalStorageDirectory()+"/"+APP_NAME + "/Mp4/");
+        final File appDir = new File(Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
@@ -174,9 +188,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     MsgDao dao = new MsgDao();
                     dao.fixVideoLocalUrl(videoMessage.getMsgId(), fileVideo.getAbsolutePath());
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
-                    scanFile(getContext(),fileVideo.getAbsolutePath());
+                    scanFile(getContext(), fileVideo.getAbsolutePath());
                     downloadState = 2;
-                    if(showFinishDownloadToast){
+                    if (showFinishDownloadToast) {
                         ToastUtil.show("保存相册成功");
                     }
                 }
@@ -256,9 +270,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if(mTimer==null){ //如果恢复播放后，直接拖动进度条，此时没有继续计时，则需要重新计时
+                if (mTimer == null) { //如果恢复播放后，直接拖动进度条，此时没有继续计时，则需要重新计时
                     try {
-                        if(mMediaPlayer==null){
+                        if (mMediaPlayer == null) {
                             mMediaPlayer = new MediaPlayer();
                         }
                         mMediaPlayer.reset();
@@ -282,9 +296,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                             }
                         });
                     } catch (Exception e) {
-                        LogUtil.getLog().d("TAG",e.getMessage());
+                        LogUtil.getLog().d("TAG", e.getMessage());
                     }
-                }else {
+                } else {
                     mMediaPlayer.start();
                 }
                 activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
@@ -299,13 +313,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         public void handleMessage(Message msg) {
             if (!isFinishing() && mMediaPlayer != null) {
                 double result = 0;
-                if(mCurrentTime>0){ //TODO 抖动是因为MediaPlayer.getDuration()方法有时候会获取长度为0，属于官方bug
+                if (mCurrentTime > 0) { //TODO 抖动是因为MediaPlayer.getDuration()方法有时候会获取长度为0，属于官方bug
                     result = (double) mCurrentTime / mMediaPlayer.getDuration();
-                    LogUtil.getLog().i("TAG", "mCurrentTime:"+mCurrentTime+"  mMediaPlayer.getDuration():"+mMediaPlayer.getDuration());
+                    LogUtil.getLog().i("TAG", "mCurrentTime:" + mCurrentTime + "  mMediaPlayer.getDuration():" + mMediaPlayer.getDuration());
                 }
-                if(isPlayFinished){
+                if (isPlayFinished) {
                     activity_video_seek.setProgress(100);
-                }else {
+                } else {
                     activity_video_seek.setProgress(Double.valueOf(result * 100).intValue());
                 }
 //                DecimalFormat df = new DecimalFormat("0.00");
@@ -377,7 +391,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
         img_bg.setVisibility(View.VISIBLE);
-        if(mMediaPlayer==null){
+        if (mMediaPlayer == null) {
             try {
                 mMediaPlayer = new MediaPlayer();
                 mMediaPlayer.setDataSource(mPath);
@@ -443,8 +457,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 }
             });
             mMediaPlayer.setOnVideoSizeChangedListener(this);
-        }else {
-            if(pressHOME){
+        } else {
+            if (pressHOME) {
                 mMediaPlayer.seekTo(mLastTime);
                 activity_video_big_con.setVisibility(View.VISIBLE);
                 activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
@@ -474,6 +488,19 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 //        }
 //    }
 
+    /**
+     * 单选转发/收藏失效消息提示弹框
+     */
+    private void showMsgFailDialog() {
+        dialogFour = builder.setTitle("你所选的消息已失效")
+                .setShowLeftText(false)
+                .setRightText("确定")
+                .setRightOnClickListener(v -> {
+                    dialogFour.dismiss();
+                })
+                .build();
+        dialogFour.show();
+    }
 
     @Override //HOME键逻辑
     protected void onUserLeaveHint() {
@@ -532,11 +559,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                             mTimer = null;
                         }
                     } else {
-                        if(isPlayFinished){
+                        if (isPlayFinished) {
                             mLastTime = 0;
                             replay();
                             isPlayFinished = false;
-                        }else {
+                        } else {
                             replay();
                         }
                         activity_video_big_con.setVisibility(View.INVISIBLE);
@@ -560,25 +587,25 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
      * 下载图片提示
      */
     private String[] strings = new String[]{"发送给朋友", "保存视频", "取消"};
-    private String[] newStrings = {"发送给朋友", "收藏","保存视频", "取消"};
+    private String[] newStrings = {"发送给朋友", "收藏", "保存视频", "取消"};
 
 
     private void showDownLoadDialog() {
         final PopupSelectView popupSelectView;
-        if(canCollect){
+        if (canCollect) {
             popupSelectView = new PopupSelectView(VideoPlayActivity.this, newStrings);
-        }else {
+        } else {
             popupSelectView = new PopupSelectView(VideoPlayActivity.this, strings);
         }
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
-                if(canCollect){
+                if (canCollect) {
                     if (postsion == 0) {
-                        if(from==PictureConfig.FROM_COLLECT_DETAIL){
-                            onRetransmission(msgAllBean,collectJson);
-                        }else {
-                            onRetransmission(msgAllBean,"");
+                        if (from == PictureConfig.FROM_COLLECT_DETAIL) {
+                            checkFileIsExist(msgAllBean, collectJson);
+                        } else {
+                            checkFileIsExist(msgAllBean, "");
                         }
                     } else if (postsion == 1) {
                         EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
@@ -588,26 +615,26 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     } else if (postsion == 2) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
                         //点击保存视频，若已经下载完成则提示"成功"；若没有下载完成，则无操作，等待下载完成后提示"成功"
-                        if(downloadState==2){
+                        if (downloadState == 2) {
                             ToastUtil.show(VideoPlayActivity.this, "保存相册成功");
-                        }else {
+                        } else {
                             showFinishDownloadToast = true;
                         }
                     } else {
 
                     }
-                }else {
+                } else {
                     if (postsion == 0) {
-                        if(from==PictureConfig.FROM_COLLECT_DETAIL){
-                            onRetransmission(msgAllBean,collectJson);
-                        }else {
-                            onRetransmission(msgAllBean,"");
+                        if (from == PictureConfig.FROM_COLLECT_DETAIL) {
+                            checkFileIsExist(msgAllBean, collectJson);
+                        } else {
+                            checkFileIsExist(msgAllBean, "");
                         }
                     } else if (postsion == 1) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
-                        if(downloadState==2){
+                        if (downloadState == 2) {
                             ToastUtil.show(VideoPlayActivity.this, "保存相册成功");
-                        }else {
+                        } else {
                             showFinishDownloadToast = true;
                         }
                     } else {
@@ -623,23 +650,80 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     }
 
+    private void checkFileIsExist(String msgBean, String collectJson) {
+
+        if (TextUtils.isEmpty(msgBean)) {
+            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            return;
+        }
+        MsgAllBean msgbean = new Gson().fromJson(msgBean, MsgAllBean.class);
+        if (msgbean == null) {
+            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            return;
+        }
+        if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+            ArrayList<FileBean> list = new ArrayList<>();
+            FileBean fileBean = new FileBean();
+            if (msgbean.getImage() != null) {
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
+            } else if (msgbean.getVideoMessage() != null) {
+                FileBean itemFileBean = new FileBean();
+                itemFileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getBg_url()));
+                itemFileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
+                list.add(itemFileBean);
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getUrl(), msgbean.getMsg_type()));
+            } else if (msgbean.getSendFileMessage() != null) {
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getSendFileMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getSendFileMessage().getUrl(), msgbean.getMsg_type()));
+            }
+            list.add(fileBean);
+            UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                    super.onResponse(call, response);
+                    if (response.body() != null && response.body().isOk()) {
+                        if (response.body().getData() != null && response.body().getData().size() != list.size()) {
+                            showMsgFailDialog();
+                        } else {
+                            onRetransmission(msgBean, collectJson);
+                        }
+
+                    } else {
+                        showMsgFailDialog();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                    super.onFailure(call, t);
+                    showMsgFailDialog();
+                }
+            });
+        } else {
+            onRetransmission(msgBean, collectJson);
+        }
+    }
+
     private void onRetransmission(String msgbean, String collectJson) {
-        if(!TextUtils.isEmpty(collectJson)){
+        if (!TextUtils.isEmpty(collectJson)) {
             if (NetUtil.isNetworkConnected()) {
                 context.startActivity(new Intent(context, MsgForwardActivity.class)
                         .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
             } else {
                 ToastUtil.show("请检查网络连接是否正常");
             }
-        }else {
+        } else {
             startActivity(new Intent(getContext(), MsgForwardActivity.class)
                     .putExtra(MsgForwardActivity.AGM_JSON, msgbean));
         }
     }
 
     public void insertVideoToMediaStore(Context context, String filePath, long createTime, int width, int height, long duration) {
-        if (!checkFile(filePath)){
-            if(downloadState!=1){
+        if (!checkFile(filePath)) {
+            if (downloadState != 1) {
                 downVideo(videoMessage);
             }
             return;
@@ -716,7 +800,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-         initMediaPlay(holder);
+        initMediaPlay(holder);
     }
 
     @Override
@@ -726,7 +810,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        if(mMediaPlayer!=null && mMediaPlayer.isPlaying()){
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
         }
 
@@ -815,7 +899,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     //恢复播放
     private void replay() {
         try {
-            if(mMediaPlayer==null){
+            if (mMediaPlayer == null) {
                 mMediaPlayer = new MediaPlayer();
             }
             mMediaPlayer.reset();
@@ -839,7 +923,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 }
             });
         } catch (Exception e) {
-            LogUtil.getLog().d("TAG",e.getMessage());
+            LogUtil.getLog().d("TAG", e.getMessage());
         }
     }
 
