@@ -75,40 +75,6 @@ public class MsgDao {
         return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
-    /***
-     * 保存群
-     * @param group
-     */
-    public void groupSave(Group group) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-            if (null != g) {//已经存在
-                try {
-                    List<MemberUser> objects = g.getUsers();
-                    if (null != objects && objects.size() > 0) {
-                        g.setName(group.getName());
-                        g.setAvatar(group.getAvatar());
-                        if (group.getUsers() != null)
-                            g.setUsers(group.getUsers());
-                        realm.insertOrUpdate(group);
-                    }
-                } catch (Exception e) {
-                    return;
-                }
-            } else {//不存在
-                realm.insertOrUpdate(group);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.reportException(e);
-            DaoUtil.close(realm);
-        }
-    }
-
 
     /***
      * 保存群
@@ -2174,7 +2140,6 @@ public class MsgDao {
         if (originUrl.startsWith("file:")) {
             return true;
         }
-
         ImageMessage img = DaoUtil.findOne(ImageMessage.class, "origin", originUrl);
         if (img != null) {
             return img.isReadOrigin();

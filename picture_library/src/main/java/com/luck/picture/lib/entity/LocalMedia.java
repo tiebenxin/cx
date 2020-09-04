@@ -31,6 +31,9 @@ public class LocalMedia implements Parcelable {
     private long size;
     private String msg_id;
     private boolean canCollect=false;//是否显示收藏，点击大图可左右滑动，需要判断每张图片的条件，发送失败不允许收藏
+    private boolean hasRead= false;//是否已查看原图
+    private String videoUrl;//视频url
+    private String videoBgUrl;//视频背景url
 
     public LocalMedia() {
 
@@ -201,6 +204,30 @@ public class LocalMedia implements Parcelable {
         this.size = size;
     }
 
+    public boolean isHasRead() {
+        return hasRead;
+    }
+
+    public void setHasRead(boolean hasRead) {
+        this.hasRead = hasRead;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public String getVideoBgUrl() {
+        return videoBgUrl;
+    }
+
+    public void setVideoBgUrl(String videoBgUrl) {
+        this.videoBgUrl = videoBgUrl;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -224,6 +251,9 @@ public class LocalMedia implements Parcelable {
         dest.writeLong(this.size);
         dest.writeString(this.msg_id);
         dest.writeByte(this.canCollect ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.hasRead ? (byte) 1 : (byte) 0);
+        dest.writeString(this.videoUrl);
+        dest.writeString(this.videoBgUrl);
     }
 
     protected LocalMedia(Parcel in) {
@@ -243,6 +273,9 @@ public class LocalMedia implements Parcelable {
         this.size=in.readLong();
         this.msg_id=in.readString();
         this.canCollect = in.readByte() != 0;
+        this.hasRead = in.readByte() != 0;
+        this.videoUrl=in.readString();
+        this.videoBgUrl=in.readString();
     }
 
     public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {

@@ -171,6 +171,7 @@ import com.yanlong.im.user.ui.FriendVerifyActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.user.ui.image.PreviewMediaActivity;
 import com.yanlong.im.utils.ApkUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
@@ -3624,7 +3625,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * @param uri
      */
     private void showBigPic(String msgid, String uri) {
-        List<LocalMedia> selectList = new ArrayList<>();
+        ArrayList<LocalMedia> selectList = new ArrayList<>();
         List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
@@ -3633,19 +3634,39 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             if (msgid.equals(msgl.getMsg_id())) {
                 pos = i;
             }
-
             LocalMedia lc = new LocalMedia();
-            lc.setCutPath(msgl.getImage().getThumbnailShow());
-            lc.setCompressPath(msgl.getImage().getPreviewShow());
-            lc.setPath(msgl.getImage().getOriginShow());
-            lc.setSize(msgl.getImage().getSize());
-            lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
-            lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-            lc.setMsg_id(msgl.getMsg_id());
             //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
-            if (msgl.getSend_state() != ChatEnum.ESendStatus.ERROR) {
+            if (msgl.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                 lc.setCanCollect(true);
             }
+            if (msgl.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                lc.setMimeType(PictureConfig.TYPE_VIDEO);
+                String localUrl = msgl.getVideoMessage().getLocalUrl();
+                if (StringUtil.isNotNull(localUrl)) {
+                    File file = new File(localUrl);
+                    if (!file.exists()) {
+                        localUrl = msgl.getVideoMessage().getUrl();
+                    }
+                } else {
+                    localUrl = msgl.getVideoMessage().getUrl();
+                }
+                lc.setVideoUrl(localUrl);
+                lc.setVideoBgUrl(msgl.getVideoMessage().getBg_url());
+                lc.setWidth((int) msgl.getVideoMessage().getWidth());
+                lc.setHeight((int) msgl.getVideoMessage().getHeight());
+                lc.setDuration(msgl.getVideoMessage().getDuration());
+            } else {
+                lc.setMimeType(PictureConfig.TYPE_IMAGE);
+                lc.setCutPath(msgl.getImage().getThumbnailShow());
+                lc.setCompressPath(msgl.getImage().getPreviewShow());
+                lc.setPath(msgl.getImage().getOriginShow());
+                lc.setSize(msgl.getImage().getSize());
+                lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
+                lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+                lc.setMsg_id(msgl.getMsg_id());
+                lc.setHasRead(msgl.getImage().isReadOrigin());
+            }
+
             temp.add(lc);
         }
         int size = temp.size();
@@ -3669,10 +3690,18 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 break;
             }
         }
-        PictureSelector.create(ChatActivity.this)
-                .themeStyle(R.style.picture_default_style)
-                .isGif(true)
-                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT, "");
+        Intent intent = new Intent(this, PreviewMediaActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("data", selectList);
+        bundle.putInt("position", pos);
+        intent.putExtra(PictureConfig.GID, toGid);
+        intent.putExtra(PictureConfig.TO_UID, toUId);
+        intent.putExtras(bundle);
+        startActivity(intent);
+//        PictureSelector.create(ChatActivity.this)
+//                .themeStyle(R.style.picture_default_style)
+//                .isGif(true)
+//                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT, "");
 
     }
 
@@ -7036,16 +7065,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     /**
-     *
      * 批量收藏提示弹框
+     *
      * @param type 0 默认提示  1 包含收藏成功文案
      */
     private void showCollectListDialog(int type) {
         String content;
-        if (type==1) {
-            content= "收藏成功！你所选的消息\n包含了不支持收藏的类型或已失效，\n系统已自动过滤此类型消息。";
-        }else {
-            content= "你所选的消息包含了不支持收藏\n的类型或已失效，系统已自动过滤\n此类型消息。";
+        if (type == 1) {
+            content = "收藏成功！你所选的消息\n包含了不支持收藏的类型或已失效，\n系统已自动过滤此类型消息。";
+        } else {
+            content = "你所选的消息包含了不支持收藏\n的类型或已失效，系统已自动过滤\n此类型消息。";
         }
         dialogTwo = builder.setTitle(content)
                 .setShowLeftText(false)
@@ -7115,7 +7144,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     /**
      * 批量收藏  (流程有变化，过滤掉不支持类型后，先调接口，再弹框，目前需求只显示一次)
-     * @param list 已过滤后的数据
+     *
+     * @param list     已过滤后的数据
      * @param isNormal 正常类型true 含有不支持类型false
      */
     public void toCollectList(List<MsgAllBean> list, boolean isNormal) {
@@ -7132,11 +7162,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 return;
                             }
                             if (response.body().isOk()) {
-                                if(isNormal){
+                                if (isNormal) {
                                     // data!=null代表有"源文件不存在"情况，提示弹框
                                     if (response.body().getData() != null) {
                                         showCollectListDialog(1);
-                                    }else {
+                                    } else {
                                         ToastUtil.show("收藏成功");
                                     }
                                 } else {
@@ -7165,9 +7195,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     }
                     //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
-                    if(isNormal){
+                    if (isNormal) {
                         ToastUtil.show("收藏成功");//离线提示
-                    }else {
+                    } else {
                         //用户选过不支持的类型，因此无论如何都要提示弹框
                         showCollectListDialog(1);
                     }
@@ -7227,7 +7257,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 过滤多选收藏消息
      *
-     * @param sourList 源数据
+     * @param sourList  源数据
      * @param isOverdue 是否已经过滤掉了过期文件(是否含有不存在文件)
      */
     @SuppressLint("CheckResult")
@@ -7245,7 +7275,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 msgIds[i] = msgAllBean.getMsg_id();
                             }
                             return msgDao.filterMsgForCollection(msgIds);
-                        }else {
+                        } else {
                             return new ArrayList<MsgAllBean>();
                         }
 
@@ -7260,13 +7290,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             int len = list.size();
                             if (len > 0) {
                                 if (len == totalSize) {
-                                    if(isOverdue){
-                                        toCollectList(list,false);//存在不支持类型或失效的收藏，并已经过滤
-                                    }else {
-                                        toCollectList(list,true);//正常类型收藏
+                                    if (isOverdue) {
+                                        toCollectList(list, false);//存在不支持类型或失效的收藏，并已经过滤
+                                    } else {
+                                        toCollectList(list, true);//正常类型收藏
                                     }
                                 } else if (len < totalSize) {
-                                    toCollectList(list,false);//不支持类型或失效的收藏
+                                    toCollectList(list, false);//不支持类型或失效的收藏
                                 }
                             } else {
                                 //存在失效消息，并已经过滤
@@ -7275,7 +7305,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 hideMultiSelect(ivCollection);
 //                                showValidMsgDialog();
                             }
-                        }else {
+                        } else {
                             //存在失效消息，并已经过滤
                             showCollectListDialog(0);
                             mAdapter.clearSelectedMsg();
@@ -7364,7 +7394,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                             if (action == 1) {
                                                                 filterMsgForward(sourList);
                                                             } else if (action == 2) {
-                                                                filterMsgCollection(sourList,false);
+                                                                filterMsgCollection(sourList, false);
                                                             }
                                                         } else {
                                                             for (int i = 0; i < size; i++) {
@@ -7381,7 +7411,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                             if (action == 1) {
                                                                 filterMsgForward(sourList);
                                                             } else if (action == 2) {
-                                                                filterMsgCollection(sourList,true);
+                                                                filterMsgCollection(sourList, true);
                                                             }
                                                         }
                                                     } else {//都是过期的
@@ -7395,7 +7425,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                         if (action == 1) {
                                                             filterMsgForward(sourList);
                                                         } else if (action == 2) {
-                                                            filterMsgCollection(sourList,true);
+                                                            filterMsgCollection(sourList, true);
                                                         }
                                                     }
                                                 } else {
@@ -7426,14 +7456,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     if (action == 1) {
                                         filterMsgForward(sourList);
                                     } else if (action == 2) {
-                                        filterMsgCollection(sourList,false);
+                                        filterMsgCollection(sourList, false);
                                     }
                                 }
                             } else {
                                 if (action == 1) {
                                     filterMsgForward(sourList);
                                 } else if (action == 2) {
-                                    filterMsgCollection(sourList,false);
+                                    filterMsgCollection(sourList, false);
                                 }
                             }
                         }
