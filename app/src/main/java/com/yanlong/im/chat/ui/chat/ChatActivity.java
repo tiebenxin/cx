@@ -4611,6 +4611,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             }
         }
         CollectionInfo collectionInfo = new CollectionInfo();
+        //单条收藏，限制支持的类型
         //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
         if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
             collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
@@ -7319,8 +7320,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     @Override
                     public void onClick() {
                         dialogValid.dismiss();
-                        mAdapter.clearSelectedMsg();
-                        hideMultiSelect(ivForward);
                     }
                 }).show();
     }
