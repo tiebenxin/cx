@@ -7450,6 +7450,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                 }
                                             }
                                         });
+                                    }else {
+                                        if (action == 1) {
+                                            filterMsgForward(sourList,false);
+                                        } else if (action == 2) {
+                                            filterMsgCollection(sourList,false);
+                                        }
                                     }
                                 } else {
                                     if (action == 1) {
