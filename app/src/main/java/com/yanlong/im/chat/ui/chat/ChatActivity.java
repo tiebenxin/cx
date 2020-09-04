@@ -4421,7 +4421,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                         super.onResponse(call, response);
                         if (response.body() != null && response.body().isOk()) {
-                            onRetransmission(msgbean);
+                            //正常情况data为null，若data不为null则代表有"源文件不存在"的情况
+                            if (response.body().getData() == null) {
+                                onRetransmission(msgbean);
+                            } else {
+                                showMsgFailDialog();
+                            }
                         }else {
                             showMsgFailDialog();
                         }
@@ -6625,7 +6630,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             return;
                         }
                         if (response.body().isOk()) {
-                            //正常情况data为null，若含有值则代表有"源文件不存在"的情况
+                            //正常情况data为null，若data不为null则代表有"源文件不存在"的情况
                             if (response.body().getData() == null) {
                                 ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
                                 msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
