@@ -7169,6 +7169,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     //用户选过不支持的类型，因此无论如何都要提示弹框
                                     showCollectListDialog(1);
                                 }
+                            }else {
+                                if(!TextUtils.isEmpty(response.body().getMsg())){
+                                    ToastUtil.show(response.body().getMsg()+"");
+                                }
                             }
                         }
 
