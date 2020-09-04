@@ -4421,7 +4421,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                         super.onResponse(call, response);
                         if (response.body() != null && response.body().isOk()) {
-                            onRetransmission(msgbean);
+                            if(response.body().getData()!=null&&response.body().getData().size()!=list.size()){
+                                showMsgFailDialog();
+                            }else{
+                                onRetransmission(msgbean);
+                            }
+
                         }else {
                             showMsgFailDialog();
                         }
