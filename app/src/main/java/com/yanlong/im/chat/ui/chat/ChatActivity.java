@@ -7255,10 +7255,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 }
                             } else {
                                 //全为不支持类型或失效消息
-                                showValidMsgDialog();
+                                showValidMsgDialog(false);
                             }
                         }else {
-                            showValidMsgDialog();
+                            showValidMsgDialog(false);
                         }
                     }
                 });
@@ -7311,16 +7311,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 }
                             } else {
                                 //全为不支持类型或失效消息
-                                showValidMsgDialog();
+                                showValidMsgDialog(true);
                             }
                         }else {
-                            showValidMsgDialog();
+                            showValidMsgDialog(true);
                         }
                     }
                 });
     }
 
-    private void showValidMsgDialog() {
+    private void showValidMsgDialog(boolean clear) {
         DialogCommon2 dialogValid = new DialogCommon2(this);
         dialogValid.setContent("你选的消息包含不支持消息或已失效", true)
                 .setButtonTxt("确定")
@@ -7329,6 +7329,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     @Override
                     public void onClick() {
                         dialogValid.dismiss();
+                        if(clear){
+                            mAdapter.clearSelectedMsg();
+                            hideMultiSelect(ivCollection);
+                        }
                     }
                 }).show();
     }
