@@ -1,6 +1,5 @@
 package com.yanlong.im.utils.socket;
 
-import android.accounts.NetworkErrorException;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnvironment;
