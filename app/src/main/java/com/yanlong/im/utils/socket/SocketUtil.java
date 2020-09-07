@@ -1,6 +1,5 @@
 package com.yanlong.im.utils.socket;
 
-import android.accounts.NetworkErrorException;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnvironment;
@@ -578,7 +577,7 @@ public class SocketUtil {
                     long connTime = System.currentTimeMillis() - ttime;
                     if (connTime > 2 * 1000) {
                         LogUtil.getLog().d(TAG, ">>>链接中2s超时");
-                        throw new CXAuthenticationException();
+                        throw new CXConnectTimeoutException();
                     }
                 }
             } catch (Exception e) {
@@ -596,7 +595,7 @@ public class SocketUtil {
                 long connTime = System.currentTimeMillis() - ttime;
                 if (connTime > 2 * 1000) {
                     LogUtil.getLog().d(TAG, "连接LOG-->链接中2s超时");
-                    throw new CXAuthenticationException();
+                    throw new CXConnectTimeoutException();
                 }
                 Thread.sleep(200);
             }
