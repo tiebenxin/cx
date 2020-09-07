@@ -577,7 +577,7 @@ public class SocketUtil {
                     long connTime = System.currentTimeMillis() - ttime;
                     if (connTime > 2 * 1000) {
                         LogUtil.getLog().d(TAG, ">>>链接中2s超时");
-                        throw new CXAuthenticationException();
+                        throw new CXConnectTimeoutException();
                     }
                 }
             } catch (Exception e) {
@@ -595,7 +595,7 @@ public class SocketUtil {
                 long connTime = System.currentTimeMillis() - ttime;
                 if (connTime > 2 * 1000) {
                     LogUtil.getLog().d(TAG, "连接LOG-->链接中2s超时");
-                    throw new CXAuthenticationException();
+                    throw new CXConnectTimeoutException();
                 }
                 Thread.sleep(200);
             }
