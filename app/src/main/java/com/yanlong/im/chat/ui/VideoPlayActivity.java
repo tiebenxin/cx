@@ -64,7 +64,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -217,6 +216,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     public void stopVideoEvent(EventFactory.StopVideoEvent event) {
         if (event.msg_id.equals(msg_id)) {
             showDialog(event.name);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showDisallowedCollectDialog(EventFactory.EventShowDisallowedMsgNotice event) {
+        if (dialogFour!=null){
+            dialogFour.show();
+        }else {
+            showMsgFailDialog();
         }
     }
 
@@ -608,6 +616,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                             checkFileIsExist(msgAllBean, "");
                         }
                     } else if (postsion == 1) {
+                        //互相发eventbus
                         EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                         MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
                         eventCollectImgOrVideo.setMsgId(msgAllBeanForm.getMsg_id());
@@ -940,6 +949,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             e.printStackTrace();
         }
     }
+
 
 
 }

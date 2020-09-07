@@ -438,6 +438,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogTwo;//批量收藏提示弹框
     private CommonSelectDialog dialogThree;//批量转发提示弹框
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
+    private boolean ifCollectFromVideoOrImg = false;//是否有来自图片和视频播放的底部弹框收藏操作
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -6635,7 +6636,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
                                 msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
                             } else {
-                                showMsgFailDialog();
+                                if(ifCollectFromVideoOrImg){
+                                    EventFactory.EventShowDisallowedMsgNotice eventShowDisallowedMsgNotice = new EventFactory.EventShowDisallowedMsgNotice();
+                                    EventBus.getDefault().post(eventShowDisallowedMsgNotice);
+                                }else {
+                                    showMsgFailDialog();
+                                }
                             }
                         }
                     }
@@ -6877,6 +6883,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (!TextUtils.isEmpty(event.getMsgId())) {
             MsgAllBean msgAllBean = msgDao.getMsgById(event.getMsgId());
             if (msgAllBean != null) {
+                ifCollectFromVideoOrImg = true;
                 onCollect(msgAllBean);
             }
         }
