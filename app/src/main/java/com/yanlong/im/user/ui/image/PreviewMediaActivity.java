@@ -49,7 +49,7 @@ public class PreviewMediaActivity extends FragmentActivity {
         toUid = getIntent().getLongExtra(PictureConfig.TO_UID, 0L);
         initData();
         MessageManager.getInstance().initPreviewID(gid, toUid);
-
+        MessageManager.getInstance().setCanStamp(false);
     }
 
     private void initData() {
@@ -83,7 +83,7 @@ public class PreviewMediaActivity extends FragmentActivity {
             fragment = fragmentMap.get(position);
             if (fragment == null) {
                 if (media.getMimeType() == PictureConfig.TYPE_VIDEO) {//视频
-                    fragment = LookUpVideoFragment.newInstance(media, currentPosition == position);
+                    fragment = LookUpVideoFragment.newInstance(media, currentPosition == position, PictureConfig.FROM_DEFAULT);
                 } else {//图片
                     fragment = LookUpPhotoFragment.newInstance(media, currentPosition == position, PictureConfig.FROM_DEFAULT);
                 }

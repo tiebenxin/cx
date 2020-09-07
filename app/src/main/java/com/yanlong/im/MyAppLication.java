@@ -100,7 +100,7 @@ public class MyAppLication extends MainApplication {
         createRepository();
         initWeixinConfig();
         initRunstate();
-        initException();
+//        initException();
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
             initBugly();

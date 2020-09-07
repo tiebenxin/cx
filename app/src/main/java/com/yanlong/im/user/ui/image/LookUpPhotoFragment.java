@@ -133,6 +133,7 @@ public class LookUpPhotoFragment extends Fragment {
         String thumbUrl = media.getCutPath();//缩略图路径
         String previewUrl = media.getCompressPath();//预览图路径
         String originUrl = media.getPath();//原图路径
+        tvViewOrigin.setTag(media.getSize());
         //是否有原图
         isOriginal = StringUtil.isNotNull(originUrl);
         isHttp = PictureMimeType.isHttp(previewUrl);
@@ -198,6 +199,7 @@ public class LookUpPhotoFragment extends Fragment {
         ivImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                showDownLoadDialog(media);
                 return true;
             }
         });
@@ -206,7 +208,7 @@ public class LookUpPhotoFragment extends Fragment {
         llLook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                downloadOriginImage(media.getPath(), false, isGif);
+                downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), false, isGif);
             }
         });
 
@@ -372,7 +374,7 @@ public class LookUpPhotoFragment extends Fragment {
         tvViewOrigin.postDelayed(new Runnable() {
             @Override
             public void run() {
-                setDownloadProgress(tvViewOrigin, 0, llLook);
+                setDownloadProgress(tvViewOrigin, 0);
             }
         }, 100);
         if (activityIsFinish()) {
@@ -408,7 +410,7 @@ public class LookUpPhotoFragment extends Fragment {
                             public void run() {
                                 if (isGif) {
                                 } else {
-                                    setDownloadProgress(tvViewOrigin, 100, llLook);
+                                    setDownloadProgress(tvViewOrigin, 100);
                                     ivDownload.setEnabled(true);
                                     loadImage(file.getAbsolutePath());
                                     MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
@@ -434,7 +436,7 @@ public class LookUpPhotoFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                setDownloadProgress(tvViewOrigin, progress, llLook);
+                                setDownloadProgress(tvViewOrigin, progress);
                             }
                         });
 
@@ -476,7 +478,7 @@ public class LookUpPhotoFragment extends Fragment {
     /*
      * 更新下载进度
      * */
-    public void setDownloadProgress(TextView tvViewOrigin, int progress, LinearLayout llLook) {
+    public void setDownloadProgress(TextView tvViewOrigin, int progress) {
         if (preProgress > progress) {
             return;
         }
@@ -511,8 +513,7 @@ public class LookUpPhotoFragment extends Fragment {
     /**
      * 长按弹窗提示
      */
-    private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp,
-                                    boolean isOriginal, LinearLayout llLook, boolean isGif, boolean isCurrent) {
+    private void showDownLoadDialog(final LocalMedia media) {
         final PopupSelectView popupSelectView;
         if (activityIsFinish()) {
             return;
@@ -535,31 +536,31 @@ public class LookUpPhotoFragment extends Fragment {
         }
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
-            public void onItem(String string, int postsion) {
+            public void onItem(String string, int position) {
                 String msgId = media.getMsg_id();
                 //收藏详情需求又改为只显示3项
                 if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
-                    if (postsion == 0) {//收藏详情转发单独处理
+                    if (position == 0) {//收藏详情转发单独处理
                         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                             ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                             return;
                         }
                         sendToFriend(msgId, PictureConfig.FROM_COLLECT_DETAIL);
-                    } else if (postsion == 1) {//保存
-                        saveImageToLocal(ivZoom, media);
+                    } else if (position == 1) {//保存
+                        saveImageToLocal(ivImage, media);
                     }
                 } else {
                     //含有收藏项
                     if (media.isCanCollect()) {
-                        if (postsion == 0) {//默认转发
+                        if (position == 0) {//默认转发
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
                             sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
-                        } else if (postsion == 1) {//保存
-                            saveImageToLocal(ivZoom, media);
-                        } else if (postsion == 2) {//收藏
+                        } else if (position == 1) {//保存
+                            saveImageToLocal(ivImage, media);
+                        } else if (position == 2) {//收藏
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
@@ -567,14 +568,14 @@ public class LookUpPhotoFragment extends Fragment {
                             EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                             eventCollectImgOrVideo.setMsgId(msgId);
                             EventBus.getDefault().post(eventCollectImgOrVideo);
-                        } else if (postsion == 3) {//识别二维码
+                        } else if (position == 3) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
                             // scanningImage(media.getPath());
-                            scanningQrImage(media.getCompressPath(), ivZoom);
-                        } else if (postsion == 4) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                            scanningQrImage(media.getCompressPath(), ivImage);
+                        } else if (position == 4) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
@@ -591,22 +592,22 @@ public class LookUpPhotoFragment extends Fragment {
 
                     } else {
                         //不含有收藏项
-                        if (postsion == 0) {//默认转发
+                        if (position == 0) {//默认转发
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
                             sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
-                        } else if (postsion == 1) {//保存
-                            saveImageToLocal(ivZoom, media);
-                        } else if (postsion == 2) {//识别二维码
+                        } else if (position == 1) {//保存
+                            saveImageToLocal(ivImage, media);
+                        } else if (position == 2) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
                             // scanningImage(media.getPath());
-                            scanningQrImage(media.getCompressPath(), ivZoom);
-                        } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                            scanningQrImage(media.getCompressPath(), ivImage);
+                        } else if (position == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
@@ -626,7 +627,7 @@ public class LookUpPhotoFragment extends Fragment {
 
             }
         });
-        popupSelectView.showAtLocation(ivZoom, Gravity.BOTTOM, 0, 0);
+        popupSelectView.showAtLocation(ivImage, Gravity.BOTTOM, 0, 0);
 
     }
 

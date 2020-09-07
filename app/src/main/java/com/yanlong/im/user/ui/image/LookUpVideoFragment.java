@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.TextureView;
@@ -18,8 +19,12 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.CollectVideoMessage;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.MyDiskCache;
@@ -60,22 +65,26 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
     private TextView tvStartTime;
     private TextView tvEndTime;
     private SeekBar seekBar;
+    private LocalMedia media;
+    private boolean isCurrent;
+    private int from;
+    private String contentJson;
 
-    public static LookUpVideoFragment newInstance(LocalMedia media,boolean isCurrent) {
+    public static LookUpVideoFragment newInstance(LocalMedia media, boolean isCurrent, int from) {
         LookUpVideoFragment fragment = new LookUpVideoFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("media", media);
-        bundle.putBoolean("isCurrent",isCurrent);
+        bundle.putBoolean("isCurrent", isCurrent);
+        bundle.putInt("from", from);
         fragment.setArguments(bundle);
         return fragment;
     }
 
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_lookup_video,container,false);
+        View rootView = inflater.inflate(R.layout.fragment_lookup_video, container, false);
         textureView = rootView.findViewById(R.id.texture_view);
         ivBg = rootView.findViewById(R.id.iv_bg);
         ivPlay = rootView.findViewById(R.id.iv_play);
@@ -87,7 +96,18 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
         tvStartTime = rootView.findViewById(R.id.tv_start_time);
         tvEndTime = rootView.findViewById(R.id.tv_start_time);
         seekBar = rootView.findViewById(R.id.seek_bar);
+        initData();
         return rootView;
+    }
+
+    private void initData() {
+        media = getArguments().getParcelable("media");
+        isCurrent = getArguments().getBoolean("isCurrent");
+        from = getArguments().getInt("from");
+        String path = media.getVideoUrl();
+        if (path.contains("http://") && path.contains("https://")) {
+            downVideo(path, media.getMsg_id());
+        }
     }
 
     @Override
@@ -153,23 +173,26 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
     }
 
 
-
-
-    private void downVideo(final VideoMessage videoMessage) {
-        final File appDir = new File(Environment.getExternalStorageDirectory()+"/"+APP_NAME + "/Mp4/");
+    private void downVideo(String url, String msgId) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        final File appDir = new File(Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
-        final String fileName = MyDiskCache.getFileNmae(videoMessage.getUrl()) + ".mp4";
+        final String fileName = MyDiskCache.getFileNmae(url) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
 
         try {
-            DownloadUtil.get().downLoadFile(videoMessage.getUrl(), fileVideo, new DownloadUtil.OnDownloadListener() {
+            DownloadUtil.get().downLoadFile(url, fileVideo, new DownloadUtil.OnDownloadListener() {
                 @Override
                 public void onDownloadSuccess(File file) {
-                    videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
-                    MsgDao dao = new MsgDao();
-                    dao.fixVideoLocalUrl(videoMessage.getMsgId(), fileVideo.getAbsolutePath());
+//                    videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+                    if (!TextUtils.isEmpty(msgId)) {
+                        MsgDao dao = new MsgDao();
+                        dao.fixVideoLocalUrl(msgId, fileVideo.getAbsolutePath());
+                    }
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
 //                    scanFile(getContext(),fileVideo.getAbsolutePath());
 //                    downloadState = 2;
