@@ -34,7 +34,6 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -474,7 +473,6 @@ public class GroupNumbersActivity extends AppActivity {
                         @Override
                         public void onClick(View v) {
                             dialogOne.dismiss();
-                            finish();
                         }
                     })
                     .setRightOnClickListener(new View.OnClickListener() {
