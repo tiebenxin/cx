@@ -896,7 +896,6 @@ public class DaoMigration implements RealmMigration {
     private final void updateV51(RealmSchema schema) {
         schema.get("MsgNotice")
                 .addField("remark",String.class);
-
         schema.get("Remind")
                 .addField("gid", String.class);
     }
