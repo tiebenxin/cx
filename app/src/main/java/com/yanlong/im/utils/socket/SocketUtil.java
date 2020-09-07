@@ -19,6 +19,7 @@ import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.CXAuthenticationException;
 import net.cb.cb.library.bean.CXConnectException;
+import net.cb.cb.library.bean.CXConnectTimeoutException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.constant.BuglyTag;
@@ -330,7 +331,7 @@ public class SocketUtil {
                 connect();
             }
         } catch (Exception e) {
-            if (e instanceof CXConnectException) {
+            if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException) {
                 run();
             } else {
                 LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
@@ -575,8 +576,8 @@ public class SocketUtil {
 //                Thread.sleep(200);
                     long connTime = System.currentTimeMillis() - ttime;
                     if (connTime > 2 * 1000) {
-                        LogUtil.getLog().d(TAG, ">>>链接中超时");
-                        break;
+                        LogUtil.getLog().d(TAG, ">>>链接中2s超时");
+                        throw new CXAuthenticationException();
                     }
                 }
             } catch (Exception e) {
@@ -591,6 +592,11 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
             while (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠100s");
+                long connTime = System.currentTimeMillis() - ttime;
+                if (connTime > 2 * 1000) {
+                    LogUtil.getLog().d(TAG, "连接LOG-->链接中2s超时");
+                    throw new CXAuthenticationException();
+                }
                 Thread.sleep(200);
             }
 //            if (!socketChannel.isConnected()) {
