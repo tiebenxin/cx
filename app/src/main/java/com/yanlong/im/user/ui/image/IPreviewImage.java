@@ -10,5 +10,5 @@ package com.yanlong.im.user.ui.image;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public interface IPreviewImage {
-    void onClick(String msgId, int fromWhere);
+    void onClick(String msgId, int fromWhere, boolean isCollect);
 }
