@@ -1,8 +1,6 @@
 package net.cb.cb.library.utils;
 
 import android.content.Context;
-import android.os.SystemClock;
-import android.service.autofill.UserData;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -20,17 +18,14 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.google.gson.Gson;
-import com.umeng.commonsdk.debug.E;
 
 import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.bean.AliObsConfigBean;
 import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +118,7 @@ public class UpFileUtil {
                        final String secret, final String token, final String endpoint, final String btName,
                        final UpFileUtil.OssUpCallback ossUpCallback, final String imgPath, final byte[] imgbyte,
                        final boolean isLocalTakeVideo) {
-        if (FileUtils.isNeedsMd5(path)) {// 聊天消息文件需要极速秒传
+        if (FileUtils.isNeedsMd5(path) && !TextUtils.isEmpty(imgPath)) {// 聊天消息文件需要极速秒传
             uploadMd5File(path, context, keyid, secret, token, endpoint, btName, ossUpCallback, imgPath, imgbyte, isLocalTakeVideo);
         } else {
             getOSs(context, keyid, secret, token, endpoint);
