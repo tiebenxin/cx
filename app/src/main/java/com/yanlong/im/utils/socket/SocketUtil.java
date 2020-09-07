@@ -873,10 +873,10 @@ public class SocketUtil {
         LogUtil.getLog().i(TAG, "连接LOG--连接前-status=" + connStatus.get() + "--time=" + startTime);
         if (connStatus.get() == EConnectionStatus.DEFAULT) {
             updateConnectStatus(EConnectionStatus.CONNECTING);
-            ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    transmission.connect(AppHostUtil.getTcpHost()/*"192.168.10.229"*/, /*AppHostUtil.TCP_PORT*/19991, 3000, new ResponseHandler() {
+                    transmission.connect(AppHostUtil.getTcpHost()/*"192.168.10.229"*/, AppHostUtil.TCP_PORT /*19991*/, 3000, new ResponseHandler() {
                         @Override
                         public void whenConnected(Transmission trs) {
                             updateConnectStatus(EConnectionStatus.CONNECTED);
@@ -988,8 +988,7 @@ public class SocketUtil {
                     });
 
                 }
-            });
-
+            }).start();
         }
     }
 
