@@ -56,6 +56,7 @@ import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.CxTransferBean;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
@@ -158,6 +159,7 @@ import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
+import com.yanlong.im.pay.ui.select.ViewAllowMemberActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.CollectionInfo;
@@ -211,6 +213,7 @@ import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
+import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.bean.VideoSize;
@@ -250,8 +253,9 @@ import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
-import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.WebPageActivity;
+import net.cb.cb.library.view.recycler.IRefreshListener;
+import net.cb.cb.library.view.recycler.MultiRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -262,6 +266,7 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -272,6 +277,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.ObjectChangeSet;
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.RealmObject;
 import io.realm.RealmObjectChangeListener;
@@ -300,7 +306,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     // public static final int REQ_REFRESH = 7779;
     private HeadView2 headView;
     private ActionbarView actionbar;
-    private MultiListView mtListView;
+    private MultiRecyclerView mtListView;
     private ImageView btnVoice;
     private CustomerEditText editChat;
     private ImageView btnEmj;
@@ -431,6 +437,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogOne;//注销弹框
     private CommonSelectDialog dialogTwo;//批量收藏提示弹框
     private CommonSelectDialog dialogThree;//批量转发提示弹框
+    private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
+    private boolean ifCollectFromVideoOrImg = false;//是否有来自图片和视频播放的底部弹框收藏操作
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -1232,7 +1240,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (msgAllbean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
             int size = mAdapter.getItemCount();
             mAdapter.addMessage(msgAllbean);
-            mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
+            mAdapter.notifyItemRangeInserted(size, 1);
             //红包通知 不滚动到底部
             if (msgAllbean.getMsgNotice() != null && (msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
                     || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
@@ -1335,7 +1343,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     mAdapter.showCheckBox(false, true);
                     mAdapter.clearSelectedMsg();
                     showViewMore(false);
-                    mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+                    mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
                     return;
                 }
                 // 封号
@@ -1656,28 +1664,39 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         mAdapter.setTagListener(this);
         mAdapter.setHasStableIds(true);
         mAdapter.setReadStatus(checkIsRead());
-        mtListView.init(mAdapter);
-        mtListView.setAnimation(null);
+        mtListView.setAdapter(mAdapter);
+//        mtListView.setAnimation(null);
 
-        mtListView.getLoadView().setStateNormal();
-        mtListView.setEvent(new MultiListView.Event() {
-
-
+//        mtListView.getLoadView().setStateNormal();
+        mtListView.setListener(new IRefreshListener() {
             @Override
             public void onRefresh() {
                 taskMoreMessage();
             }
 
             @Override
-            public void onLoadMore() {
-
-            }
-
-            @Override
-            public void onLoadFail() {
+            public void loadMore() {
 
             }
         });
+//        mtListView.setEvent(new MultiListView.Event() {
+//
+//
+//            @Override
+//            public void onRefresh() {
+//                taskMoreMessage();
+//            }
+//
+//            @Override
+//            public void onLoadMore() {
+//
+//            }
+//
+//            @Override
+//            public void onLoadFail() {
+//
+//            }
+//        });
 
         mtListView.getListView().setOnTouchListener(new View.OnTouchListener() {
             int isRun = 0;
@@ -1856,8 +1875,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 if (mAdapter == null || mAdapter.getSelectedMsg() == null) {
                     return;
                 } else {
-                    if (mAdapter.getSelectedMsg().size() > 0) {
-                        filterMsgForward(mAdapter.getSelectedMsg());
+                    int size = mAdapter.getSelectedMsg().size();
+                    if (size > 0) {
+//                        filterMsgForward(mAdapter.getSelectedMsg());
+                        if (size > 30) {
+                            showMoreMsgDialog();
+                        } else {
+                            List<MsgAllBean> dataList = new ArrayList<>();
+                            dataList.addAll(mAdapter.getSelectedMsg());
+                            filterMessageValid(dataList, 1);
+                        }
                     }
                 }
 
@@ -1875,7 +1902,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-                        filterMsgCollection(mAdapter.getSelectedMsg());
+//                        filterMsgCollection(mAdapter.getSelectedMsg());
+                        filterMessageValid(mAdapter.getSelectedMsg(), 2);
                     }
                 }
             }
@@ -1933,16 +1961,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             replayMsg = null;
             mViewModel.isReplying.setValue(false);
         }
-    }
-
-    //设置键盘高度
-    private void setPanelHeight(int h, View view) {
-//        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
-//        if (linearParams.height != h) {
-//            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
-//            linearParams.height = Math.max(h, minHeight);
-//            view.setLayoutParams(linearParams);
-//        }
     }
 
     private void checkScrollFirst(int first) {
@@ -2264,16 +2282,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
 
-        if (!isGroup && !isSystemUser) {
-            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
-        }
-        if (!isGroup && !isSystemUser) {
-            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
-        }
+//        if (!isGroup && !isSystemUser) {
+//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+//        }
+//        if (!isGroup && !isSystemUser) {
+//            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+//        }
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
-        if (isGroup) {
-            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
-        }
+//        if (isGroup) {
+//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+//        }
         if (!isGroup) { //单聊，且对方不为客服小助手，显示戳一下
             if (!isSystemUser) {
                 list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
@@ -2333,7 +2351,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
         }
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
 
     //消息发送
@@ -2861,7 +2879,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             mAdapter.showCheckBox(false, true);
             mAdapter.clearSelectedMsg();
             showViewMore(false);
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+            mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
             return;
         }
         clearScrollPosition();
@@ -3211,8 +3229,23 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
                     if (envelopeBean != null && currentTradeId != envelopeBean.getTradeId()) {
                         currentTradeId = envelopeBean.getTradeId();
-                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(),
-                                envelopeBean.getMessage(), MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign());
+                        RealmList<MemberUser> allowUses = null;
+                        if (envelopeBean.getAllowUses() != null && envelopeBean.getAllowUses().size() > 0) {
+                            allowUses = convertMemberList(envelopeBean.getAllowUses());
+                        }
+                        int envelopeStatus = PayEnum.EEnvelopeStatus.NORMAL;
+                        boolean permission = true;
+                        if (isGroup() && allowUses != null && UserAction.getMyId() != null) {
+                            MemberUser user = new MemberUser();
+                            user.setUid(UserAction.getMyId().longValue());
+                            user.init(toGid);
+                            if (!allowUses.contains(user)) {
+//                                envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
+                                permission = false;
+                            }
+                        }
+                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(), envelopeBean.getMessage(),
+                                MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign(), allowUses, envelopeStatus, permission);
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
                     }
                     break;
@@ -3331,6 +3364,26 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
+    private RealmList<MemberUser> convertMemberList(List<FromUserBean> list) {
+        if (!isGroup() || mViewModel.groupInfo == null || list == null) {
+            return null;
+        }
+        int len = list.size();
+        if (len > 0) {
+            String[] memberIds = new String[len];
+            for (int i = 0; i < len; i++) {
+                FromUserBean bean = list.get(i);
+                memberIds[i] = toGid + bean.getUid();
+            }
+            List<MemberUser> members = msgDao.getMembers(toGid, memberIds);
+            RealmList<MemberUser> allowUsers = new RealmList<>();
+            allowUsers.addAll(members);
+            return allowUsers;
+        }
+        return null;
+
+    }
+
     private void sendVideo(String videofile) {
         MsgAllBean videoMsgBean;
         if (null != videofile) {
@@ -3437,6 +3490,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
+    //刷新某一条消息
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshOneMsg(EventFactory.UpdateOneMsgEvent event){
+        taskRefreshImage(event.getMsgId());
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void stopVoiceeEvent(EventFactory.StopVoiceeEvent event) {
         // 对方撤回时，停止语音播放
@@ -3533,7 +3592,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+            mAdapter.notifyItemChanged(position, position);
         }
 
     }
@@ -3548,7 +3607,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+            mAdapter.notifyItemChanged(position, position);
         }
     }
 
@@ -3563,7 +3622,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         int len = mAdapter.getItemCount();
         for (int i = 0; i < len; i++) {
             if (mAdapter.getMessage(i).getMsg_id().equals(msgid)) {
-                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
+                mAdapter.notifyItemChanged(i, i);
             }
         }
     }
@@ -4291,11 +4350,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         return false;
     }
 
-    //是否禁止转发
+    //是否禁止转发，仅文本，图片，@，视频，位置，表情，文件消息支持转发，其他均禁止
     public boolean isBanForward(@ChatEnum.EMessageType int type) {
-        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.ASSISTANT_PROMOTION
-                || type == ChatEnum.EMessageType.TRANSFER || type == ChatEnum.EMessageType.ASSISTANT_NEW || type == ChatEnum.EMessageType.ASSISTANT) {
+        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO
+                || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.TRANSFER
+                || type == ChatEnum.EMessageType.TRANSFER_NOTICE || type == ChatEnum.EMessageType.ASSISTANT_NEW || type == ChatEnum.EMessageType.ASSISTANT) {
             return true;
         }
         return false;
@@ -4307,7 +4366,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
                 || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
                 type == ChatEnum.EMessageType.ASSISTANT_PROMOTION || type == ChatEnum.EMessageType.ASSISTANT || type == ChatEnum.EMessageType.TRANSFER
-                || type == ChatEnum.EMessageType.ASSISTANT_NEW || !isEixt()) {
+                || type == ChatEnum.EMessageType.ASSISTANT_NEW || type == ChatEnum.EMessageType.TRANSFER_NOTICE || !isEixt()) {
             return true;
         }
         return false;
@@ -4348,7 +4407,50 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(getResources().getString(R.string.user_disable_message));
                 return;
             }
-            onRetransmission(msgbean);
+            if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                    || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                ArrayList<FileBean> list = new ArrayList<>();
+                FileBean fileBean = new FileBean();
+                if (msgbean.getImage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
+                } else if (msgbean.getVideoMessage() != null) {
+                    FileBean itemFileBean = new FileBean();
+                    itemFileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getBg_url()));
+                    itemFileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
+                    list.add(itemFileBean);
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getUrl()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getUrl(), msgbean.getMsg_type()));
+                } else if (msgbean.getSendFileMessage() != null) {
+                    fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getSendFileMessage().getUrl()));
+                    fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getSendFileMessage().getUrl(), msgbean.getMsg_type()));
+                }
+                list.add(fileBean);
+                UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                        super.onResponse(call, response);
+                        if (response.body() != null && response.body().isOk()) {
+                            if(response.body().getData()!=null&&response.body().getData().size()!=list.size()){
+                                showMsgFailDialog();
+                            }else{
+                                onRetransmission(msgbean);
+                            }
+
+                        }else {
+                            showMsgFailDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        showMsgFailDialog();
+                    }
+                });
+            } else {
+                onRetransmission(msgbean);
+            }
         } else if ("撤回".equals(value)) {
             // 封号
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
@@ -4424,7 +4526,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         showViewMore(true);
         mAdapter.getSelectedMsg().add(msgBean);
         mAdapter.showCheckBox(true, true);
-        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+        mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
     }
 
     private void changeRightBtn(boolean isShow) {
@@ -4524,6 +4626,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             }
         }
         CollectionInfo collectionInfo = new CollectionInfo();
+        //单条收藏，限制支持的类型
         //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
         if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
             collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
@@ -4732,7 +4835,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 //        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null && mAdapter.getItemCount() > 0) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+            mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
         }
         mtListView.getSwipeLayout().setRefreshing(false);
     }
@@ -5037,9 +5140,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private boolean updateSessionDraftAndAtMessage() {
         LogUtil.getLog().i(TAG, "updateSessionDraftAndAtMessage");
         boolean hasChange = false;
-        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+        if (session != null && (!TextUtils.isEmpty(session.getAtMessage()) ||
+                session.getMessageType() == ChatEnum.ESessionType.NEW_JOIN_GROUP)) {
             hasChange = true;
             dao.updateSessionAtMsg(toGid, toUId);
+            if (session.getMessageType() == ChatEnum.ESessionType.NEW_JOIN_GROUP) {// 更新申请进群条数
+                dao.clearRemidCount(Preferences.GROUP_FRIEND_APPLY, toGid);
+            }
         }
         if (checkAndSaveDraft()) {
             hasChange = true;
@@ -5168,6 +5275,30 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             msgAllBean.getRed_envelope().setAccessToken(token);
         }
         msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                replaceListDataAndNotify(msgAllBean);
+            }
+        });
+    }
+
+    /***
+     * 红包是否已经被抢,红包改为失效
+     * @param rid
+     */
+    private void updateEnvelopeDetail(MsgAllBean msgAllBean, String rid, int reType, String token, int envelopeStatus, int canReview) {
+        if (envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL) {
+            msgAllBean.getRed_envelope().setIsInvalid(1);
+            msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
+        }
+        if (!TextUtils.isEmpty(token)) {
+            msgAllBean.getRed_envelope().setAccessToken(token);
+        }
+        if (canReview == 1) {
+            msgAllBean.getRed_envelope().setCanReview(canReview);
+        }
+        msgDao.updateEnvelopeDetail(rid, envelopeStatus, reType, token, canReview);
         ThreadUtil.getInstance().runMainThread(new Runnable() {
             @Override
             public void run() {
@@ -5391,7 +5522,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     //抢红包，获取token
-    public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType) {
+    public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType, final int envelopeStatus) {
         String from = "";
         if (isGroup()) {
             from = toGid;
@@ -5411,15 +5542,58 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             GrabEnvelopeBean bean = baseResponse.getData();
+                            int status = envelopeStatus;
                             if (bean != null) {
-                                int status = getGrabEnvelopeStatus(bean.getStat());
+                                if (status == PayEnum.EEnvelopeStatus.NORMAL) {
+                                    status = getGrabEnvelopeStatus(bean.getStat());
+                                }
                                 updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
                                 showEnvelopeDialog(bean.getAccessToken(), status, msgBean, reType);
-//                                if (bean.getStat() == 1) {//1 未领取
-//                                    showEnvelopeDialog(bean.getAccessToken(), bean.getStat(), msgBean, reType);
-//                                } else {
-//
-//                                }
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
+    }
+
+    //抢定向红包，获取token
+    public void grabRedEnvelopeNoAllow(MsgAllBean msgBean, long rid, int reType, final int envelopeStatus) {
+        String from = "";
+        if (isGroup()) {
+            from = toGid;
+        } else {
+            if (msgBean != null && msgBean.getFrom_uid() != null) {
+                from = msgBean.getFrom_uid().longValue() + "";
+            }
+        }
+        if (TextUtils.isEmpty(from)) {
+            return;
+        }
+        PayHttpUtils.getInstance().grabRedEnvelope(rid, from)
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            GrabEnvelopeBean bean = baseResponse.getData();
+                            int status = envelopeStatus;
+                            if (bean != null) {
+                                if (status == PayEnum.EEnvelopeStatus.NORMAL) {
+                                    status = getGrabEnvelopeStatus(bean.getStat());
+                                }
+                                updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
+                                getEnvelopeDetail(rid, bean.getAccessToken(), envelopeStatus, msgBean, msgBean.isMe() ? true : false, false);
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5446,8 +5620,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
         } else if (stat == 3) {//已过期
             status = PayEnum.EEnvelopeStatus.PAST;
-        } else if (stat == 4) {//领到
-            status = PayEnum.EEnvelopeStatus.RECEIVED;
+        } else if (stat == 4) {//未领到，出错了
+            status = PayEnum.EEnvelopeStatus.ERROR;
         }
         return status;
     }
@@ -5457,8 +5631,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         int status = PayEnum.EEnvelopeStatus.NORMAL;
         if (stat == 0) {//1 正常待领取状态
             status = PayEnum.EEnvelopeStatus.NORMAL;
-        }
-        if (stat == 1) {//1 领取
+        } else if (stat == 1) {//1 领取
             status = PayEnum.EEnvelopeStatus.RECEIVED;
         } else if (stat == 2) {//已领完
             status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
@@ -5520,7 +5693,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
             @Override
             public void viewRecord(long rid, String token, int style) {
-                getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0);
+                getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0, false);
+            }
+
+            @Override
+            public void viewAllowUser() {
+                Intent intent = ViewAllowMemberActivity.newIntent(ChatActivity.this, msgBean.getGid(), MessageManager.getInstance().getMemberIds(msgBean.getRed_envelope().getAllowUsers()));
+                startActivity(intent);
             }
         });
         RedEnvelopeMessage message = msgBean.getRed_envelope();
@@ -5529,8 +5708,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     //获取红包详情
-    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
-                                     boolean isNormalStyle) {
+    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle, boolean hasPermission) {
         if (TextUtils.isEmpty(token) && (msgBean != null && !msgBean.isMe())) {
             String from = "";
             if (isGroup()) {
@@ -5555,7 +5733,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     if (isNormalStyle) {//普通玩法红包需要保存
                                         taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), getGrabEnvelopeStatus(bean.getStat()));
                                     }
-                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, true, hasPermission);
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5571,11 +5749,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean);
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus(), msgBean, hasPermission, hasPermission);
         }
     }
 
-    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean) {
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus, MsgAllBean msgBean, boolean isAllow, boolean hasPermission) {
         PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
@@ -5585,13 +5763,21 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (baseResponse.isSuccess()) {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
-                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean)) {
-                                    taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
+                                if (!hasPermission && (bean.getRecvList() != null && bean.getRecvList().size() > 0)) {
+                                    updateEnvelopeDetail(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, envelopeStatus, 1);
+                                } else {
+                                    if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL && envelopeStatus != getOpenEnvelopeStatus(bean)) {
+                                        taskPayRbCheck(msgBean, rid + "", msgBean.getRed_envelope().getRe_type(), token, getOpenEnvelopeStatus(bean));
+                                    }
                                 }
                                 bean.setChatType(isGroup() ? 1 : 0);
                                 bean.setEnvelopeStatus(envelopeStatus);
-                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
-                                startActivity(intent);
+                                if (!isAllow && (bean.getRecvList() != null && bean.getRecvList().size() <= 0)) {
+
+                                } else {
+                                    Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
+                                    startActivity(intent);
+                                }
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5746,7 +5932,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         RedEnvelopeMessage message = null;
                         deleteEnvelopInfo(info);
                         if (info.getReType() == 0) {
-                            message = SocketData.createRbMessage(SocketData.getUUID(), info.getRid(), info.getComment(), info.getReType(), info.getEnvelopeStyle());
+                            message = SocketData.createRbMessage(SocketData.getUUID(), info.getRid(), info.getComment(), info.getReType(), info.getEnvelopeStyle(), info.getAllowUsers());
                         } else {
 //                            message = SocketData.creat(SocketData.getUUID(),info.getRid(),info.getComment(),info.getReType(),info.getEnvelopeStyle());
                         }
@@ -5860,7 +6046,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             AudioPlayManager.getInstance().stopPlay();
         }
         mAdapter.removeItem(bean);
-        mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
+        mAdapter.notifyItemRemoved(position);//删除刷新
         removeUnreadCount(1);
         fixLastPosition(-1);
     }
@@ -5971,26 +6157,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (list != null && list.size() > 0) {
             onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
         }
-//        mAdapter.clearSelectedMsg();
-//        hideMultiSelect(ivForward);
-//        List<MsgAllBean> list = mAdapter.getSelectedMsg();
-//        if (list != null && list.size() > 0) {
-//            //过滤掉不符合类型和发送失败状态消息
-//            Iterator<MsgAllBean> iterator = list.iterator();
-//            while (iterator.hasNext()) {
-//                MsgAllBean obj = iterator.next();
-//                if (obj.getMsg_type() == ChatEnum.EMessageType.VOICE || obj.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE
-//                        || obj.getMsg_type() == ChatEnum.EMessageType.TRANSFER || obj.getMsg_type() == ChatEnum.EMessageType.BUSINESS_CARD
-//                        || obj.getMsg_type() == ChatEnum.EMessageType.STAMP || obj.getMsg_type() == ChatEnum.EMessageType.MSG_VOICE_VIDEO
-//                        || obj.getSend_state() == ChatEnum.ESendStatus.ERROR) {
-//                    iterator.remove();
-//                }
-//            }
-//            //过滤后若仍存在元素则允许转发
-//            if (list.size() > 0) {
-//                onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
-//            }
-//        }
+        mAdapter.clearSelectedMsg();
+        hideMultiSelect(ivForward);
     }
 
     //隐藏多选功能
@@ -6003,7 +6171,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void run() {
                 showViewMore(false);
                 mAdapter.showCheckBox(false, true);
-                mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
+                mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
             }
         }, 100);
     }
@@ -6094,9 +6262,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     List<OptionMenu> menus = (List<OptionMenu>) args[0];
                     View v = (View) args[1];
                     IMenuSelectListener listener = (IMenuSelectListener) args[2];
-                    if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
-                        return;
-                    }
+//                    if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER_NOTICE) {
+//                        return;
+//                    }
                     showPop(v, menus, message, listener);
                     break;
                 case ChatEnum.ECellEventType.TRANSFER_CLICK:
@@ -6315,13 +6483,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void clickEnvelope(MsgAllBean msg, RedEnvelopeMessage rb) {
-        Boolean isInvalid = rb.getIsInvalid() == 0 ? false : true;
-        String info = getEnvelopeInfo(rb.getEnvelopStatus());
-        if (rb.getEnvelopStatus() == PayEnum.EEnvelopeStatus.PAST) {
-            isInvalid = true;
-        }
         final String rid = rb.getId();
-        final Long touid = msg.getFrom_uid();
         final int style = msg.getRed_envelope().getStyle();
         int reType = rb.getRe_type().intValue();//红包类型
         if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -6348,31 +6510,57 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(ChatActivity.this, "无红包id");
                 return;
             }
+//            if (isGroup() && rb.getAllowUsers() != null && rb.getAllowUsers().size() > 0) {
+//                MemberUser user = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), toGid);
+//                if (!rb.getAllowUsers().contains(user)) {
+//                    envelopeStatus = PayEnum.EEnvelopeStatus.NO_ALLOW;
+//                }
+//            }
             boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
             if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
-                if (msg.isMe() && isNormalStyle) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (!rb.isHasPermission()) {
+                    if (TextUtils.isEmpty(rb.getAccessToken())) {
+                        grabRedEnvelopeNoAllow(msg, tradeId, reType, envelopeStatus);
+                    } else {
+                        boolean isAllow = false;
+                        if (msg.isMe()) {
+                            isAllow = true;
+                        } else {
+                            if (rb.getCanReview() == 1) {
+                                isAllow = true;
+                            }
+                        }
+                        getEnvelopeDetail(tradeId, rb.getAccessToken(), envelopeStatus, msg, isAllow, rb.isHasPermission());
+                    }
                 } else {
-                    grabRedEnvelope(msg, tradeId, reType);
-//                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
-//                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
-//                    } else {
-//                        grabRedEnvelope(msg, tradeId, reType);
-//                    }
+                    if (msg.isMe() && isNormalStyle && !isGroup()) {
+                        getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
+                    } else {
+                        grabRedEnvelope(msg, tradeId, reType, envelopeStatus);
+                    }
                 }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
-                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
-//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-                if (msg.isMe()) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (!rb.isHasPermission()) {
+                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+                } else {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
+
+                }
+            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED || envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_UNDONE) {
+                if (msg.isMe() || !rb.isHasPermission()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
                 } else {
                     showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
                 }
             } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {
-//                getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-                if (msg.isMe()) {
-                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                if (msg.isMe() || !rb.isHasPermission()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
+                } else {
+                    showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
+                }
+            } else if (envelopeStatus == PayEnum.EEnvelopeStatus.ERROR) {
+                if (msg.isMe() || !rb.isHasPermission()) {
+                    getRedEnvelopeDetail(msg, tradeId, rb.getAccessToken(), reType, isNormalStyle, rb.isHasPermission());
                 } else {
                     showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msg, reType);
                 }
@@ -6456,8 +6644,19 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             return;
                         }
                         if (response.body().isOk()) {
-                            ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
-                            msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
+                            //正常情况data为null，若data不为null则代表有"源文件不存在"的情况
+                            if (response.body().getData() == null) {
+                                ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
+                                msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
+                            } else {
+                                if(ifCollectFromVideoOrImg){
+                                    EventFactory.EventShowDisallowedMsgNotice eventShowDisallowedMsgNotice = new EventFactory.EventShowDisallowedMsgNotice();
+                                    EventBus.getDefault().post(eventShowDisallowedMsgNotice);
+                                    ifCollectFromVideoOrImg = false;
+                                }else {
+                                    showMsgFailDialog();
+                                }
+                            }
                         }
                     }
 
@@ -6465,6 +6664,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         super.onFailure(call, t);
                         ToastUtil.showToast(ChatActivity.this, "收藏失败", 1);
+                        ifCollectFromVideoOrImg = false;
                     }
                 });
     }
@@ -6609,9 +6809,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (mAdapter != null) {
                             mAdapter.bindData(list, false);
                             mAdapter.setReadStatus(checkIsRead());
-                            notifyData();
+//                            notifyData();
                             //TODO：此时滚动会引起索引越界
-//                            mtListView.getListView().smoothScrollToPosition(0);
+                            mtListView.getListView().smoothScrollToPosition(0);
                         }
                     }
                 });
@@ -6698,6 +6898,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (!TextUtils.isEmpty(event.getMsgId())) {
             MsgAllBean msgAllBean = msgDao.getMsgById(event.getMsgId());
             if (msgAllBean != null) {
+                ifCollectFromVideoOrImg = true;
                 onCollect(msgAllBean);
             }
         }
@@ -6868,20 +7069,22 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     /**
+     *
      * 批量收藏提示弹框
+     * @param type 0 默认提示  1 包含收藏成功文案
      */
-    private void showCollectListDialog(List<MsgAllBean> list) {
-        dialogTwo = builder.setTitle("你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。")
-                .setRightText("收藏")
-                .setLeftText("取消")
+    private void showCollectListDialog(int type) {
+        String content;
+        if (type==1) {
+            content= "收藏成功\n\n你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
+        }else {
+            content= "你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
+        }
+        dialogTwo = builder.setTitle(content)
+                .setShowLeftText(false)
+                .setRightText("确定")
                 .setRightOnClickListener(v -> {
-                    //多选直接调批量收藏接口
-                    toCollectList(list);
-                })
-                .setLeftOnClickListener(v -> {
                     dialogTwo.dismiss();
-                    mAdapter.clearSelectedMsg();
-                    hideMultiSelect(ivCollection);
                 })
                 .build();
         dialogTwo.show();
@@ -6892,6 +7095,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      */
     private void showForwardListDialog(List<MsgAllBean> list) {
         dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型或\n或已失效，系统已自动过滤此类型消息。")
+                .setShowLeftText(true)
                 .setRightText("继续发送")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
@@ -6903,6 +7107,20 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 )
                 .build();
         dialogThree.show();
+    }
+
+    /**
+     * 单选转发/收藏失效消息提示弹框
+     */
+    private void showMsgFailDialog() {
+        dialogFour = builder.setTitle("你所选的消息已失效")
+                .setShowLeftText(false)
+                .setRightText("确定")
+                .setRightOnClickListener(v -> {
+                    dialogFour.dismiss();
+                })
+                .build();
+        dialogFour.show();
     }
 
     private void toSendVerifyActivity(Long uid) {
@@ -6943,9 +7161,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
-
-    //批量收藏
-    public void toCollectList(List<MsgAllBean> list) {
+    /**
+     * 批量收藏  (流程有变化，过滤掉不支持类型后，先调接口，再弹框，目前需求只显示一次)
+     * @param list 已过滤后的数据
+     * @param isNormal 正常类型true 含有不支持类型false
+     */
+    public void toCollectList(List<MsgAllBean> list, boolean isNormal) {
         if (list.size() > 0) {
             List<CollectionInfo> dataList = convertCollectBean(list);
             if (dataList != null && dataList.size() > 0) {
@@ -6959,9 +7180,20 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 return;
                             }
                             if (response.body().isOk()) {
-                                ToastUtil.show("批量收藏成功!");
-                                if (dialogTwo != null) {
-                                    dialogTwo.dismiss();
+                                if(isNormal){
+                                    // data!=null代表有"源文件不存在"情况，提示弹框
+                                    if (response.body().getData() != null) {
+                                        showCollectListDialog(1);
+                                    }else {
+                                        ToastUtil.show("收藏成功");
+                                    }
+                                } else {
+                                    //用户选过不支持的类型，因此无论如何都要提示弹框
+                                    showCollectListDialog(1);
+                                }
+                            }else {
+                                if(!TextUtils.isEmpty(response.body().getMsg())){
+                                    ToastUtil.show(response.body().getMsg()+"");
                                 }
                             }
                         }
@@ -6969,10 +7201,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void onFailure(Call<ReturnBean> call, Throwable t) {
                             super.onFailure(call, t);
-                            ToastUtil.show("批量收藏失败!");
-                            if (dialogTwo != null) {
-                                dialogTwo.dismiss();
-                            }
+                            ToastUtil.show("收藏失败");
                         }
                     });
                 } else {
@@ -6988,14 +7217,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     }
                     //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
-                    ToastUtil.show("批量收藏成功!");//离线提示
-                    if (dialogTwo != null) {
-                        dialogTwo.dismiss();
+                    if(isNormal){
+                        ToastUtil.show("收藏成功");//离线提示
+                    }else {
+                        //用户选过不支持的类型，因此无论如何都要提示弹框
+                        showCollectListDialog(1);
                     }
-                }
-            } else {
-                if (dialogTwo != null) {
-                    dialogTwo.dismiss();
                 }
             }
             mAdapter.clearSelectedMsg();
@@ -7008,9 +7235,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 过滤多选转发消息
      *
      * @param sourList 源数据
+     * @param isOverdue 是否已经过滤掉了过期文件(是否含有不存在文件)
      */
     @SuppressLint("CheckResult")
-    private void filterMsgForward(final List<MsgAllBean> sourList) {
+    private void filterMsgForward(final List<MsgAllBean> sourList, boolean isOverdue) {
+        int totalSize = mAdapter.getSelectedMsg().size();
         int sourLen = sourList.size();
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
@@ -7023,8 +7252,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 msgIds[i] = msgAllBean.getMsg_id();
                             }
                             return msgDao.filterMsgForForward(msgIds);
+                        }else {
+                            return new ArrayList<MsgAllBean>();
                         }
-                        return null;
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -7035,14 +7265,22 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
-                                if (len == sourLen) {
-                                    toForward(list);
-                                } else if (len < sourLen) {
-                                    showForwardListDialog(list);
+                                //只要含有一个正常类型消息
+                                if (len == totalSize) {
+                                    if(isOverdue){
+                                        showForwardListDialog(list);//存在不支持类型或失效的转发
+                                    }else {
+                                        toForward(list);//正常类型转发
+                                    }
+                                } else if (len < totalSize) {
+                                    showForwardListDialog(list);//存在不支持类型或失效的转发
                                 }
                             } else {
-                                showValidMsgDialog();
+                                //全为不支持类型或失效消息
+                                showValidMsgDialog(false);
                             }
+                        }else {
+                            showValidMsgDialog(false);
                         }
                     }
                 });
@@ -7052,9 +7290,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 过滤多选收藏消息
      *
      * @param sourList 源数据
+     * @param isOverdue 是否已经过滤掉了过期文件(是否含有不存在文件)
      */
     @SuppressLint("CheckResult")
-    private void filterMsgCollection(final List<MsgAllBean> sourList) {
+    private void filterMsgCollection(final List<MsgAllBean> sourList, boolean isOverdue) {
+        int totalSize = mAdapter.getSelectedMsg().size();
         int sourLen = sourList.size();
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
@@ -7067,8 +7307,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 msgIds[i] = msgAllBean.getMsg_id();
                             }
                             return msgDao.filterMsgForCollection(msgIds);
+                        }else {
+                            return new ArrayList<MsgAllBean>();
                         }
-                        return null;
+
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -7079,20 +7321,28 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
-                                if (len == sourLen) {
-                                    toCollectList(list);
-                                } else if (len < sourLen) {
-                                    showCollectListDialog(list);
+                                //只要含有一个正常类型消息
+                                if (len == totalSize) {
+                                    if(isOverdue){
+                                        toCollectList(list,false);//存在不支持类型或失效的收藏
+                                    }else {
+                                        toCollectList(list,true);//正常类型收藏
+                                    }
+                                } else if (len < totalSize) {
+                                    toCollectList(list,false);//存在不支持类型或失效的收藏
                                 }
                             } else {
-                                showValidMsgDialog();
+                                //全为不支持类型或失效消息
+                                showValidMsgDialog(true);
                             }
+                        }else {
+                            showValidMsgDialog(true);
                         }
                     }
                 });
     }
 
-    private void showValidMsgDialog() {
+    private void showValidMsgDialog(boolean clear) {
         DialogCommon2 dialogValid = new DialogCommon2(this);
         dialogValid.setContent("你选的消息包含不支持消息或已失效", true)
                 .setButtonTxt("确定")
@@ -7101,8 +7351,179 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     @Override
                     public void onClick() {
                         dialogValid.dismiss();
-//                        mAdapter.clearSelectedMsg();
-//                        hideMultiSelect(ivForward);
+                        if(clear){
+                            mAdapter.clearSelectedMsg();
+                            hideMultiSelect(ivCollection);
+                        }
+                    }
+                }).show();
+    }
+
+    //检测图片，语音，文件，视频消息是否过期，过期则过滤。 action 1 转发，2收藏
+    @SuppressLint("CheckResult")
+    private void filterMessageValid(List<MsgAllBean> sourList, int action) {
+        int sourLen = sourList.size();
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        if (sourLen > 0) {
+                            String[] msgIds = new String[sourLen];
+                            for (int i = 0; i < sourLen; i++) {
+                                MsgAllBean msgAllBean = sourList.get(i);
+                                msgIds[i] = msgAllBean.getMsg_id();
+                            }
+                            List<MsgAllBean> uploadMessages = msgDao.getUploadMessage(msgIds);
+                            if (uploadMessages != null) {
+                                int len = uploadMessages.size();
+                                if (len > 0) {
+                                    ArrayList<FileBean> fileBeans = new ArrayList<>();
+                                    Map<String, MsgAllBean> filterMsgList = new HashMap<>();
+                                    for (int i = 0; i < len; i++) {
+                                        MsgAllBean msgAllBean = uploadMessages.get(i);
+                                        String md5 = "";
+                                        String url = "";
+                                        if (msgAllBean.getImage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getImage().getPreview());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getImage().getPreview(), msgAllBean.getMsg_type());
+                                        } else if (msgAllBean.getVideoMessage() != null) {
+                                            //添加第一帧背景图
+                                            FileBean fileBean = new FileBean();
+                                            fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getBg_url()));
+                                            fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
+                                            fileBeans.add(fileBean);
+                                            //视频源文件
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getUrl());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getUrl(), msgAllBean.getMsg_type());
+                                        } else if (msgAllBean.getSendFileMessage() != null) {
+                                            md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getSendFileMessage().getUrl());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getMsg_type());
+                                        }
+                                        if (!TextUtils.isEmpty(md5)) {
+                                            FileBean fileBean = new FileBean();
+                                            fileBean.setMd5(md5);
+                                            fileBean.setUrl(url);
+                                            fileBeans.add(fileBean);
+                                            filterMsgList.put(md5, msgAllBean);
+                                        }
+                                    }
+
+                                    if (fileBeans.size() > 0) {
+                                        UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<List<String>>>() {
+                                            @Override
+                                            public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                                                super.onResponse(call, response);
+                                                if (response != null && response.body() != null) {
+                                                    ReturnBean returnButton = response.body();
+                                                    if (returnButton != null && returnButton.isOk()) {
+                                                        List<String> urls = response.body().getData();
+                                                        int size = urls.size();
+                                                        if (size == fileBeans.size()) {
+                                                            //都未过期
+                                                            if (action == 1) {
+                                                                filterMsgForward(sourList,false);
+                                                            } else if (action == 2) {
+                                                                filterMsgCollection(sourList,false);
+                                                            }
+                                                        } else {
+                                                            for (int i = 0; i < size; i++) {
+                                                                String md5 = urls.get(i);
+                                                                filterMsgList.remove(md5);
+                                                            }
+                                                            if (filterMsgList.size() > 0) {
+                                                                Iterator iterator = filterMsgList.keySet().iterator();
+                                                                while (iterator.hasNext()) {
+                                                                    MsgAllBean bean = filterMsgList.get(iterator.next().toString());
+                                                                    sourList.remove(bean);
+                                                                }
+                                                            }
+                                                            if (action == 1) {
+                                                                filterMsgForward(sourList,true);
+                                                            } else if (action == 2) {
+                                                                filterMsgCollection(sourList,true);
+                                                            }
+                                                        }
+                                                    } else {//都是过期的
+                                                        if (filterMsgList.size() > 0) {
+                                                            Iterator iterator = filterMsgList.keySet().iterator();
+                                                            while (iterator.hasNext()) {
+                                                                MsgAllBean bean = filterMsgList.get(iterator.next().toString());
+                                                                sourList.remove(bean);
+                                                            }
+                                                        }
+                                                        if (action == 1) {
+                                                            filterMsgForward(sourList,true);
+                                                        } else if (action == 2) {
+                                                            filterMsgCollection(sourList,true);
+                                                        }
+                                                    }
+                                                } else {
+                                                    if (action == 1) {
+                                                        ToastUtil.show("转发失败");
+//                                                        filterMsgForward(sourList);
+                                                    } else if (action == 2) {
+                                                        ToastUtil.show("收藏失败");
+//                                                        filterMsgCollection(sourList);
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                                                super.onFailure(call, t);
+                                                if (action == 1) {
+                                                    ToastUtil.show("转发失败");
+//                                                        filterMsgForward(sourList);
+                                                } else if (action == 2) {
+                                                    ToastUtil.show("收藏失败");
+//                                                        filterMsgCollection(sourList);
+                                                }
+                                            }
+                                        });
+                                    }else {
+                                        if (action == 1) {
+                                            filterMsgForward(sourList,false);
+                                        } else if (action == 2) {
+                                            filterMsgCollection(sourList,false);
+                                        }
+                                    }
+                                } else {
+                                    if (action == 1) {
+                                        filterMsgForward(sourList,false);
+                                    } else if (action == 2) {
+                                        filterMsgCollection(sourList,false);
+                                    }
+                                }
+                            } else {
+                                if (action == 1) {
+                                    filterMsgForward(sourList,false);
+                                } else if (action == 2) {
+                                    filterMsgCollection(sourList,false);
+                                }
+                            }
+                        }
+                        return null;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                    }
+                });
+    }
+
+    //多选转发消息过多
+    private void showMoreMsgDialog() {
+        DialogCommon2 dialogValid = new DialogCommon2(this);
+        dialogValid.setContent("转发消息不能超过30条", true)
+                .setButtonTxt("确定")
+                .hasTitle(false)
+                .setListener(new DialogCommon2.IDialogListener() {
+                    @Override
+                    public void onClick() {
+                        dialogValid.dismiss();
                     }
                 }).show();
     }

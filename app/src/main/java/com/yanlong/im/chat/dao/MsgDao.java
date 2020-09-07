@@ -2,6 +2,7 @@ package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
 
+import com.example.nim_lib.config.Preferences;
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
@@ -1384,6 +1385,32 @@ public class MsgDao {
         }
     }
 
+    /***
+     * 清除某个群 进群申请条数
+     * @param type
+     * @param gid
+     * @return
+     */
+    public void clearRemidCount(String type, String gid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            if (Preferences.GROUP_FRIEND_APPLY.equals(type)) {
+                Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("gid", gid).findFirst();
+                if (remind != null) {
+                    remind.setNumber(0);
+                    realm.insertOrUpdate(remind);
+                    realm.commitTransaction();
+                    realm.close();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
 
     /***
      * 获取红点的值
@@ -1391,8 +1418,20 @@ public class MsgDao {
      * @return
      */
     public int remidGet(String type) {
-        Remind remind = DaoUtil.findOne(Remind.class, "remid_type", type);
-        int num = remind == null ? 0 : remind.getNumber();
+
+        int num = 0;
+        Realm realm = DaoUtil.open();
+        if (Preferences.FRIEND_APPLY.equals(type)) {
+            RealmResults<Remind> reminds = realm.where(Remind.class).equalTo("remid_type", type).findAll();
+            if (reminds != null) {
+                for (Remind remind : reminds) {
+                    num += remind.getNumber();
+                }
+            }
+        } else {
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+            num = remind == null ? 0 : remind.getNumber();
+        }
         return num;
     }
 
@@ -1898,6 +1937,29 @@ public class MsgDao {
 
     }
 
+    /**
+     * 根据uid批量查询入群申请列表的用户信息
+     * @param uidList
+     * @param stat  1 申请中 2 已同意
+     * @return
+     */
+    public List<ApplyBean> getApplysByUid(List<String> uidList,int stat) {
+        Realm realm = DaoUtil.open();
+        List<ApplyBean> list = new ArrayList<>();
+        if(uidList!=null && uidList.size()>0){
+            for(int i=0; i<uidList.size(); i++){
+                ApplyBean bean;
+                ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat",stat).findFirst();
+                if (applyBean != null) {
+                    bean = realm.copyFromRealm(applyBean);
+                    list.add(bean);
+                }
+
+            }
+        }
+        realm.close();
+        return list;
+    }
 
     /***
      * 修改群名
@@ -1983,6 +2045,58 @@ public class MsgDao {
                         envelopeMessage.setAccessToken(token);
                     }
                     envelopeMessage.setEnvelopStatus(envelopeStatus);
+                }
+            }
+            if (envelopeMessage != null) {
+                if (envelopeMessage.getIsInvalid() == 0) {//没拆才更新，已经拆过了不更新
+                    envelopeMessage.setIsInvalid(envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL ? 1 : 0);
+                }
+                envelopeMessage.setEnvelopStatus(envelopeStatus);
+                realm.insertOrUpdate(envelopeMessage);
+            }
+
+            //删除红包备份消息
+            if (envelopeStatus > 0) {
+                long traceId = Long.parseLong(rid);
+                MessageDBTemp msgTemp = realm.where(MessageDBTemp.class).equalTo("envelopeMessage.traceId", traceId).findFirst();
+                if (msgTemp != null) {
+                    if (msgTemp.getRedEnvelope() != null) {
+                        msgTemp.getRedEnvelope().deleteFromRealm();
+                    }
+                    msgTemp.deleteFromRealm();
+                }
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    /**
+     * 红包开
+     *
+     * @param rid
+     * @param
+     */
+    public void updateEnvelopeDetail(String rid, int envelopeStatus, int reType, String token, int canReview) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RedEnvelopeMessage envelopeMessage = null;
+            if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
+            } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                long traceId = Long.parseLong(rid);
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", traceId).findFirst();
+                if (envelopeMessage != null) {
+                    if (!TextUtils.isEmpty(token)) {
+                        envelopeMessage.setAccessToken(token);
+                    }
+                    envelopeMessage.setEnvelopStatus(envelopeStatus);
+                    envelopeMessage.setCanReview(1);
                 }
             }
             if (envelopeMessage != null) {
@@ -3090,12 +3204,10 @@ public class MsgDao {
                     .and()
                     .beginGroup().isNotNull("red_envelope").endGroup()
                     .and()
-                    .beginGroup().equalTo("red_envelope.envelopStatus", 0).endGroup()
-                    .and()
                     .beginGroup()
-                    .beginGroup().equalTo("red_envelope.style", 1).endGroup()
+                    .beginGroup().equalTo("red_envelope.hasPermission", true).and().equalTo("red_envelope.envelopStatus", 0).endGroup()
                     .or()
-                    .beginGroup().equalTo("red_envelope.style", 0).and().notEqualTo("from_uid", mId).endGroup()
+                    .beginGroup().equalTo("red_envelope.hasPermission", false).and().in("red_envelope.envelopStatus", new Integer[]{0, 1, 4, 5}).endGroup()
                     .endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time - diff).endGroup()
@@ -3109,12 +3221,10 @@ public class MsgDao {
                     .and()
                     .beginGroup().isNotNull("envelopeMessage").endGroup()
                     .and()
-                    .beginGroup().equalTo("envelopeMessage.envelopStatus", 0).endGroup()
-                    .and()
                     .beginGroup()
-                    .beginGroup().equalTo("envelopeMessage.style", 1).endGroup()
-                    .or()
-                    .beginGroup().equalTo("envelopeMessage.style", 0).and().notEqualTo("from_uid", mId).endGroup()
+                    .beginGroup().equalTo("envelopeMessage.hasPermission", true).and().equalTo("envelopeMessage.envelopStatus", 0).endGroup()
+                    .and()
+                    .beginGroup().equalTo("envelopeMessage.hasPermission", false).and().in("envelopeMessage.envelopStatus", new Integer[]{0, 1, 4, 5}).endGroup()
                     .endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time - diff).endGroup()
@@ -3650,26 +3760,13 @@ public class MsgDao {
         List<MsgAllBean> list = null;
         Realm realm = DaoUtil.open();
         try {
+            //转发支持消息类型
+            Integer[] supportType = new Integer[]{ChatEnum.EMessageType.TEXT, ChatEnum.EMessageType.AT, ChatEnum.EMessageType.LOCATION,
+                    ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO, ChatEnum.EMessageType.FILE, ChatEnum.EMessageType.SHIPPED_EXPRESSION};
             RealmResults<MsgAllBean> all = realm.where(MsgAllBean.class)
                     .beginGroup().in("msg_id", msgIds).endGroup()
                     .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.RED_ENVELOPE).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.TRANSFER).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.BUSINESS_CARD).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.STAMP).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.MSG_VOICE_VIDEO).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.TRANSFER_NOTICE).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.ASSISTANT).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.ASSISTANT_NEW).endGroup()
+                    .beginGroup().in("msg_type", supportType).endGroup()
                     .and()
                     .beginGroup().equalTo("send_state", ChatEnum.ESendStatus.NORMAL).endGroup()
                     .sort("timestamp", Sort.ASCENDING)
@@ -3688,6 +3785,7 @@ public class MsgDao {
     //过滤收藏消息：1. 去除不存在消息，2,过滤不支持该操作或发送不成功消息，3，按时间重新排序
     public List<MsgAllBean> filterMsgForCollection(String[] msgIds) {
         List<MsgAllBean> list = null;
+        //收藏支持消息类型
         Integer[] supportType = new Integer[]{ChatEnum.EMessageType.TEXT, ChatEnum.EMessageType.AT, ChatEnum.EMessageType.VOICE, ChatEnum.EMessageType.LOCATION,
                 ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO, ChatEnum.EMessageType.FILE, ChatEnum.EMessageType.SHIPPED_EXPRESSION};
         Realm realm = DaoUtil.open();
@@ -3709,5 +3807,171 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return list;
+    }
+
+    public List<MemberUser> getMembers(String gid, String[] memberIds) {
+        if (TextUtils.isEmpty(gid) || memberIds == null) {
+            return null;
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null && group.getUsers() != null) {
+            String[] orderFiled = {"tag"};
+            Sort[] sorts = {Sort.ASCENDING};
+            RealmResults<MemberUser> members = group.getUsers().where().in("memberId", memberIds).sort(orderFiled, sorts).findAll();
+            if (members != null) {
+                memberUsers = realm.copyFromRealm(members);
+            }
+        }
+        realm.close();
+        return memberUsers;
+    }
+
+    public List<MemberUser> getMembers(String gid) {
+        if (TextUtils.isEmpty(gid)) {
+            return null;
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null && group.getUsers() != null) {
+            String[] orderFiled = {"tag"};
+            Sort[] sorts = {Sort.ASCENDING};
+            RealmResults<MemberUser> members = group.getUsers().sort(orderFiled, sorts);
+            if (members != null) {
+                memberUsers = realm.copyFromRealm(members);
+            }
+        }
+        realm.close();
+        return memberUsers;
+    }
+
+    //获取群成员被首字母排序的group
+    public Group getSortGroup(String gid) {
+        if (TextUtils.isEmpty(gid)) {
+            return null;
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group resultGroup = null;
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null) {
+            resultGroup = realm.copyFromRealm(group);
+            if (group.getUsers() != null) {
+                String[] orderFiled = {"tag"};
+                Sort[] sorts = {Sort.ASCENDING};
+                RealmResults<MemberUser> members = group.getUsers().sort(orderFiled, sorts);
+                if (members != null) {
+                    memberUsers = realm.copyFromRealm(members);
+                    RealmList<MemberUser> resultMembers = new RealmList<>();
+                    resultMembers.addAll(memberUsers);
+                    resultGroup.setUsers(resultMembers);
+                }
+            }
+        }
+        realm.close();
+        return resultGroup;
+    }
+
+    //模糊搜索群成员
+    public List<MemberUser> searchMemberByKey(String gid, String key) {
+        if (TextUtils.isEmpty(gid) || TextUtils.isEmpty(key)) {
+            return null;
+        }
+        if (!TextUtils.isEmpty(key)) {
+            key = String.format("*%s*", key);
+        }
+        List<MemberUser> memberUsers = null;
+        Realm realm = DaoUtil.open();
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null && group.getUsers() != null) {
+            String[] orderFiled = {"tag"};
+            Sort[] sorts = {Sort.ASCENDING};
+            RealmResults<MemberUser> members = group.getUsers().where()
+                    .beginGroup().like("name", key, Case.INSENSITIVE).endGroup()
+                    .or()
+                    .beginGroup().like("membername", key, Case.INSENSITIVE).endGroup()
+                    .sort(orderFiled, sorts).findAll();
+            if (members != null) {
+                memberUsers = realm.copyFromRealm(members);
+            }
+        }
+        realm.close();
+        return memberUsers;
+    }
+
+
+    //获取图片，视频语音，文件消息
+    public List<MsgAllBean> getUploadMessage(String[] msgIds) {
+        List<MsgAllBean> list = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.VOICE, ChatEnum.EMessageType.MSG_VIDEO, ChatEnum.EMessageType.FILE};
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<MsgAllBean> all = realm.where(MsgAllBean.class)
+                    .beginGroup().in("msg_id", msgIds).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
+                    .and()
+                    .beginGroup().equalTo("send_state", ChatEnum.ESendStatus.NORMAL).endGroup()
+                    .sort("timestamp", Sort.ASCENDING)
+                    .findAll();
+            if (all != null) {
+                list = realm.copyFromRealm(all);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+    }
+
+    //获取图片，视频语音，文件消息
+    public List<MsgAllBean> getMessage(String[] msgIds) {
+        List<MsgAllBean> list = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<MsgAllBean> all = realm.where(MsgAllBean.class)
+                    .beginGroup().in("msg_id", msgIds).endGroup()
+                    .sort("timestamp", Sort.ASCENDING)
+                    .findAll();
+            if (all != null) {
+                list = realm.copyFromRealm(all);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+    }
+
+    /**
+     * 修改邀请入群通知消息 (将"去确认"改为"已确认")
+     * @param msgId
+     * @return
+     */
+    public MsgAllBean updateInviteNoticeMsg(String msgId) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+        if (msgAllBean != null) {
+            if(msgAllBean.getMsgNotice()!=null){
+                if(!TextUtils.isEmpty(msgAllBean.getMsgNotice().getNote()) && msgAllBean.getMsgNotice().getNote().contains("去确认")){
+                    //从后到前找到"去确认"
+                    int startIndex = msgAllBean.getMsgNotice().getNote().lastIndexOf("去");
+                    msgAllBean.getMsgNotice().setNote(new StringBuilder(msgAllBean.getMsgNotice().getNote()).replace(startIndex,startIndex+1,"已").toString());
+                }
+            }
+            realm.insertOrUpdate(msgAllBean);
+            ret = realm.copyFromRealm(msgAllBean);
+        }
+        realm.commitTransaction();
+        realm.close();
+
+        return ret;
+
     }
 }

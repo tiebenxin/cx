@@ -19,6 +19,7 @@ import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.view.recycler.MultiRecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,10 +56,10 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private MsgDao msgDao = new MsgDao();
     private IActionTagClickListener actionListener;
     private boolean isOpenRead;
-    private MultiListView listView;
+    private MultiRecyclerView listView;
 
 
-    public MessageAdapter(Context c, ICellEventListener l, boolean isG, MultiListView listView) {
+    public MessageAdapter(Context c, ICellEventListener l, boolean isG, MultiRecyclerView listView) {
         context = c;
         this.listView = listView;
         eventListener = l;

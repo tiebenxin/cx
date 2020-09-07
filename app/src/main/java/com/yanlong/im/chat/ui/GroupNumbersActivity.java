@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -33,6 +34,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -63,6 +65,7 @@ public class GroupNumbersActivity extends AppActivity {
     public static final String AGM_NUMBERS_JSON = "number_json";
     //1:添加,2:删除
     public static final String AGM_TYPE = "type";
+    public static final String NEED_VERIFICATION = "need_verification";//是否需要群验证
     public static final int TYPE_ADD = 1;
     public static final int TYPE_DEL = 2;
 
@@ -70,6 +73,7 @@ public class GroupNumbersActivity extends AppActivity {
     private List<UserInfo> listData;
     private List<UserInfo> tempData = new ArrayList<>();
     private Integer type;//TYPE_ADD 邀请进群  否则为移除群成员
+    private int needVerification = 0;// 0 无需群验证 1 需要群验证
 
     private Gson gson = new Gson();
 
@@ -80,6 +84,8 @@ public class GroupNumbersActivity extends AppActivity {
     private PySortView viewType;
     private int isClickble = 0;
     private RecyclerViewAdapter mAdapter;
+    private CommonSelectDialog.Builder builder;
+    private CommonSelectDialog dialogOne;//群验证弹框
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshBalance(EventFactory.UpdateGroupNumberEvent event) {
@@ -123,6 +129,7 @@ public class GroupNumbersActivity extends AppActivity {
         topListView = findViewById(R.id.topListView);
         mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
+        builder = new CommonSelectDialog.Builder(GroupNumbersActivity.this);
     }
 
     @Override
@@ -145,6 +152,7 @@ public class GroupNumbersActivity extends AppActivity {
         }
         type = getIntent().getIntExtra(AGM_TYPE, TYPE_ADD);
         gid = getIntent().getStringExtra(AGM_GID);
+        needVerification = getIntent().getIntExtra(NEED_VERIFICATION,0);
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -155,7 +163,17 @@ public class GroupNumbersActivity extends AppActivity {
             @Override
             public void onRight() {
                 if (isClickble == 0) {
-                    taskOption();
+                    if(needVerification==0){
+                        taskOption("");//邀请入群，不显示弹框
+                    }else {
+                        //TODO 若已开启群验证，改为弹框，入群通知移至聊天界面
+                        if(type == TYPE_ADD){//邀请入群，需要显示弹框
+                            showDialogOne();
+                        }else {
+                            taskOption("");//删除原有逻辑不变
+                        }
+                    }
+
                 }
             }
         });
@@ -365,7 +383,7 @@ public class GroupNumbersActivity extends AppActivity {
     /***
      * 提交处理
      */
-    private void taskOption() {
+    private void taskOption(String remark) {
         if (listDataTop.size() < 1) {
             ToastUtil.show(getContext(), "请至少选择一个用户");
             return;
@@ -392,13 +410,13 @@ public class GroupNumbersActivity extends AppActivity {
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    if (type != TYPE_DEL) {
+                    if (type == TYPE_DEL) {
                         dao.removeGroupMember(gid, listLong);
                     }
                     if (type == TYPE_ADD && response.body().getData() != null) {
                         if (response.body().getData().isPending()) {
-                            //提示情况
-                            ToastUtil.show("邀请成功,等待群主验证");
+                            ToastUtil.show("邀请成功,请等待群主验证");
+                            SocketData.inviteBeConfirmedNotice(gid);
                         } else {
                             SocketData.createMsgGroupOfNotice(gid, listDataTop);
                         }
@@ -435,7 +453,7 @@ public class GroupNumbersActivity extends AppActivity {
         }
 
         if (type == TYPE_ADD) {
-            msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(), callback);
+            msgACtion.groupAdd(remark,gid, listDataTop, UserAction.getMyInfo().getName(), callback);
 //            dao.addGroupMember(gid,list);
         } else {
             msgACtion.groupRemove(gid, listDataTop, callback);
@@ -446,4 +464,28 @@ public class GroupNumbersActivity extends AppActivity {
     }
 
 
+    private void showDialogOne(){
+        if (dialogOne == null) {
+            dialogOne = builder.setTitle("群聊已开启群验证，邀请朋友进群\n可向管理员描述原因。")
+                    .setLeftText("取消")
+                    .setRightText("确定")
+                    .setType(1)
+                    .setLeftOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialogOne.dismiss();
+                            finish();
+                        }
+                    })
+                    .setRightOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialogOne.dismiss();
+                            taskOption(dialogOne.getEditContent());
+                        }
+                    })
+                    .build();
+        }
+        dialogOne.show();
+    }
 }

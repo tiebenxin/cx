@@ -7,10 +7,10 @@ import io.realm.annotations.PrimaryKey;
  * 红点通知
  */
 public class Remind extends RealmObject {
-    @PrimaryKey
     private String remid_type;//friend_apply:申请包括群和好友,me_update:系统更新
     private Integer number;
     private long uid;// 需要根据uid来判断是显示新的申请红点
+    private String gid;// 群id 用户 记录群的申请数
 
     public String getRemid_type() {
         return remid_type;
@@ -34,5 +34,13 @@ public class Remind extends RealmObject {
 
     public void setUid(long uid) {
         this.uid = uid;
+    }
+
+    public String getGid() {
+        return gid;
+    }
+
+    public void setGid(String gid) {
+        this.gid = gid;
     }
 }

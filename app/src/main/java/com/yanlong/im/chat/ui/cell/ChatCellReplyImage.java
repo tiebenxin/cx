@@ -2,15 +2,21 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -58,13 +64,14 @@ public class ChatCellReplyImage extends ChatCellImage {
         contentMessage = message.getReplyMessage();
         QuotedMessage quotedMessage = contentMessage.getQuotedMessage();
         tvRefName.setText(quotedMessage.getNickName());
-        if (quotedMessage.getMsgType() == ChatEnum.EMessageType.IMAGE || quotedMessage.getMsgType() == ChatEnum.EMessageType.SHIPPED_EXPRESSION
-                || quotedMessage.getMsgType() == ChatEnum.EMessageType.BUSINESS_CARD) {
-            glide(quotedMessage.getUrl());
+        if (quotedMessage.getMsgType() == ChatEnum.EMessageType.IMAGE || quotedMessage.getMsgType() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+            glide(quotedMessage.getUrl(),R.mipmap.ic_image_bg);
+        }if (quotedMessage.getMsgType() == ChatEnum.EMessageType.BUSINESS_CARD) {
+            glide(quotedMessage.getUrl(),R.mipmap.ic_info_head);
         } else if (quotedMessage.getMsgType() == ChatEnum.EMessageType.VOICE) {
             ivImage.setImageResource(R.mipmap.ic_reply_voice);
         } else if (quotedMessage.getMsgType() == ChatEnum.EMessageType.MSG_VIDEO) {
-            glide(quotedMessage.getUrl());
+            glide(quotedMessage.getUrl(),R.mipmap.ic_image_bg);
         } else if (quotedMessage.getMsgType() == ChatEnum.EMessageType.FILE) {
             ivImage.setImageResource(MessageManager.getInstance().getFileIconRid(quotedMessage.getUrl()));
         }
@@ -98,12 +105,13 @@ public class ChatCellReplyImage extends ChatCellImage {
         }
     }
 
-    public void glide(String url) {
+    public void glide(String url,int rid) {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .dontAnimate()
+                .error(rid)
                 .skipMemoryCache(false)
                 .centerCrop();
         if (isGif(url)) {

@@ -59,7 +59,7 @@ public class MessageRemoteDataSource {
      * @param friendContactName 好友备注名，可为null
      * @param saveToDB          保存好友信息到数据库
      */
-    public void getRequestFriends(String friendContactName, long uid, List<ApplyBean> listData,
+    public void getRequestFriends(String friendContactName, long uid, String phone, List<ApplyBean> listData,
                                   Function<ApplyBean, Boolean> saveToDB) {
         checkService();
         //同步请求
@@ -81,10 +81,12 @@ public class MessageRemoteDataSource {
                     // 每次只更新本次请求的好友，方便后面排序
                     if (uid == applyBean.getUid()) {
                         applyBean.setTime(System.currentTimeMillis());
+                        applyBean.setPhone(phone);
                     } else if (listData != null && listData.size() > 0) {// 取出原来的时间
                         for (ApplyBean bean : listData) {
                             if (applyBean.getUid() == bean.getUid()) {
                                 applyBean.setTime(bean.getTime());
+                                applyBean.setPhone(bean.getPhone());
                                 break;
                             }
                         }

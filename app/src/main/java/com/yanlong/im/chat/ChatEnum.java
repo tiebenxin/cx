@@ -303,7 +303,7 @@ public class ChatEnum {
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
             ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT, ENoticeType.DEFAULT_USER, ENoticeType.GROUP_OTHER_REMOVE,
-            ENoticeType.SEAL_ACCOUNT, ENoticeType.FRIEND_DEACTIVATE, ENoticeType.NO_FRI_ADD_FIRST})
+            ENoticeType.SEAL_ACCOUNT, ENoticeType.FRIEND_DEACTIVATE, ENoticeType.NO_FRI_ADD_FIRST,ENoticeType.REQUEST_GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int DEFAULT = 0;//默认，简单文本
@@ -340,6 +340,7 @@ public class ChatEnum {
         int SEAL_ACCOUNT = 31;// 封号
         int FRIEND_DEACTIVATE = 32;// 该账号已注销
         int NO_FRI_ADD_FIRST = 33;//被删好友提示先添加好友
+        int REQUEST_GROUP = 34; // 请求入群
     }
 
     /*
@@ -390,7 +391,7 @@ public class ChatEnum {
     /*
      *session 消息类型
      * */
-    @IntDef({ESessionType.DEFAULT, ESessionType.SINGLE, ESessionType.ALL, ESessionType.DRAFT, ESessionType.ENVELOPE_FAIL})
+    @IntDef({ESessionType.DEFAULT, ESessionType.SINGLE, ESessionType.ALL, ESessionType.DRAFT, ESessionType.ENVELOPE_FAIL,ESessionType.NEW_JOIN_GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESessionType {
         int DEFAULT = 1000; // 主功能
@@ -398,6 +399,7 @@ public class ChatEnum {
         int ALL = 1; // @所有人
         int DRAFT = 2; // 草稿
         int ENVELOPE_FAIL = 3;//红包发送失败
+        int NEW_JOIN_GROUP = 4;// 进群申请
     }
 
     /*

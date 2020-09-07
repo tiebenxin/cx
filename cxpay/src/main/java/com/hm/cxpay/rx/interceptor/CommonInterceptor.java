@@ -61,6 +61,8 @@ public class CommonInterceptor implements Interceptor {
         if (!TextUtils.isEmpty(PayEnvironment.getInstance().getToken())) {
             requestBuilder.header(TokenManager.TOKEN_KEY, PayEnvironment.getInstance().getToken());
         }
+        requestBuilder.header("cli-platform", "Android");
+        requestBuilder.header("cli-version", AppConfig.getVersionName());
         return chain.proceed(requestBuilder.build());
     }
 

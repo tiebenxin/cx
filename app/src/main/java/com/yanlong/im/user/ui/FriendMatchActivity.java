@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +19,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
@@ -140,6 +143,13 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
 
             @Override
             public void afterTextChanged(Editable s) {
+            }
+        });
+        bindingView.mtListView.getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                showInput(false);
             }
         });
     }
@@ -333,7 +343,6 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                             intent.putExtra(FriendVerifyActivity.USER_ID, bean.getUid());
                             intent.putExtra(FriendVerifyActivity.USER_NOTE, bean.getPhoneremark());
                             startActivityForResult(intent, SEND_VERIFY);
-//                            onAddFriend(bean, position);
                         }
                     }
                 }
@@ -381,24 +390,6 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
                 viewRoot = convertView.findViewById(R.id.layout_root);
             }
         }
-    }
-
-    private void onAddFriend(FriendInfoBean bean, @SuppressLint("RecyclerView") int position) {
-        AlertTouch alertTouch = new AlertTouch();
-        alertTouch.init(FriendMatchActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
-            @Override
-            public void onON() {
-
-            }
-
-            @Override
-            public void onYes(String content) {
-                taskFriendApply(bean.getUid(), content, bean.getPhoneremark(), position);
-            }
-        });
-        alertTouch.show();
-        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
-        alertTouch.setEdHintOrSize(null, 60);
     }
 
     /**
@@ -518,25 +509,6 @@ public class FriendMatchActivity extends BaseBindActivity<ActivityFriendMatchBin
         } catch (Exception e) {
 
         }
-    }
-
-    private void taskFriendApply(final Long uid, String sayHi, String contactName, final int position) {
-        userAction.friendApply(uid, sayHi, contactName, new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null) {
-                    return;
-                }
-                if (response.body().isOk()) {
-                    if (uid != null) {
-                        onDelete(uid);
-                    }
-                    listData.remove(position);
-                    bindingView.mtListView.notifyDataSetChange();
-                }
-                ToastUtil.show(FriendMatchActivity.this, response.body().getMsg());
-            }
-        });
     }
 
     @Override

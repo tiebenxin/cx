@@ -1,6 +1,7 @@
 package com.hm.cxpay.dailog;
 
 import android.content.Context;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,6 +19,7 @@ import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.CircleImageView;
 import com.hm.cxpay.widget.RedAmina;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.base.BaseDialog;
 import net.cb.cb.library.utils.ToastUtil;
 
@@ -42,6 +44,7 @@ public class DialogEnvelope extends BaseDialog {
     private String note;
     private IEnvelopeListener listener;
     private int style;
+    private TextView tvMember;
 
     public DialogEnvelope(Context context, int theme) {
         super(context, theme);
@@ -56,9 +59,11 @@ public class DialogEnvelope extends BaseDialog {
         tvInfo = findViewById(R.id.txt_rb_info);
         ivOpen = findViewById(R.id.img_open);
         tvMore = findViewById(R.id.txt_more);
+        tvMember = findViewById(R.id.tv_member);
         ivClose.setOnClickListener(this);
         ivOpen.setOnClickListener(this);
         tvMore.setOnClickListener(this);
+        tvMember.setOnClickListener(this);
     }
 
     @Override
@@ -74,6 +79,11 @@ public class DialogEnvelope extends BaseDialog {
             dismiss();
             if (listener != null) {
                 listener.viewRecord(tradeId, token, style);
+            }
+        } else if (id == tvMember.getId()) {
+            dismiss();
+            if (listener != null) {
+                listener.viewAllowUser();
             }
         }
     }
@@ -96,7 +106,6 @@ public class DialogEnvelope extends BaseDialog {
 
     private void updateUI(int envelopeStatus) {
         UIUtils.loadAvatar(avatar, ivAvatar);
-
         tvName.setText(nick);
         if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {//正常，可以抢
             ivOpen.setVisibility(View.VISIBLE);
@@ -161,7 +170,7 @@ public class DialogEnvelope extends BaseDialog {
                             if (bean != null) {
                                 updateUIAfterOpen(bean);
                                 if (listener != null) {
-                                    listener.onOpen(tradeId, bean.getStat(),bean.isLast());
+                                    listener.onOpen(tradeId, bean.getStat(), bean.isLast());
                                 }
                             }
                         } else {
@@ -228,9 +237,11 @@ public class DialogEnvelope extends BaseDialog {
     }
 
     public interface IEnvelopeListener {
-        void onOpen(long rid, int envelopeStatus,boolean isLast);
+        void onOpen(long rid, int envelopeStatus, boolean isLast);
 
         void viewRecord(long rid, String token, int style);
+
+        void viewAllowUser();
     }
 
 

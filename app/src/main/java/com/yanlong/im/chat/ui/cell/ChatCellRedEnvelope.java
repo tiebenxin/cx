@@ -19,7 +19,8 @@ public class ChatCellRedEnvelope extends ChatCellBase {
 
     private TextView tv_rb_title, tv_rb_info, tv_rb_type;
     private ImageView iv_rb_state, iv_rb_icon;
-    private RedEnvelopeMessage redEnvelopeMessage;
+    private RedEnvelopeMessage contentMsg;
+    private TextView tvViewMore;
 
     protected ChatCellRedEnvelope(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -33,6 +34,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
         tv_rb_type = getView().findViewById(R.id.tv_rb_type);
         iv_rb_state = getView().findViewById(R.id.iv_rb_state);
         iv_rb_icon = getView().findViewById(R.id.iv_rb_icon);
+        tvViewMore = getView().findViewById(R.id.tv_view_more);
     }
 
     @Override
@@ -44,31 +46,40 @@ public class ChatCellRedEnvelope extends ChatCellBase {
         String typeName = "";
         int typeIcon = R.color.transparent;
         if (message.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE) {
-            redEnvelopeMessage = message.getRed_envelope();
-            isInvalid = redEnvelopeMessage.getIsInvalid() == 0 ? false : true;
-            title = redEnvelopeMessage.getComment();
-            info = getEnvelopeInfo(redEnvelopeMessage.getEnvelopStatus());
-            if (redEnvelopeMessage.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+            contentMsg = message.getRed_envelope();
+            isInvalid = contentMsg.getIsInvalid() == 0 ? false : true;
+            title = contentMsg.getComment();
+            info = getEnvelopeInfo(contentMsg.getEnvelopStatus(), contentMsg.isHasPermission());
+            if (contentMsg.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                 typeName = "云红包";
             } else {
                 typeName = "零钱红包";
             }
         }
         setMessage(isInvalid, title, info, typeName, typeIcon);
+        if (!isMe && !contentMsg.isHasPermission() && contentMsg.getCanReview() == 1) {
+            tvViewMore.setVisibility(View.VISIBLE);
+        } else {
+            tvViewMore.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onBubbleClick() {
         if (mCellListener != null) {
             if (messageType == ChatEnum.EMessageType.RED_ENVELOPE) {
-                mCellListener.onEvent(ChatEnum.ECellEventType.RED_ENVELOPE_CLICK, model, redEnvelopeMessage);
+                mCellListener.onEvent(ChatEnum.ECellEventType.RED_ENVELOPE_CLICK, model, contentMsg);
             }
         }
     }
 
     private void setMessage(boolean invalid, String title, String info, String typeName, int typeIcon) {
         if (invalid) {//失效
-            iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
+            if (!contentMsg.isHasPermission()) {
+                iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
+            } else {
+                iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
+            }
             bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_light : R.drawable.selector_rp_other_light);
         } else {
             iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
@@ -80,21 +91,26 @@ public class ChatCellRedEnvelope extends ChatCellBase {
         iv_rb_icon.setImageResource(typeIcon);
     }
 
-    private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
+    private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus, boolean hasPermission) {
         String info = "";
-        switch (envelopStatus) {
-            case PayEnum.EEnvelopeStatus.NORMAL:
-                info = "领取红包";
-                break;
-            case PayEnum.EEnvelopeStatus.RECEIVED:
-                info = "已领取";
-                break;
-            case PayEnum.EEnvelopeStatus.RECEIVED_FINISHED:
-                info = "已被领完";
-                break;
-            case PayEnum.EEnvelopeStatus.PAST:
-                info = "已过期";
-                break;
+        if (!hasPermission) {
+            info = "权限限制，不可领取";
+        } else {
+            switch (envelopStatus) {
+                case PayEnum.EEnvelopeStatus.NORMAL:
+                case PayEnum.EEnvelopeStatus.ERROR:
+                    info = "领取红包";
+                    break;
+                case PayEnum.EEnvelopeStatus.RECEIVED:
+                    info = "已领取";
+                    break;
+                case PayEnum.EEnvelopeStatus.RECEIVED_FINISHED:
+                    info = "已被领完";
+                    break;
+                case PayEnum.EEnvelopeStatus.PAST:
+                    info = "已过期";
+                    break;
+            }
         }
         return info;
     }

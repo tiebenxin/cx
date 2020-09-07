@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.nim_lib.config.Preferences;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.MyAppLication;
@@ -26,6 +27,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.search.MsgSearchActivity;
+import com.yanlong.im.repository.MainRepository;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
@@ -204,10 +206,31 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                             style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             showMessage(holder.txtInfo, info, style);
                             break;
+                        case 4:
+                            try {
+                                int count = new MainRepository().getRemindCount(Preferences.GROUP_FRIEND_APPLY, bean.getGid());
+                                if (count > 0) {
+                                    if (count > 99) {
+                                        count = 99;
+                                    }
+                                    SpannableString styleJoin = new SpannableString("[" + count + "条进群申请]" + info);
+                                    ForegroundColorSpan joinSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                                    if (count < 10) {
+                                        styleJoin.setSpan(joinSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    } else if (count < 100) {
+                                        styleJoin.setSpan(joinSpan, 0, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    }
+                                    showMessage(holder.txtInfo, info, styleJoin);
+                                } else {
+                                    showMessage(holder.txtInfo, info, null);
+                                }
+                            } catch (Exception e) {
+                                showMessage(holder.txtInfo, info, null);
+                            }
+                            break;
                         default:
                             showMessage(holder.txtInfo, info, null);
                             break;
-
                     }
 
                     if (StringUtil.isNotNull(icon)) {

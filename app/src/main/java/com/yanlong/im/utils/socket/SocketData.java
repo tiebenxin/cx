@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -1513,18 +1514,21 @@ public class SocketData {
      * @param reType, 红包运营商，如支付宝红包，魔方红包
      * @param style   红包玩法风格，0 普通玩法 ； 1 拼手气玩法
      */
-    public static RedEnvelopeMessage createRbMessage(String msgId, String rid, String info, int reType, int style) {
+    public static RedEnvelopeMessage createRbMessage(String msgId, String rid, String info, int reType, int style, RealmList<MemberUser> memberUsers) {
         RedEnvelopeMessage message = new RedEnvelopeMessage();
         message.setMsgid(msgId);
         message.setId(rid);
         message.setComment(info);
         message.setRe_type(reType);
         message.setStyle(style);
+        if (memberUsers != null) {
+            message.setAllowUsers(memberUsers);
+        }
         return message;
     }
 
     //创建系统红包消息
-    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
+    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign, RealmList<MemberUser> allowUsers, int envelopeStatus, boolean permission) {
         RedEnvelopeMessage message = new RedEnvelopeMessage();
         message.setMsgid(msgId);
         message.setTraceId(traceId);
@@ -1533,6 +1537,12 @@ public class SocketData {
         message.setRe_type(reType);
         message.setStyle(style);
         message.setSign(sign);
+        message.setEnvelopStatus(envelopeStatus);
+        if (allowUsers != null) {
+            message.setAllowUsers(allowUsers);
+            message.setCanReview(1);
+        }
+        message.setHasPermission(permission);
         return message;
     }
 
@@ -1876,6 +1886,29 @@ public class SocketData {
                                     .setComment(red.getComment())
                                     .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
                                     .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                            if (red.getAllowUsers() != null) {
+                                int len = red.getAllowUsers().size();
+                                if (len > 0) {
+                                    List<MsgBean.BaseUser> allowUsers = new ArrayList<>();
+                                    for (int i = 0; i < len; i++) {
+                                        MemberUser memberUser = red.getAllowUsers().get(i);
+                                        if (memberUser != null) {
+                                            MsgBean.BaseUser.Builder userBuilder = MsgBean.BaseUser.newBuilder();
+                                            if (!TextUtils.isEmpty(memberUser.getHead())) {
+                                                userBuilder.setAvatar(memberUser.getHead());
+                                            }
+                                            userBuilder.setUid(memberUser.getUid());
+                                            if (!TextUtils.isEmpty(memberUser.getShowName())) {
+                                                userBuilder.setNickname(memberUser.getShowName());
+                                            }
+                                            allowUsers.add(userBuilder.build());
+                                        }
+                                    }
+                                    if (allowUsers.size() > 0) {
+                                        redBuild.addAllAllowUsers(allowUsers);
+                                    }
+                                }
+                            }
                             if (!TextUtils.isEmpty(red.getSign())) {
                                 redBuild.setSign(red.getSign());
                             }
@@ -2396,6 +2429,60 @@ public class SocketData {
         return ack;
 
     }
+
+    //普通成员拉人进群待确认提示消息(给自己看的，固定文案)
+    public static void inviteBeConfirmedNotice(String gid) {
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setTimestamp(System.currentTimeMillis());
+
+        int survivalTime = new UserDao().getReadDestroy(null, gid);
+        msg.setSurvival_time(survivalTime);
+        msg.setRead(1);
+
+        msg.setTo_uid(UserAction.getMyId());
+        msg.setGid(gid);
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.DEFAULT);
+        note.setNote("群聊邀请已发送给群管理，等待确认");
+        msg.setMsgNotice(note);
+        msg.setIsLocal(1);
+        DaoUtil.save(msg);
+    }
+
+    //A邀请B进群消息
+    public static void invitePersonLocalNotice(String gid, Long fromUid, String formNickname, Long toUid, String toNickname) {
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
+        msg.setFrom_uid(fromUid);
+        msg.setTimestamp(System.currentTimeMillis());
+
+        int survivalTime = new UserDao().getReadDestroy(null, gid);
+        msg.setSurvival_time(survivalTime);
+        msg.setRead(1);
+
+        msg.setTo_uid(toUid);
+        msg.setGid(gid);
+        msg.setFrom_nickname(formNickname);
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.INVITED);
+        String inviterName = "\"<font id='" + fromUid + "'  value ='4'>" + formNickname + "</font>\"";
+        String toUserName = "\"<font id='" + toUid + "' value ='2'>" + toNickname + "</font>\"";
+        String node = inviterName + "邀请" + toUserName + "加入了群聊" + "<div id='" + gid + "'></div>";
+        note.setNote(node);
+        msg.setMsgNotice(note);
+        msg.setIsLocal(1);
+        DaoUtil.save(msg);
+    }
+
 
 
 }

@@ -45,6 +45,7 @@ public class Preferences {
 
     public static final String CONTENTS_PHONE = "location_contents_phones";
     public static final String FRIEND_APPLY = "friend_apply";
+    public static final String GROUP_FRIEND_APPLY = "group_friend_apply";
 
     public static final String IS_FIRST_UPLOAD_PHONE = "is_first_upload_phone";
     public static final String RECENT_FRIENDS_NEW = "recent_friends_new";

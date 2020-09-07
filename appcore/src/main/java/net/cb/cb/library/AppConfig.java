@@ -2,6 +2,7 @@ package net.cb.cb.library;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.LocaleList;
@@ -33,7 +34,7 @@ public class AppConfig {
     public static final String UPLOAD_BACK_TEST = "https://e7.callback.zhixun6.com:58181/file-uploaded";
     public static final String UPLOAD_BACK_RELEASE = "https://im-app.zhixun6.com:19009/file-uploaded";
     // 帮助
-    public static final String HELP_URL = "https://helper.zhixun6.com:8089/";
+    public static final String HELP_URL = "https://helper.zhixun6.com:8089/base.html";
     private static boolean isOnline;
     private static String uploadParent;
 
@@ -187,5 +188,24 @@ public class AppConfig {
 
     public static void setAppRuning(boolean appRuning) {
         isAppRunning = appRuning;
+    }
+
+    public static String getVersionName() {
+        if (getContext() == null) {
+            return "";
+        }
+        try {
+            PackageManager packageManager = APP_CONTEXT.getPackageManager();
+            if (packageManager != null) {
+                //注意此处为ApplicationInfo，因为友盟设置的meta-data是在application标签中
+                PackageInfo packageInfo = packageManager.getPackageInfo(APP_CONTEXT.getPackageName(), 0);
+                if (packageInfo != null) {
+                    return packageInfo.versionName;
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+
+        }
+        return "";
     }
 }
