@@ -104,13 +104,13 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER:// 群管理变更通知 自己取消其他人
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL:// 群管理变更通知 自己被取消
-                case ChatEnum.ENoticeType.INVITE_VERIFICATION://普通群员拉人，新增群验证
+                case ChatEnum.ENoticeType.REQUEST_GROUP://普通群员拉人，新增群验证
                     Spanned spannedHtml = Html.fromHtml(html);
                     // subSequence 是去掉换行
                     SpannableStringBuilder clickableHtmlBuilder = new SpannableStringBuilder(spannedHtml.subSequence(0, spannedHtml.length() - 2));
                     URLSpan[] urls = clickableHtmlBuilder.getSpans(0, spannedHtml.length(), URLSpan.class);
                     //邀请入群单独处理
-                    if(type==ChatEnum.ENoticeType.INVITE_VERIFICATION){
+                    if(type==ChatEnum.ENoticeType.REQUEST_GROUP){
                         // 把所有的用户id传过去
                         ArrayList<String> IDs = new ArrayList<>();
                         for(int i=0; i<bean.getList().size();i++){
@@ -204,7 +204,7 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER:// 群管理变更通知 自己取消其他人
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL://普通群员拉人，新增群验证
-                case ChatEnum.ENoticeType.INVITE_VERIFICATION://普通群员拉人，新增群验证
+                case ChatEnum.ENoticeType.REQUEST_GROUP://普通群员拉人，新增群验证
                     Spanned spannedHtml = Html.fromHtml(html);
                     SpannableStringBuilder clickableHtmlBuilder = new SpannableStringBuilder(spannedHtml.subSequence(0, spannedHtml.length() - 2));
                     URLSpan[] urls = clickableHtmlBuilder.getSpans(0, spannedHtml.length(), URLSpan.class);

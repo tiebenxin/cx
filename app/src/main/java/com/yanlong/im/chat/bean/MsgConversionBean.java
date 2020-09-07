@@ -2,7 +2,6 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 
-import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -423,8 +422,7 @@ public class MsgConversionBean {
                     String fromUser = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";
                     String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//"去确认"模拟成一个超链接对象id为-99
                     inviteNotice.setNote(fromUser+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
-                    inviteNotice.setMsgType(ENoticeType.INVITE_VERIFICATION);
-
+                    inviteNotice.setMsgType(ENoticeType.REQUEST_GROUP);
                     //保存入群申请验证备注
                     if(!TextUtils.isEmpty(bean.getRequestGroup().getAdditional())){
                         inviteNotice.setRemark(bean.getRequestGroup().getAdditional());
