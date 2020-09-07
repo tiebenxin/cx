@@ -332,9 +332,10 @@ public class SocketUtil {
             }
         } catch (Exception e) {
             if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException) {
+                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                 run();
             } else {
-                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                 setRunState(0);
                 e.printStackTrace();
                 stop(true);
