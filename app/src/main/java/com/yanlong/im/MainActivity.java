@@ -1376,7 +1376,7 @@ public class MainActivity extends BaseTcpActivity {
 
     @SuppressLint("CheckResult")
     private void getMsgToPC(String code) {
-        ThreadUtil.getInstance().execute(new Runnable() {
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void run() {
@@ -1409,6 +1409,7 @@ public class MainActivity extends BaseTcpActivity {
                 }
             }
         });
+        ExecutorManager.INSTANCE.getNormalThread().shutdown();
     }
 
     private void uploadMsgFile(File file, String fileName) {
@@ -1518,7 +1519,7 @@ public class MainActivity extends BaseTcpActivity {
     private void getIP() {
         long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
         if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
-            ThreadUtil.getInstance().execute(new Runnable() {
+            ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
                 @Override
                 public void run() {
                     NetUtil.getNet().requestIP(new IRequestListener() {
@@ -1536,7 +1537,7 @@ public class MainActivity extends BaseTcpActivity {
                     });
                 }
             });
+            ExecutorManager.INSTANCE.getNormalThread().shutdown();
         }
-
     }
 }

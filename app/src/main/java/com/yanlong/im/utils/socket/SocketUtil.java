@@ -1,6 +1,5 @@
 package com.yanlong.im.utils.socket;
 
-import android.accounts.NetworkErrorException;
 import android.text.TextUtils;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -19,6 +18,9 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
+import net.cb.cb.library.bean.CXAuthenticationException;
+import net.cb.cb.library.bean.CXConnectException;
+import net.cb.cb.library.bean.CXConnectTimeoutException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.constant.BuglyTag;
@@ -353,10 +355,15 @@ public class SocketUtil {
                 connect();
             }
         } catch (Exception e) {
-            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-            setRunState(0);
-            e.printStackTrace();
-            stop(true);
+            if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException) {
+                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                run();
+            } else {
+                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                setRunState(0);
+                e.printStackTrace();
+                stop(true);
+            }
         }
     }
 
@@ -594,8 +601,8 @@ public class SocketUtil {
 //                Thread.sleep(200);
                     long connTime = System.currentTimeMillis() - ttime;
                     if (connTime > 2 * 1000) {
-                        LogUtil.getLog().d(TAG, ">>>链接中超时");
-                        break;
+                        LogUtil.getLog().d(TAG, ">>>链接中2s超时");
+                        throw new CXConnectTimeoutException();
                     }
                 }
             } catch (Exception e) {
@@ -608,13 +615,21 @@ public class SocketUtil {
             }
 
             LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
-            if (!socketChannel.isConnected()) {
-                LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
-                LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:链接不上");
-                throw new NetworkErrorException();
+            while (!socketChannel.isConnected()) {
+                LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠100s");
+                long connTime = System.currentTimeMillis() - ttime;
+                if (connTime > 2 * 1000) {
+                    LogUtil.getLog().d(TAG, "连接LOG-->链接中2s超时");
+                    throw new CXConnectTimeoutException();
+                }
+                Thread.sleep(200);
             }
+//            if (!socketChannel.isConnected()) {
+//                LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
+//                LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:链接不上");
+//                throw new CXConnectException();
+//            }
 
-            //3.
             long ctime = System.currentTimeMillis();
             if (socketChannel.tryTLS(1) == 0) {
                 if (socketChannel != null) {
@@ -625,7 +640,7 @@ public class SocketUtil {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
                 LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
                 //证书问题
-                throw new NetworkErrorException();
+                throw new CXAuthenticationException();
             } else {
                 long endTime = System.currentTimeMillis();
                 LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (endTime - ctime));

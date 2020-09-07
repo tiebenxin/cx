@@ -40,6 +40,7 @@ public class MessageIntentService extends IntentService {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
 //        MessageManager.getInstance().clear();
     }
 

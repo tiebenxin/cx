@@ -438,7 +438,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogTwo;//批量收藏提示弹框
     private CommonSelectDialog dialogThree;//批量转发提示弹框
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
-    private boolean ifCollectFromVideoOrImg = false;//是否有来自图片和视频播放的底部弹框收藏操作
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -6649,13 +6648,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
                                 msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
                             } else {
-                                if(ifCollectFromVideoOrImg){
-                                    EventFactory.EventShowDisallowedMsgNotice eventShowDisallowedMsgNotice = new EventFactory.EventShowDisallowedMsgNotice();
-                                    EventBus.getDefault().post(eventShowDisallowedMsgNotice);
-                                    ifCollectFromVideoOrImg = false;
-                                }else {
                                     showMsgFailDialog();
-                                }
                             }
                         }
                     }
@@ -6664,7 +6657,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         super.onFailure(call, t);
                         ToastUtil.showToast(ChatActivity.this, "收藏失败", 1);
-                        ifCollectFromVideoOrImg = false;
                     }
                 });
     }
@@ -6898,7 +6890,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (!TextUtils.isEmpty(event.getMsgId())) {
             MsgAllBean msgAllBean = msgDao.getMsgById(event.getMsgId());
             if (msgAllBean != null) {
-                ifCollectFromVideoOrImg = true;
                 onCollect(msgAllBean);
             }
         }
@@ -7438,7 +7429,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                                 }
                                                             }
                                                             if (action == 1) {
-                                                                filterMsgForward(sourList,true);
+                                                                filterMsgForward(sourList,true);//是否过滤掉了过期文件
                                                             } else if (action == 2) {
                                                                 filterMsgCollection(sourList,true);
                                                             }

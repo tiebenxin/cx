@@ -40,9 +40,9 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
 import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.QRCodeManage;
 
@@ -374,9 +374,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      *
      * @param msgId
      * @param fromWhere
+     * @param isCollect  转发 还是 收藏
      */
     @Override
-    public void onClick(String msgId, int fromWhere) {
+    public void onClick(String msgId, int fromWhere, boolean isCollect) {
 
         MsgAllBean msgbean = null;
 
@@ -415,7 +416,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (response.body().getData() != null && response.body().getData().size() != list.size()) {
                             showMsgFailDialog();
                         } else {
-                            sendToFriend(msgId, fromWhere);
+                            if(isCollect){
+                                EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                                eventCollectImgOrVideo.setMsgId(msgId);
+                                EventBus.getDefault().post(eventCollectImgOrVideo);
+                            }else {
+                                sendToFriend(msgId, fromWhere);
+                            }
                         }
 
                     } else {

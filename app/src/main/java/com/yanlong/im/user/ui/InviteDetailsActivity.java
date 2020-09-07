@@ -66,8 +66,6 @@ public class InviteDetailsActivity extends AppActivity {
     private MsgAction msgAction;
     private boolean hadAgree = false;//是否已经同意入群(是否不再申请入群列表中)，若已经同意则不需再调接口
 
-    private int needRequestTimes = 0;//需要请求的次数 TODO 批准同意入群暂无批量接口
-    private int realRequestTimes = 0;//实际请求的次数
     private String remark;//备注内容
     private String msgId;//消息id
     private boolean confirmState;//确认状态(true 去确认/ false 已确认)
@@ -102,7 +100,6 @@ public class InviteDetailsActivity extends AppActivity {
         //默认情况，从申请入群列表查找用户信息
         if(msgDao.getApplysByUid(ids,1)!=null && msgDao.getApplysByUid(ids,1).size()>0){
             listData.addAll(msgDao.getApplysByUid(ids,1));
-            needRequestTimes = listData.size();
             hadAgree = false;
         }else {
             //若申请入群列表不存在用户信息，可能是已经同意，此时需要查最近同意申请入群的用户信息，因为如果有多条邀请入群申请，可以重复点"去确认"跳到此界面，需要展示
@@ -237,7 +234,6 @@ public class InviteDetailsActivity extends AppActivity {
      * @param bean
      */
     private void httpAgreeJoinGroup(ApplyBean bean) {
-        realRequestTimes++;
         msgAction.groupRequest(bean.getAid(), bean.getGid(), bean.getUid() + "", bean.getNickname(), bean.getAvatar(),
                 bean.getJoinType(), bean.getInviter() + "", bean.getInviterName(), new CallBack<ReturnBean>() {
                     @Override
@@ -257,16 +253,15 @@ public class InviteDetailsActivity extends AppActivity {
                             ToastUtil.show(getContext(), response.body().getMsg());
                         }
                         //请求完毕，通知群信息刷新
-                        if(realRequestTimes==needRequestTimes){
-                            if(!TextUtils.isEmpty(msgId)){
-                                msgDao.updateInviteNoticeMsg(msgId);//数据库先更新，入群通知消息改为"已确认"
-                                EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
-                                event.setMsgId(msgId);
-                                EventBus.getDefault().post(event);
-                            }
-                            MessageManager.getInstance().notifyGroupChange(true);
-                            finish();
+                        if (!TextUtils.isEmpty(msgId)) {
+                            msgDao.updateInviteNoticeMsg(msgId);//数据库先更新，入群通知消息改为"已确认"
+                            EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
+                            event.setMsgId(msgId);
+                            EventBus.getDefault().post(event);
                         }
+                        MessageManager.getInstance().notifyGroupChange(true);
+                        finish();
+
                     }
                 });
     }

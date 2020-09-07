@@ -55,9 +55,9 @@ public class ExecutorManager {
 
     public ThreadPoolExecutor getNormalThread() {
         if (normalThread == null || normalThread.isShutdown()) {
-            normalThread = new ThreadPoolExecutor(5, 10,
+            normalThread = new ThreadPoolExecutor(5, 5,
                     0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>(100),
+                    new LinkedBlockingQueue<Runnable>(30),
                     new NamedThreadFactory(NORMAL_THREAD_NAME),
                     new RejectedHandler());
         }

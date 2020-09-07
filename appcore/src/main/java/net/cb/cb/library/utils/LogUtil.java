@@ -136,6 +136,7 @@ public class LogUtil {
                 }
             }
         });
+        ExecutorManager.INSTANCE.getNormalThread().shutdown();
     }
 
     /**
@@ -168,6 +169,7 @@ public class LogUtil {
                 }
             }
         });
+        ExecutorManager.INSTANCE.getNormalThread().shutdown();
     }
 
     /**
@@ -200,6 +202,7 @@ public class LogUtil {
                 }
             }
         });
+        ExecutorManager.INSTANCE.getNormalThread().shutdown();
     }
 
 

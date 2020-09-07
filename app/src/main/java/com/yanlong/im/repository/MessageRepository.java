@@ -128,38 +128,29 @@ public class MessageRepository {
      */
     public boolean handlerRequestGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         // TODO　自己邀请的，不会收到通知
-//        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
-//                wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
-//            return;
-//        }
-        // 先检查是否存在申请，不存在则显示红点
-//        List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
-//        if (list != null) {
-//            for (MsgBean.GroupNoticeMessage ntm : list) {
-//                ApplyBean applyBean = new ApplyBean();
-//                applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
-//                applyBean.setChatType(CoreEnum.EChatType.GROUP);
-//                applyBean.setGid(wrapMessage.getGid());
-//                applyBean.setGroupName(localDataSource.getGroupName(realm, wrapMessage.getGid()));
-//                applyBean.setJoinType(wrapMessage.getRequestGroup().getJoinType().getNumber());
-//                applyBean.setInviter(wrapMessage.getRequestGroup().getInviter());
-//                applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
-//                applyBean.setUid(ntm.getUid());
-//                applyBean.setNickname(ntm.getNickname());
-//                applyBean.setAvatar(ntm.getAvatar());
-//                applyBean.setStat(1);
-//                localDataSource.saveApplyBean(realm, applyBean);
-//
-//                int redNumber = localDataSource.getRemindCount(realm, Preferences.FRIEND_APPLY, ntm.getUid());
-//                if (redNumber <= 0) {
-//                    localDataSource.addRemindCount(realm, Preferences.FRIEND_APPLY, ntm.getUid());
-//                }
-//            }
-//            MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
-//        }
-//        localDataSource.addRemindCount(realm, "friend_apply");
-//        MessageManager.getInstance().notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);//刷新首页 通讯录底部小红点
-
+        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
+                wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
+            return true;
+        }
+        // 先检查是否存在申请
+        List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
+        if (list != null) {
+            for (MsgBean.GroupNoticeMessage ntm : list) {
+                ApplyBean applyBean = new ApplyBean();
+                applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
+                applyBean.setChatType(CoreEnum.EChatType.GROUP);
+                applyBean.setGid(wrapMessage.getGid());
+                applyBean.setGroupName(localDataSource.getGroupName(realm, wrapMessage.getGid()));
+                applyBean.setJoinType(wrapMessage.getRequestGroup().getJoinType().getNumber());
+                applyBean.setInviter(wrapMessage.getRequestGroup().getInviter());
+                applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
+                applyBean.setUid(ntm.getUid());
+                applyBean.setNickname(ntm.getNickname());
+                applyBean.setAvatar(ntm.getAvatar());
+                applyBean.setStat(1);
+                localDataSource.saveApplyBean(realm, applyBean);
+            }
+        }
         if (localDataSource != null && !TextUtils.isEmpty(wrapMessage.getGid()) &&
                 !MessageManager.getInstance().isMsgFromCurrentChat(wrapMessage.getGid(), wrapMessage.getFromUid())) {
             localDataSource.addRemindCount(realm, Preferences.GROUP_FRIEND_APPLY, wrapMessage.getGid());
