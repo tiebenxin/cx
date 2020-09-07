@@ -134,6 +134,7 @@ public class MessageLocalDataSource {
     /***
      * 红点数量加一 根据uid
      * @param type
+     * @param uid
      */
     public void addRemindCount(@NonNull Realm realm, String type, long uid) {
         try {
@@ -144,6 +145,36 @@ public class MessageLocalDataSource {
                 Remind newreamid = new Remind();
                 newreamid.setNumber(1);
                 newreamid.setUid(uid);
+                newreamid.setRemid_type(type);
+                realm.insertOrUpdate(newreamid);
+            } else {
+                remind.setNumber(remind.getNumber() + 1);
+                realm.insertOrUpdate(remind);
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
+    }
+
+    /***
+     * 红点数量加一 根据gid
+     * @param type
+     * @param gid
+     */
+    public void addRemindCount(@NonNull Realm realm, String type, String gid) {
+        try {
+            checkInTransaction(realm);
+            realm.beginTransaction();
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("gid", gid).findFirst();
+            if (remind == null) {
+                Remind newreamid = new Remind();
+                newreamid.setNumber(1);
+                newreamid.setGid(gid);
                 newreamid.setRemid_type(type);
                 realm.insertOrUpdate(newreamid);
             } else {
@@ -832,7 +863,9 @@ public class MessageLocalDataSource {
             session.setUp_time(System.currentTimeMillis());
             if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
                 session.setMessageType(1000);
-            } else if (isAtMe(bean)) {
+            } else if (isRequestJoinGroup(bean) && !MessageManager.getInstance().isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
+                session.setMessageType(ChatEnum.ESessionType.NEW_JOIN_GROUP);
+            } else if (isAtMe(bean) && session.getMessageType() != ChatEnum.ESessionType.NEW_JOIN_GROUP) {// 优先显示 进群申请条数 微信
                 //对at消息处理 而且不是撤回消息
                 int messageType = bean.getAtMessage().getAt_type();
                 String atMessage = bean.getAtMessage().getMsg();
@@ -874,5 +907,17 @@ public class MessageLocalDataSource {
         return result;
     }
 
-
+    /**
+     * 是否有申请入群的消息
+     *
+     * @param bean
+     * @return
+     */
+    public boolean isRequestJoinGroup(MsgAllBean bean) {
+        boolean result = false;
+        if (bean != null && bean.getMsgNotice() != null && bean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.REQUEST_GROUP) {
+            result = true;
+        }
+        return result;
+    }
 }

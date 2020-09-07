@@ -5130,9 +5130,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private boolean updateSessionDraftAndAtMessage() {
         LogUtil.getLog().i(TAG, "updateSessionDraftAndAtMessage");
         boolean hasChange = false;
-        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+        if (session != null && (!TextUtils.isEmpty(session.getAtMessage()) ||
+                session.getMessageType() == ChatEnum.ESessionType.NEW_JOIN_GROUP)) {
             hasChange = true;
             dao.updateSessionAtMsg(toGid, toUId);
+            if (session.getMessageType() == ChatEnum.ESessionType.NEW_JOIN_GROUP) {// 更新申请进群条数
+                dao.clearRemidCount(Preferences.GROUP_FRIEND_APPLY, toGid);
+            }
         }
         if (checkAndSaveDraft()) {
             hasChange = true;
