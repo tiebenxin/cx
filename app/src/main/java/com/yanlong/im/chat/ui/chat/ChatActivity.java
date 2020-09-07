@@ -437,6 +437,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogOne;//注销弹框
     private CommonSelectDialog dialogTwo;//批量收藏提示弹框
     private CommonSelectDialog dialogThree;//批量转发提示弹框
+    private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
+    private boolean ifCollectFromVideoOrImg = false;//是否有来自图片和视频播放的底部弹框收藏操作
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -1879,7 +1881,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (size > 30) {
                             showMoreMsgDialog();
                         } else {
-                            filterMessageValid(mAdapter.getSelectedMsg(), 1);
+                            List<MsgAllBean> dataList = new ArrayList<>();
+                            dataList.addAll(mAdapter.getSelectedMsg());
+                            filterMessageValid(dataList, 1);
                         }
                     }
                 }
@@ -4424,14 +4428,21 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                         super.onResponse(call, response);
                         if (response.body() != null && response.body().isOk()) {
-                            onRetransmission(msgbean);
+                            if(response.body().getData()!=null&&response.body().getData().size()!=list.size()){
+                                showMsgFailDialog();
+                            }else{
+                                onRetransmission(msgbean);
+                            }
+
+                        }else {
+                            showMsgFailDialog();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
                         super.onFailure(call, t);
-                        ToastUtil.show(getResources().getString(R.string.to_message_fail));
+                        showMsgFailDialog();
                     }
                 });
             } else {
@@ -4612,6 +4623,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             }
         }
         CollectionInfo collectionInfo = new CollectionInfo();
+        //单条收藏，限制支持的类型
         //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
         if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
             collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
@@ -5125,9 +5137,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private boolean updateSessionDraftAndAtMessage() {
         LogUtil.getLog().i(TAG, "updateSessionDraftAndAtMessage");
         boolean hasChange = false;
-        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+        if (session != null && (!TextUtils.isEmpty(session.getAtMessage()) ||
+                session.getMessageType() == ChatEnum.ESessionType.NEW_JOIN_GROUP)) {
             hasChange = true;
             dao.updateSessionAtMsg(toGid, toUId);
+            if (session.getMessageType() == ChatEnum.ESessionType.NEW_JOIN_GROUP) {// 更新申请进群条数
+                dao.clearRemidCount(Preferences.GROUP_FRIEND_APPLY, toGid);
+            }
         }
         if (checkAndSaveDraft()) {
             hasChange = true;
@@ -6625,12 +6641,17 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             return;
                         }
                         if (response.body().isOk()) {
-                            //正常情况data为null，若含有值则代表有"源文件不存在"的情况
+                            //正常情况data为null，若data不为null则代表有"源文件不存在"的情况
                             if (response.body().getData() == null) {
                                 ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
                                 msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
                             } else {
-                                ToastUtil.showToast(ChatActivity.this, "收藏失败，该文件已失效", 1);
+                                if(ifCollectFromVideoOrImg){
+                                    EventFactory.EventShowDisallowedMsgNotice eventShowDisallowedMsgNotice = new EventFactory.EventShowDisallowedMsgNotice();
+                                    EventBus.getDefault().post(eventShowDisallowedMsgNotice);
+                                }else {
+                                    showMsgFailDialog();
+                                }
                             }
                         }
                     }
@@ -6872,6 +6893,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (!TextUtils.isEmpty(event.getMsgId())) {
             MsgAllBean msgAllBean = msgDao.getMsgById(event.getMsgId());
             if (msgAllBean != null) {
+                ifCollectFromVideoOrImg = true;
                 onCollect(msgAllBean);
             }
         }
@@ -7049,9 +7071,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private void showCollectListDialog(int type) {
         String content;
         if (type==1) {
-            content= "收藏成功！你所选的消息\n包含了不支持收藏的类型或已失效，\n系统已自动过滤此类型消息。";
+            content= "收藏成功\n\n你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
         }else {
-            content= "你所选的消息包含了不支持收藏\n的类型或已失效，系统已自动过滤\n此类型消息。";
+            content= "你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
         }
         dialogTwo = builder.setTitle(content)
                 .setShowLeftText(false)
@@ -7068,6 +7090,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      */
     private void showForwardListDialog(List<MsgAllBean> list) {
         dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型或\n或已失效，系统已自动过滤此类型消息。")
+                .setShowLeftText(true)
                 .setRightText("继续发送")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
@@ -7079,6 +7102,20 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 )
                 .build();
         dialogThree.show();
+    }
+
+    /**
+     * 单选转发/收藏失效消息提示弹框
+     */
+    private void showMsgFailDialog() {
+        dialogFour = builder.setTitle("你所选的消息已失效")
+                .setShowLeftText(false)
+                .setRightText("确定")
+                .setRightOnClickListener(v -> {
+                    dialogFour.dismiss();
+                })
+                .build();
+        dialogFour.show();
     }
 
     private void toSendVerifyActivity(Long uid) {
@@ -7149,6 +7186,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                     //用户选过不支持的类型，因此无论如何都要提示弹框
                                     showCollectListDialog(1);
                                 }
+                            }else {
+                                if(!TextUtils.isEmpty(response.body().getMsg())){
+                                    ToastUtil.show(response.body().getMsg()+"");
+                                }
                             }
                         }
 
@@ -7189,9 +7230,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 过滤多选转发消息
      *
      * @param sourList 源数据
+     * @param isOverdue 是否已经过滤掉了过期文件(是否含有不存在文件)
      */
     @SuppressLint("CheckResult")
-    private void filterMsgForward(final List<MsgAllBean> sourList) {
+    private void filterMsgForward(final List<MsgAllBean> sourList, boolean isOverdue) {
         int totalSize = mAdapter.getSelectedMsg().size();
         int sourLen = sourList.size();
         Observable.just(0)
@@ -7205,8 +7247,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 msgIds[i] = msgAllBean.getMsg_id();
                             }
                             return msgDao.filterMsgForForward(msgIds);
+                        }else {
+                            return new ArrayList<MsgAllBean>();
                         }
-                        return null;
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -7217,14 +7260,22 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
+                                //只要含有一个正常类型消息
                                 if (len == totalSize) {
-                                    toForward(list);
+                                    if(isOverdue){
+                                        showForwardListDialog(list);//存在不支持类型或失效的转发
+                                    }else {
+                                        toForward(list);//正常类型转发
+                                    }
                                 } else if (len < totalSize) {
-                                    showForwardListDialog(list);
+                                    showForwardListDialog(list);//存在不支持类型或失效的转发
                                 }
                             } else {
-                                showValidMsgDialog();
+                                //全为不支持类型或失效消息
+                                showValidMsgDialog(false);
                             }
+                        }else {
+                            showValidMsgDialog(false);
                         }
                     }
                 });
@@ -7265,33 +7316,28 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (list != null) {
                             int len = list.size();
                             if (len > 0) {
+                                //只要含有一个正常类型消息
                                 if (len == totalSize) {
                                     if(isOverdue){
-                                        toCollectList(list,false);//存在不支持类型或失效的收藏，并已经过滤
+                                        toCollectList(list,false);//存在不支持类型或失效的收藏
                                     }else {
                                         toCollectList(list,true);//正常类型收藏
                                     }
                                 } else if (len < totalSize) {
-                                    toCollectList(list,false);//不支持类型或失效的收藏
+                                    toCollectList(list,false);//存在不支持类型或失效的收藏
                                 }
                             } else {
-                                //存在失效消息，并已经过滤
-                                showCollectListDialog(0);
-                                mAdapter.clearSelectedMsg();
-                                hideMultiSelect(ivCollection);
-//                                showValidMsgDialog();
+                                //全为不支持类型或失效消息
+                                showValidMsgDialog(true);
                             }
                         }else {
-                            //存在失效消息，并已经过滤
-                            showCollectListDialog(0);
-                            mAdapter.clearSelectedMsg();
-                            hideMultiSelect(ivCollection);
+                            showValidMsgDialog(true);
                         }
                     }
                 });
     }
 
-    private void showValidMsgDialog() {
+    private void showValidMsgDialog(boolean clear) {
         DialogCommon2 dialogValid = new DialogCommon2(this);
         dialogValid.setContent("你选的消息包含不支持消息或已失效", true)
                 .setButtonTxt("确定")
@@ -7300,8 +7346,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     @Override
                     public void onClick() {
                         dialogValid.dismiss();
-//                        mAdapter.clearSelectedMsg();
-//                        hideMultiSelect(ivForward);
+                        if(clear){
+                            mAdapter.clearSelectedMsg();
+                            hideMultiSelect(ivCollection);
+                        }
                     }
                 }).show();
     }
@@ -7368,7 +7416,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                         if (size == fileBeans.size()) {
                                                             //都未过期
                                                             if (action == 1) {
-                                                                filterMsgForward(sourList);
+                                                                filterMsgForward(sourList,false);
                                                             } else if (action == 2) {
                                                                 filterMsgCollection(sourList,false);
                                                             }
@@ -7385,7 +7433,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                                 }
                                                             }
                                                             if (action == 1) {
-                                                                filterMsgForward(sourList);
+                                                                filterMsgForward(sourList,true);
                                                             } else if (action == 2) {
                                                                 filterMsgCollection(sourList,true);
                                                             }
@@ -7399,7 +7447,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                             }
                                                         }
                                                         if (action == 1) {
-                                                            filterMsgForward(sourList);
+                                                            filterMsgForward(sourList,true);
                                                         } else if (action == 2) {
                                                             filterMsgCollection(sourList,true);
                                                         }
@@ -7427,17 +7475,23 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                 }
                                             }
                                         });
+                                    }else {
+                                        if (action == 1) {
+                                            filterMsgForward(sourList,false);
+                                        } else if (action == 2) {
+                                            filterMsgCollection(sourList,false);
+                                        }
                                     }
                                 } else {
                                     if (action == 1) {
-                                        filterMsgForward(sourList);
+                                        filterMsgForward(sourList,false);
                                     } else if (action == 2) {
                                         filterMsgCollection(sourList,false);
                                     }
                                 }
                             } else {
                                 if (action == 1) {
-                                    filterMsgForward(sourList);
+                                    filterMsgForward(sourList,false);
                                 } else if (action == 2) {
                                     filterMsgCollection(sourList,false);
                                 }

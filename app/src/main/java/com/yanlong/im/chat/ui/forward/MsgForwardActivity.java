@@ -412,6 +412,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     Intent intent = new Intent(MsgForwardActivity.this, GroupSelectActivity.class);
                     intent.putExtra(AGM_JSON, json);
+                    intent.putExtra(MODE, model);
                     intent.putExtra(Preferences.DATA, moreSessionBeanList.size());
                     startActivityForResult(intent, 0);
 
@@ -1046,7 +1047,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == 0) {
-                finish();
+                String gid = data.getStringExtra("gid");
+                if (!TextUtils.isEmpty(gid)) {
+                    onForward(-1L, gid, "", "");//仅仅是唤起弹窗
+                }
             }
         }
     }

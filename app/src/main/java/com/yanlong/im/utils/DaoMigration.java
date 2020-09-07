@@ -892,12 +892,15 @@ public class DaoMigration implements RealmMigration {
                 .addField("canReview", int.class)
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
     }
-
     //通知消息新增入群备注字段
     private final void updateV51(RealmSchema schema) {
         schema.get("MsgNotice")
-                .addField("remark", String.class);
+                .addField("remark",String.class);
+
+        schema.get("Remind")
+                .addField("gid", String.class);
     }
+
 
     @Override
     public boolean equals(@Nullable Object obj) {

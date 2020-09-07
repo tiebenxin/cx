@@ -158,7 +158,7 @@ public abstract class DispatchMessage {
                 result = repository.handlerAcceptBeGroup(wrapMessage, realm);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
-                repository.handlerRequestGroup(wrapMessage, realm);
+                result = repository.handlerRequestGroup(wrapMessage, realm);
                 break;
             case CHANGE_GROUP_META://修改群属性
                 result = repository.handlerChangeGroupMeta(wrapMessage, realm);

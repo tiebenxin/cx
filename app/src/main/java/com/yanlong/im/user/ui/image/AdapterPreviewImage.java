@@ -111,11 +111,12 @@ public class AdapterPreviewImage extends PagerAdapter {
     private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
     private String collectJson = "";//收藏详情点击大图转发需要的数据
     private LocalMedia currentMedia;
+    private IPreviewImage mIPreviewImage;
 
-
-    public AdapterPreviewImage(Activity c, int fromWhere, String collectJson) {
+    public AdapterPreviewImage(Activity c, int fromWhere, String collectJson, IPreviewImage iPreviewImage) {
         context = c;
         inflater = LayoutInflater.from(c);
+        mIPreviewImage = iPreviewImage;
         this.fromWhere = fromWhere;
         this.collectJson = collectJson;
     }
@@ -188,6 +189,9 @@ public class AdapterPreviewImage extends PagerAdapter {
             isCurrent = media.getMsg_id().equals(currentMedia.getMsg_id());
         }
         try {
+            //隐藏大图。因为阿里云限制图片单边不能超过4096，没有必要再用大图显示控件了
+            hideLargeImageView(ivLarge);
+            showZoomView(ivZoom, true);
             if (isGif && !media.isCompressed()) {
                 showGif(media, ivZoom, tvViewOrigin, pbLoading, isCurrent);
             } else {
@@ -337,17 +341,19 @@ public class AdapterPreviewImage extends PagerAdapter {
             if (activityIsFinish()) {
                 return;
             }
-            Glide.with(context).load(media.getCutPath()).error(Glide.with(context).load(media.getCompressPath())).listener(new RequestListener<Drawable>() {
+            Glide.with(context).load(media.getCutPath()).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                     if (pbLoading != null) {
                         pbLoading.setVisibility(View.GONE);
                     }
                     if (e.getMessage().contains("FileNotFoundException")) {
-                        ivZoom.setImageResource(R.mipmap.ic_img_past);
-//                        if (isCurrent) {
-//                            ToastUtil.show("图片已过期");
-//                        }
+                        ivZoom.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ivZoom.setImageResource(R.mipmap.ic_img_past);
+                            }
+                        }, 100);
                     } else {
                         ivZoom.postDelayed(new Runnable() {
                             @Override
@@ -479,9 +485,6 @@ public class AdapterPreviewImage extends PagerAdapter {
     private void showImage2(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong, ProgressBar pbLoading, LinearLayout llLock, boolean isCurrent) {
         tvViewOrigin.setTag(media.getSize());
         showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize(), llLock);
-        //隐藏大图。因为阿里云限制图片单边不能超过4096，没有必要再用大图显示控件了
-        hideLargeImageView(ivLarge);
-        showZoomView(ivZoom, true);
         if (isHttp) {
             if (isOrigin) {
                 if (hasRead) {//原图已读,就显示
@@ -567,10 +570,13 @@ public class AdapterPreviewImage extends PagerAdapter {
                             pbLoading.setVisibility(View.GONE);
                         }
                         if (e.getMessage().contains("FileNotFoundException")) {
-                            ivZoom.setImageResource(R.mipmap.ic_img_past);
-//                            if (isCurrent) {
-//                                ToastUtil.show("图片已过期");
-//                            }
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ivZoom.setImageResource(R.mipmap.ic_img_past);
+                                }
+                            }, 100);
+
                         } else {
                             ivZoom.postDelayed(new Runnable() {
                                 @Override
@@ -612,9 +618,6 @@ public class AdapterPreviewImage extends PagerAdapter {
                 }
                 if (e.getMessage().contains("FileNotFoundException")) {
                     ivZoom.setImageResource(R.mipmap.ic_img_past);
-//                    if (isCurrent) {
-//                        ToastUtil.show("图片已过期");
-//                    }
                 } else {
                     if (isCurrent) {
                         ivZoom.postDelayed(new Runnable() {
@@ -1098,24 +1101,7 @@ public class AdapterPreviewImage extends PagerAdapter {
      * @param msgId
      */
     private void sendToFriend(String msgId, int fromWhere) {
-        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
-            if (NetUtil.isNetworkConnected()) {
-                context.startActivity(new Intent(context, MsgForwardActivity.class)
-                        .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
-            } else {
-                ToastUtil.show("请检查网络连接是否正常");
-            }
-        } else {
-            if (!TextUtils.isEmpty(msgId)) {
-                MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-                if (msgAllBean != null) {
-                    context.startActivity(new Intent(context, MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
-                } else {
-                    ToastUtil.show("消息已被删除或者被焚毁，不能转发");
-                }
-            }
-        }
+        mIPreviewImage.onClick(msgId, fromWhere);
     }
 
 }

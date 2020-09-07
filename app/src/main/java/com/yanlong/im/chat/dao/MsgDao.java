@@ -1385,6 +1385,32 @@ public class MsgDao {
         }
     }
 
+    /***
+     * 清除某个群 进群申请条数
+     * @param type
+     * @param gid
+     * @return
+     */
+    public void clearRemidCount(String type, String gid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            if (Preferences.GROUP_FRIEND_APPLY.equals(type)) {
+                Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("gid", gid).findFirst();
+                if (remind != null) {
+                    remind.setNumber(0);
+                    realm.insertOrUpdate(remind);
+                    realm.commitTransaction();
+                    realm.close();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
 
     /***
      * 获取红点的值

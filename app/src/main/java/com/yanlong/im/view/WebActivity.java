@@ -1,5 +1,6 @@
 package com.yanlong.im.view;
 
+import android.content.Intent;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,9 +15,12 @@ import com.example.nim_lib.ui.BaseBindActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityWebBinding;
 import com.yanlong.im.user.ui.FeedbackActivity;
+import com.yanlong.im.user.ui.HelpActivity;
+import com.yanlong.im.user.ui.UploadLogActivity;
 
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 
 /**
@@ -47,6 +51,8 @@ public class WebActivity extends BaseBindActivity<ActivityWebBinding> {
 
     @Override
     protected void initEvent() {
+        bindingView.headView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
+        bindingView.headView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -55,7 +61,10 @@ public class WebActivity extends BaseBindActivity<ActivityWebBinding> {
 
             @Override
             public void onRight() {
-
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                startActivity(new Intent(WebActivity.this, UploadLogActivity.class));
             }
         });
     }

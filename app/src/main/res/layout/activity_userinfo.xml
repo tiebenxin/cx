@@ -77,6 +77,8 @@
                 android:paddingLeft="@dimen/app_margin_main"
                 android:paddingRight="@dimen/app_margin_main"
                 android:layout_marginBottom="15dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:visibility="gone">
 
                 <TextView
@@ -284,7 +286,7 @@
                 android:paddingLeft="@dimen/app_margin_main"
                 android:textColor="@color/gray_300"
                 android:textSize="@dimen/dimen_my12"
-                android:text="禁言、领取零钱红包等权限设置"/>
+                android:text="禁言权限设置"/>
         </LinearLayout>
 
         <!-- 投诉-->

@@ -345,25 +345,19 @@ public class UpFileUtil {
      */
     public String getFileUrl(String path, int msgType) {
         try {
-            String url = "";
+            String url;
             if (TextUtils.isEmpty(path)) {
                 return "";
             }
-            if (msgType == 4) {
-                if (path.contains("/below-20k")) {
-                    path = path.replace("/below-20k", "");
-                } else if (path.contains("/below-200k")) {
-                    path = path.replace("/below-200k", "");
-                }
+            if (path.contains("/below-20k")) {
+                path = path.replace("/below-20k", "");
+            } else if (path.contains("/below-200k")) {
+                path = path.replace("/below-200k", "");
             }
             url = path.substring(path.lastIndexOf("/"));
-            if (msgType == 4) {
-                url = "image" + url;
-            } else if (msgType == 11) {
-                url = "video" + url;
-            } else if (msgType == 17) {
-                url = "file" + url;
-            }
+
+            String tempPath = path.substring(0, path.lastIndexOf("/"));
+            url = tempPath.substring(tempPath.lastIndexOf("/") + 1) + url;
             return url;
         } catch (Exception e) {
             return "";
