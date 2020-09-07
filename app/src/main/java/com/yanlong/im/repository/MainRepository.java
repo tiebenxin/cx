@@ -83,10 +83,11 @@ public class MainRepository {
     /***
      * 获取红点的值
      * @param type
+     * @param gid
      * @return
      */
-    public int getRemindCount(String type) {
-        return localDataSource.getRemindCount(type);
+    public int getRemindCount(String type, String gid) {
+        return localDataSource.getRemindCount(type, gid);
     }
 
     /***

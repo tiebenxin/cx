@@ -15,6 +15,7 @@ public class MsgNotice extends RealmObject implements IMsgContent {
     private String msgid;
     private Long uid;
     private String note;
+    private String remark;
     private Integer msgType = MSG_TYPE_DEFAULT;
 
     public Integer getMsgType() {
@@ -36,6 +37,14 @@ public class MsgNotice extends RealmObject implements IMsgContent {
 
     public String getNote() {
         return note;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public void setNote(String note) {

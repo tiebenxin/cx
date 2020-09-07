@@ -224,6 +224,10 @@ public class DaoMigration implements RealmMigration {
                 updateV50(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 50) {
+                updateV51(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -891,6 +895,14 @@ public class DaoMigration implements RealmMigration {
                 .addField("hasPermission", boolean.class)
                 .addField("canReview", int.class)
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
+    }
+
+    private final void updateV51(RealmSchema schema) {
+        schema.get("MsgNotice")
+                .addField("remark",String.class);
+
+        schema.get("Remind")
+                .addField("gid", String.class);
     }
 
     @Override
