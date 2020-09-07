@@ -6643,6 +6643,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 if(ifCollectFromVideoOrImg){
                                     EventFactory.EventShowDisallowedMsgNotice eventShowDisallowedMsgNotice = new EventFactory.EventShowDisallowedMsgNotice();
                                     EventBus.getDefault().post(eventShowDisallowedMsgNotice);
+                                    ifCollectFromVideoOrImg = false;
                                 }else {
                                     showMsgFailDialog();
                                 }
@@ -6654,6 +6655,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         super.onFailure(call, t);
                         ToastUtil.showToast(ChatActivity.this, "收藏失败", 1);
+                        ifCollectFromVideoOrImg = false;
                     }
                 });
     }
