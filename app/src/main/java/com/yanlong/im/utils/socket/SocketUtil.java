@@ -32,7 +32,9 @@ import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -56,6 +58,11 @@ public class SocketUtil {
     private long heartbeatStep = 30 * 1000;
     private boolean keepConnect = false;//是否保持连接
     private boolean isMainLive = false;//是否主界面存活
+    private ScheduledFuture<?> heardSchedule;
+    private long startTime;//开始连接时间
+    //    private int sslCount = 0;
+    private boolean isFirst = true;//是否第一次链接
+
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
     //事件分发
@@ -229,8 +236,8 @@ public class SocketUtil {
             }
         }
     };
-    private ScheduledFuture<?> heardSchedule;
-    private long startTime;
+    private String host;
+
 
     public boolean isRun() {
         return isRun > 0;
@@ -326,7 +333,8 @@ public class SocketUtil {
         }
         setRunState(1);
         try {
-            if (socketChannel == null || !socketChannel.isConnected()) {
+            //!getOnlineState() 考虑连接OK,SSL鉴权失败的情况
+            if (socketChannel == null || !socketChannel.isConnected() || !getOnlineState()) {
                 connect();
             }
         } catch (Exception e) {
@@ -411,7 +419,6 @@ public class SocketUtil {
      * 发送队列线程
      */
     private void sendListThread() {
-        LogUtil.getLog().d(TAG, ">>>发送队列线程启动---------------");
         ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
@@ -419,8 +426,6 @@ public class SocketUtil {
                     while (isRun() /*&& indexVer == threadVer*/) {
                         SendList.loopList();
                         Thread.sleep(sendListStep);
-//                        LogUtil.getLog().i(TAG, ">>>>>sleep--sendListStep=" + sendListStep);
-
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -446,6 +451,7 @@ public class SocketUtil {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                parseDNS();
                 LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
                 if (socketChannel != null) {
                     LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
@@ -473,12 +479,6 @@ public class SocketUtil {
                 }
             }
         }).start();
-//        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        });
     }
 
     /***
@@ -500,14 +500,7 @@ public class SocketUtil {
      */
     public void endSocket() {
         isStart = false;
-//        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                stop2();
-//                clearThread();
-//            }
-//        });
+        isFirst = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -563,10 +556,13 @@ public class SocketUtil {
         //socketChannel =  SocketChannel.open();
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
-        startTime = System.currentTimeMillis();
-        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
-        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
-        if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
+        if (isFirst) {
+            startTime = System.currentTimeMillis();
+            isFirst = false;
+        }
+        LogUtil.getLog().d(TAG, "连接LOG " + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        if (!socketChannel.connect(new InetSocketAddress(host, AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
             long ttime = System.currentTimeMillis();
@@ -589,6 +585,14 @@ public class SocketUtil {
                 connect();
                 return;
             }
+            //TODO:人为制造异常
+//            if (sslCount < 3) {
+//                sslCount++;
+//                Thread.sleep(1000);
+//                //证书问题
+//                throw new CXConnectTimeoutException();
+//            }
+//            sslCount = 0;
 
             while (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠100ms");
@@ -852,4 +856,17 @@ public class SocketUtil {
         ExecutorManager.INSTANCE.getReadThread().shutdown();
         ExecutorManager.INSTANCE.getSocketThread().shutdown();
     }
+
+    public String parseDNS() {
+        host = AppHostUtil.getTcpHost();
+        try {
+            InetAddress inetAddress = InetAddress.getByName(AppHostUtil.getTcpHost());
+            host = inetAddress.getHostAddress();
+            LogUtil.getLog().i(TAG, "连接LOG--DNS-IP=" + host);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return host;
+    }
+
 }
