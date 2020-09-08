@@ -130,7 +130,7 @@ public class SSLSocketChannel2 {
             }
         } catch (Exception e) {
             e.printStackTrace(System.out);
-            LogUtil.getLog().e(TAG, "SSL tryTLS的异常:" + e.toString());
+            LogUtil.getLog().e(TAG, "连接LOG --SSL tryTLS的异常:" + e.toString());
             LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.toString());
             SSL = 0;
             //  throw new NetworkErrorException();
