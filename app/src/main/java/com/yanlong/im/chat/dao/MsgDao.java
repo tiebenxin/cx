@@ -817,7 +817,7 @@ public class MsgDao {
      * @param gid
      * @param toUid
      */
-    public Session sessionCreate(String gid, Long toUid) {
+    public Session sessionCreate(String gid, Long toUid, long time) {
         Session session;
 
         if (StringUtil.isNotNull(gid)) {//群消息
@@ -850,7 +850,8 @@ public class MsgDao {
         }
 
         session.setUnread_count(0);
-        session.setUp_time(System.currentTimeMillis());
+//        session.setUp_time(System.currentTimeMillis());
+        session.setUp_time(time);
         DaoUtil.update(session);
         return session;
     }
@@ -886,7 +887,8 @@ public class MsgDao {
             }
             if (session != null) {//已存在的session，只更新时间
                 realm.beginTransaction();
-                session.setUp_time(System.currentTimeMillis());
+//                session.setUp_time(System.currentTimeMillis());
+                session.setUp_time(bean.getTimestamp());
                 realm.commitTransaction();
             } else {//新session
                 if (StringUtil.isNotNull(bean.getGid())) {//群消息
@@ -915,218 +917,14 @@ public class MsgDao {
                     }
                 }
                 session.setUnread_count(0);
-                session.setUp_time(System.currentTimeMillis());
-
+//                session.setUp_time(System.currentTimeMillis());
+                session.setUp_time(bean.getTimestamp());
                 realm.insertOrUpdate(session);
                 realm.commitTransaction();
             }
         } finally {
             DaoUtil.close(realm);
         }
-    }
-
-    /*
-     * 更新或者创建session
-     *
-     * */
-    public boolean sessionReadUpdate(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
-        //是否是 撤回
-        String cancelId = null;
-        if (bean != null) {
-            boolean isCancel = bean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
-            if (isCancel && bean.getMsgCancel() != null) {
-                cancelId = bean.getMsgCancel().getMsgidCancel();
-            }
-        }
-
-
-        //isCancel 是否是撤回消息  ，  canChangeUnread 不在聊天页面 注意true表示不在聊天页面
-        Session session;
-        if (StringUtil.isNotNull(gid)) {//群消息
-            session = DaoUtil.findOne(Session.class, "gid", gid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setGid(gid);
-                session.setType(1);
-                Group group = DaoUtil.findOne(Group.class, "gid", gid);
-                if (group != null) {
-                    session.setIsTop(group.getIsTop());
-                    session.setIsMute(group.getNotNotify());
-                }
-                if (canChangeUnread) {
-                    if (session.getIsMute() == 1) {//免打扰
-                        session.setUnread_count(0);
-                    } else {
-                        if (StringUtil.isNotNull(cancelId)) {
-                            session.setUnread_count(0);
-                        } else {
-                            session.setUnread_count(1);
-                        }
-                    }
-                }
-            } else {
-                if (canChangeUnread) {
-                    if (session.getIsMute() != 1) {//非免打扰
-                        int num = 0;
-                        if (StringUtil.isNotNull(cancelId)) {//撤销消息
-                            MsgAllBean cancel = getMsgById(cancelId);
-//                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1;
-                            } else {
-                                num = session.getUnread_count();
-                            }
-
-                        } else {
-                            num = session.getUnread_count() + 1;
-                        }
-                        num = num < 0 ? 0 : num;
-                        session.setUnread_count(num);
-                    } else {
-                        session.setUnread_count(0);
-                    }
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-
-        } else {//个人消息
-            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setFrom_uid(from_uid);
-                session.setType(0);
-                UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", from_uid);
-                if (user != null) {
-                    session.setIsTop(user.getIstop());
-                    session.setIsMute(user.getDisturb());
-                }
-                if (canChangeUnread) {
-                    if (session.getIsMute() == 1) {//免打扰
-                        session.setUnread_count(0);
-                    } else {
-                        if (StringUtil.isNotNull(cancelId)) {
-                            session.setUnread_count(0);
-                        } else {
-                            session.setUnread_count(1);
-                        }
-                    }
-                }
-            } else {
-                if (canChangeUnread) {
-                    if (session.getIsMute() != 1) {//非免打扰
-                        //没有撤回消息的id，要判断撤回的消息是已读还是未读
-                        int num = 0;
-                        if (StringUtil.isNotNull(cancelId)) {
-                            MsgAllBean cancel = getMsgById(cancelId);
-//                            LogUtil.getLog().e("==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1;
-                            } else {
-                                num = session.getUnread_count();
-                            }
-                        } else {
-                            num = session.getUnread_count() + 1;
-                        }
-                        num = num < 0 ? 0 : num;
-                        session.setUnread_count(num);
-                    } else {
-                        session.setUnread_count(0);
-                    }
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-        }
-
-        if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
-            if (StringUtil.isNotNull(gid)) {//群聊
-//                if (!checkUnReadAtMsg(session, cancelId)) {//检查是否还有未读的@我的消息
-                session.setMessageType(1000);
-//                }
-            } else {
-                session.setMessageType(1000);
-            }
-        } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
-            //对at消息处理 而且不是撤回消息
-            int messageType = bean.getAtMessage().getAt_type();
-            String atMessage = bean.getAtMessage().getMsg();
-            session.setMessageType(messageType);
-            session.setAtMessage(atMessage);
-        }
-        LogUtil.getLog().e("更新session未读数", "msgDao");
-        return DaoUtil.update(session);
-    }
-
-
-    /*
-     * 批量更新或者创建session
-     *
-     * */
-    public void sessionReadUpdate(String gid, Long from_uid, int count) {
-        Session session;
-        if (StringUtil.isNotNull(gid)) {//群消息
-            session = DaoUtil.findOne(Session.class, "gid", gid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setGid(gid);
-                session.setType(1);
-                Group group = DaoUtil.findOne(Group.class, "gid", gid);
-                if (group != null) {
-                    session.setIsTop(group.getIsTop());
-                    session.setIsMute(group.getNotNotify());
-                }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(count < 0 ? 0 : count);
-                }
-            } else {
-                if (session.getIsMute() != 1) {//免打扰
-                    int num = session.getUnread_count() + count;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-
-        } else {//个人消息
-            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setFrom_uid(from_uid);
-                session.setType(0);
-                UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", from_uid);
-                if (user != null) {
-                    session.setIsTop(user.getIstop());
-                    session.setIsMute(user.getDisturb());
-                }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(count < 0 ? 0 : count);
-                }
-
-            } else {
-                if (session.getIsMute() != 1) {//非免打扰
-                    int num = session.getUnread_count() + count;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-        }
-//        if (isCancel) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
-//            session.setMessageType(1000);
-//        }
-
-        DaoUtil.update(session);
     }
 
     /*
@@ -1290,7 +1088,7 @@ public class MsgDao {
             if (session != null) {
                 session.setDraft(draft);
                 session.setMessageType(2);
-                session.setUp_time(SocketData.getSysTime());
+                session.setUp_time(SocketData.getCurrentTime());
                 realm.insertOrUpdate(session);
                 //通知刷新某个session by sid-草稿
                 MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, session.getSid(), CoreEnum.ESessionRefreshTag.SINGLE);
@@ -1344,6 +1142,32 @@ public class MsgDao {
             }
             realm.commitTransaction();
             realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    /***
+     * 清除某个群 进群申请条数
+     * @param type
+     * @param gid
+     * @return
+     */
+    public void clearRemidCount(String type, String gid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            if (Preferences.GROUP_FRIEND_APPLY.equals(type)) {
+                Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("gid", gid).findFirst();
+                if (remind != null) {
+                    remind.setNumber(0);
+                    realm.insertOrUpdate(remind);
+                    realm.commitTransaction();
+                    realm.close();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
@@ -1877,6 +1701,35 @@ public class MsgDao {
 
     }
 
+    /**
+     * 根据uid批量查询入群申请列表的用户信息
+     *
+     * @param uidList
+     * @param stat    0 全部状态 1 申请中 2 已同意
+     * @return
+     */
+    public List<ApplyBean> getApplysByUid(List<String> uidList, int stat) {
+        Realm realm = DaoUtil.open();
+        List<ApplyBean> list = new ArrayList<>();
+        if (uidList != null && uidList.size() > 0) {
+            for (int i = 0; i < uidList.size(); i++) {
+                ApplyBean bean;
+                ApplyBean applyBean;
+                if (stat == 0) {
+                    applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).findFirst();
+                } else {
+                    applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat", stat).findFirst();
+                }
+                if (applyBean != null) {
+                    bean = realm.copyFromRealm(applyBean);
+                    list.add(bean);
+                }
+
+            }
+        }
+        realm.close();
+        return list;
+    }
 
     /***
      * 修改群名
@@ -2880,7 +2733,7 @@ public class MsgDao {
             if (session != null) {
                 session.setDraft("");
                 session.setMessageType(2);
-                session.setUp_time(SocketData.getSysTime());
+                session.setUp_time(SocketData.getCurrentTime());
                 realm.insertOrUpdate(session);
             }
 
@@ -3861,5 +3714,34 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return list;
+    }
+
+    /**
+     * 修改邀请入群通知消息 (将"去确认"改为"已确认")
+     *
+     * @param msgId
+     * @return
+     */
+    public MsgAllBean updateInviteNoticeMsg(String msgId) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+        if (msgAllBean != null) {
+            if (msgAllBean.getMsgNotice() != null) {
+                if (!TextUtils.isEmpty(msgAllBean.getMsgNotice().getNote()) && msgAllBean.getMsgNotice().getNote().contains("去确认")) {
+                    //从后到前找到"去确认"
+                    int startIndex = msgAllBean.getMsgNotice().getNote().lastIndexOf("去");
+                    msgAllBean.getMsgNotice().setNote(new StringBuilder(msgAllBean.getMsgNotice().getNote()).replace(startIndex, startIndex + 1, "已").toString());
+                }
+            }
+            realm.insertOrUpdate(msgAllBean);
+            ret = realm.copyFromRealm(msgAllBean);
+        }
+        realm.commitTransaction();
+        realm.close();
+
+        return ret;
+
     }
 }

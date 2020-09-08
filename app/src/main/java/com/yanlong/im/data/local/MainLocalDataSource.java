@@ -75,17 +75,21 @@ public class MainLocalDataSource {
     /***
      * 获取红点的值
      * @param type
+     * @param gid
      * @return
      */
-    public int getRemindCount(String type) {
+    public int getRemindCount(String type, String gid) {
         int num = 0;
-        if (Preferences.FRIEND_APPLY.equals(type)) {
+        if (Preferences.FRIEND_APPLY.equals(type)) {// 好友申请
             RealmResults<Remind> reminds = realm.where(Remind.class).equalTo("remid_type", type).findAll();
             if (reminds != null) {
                 for (Remind remind : reminds) {
                     num += remind.getNumber();
                 }
             }
+        } else if (Preferences.GROUP_FRIEND_APPLY.equals(type)) {// 申请进群
+            Remind remind = realm.where(Remind.class).equalTo("remid_type", type).and().equalTo("gid", gid).findFirst();
+            num = remind == null ? 0 : remind.getNumber();
         } else {
             Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
             num = remind == null ? 0 : remind.getNumber();

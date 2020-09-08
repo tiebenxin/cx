@@ -2,11 +2,7 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
-import com.yanlong.im.chat.bean.MemberUser;
-
 import net.cb.cb.library.utils.LogUtil;
-
-import java.util.List;
 
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
@@ -222,6 +218,10 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 49) {
                 updateV50(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 50) {
+                updateV51(schema);
                 oldVersion++;
             }
         }
@@ -892,6 +892,15 @@ public class DaoMigration implements RealmMigration {
                 .addField("canReview", int.class)
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
     }
+    //通知消息新增入群备注字段
+    private final void updateV51(RealmSchema schema) {
+        schema.get("MsgNotice")
+                .addField("remark",String.class);
+
+        schema.get("Remind")
+                .addField("gid", String.class);
+    }
+
 
     @Override
     public boolean equals(@Nullable Object obj) {

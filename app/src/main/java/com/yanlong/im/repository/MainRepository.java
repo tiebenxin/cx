@@ -83,10 +83,11 @@ public class MainRepository {
     /***
      * 获取红点的值
      * @param type
+     * @param gid
      * @return
      */
-    public int getRemindCount(String type) {
-        return localDataSource.getRemindCount(type);
+    public int getRemindCount(String type, String gid) {
+        return localDataSource.getRemindCount(type, gid);
     }
 
     /***
@@ -130,14 +131,14 @@ public class MainRepository {
                     localDataSource.updateFriend(userInfo);
                     MessageManager.getInstance().updateSessionTopAndDisturb("", usrid, userInfo.getIstop(), userInfo.getDisturb());
                 } else {
-                    MessageManager.getInstance().removeLoadUids(usrid);
+//                    MessageManager.getInstance().removeLoadUids(usrid);
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
                 super.onFailure(call, t);
-                MessageManager.getInstance().removeLoadUids(usrid);
+//                MessageManager.getInstance().removeLoadUids(usrid);
             }
         });
     }

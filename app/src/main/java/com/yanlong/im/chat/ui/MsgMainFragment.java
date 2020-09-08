@@ -39,6 +39,7 @@ import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
+import com.yanlong.im.view.WebActivity;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -241,7 +242,10 @@ public class MsgMainFragment extends Fragment {
         viewPopHelp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), HelpActivity.class));
+                Intent intent = new Intent(getActivity(), WebActivity.class);
+                intent.putExtra(WebActivity.AGM_URL, AppConfig.HELP_URL);
+                intent.putExtra(WebActivity.AGM_TITLE, "帮助与反馈");
+                startActivity(intent);
                 popView.dismiss();
             }
         });

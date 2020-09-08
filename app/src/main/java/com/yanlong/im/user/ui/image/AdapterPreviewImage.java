@@ -34,7 +34,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.gson.Gson;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
@@ -61,10 +60,7 @@ import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
-import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.UserUtil;
@@ -74,12 +70,9 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.Hashtable;
@@ -111,11 +104,12 @@ public class AdapterPreviewImage extends PagerAdapter {
     private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
     private String collectJson = "";//收藏详情点击大图转发需要的数据
     private LocalMedia currentMedia;
+    private IPreviewImage mIPreviewImage;
 
-
-    public AdapterPreviewImage(Activity c, int fromWhere, String collectJson) {
+    public AdapterPreviewImage(Activity c, int fromWhere, String collectJson, IPreviewImage iPreviewImage) {
         context = c;
         inflater = LayoutInflater.from(c);
+        mIPreviewImage = iPreviewImage;
         this.fromWhere = fromWhere;
         this.collectJson = collectJson;
     }
@@ -352,7 +346,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                             public void run() {
                                 ivZoom.setImageResource(R.mipmap.ic_img_past);
                             }
-                        },100);
+                        }, 100);
                     } else {
                         ivZoom.postDelayed(new Runnable() {
                             @Override
@@ -574,7 +568,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 public void run() {
                                     ivZoom.setImageResource(R.mipmap.ic_img_past);
                                 }
-                            },100);
+                            }, 100);
 
                         } else {
                             ivZoom.postDelayed(new Runnable() {
@@ -831,7 +825,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                             ToastUtil.show(context.getString(R.string.user_disable_message));
                             return;
                         }
-                        sendToFriend(msgId, PictureConfig.FROM_COLLECT_DETAIL);
+                        checkFile(msgId, PictureConfig.FROM_COLLECT_DETAIL,1,null);
                     } else if (postsion == 1) {//保存
                         saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                     }
@@ -843,7 +837,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,1,null);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                         } else if (postsion == 2) {//收藏
@@ -851,9 +845,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-                            eventCollectImgOrVideo.setMsgId(msgId);
-                            EventBus.getDefault().post(eventCollectImgOrVideo);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,2,null);
                         } else if (postsion == 3) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
@@ -866,14 +858,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            Intent intent = new Intent(context, ImageShowActivity.class);
-                            Bundle bundle = new Bundle();
-                            bundle.putString("imgpath", media.getCompressPath());
-                            bundle.putString("msg_id", msgId);
-                            bundle.putInt("img_width", media.getWidth());
-                            bundle.putInt("img_height", media.getHeight());
-                            intent.putExtras(bundle);
-                            context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,3,media);
                         }
 
                     } else {
@@ -883,7 +868,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,1,null);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                         } else if (postsion == 2) {//识别二维码
@@ -1095,29 +1080,11 @@ public class AdapterPreviewImage extends PagerAdapter {
 
 
     /**
-     * 转发
-     *
+     * 转发还是收藏
      * @param msgId
      */
-    private void sendToFriend(String msgId, int fromWhere) {
-        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
-            if (NetUtil.isNetworkConnected()) {
-                context.startActivity(new Intent(context, MsgForwardActivity.class)
-                        .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
-            } else {
-                ToastUtil.show("请检查网络连接是否正常");
-            }
-        } else {
-            if (!TextUtils.isEmpty(msgId)) {
-                MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-                if (msgAllBean != null) {
-                    context.startActivity(new Intent(context, MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
-                } else {
-                    ToastUtil.show("消息已被删除或者被焚毁，不能转发");
-                }
-            }
-        }
+    private void checkFile(String msgId, int fromWhere, int type,LocalMedia media) {
+        mIPreviewImage.onClick(msgId, fromWhere, type,media);
     }
 
 }

@@ -340,7 +340,8 @@ public class DB {
             }
             realm.beginTransaction();
             if (session != null) {//已存在的session，只更新时间
-                session.setUp_time(System.currentTimeMillis());
+//                session.setUp_time(System.currentTimeMillis());
+                session.setUp_time(bean.getTimestamp());
             } else {//新session
                 if (StringUtil.isNotNull(bean.getGid())) {//群消息
                     session = new Session();
@@ -366,7 +367,8 @@ public class DB {
                     }
                 }
                 session.setUnread_count(0);
-                session.setUp_time(System.currentTimeMillis());
+//                session.setUp_time(System.currentTimeMillis());
+                session.setUp_time(bean.getTimestamp());
                 realm.insertOrUpdate(session);
 
             }

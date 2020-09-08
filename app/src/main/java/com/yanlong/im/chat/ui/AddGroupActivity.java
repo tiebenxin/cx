@@ -20,6 +20,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -137,10 +138,10 @@ public class AddGroupActivity extends AppActivity {
                         Intent intent = new Intent(AddGroupActivity.this, ChatActivity.class);
                         intent.putExtra(ChatActivity.AGM_TOGID, gid);
                         startActivity(intent);
-                        new MsgDao().sessionCreate(gid, null);
+                        new MsgDao().sessionCreate(gid, null, SocketData.getCurrentTime());
                         MessageManager.getInstance().setMessageChange(true);
                     } else {
-                        ToastUtil.show(AddGroupActivity.this, "申请成功,等待群主验证");
+                        ToastUtil.show(AddGroupActivity.this, "申请成功,请等待群主验证");
                     }
                     finish();
                 } else {

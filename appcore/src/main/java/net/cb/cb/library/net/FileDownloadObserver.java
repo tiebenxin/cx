@@ -1,6 +1,7 @@
 package net.cb.cb.library.net;
 
 
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.ThreadUtil;
 
 import io.reactivex.Observer;
@@ -13,12 +14,13 @@ public abstract class FileDownloadObserver<T> implements Observer<T> {
 
     @Override
     public void onNext(final T t) {
-        ThreadUtil.getInstance().execute(new Runnable() {
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
                 onSuccess(t);
             }
         });
+        ExecutorManager.INSTANCE.getNormalThread().shutdown();
     }
 
     @Override

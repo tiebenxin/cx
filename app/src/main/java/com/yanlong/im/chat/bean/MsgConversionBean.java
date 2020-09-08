@@ -2,7 +2,6 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 
-import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -390,6 +389,46 @@ public class MsgConversionBean {
                 // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
                 gNotice.setNote(node);
                 msgAllBean.setMsgNotice(gNotice);
+                break;
+            case REQUEST_GROUP://入群验证
+                msgAllBean.setGid(bean.getGid());
+                msgAllBean.setMsg_type(EMessageType.NOTICE);
+                MsgNotice inviteNotice = new MsgNotice();
+                inviteNotice.setMsgid(msgAllBean.getMsg_id());
+                if (userInfo == null) {
+                    userInfo = new UserDao().findUserInfo(fromUid);
+                }
+                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                    name = userInfo.getMkName();
+                }
+                if (TextUtils.isEmpty(name)) {
+                    name = new MsgDao().getUsername4Show(bean.getGid(), fromUid);
+                    if (TextUtils.isEmpty(name)) {
+                        if (!TextUtils.isEmpty(bean.getGid()) && !TextUtils.isEmpty(bean.getMembername())) {
+                            name = bean.getMembername();
+                        } else {
+                            name = bean.getNickname();
+                        }
+                    }
+                }
+                MsgBean.RequestGroupMessage requestGroupMessage = bean.getRequestGroup();
+                if (requestGroupMessage.getNoticeMessageList() != null && requestGroupMessage.getNoticeMessageList().size() > 0) {
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (MsgBean.GroupNoticeMessage inviteNoticeMsg : requestGroupMessage.getNoticeMessageList()) {
+                        stringBuffer.append("\"<font color='#276baa' id='" + inviteNoticeMsg.getUid() + "'><a href=''>" + inviteNoticeMsg.getNickname() + "</a></font>\"、");
+                    }
+
+                    String inviteNames = stringBuffer.substring(0, stringBuffer.length() - 1);
+                    String fromUser = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";
+                    String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//"去确认"模拟成一个超链接对象id为-99
+                    inviteNotice.setNote(fromUser+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
+                    inviteNotice.setMsgType(ENoticeType.REQUEST_GROUP);
+                    //保存入群申请验证备注
+                    if(!TextUtils.isEmpty(bean.getRequestGroup().getAdditional())){
+                        inviteNotice.setRemark(bean.getRequestGroup().getAdditional());
+                    }
+                    msgAllBean.setMsgNotice(inviteNotice);
+                }
                 break;
             case DESTROY_GROUP://群解散
                 msgAllBean.setGid(bean.getGid());

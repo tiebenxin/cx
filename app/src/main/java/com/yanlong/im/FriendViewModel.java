@@ -15,19 +15,21 @@ import io.realm.RealmResults;
  */
 public class FriendViewModel extends ViewModel {
     private MainRepository repository;
+
     //通讯录好友
     public FriendViewModel() {
         repository = new MainRepository();
     }
 
-    public RealmResults<UserInfo> getFriends(){
+    public RealmResults<UserInfo> getFriends() {
         if (MyAppLication.INSTANCE().repository != null) {
             return MyAppLication.INSTANCE().repository.friends;
-        }else{
+        } else {
             return null;
         }
     }
-    public int getFriendSize(){
+
+    public int getFriendSize() {
         return getFriends() == null ? 0 : getFriends().size();
     }
 
@@ -64,13 +66,14 @@ public class FriendViewModel extends ViewModel {
     public void requestUsersOnlineStatus() {
         repository.requestUsersOnlineStatus();
     }
+
     /***
      * 获取红点的值
      * @param type
      * @return
      */
     public int getRemindCount(String type) {
-        return repository.getRemindCount(type);
+        return repository.getRemindCount(type, "");
     }
 
     public void onDestroy() {

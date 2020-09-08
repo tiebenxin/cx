@@ -53,6 +53,7 @@ public class ChatCellNotice extends ChatCellBase {
                         || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS
                         || notice.getMsgType() == ChatEnum.ENoticeType.FREEZE_ACCOUNT
                         || notice.getMsgType() == ChatEnum.ENoticeType.SEAL_ACCOUNT
+                        || notice.getMsgType() == ChatEnum.ENoticeType.DEFAULT
                         || notice.getMsgType() == ChatEnum.ENoticeType.FRIEND_DEACTIVATE) {
                     tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
                 } else {
@@ -62,7 +63,7 @@ public class ChatCellNotice extends ChatCellBase {
                         tv_content.setText(Html.fromHtml(notice.getNote(), null,
                                 new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
                     } else {
-                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType(),0));
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice(),0)); //包含邀请入群验证
                     }
                 }
 
@@ -104,14 +105,21 @@ public class ChatCellNotice extends ChatCellBase {
                     tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
                 } else {
                     //A撤自己的消息，新版显示群主/管理员身份
+                    MsgNotice msgNotice = new MsgNotice();
                     if(message.getMsgCancel().getUid()!=null){
                         if(message.getMsgCancel().getUid().longValue()==0L || message.getMsgCancel().getUid().longValue()==message.getFrom_uid().longValue()){
                             if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE){
-                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),1));
+                                msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
+                                msgNotice.setMsgType(message.getMsgCancel().getMsgType());
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,1));
                             }else if(message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.VICE_ADMIN_VALUE){
-                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),2));
+                                msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
+                                msgNotice.setMsgType(message.getMsgCancel().getMsgType());
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,2));
                             }else {
-                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),0));
+                                msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
+                                msgNotice.setMsgType(message.getMsgCancel().getMsgType());
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,0));
                             }
                         }else {
                             //A撤回了B的消息，携带被撤回人的uid
@@ -123,7 +131,9 @@ public class ChatCellNotice extends ChatCellBase {
                         }
                     }else {
                         //A撤自己的消息，保留原有逻辑不变
-                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType(),0));
+                        msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
+                        msgNotice.setMsgType(message.getMsgCancel().getMsgType());
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,0));
                     }
                 }
             }
