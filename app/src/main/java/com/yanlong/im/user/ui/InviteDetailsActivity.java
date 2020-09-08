@@ -93,15 +93,7 @@ public class InviteDetailsActivity extends AppActivity {
         msgDao = new MsgDao();
         msgAction = new MsgAction();
         listData = new ArrayList<>();
-//        //默认情况，从申请入群列表查找用户信息
-//        if(msgDao.getApplysByUid(ids,1)!=null && msgDao.getApplysByUid(ids,1).size()>0){
-//            listData.addAll(msgDao.getApplysByUid(ids,1));
-//        }else {
-//            //若申请入群列表不存在用户信息，可能是已经同意，此时需要查最近同意申请入群的用户信息，因为如果有多条邀请入群申请，可以重复点"去确认"跳到此界面，需要展示
-//            if(msgDao.getApplysByUid(ids,2)!=null && msgDao.getApplysByUid(ids,2).size()>0){
-//                listData.addAll(msgDao.getApplysByUid(ids,2));
-//            }
-//        }
+        //用户资料全查出来
         if(msgDao.getApplysByUid(ids,0)!=null && msgDao.getApplysByUid(ids,0).size()>0){
             listData.addAll(msgDao.getApplysByUid(ids,0));
         }
@@ -143,7 +135,7 @@ public class InviteDetailsActivity extends AppActivity {
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(confirmState){ //去确认，按逻辑走
+                if(confirmState){ //去确认，按正常逻辑走
                     httpAgreeJoinGroups(listData);
                 }else { //如果是已确认，仍然允许点击，直接finish
                     finish();
@@ -163,7 +155,7 @@ public class InviteDetailsActivity extends AppActivity {
 
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
-        //自动寻找ViewHold
+        //自动寻找ViewHold`
         @Override
         public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
             RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_invite_details, view, false));
