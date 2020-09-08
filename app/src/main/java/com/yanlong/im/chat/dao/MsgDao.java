@@ -1940,7 +1940,7 @@ public class MsgDao {
     /**
      * 根据uid批量查询入群申请列表的用户信息
      * @param uidList
-     * @param stat  1 申请中 2 已同意
+     * @param stat  0 全部状态 1 申请中 2 已同意
      * @return
      */
     public List<ApplyBean> getApplysByUid(List<String> uidList,int stat) {
@@ -1949,7 +1949,12 @@ public class MsgDao {
         if(uidList!=null && uidList.size()>0){
             for(int i=0; i<uidList.size(); i++){
                 ApplyBean bean;
-                ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat",stat).findFirst();
+                ApplyBean applyBean;
+                if(stat==0){
+                    applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).findFirst();
+                }else {
+                    applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat",stat).findFirst();
+                }
                 if (applyBean != null) {
                     bean = realm.copyFromRealm(applyBean);
                     list.add(bean);
