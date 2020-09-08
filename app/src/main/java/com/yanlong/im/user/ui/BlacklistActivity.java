@@ -18,6 +18,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -119,7 +120,7 @@ public class BlacklistActivity extends AppActivity {
                     if (userDao.isUserExist(uid)) {
                         updateUserStatus(uid);
                         MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
-                        new MsgDao().sessionCreate("", uid);
+                        new MsgDao().sessionCreate("", uid, SocketData.getCurrentTime());
                     } else {
                         getUserInfo(uid);
                     }
@@ -200,7 +201,7 @@ public class BlacklistActivity extends AppActivity {
                     info.setuType(ChatEnum.EUserType.FRIEND);
                     userDao.updateUserinfo(info);
                     MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
-                    new MsgDao().sessionCreate("", uid);
+                    new MsgDao().sessionCreate("", uid, SocketData.getCurrentTime());
                 }
             }
         });

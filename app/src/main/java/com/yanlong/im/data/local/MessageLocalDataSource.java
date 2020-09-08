@@ -860,7 +860,8 @@ public class MessageLocalDataSource {
                     }
                 }
             }
-            session.setUp_time(System.currentTimeMillis());
+//            session.setUp_time(System.currentTimeMillis());
+            session.setUp_time(bean.getTimestamp());
             if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
                 session.setMessageType(1000);
             } else if (isRequestJoinGroup(bean) && !MessageManager.getInstance().isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {

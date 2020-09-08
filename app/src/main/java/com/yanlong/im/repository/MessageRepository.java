@@ -260,7 +260,7 @@ public class MessageRepository {
             LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + wrapMessage.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
             fetchTimeDiff(message.getTimestamp());
             if (message.getActiveTypeValue() == 1) {
-                SocketData.setPreServerAckTime(message.getTimestamp());
+//                SocketData.initTime(message.getTimestamp());
             }
             //更新数据库
             localDataSource.updateUserOnlineStatus(realm, fromUid, message.getActiveTypeValue(), message.getTimestamp());
