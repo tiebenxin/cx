@@ -53,10 +53,12 @@
                 android:id="@+id/check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?attr/picture.checked.style"
+                android:background="@drawable/picture_checkbox_selector"
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:textSize="12sp" />
+
+            <!--    android:background="?attr/picture.checked.style"-->
         </LinearLayout>
     </RelativeLayout>
 
@@ -97,13 +99,13 @@
                 android:id="@+id/tv_img_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/num_oval"
-                android:gravity="center"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="3dp"
+                android:layout_toLeftOf="@+id/tv_ok"
+                android:background="@drawable/num_oval"
+                android:gravity="center"
                 android:text="0"
                 android:textColor="@color/white"
-                android:layout_toLeftOf="@+id/tv_ok"
                 android:textSize="12sp"
                 android:visibility="invisible" />
 
@@ -111,10 +113,10 @@
                 android:id="@+id/tv_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
                 android:enabled="false"
                 android:gravity="center|left"
                 android:paddingRight="12dp"
-                android:layout_alignParentRight="true"
                 android:text="请选择"
                 android:textColor="@color/picture_list_text_color"
                 android:textSize="14sp" />
