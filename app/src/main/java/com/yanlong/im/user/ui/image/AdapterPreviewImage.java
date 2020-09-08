@@ -825,7 +825,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                             ToastUtil.show(context.getString(R.string.user_disable_message));
                             return;
                         }
-                        checkFile(msgId, PictureConfig.FROM_COLLECT_DETAIL,false);
+                        checkFile(msgId, PictureConfig.FROM_COLLECT_DETAIL,1,null);
                     } else if (postsion == 1) {//保存
                         saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                     }
@@ -837,7 +837,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            checkFile(msgId, PictureConfig.FROM_DEFAULT,false);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,1,null);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                         } else if (postsion == 2) {//收藏
@@ -845,7 +845,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            checkFile(msgId, PictureConfig.FROM_DEFAULT,true);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,2,null);
                         } else if (postsion == 3) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
@@ -858,14 +858,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            Intent intent = new Intent(context, ImageShowActivity.class);
-                            Bundle bundle = new Bundle();
-                            bundle.putString("imgpath", media.getCompressPath());
-                            bundle.putString("msg_id", msgId);
-                            bundle.putInt("img_width", media.getWidth());
-                            bundle.putInt("img_height", media.getHeight());
-                            intent.putExtras(bundle);
-                            context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,3,media);
                         }
 
                     } else {
@@ -875,7 +868,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            checkFile(msgId, PictureConfig.FROM_DEFAULT,false);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT,1,null);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                         } else if (postsion == 2) {//识别二维码
@@ -1090,8 +1083,8 @@ public class AdapterPreviewImage extends PagerAdapter {
      * 转发还是收藏
      * @param msgId
      */
-    private void checkFile(String msgId, int fromWhere, boolean isCollect) {
-        mIPreviewImage.onClick(msgId, fromWhere, isCollect);
+    private void checkFile(String msgId, int fromWhere, int type,LocalMedia media) {
+        mIPreviewImage.onClick(msgId, fromWhere, type,media);
     }
 
 }
