@@ -16,7 +16,7 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
-import net.cb.cb.library.bean.CXAuthenticationException;
+import net.cb.cb.library.bean.CXSSLException;
 import net.cb.cb.library.bean.CXConnectException;
 import net.cb.cb.library.bean.CXConnectTimeoutException;
 import net.cb.cb.library.bean.EventLoginOut;
@@ -330,8 +330,9 @@ public class SocketUtil {
                 connect();
             }
         } catch (Exception e) {
-            if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException) {
+            if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException || e instanceof CXSSLException) {
                 LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                setRunState(0);
                 run();
             } else {
                 LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
@@ -570,12 +571,12 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
             long ttime = System.currentTimeMillis();
             try {
+                Thread.sleep(200);
                 while (!socketChannel.finishConnect()) {
                     //在等待连接的时间里,为什么睡眠200ms？？？？？
                     //TODO：取消线程睡眠。2020.5.12
-//                Thread.sleep(200);
                     long connTime = System.currentTimeMillis() - ttime;
-                    if (connTime > 2 * 1000) {
+                    if (connTime > 3 * 1000) {
                         LogUtil.getLog().d(TAG, ">>>链接中2s超时");
                         throw new CXConnectTimeoutException();
                     }
@@ -589,16 +590,17 @@ public class SocketUtil {
                 return;
             }
 
-            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
             while (!socketChannel.isConnected()) {
-                LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠100s");
+                LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠100ms");
                 long connTime = System.currentTimeMillis() - ttime;
-                if (connTime > 2 * 1000) {
+                if (connTime > 3 * 1000) {
                     LogUtil.getLog().d(TAG, "连接LOG-->链接中2s超时");
                     throw new CXConnectTimeoutException();
                 }
                 Thread.sleep(200);
             }
+            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
+
 //            if (!socketChannel.isConnected()) {
 //                LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
 //                LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:链接不上");
@@ -615,7 +617,7 @@ public class SocketUtil {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
                 LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
                 //证书问题
-                throw new CXAuthenticationException();
+                throw new CXSSLException();
             } else {
                 long endTime = System.currentTimeMillis();
                 LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (endTime - ctime));
