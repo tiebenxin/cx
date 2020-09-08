@@ -21,18 +21,14 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -246,16 +242,16 @@ public class InviteDetailsActivity extends AppActivity {
                             list.get(i).setStat(2);//同意
                             msgDao.applyGroup(list.get(i));
                             //本地通知消息，A邀请了B入群
-                            SocketData.invitePersonLocalNotice(list.get(i).getGid(),list.get(i).getInviter(),list.get(i).getInviterName(),list.get(i).getUid(),list.get(i).getNickname());
+//                            SocketData.invitePersonLocalNotice(list.get(i).getGid(),list.get(i).getInviter(),list.get(i).getInviterName(),list.get(i).getUid(),list.get(i).getNickname());
                         }
-                        groupInfo(gid);//刷新群信息
+//                        groupInfo(gid);//刷新群信息
                         //请求完毕，通知群信息刷新
-                        if (!TextUtils.isEmpty(msgId)) {
-                            msgDao.updateInviteNoticeMsg(msgId);//数据库先更新，入群通知消息改为"已确认"
-                            EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
-                            event.setMsgId(msgId);
-                            EventBus.getDefault().post(event);
-                        }
+//                        if (!TextUtils.isEmpty(msgId)) {
+//                            msgDao.updateInviteNoticeMsg(msgId);//数据库先更新，入群通知消息改为"已确认"
+//                            EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
+//                            event.setMsgId(msgId);
+//                            EventBus.getDefault().post(event);
+//                        }
                         MessageManager.getInstance().notifyGroupChange(true);
                         finish();
                     }else {

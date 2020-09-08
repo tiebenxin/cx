@@ -132,7 +132,7 @@ public class MessageRepository {
                 wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
             return true;
         }
-        // 先检查是否存在申请
+        // 去掉红点通知逻辑，保存入群申请记录到本地列表
         List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
         if (list != null) {
             for (MsgBean.GroupNoticeMessage ntm : list) {
@@ -159,6 +159,22 @@ public class MessageRepository {
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         boolean result = saveMessageNew(bean, realm);
         return result;
+    }
+
+    /**
+     * 其他管理员已经通过入群申请
+     *
+     * @param wrapMessage
+     */
+    public boolean handlerOthersHadAgree(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+        //有人已经通过，直接刷新该条通知消息，改为"已确认"
+        if(!TextUtils.isEmpty(wrapMessage.getMessageProcessedSync().getMsgId())){
+            new MsgDao().updateInviteNoticeMsg(wrapMessage.getMessageProcessedSync().getMsgId());//数据库先更新，入群通知消息改为"已确认"
+            EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
+            event.setMsgId(wrapMessage.getMessageProcessedSync().getMsgId());
+            EventBus.getDefault().post(event);
+        }
+        return true;
     }
 
 

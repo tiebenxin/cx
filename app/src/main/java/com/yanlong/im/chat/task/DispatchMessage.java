@@ -160,6 +160,9 @@ public abstract class DispatchMessage {
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 result = repository.handlerRequestGroup(wrapMessage, realm);
                 break;
+            case MESSAGE_PROCESSED_SYNC:// 消息已处理通知（各类需处理消息通用）
+                result = repository.handlerOthersHadAgree(wrapMessage, realm);
+                break;
             case CHANGE_GROUP_META://修改群属性
                 result = repository.handlerChangeGroupMeta(wrapMessage, realm);
                 break;

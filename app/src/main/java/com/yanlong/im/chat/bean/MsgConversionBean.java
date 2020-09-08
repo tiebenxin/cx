@@ -429,8 +429,6 @@ public class MsgConversionBean {
                     }
                     msgAllBean.setMsgNotice(inviteNotice);
                 }
-
-
                 break;
             case DESTROY_GROUP://群解散
                 msgAllBean.setGid(bean.getGid());
