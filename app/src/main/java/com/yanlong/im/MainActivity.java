@@ -112,7 +112,6 @@ import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -478,7 +477,7 @@ public class MainActivity extends BaseTcpActivity {
             SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
         }
         // 启动聊天服务
-        startChatServer();
+        startTCP();
 
         mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
             @Override
@@ -596,7 +595,7 @@ public class MainActivity extends BaseTcpActivity {
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         LogUtil.getLog().i("MainActivity--跟踪--Main", "onDestroy--" + SocketUtil.getSocketUtil().isKeepConnect());
         if (!SocketUtil.getSocketUtil().isKeepConnect()) {
-            stopChatService();
+            stopTCP();
         }
         SocketUtil.getSocketUtil().setMainLive(false);
         if (mMsgMainFragment != null) {
@@ -677,26 +676,16 @@ public class MainActivity extends BaseTcpActivity {
             if (token != null) {
                 TokenManager.initToken(token.getAccessToken());
                 PayEnvironment.getInstance().setToken(token.getAccessToken());
-//                CommonInterceptor.headers = Headers.of(TokenManager.TOKEN_KEY, token.getAccessToken());
             }
         }
     }
 
 
-    private void startChatServer() {
-        // 启动聊天服务
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            startForegroundService(new Intent(getContext(), ChatServer.class));
-//        } else {
-//            startService(new Intent(getContext(), ChatServer.class));
-//        }
-//        startService(new Intent(getContext(), ChatServer.class));
+    private void startTCP() {
         TcpConnection.getInstance(AppConfig.getContext()).startConnect();
-
     }
 
-    private void stopChatService() {
-//        stopService(new Intent(getContext(), ChatServer.class));
+    private void stopTCP() {
         TcpConnection.getInstance(AppConfig.getContext()).destroyConnect();
     }
 
@@ -776,9 +765,9 @@ public class MainActivity extends BaseTcpActivity {
     public void tcpConnect(boolean isRun) {
         super.tcpConnect(isRun);
         if (isRun) {
-            startChatServer();
+            startTCP();
         } else {
-            stopChatService();
+            stopTCP();
         }
     }
 
@@ -790,12 +779,12 @@ public class MainActivity extends BaseTcpActivity {
 //            if (mMsgMainFragment != null) {
 //                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
 //            }
-//            startChatServer();
+//            startTCP();
 //        } else {
 //            if (mMsgMainFragment != null) {
 //                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
 //            }
-//            stopChatService();
+//            stopTCP();
 //        }
 //
 //    }
