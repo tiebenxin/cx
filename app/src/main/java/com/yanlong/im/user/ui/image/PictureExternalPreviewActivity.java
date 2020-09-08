@@ -45,6 +45,7 @@ import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.QRCodeManage;
+import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
 import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
@@ -374,10 +375,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      *
      * @param msgId
      * @param fromWhere
-     * @param isCollect  转发 还是 收藏
+     * @param type  1 转发 2 收藏 3 图片编辑
      */
     @Override
-    public void onClick(String msgId, int fromWhere, boolean isCollect) {
+    public void onClick(String msgId, int fromWhere, int type , LocalMedia media) {
 
         MsgAllBean msgbean = null;
 
@@ -416,12 +417,21 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (response.body().getData() != null && response.body().getData().size() != list.size()) {
                             showMsgFailDialog();
                         } else {
-                            if(isCollect){
+                            if(type==1){
+                                sendToFriend(msgId, fromWhere);
+                            }else if(type==2){
                                 EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                                 eventCollectImgOrVideo.setMsgId(msgId);
                                 EventBus.getDefault().post(eventCollectImgOrVideo);
                             }else {
-                                sendToFriend(msgId, fromWhere);
+                                Intent intent = new Intent(PictureExternalPreviewActivity.this, ImageShowActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("imgpath", media.getCompressPath());
+                                bundle.putString("msg_id", msgId);
+                                bundle.putInt("img_width", media.getWidth());
+                                bundle.putInt("img_height", media.getHeight());
+                                intent.putExtras(bundle);
+                                startActivityForResult(intent, IMG_EDIT);
                             }
                         }
 

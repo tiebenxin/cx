@@ -13,7 +13,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.bean.RobotInfoBean;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MsgServer;
@@ -513,7 +512,7 @@ public class MsgAction {
     }
 
     /**
-     * 同意进群
+     * 单个同意进群
      */
     public void groupRequest(final String aid, String gid, String newMember, String newMemberName,
                              String newMemberAvatar, int joinType, String inviter, String inviterName,
@@ -531,6 +530,15 @@ public class MsgAction {
                 callback.onFailure(call, t);
             }
         });
+    }
+
+    /**
+     * 批量同意进群
+     */
+    public void httpAgreeJoinGroup(String gid, long inviter, String inviterName,
+                              int joinType, String msgId,String members,
+                             final Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpAgreeJoinGroup(gid, inviter,inviterName,joinType,msgId,members), callback);
     }
 
 

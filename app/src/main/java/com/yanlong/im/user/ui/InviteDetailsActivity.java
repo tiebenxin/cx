@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -150,9 +151,7 @@ public class InviteDetailsActivity extends AppActivity {
                     if(hadAgree){
                         finish();
                     }else {
-                        for(int i=0;i<listData.size();i++){
-                            httpAgreeJoinGroup(listData.get(i));
-                        }
+                        httpAgreeJoinGroups(listData);
                     }
                 }else { //如果是已确认，仍然允许点击，直接finish
                     finish();
@@ -231,27 +230,25 @@ public class InviteDetailsActivity extends AppActivity {
 
     /**
      * 发请求->同意入群申请
-     * @param bean
+     * @param list
      */
-    private void httpAgreeJoinGroup(ApplyBean bean) {
-        msgAction.groupRequest(bean.getAid(), bean.getGid(), bean.getUid() + "", bean.getNickname(), bean.getAvatar(),
-                bean.getJoinType(), bean.getInviter() + "", bean.getInviterName(), new CallBack<ReturnBean>() {
-                    @Override
-                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                        if (response.body().isOk()) {
-                            bean.setStat(2);
-                            msgDao.applyGroup(bean);
-                            groupInfo(bean.getGid());
-                            //TODO 新增->群主或管理员允许通过验证后，需要android端本地通知消息给自己，A邀请了B入群，与IOS一致
-                            SocketData.invitePersonLocalNotice(bean.getGid(),bean.getInviter(),bean.getInviterName(),bean.getUid(),bean.getNickname());
-                        } else if (response.body().getCode() == 10005) {//已是群成员
-                            bean.setStat(2);
-                            msgDao.applyGroup(bean);
-                            groupInfo(bean.getGid());
-                            ToastUtil.show(getContext(), bean.getNickname()+"已经是本群成员");
-                        } else {
-                            ToastUtil.show(getContext(), response.body().getMsg());
+    private void httpAgreeJoinGroups(List<ApplyBean> list) {
+        if(list!=null && list.size()>0){
+            String gid = list.get(0).getGid()==null ? "":list.get(0).getGid();
+            String inviteName = list.get(0).getInviterName()==null ? "":list.get(0).getInviterName();
+            msgAction.httpAgreeJoinGroup(gid, list.get(0).getInviter(), inviteName, list.get(0).getJoinType(), msgId, new Gson().toJson(list), new CallBack<ReturnBean>() {
+                @Override
+                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                    super.onResponse(call, response);
+                    if (response.body().isOk()) {
+                        for(int i =0; i<list.size(); i++){
+                            //更新本地状态
+                            list.get(i).setStat(2);//同意
+                            msgDao.applyGroup(list.get(i));
+                            //本地通知消息，A邀请了B入群
+                            SocketData.invitePersonLocalNotice(list.get(i).getGid(),list.get(i).getInviter(),list.get(i).getInviterName(),list.get(i).getUid(),list.get(i).getNickname());
                         }
+                        groupInfo(gid);//刷新群信息
                         //请求完毕，通知群信息刷新
                         if (!TextUtils.isEmpty(msgId)) {
                             msgDao.updateInviteNoticeMsg(msgId);//数据库先更新，入群通知消息改为"已确认"
@@ -261,9 +258,18 @@ public class InviteDetailsActivity extends AppActivity {
                         }
                         MessageManager.getInstance().notifyGroupChange(true);
                         finish();
-
+                    }else {
+                        ToastUtil.show(getContext(), response.body().getMsg());
                     }
-                });
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean> call, Throwable t) {
+                    super.onFailure(call, t);
+                    ToastUtil.show("批量同意失败");
+                }
+            });
+        }
     }
 
     /**
