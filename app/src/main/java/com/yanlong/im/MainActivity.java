@@ -276,6 +276,9 @@ public class MainActivity extends BaseTcpActivity {
             FileManager.getInstance().clearLogDir();
         }
         uploadApp();
+        if (mMsgMainFragment != null && !SocketUtil.getSocketUtil().getOnlineState()) {
+            mMsgMainFragment.doOnlineChange(false);
+        }
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {

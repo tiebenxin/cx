@@ -656,7 +656,7 @@ public class SocketUtil {
             return false;
         }
         try {
-//            Thread.sleep(200);
+            Thread.sleep(200);//给Socket200ms的pending时间,减少finish抛异常几率
             while (!socketChannel.finishConnect()) {
                 long connTime = System.currentTimeMillis() - time;
                 if (connTime > 3 * 1000) {
@@ -668,9 +668,10 @@ public class SocketUtil {
             e.printStackTrace();
             LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:finishConnect出错");
             Thread.sleep(100);
-            stop2();
-            connect();
-            return true;
+            throw new CXConnectTimeoutException();
+//            stop2();
+//            connect();
+//            return true;
         }
         return false;
     }

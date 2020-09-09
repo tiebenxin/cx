@@ -596,14 +596,17 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
-    private void doOnlineChange(boolean state) {
-        if (getActivityMe() == null){
+    public void doOnlineChange(boolean state) {
+//        if (getActivityMe() == null){
+//            return;
+//        }
+        if (actionBar == null) {
             return;
         }
-        getActivityMe().runOnUiThread(new Runnable() {
+        actionBar.postDelayed(new Runnable() {
             @Override
             public void run() {
-                LogUtil.getLog().d("tyad", "run: state=" + state);
+                LogUtil.getLog().d("连接LOG--更新连接进度", "run: state=" + state);
                 AppConfig.setOnline(state);
                 actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                 if (!state && getActivityMe().isActivityStop()) {
@@ -612,7 +615,7 @@ public class MsgMainFragment extends Fragment {
                 resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
                 viewModel.onlineState.setValue(state);
             }
-        });
+        }, 10);
         //检测在线状态，一旦联网，调用批量收藏/删除接口，通知后端处理用户离线操作，保持数据一致
         //1 若网络恢复正常
         if (state) {
