@@ -28,7 +28,6 @@ import javax.net.ssl.TrustManager;
 
 public class SSLSocketChannel2 {
     private static final String TAG = "SSLSocketChannel2";
-
     int SSL;
     ByteBuffer clientIn, clientOut, cTOs, sTOc, wbuf;
     SocketChannel sc = null;
@@ -55,26 +54,7 @@ public class SSLSocketChannel2 {
             // create SSLContext
             sslContext = SSLContext.getInstance("TLS");
             //配置证书或者不配置
-            sslContext.init(null,
-                    new TrustManager[]{new EasyX509TrustManager(null)},
-                    null);
-            //-----------------------------------配置本地化证书
-/*           InputStream inputStream =  AppConfig.APP_CONTEXT.getResources().openRawResource(R.raw.https);
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(null);
-
-            String certificateAlias = Integer.toString(1);
-            keyStore.setCertificateEntry(certificateAlias, certificateFactory.generateCertificate(inputStream));
-
-
-            TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(keyStore);
-            sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());*/
-
-            //----------------------------------
+            sslContext.init(null, new TrustManager[]{new EasyX509TrustManager(null)}, null);
 
             // create Engine
             sslEngine = sslContext.createSSLEngine();
