@@ -10,21 +10,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center_horizontal"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="145dp"
+            android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/sd_group_head"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
                 style="@style/app_img_head"
-                android:layout_marginTop="11dp" />
+                android:layout_marginTop="50dp" />
 
             <TextView
                 android:id="@+id/tv_group_name"
@@ -42,14 +41,46 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tv_temp_two"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_temp_three"
+            android:layout_marginTop="33dp"
+            android:layout_marginLeft="17dp"
+            android:textColor="@color/c_000000"
+            android:textSize="13sp"
+            android:text="介绍信息："/>
+
+        <EditText
+            android:id="@+id/et_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:minHeight="100dp"
+            android:text=""
+            android:textColor="@color/c_000000"
+            android:textSize="13sp"
+            android:padding="13dp"
+            android:hint="最多60个字"
+            android:maxLength="60"
+            android:gravity="top"
+            android:background="@drawable/shape_5radius_white"
+            android:layout_below="@+id/tv_temp_two"/>
+
 
         <Button
             android:id="@+id/btn_add_group"
             style="@style/app_btn_green"
+            android:layout_gravity="center_horizontal"
             android:layout_width="310dp"
             android:layout_height="38dp"
-            android:layout_marginTop="53dp"
-            android:text="加入群聊" />
+            android:layout_marginTop="30dp"
+            android:textSize="15sp"
+            android:text="加入该群聊" />
 
     </LinearLayout>
 </net.cb.cb.library.view.HeadView>

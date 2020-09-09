@@ -86,7 +86,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid,
                                               @Field("nickname") String nickname, @Field("avatar") String avatar,
-                                              @Field("inviter") String inviter, @Field("inviterName") String inviterName);
+                                              @Field("inviter") String inviter, @Field("inviterName") String inviterName,@Field("additional") String additional);
 
     @POST("/group/change-group-name")
     @FormUrlEncoded
