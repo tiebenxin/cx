@@ -71,6 +71,7 @@ public class SocketUtil {
     //线程版本
     private long threadVer = 0;
     private final AtomicReference<Integer> connStatus = new AtomicReference<>(EConnectionStatus.DEFAULT);
+    private boolean isDestroyConnect = false;
 
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
@@ -326,7 +327,7 @@ public class SocketUtil {
      * 启动
      */
     private void run() {
-        if (getOnlineState()) {
+        if (isDestroyConnect || getOnlineState()) {
             return;
         }
         //无网络，不连接
@@ -452,12 +453,14 @@ public class SocketUtil {
      * 启动，纳入线程池管理,偶尔有延时，所以暂不纳入线程池管理
      */
     public void startSocket() {
+        isDestroyConnect = false;
         if (isStart && isRun()) {
             LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
             return;
         }
         setRunState(0);
         isStart = true;
+        isDestroyConnect = false;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -496,6 +499,7 @@ public class SocketUtil {
      * */
     public void stopSocket() {
         isStart = false;
+        isDestroyConnect = true;
         isFirst = true;
         startTime = 0;
         new Thread(new Runnable() {
@@ -513,6 +517,7 @@ public class SocketUtil {
      */
     public void endSocket() {
         isStart = false;
+        isDestroyConnect = true;
         isFirst = true;
         startTime = 0;
         new Thread(new Runnable() {
@@ -620,8 +625,8 @@ public class SocketUtil {
 //                //证书问题
 //                throw new CXSSLException();
 //            }
+//            sslCount = 0;
             updateConnectStatus(EConnectionStatus.SSL);
-            sslCount = 0;
             long endTime = System.currentTimeMillis();
             LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (endTime - time));
             showConnectTime(endTime);
@@ -630,7 +635,6 @@ public class SocketUtil {
             TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
             sendData(SocketData.msg4Auth(), null, "");
         }
-
     }
 
     private boolean checkConnect(long time) throws CXConnectTimeoutException, InterruptedException {
