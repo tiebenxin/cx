@@ -63,7 +63,7 @@ public class ChatCellNotice extends ChatCellBase {
                         tv_content.setText(Html.fromHtml(notice.getNote(), null,
                                 new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
                     } else {
-                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice(),0)); //包含邀请入群验证
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice(),0,message.getMsgNotice().getJoinGroupType())); //包含邀请入群验证
                     }
                 }
 
@@ -111,15 +111,15 @@ public class ChatCellNotice extends ChatCellBase {
                             if (message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.MASTER_VALUE){
                                 msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
                                 msgNotice.setMsgType(message.getMsgCancel().getMsgType());
-                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,1));
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,1,0));
                             }else if(message.getMsgCancel().getRole() == MsgBean.CancelMessage.Role.VICE_ADMIN_VALUE){
                                 msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
                                 msgNotice.setMsgType(message.getMsgCancel().getMsgType());
-                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,2));
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,2,0));
                             }else {
                                 msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
                                 msgNotice.setMsgType(message.getMsgCancel().getMsgType());
-                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,0));
+                                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,0,0));
                             }
                         }else {
                             //A撤回了B的消息，携带被撤回人的uid
@@ -133,7 +133,7 @@ public class ChatCellNotice extends ChatCellBase {
                         //A撤自己的消息，保留原有逻辑不变
                         msgNotice.setNote(message.getMsgCancel().getNote());//临时拼凑
                         msgNotice.setMsgType(message.getMsgCancel().getMsgType());
-                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,0));
+                        tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, msgNotice,0,0));
                     }
                 }
             }

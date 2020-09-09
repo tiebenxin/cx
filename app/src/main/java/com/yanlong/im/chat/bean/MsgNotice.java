@@ -17,6 +17,7 @@ public class MsgNotice extends RealmObject implements IMsgContent {
     private String note;
     private Integer msgType = MSG_TYPE_DEFAULT;
     private String remark;//申请入群备注
+    private int joinGroupType;//申请入群方式  0 扫码 1 正常邀请
 
     public Integer getMsgType() {
         return msgType;
@@ -58,5 +59,13 @@ public class MsgNotice extends RealmObject implements IMsgContent {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public int getJoinGroupType() {
+        return joinGroupType;
+    }
+
+    public void setJoinGroupType(int joinGroupType) {
+        this.joinGroupType = joinGroupType;
     }
 }

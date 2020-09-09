@@ -127,10 +127,12 @@ public class MessageRepository {
      * @param wrapMessage
      */
     public boolean handlerRequestGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
-        // TODO　自己邀请的，不会收到通知
+        // 如果不是扫码，仅为自己邀请的别人入群，提示等待，不会收到通知
         if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
                 wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
-            return true;
+            if(wrapMessage.getRequestGroup().getJoinType().getNumber()==1){
+                return true;
+            }
         }
         // 去掉红点通知逻辑，保存入群申请记录到本地列表
         List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
