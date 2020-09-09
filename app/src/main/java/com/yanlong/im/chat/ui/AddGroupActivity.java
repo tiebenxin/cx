@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,11 +19,12 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -41,6 +43,7 @@ public class AddGroupActivity extends AppActivity {
     private TextView mTvGroupName;
     private TextView mTvGroupNum;
     private Button mBtnAddGroup;
+    private EditText etContent;
     private MsgAction msgAction;
     private String gid;
     private String inviter;
@@ -64,6 +67,7 @@ public class AddGroupActivity extends AppActivity {
         mTvGroupName = findViewById(R.id.tv_group_name);
         mTvGroupNum = findViewById(R.id.tv_group_num);
         mBtnAddGroup = findViewById(R.id.btn_add_group);
+        etContent = findViewById(R.id.et_content);
     }
 
 
@@ -104,10 +108,20 @@ public class AddGroupActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     Group bean = response.body().getData();
+                    String url = "";
                     if (!TextUtils.isEmpty(bean.getAvatar())) {
-                        Glide.with(context).load(bean.getAvatar())
-                                .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
+                        url = bean.getAvatar();
+                    }else {
+                        MsgDao msgDao = new MsgDao();
+                        url = msgDao.groupHeadImgGet(gid);
+                        if(!StringUtil.isNotNull(url)){
+                            //头像为空 创建一次
+                            GroupHeadImageUtil.creatAndSaveImg(context,gid);
+                            url = msgDao.groupHeadImgGet(gid);
+                        }
                     }
+                    Glide.with(context).load(url)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
                     mTvGroupName.setText(/*bean.getName()*/msgDao.getGroupName(bean));
                     mTvGroupNum.setText(bean.getUsers().size() + "人");
                 } else {
@@ -123,7 +137,8 @@ public class AddGroupActivity extends AppActivity {
         Long uid = userInfo.getUid();
         String path = userInfo.getHead();
         String name = userInfo.getName();
-        new MsgAction().joinGroup(gid, uid, name, path, inviter, inviterName, new CallBack<ReturnBean<GroupJoinBean>>() {
+        String additional = etContent.getText().toString();
+        new MsgAction().joinGroup(gid, uid, name, path, inviter, inviterName,additional, new CallBack<ReturnBean<GroupJoinBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 if (response.body() == null) {

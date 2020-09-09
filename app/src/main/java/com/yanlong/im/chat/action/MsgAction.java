@@ -478,8 +478,8 @@ public class MsgAction {
     /**
      * 加入群聊
      */
-    public void joinGroup(String gid, Long uid, String nickname, String avatar, String inviter, String inviterName, Callback<ReturnBean<GroupJoinBean>> callback) {
-        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname, avatar, inviter, inviterName), callback);
+    public void joinGroup(String gid, Long uid, String nickname, String avatar, String inviter, String inviterName,String additional, Callback<ReturnBean<GroupJoinBean>> callback) {
+        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname, avatar, inviter, inviterName,additional), callback);
     }
 
 
