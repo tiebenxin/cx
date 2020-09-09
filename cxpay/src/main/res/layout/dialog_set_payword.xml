@@ -22,11 +22,17 @@
         android:visibility="visible"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:hint="请输入描述(最多30个字)"
+        android:text=""
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         android:singleLine="true"
+        android:hint="请输入描述(最多60个字)"
         android:textColor="@color/c_000000"
-        android:textSize="15sp"
-        android:maxLength="30"/>
+        android:background="@drawable/shape_0radius_stroke_cdcdcd"
+        android:textSize="14sp"
+        android:maxLength="60"/>
 
     <View
         android:id="@+id/line_one"
