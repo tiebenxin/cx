@@ -496,6 +496,8 @@ public class SocketUtil {
      * */
     public void stopSocket() {
         isStart = false;
+        isFirst = true;
+        startTime = 0;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -512,6 +514,7 @@ public class SocketUtil {
     public void endSocket() {
         isStart = false;
         isFirst = true;
+        startTime = 0;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -594,7 +597,7 @@ public class SocketUtil {
     private void sslConnect() throws IOException, CXSSLException, InterruptedException {
         if (socketChannel == null || !socketChannel.isConnected()) {
             LogUtil.writeLog(TAG + "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
-            LogUtil.getLog().i(TAG, "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
+            LogUtil.getLog().e(TAG, "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
             return;
         }
         long time = System.currentTimeMillis();
@@ -631,6 +634,10 @@ public class SocketUtil {
     }
 
     private boolean checkConnect(long time) throws CXConnectTimeoutException, InterruptedException {
+        if (socketChannel == null) {
+            LogUtil.getLog().e(TAG, "--连接LOG--" + "无效checkConnect--channel为空");
+            return false;
+        }
         while (!socketChannel.isConnected()) {
             LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠200ms");
             long connTime = System.currentTimeMillis() - time;
@@ -644,6 +651,10 @@ public class SocketUtil {
     }
 
     private boolean finishConnect(long time) throws Exception {
+        if (socketChannel == null) {
+            LogUtil.getLog().e(TAG, "--连接LOG--" + "无效finishConnect--channel为空");
+            return false;
+        }
         try {
             Thread.sleep(200);
             while (!socketChannel.finishConnect()) {
