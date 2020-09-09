@@ -254,7 +254,7 @@ public class SocketUtil {
      */
     private void setRunState(int state) {
         isRun = state;
-        if (isRun == 0) {
+        if (isRun == 0 || isRun == 1) {
             updateConnectStatus(EConnectionStatus.DEFAULT);
             event.onLine(false);
         }
@@ -656,7 +656,7 @@ public class SocketUtil {
             return false;
         }
         try {
-            Thread.sleep(200);
+//            Thread.sleep(200);
             while (!socketChannel.finishConnect()) {
                 long connTime = System.currentTimeMillis() - time;
                 if (connTime > 3 * 1000) {
