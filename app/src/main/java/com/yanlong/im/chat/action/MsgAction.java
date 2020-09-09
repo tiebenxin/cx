@@ -74,7 +74,7 @@ public class MsgAction {
                 if (response.body().isOk()) {//存库
                     String id = response.body().getData().getGid();
                     dao.groupCreate(id, avatar, name, MessageManager.getInstance().getMemberList(listDataTop, id));
-                    dao.sessionCreate(id, null);
+                    dao.sessionCreate(id, null, SocketData.getCurrentTime());
                     MessageManager.getInstance().setMessageChange(true);
                 }
                 callback.onResponse(call, response);
@@ -90,7 +90,8 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.deleteSession(null,id);
+                    if (MyAppLication.INSTANCE().repository != null)
+                        MyAppLication.INSTANCE().repository.deleteSession(null, id);
                     //删除群成员及秀阿贵群保存逻辑
                     MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), id);
                     dao.removeGroupMember(id, memberUser);
@@ -107,9 +108,9 @@ public class MsgAction {
             ulist.add(userInfo.getUid());
             rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
         }
-        WeakHashMap<String, Object> params= new WeakHashMap<>();
-        params.put("gid",id);
-        params.put("members",ulist);
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("gid", id);
+        params.put("members", ulist);
         final String finalRname = rname;
         NetUtil.getNet().exec(server.groupRemove(params), new Callback<ReturnBean<GroupJoinBean>>() {
             @Override
@@ -136,7 +137,7 @@ public class MsgAction {
     }
 
 
-    public void groupAdd(String remark,String id, List<UserInfo> members, String nickname, CallBack<ReturnBean<GroupJoinBean>> callback) {
+    public void groupAdd(String remark, String id, List<UserInfo> members, String nickname, CallBack<ReturnBean<GroupJoinBean>> callback) {
         List<GroupUserInfo> groupUserInfos = new ArrayList<>();
         for (int i = 0; i < members.size(); i++) {
             GroupUserInfo groupUserInfo = new GroupUserInfo();
@@ -145,7 +146,7 @@ public class MsgAction {
             groupUserInfo.setNickname(members.get(i).getName());
             groupUserInfos.add(groupUserInfo);
         }
-        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos), nickname,remark), callback);
+        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos), nickname, remark), callback);
     }
 
 
@@ -197,9 +198,9 @@ public class MsgAction {
 
      * @return
      */
-    public List<MsgAllBean> getMsg4UserImgNew(String gid, Long uid,long time) {
+    public List<MsgAllBean> getMsg4UserImgNew(String gid, Long uid, long time) {
         if (StringUtil.isNotNull(gid)) {
-            return dao.getMsg4GroupImgNew(gid,time);
+            return dao.getMsg4GroupImgNew(gid, time);
         }
         return dao.getMsg4UserImg(uid);
     }
@@ -251,15 +252,14 @@ public class MsgAction {
                             dao.groupNumberSave(newGroup);
                         }
                         //8.8 取消从数据库里读取群成员信息
-                        if(callback != null)callback.onResponse(call, response);
+                        if (callback != null) callback.onResponse(call, response);
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
-                        MessageManager.getInstance().removeLoadGids(gid);
                         if (!response.body().isOk() && StringUtil.isNotNull(response.body().getMsg())) {
                             ToastUtil.show(response.body().getMsg());
-                            if(callback != null)callback.onFailure(call, new Throwable());
+                            if (callback != null) callback.onFailure(call, new Throwable());
                         } else {
-                            if(callback != null)callback.onFailure(call, new Throwable());
+                            if (callback != null) callback.onFailure(call, new Throwable());
                         }
                     }
                 }
@@ -268,8 +268,7 @@ public class MsgAction {
                 public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                     super.onFailure(call, t);
                     LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
-                    MessageManager.getInstance().removeLoadGids(gid);
-                    if(callback != null)callback.onFailure(call, new Throwable());
+                    if (callback != null) callback.onFailure(call, new Throwable());
                 }
             });
         } else {//从缓存中读
@@ -278,47 +277,6 @@ public class MsgAction {
 
     }
 
-    /***
-     * 获取群成员有变化，更新群成员
-     * @param gid
-     * @param callback
-     */
-    public void loadGroupMember(final String gid, final Callback<ReturnBean<Group>> callback) {
-        if (TextUtils.isEmpty(gid)) {
-            return;
-        }
-        if (NetUtil.isNetworkConnected()) {
-            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>(false) {
-                @Override
-                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                    if (response.body() == null) {
-                        LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败 response=null--gid=" + gid);
-                        return;
-                    }
-                    if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
-                        Group newGroup = response.body().getData();
-                        newGroup.getMygroupName();
-                        dao.groupNumberSave(newGroup);
-                        if(callback != null)callback.onResponse(call, response);
-                    } else {
-                        LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
-                        MessageManager.getInstance().removeLoadGids(gid);
-                        if(callback != null)callback.onFailure(call, new Throwable());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
-                    super.onFailure(call, t);
-                    LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
-                    if(callback != null)callback.onFailure(call, new Throwable());
-                }
-            });
-        } else {//从缓存中读
-            groupInfo4Db(gid, callback);
-        }
-
-    }
 
     /***
      * 从缓存里面读取
@@ -332,7 +290,7 @@ public class MsgAction {
         body.setCode(0l);
         body.setData(rdata);
         Response<ReturnBean<Group>> response = Response.success(body);
-        if(callback != null)callback.onResponse(null, response);
+        if (callback != null) callback.onResponse(null, response);
     }
 
 
@@ -536,9 +494,9 @@ public class MsgAction {
      * 批量同意进群
      */
     public void httpAgreeJoinGroup(String gid, long inviter, String inviterName,
-                              int joinType, String msgId,String members,
-                             final Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.httpAgreeJoinGroup(gid, inviter,inviterName,joinType,msgId,members), callback);
+                                   int joinType, String msgId, String members,
+                                   final Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpAgreeJoinGroup(gid, inviter, inviterName, joinType, msgId, members), callback);
     }
 
 
@@ -670,6 +628,7 @@ public class MsgAction {
 
     /**
      * 收藏
+     *
      * @param data
      * @param fromUid
      * @param fromUsername
@@ -679,9 +638,9 @@ public class MsgAction {
      * @param callback
      */
     public void collectMsg(String data, long fromUid, String fromUsername,
-                           int type, String fromGid, String fromGroupName,String msgId,
+                           int type, String fromGid, String fromGroupName, String msgId,
                            Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.collectMsg(data,fromUid,fromUsername,type,fromGid,fromGroupName,msgId), callback);
+        NetUtil.getNet().exec(server.collectMsg(data, fromUid, fromUsername, type, fromGid, fromGroupName, msgId), callback);
     }
 
     /**
@@ -693,16 +652,17 @@ public class MsgAction {
 
     /**
      * 取消收藏
+     *
      * @param id
      */
-    public void cancelCollectMsg(long id , Callback<ReturnBean> callback) {
+    public void cancelCollectMsg(long id, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.cancelCollectMsg(id), callback);
     }
 
     /**
      * 批量收藏
      */
-    public void offlineAddCollections(List<CollectionInfo> dataList,Callback<ReturnBean> callback){
+    public void offlineAddCollections(List<CollectionInfo> dataList, Callback<ReturnBean> callback) {
         try {
             JSONObject object = new JSONObject();
             String array = new Gson().toJson(dataList);
@@ -716,7 +676,7 @@ public class MsgAction {
     /**
      * 批量删除
      */
-    public void offlineDeleteCollections(List<String> dataList,Callback<ReturnBean> callback){
+    public void offlineDeleteCollections(List<String> dataList, Callback<ReturnBean> callback) {
         try {
             JSONObject object = new JSONObject();
             String array = new Gson().toJson(dataList);

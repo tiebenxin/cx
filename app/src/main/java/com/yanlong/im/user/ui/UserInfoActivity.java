@@ -38,6 +38,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
@@ -852,7 +853,7 @@ public class UserInfoActivity extends AppActivity {
                 type = 0;
                 tvBlack.setText("加入黑名单");
                 userDao.updateUserUtype(id, 2);
-                new MsgDao().sessionCreate("", id);
+                new MsgDao().sessionCreate("", id, SocketData.getCurrentTime());
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid, CoreEnum.ERosterAction.BLACK);
             }

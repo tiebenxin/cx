@@ -73,7 +73,6 @@ public abstract class DispatchMessage {
             CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1,
                     "requestId:" + requestId + ";MsgType:" + wrapMessage.getMsgType());
         }
-        MessageManager.getInstance().checkServerTimeInit(wrapMessage);
         //消息震动
         if (!isFromSelf && isLastMessage) {
             MessageManager.getInstance().checkNotifyVoice(wrapMessage, batchMsgCount > 0, true);

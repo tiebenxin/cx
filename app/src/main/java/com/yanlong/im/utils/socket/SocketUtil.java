@@ -83,7 +83,7 @@ public class SocketUtil {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
-            SocketData.setPreServerAckTime(bean.getTimestamp());
+//            SocketData.initTime(bean.getTimestamp());
             boolean isAccepted = false;
             MsgAllBean msgAllBean = null;
             LogUtil.getLog().d(TAG, ">>>>>接受回执--size=" + bean.getMsgIdCount());
@@ -501,6 +501,7 @@ public class SocketUtil {
             public void run() {
                 stop2();
                 clearThread();
+                SocketData.clearTime();
             }
         }).start();
     }
@@ -593,7 +594,7 @@ public class SocketUtil {
     private void sslConnect() throws IOException, CXSSLException, InterruptedException {
         if (socketChannel == null || !socketChannel.isConnected()) {
             LogUtil.writeLog(TAG + "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
-            LogUtil.getLog().i(TAG , "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
+            LogUtil.getLog().i(TAG, "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
             return;
         }
         long time = System.currentTimeMillis();
@@ -810,7 +811,7 @@ public class SocketUtil {
                         //6.20 鉴权失败退出登录
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {
-                        SocketData.setPreServerAckTime(ruthmsg.getTimestamp());
+                        SocketData.initTime(ruthmsg.getTimestamp());
                         setRunState(2);
                         //开始心跳
                         heartbeatTime = System.currentTimeMillis();
