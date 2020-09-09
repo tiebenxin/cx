@@ -380,7 +380,7 @@ public class MsgConversionBean {
                 if (names.endsWith("、")) names = names.substring(0, names.length() - 2);
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
                     gNotice.setMsgType(1);
-                    node = names + "通过扫" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
+                    node = names + "通过扫描" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
                 } else {//被邀请
                     gNotice.setMsgType(2);
                     node = inviterName + "邀请" + names + "加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
