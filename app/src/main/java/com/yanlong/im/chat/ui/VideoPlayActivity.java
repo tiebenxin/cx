@@ -370,7 +370,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     }
                 }
             }
-        }, 0, 1000);
+        }, 0, 300);
     }
 
     private void initView() {

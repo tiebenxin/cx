@@ -100,6 +100,7 @@ public class AddGroupActivity extends AppActivity {
         inviter = getIntent().getStringExtra(INVITER);
         inviterName = getIntent().getStringExtra(INVITER_NAME);
         taskGroupInfo(gid);
+        etContent.setText("我是"+UserAction.getMyInfo().getName());
     }
 
 
