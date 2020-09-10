@@ -14,6 +14,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
 import android.view.View;
 
+import com.google.gson.Gson;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
@@ -31,6 +32,8 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.RealmList;
 
 /**
  * @创建人 shenxin
@@ -112,13 +115,9 @@ public class HtmlTransitonUtils {
                     URLSpan[] urls = clickableHtmlBuilder.getSpans(0, spannedHtml.length(), URLSpan.class);
                     //邀请入群单独处理
                     if(type==ChatEnum.ENoticeType.REQUEST_GROUP){
-                        // 把所有的用户id传过去
-                        ArrayList<String> IDs = new ArrayList<>();
-                        for(int i=0; i<bean.getList().size();i++){
-                            IDs.add(bean.getList().get(i).getId());
-                        }
+                        // 把所有申请入群的用户id传过去
                         for (int i = 0; i < urls.length; i++) {
-                            setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),IDs,remark,msgNotice.getMsgId(),joinType);
+                            setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),msgNotice.getIds(),remark,msgNotice.getMsgId(),joinType);
                         }
                     }else {
                         for (int i = 0; i < urls.length; i++) {
@@ -138,7 +137,7 @@ public class HtmlTransitonUtils {
     /**
      * 设置点击超链接对应的处理内容
      */
-    private void setLinkClickable(Context context, SpannableStringBuilder clickableHtmlBuilder, URLSpan urlSpan, final String id,final String name, String gid,ArrayList<String> IDs,String remark,String msgId,int joinType) {
+    private void setLinkClickable(Context context, SpannableStringBuilder clickableHtmlBuilder, URLSpan urlSpan, final String id, final String name, String gid, RealmList<String> IDs, String remark, String msgId, int joinType) {
         int start = clickableHtmlBuilder.getSpanStart(urlSpan);
         int end = clickableHtmlBuilder.getSpanEnd(urlSpan);
 
@@ -157,10 +156,7 @@ public class HtmlTransitonUtils {
                             }
                         }
                         Intent intent = new Intent(context, InviteDetailsActivity.class);
-//                        //先去掉第一个id(邀请人)和最后一个id(去确认)
-//                        IDs.remove(0);
-//                        IDs.remove(IDs.size()-1); asd
-                        intent.putStringArrayListExtra(InviteDetailsActivity.ALL_INVITE_IDS,IDs);
+                        intent.putExtra(InviteDetailsActivity.ALL_INVITE_IDS, new Gson().toJson(IDs));
                         intent.putExtra(InviteDetailsActivity.REMARK,remark==null ? "" : remark);
                         intent.putExtra(InviteDetailsActivity.MSG_ID,msgId);
                         intent.putExtra(InviteDetailsActivity.CONFIRM_STATE,toConfirm);
