@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui.image;
 
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
@@ -18,10 +19,13 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
@@ -40,10 +44,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.view.View.VISIBLE;
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
 import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
 
@@ -52,7 +58,7 @@ import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
  * @date 2020/9/3
  * Description 查看视频fragment
  */
-public class LookUpVideoFragment extends Fragment implements TextureView.SurfaceTextureListener, MediaPlayer.OnVideoSizeChangedListener, View.OnClickListener {
+public class LookUpVideoFragment extends BaseMediaFragment implements TextureView.SurfaceTextureListener, MediaPlayer.OnVideoSizeChangedListener, View.OnClickListener {
     private final String TAG = "video_log--" + getClass().getSimpleName();
 
     private MediaPlayer mediaPlayer;
@@ -60,9 +66,7 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
     private String path;
     private String msgId;
     private LocalMedia media;
-    private boolean isCurrent;
     private int from;
-    private String contentJson;
     private int surfaceWidth;
     private int surfaceHeight;
     private int downloadState;
@@ -72,13 +76,11 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
     private Timer mTimer;
     private int videoDuration;//视频时长
     private VideoPlayViewModel viewModel = new VideoPlayViewModel();
-    private int currentProgress;
 
-    public static LookUpVideoFragment newInstance(LocalMedia media, boolean isCurrent, int from) {
+    public static LookUpVideoFragment newInstance(LocalMedia media, int from) {
         LookUpVideoFragment fragment = new LookUpVideoFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("media", media);
-        bundle.putBoolean("isCurrent", isCurrent);
         bundle.putInt("from", from);
         fragment.setArguments(bundle);
         return fragment;
@@ -91,8 +93,8 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
         ui = DataBindingUtil.inflate(inflater, R.layout.fragment_lookup_video, container, false);
         View rootView = ui.getRoot();
         ui.textureView.setSurfaceTextureListener(this);
-        initData();
         initObserver();
+        initData();
         return rootView;
     }
 
@@ -101,13 +103,14 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ui.rlParent.setVisibility(View.INVISIBLE);
-        ui.ivPlay.setVisibility(View.INVISIBLE);
         ui.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    LogUtil.getLog().i(TAG, "onProgressChanged");
-                    setSeekTo((int) (progress * media.getDuration() / 100));
+                    LogUtil.getLog().i(TAG, "onProgressChanged--progress=" + progress);
+                    mCurrentPosition = progress;
+                    setSeekTo(progress);
+                    viewModel.isLoading.setValue(true);
                 }
             }
 
@@ -116,10 +119,35 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
                 LogUtil.getLog().i(TAG, "onStartTrackingTouch");
                 pausePlay();
                 cancelTimer();
+                updatePlayStatus(false);
+
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                try {
+                    if (mTimer == null) {
+                        if (mediaPlayer == null) {
+                            mediaPlayer = new MediaPlayer();
+                        }
+                        mediaPlayer.reset();
+                        mediaPlayer.setDataSource(path);
+                        mediaPlayer.setLooping(false);
+                        mediaPlayer.prepareAsync();
+                        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            @Override
+                            public void onPrepared(MediaPlayer mp) {
+                                mediaPlayer.seekTo(mCurrentPosition);
+                                mediaPlayer.start();
+                                getCurrentProgress();
+                            }
+                        });
+                    } else {
+                        mediaPlayer.start();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             }
         });
@@ -135,29 +163,37 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
         ui.ivBarPlay.setOnClickListener(this);
         ui.ivPlay.setOnClickListener(this);
         ui.ivClose.setOnClickListener(this);
+        if (!TextUtils.isEmpty(media.getVideoBgUrl())) {
+            ui.ivBg.setVisibility(View.VISIBLE);
+            Glide.with(this).load(media.getVideoBgUrl()).into(ui.ivBg);
+        }
     }
 
     @Override
     public void onPause() {
         pausePlay();
+        cancelTimer();
+        updatePlayStatus(false);
         super.onPause();
     }
 
     @Override
     public void onDestroyView() {
+        updatePlayStatus(false);
         cancelTimer();
         destroyPlay();
+        reset();
+        viewModel.destroy();
         super.onDestroyView();
     }
 
     private void initData() {
+        viewModel.init();
         media = getArguments().getParcelable("media");
-        isCurrent = getArguments().getBoolean("isCurrent");
         from = getArguments().getInt("from");
         String localUrl = media.getVideoLocalUrl();
         if (!TextUtils.isEmpty(localUrl)) {
             path = localUrl;
-            ui.ivProgress.setVisibility(View.GONE);
         } else {
             path = media.getVideoUrl();
             if (path.contains("http://") && path.contains("https://")) {
@@ -179,6 +215,22 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
                 }
             }
         });
+
+        viewModel.isLoading.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
+                if (aBoolean) {
+                    ui.ivPlay.setVisibility(View.INVISIBLE);
+                    Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    ui.ivProgress.startAnimation(rotateAnimation);
+                    ui.ivProgress.setVisibility(VISIBLE);
+                    setPlayBarIcon(R.mipmap.video_play_con_play);
+                } else {
+                    ui.ivProgress.clearAnimation();
+                    ui.ivProgress.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
 
@@ -189,6 +241,8 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
             prepareMediaPlayer();
         } else {
             pausePlay();
+            cancelTimer();
+            updatePlayStatus(false);
         }
     }
 
@@ -215,48 +269,16 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
 
     private void prepareMediaPlayer() {
         LogUtil.getLog().i("video_log", "prepareMediaPlayer");
+        if (media == null || !isCurrent(media.getPosition()) || (viewModel.isPlaying.getValue() != null && viewModel.isPlaying.getValue())) {
+            return;
+        }
+        LogUtil.getLog().i("video_log", "prepareMediaPlayer--w未开始");
+
         if (mSurface != null) {
             try {
                 if (mediaPlayer == null) {
                     mediaPlayer = new MediaPlayer();
-                    mediaPlayer.reset();
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    // 设置需要播放的视频
-                    mediaPlayer.setDataSource(path);
-                    LogUtil.getLog().i(TAG, "setDataSource--path=" + path);
-                    // 把视频画面输出到Surface
-                    mediaPlayer.setSurface(mSurface);
-                    mediaPlayer.setLooping(false);
-                    mediaPlayer.prepareAsync();
-                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            LogUtil.getLog().i(TAG, "onPrepared");
-                            if (viewModel.isPlaying.getValue() != null && !viewModel.isPlaying.getValue() && getActivity() != null && !getActivity().isFinishing()) {
-                                LogUtil.getLog().i(TAG, "onPrepared--1");
-                                mediaPlayer.start();
-                                videoDuration = mp.getDuration();
-                                ui.seekBar.setMax(videoDuration);
-                                setSeekTo(mCurrentPosition);
-                                setTime(videoDuration / 1000, ui.tvEndTime);
-                                getCurrentProgress();
-                            }
-                        }
-                    });
-                    mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-                        @Override
-                        public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                            if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
-                                ui.ivProgress.clearAnimation();
-                                ui.ivProgress.setVisibility(View.GONE);
-                                ui.seekBar.setVisibility(View.VISIBLE);
-                                //隐藏缩略图
-                                ui.ivBg.setVisibility(View.GONE);
-                            }
-                            return false;
-                        }
-                    });
-
+                    startPlay();
                     if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
                         surfaceWidth = ui.textureView.getWidth();
                         surfaceHeight = ui.textureView.getHeight();
@@ -265,27 +287,77 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
                         surfaceHeight = ui.textureView.getWidth();
                     }
                 } else {
-                    return;
+                    startPlay();
                 }
+                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        LogUtil.getLog().i(TAG, "onPrepared");
+                        if (viewModel.isPlaying.getValue() != null && !viewModel.isPlaying.getValue() && getActivity() != null && !getActivity().isFinishing()) {
+                            LogUtil.getLog().i(TAG, "onPrepared--1");
+                            mediaPlayer.start();
+                            videoDuration = mp.getDuration();
+                            ui.seekBar.setMax(videoDuration);
+                            setSeekTo(mCurrentPosition);
+                            setTime(videoDuration / 1000, ui.tvEndTime);
+                            getCurrentProgress();
+                        }
+                    }
+                });
+                mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                    @Override
+                    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                        if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
+                            viewModel.isLoading.setValue(false);
+                            ui.seekBar.setVisibility(View.VISIBLE);
+                            //隐藏缩略图
+                            ui.ivBg.setVisibility(View.GONE);
+                        }
+                        return false;
+                    }
+                });
                 mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
                         LogUtil.getLog().i(TAG, "onCompletion");
                         if (mediaPlayer != null && getActivity() != null && !getActivity().isFinishing()) {
-                            viewModel.isPlaying.setValue(false);
-                            ui.seekBar.setProgress(videoDuration);
-                            mCurrentPosition = videoDuration;
+                            if (viewModel != null && viewModel.isPlaying != null && viewModel.isPlaying.getValue()) {
+                                LogUtil.getLog().i(TAG, "onCompletion--isPlaying-终止");
+                                updatePlayStatus(false);
+                                mCurrentPosition = videoDuration;
+                                ui.seekBar.setProgress(videoDuration);
+                            }
                         }
                         pausePlay();
+                        if (mTimer != null) {
+                            cancelTimer();
+                            reset();
+                        }
                     }
                 });
                 mediaPlayer.setOnVideoSizeChangedListener(this);
-                mediaPlayer.seekTo(0);
-                mediaPlayer.start();
             } catch (Exception e) {
                 e.printStackTrace();
+                LogUtil.getLog().i(TAG, e.toString());
             }
         }
+    }
+
+    private void startPlay() throws IOException {
+        if (mediaPlayer == null || mSurface == null || TextUtils.isEmpty(path)) {
+            return;
+        }
+        mediaPlayer.reset();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        // 设置需要播放的视频
+        mediaPlayer.setDataSource(path);
+        LogUtil.getLog().i(TAG, "setDataSource--path=" + path);
+        // 把视频画面输出到Surface
+        mediaPlayer.setSurface(mSurface);
+        mediaPlayer.setLooping(false);
+        mediaPlayer.prepareAsync();
+        mediaPlayer.seekTo(0);
+        mediaPlayer.start();
     }
 
     private void pausePlay() {
@@ -299,15 +371,15 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
         } catch (Exception e) {
             e.printStackTrace();
         }
-        cancelTimer();
     }
 
 
     private void downloadVideo(String url, String msgId) {
-        LogUtil.getLog().i("video_log", "downloadVideo--msgId=" + msgId + "--url=" + url);
+        LogUtil.getLog().i(TAG, "downloadVideo--msgId=" + msgId + "--url=" + url);
         if (TextUtils.isEmpty(url)) {
             return;
         }
+        viewModel.isLoading.setValue(true);
         final File appDir = new File(Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
@@ -431,6 +503,7 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
                     cancelTimer();
+                    updatePlayStatus(false);
                 } else {
                     if (viewModel.isPlaying.getValue() != null && !viewModel.isPlaying.getValue()) {
                         reset();
@@ -516,6 +589,9 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
 
     //恢复播放
     private void replay() {
+        if (TextUtils.isEmpty(path) || mSurface == null) {
+            return;
+        }
         try {
             if (mediaPlayer == null) {
                 mediaPlayer = new MediaPlayer();
@@ -554,6 +630,9 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
     }
 
     private void setTime(int time, TextView tv) {
+//        if (tv.getId() == ui.tvStartTime.getId()) {
+//            LogUtil.getLog().i(TAG, "time=" + time);
+//        }
         int mHour = time / 3600;
         int mMin = time % 3600 / 60;
         int mSecond = time % 60;
@@ -574,29 +653,28 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
             public void run() {
                 if (mediaPlayer != null) {
                     int currentPosition = mediaPlayer.getCurrentPosition();
-                    double percent = currentPosition * 1.0 / videoDuration;
-                    int progress = (int) (percent * 100);
-                    if (currentProgress < progress) {
-                        currentProgress = progress;
-                    }
                     if (currentPosition > mCurrentPosition) {
                         mCurrentPosition = currentPosition;
                     }
-                    LogUtil.getLog().i(TAG, "mediaPlayer--currentPosition=" + currentPosition + "--currentProgress=" + currentProgress);
+//                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
                     ui.tvStartTime.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            ui.seekBar.setVisibility(View.VISIBLE);
-//                            ui.seekBar.setProgress(currentProgress);
-                            ui.seekBar.setProgress(mCurrentPosition);
-                            setTime(mCurrentPosition / 1000, ui.tvStartTime);
-                            if (currentPosition > 0 && currentPosition < videoDuration) {
-                                viewModel.isPlaying.setValue(true);
+                            if (viewModel.isLoading != null && viewModel.isLoading.getValue()) {
+                                viewModel.isLoading.setValue(false);
+                            }
+                            if (viewModel.isPlaying != null && viewModel.isPlaying.getValue()) {
+                                if (currentPosition > 0 && currentPosition < videoDuration) {
+                                    ui.seekBar.setProgress(mCurrentPosition);
+                                } else {
+                                    updatePlayStatus(false);
+                                }
+                                setTime(mCurrentPosition / 1000, ui.tvStartTime);
                             } else {
-                                viewModel.isPlaying.setValue(false);
+                                updatePlayStatus(true);
                             }
                         }
-                    }, 100);
+                    }, 1);
                 } else {
                     viewModel.isPlaying.setValue(false);
                 }
@@ -605,17 +683,25 @@ public class LookUpVideoFragment extends Fragment implements TextureView.Surface
 
     }
 
+    //取消播放进度
     private void cancelTimer() {
         if (mTimer != null) {
             LogUtil.getLog().i(TAG, "cancelTimer");
             mTimer.cancel();
             mTimer = null;
         }
-        viewModel.isPlaying.setValue(false);
+    }
+
+    //更新播放状态
+    private void updatePlayStatus(boolean b) {
+        LogUtil.getLog().i(TAG, "updatePlayStatus--" + b);
+        if (viewModel != null) {
+            viewModel.isPlaying.setValue(b);
+        }
     }
 
     private void reset() {
+        LogUtil.getLog().i(TAG, "reset");
         mCurrentPosition = 0;
-        currentProgress = 0;
     }
 }

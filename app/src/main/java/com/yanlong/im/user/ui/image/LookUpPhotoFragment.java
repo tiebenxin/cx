@@ -83,7 +83,7 @@ import okhttp3.Call;
  * @date 2020/9/3
  * Description 查看图片fragment
  */
-public class LookUpPhotoFragment extends Fragment {
+public class LookUpPhotoFragment extends BaseMediaFragment {
     private final String TAG = getClass().getSimpleName();
     private ZoomImageView ivImage;
     private TextView tvViewOrigin;
@@ -95,18 +95,16 @@ public class LookUpPhotoFragment extends Fragment {
     private int preProgress;
     private MsgDao msgDao = new MsgDao();
     private boolean isGif;
-    private boolean isCurrent;
     private String collectJson;
     private boolean isHttp;
     private boolean isOriginal;
     private int fromWhere;
 
 
-    public static LookUpPhotoFragment newInstance(LocalMedia media, boolean isCurrent, int from) {
+    public static LookUpPhotoFragment newInstance(LocalMedia media,  int from) {
         LookUpPhotoFragment fragment = new LookUpPhotoFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("media", media);
-        bundle.putBoolean("isCurrent", isCurrent);
         bundle.putInt("from", from);
         fragment.setArguments(bundle);
         return fragment;
@@ -128,7 +126,6 @@ public class LookUpPhotoFragment extends Fragment {
 
     private void initData() {
         media = getArguments().getParcelable("media");
-        isCurrent = getArguments().getBoolean("isCurrent");
         fromWhere = getArguments().getInt("from");
         String thumbUrl = media.getCutPath();//缩略图路径
         String previewUrl = media.getCompressPath();//预览图路径
@@ -234,7 +231,7 @@ public class LookUpPhotoFragment extends Fragment {
                 if (e.getMessage().contains("FileNotFoundException")) {
                     ivImage.setImageResource(R.mipmap.ic_img_past);
                 } else {
-                    if (isCurrent) {
+                    if (isCurrent(media.getPosition())) {
                         ivImage.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -301,7 +298,7 @@ public class LookUpPhotoFragment extends Fragment {
                             }, 100);
 
                         } else {
-                            if (isCurrent) {
+                            if (isCurrent(media.getPosition())) {
                                 ivImage.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {

@@ -1,6 +1,5 @@
 package com.yanlong.im.user.ui.image;
 
-import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,7 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -32,7 +30,7 @@ public class PreviewMediaActivity extends FragmentActivity {
     private ActivityPreviewBinding ui;
     private List<LocalMedia> mediaList;
     private int currentPosition;
-    private SparseArray<Fragment> fragmentMap = new SparseArray<>();
+    private SparseArray<BaseMediaFragment> fragmentMap = new SparseArray<>();
 
     public String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
     public String[] newStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "编辑", "取消"};
@@ -65,11 +63,19 @@ public class PreviewMediaActivity extends FragmentActivity {
         ui.viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                super.onPageSelected(position);
                 currentPosition = position;
+                setCurrent(position);
+                super.onPageSelected(position);
             }
         });
+        setCurrent(currentPosition);
         ui.viewPager.setCurrentItem(currentPosition);
+    }
+
+    private void setCurrent(int currentPosition) {
+        if (fragmentMap != null && fragmentMap.get(currentPosition) != null) {
+            fragmentMap.get(currentPosition).setCurrentPosition(currentPosition);
+        }
     }
 
     private class MediaPagerAdapter extends FragmentPagerAdapter {
@@ -81,15 +87,15 @@ public class PreviewMediaActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            Fragment fragment;
+            BaseMediaFragment fragment;
             LocalMedia media = mediaList.get(position);
-            currentPosition = position;
+            media.setPosition(position);
             fragment = fragmentMap.get(position);
             if (fragment == null) {
                 if (media.getMimeType() == PictureConfig.TYPE_VIDEO) {//视频
-                    fragment = LookUpVideoFragment.newInstance(media, currentPosition == position, PictureConfig.FROM_DEFAULT);
+                    fragment = LookUpVideoFragment.newInstance(media, PictureConfig.FROM_DEFAULT);
                 } else {//图片
-                    fragment = LookUpPhotoFragment.newInstance(media, currentPosition == position, PictureConfig.FROM_DEFAULT);
+                    fragment = LookUpPhotoFragment.newInstance(media, PictureConfig.FROM_DEFAULT);
                 }
                 fragmentMap.put(position, fragment);
             }
@@ -99,8 +105,8 @@ public class PreviewMediaActivity extends FragmentActivity {
         @Override
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
             super.setPrimaryItem(container, position, object);
-            if (object instanceof Fragment) {
-                fragmentMap.put(position, (Fragment) object);
+            if (object instanceof BaseMediaFragment) {
+                fragmentMap.put(position, (BaseMediaFragment) object);
             }
         }
 
@@ -109,8 +115,6 @@ public class PreviewMediaActivity extends FragmentActivity {
             return mediaList == null ? 0 : mediaList.size();
         }
     }
-
-
 
 
 }

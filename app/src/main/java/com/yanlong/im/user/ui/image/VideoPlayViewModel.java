@@ -10,5 +10,16 @@ import android.arch.lifecycle.ViewModel;
  */
 public class VideoPlayViewModel extends ViewModel {
     public MutableLiveData<Boolean> isPlaying = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
+
+    public void init(){
+        isPlaying.setValue(false);
+        isLoading.setValue(false);
+    }
+
+    public void destroy(){
+        isPlaying.setValue(null);
+        isLoading.setValue(null);
+    }
 
 }
