@@ -380,7 +380,7 @@ public class MsgConversionBean {
                 if (names.endsWith("、")) names = names.substring(0, names.length() - 2);
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
                     gNotice.setMsgType(1);
-                    node = names + "通过扫" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
+                    node = names + "通过扫描" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
                 } else {//被邀请
                     gNotice.setMsgType(2);
                     node = inviterName + "邀请" + names + "加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
@@ -414,14 +414,29 @@ public class MsgConversionBean {
                 MsgBean.RequestGroupMessage requestGroupMessage = bean.getRequestGroup();
                 if (requestGroupMessage.getNoticeMessageList() != null && requestGroupMessage.getNoticeMessageList().size() > 0) {
                     StringBuffer stringBuffer = new StringBuffer();
-                    for (MsgBean.GroupNoticeMessage inviteNoticeMsg : requestGroupMessage.getNoticeMessageList()) {
-                        stringBuffer.append("\"<font color='#276baa' id='" + inviteNoticeMsg.getUid() + "'><a href=''>" + inviteNoticeMsg.getNickname() + "</a></font>\"、");
-                    }
-
-                    String inviteNames = stringBuffer.substring(0, stringBuffer.length() - 1);
-                    String fromUser = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";
+                    String fromUserOne = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";//普通邀请入群发起者
+                    String fromUserTwo = "";//扫码入群发起者
                     String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//"去确认"模拟成一个超链接对象id为-99
-                    inviteNotice.setNote(fromUser+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
+                    //扫码入群
+                    if(bean.getRequestGroup().getJoinTypeValue()==0){
+                        MsgBean.GroupNoticeMessage inviteNoticeMsg = requestGroupMessage.getNoticeMessageList().get(0);//扫码只有一个入群申请
+                        String inviteName = "\"<font color='#276baa' id='" + inviteNoticeMsg.getUid() + "'><a href=''>" + inviteNoticeMsg.getNickname() + "</a></font>\"";
+                        if(UserAction.getMyId()!=null && bean.getRequestGroup().getInviter()==UserAction.getMyId().longValue()){
+                            fromUserTwo = "你";
+                        }else {
+                            fromUserTwo = "\"<font color='#276baa' id='" + requestGroupMessage.getInviter() + "'><a href=''>" + requestGroupMessage.getInviterName() + "</a></font>\"";
+                        }
+                        inviteNotice.setNote(inviteName + "通过扫描" + fromUserTwo + "分享的二维码申请加入本群，" + toSure + "<div id='" + bean.getGid() + "'></div>");
+                        inviteNotice.setJoinGroupType(0);
+                    }else {
+                        //普通邀请入群
+                        for (MsgBean.GroupNoticeMessage inviteNoticeMsg : requestGroupMessage.getNoticeMessageList()) {
+                            stringBuffer.append("\"<font color='#276baa' id='" + inviteNoticeMsg.getUid() + "'><a href=''>" + inviteNoticeMsg.getNickname() + "</a></font>\"、");
+                        }
+                        String inviteNames = stringBuffer.substring(0, stringBuffer.length() - 1);
+                        inviteNotice.setNote(fromUserOne+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
+                        inviteNotice.setJoinGroupType(1);
+                    }
                     inviteNotice.setMsgType(ENoticeType.REQUEST_GROUP);
                     //保存入群申请验证备注
                     if(!TextUtils.isEmpty(bean.getRequestGroup().getAdditional())){

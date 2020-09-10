@@ -43,9 +43,10 @@ public class HtmlTransitonUtils {
      * @param context
      * @param msgNotice
      * @param isAdmin 1 群主 2 管理员 0 普通成员(默认)
+     * @param msgNotice 邀请入群方式
      * @return
      */
-    public SpannableStringBuilder getSpannableString(Context context, MsgNotice msgNotice, int isAdmin) {
+    public SpannableStringBuilder getSpannableString(Context context, MsgNotice msgNotice, int isAdmin,int joinType) {
         String html = msgNotice.getNote();
         int type = msgNotice.getMsgType();
         String remark = msgNotice.getRemark();//默认为""，邀请入群验证才有备注
@@ -93,7 +94,7 @@ public class HtmlTransitonUtils {
                     SpannableStringBuilder clickableHtmlBuilder1 = new SpannableStringBuilder(spannedHtml1.subSequence(0, spannedHtml1.length()));
                     URLSpan[] urls1 = clickableHtmlBuilder1.getSpans(0, spannedHtml1.length(), URLSpan.class);
                     for (int i = 0; i < urls1.length; i++) {
-                        setLinkClickable(context, clickableHtmlBuilder1, urls1[i],bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),null,null,null);
+                        setLinkClickable(context, clickableHtmlBuilder1, urls1[i],bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),null,null,null,0);
                     }
                     return clickableHtmlBuilder1;
                 case ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER:// 领取群红包
@@ -117,11 +118,11 @@ public class HtmlTransitonUtils {
                             IDs.add(bean.getList().get(i).getId());
                         }
                         for (int i = 0; i < urls.length; i++) {
-                            setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),IDs,remark,msgNotice.getMsgId());
+                            setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),IDs,remark,msgNotice.getMsgId(),joinType);
                         }
                     }else {
                         for (int i = 0; i < urls.length; i++) {
-                            setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),null,null,null);
+                            setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),null,null,null,0);
                         }
                     }
 
@@ -137,7 +138,7 @@ public class HtmlTransitonUtils {
     /**
      * 设置点击超链接对应的处理内容
      */
-    private void setLinkClickable(Context context, SpannableStringBuilder clickableHtmlBuilder, URLSpan urlSpan, final String id,final String name, String gid,ArrayList<String> IDs,String remark,String msgId) {
+    private void setLinkClickable(Context context, SpannableStringBuilder clickableHtmlBuilder, URLSpan urlSpan, final String id,final String name, String gid,ArrayList<String> IDs,String remark,String msgId,int joinType) {
         int start = clickableHtmlBuilder.getSpanStart(urlSpan);
         int end = clickableHtmlBuilder.getSpanEnd(urlSpan);
 
@@ -156,13 +157,14 @@ public class HtmlTransitonUtils {
                             }
                         }
                         Intent intent = new Intent(context, InviteDetailsActivity.class);
-                        //先去掉第一个id(邀请人)和最后一个id(去确认)
-                        IDs.remove(0);
-                        IDs.remove(IDs.size()-1);
+//                        //先去掉第一个id(邀请人)和最后一个id(去确认)
+//                        IDs.remove(0);
+//                        IDs.remove(IDs.size()-1); asd
                         intent.putStringArrayListExtra(InviteDetailsActivity.ALL_INVITE_IDS,IDs);
                         intent.putExtra(InviteDetailsActivity.REMARK,remark==null ? "" : remark);
                         intent.putExtra(InviteDetailsActivity.MSG_ID,msgId);
                         intent.putExtra(InviteDetailsActivity.CONFIRM_STATE,toConfirm);
+                        intent.putExtra(InviteDetailsActivity.JOIN_TYPE,joinType);
                         context.startActivity(intent);
                     }else {
                         goToUserInfoActivity(context, Long.valueOf(id), gid, true);
@@ -209,7 +211,7 @@ public class HtmlTransitonUtils {
                     SpannableStringBuilder clickableHtmlBuilder = new SpannableStringBuilder(spannedHtml.subSequence(0, spannedHtml.length() - 2));
                     URLSpan[] urls = clickableHtmlBuilder.getSpans(0, spannedHtml.length(), URLSpan.class);
                     for (int i = 0; i < urls.length; i++) {
-                        setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),null,null,null);
+                        setLinkClickable(context, clickableHtmlBuilder, urls[i], bean.getList().get(i).getId(),bean.getList().get(i).getName(), bean.getGid(),null,null,null,0);
                     }
                     return clickableHtmlBuilder;
                 case ChatEnum.ENoticeType.CANCEL_CAN_EDIT:// 撤销能重新编辑

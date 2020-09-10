@@ -224,6 +224,10 @@ public class DaoMigration implements RealmMigration {
                 updateV51(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 51) {
+                updateV52(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -899,6 +903,12 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("Remind")
                 .addField("gid", String.class);
+    }
+
+    //通知消息新增入群方式字段
+    private final void updateV52(RealmSchema schema) {
+        schema.get("MsgNotice")
+                .addField("joinGroupType",int.class);
     }
 
 

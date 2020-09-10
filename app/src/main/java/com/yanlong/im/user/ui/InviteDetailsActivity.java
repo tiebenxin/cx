@@ -50,12 +50,15 @@ public class InviteDetailsActivity extends AppActivity {
     private TextView tvSubmit;//同意入群申请按钮
     private TextView tvInviteName;//邀请人的昵称
     private TextView tvContent;//入群备注内容
+    private TextView tvTempOne;//文案1
+    private TextView tvTempTwo;//文案2
 
 
     public static final String ALL_INVITE_IDS = "IDS";//邀请入群验证通知消息的全部id，从数据库找出此次申请入群用户
     public static final String REMARK = "REMARK";//邀请入群备注
     public static final String MSG_ID = "MSG_ID";//消息id
     public static final String CONFIRM_STATE = "CONFIRM_STATE";//确认状态(true 去确认/ false 已确认)
+    public static final String JOIN_TYPE = "JOIN_TYPE";//邀请方式
 
     private List<ApplyBean> listData;
     private List<String> ids;
@@ -65,6 +68,7 @@ public class InviteDetailsActivity extends AppActivity {
     private String remark;//备注内容
     private String msgId;//消息id
     private boolean confirmState;//确认状态(true 去确认/ false 已确认)
+    private int joinType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +86,8 @@ public class InviteDetailsActivity extends AppActivity {
         tvSubmit = findViewById(R.id.tv_submit);
         tvInviteName = findViewById(R.id.tv_invite_name);
         tvContent = findViewById(R.id.tv_content);
+        tvTempOne = findViewById(R.id.tv_temp_one);
+        tvTempTwo = findViewById(R.id.tv_temp_two);
     }
 
     private void initData() {
@@ -93,7 +99,24 @@ public class InviteDetailsActivity extends AppActivity {
         msgDao = new MsgDao();
         msgAction = new MsgAction();
         listData = new ArrayList<>();
-        //用户资料全查出来
+        if(ids!=null && ids.size()>0){
+            //扫码入群，固定3个对象，过滤掉邀请人和最后一个"去确认"的id，只需要查第一个被邀请人的信息
+            if(joinType==0){
+                //如果只有2个对象，即无需删除
+                if(ids.size()==2){
+                }else {
+                    ids.remove(1);
+                }
+                tvTempOne.setText("通过扫描");
+                tvTempTwo.setText("分享的二维码加入本群");
+            }else {
+                //普通邀请入群，过滤掉第一个邀请人和最后一个"去确认"的id，只需要查被邀请人的信息
+                ids.remove(0);
+                tvTempTwo.setText("邀请");
+            }
+            ids.remove(ids.size()-1);
+        }
+        //把被邀请的用户资料全查出来
         if(msgDao.getApplysByUid(ids,0)!=null && msgDao.getApplysByUid(ids,0).size()>0){
             listData.addAll(msgDao.getApplysByUid(ids,0));
         }
@@ -112,6 +135,7 @@ public class InviteDetailsActivity extends AppActivity {
         ids = getIntent().getStringArrayListExtra(ALL_INVITE_IDS);
         remark = getIntent().getStringExtra(REMARK);
         msgId = getIntent().getStringExtra(MSG_ID);
+        joinType = getIntent().getIntExtra(JOIN_TYPE,0);
         confirmState = getIntent().getBooleanExtra(CONFIRM_STATE,false);
         if(confirmState){
             tvSubmit.setBackgroundResource(R.drawable.shape_5radius_solid_32b053);
