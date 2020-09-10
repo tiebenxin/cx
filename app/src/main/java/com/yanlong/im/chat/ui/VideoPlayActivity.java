@@ -314,7 +314,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 double result = 0;
                 if (mCurrentTime > 0) { //TODO 抖动是因为MediaPlayer.getDuration()方法有时候会获取长度为0，属于官方bug
                     result = (double) mCurrentTime / mMediaPlayer.getDuration();
-                    LogUtil.getLog().i("TAG", "mCurrentTime:" + mCurrentTime + "  mMediaPlayer.getDuration():" + mMediaPlayer.getDuration());
+//                    LogUtil.getLog().i("TAG", "mCurrentTime:" + mCurrentTime + "  mMediaPlayer.getDuration():" + mMediaPlayer.getDuration());
                 }
                 if (isPlayFinished) {
                     activity_video_seek.setProgress(100);

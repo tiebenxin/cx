@@ -34,6 +34,7 @@ public class LocalMedia implements Parcelable {
     private boolean hasRead= false;//是否已查看原图
     private String videoUrl;//视频url
     private String videoBgUrl;//视频背景url
+    private String videoLocalUrl;//视频本地url
 
     public LocalMedia() {
 
@@ -228,6 +229,14 @@ public class LocalMedia implements Parcelable {
         this.videoBgUrl = videoBgUrl;
     }
 
+    public String getVideoLocalUrl() {
+        return videoLocalUrl;
+    }
+
+    public void setVideoLocalUrl(String videoLocalUrl) {
+        this.videoLocalUrl = videoLocalUrl;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -254,6 +263,7 @@ public class LocalMedia implements Parcelable {
         dest.writeByte(this.hasRead ? (byte) 1 : (byte) 0);
         dest.writeString(this.videoUrl);
         dest.writeString(this.videoBgUrl);
+        dest.writeString(this.videoLocalUrl);
     }
 
     protected LocalMedia(Parcel in) {
@@ -276,6 +286,7 @@ public class LocalMedia implements Parcelable {
         this.hasRead = in.readByte() != 0;
         this.videoUrl=in.readString();
         this.videoBgUrl=in.readString();
+        this.videoLocalUrl=in.readString();
     }
 
     public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {

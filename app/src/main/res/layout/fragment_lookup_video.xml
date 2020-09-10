@@ -1,105 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#000">
-
-    <TextureView
-        android:id="@+id/texture_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true" />
-
-    <!-- 处理默认进来黑屏问题-->
-    <ImageView
-        android:id="@+id/iv_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <ImageView
-        android:id="@+id/iv_play"
-        android:layout_width="77dp"
-        android:layout_height="77dp"
-        android:layout_centerInParent="true"
-        android:background="@mipmap/video_play_play"
-        android:clickable="true"
-        android:visibility="invisible" />
-
-    <ImageView
-        android:id="@+id/iv_progress"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_centerInParent="true"
-        android:layout_centerHorizontal="true"
-        android:background="@mipmap/img_video_load"
-        android:clickable="true"
-        android:visibility="visible" />
-
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
-        android:id="@+id/rl_parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#000">
+
+        <TextureView
+            android:id="@+id/texture_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true" />
+
+        <!-- 处理默认进来黑屏问题-->
+        <ImageView
+            android:id="@+id/iv_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <ImageView
-            android:id="@+id/iv_close"
-            android:layout_width="37dp"
-            android:layout_height="37dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginTop="36dp"
-            android:background="@mipmap/video_play_back"
-            android:clickable="true" />
+            android:id="@+id/iv_play"
+            android:layout_width="77dp"
+            android:layout_height="77dp"
+            android:layout_centerInParent="true"
+            android:background="@mipmap/video_play_play"
+            android:clickable="true"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/iv_progress"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:background="@mipmap/img_video_load"
+            android:clickable="true"
+            android:visibility="visible" />
 
 
         <RelativeLayout
-            android:id="@+id/rl_video_play_con"
-            android:layout_width="343dp"
-            android:layout_height="38dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="10dp"
-            android:background="#80000000">
+            android:id="@+id/rl_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/iv_bar_play"
-                android:layout_width="18dp"
-                android:layout_height="20dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="13dp"
-                android:background="@mipmap/video_play_con_pause"
+                android:id="@+id/iv_close"
+                android:layout_width="37dp"
+                android:layout_height="37dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="36dp"
+                android:background="@mipmap/video_play_back"
                 android:clickable="true" />
 
-            <TextView
-                android:id="@+id/tv_start_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="38dp"
-                android:text="00:00"
-                android:textColor="#fff"
-                android:textSize="10sp" />
 
-            <SeekBar
-                android:id="@+id/seek_bar"
-                android:layout_width="205dp"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="78dp"
-                android:maxHeight="2dp"
-                android:progressDrawable="@drawable/video_seek_bg"
-                android:thumb="@mipmap/video_play_round" />
+            <RelativeLayout
+                android:id="@+id/rl_bottom"
+                android:layout_width="343dp"
+                android:layout_height="38dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:background="#80000000">
 
-            <TextView
-                android:id="@+id/tv_end_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="14dp"
-                android:text="00:00"
-                android:textColor="#fff"
-                android:textSize="10sp" />
+                <ImageView
+                    android:id="@+id/iv_bar_play"
+                    android:layout_width="18dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="13dp"
+                    android:src="@mipmap/video_play_con_pause"
+                    android:clickable="true" />
+
+                <TextView
+                    android:id="@+id/tv_start_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="38dp"
+                    android:text="00:00"
+                    android:textColor="#fff"
+                    android:textSize="10sp" />
+
+                <SeekBar
+                    android:id="@+id/seek_bar"
+                    android:layout_width="205dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="78dp"
+                    android:maxHeight="2dp"
+                    android:progressDrawable="@drawable/video_seek_bg"
+                    android:thumb="@mipmap/video_play_round" />
+
+                <TextView
+                    android:id="@+id/tv_end_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="14dp"
+                    android:text="00:00"
+                    android:textColor="#fff"
+                    android:textSize="10sp" />
+            </RelativeLayout>
         </RelativeLayout>
-    </RelativeLayout>
 
-</RelativeLayout>
+    </RelativeLayout>
+</layout>

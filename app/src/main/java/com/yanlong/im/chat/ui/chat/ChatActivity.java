@@ -3653,13 +3653,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 String localUrl = msgl.getVideoMessage().getLocalUrl();
                 if (StringUtil.isNotNull(localUrl)) {
                     File file = new File(localUrl);
-                    if (!file.exists()) {
-                        localUrl = msgl.getVideoMessage().getUrl();
+                    if (file.exists()) {
+                        lc.setVideoLocalUrl(localUrl);
                     }
-                } else {
-                    localUrl = msgl.getVideoMessage().getUrl();
                 }
-                lc.setVideoUrl(localUrl);
+                lc.setVideoUrl(msgl.getVideoMessage().getUrl());
                 lc.setVideoBgUrl(msgl.getVideoMessage().getBg_url());
                 lc.setWidth((int) msgl.getVideoMessage().getWidth());
                 lc.setHeight((int) msgl.getVideoMessage().getHeight());

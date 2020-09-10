@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui.image;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,6 +11,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.SparseArray;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -22,7 +25,7 @@ import java.util.List;
 /**
  * @author Liszt
  * @date 2020/9/3
- * Description
+ * Description 图片视频浏览
  */
 public class PreviewMediaActivity extends FragmentActivity {
 
@@ -42,6 +45,7 @@ public class PreviewMediaActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_preview);
         mediaList = getIntent().getParcelableArrayListExtra("data");
         currentPosition = getIntent().getIntExtra("position", 0);
@@ -105,6 +109,8 @@ public class PreviewMediaActivity extends FragmentActivity {
             return mediaList == null ? 0 : mediaList.size();
         }
     }
+
+
 
 
 }

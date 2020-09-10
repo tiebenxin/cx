@@ -146,15 +146,15 @@ public class LookUpPhotoFragment extends Fragment {
             if (isHttp) {
                 if (isOriginal && hasRead) {
                     showLookOrigin(false);
-                    loadImage(previewUrl);
+                    loadImage(thumbUrl);
                     ivImage.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             loadImage(originUrl);
                         }
-                    }, 50);
+                    }, 10);
                 } else {
-                    if (isOriginal) {
+                    if (isOriginal && !hasRead) {
                         showLookOrigin(true);
                     } else {
                         showLookOrigin(false);
@@ -165,7 +165,7 @@ public class LookUpPhotoFragment extends Fragment {
                         public void run() {
                             loadImage(previewUrl);
                         }
-                    }, 50);
+                    }, 10);
                 }
             } else {
                 showLookOrigin(false);

@@ -185,14 +185,17 @@ public class MsgDao {
 
     public List<MsgAllBean> getMsg4UserImg(Long userid) {
         List<MsgAllBean> beans = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         Realm realm = DaoUtil.open();
         try {
             beans = new ArrayList<>();
 
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
                     .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
-                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
             beans = realm.copyFromRealm(list);
@@ -282,11 +285,13 @@ public class MsgDao {
     public List<MsgAllBean> getMsg4GroupImg(String gid) {
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         try {
             beans = new ArrayList<>();
             RealmResults list = realm.where(MsgAllBean.class)
                     .equalTo("gid", gid)
-                    .equalTo("msg_type", 4)
+                    .and()
+                    .in("msg_type", supportType)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
 
