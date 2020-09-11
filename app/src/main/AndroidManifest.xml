@@ -403,6 +403,7 @@
         <!--加群聊-->
         <activity
             android:name=".chat.ui.AddGroupActivity"
+            android:windowSoftInputMode="adjustNothing"
             android:screenOrientation="portrait" />
 
         <!--群助手信息-->
