@@ -101,6 +101,15 @@ public class AddGroupActivity extends AppActivity {
         inviterName = getIntent().getStringExtra(INVITER_NAME);
         taskGroupInfo(gid);
         etContent.setText("我是"+UserAction.getMyInfo().getName());
+        etContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus && TextUtils.isEmpty(etContent.getText().toString())) {
+                    etContent.setText("我是" + UserAction.getMyInfo().getName());
+                    etContent.setSelection(etContent.getText().toString().length()-1);
+                }
+            }
+        });
     }
 
 

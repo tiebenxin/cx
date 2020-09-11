@@ -19,7 +19,7 @@ public class MsgNotice extends RealmObject implements IMsgContent {
     private Integer msgType = MSG_TYPE_DEFAULT;
     private String remark;//申请入群备注
     private int joinGroupType;//申请入群方式  0 扫码 1 正常邀请
-    private RealmList<String> ids;//申请入群用户ID
+    private RealmList<String> ids;//申请入群aid，方便查询入群申请记录
 
     public Integer getMsgType() {
         return msgType;

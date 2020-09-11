@@ -108,8 +108,8 @@ public class InviteDetailsActivity extends AppActivity {
         listData = new ArrayList<>();
         if(ids!=null && ids.size()>0){
             //把被邀请的用户资料全查出来
-            if(msgDao.getApplysByUid(ids,0)!=null && msgDao.getApplysByUid(ids,0).size()>0){
-                listData.addAll(msgDao.getApplysByUid(ids,0));
+            if(msgDao.getApplysByAid(ids)!=null && msgDao.getApplysByAid(ids).size()>0){
+                listData.addAll(msgDao.getApplysByAid(ids));
             }
             //显示邀请人的信息，每个申请人信息中含有邀请人的id和昵称
             if(listData!=null && listData.size()>0){

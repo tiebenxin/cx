@@ -62,7 +62,6 @@
             android:layout_marginRight="15dp"
             android:minHeight="100dp"
             android:text=""
-            android:textColor="@color/c_9E9D9D"
             android:textSize="13sp"
             android:padding="13dp"
             android:maxLength="60"
