@@ -31,11 +31,6 @@ public class PreviewMediaActivity extends FragmentActivity {
     private List<LocalMedia> mediaList;
     private int currentPosition;
     private SparseArray<BaseMediaFragment> fragmentMap = new SparseArray<>();
-
-    public String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
-    public String[] newStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "编辑", "取消"};
-    public String[] gifStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "取消"};
-    public String[] collectStrings = {"发送给朋友", "保存图片", "取消"};
     private String gid;
     private Long toUid;
 

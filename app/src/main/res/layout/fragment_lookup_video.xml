@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <RelativeLayout
+    <com.yanlong.im.view.NoHorizontalScrollRLView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#000">
@@ -68,8 +68,8 @@
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="13dp"
-                    android:src="@mipmap/video_play_con_pause"
-                    android:clickable="true" />
+                    android:clickable="true"
+                    android:src="@mipmap/video_play_con_pause" />
 
                 <TextView
                     android:id="@+id/tv_start_time"
@@ -104,5 +104,5 @@
             </RelativeLayout>
         </RelativeLayout>
 
-    </RelativeLayout>
+    </com.yanlong.im.view.NoHorizontalScrollRLView>
 </layout>

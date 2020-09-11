@@ -85,6 +85,10 @@ import okhttp3.Call;
  */
 public class LookUpPhotoFragment extends BaseMediaFragment {
     private final String TAG = getClass().getSimpleName();
+    public String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
+    public String[] newStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "编辑", "取消"};
+    public String[] gifStrings = {"发送给朋友", "保存图片", "收藏", "识别图中二维码", "取消"};
+    public String[] collectStrings = {"发送给朋友", "保存图片", "取消"};
     private ZoomImageView ivImage;
     private TextView tvViewOrigin;
     private ImageView ivDownload;
@@ -101,7 +105,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
     private int fromWhere;
 
 
-    public static LookUpPhotoFragment newInstance(LocalMedia media,  int from) {
+    public static LookUpPhotoFragment newInstance(LocalMedia media, int from) {
         LookUpPhotoFragment fragment = new LookUpPhotoFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("media", media);
@@ -517,18 +521,18 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         }
         //收藏详情需求又改为只显示3项
         if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
-            popupSelectView = new PopupSelectView(getActivity(), ((PreviewMediaActivity) getActivity()).collectStrings);
+            popupSelectView = new PopupSelectView(getActivity(), collectStrings);
         } else {
             if (media.isCanCollect()) {
                 if (isGif) {
-                    popupSelectView = new PopupSelectView(getActivity(), ((PreviewMediaActivity) getActivity()).gifStrings);
+                    popupSelectView = new PopupSelectView(getActivity(), gifStrings);
                 } else {
-                    popupSelectView = new PopupSelectView(getActivity(), ((PreviewMediaActivity) getActivity()).newStrings);
+                    popupSelectView = new PopupSelectView(getActivity(), newStrings);
                 }
             } else if (isGif) {
-                popupSelectView = new PopupSelectView(getActivity(), ((PreviewMediaActivity) getActivity()).gifStrings);
+                popupSelectView = new PopupSelectView(getActivity(), gifStrings);
             } else {
-                popupSelectView = new PopupSelectView(getActivity(), ((PreviewMediaActivity) getActivity()).strings);
+                popupSelectView = new PopupSelectView(getActivity(), strings);
             }
         }
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
