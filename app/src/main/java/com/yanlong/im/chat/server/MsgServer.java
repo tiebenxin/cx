@@ -189,5 +189,8 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> httpAgreeJoinGroup(@Field("gid") String gid, @Field("inviter") long inviter, @Field("inviterName") String inviterName,@Field("joinType") int joinType,@Field("msgId") String msgId,@Field("@members") String members);
 
+    @POST("/group/cancel-invite")
+    @FormUrlEncoded
+    Call<ReturnBean> httpCancelInvite(@Field("gid") String gid, @Field("name") String name, @Field("uid") Long uid);
 
 }

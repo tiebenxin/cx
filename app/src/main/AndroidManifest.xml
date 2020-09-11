@@ -698,6 +698,9 @@
             android:name=".user.ui.InviteDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".user.ui.InviteRemoveActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".user.ui.UploadLogActivity"
             android:screenOrientation="portrait" />
         <activity
