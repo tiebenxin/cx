@@ -648,10 +648,10 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                     ui.tvStartTime.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (viewModel.isLoading != null && viewModel.isLoading.getValue()) {
+                            if (viewModel.isLoading.getValue() != null && viewModel.isLoading.getValue()) {
                                 viewModel.isLoading.setValue(false);
                             }
-                            if (viewModel.isPlaying != null && viewModel.isPlaying.getValue()) {
+                            if (viewModel.isPlaying.getValue() != null && viewModel.isPlaying.getValue()) {
                                 if (currentPosition > 0 && currentPosition < videoDuration) {
                                     ui.seekBar.setProgress(mCurrentPosition);
                                 } else {

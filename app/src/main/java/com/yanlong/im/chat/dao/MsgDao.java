@@ -212,6 +212,37 @@ public class MsgDao {
         return beans;
     }
 
+    public List<MsgAllBean> getMsg4UserImgNew(Long userId, long time) {
+        List<MsgAllBean> beans = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
+        Realm realm = DaoUtil.open();
+        try {
+            beans = new ArrayList<>();
+
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", userId).or().equalTo("to_uid", userId).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+            beans = realm.copyFromRealm(list);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        //翻转列表
+        if (beans != null) {
+            Collections.reverse(beans);
+        }
+        return beans;
+    }
+
 
     /*
      * @param isNew true加载最新数据，false加载更多历史数据
@@ -312,12 +343,13 @@ public class MsgDao {
     public List<MsgAllBean> getMsg4GroupImgNew(String gid, long time) {
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         try {
             beans = new ArrayList<>();
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
-                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .beginGroup().in("msg_type", supportType).endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
                     .sort("timestamp", Sort.DESCENDING)

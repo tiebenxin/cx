@@ -109,7 +109,7 @@ public class OnlineMessage extends DispatchMessage {
     }
 
     private void doRefreshPreviewImage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        if (wrapMessage.getMsgType() == MsgBean.MessageType.IMAGE) {
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.IMAGE|| wrapMessage.getMsgType() == MsgBean.MessageType.SHORT_VIDEO) {
             long toUid;
             if (!TextUtils.isEmpty(wrapMessage.getGid())) {
                 toUid = 0;
