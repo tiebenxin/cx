@@ -2,6 +2,8 @@ package com.yanlong.im.user.ui.image;
 
 import android.support.v4.app.Fragment;
 
+import net.cb.cb.library.utils.LogUtil;
+
 /**
  * @author Liszt
  * @date 2020/9/10
@@ -9,6 +11,7 @@ import android.support.v4.app.Fragment;
  */
 public class BaseMediaFragment extends Fragment {
     private int currentPosition;
+    private boolean isPressHome = false;//是否按了home键
 
 
     public boolean isCurrent(int position) {
@@ -18,5 +21,14 @@ public class BaseMediaFragment extends Fragment {
 
     public void setCurrentPosition(int position) {
         currentPosition = position;
+    }
+
+    public void setPressHome(boolean b) {
+        isPressHome = b;
+    }
+
+    public boolean isPressHome() {
+        LogUtil.getLog().i("video_log", "isPressHome=" + isPressHome);
+        return isPressHome;
     }
 }

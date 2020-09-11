@@ -3630,17 +3630,17 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 显示大图
      *
-     * @param msgid
+     * @param msgId
      * @param uri
      */
-    private void showBigPic(String msgid, String uri) {
+    private void scanImageAndVideo(String msgId) {
         ArrayList<LocalMedia> selectList = new ArrayList<>();
         List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
         for (int i = 0; i < listdata.size(); i++) {
             MsgAllBean msgl = listdata.get(i);
-            if (msgid.equals(msgl.getMsg_id())) {
+            if (msgId.equals(msgl.getMsg_id())) {
                 pos = i;
             }
             LocalMedia lc = new LocalMedia();
@@ -3648,6 +3648,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             if (msgl.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                 lc.setCanCollect(true);
             }
+            lc.setMsg_id(msgl.getMsg_id());
             if (msgl.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 lc.setMimeType(PictureConfig.TYPE_VIDEO);
                 String localUrl = msgl.getVideoMessage().getLocalUrl();
@@ -3670,7 +3671,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 lc.setSize(msgl.getImage().getSize());
                 lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
                 lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-                lc.setMsg_id(msgl.getMsg_id());
                 lc.setHasRead(msgl.getImage().isReadOrigin());
             }
             temp.add(lc);
@@ -3691,7 +3691,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
         pos = 0;
         for (int i = 0; i < selectList.size(); i++) {
-            if (msgid.equals(selectList.get(i).getMsg_id())) {
+            if (msgId.equals(selectList.get(i).getMsg_id())) {
                 pos = i;
                 break;
             }
@@ -6246,7 +6246,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 case ChatEnum.ECellEventType.IMAGE_CLICK:
                     if (args[0] != null && args[0] instanceof ImageMessage) {
                         ImageMessage image = (ImageMessage) args[0];
-                        showBigPic(message.getMsg_id(), image.getThumbnailShow());
+                        scanImageAndVideo(message.getMsg_id());
                     }
                     break;
                 case ChatEnum.ECellEventType.VOICE_CLICK:
@@ -6475,32 +6475,32 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
             }
         } else if (clickAble) {
-            clickAble = false;
-            String localUrl = msg.getVideoMessage().getLocalUrl();
-            if (StringUtil.isNotNull(localUrl)) {
-                File file = new File(localUrl);
-                if (!file.exists()) {
-                    localUrl = msg.getVideoMessage().getUrl();
-                }
-            } else {
-                localUrl = msg.getVideoMessage().getUrl();
-            }
-            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
-            boolean canCollect = false;
-            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR) {
-                canCollect = true;
-            }
-            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-            intent.putExtra("videopath", localUrl);
-            intent.putExtra("videomsg", new Gson().toJson(msg));
-            intent.putExtra("msg_id", msg.getMsg_id());
-            intent.putExtra("bg_url", msg.getVideoMessage().getBg_url());
-            intent.putExtra("from", PictureConfig.FROM_DEFAULT);//2 来自收藏详情
-            intent.putExtra("can_collect", canCollect);
-            intent.putExtra(PictureConfig.COLLECT_JSON, "");
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
-
+            scanImageAndVideo(msg.getMsg_id());
+//            clickAble = false;
+//            String localUrl = msg.getVideoMessage().getLocalUrl();
+//            if (StringUtil.isNotNull(localUrl)) {
+//                File file = new File(localUrl);
+//                if (!file.exists()) {
+//                    localUrl = msg.getVideoMessage().getUrl();
+//                }
+//            } else {
+//                localUrl = msg.getVideoMessage().getUrl();
+//            }
+//            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
+//            boolean canCollect = false;
+//            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR) {
+//                canCollect = true;
+//            }
+//            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+//            intent.putExtra("videopath", localUrl);
+//            intent.putExtra("videomsg", new Gson().toJson(msg));
+//            intent.putExtra("msg_id", msg.getMsg_id());
+//            intent.putExtra("bg_url", msg.getVideoMessage().getBg_url());
+//            intent.putExtra("from", PictureConfig.FROM_DEFAULT);//2 来自收藏详情
+//            intent.putExtra("can_collect", canCollect);
+//            intent.putExtra(PictureConfig.COLLECT_JSON, "");
+//            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//            startActivity(intent);
         }
     }
 

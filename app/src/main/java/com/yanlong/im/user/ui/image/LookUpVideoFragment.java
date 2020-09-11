@@ -53,6 +53,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -92,20 +93,20 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     private MediaPlayer mediaPlayer;
     private Surface mSurface;
     private String path;
-    private String msgId;
     private LocalMedia media;
     private int from;
     private int surfaceWidth;
     private int surfaceHeight;
     private int downloadState;
     private int mCurrentPosition = 0;//当前播放位置
-    private boolean pressHOME;
     private FragmentLookupVideoBinding ui;
     private Timer mTimer;
     private int videoDuration;//视频时长
     private VideoPlayViewModel viewModel = new VideoPlayViewModel();
     private boolean canCollect = false;//是否显示收藏项
     private CommonSelectDialog dialogFour;
+    private MsgDao msgDao = new MsgDao();
+    private MsgAllBean msgAllBean;
 
 
     public static LookUpVideoFragment newInstance(LocalMedia media, int from) {
@@ -194,6 +195,10 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         ui.ivBarPlay.setOnClickListener(this);
         ui.ivPlay.setOnClickListener(this);
         ui.ivClose.setOnClickListener(this);
+        loadVideoBg();
+    }
+
+    private void loadVideoBg() {
         if (!TextUtils.isEmpty(media.getVideoBgUrl())) {
             ui.ivBg.setVisibility(View.VISIBLE);
             Glide.with(this).load(media.getVideoBgUrl()).into(ui.ivBg);
@@ -228,8 +233,11 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         } else {
             path = media.getVideoUrl();
             if (path.contains("http://") && path.contains("https://")) {
-                downloadVideo(path, media.getMsg_id());
+                downloadVideo(path, media.getMsg_id(), false);
             }
+        }
+        if (!TextUtils.isEmpty(media.getMsg_id())) {
+            msgAllBean = msgDao.getMsgById(media.getMsg_id());
         }
     }
 
@@ -277,6 +285,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         }
     }
 
+
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         mSurface = new Surface(surface);
@@ -318,7 +327,11 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                         surfaceHeight = ui.textureView.getWidth();
                     }
                 } else {
-                    startPlay();
+                    if (!isPressHome()) {
+                        startPlay();
+                    } else {
+                        loadVideoBg();
+                    }
                 }
                 mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     @Override
@@ -405,7 +418,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     }
 
 
-    private void downloadVideo(String url, String msgId) {
+    private void downloadVideo(String url, String msgId, boolean showToast) {
         LogUtil.getLog().i(TAG, "downloadVideo--msgId=" + msgId + "--url=" + url);
         if (TextUtils.isEmpty(url)) {
             return;
@@ -422,17 +435,16 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             DownloadUtil.get().downLoadFile(url, fileVideo, new DownloadUtil.OnDownloadListener() {
                 @Override
                 public void onDownloadSuccess(File file) {
-//                    videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+                    media.setVideoLocalUrl(fileVideo.getAbsolutePath());
                     if (!TextUtils.isEmpty(msgId)) {
-                        MsgDao dao = new MsgDao();
-                        dao.fixVideoLocalUrl(msgId, fileVideo.getAbsolutePath());
+                        msgDao.fixVideoLocalUrl(msgId, fileVideo.getAbsolutePath());
                     }
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
 //                    scanFile(getContext(),fileVideo.getAbsolutePath());
-//                    downloadState = 2;
-//                    if(showFinishDownloadToast){
-//                        ToastUtil.show("保存相册成功");
-//                    }
+                    downloadState = 2;
+                    if (showToast) {
+                        ToastUtil.show("保存相册成功");
+                    }
                 }
 
                 @Override
@@ -455,7 +467,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void stopVideoEvent(EventFactory.StopVideoEvent event) {
-        if (event.msg_id.equals(msgId)) {
+        if (event.msg_id.equals(media.getMsg_id())) {
             showDialog(event.name);
         }
     }
@@ -536,13 +548,13 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                     cancelTimer();
                     updatePlayStatus(false);
                 } else {
+                    setPressHome(false);
                     if (viewModel.isPlaying.getValue() != null && !viewModel.isPlaying.getValue()) {
-                        reset();
+//                        reset();
                         replay();
                     } else {
                         replay();
                     }
-                    pressHOME = false;
                 }
             }
         } else if (v.getId() == ui.ivClose.getId()) {
@@ -590,6 +602,8 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                     return true;
                 }
             });
+            setSeekTo(mCurrentPosition);
+            mediaPlayer.start();
         } catch (Exception e) {
             LogUtil.getLog().d("TAG", e.getMessage());
         }
@@ -697,9 +711,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 if (canCollect) {
                     if (postsion == 0) {
                         if (from == PictureConfig.FROM_COLLECT_DETAIL) {
-//                            checkFileIsExist(msgAllBean, collectJson,false);
+                            checkFileIsExist(msgAllBean, media.getContent(), false);
                         } else {
-//                            checkFileIsExist(msgAllBean, "",false);
+                            checkFileIsExist(msgAllBean, "", false);
                         }
                     } else if (postsion == 1) {
 //                        checkFileIsExist(msgAllBean, "",true);
@@ -717,16 +731,16 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 } else {
                     if (postsion == 0) {
                         if (from == PictureConfig.FROM_COLLECT_DETAIL) {
-//                            checkFileIsExist(msgAllBean, collectJson, false);
+                            checkFileIsExist(msgAllBean, media.getContent(), false);
                         } else {
-//                            checkFileIsExist(msgAllBean, "", false);
+                            checkFileIsExist(msgAllBean, "", false);
                         }
                     } else if (postsion == 1) {
                         insertVideoToMediaStore(getContext(), path, System.currentTimeMillis(), mediaPlayer.getVideoWidth(), mediaPlayer.getVideoHeight(), mediaPlayer.getDuration());
                         if (downloadState == 2) {
                             ToastUtil.show(getActivity(), "保存相册成功");
                         } else {
-//                            showFinishDownloadToast = true;
+//                           boolean showFinishDownloadToast = true;
                         }
                     } else {
 
@@ -743,33 +757,28 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
 
 
     //isCollect 转发还是收藏
-    private void checkFileIsExist(String msgBean, String collectJson, boolean isCollect) {
-        if (TextUtils.isEmpty(msgBean)) {
+    private void checkFileIsExist(MsgAllBean msgBean, String collectJson, boolean isCollect) {
+        if (msgBean == null) {
             ToastUtil.show("消息已被删除或者被焚毁，不能转发");
             return;
         }
-        MsgAllBean msgbean = new Gson().fromJson(msgBean, MsgAllBean.class);
-        if (msgbean == null) {
-            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
-            return;
-        }
-        if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-                || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+        if (msgBean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgBean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                || msgBean.getMsg_type() == ChatEnum.EMessageType.FILE) {
             ArrayList<FileBean> list = new ArrayList<>();
             FileBean fileBean = new FileBean();
-            if (msgbean.getImage() != null) {
-                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
-                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
-            } else if (msgbean.getVideoMessage() != null) {
+            if (msgBean.getImage() != null) {
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getImage().getPreview()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getImage().getPreview(), msgBean.getMsg_type()));
+            } else if (msgBean.getVideoMessage() != null) {
                 FileBean itemFileBean = new FileBean();
-                itemFileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getBg_url()));
-                itemFileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
+                itemFileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getVideoMessage().getBg_url()));
+                itemFileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
                 list.add(itemFileBean);
-                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getUrl()));
-                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getUrl(), msgbean.getMsg_type()));
-            } else if (msgbean.getSendFileMessage() != null) {
-                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getSendFileMessage().getUrl()));
-                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getSendFileMessage().getUrl(), msgbean.getMsg_type()));
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getVideoMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getVideoMessage().getUrl(), msgBean.getMsg_type()));
+            } else if (msgBean.getSendFileMessage() != null) {
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getSendFileMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getSendFileMessage().getUrl(), msgBean.getMsg_type()));
             }
             list.add(fileBean);
             UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
@@ -817,7 +826,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     public void insertVideoToMediaStore(Context context, String filePath, long createTime, int width, int height, long duration) {
         if (!checkFile(filePath)) {
             if (downloadState != 1) {
-                downloadVideo(media.getMsg_id(), path);
+                downloadVideo(media.getMsg_id(), path, true);
             }
             return;
         }
@@ -878,7 +887,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         return "video/mp4";
     }
 
-    private void onRetransmission(String msgbean, String collectJson) {
+    private void onRetransmission(MsgAllBean msgBean, String collectJson) {
         if (!TextUtils.isEmpty(collectJson)) {
             if (NetUtil.isNetworkConnected()) {
                 getActivity().startActivity(new Intent(getActivity(), MsgForwardActivity.class).putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
@@ -887,7 +896,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             }
         } else {
             startActivity(new Intent(getContext(), MsgForwardActivity.class)
-                    .putExtra(MsgForwardActivity.AGM_JSON, msgbean));
+                    .putExtra(MsgForwardActivity.AGM_JSON, GsonUtils.optObject(msgBean)));
         }
     }
 

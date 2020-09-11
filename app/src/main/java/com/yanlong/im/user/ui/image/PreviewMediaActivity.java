@@ -49,6 +49,12 @@ public class PreviewMediaActivity extends FragmentActivity {
         MessageManager.getInstance().setCanStamp(false);
     }
 
+    @Override //HOME键逻辑
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        setPressHome();
+    }
+
     private void initData() {
         initPager();
     }
@@ -73,6 +79,12 @@ public class PreviewMediaActivity extends FragmentActivity {
         }
     }
 
+    private void setPressHome() {
+        if (fragmentMap != null && fragmentMap.get(currentPosition) != null) {
+            fragmentMap.get(currentPosition).setPressHome(true);
+        }
+    }
+
     private class MediaPagerAdapter extends FragmentPagerAdapter {
 
 
@@ -89,8 +101,10 @@ public class PreviewMediaActivity extends FragmentActivity {
             if (fragment == null) {
                 if (media.getMimeType() == PictureConfig.TYPE_VIDEO) {//视频
                     fragment = LookUpVideoFragment.newInstance(media, PictureConfig.FROM_DEFAULT);
+                    fragment.setCurrentPosition(currentPosition);
                 } else {//图片
                     fragment = LookUpPhotoFragment.newInstance(media, PictureConfig.FROM_DEFAULT);
+                    fragment.setCurrentPosition(currentPosition);
                 }
                 fragmentMap.put(position, fragment);
             }
