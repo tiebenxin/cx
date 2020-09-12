@@ -67,7 +67,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginRight="10dp"
-            app:radius="3dp" />
+            app:radius="@dimen/head_portrait_fillet" />
 
         <LinearLayout
             android:id="@+id/ll_content"

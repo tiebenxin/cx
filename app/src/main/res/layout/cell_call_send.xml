@@ -161,7 +161,7 @@
             android:layout_height="35dp"
             android:layout_alignParentRight="true"
             android:layout_marginLeft="10dp"
-            app:radius="3dp" />
+            app:radius="@dimen/head_portrait_fillet" />
 
 
     </LinearLayout>

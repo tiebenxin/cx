@@ -37,11 +37,16 @@
                     android:layout_gravity="center|left"
                     android:visibility="gone" />
 
-                <com.yanlong.im.wight.avatar.MultiImageView
-                    android:id="@+id/img_head"
-                    style="@style/app_img_head"
+                <android.support.v7.widget.CardView
+                    style="@style/head_portrait_style"
                     android:layout_gravity="center|left"
-                    android:background="@drawable/bg_head_gray_shape" />
+                    app:cardCornerRadius="@dimen/head_portrait_fillet">
+
+                        <com.yanlong.im.wight.avatar.MultiImageView
+                            android:id="@+id/img_head"
+                            style="@style/app_img_head"
+                            android:background="@drawable/bg_head_gray_shape" />
+                </android.support.v7.widget.CardView>
 
                 <net.cb.cb.library.view.StrikeButton
                     android:id="@+id/sb"

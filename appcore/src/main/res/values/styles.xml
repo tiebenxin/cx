@@ -654,4 +654,9 @@
 <!--        <item name="android:paddingLeft">10dp</item>-->
     </style>
 
+    <!-- 圆角头像样式 -->
+    <style name="head_portrait_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 </resources>
