@@ -25,7 +25,8 @@
                 android:orientation="horizontal">
                     <android.support.v7.widget.CardView
                         style="@style/head_portrait_style"
-                        app:cardCornerRadius="@dimen/head_portrait_fillet">
+                        app:cardElevation="0dp"
+                        app:cardCornerRadius="20dp">
                             <ImageView
                                 android:id="@+id/img_head"
                                 android:layout_width="39dp"

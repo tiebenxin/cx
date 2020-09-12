@@ -29,7 +29,8 @@
             style="@style/head_portrait_style"
             android:layout_marginRight="@dimen/app_margin_item"
             android:layout_gravity="center|left"
-            app:cardCornerRadius="@dimen/head_portrait_fillet">
+            app:cardElevation="0dp"
+            app:cardCornerRadius="24dp">
                 <com.yanlong.im.wight.avatar.MultiImageView
                     android:id="@+id/img_head"
                     style="@style/app_img_head"
