@@ -108,8 +108,8 @@ public class InviteDetailsActivity extends AppActivity {
         listData = new ArrayList<>();
         if(ids!=null && ids.size()>0){
             //把被邀请的用户资料全查出来
-            if(msgDao.getApplysByUid(ids,0)!=null && msgDao.getApplysByUid(ids,0).size()>0){
-                listData.addAll(msgDao.getApplysByUid(ids,0));
+            if(msgDao.getApplysByAid(ids)!=null && msgDao.getApplysByAid(ids).size()>0){
+                listData.addAll(msgDao.getApplysByAid(ids));
             }
             //显示邀请人的信息，每个申请人信息中含有邀请人的id和昵称
             if(listData!=null && listData.size()>0){
@@ -118,37 +118,38 @@ public class InviteDetailsActivity extends AppActivity {
                 }else {
                     tvInviteName.setText("\"未知用户\"");
                 }
-            }
-            //扫码入群和普通邀请入群 区分UI
-            if(joinType==0){
-                rcView.setVisibility(View.GONE);
-                tvTempThree.setVisibility(View.GONE);
-                tvTempOne.setText("通过扫描");
-                tvTempTwo.setText("分享的二维码加入本群");
-                ivTempIcon.setVisibility(View.VISIBLE);
-                tvTempName.setVisibility(View.VISIBLE);
-                tvTempName.setText(listData.get(0).getNickname()==null? "":listData.get(0).getNickname());
-                if(!TextUtils.isEmpty(listData.get(0).getAvatar())){
-                    Glide.with(context).load(listData.get(0).getAvatar())
-                            .apply(GlideOptionsUtil.headImageOptions()).into(ivTempIcon);
-                }else {
-                    Glide.with(context).load(R.mipmap.ic_info_head)
-                            .apply(GlideOptionsUtil.headImageOptions()).into(ivTempIcon);
-                }
-                ivTempIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        goToUserInfoActivity(listData.get(0).getUid(),listData.get(0).getGid(),true);
+                //扫码入群和普通邀请入群 区分UI
+                if(joinType==0){
+                    rcView.setVisibility(View.GONE);
+                    tvTempThree.setVisibility(View.GONE);
+                    tvTempOne.setText("通过扫描");
+                    tvTempTwo.setText("分享的二维码加入本群");
+                    ivTempIcon.setVisibility(View.VISIBLE);
+                    tvTempName.setVisibility(View.VISIBLE);
+                    tvTempName.setText(listData.get(0).getNickname()==null? "":listData.get(0).getNickname());
+                    if(!TextUtils.isEmpty(listData.get(0).getAvatar())){
+                        Glide.with(context).load(listData.get(0).getAvatar())
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivTempIcon);
+                    }else {
+                        Glide.with(context).load(R.mipmap.ic_info_head)
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivTempIcon);
                     }
-                });
-            }else {
-                rcView.setVisibility(View.VISIBLE);
-                tvTempThree.setVisibility(View.VISIBLE);
-                tvTempTwo.setText("邀请");
-                ivTempIcon.setVisibility(View.GONE);
-                tvTempName.setVisibility(View.GONE);
-                adapter.notifyDataSetChanged();
+                    ivTempIcon.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            goToUserInfoActivity(listData.get(0).getUid(),listData.get(0).getGid(),true);
+                        }
+                    });
+                }else {
+                    rcView.setVisibility(View.VISIBLE);
+                    tvTempThree.setVisibility(View.VISIBLE);
+                    tvTempTwo.setText("邀请");
+                    ivTempIcon.setVisibility(View.GONE);
+                    tvTempName.setVisibility(View.GONE);
+                    adapter.notifyDataSetChanged();
+                }
             }
+
         }
     }
 

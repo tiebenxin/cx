@@ -15,8 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.nim_lib.config.Preferences;
-import com.hm.cxpay.utils.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MyAppLication;
@@ -25,12 +23,8 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
-import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 import com.yanlong.im.utils.UserUtil;
@@ -42,7 +36,6 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RxJavaUtil;
-import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -65,6 +58,7 @@ public class FriendApplyAcitvity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
     private List<ApplyBean> listData;
+    private List<ApplyBean> tempList;
     private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
     private MsgDao msgDao = new MsgDao();
@@ -79,7 +73,6 @@ public class FriendApplyAcitvity extends AppActivity {
         }
         findViews();
         initEvent();
-
         initData();
     }
 
@@ -120,7 +113,14 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
     private void initData() {
-        listData = msgDao.getApplyBeanList(-1);
+        //暂时过滤掉所有入群申请，只保留加好友申请
+        tempList = msgDao.getApplyBeanList(-1);
+        listData = new ArrayList<>();
+        for(ApplyBean bean : tempList){
+            if(CoreEnum.EChatType.PRIVATE == bean.getChatType()){
+                listData.add(bean);
+            }
+        }
         mtListView.notifyDataSetChange();
     }
 

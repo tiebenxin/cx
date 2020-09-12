@@ -135,6 +135,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
+import com.yanlong.im.chat.eventbus.CancelInviteEvent;
 import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
@@ -168,6 +169,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.FriendVerifyActivity;
+import com.yanlong.im.user.ui.InviteRemoveActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -438,6 +440,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogTwo;//批量收藏提示弹框
     private CommonSelectDialog dialogThree;//批量转发提示弹框
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
+    private CommonSelectDialog dialogFive;//是否撤销提示弹框
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -3491,6 +3494,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshOneMsg(EventFactory.UpdateOneMsgEvent event){
         taskRefreshImage(event.getMsgId());
+    }
+
+    //撤销入群邀请
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void cancelInvite(CancelInviteEvent event){
+        cancelInviteDialog(event.getUserInfoList());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -7109,6 +7118,67 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         dialogFour.show();
     }
 
+    /**
+     * 是否撤销提示弹框
+     */
+    private void cancelInviteDialog(List<UserInfo> list) {
+        if(list.size()==1){
+            dialogFive = builder.setTitle("将"+list.get(0).getName()+"移出群聊？")
+                    .setLeftText("取消")
+                    .setRightText("移出群聊")
+                    .setLeftOnClickListener(v -> {
+                        dialogFive.dismiss();
+                    })
+                    .setRightOnClickListener(v -> {
+                        String name = "";
+                        String rname = "";
+                        if (list.get(0)!=null) {
+                            if(!TextUtils.isEmpty(list.get(0).getName())){
+                                name = list.get(0).getName();
+                            }
+                        }
+                        //撤销邀请
+                        for (UserInfo userInfo : list) {
+                            rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
+                        }
+                        String finalName = rname;//被删除人的昵称
+                        msgAction.httpCancelInvite(toGid,name,list.get(0).getUid(), new CallBack<ReturnBean>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                if (response.body() == null) {
+                                    return;
+                                } else {
+                                    if (response.body().isOk()) {
+                                        String mid = SocketData.getUUID();
+                                        MsgNotice note = new MsgNotice();
+                                        note.setMsgid(mid);
+                                        note.setMsgType(3);
+                                        note.setNote("你将\"" + finalName + "\"移出群聊");
+                                        dao.noteMsgAddRb(mid, UserAction.getMyId(), toGid, note);
+                                        taskGroupInfo();
+                                        taskRefreshMessage(false);
+                                        dialogFive.dismiss();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                ToastUtil.show(t.getMessage());
+                            }
+                        });
+                    })
+                    .build();
+            dialogFive.show();
+        }else {
+            Intent intent = new Intent(ChatActivity.this, InviteRemoveActivity.class);
+            intent.putExtra(InviteRemoveActivity.USER_LIST, new Gson().toJson(list));
+            intent.putExtra("gid", toGid);
+            startActivity(intent);
+        }
+
+    }
+
     private void toSendVerifyActivity(Long uid) {
         IUser myInfo = UserAction.getMyInfo();
         if (myInfo == null) {
@@ -7513,6 +7583,5 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     }
                 }).show();
     }
-
 
 }
