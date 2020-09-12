@@ -108,7 +108,7 @@ public class AboutAsActivity extends AppActivity {
                     }
                     UpdateManage updateManage = new UpdateManage(context, AboutAsActivity.this);
                     if (response.body().getData().getForceUpdate() == 0) {
-                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                        if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                         } else {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);

@@ -572,8 +572,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                             VersionBean versionBean = new VersionBean();
                             versionBean.setVersion(bean.getVersion());
                             preferencesUtil.save2Json(versionBean);
-                            //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                            if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                            //非强制更新 TODO 2020.9.12 去掉大版本强制更新逻辑
+                            if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                                 updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                             } else {
                                 updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
