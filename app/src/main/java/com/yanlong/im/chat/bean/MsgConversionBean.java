@@ -378,7 +378,7 @@ public class MsgConversionBean {
                 }
                 //A邀请B加入群聊
                 //B通过扫码A分享的二维码加入群聊
-                String node = "";
+                String node;
                 //最后一个名字，不显示、号
                 if (names.endsWith("、")) names = names.substring(0, names.length() - 2);
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
