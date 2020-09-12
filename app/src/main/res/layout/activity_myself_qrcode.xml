@@ -66,6 +66,7 @@
                 <android.support.v7.widget.CardView
                     style="@style/head_portrait_style"
                     android:layout_gravity="center"
+                    android:visibility="gone"
                     app:cardCornerRadius="@dimen/head_portrait_fillet">
                         <ImageView
                             android:id="@+id/image_code_head"

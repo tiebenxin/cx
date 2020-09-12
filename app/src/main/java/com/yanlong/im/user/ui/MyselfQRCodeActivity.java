@@ -142,7 +142,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             mTvUserName.setText(userInfo.getName() + "");
             mHeadView.getActionbar().setTitle("我的二维码");
 
-            imageCodeHead.setVisibility(View.VISIBLE);
+//            imageCodeHead.setVisibility(View.VISIBLE);
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_FRIEND_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, uid);
