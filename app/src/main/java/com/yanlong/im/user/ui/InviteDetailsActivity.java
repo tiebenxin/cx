@@ -143,6 +143,7 @@ public class InviteDetailsActivity extends AppActivity {
                 }else {
                     rcView.setVisibility(View.VISIBLE);
                     tvTempThree.setVisibility(View.VISIBLE);
+                    tvTempThree.setText("加入群聊");
                     tvTempTwo.setText("邀请");
                     ivTempIcon.setVisibility(View.GONE);
                     tvTempName.setVisibility(View.GONE);
