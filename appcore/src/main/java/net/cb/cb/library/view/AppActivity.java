@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.R;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
@@ -60,6 +61,7 @@ public class AppActivity extends AppCompatActivity {
         context = getApplicationContext();
         inflater = getLayoutInflater();
         alert = new AlertWait(this);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.white));
         super.onCreate(savedInstanceState);
         //注册关闭其他页面事件
         EventBus.getDefault().register(mExit);

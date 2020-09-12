@@ -44,7 +44,7 @@ public abstract class BaseBindActivity<SV extends ViewDataBinding> extends AppAc
         preCreate();
         super.onCreate(savedInstanceState);
         setContentView(setView());
-        setStatusBarColor(R.color.blue_title);
+//        setStatusBarColor(R.color.white);
         init(savedInstanceState);
         initEvent();
         loadData();

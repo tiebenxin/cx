@@ -24,6 +24,7 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.hm.cxpay.R;
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.net.FGObserver;
@@ -61,7 +62,7 @@ import io.reactivex.schedulers.Schedulers;
  * @备注：
  */
 @Route(path = "/app/billListActivity")
-public class BillDetailListActivity extends AppActivity {
+public class BillDetailListActivity extends BasePayActivity {
 
     private HeadView headView;
     private ActionbarView actionbar;
