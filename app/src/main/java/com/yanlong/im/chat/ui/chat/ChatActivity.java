@@ -447,8 +447,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         setContentView(R.layout.activity_chat);
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        //标题栏
-        window.setStatusBarColor(getResources().getColor(R.color.blue_title));
         initIntent();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);

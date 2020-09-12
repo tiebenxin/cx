@@ -14,6 +14,7 @@ import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.RedDetailsBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityRedEnvelopeDetailBinding;
@@ -36,7 +37,7 @@ import java.util.List;
  * Description 红包明细界面
  */
 @Route(path = "/app/redEnvelopeDetailsActivity")
-public class RedEnvelopeRecordActivity extends AppActivity {
+public class RedEnvelopeRecordActivity extends BasePayActivity {
 
     private ActivityRedEnvelopeDetailBinding ui;
     private Calendar currentCalendar;

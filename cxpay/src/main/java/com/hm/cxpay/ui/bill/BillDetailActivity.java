@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.net.FGObserver;
@@ -36,7 +37,7 @@ import java.math.BigDecimal;
  * @备注：
  */
 
-public class BillDetailActivity extends AppActivity {
+public class BillDetailActivity extends BasePayActivity {
     private HeadView headView;
     private ActionbarView actionbar;
     private Activity activity;
