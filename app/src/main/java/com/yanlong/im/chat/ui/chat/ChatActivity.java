@@ -3492,7 +3492,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //刷新某一条消息
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void refreshOneMsg(EventFactory.UpdateOneMsgEvent){
+    public void refreshOneMsg(EventFactory.UpdateOneMsgEvent event){
 //        taskRefreshImage(event.getMsgId());
         taskRefreshMessage(false);
     }
