@@ -386,12 +386,12 @@ public class MsgConversionBean {
                     node = names + "通过扫描" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
                 } else {//被邀请
                     gNotice.setMsgType(2);
-                    if(isMe){
-                        String ifCancel = "\"<font color='#276baa' id='" + "-98" + "'><a href=''>" + "撤销" + "</a></font>\"";//"撤销"模拟成一个超链接对象id为-98
-                        node = inviterName + "邀请" + names + "加入了群聊，" + ifCancel + "<div id='" + bean.getGid() + "'></div>";
-                    }else {
+//                    if(isMe){
+//                        String ifCancel = "\"<font color='#276baa' id='" + "-98" + "'><a href=''>" + "撤销" + "</a></font>\"";//"撤销"模拟成一个超链接对象id为-98
+//                        node = inviterName + "邀请" + names + "加入了群聊，" + ifCancel + "<div id='" + bean.getGid() + "'></div>";
+//                    }else {
                         node = inviterName + "邀请" + names + "加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
-                    }
+//                    }
                 }
                 // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
                 gNotice.setNote(node);
