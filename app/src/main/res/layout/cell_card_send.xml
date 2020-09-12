@@ -131,7 +131,7 @@
                             android:paddingLeft="10dp"
                             android:paddingRight="10dp">
 
-                            <ImageView
+                            <net.cb.cb.library.view.CircleImageView
                                 android:id="@+id/iv_avatar_card"
                                 style="@style/app_img_head"
                                 android:layout_width="50dp"

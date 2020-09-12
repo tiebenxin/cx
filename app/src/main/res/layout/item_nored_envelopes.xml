@@ -19,7 +19,7 @@
         <!--        <android.support.v7.widget.CardView-->
         <!--            style="@style/head_portrait_style"-->
         <!--            app:cardCornerRadius="@dimen/head_portrait_fillet">-->
-        <com.hm.cxpay.widget.CircleImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/img_head"
             android:layout_width="39dp"
             android:layout_height="39dp"

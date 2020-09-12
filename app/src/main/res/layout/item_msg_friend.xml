@@ -42,7 +42,7 @@
         <!--            app:cardElevation="0dp"-->
         <!--            app:cardCornerRadius="20dp">-->
 
-        <com.hm.cxpay.widget.CircleImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/img_head"
             style="@style/app_img_head"
             android:layout_width="39dp"

@@ -29,7 +29,7 @@
             android:orientation="vertical"
             android:visibility="visible">
 
-            <ImageView
+            <net.cb.cb.library.view.CircleImageView
                 android:id="@+id/img_head_portrait"
                 android:layout_width="71dp"
                 android:layout_height="71dp"
@@ -53,6 +53,7 @@
                 android:textColor="@color/color_d8d"
                 android:textSize="14sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,24 +65,25 @@
                 android:id="@+id/txt_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_wait_black_shape"
                 android:padding="6dp"
+                android:text="@string/avchat_peer_busy_ing"
                 android:textColor="@color/white"
                 android:textSize="12sp"
-                android:layout_gravity="center"
-                android:background="@drawable/bg_wait_black_shape"
-                android:layout_marginBottom="10dp"
-                android:visibility="gone"
-                android:text="@string/avchat_peer_busy_ing"/>
+                android:visibility="gone" />
             <!-- 语音等待接听 -->
             <LinearLayout
                 android:id="@+id/layout_voice_wait"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginBottom="57dp"
                 android:gravity="center"
-                android:layout_gravity="center"
                 android:orientation="vertical"
                 android:visibility="visible">
+
                 <ImageView
                     android:id="@+id/img_cancle"
                     android:layout_width="60dp"
@@ -263,8 +265,8 @@
     <FrameLayout
         android:id="@+id/avchat_surface_layout"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
         <!-- 大图 -->
         <LinearLayout
             android:id="@+id/large_size_preview"
@@ -276,7 +278,7 @@
         <View
             android:id="@+id/touch_zone"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/notificationLayout"
@@ -296,8 +298,8 @@
             android:layout_width="64dp"
             android:layout_height="98dp"
             android:layout_gravity="right|top"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="18dp">
+            android:layout_marginTop="18dp"
+            android:layout_marginRight="16dp">
 
             <LinearLayout
                 android:id="@+id/small_size_preview"
@@ -336,14 +338,14 @@
                 android:id="@+id/txt_message_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_wait_black_shape"
                 android:padding="6dp"
+                android:text="@string/avchat_peer_busy_ing"
                 android:textColor="@color/white"
                 android:textSize="12sp"
-                android:layout_gravity="center"
-                android:background="@drawable/bg_wait_black_shape"
-                android:layout_marginBottom="10dp"
-                android:visibility="gone"
-                android:text="@string/avchat_peer_busy_ing"/>
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/txt_video_time"
@@ -351,8 +353,8 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@id/layout_bottom"
                 android:layout_gravity="center"
-                android:text=""
                 android:layout_marginBottom="35dp"
+                android:text=""
                 android:textColor="@color/white"
                 android:textSize="16sp" />
 

@@ -1,7 +1,6 @@
 package com.hm.cxpay.dailog;
 
 import android.content.Context;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,10 +15,9 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.OpenEnvelopeBean;
 import com.hm.cxpay.utils.UIUtils;
-import com.hm.cxpay.widget.CircleImageView;
+import net.cb.cb.library.view.CircleImageView;
 import com.hm.cxpay.widget.RedAmina;
 
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.base.BaseDialog;
 import net.cb.cb.library.utils.ToastUtil;
 
