@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -28,6 +29,7 @@
     <LinearLayout style="@style/app_layout_list1">
 
         <LinearLayout style="@style/app_layout_list1_item">
+
 
             <com.hm.cxpay.widget.CircleImageView
                 android:id="@+id/img_head"

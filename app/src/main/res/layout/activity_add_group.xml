@@ -19,13 +19,17 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/sd_group_head"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    style="@style/app_img_head"
-                    android:layout_marginTop="45dp" />
+                <android.support.v7.widget.CardView
+                    style="@style/head_portrait_style"
+                    android:layout_marginTop="45dp"
+                    app:cardElevation="0dp"
+                    app:cardCornerRadius="50dp">
+                        <ImageView
+                            android:id="@+id/sd_group_head"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            style="@style/app_img_head"/>
+                </android.support.v7.widget.CardView>
 
                 <TextView
                     android:id="@+id/tv_group_name"

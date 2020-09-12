@@ -22,6 +22,7 @@
                 <android.support.v7.widget.CardView
                     style="@style/head_portrait_style"
                     android:layout_marginRight="@dimen/app_margin_item"
+                    app:cardElevation="0dp"
                     app:cardCornerRadius="@dimen/head_portrait_fillet">
                         <ImageView
                             android:id="@+id/img_head"
