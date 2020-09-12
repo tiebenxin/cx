@@ -40,6 +40,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
@@ -531,7 +532,7 @@ public class UserInfoActivity extends AppActivity {
                     }
                 } else {
                     mTvRemark.setVisibility(View.VISIBLE);
-                    mTvRemark.setTextColor(getColor(R.color.gray_300));
+                    mTvRemark.setTextColor(AppConfig.getColor(R.color.gray_300));
                     mTvRemark.setText(sayHi);
                     if (TextUtils.isEmpty(contactName)) {
                         if (sayHi.startsWith("我是") && !sayHi.startsWith("我是群聊")) {
