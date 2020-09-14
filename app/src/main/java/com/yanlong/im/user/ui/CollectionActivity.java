@@ -73,6 +73,7 @@ import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.view.face.FaceView;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.SwipeLayoutOpenCloseListener;
@@ -232,6 +233,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                                         if (e.getMessage().contains("FileNotFoundException")) {
                                                             binding.ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                        }else {
+                                                            binding.ivPic.postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                }
+                                                            }, 100);
                                                         }
                                                         return false;
                                                     }
@@ -286,6 +294,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                                             if (e.getMessage().contains("FileNotFoundException")) {
                                                                 binding.ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                            }else {
+                                                                binding.ivPic.postDelayed(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                    }
+                                                                }, 100);
                                                             }
                                                             return false;
                                                         }
@@ -309,6 +324,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                                             if (e.getMessage().contains("FileNotFoundException")) {
                                                                 binding.ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                            }else {
+                                                                binding.ivPic.postDelayed(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                    }
+                                                                }, 100);
                                                             }
                                                             return false;
                                                         }
@@ -367,6 +389,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                                             if (e.getMessage().contains("FileNotFoundException")) {
                                                                 binding.ivLocation.setImageResource(R.mipmap.ic_img_past);
+                                                            }else {
+                                                                binding.ivLocation.postDelayed(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                    }
+                                                                }, 100);
                                                             }
                                                             return false;
                                                         }
@@ -393,6 +422,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                                                 if (e.getMessage().contains("FileNotFoundException")) {
                                                                     binding.ivLocation.setImageResource(R.mipmap.ic_img_past);
+                                                                }else {
+                                                                    binding.ivLocation.postDelayed(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                        }
+                                                                    }, 100);
                                                                 }
                                                                 return false;
                                                             }
