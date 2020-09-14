@@ -401,6 +401,16 @@ public class SocketData {
         if (toId != null && toId.longValue() == -userInfo.getUid()) {
             toId = userInfo.getUid().longValue();
         }
+        //检测消息接收方是否有效
+        boolean isToUserValid = false;
+        if (!TextUtils.isEmpty(toGid)) {
+            isToUserValid = true;
+        } else if (TextUtils.isEmpty(toGid) && toId != null && toId.longValue() > 0) {
+            isToUserValid = true;
+        }
+        if (!isToUserValid) {
+            return null;
+        }
         initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, 0, type, value, wrap);
         if (wrap == null) {
             return null;

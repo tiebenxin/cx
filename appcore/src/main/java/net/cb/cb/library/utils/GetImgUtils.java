@@ -20,7 +20,7 @@ import java.util.List;
 
 public class GetImgUtils {
 
-    public static class ImgBean{
+    public static class ImgBean {
         public long mTime;
         public String imgUrl;
 
@@ -33,25 +33,29 @@ public class GetImgUtils {
 
     /**
      * 获取相册中最新一张图片
+     *
      * @param context
      * @return TODO #128104
      */
     public static ImgBean getLatestPhoto(Context context) {
         //检查所有文件夹
-        List<ImgBean> imgBeans=new ArrayList<>();
+        List<ImgBean> imgBeans = new ArrayList<>();
         Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 null,
                 null,
                 null,
                 MediaStore.Files.FileColumns.DATE_MODIFIED);
+        if (cursor == null) {
+            return null;
+        }
         //循环遍历找出所有图片
         while (cursor.moveToNext()) {
             long mtime = 0;
             String imgUrl = "";
-            if(cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))!=0L
-                && cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))!=null){
-                mtime=cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
-                imgUrl=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            if (cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED)) != 0L
+                    && cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA)) != null) {
+                mtime = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
+                imgUrl = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             imgBeans.add(new ImgBean(mtime, imgUrl));
         }
@@ -59,19 +63,19 @@ public class GetImgUtils {
             cursor.close();
         }
         //按时间降序排序
-        if(imgBeans.size()>0){
+        if (imgBeans.size() > 0) {
             //如果只有1个，则直接返回，否则超过2个需要排序
-            if(imgBeans.size()>=2){
+            if (imgBeans.size() >= 2) {
                 Collections.sort(imgBeans, new Comparator<ImgBean>() {
                     @Override
                     public int compare(ImgBean imgBean, ImgBean t1) {
-                        return (int) (t1.mTime-imgBean.mTime);
+                        return (int) (t1.mTime - imgBean.mTime);
                     }
                 });
             }
             //拿最近一张图片
             return imgBeans.get(0);
-        }else {
+        } else {
             return null;
         }
 
