@@ -94,12 +94,19 @@ public class PreviewMediaActivity extends FragmentActivity {
             @Override
             public void onPageSelected(int position) {
                 currentPosition = position;
-                setCurrent(position);
+                setCurrent(position, false);
                 super.onPageSelected(position);
             }
         });
         setCurrent(currentPosition);
         ui.viewPager.setCurrentItem(currentPosition);
+    }
+
+    private void setCurrent(int currentPosition, boolean autoPlay) {
+        if (fragmentMap != null && fragmentMap.get(currentPosition) != null) {
+            fragmentMap.get(currentPosition).setCurrentPosition(currentPosition);
+            fragmentMap.get(currentPosition).setAutoPlay(autoPlay);
+        }
     }
 
     private void setCurrent(int currentPosition) {

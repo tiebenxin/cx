@@ -342,12 +342,13 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                             if (isAutoPlay()) {
                                 LogUtil.getLog().i(TAG, "onPrepared--1");
                                 mediaPlayer.start();
-                                videoDuration = mp.getDuration();
-                                ui.seekBar.setMax(videoDuration);
-                                setSeekTo(mCurrentPosition);
-                                setTime(videoDuration / 1000, ui.tvEndTime);
                                 getCurrentProgress();
                             }
+                            //初始化时长及进度条
+                            videoDuration = mp.getDuration();
+                            ui.seekBar.setMax(videoDuration);
+                            setSeekTo(mCurrentPosition);
+                            setTime(videoDuration / 1000, ui.tvEndTime);
                         }
                     }
                 });
@@ -597,6 +598,11 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 public void onPrepared(MediaPlayer mp) {
                     setSeekTo(mCurrentPosition);
                     mediaPlayer.start();
+                    //初始化时长及进度条
+                    videoDuration = mp.getDuration();
+                    ui.seekBar.setMax(videoDuration);
+                    setSeekTo(mCurrentPosition);
+                    setTime(videoDuration / 1000, ui.tvEndTime);
                     getCurrentProgress();
                 }
             });
@@ -649,7 +655,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                     if (currentPosition > mCurrentPosition) {
                         mCurrentPosition = currentPosition;
                     }
-                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
+//                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
                     ui.tvStartTime.postDelayed(new Runnable() {
                         @Override
                         public void run() {
