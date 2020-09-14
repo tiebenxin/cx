@@ -441,6 +441,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogThree;//批量转发提示弹框
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
     private CommonSelectDialog dialogFive;//是否撤销提示弹框
+    private CommonSelectDialog dialogSix;//成员已经离开群聊提示弹框
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -7123,54 +7124,111 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 是否撤销提示弹框
      */
     private void cancelInviteDialog(List<UserInfo> list) {
-        if(list.size()==1){
-            dialogFive = builder.setTitle("将"+list.get(0).getName()+"移出群聊？")
-                    .setLeftText("取消")
-                    .setRightText("移出群聊")
-                    .setLeftOnClickListener(v -> {
-                        dialogFive.dismiss();
-                    })
+        int oldNum = 0;//邀请了几个人
+        oldNum = list.size();
+        List<UserInfo> filterList = new ArrayList<>();
+        //1 先过滤掉已经被移除的群员
+        //查找出该群所有成员
+        Group group = new MsgDao().groupNumberGet(toGid);
+        if(group.getUsers()!=null && group.getUsers().size()>0){
+            //查找邀请入群的成员是否仍在群中
+            for(UserInfo userInfo : list){
+                //如果邀请入群的成员仍在群中，获取其头像，下个界面需要显示
+                if(new MsgDao().inThisGroup(toGid,userInfo.getUid().longValue())){
+                    for(MemberUser user : group.getUsers()){
+                        if(userInfo.getUid().longValue()==user.getUid()){
+                            //找到并更新头像
+                            if(!TextUtils.isEmpty(user.getHead())){
+                                userInfo.setHead(user.getHead());
+                            }else {
+                                userInfo.setHead("");
+                            }
+                            break;
+                        }
+                    }
+                }else {
+                    //如果这个成员已经不在群中，需要过滤
+                    filterList.add(userInfo);
+                }
+            }
+            //循环查找完后，过滤掉已经被移除的群员，此时list为最新值
+            if(filterList.size()>0){
+                list.removeAll(filterList);
+            }
+        }
+        //"该成员已离开群聊"
+        if(list.size()==0){
+            String notice;
+            if(oldNum==1){
+                notice = "该成员已离开群聊";
+            }else {
+                notice = "该"+oldNum+"位成员已离开群聊";
+            }
+            dialogSix = builder.setTitle(notice)
+                    .setShowLeftText(false)
+                    .setRightText("确定")
                     .setRightOnClickListener(v -> {
-                        String name = "";
-                        String rname = "";
-                        if (list.get(0)!=null) {
-                            if(!TextUtils.isEmpty(list.get(0).getName())){
-                                name = list.get(0).getName();
-                            }
-                        }
-                        //撤销邀请
-                        for (UserInfo userInfo : list) {
-                            rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
-                        }
-                        String finalName = rname;//被删除人的昵称
-                        msgAction.httpCancelInvite(toGid,name,list.get(0).getUid(), new CallBack<ReturnBean>() {
-                            @Override
-                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                                if (response.body() == null) {
-                                    return;
-                                } else {
-                                    if (response.body().isOk()) {
-                                        String mid = SocketData.getUUID();
-                                        MsgNotice note = new MsgNotice();
-                                        note.setMsgid(mid);
-                                        note.setMsgType(3);
-                                        note.setNote("你将\"" + finalName + "\"移出群聊");
-                                        dao.noteMsgAddRb(mid, UserAction.getMyId(), toGid, note);
-                                        taskGroupInfo();
-                                        taskRefreshMessage(false);
-                                        dialogFive.dismiss();
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<ReturnBean> call, Throwable t) {
-                                ToastUtil.show(t.getMessage());
-                            }
-                        });
+                        dialogSix.dismiss();
                     })
                     .build();
-            dialogFive.show();
+            dialogSix.show();
+        }else if(list.size()==1){
+            if(oldNum>1){
+                Intent intent = new Intent(ChatActivity.this, InviteRemoveActivity.class);
+                intent.putExtra(InviteRemoveActivity.USER_LIST, new Gson().toJson(list));
+                intent.putExtra("gid", toGid);
+                startActivity(intent);
+            }else {
+                dialogFive = builder.setTitle("将"+list.get(0).getName()+"移出群聊？")
+                        .setShowLeftText(true)
+                        .setLeftText("取消")
+                        .setRightText("移出群聊")
+                        .setLeftOnClickListener(v -> {
+                            dialogFive.dismiss();
+                        })
+                        .setRightOnClickListener(v -> {
+                            String name = "";
+                            String rname = "";
+                            if (list.get(0)!=null) {
+                                if(!TextUtils.isEmpty(list.get(0).getName())){
+                                    name = list.get(0).getName();
+                                }
+                            }
+                            //撤销邀请
+                            for (UserInfo userInfo : list) {
+                                rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
+                            }
+                            String finalName = rname;//被删除人的昵称
+                            msgAction.httpCancelInvite(toGid,name,list.get(0).getUid(), new CallBack<ReturnBean>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                    if (response.body() == null) {
+                                        return;
+                                    } else {
+                                        if (response.body().isOk()) {
+                                            String mid = SocketData.getUUID();
+                                            MsgNotice note = new MsgNotice();
+                                            note.setMsgid(mid);
+                                            note.setMsgType(3);
+                                            note.setNote("你将\"" + finalName + "\"移出群聊");
+                                            dao.noteMsgAddRb(mid, UserAction.getMyId(), toGid, note);
+                                            taskGroupInfo();
+                                            taskRefreshMessage(false);
+                                            dialogFive.dismiss();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                    ToastUtil.show(t.getMessage());
+                                }
+                            });
+                        })
+                        .build();
+                dialogFive.show();
+            }
+
         }else {
             Intent intent = new Intent(ChatActivity.this, InviteRemoveActivity.class);
             intent.putExtra(InviteRemoveActivity.USER_LIST, new Gson().toJson(list));

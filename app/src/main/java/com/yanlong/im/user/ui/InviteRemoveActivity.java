@@ -15,8 +15,8 @@ import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -50,7 +50,7 @@ public class InviteRemoveActivity extends AppActivity {
     private RecyclerView rcView;
     private RecyclerViewAdapter adapter;
     private List<UserInfo> dataList;
-    private List<ApplyBean> userList;
+    private List<UserInfo> filterList;//已经被移除的群员
     private String gid;
     private CommonSelectDialog dialogOne;//是否撤销提示弹框
     private CommonSelectDialog.Builder builder;
@@ -90,17 +90,32 @@ public class InviteRemoveActivity extends AppActivity {
     private void initData() {
         dataList = new Gson().fromJson(getIntent().getStringExtra(USER_LIST), new TypeToken<List<UserInfo>>() {}.getType());
         gid = getIntent().getStringExtra("gid");
+        filterList = new ArrayList<>();
+        //缓存里取这些用户的头像
         Group group = new MsgDao().groupNumberGet(gid);
-        //
         if(group.getUsers()!=null && group.getUsers().size()>0){
-
-        }
-        if(dataList!=null && dataList.size()>0){
-            List<String> idList = new ArrayList<>();
             for(UserInfo userInfo : dataList){
-                idList.add(userInfo.getUid()+"");
+                //判断的时候，该群员必须仍在这个群中
+                if(new MsgDao().inThisGroup(gid,userInfo.getUid().longValue())){
+                    for(MemberUser user : group.getUsers()){
+                        if(userInfo.getUid().longValue()==user.getUid()){
+                            //找到并更新头像
+                            if(!TextUtils.isEmpty(user.getHead())){
+                                userInfo.setHead(user.getHead());
+                            }else {
+                                userInfo.setHead("");
+                            }
+                            break;
+                        }
+                    }
+                }else {
+                    filterList.add(userInfo);
+                }
             }
-//            userList = new MsgDao().getApplysByUid
+            //如果已经被移除则需要过滤掉
+            if(filterList.size()>0){
+                dataList.removeAll(filterList);
+            }
         }
         adapter = new RecyclerViewAdapter();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -120,23 +135,23 @@ public class InviteRemoveActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return userList == null ? 0 : userList.size();
+            return dataList == null ? 0 : dataList.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(final RCViewHolder holder, int position) {
-            ApplyBean bean = userList.get(position);
+            UserInfo bean = dataList.get(position);
 
-            if(!TextUtils.isEmpty(bean.getAvatar())){
-                Glide.with(context).load(bean.getAvatar())
+            if(!TextUtils.isEmpty(bean.getHead())){
+                Glide.with(context).load(bean.getHead())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.ivIcon);
             }else {
                 Glide.with(context).load(R.mipmap.ic_info_head)
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.ivIcon);
             }
-            if(!TextUtils.isEmpty(bean.getNickname())){
-                holder.tvName.setText(bean.getNickname());
+            if(!TextUtils.isEmpty(bean.getName())){
+                holder.tvName.setText(bean.getName());
             }else {
                 holder.tvName.setText("");
             }
@@ -174,8 +189,8 @@ public class InviteRemoveActivity extends AppActivity {
         MessageManager.getInstance().notifyGroupChange(true);
     }
 
-    private void cancelInviteDialog(ApplyBean bean,int position) {
-        dialogOne = builder.setTitle("是否将该用户移出群聊？")
+    private void cancelInviteDialog(UserInfo bean,int position) {
+        dialogOne = builder.setTitle("将"+bean.getName()+"移出群聊？")
                 .setLeftText("取消")
                 .setRightText("移出群聊")
                 .setLeftOnClickListener(v -> {
@@ -184,11 +199,11 @@ public class InviteRemoveActivity extends AppActivity {
                 .setRightOnClickListener(v -> {
                     String name = "";
                     String rname = "";
-                    if (!TextUtils.isEmpty(bean.getNickname())) {
-                        name = bean.getNickname();
+                    if (!TextUtils.isEmpty(bean.getName())) {
+                        name = bean.getName();
                     }
                     //撤销邀请
-                    rname = "<font id='" + bean.getUid() + "'>" + bean.getNickname() + "</font>";
+                    rname = "<font id='" + bean.getUid() + "'>" + bean.getName() + "</font>";
                     String finalName = rname;//被删除人的昵称
                     new MsgAction().httpCancelInvite(gid,name,bean.getUid(), new CallBack<ReturnBean>() {
                         @Override
@@ -204,7 +219,7 @@ public class InviteRemoveActivity extends AppActivity {
                                     note.setNote("你将\"" + finalName + "\"移出群聊");
                                     new MsgDao().noteMsgAddRb(mid, UserAction.getMyId(), gid, note);
                                     dialogOne.dismiss();
-                                    userList.remove(position);
+                                    dataList.remove(position);
                                     adapter.notifyDataSetChanged();
                                 }
                             }
