@@ -202,7 +202,7 @@ public class MsgAction {
         if (StringUtil.isNotNull(gid)) {
             return dao.getMsg4GroupImgNew(gid, time);
         }
-        return dao.getMsg4UserImg(uid);
+        return dao.getMsg4UserImgNew(uid, time);
     }
 
     public List<MsgAllBean> getMsg4UserHistory(String gid, Long uid, Long stime) {
@@ -447,8 +447,8 @@ public class MsgAction {
     /**
      * 加入群聊
      */
-    public void joinGroup(String gid, Long uid, String nickname, String avatar, String inviter, String inviterName,String additional, Callback<ReturnBean<GroupJoinBean>> callback) {
-        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname, avatar, inviter, inviterName,additional), callback);
+    public void joinGroup(String gid, Long uid, String nickname, String avatar, String inviter, String inviterName, String additional, Callback<ReturnBean<GroupJoinBean>> callback) {
+        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname, avatar, inviter, inviterName, additional), callback);
     }
 
 

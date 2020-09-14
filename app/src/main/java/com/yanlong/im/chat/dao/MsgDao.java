@@ -74,40 +74,6 @@ public class MsgDao {
         return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
-    /***
-     * 保存群
-     * @param group
-     */
-    public void groupSave(Group group) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-            if (null != g) {//已经存在
-                try {
-                    List<MemberUser> objects = g.getUsers();
-                    if (null != objects && objects.size() > 0) {
-                        g.setName(group.getName());
-                        g.setAvatar(group.getAvatar());
-                        if (group.getUsers() != null)
-                            g.setUsers(group.getUsers());
-                        realm.insertOrUpdate(group);
-                    }
-                } catch (Exception e) {
-                    return;
-                }
-            } else {//不存在
-                realm.insertOrUpdate(group);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.reportException(e);
-            DaoUtil.close(realm);
-        }
-    }
-
 
     /***
      * 保存群
@@ -218,14 +184,48 @@ public class MsgDao {
 
     public List<MsgAllBean> getMsg4UserImg(Long userid) {
         List<MsgAllBean> beans = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         Realm realm = DaoUtil.open();
         try {
             beans = new ArrayList<>();
 
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
                     .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
-                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+            beans = realm.copyFromRealm(list);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        //翻转列表
+        if (beans != null) {
+            Collections.reverse(beans);
+        }
+        return beans;
+    }
+
+    public List<MsgAllBean> getMsg4UserImgNew(Long userId, long time) {
+        List<MsgAllBean> beans = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
+        Realm realm = DaoUtil.open();
+        try {
+            beans = new ArrayList<>();
+
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", userId).or().equalTo("to_uid", userId).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
             beans = realm.copyFromRealm(list);
@@ -315,11 +315,13 @@ public class MsgDao {
     public List<MsgAllBean> getMsg4GroupImg(String gid) {
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         try {
             beans = new ArrayList<>();
             RealmResults list = realm.where(MsgAllBean.class)
                     .equalTo("gid", gid)
-                    .equalTo("msg_type", 4)
+                    .and()
+                    .in("msg_type", supportType)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
 
@@ -340,12 +342,13 @@ public class MsgDao {
     public List<MsgAllBean> getMsg4GroupImgNew(String gid, long time) {
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         try {
             beans = new ArrayList<>();
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
-                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .beginGroup().in("msg_type", supportType).endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
@@ -2079,7 +2082,6 @@ public class MsgDao {
         if (originUrl.startsWith("file:")) {
             return true;
         }
-
         ImageMessage img = DaoUtil.findOne(ImageMessage.class, "origin", originUrl);
         if (img != null) {
             return img.isReadOrigin();

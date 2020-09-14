@@ -173,6 +173,7 @@ import com.yanlong.im.user.ui.InviteRemoveActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.user.ui.image.PreviewMediaActivity;
 import com.yanlong.im.utils.ApkUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
@@ -3638,31 +3639,48 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 显示大图
      *
-     * @param msgid
+     * @param msgId
      * @param uri
      */
-    private void showBigPic(String msgid, String uri) {
-        List<LocalMedia> selectList = new ArrayList<>();
+    private void scanImageAndVideo(String msgId) {
+        ArrayList<LocalMedia> selectList = new ArrayList<>();
         List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
         for (int i = 0; i < listdata.size(); i++) {
             MsgAllBean msgl = listdata.get(i);
-            if (msgid.equals(msgl.getMsg_id())) {
+            if (msgId.equals(msgl.getMsg_id())) {
                 pos = i;
             }
-
             LocalMedia lc = new LocalMedia();
-            lc.setCutPath(msgl.getImage().getThumbnailShow());
-            lc.setCompressPath(msgl.getImage().getPreviewShow());
-            lc.setPath(msgl.getImage().getOriginShow());
-            lc.setSize(msgl.getImage().getSize());
-            lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
-            lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-            lc.setMsg_id(msgl.getMsg_id());
             //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
-            if (msgl.getSend_state() != ChatEnum.ESendStatus.ERROR) {
+            if (msgl.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                 lc.setCanCollect(true);
+            }
+            lc.setMsg_id(msgl.getMsg_id());
+            if (msgl.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                lc.setMimeType(PictureConfig.TYPE_VIDEO);
+                String localUrl = msgl.getVideoMessage().getLocalUrl();
+                if (StringUtil.isNotNull(localUrl)) {
+                    File file = new File(localUrl);
+                    if (file.exists()) {
+                        lc.setVideoLocalUrl(localUrl);
+                    }
+                }
+                lc.setVideoUrl(msgl.getVideoMessage().getUrl());
+                lc.setVideoBgUrl(msgl.getVideoMessage().getBg_url());
+                lc.setWidth((int) msgl.getVideoMessage().getWidth());
+                lc.setHeight((int) msgl.getVideoMessage().getHeight());
+                lc.setDuration(msgl.getVideoMessage().getDuration());
+            } else {
+                lc.setMimeType(PictureConfig.TYPE_IMAGE);
+                lc.setCutPath(msgl.getImage().getThumbnailShow());
+                lc.setCompressPath(msgl.getImage().getPreviewShow());
+                lc.setPath(msgl.getImage().getOriginShow());
+                lc.setSize(msgl.getImage().getSize());
+                lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
+                lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+                lc.setHasRead(msgl.getImage().isReadOrigin());
             }
             temp.add(lc);
         }
@@ -3682,15 +3700,23 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
         pos = 0;
         for (int i = 0; i < selectList.size(); i++) {
-            if (msgid.equals(selectList.get(i).getMsg_id())) {
+            if (msgId.equals(selectList.get(i).getMsg_id())) {
                 pos = i;
                 break;
             }
         }
-        PictureSelector.create(ChatActivity.this)
-                .themeStyle(R.style.picture_default_style)
-                .isGif(true)
-                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT, "");
+        Intent intent = new Intent(this, PreviewMediaActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("data", selectList);
+        bundle.putInt("position", pos);
+        intent.putExtra(PictureConfig.GID, toGid);
+        intent.putExtra(PictureConfig.TO_UID, toUId);
+        intent.putExtras(bundle);
+        startActivity(intent);
+//        PictureSelector.create(ChatActivity.this)
+//                .themeStyle(R.style.picture_default_style)
+//                .isGif(true)
+//                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT, "");
 
     }
 
@@ -6229,7 +6255,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 case ChatEnum.ECellEventType.IMAGE_CLICK:
                     if (args[0] != null && args[0] instanceof ImageMessage) {
                         ImageMessage image = (ImageMessage) args[0];
-                        showBigPic(message.getMsg_id(), image.getThumbnailShow());
+                        scanImageAndVideo(message.getMsg_id());
                     }
                     break;
                 case ChatEnum.ECellEventType.VOICE_CLICK:
@@ -6458,32 +6484,32 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
             }
         } else if (clickAble) {
-            clickAble = false;
-            String localUrl = msg.getVideoMessage().getLocalUrl();
-            if (StringUtil.isNotNull(localUrl)) {
-                File file = new File(localUrl);
-                if (!file.exists()) {
-                    localUrl = msg.getVideoMessage().getUrl();
-                }
-            } else {
-                localUrl = msg.getVideoMessage().getUrl();
-            }
-            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
-            boolean canCollect = false;
-            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR) {
-                canCollect = true;
-            }
-            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-            intent.putExtra("videopath", localUrl);
-            intent.putExtra("videomsg", new Gson().toJson(msg));
-            intent.putExtra("msg_id", msg.getMsg_id());
-            intent.putExtra("bg_url", msg.getVideoMessage().getBg_url());
-            intent.putExtra("from", PictureConfig.FROM_DEFAULT);//2 来自收藏详情
-            intent.putExtra("can_collect", canCollect);
-            intent.putExtra(PictureConfig.COLLECT_JSON, "");
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
-
+            scanImageAndVideo(msg.getMsg_id());
+//            clickAble = false;
+//            String localUrl = msg.getVideoMessage().getLocalUrl();
+//            if (StringUtil.isNotNull(localUrl)) {
+//                File file = new File(localUrl);
+//                if (!file.exists()) {
+//                    localUrl = msg.getVideoMessage().getUrl();
+//                }
+//            } else {
+//                localUrl = msg.getVideoMessage().getUrl();
+//            }
+//            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
+//            boolean canCollect = false;
+//            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR) {
+//                canCollect = true;
+//            }
+//            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+//            intent.putExtra("videopath", localUrl);
+//            intent.putExtra("videomsg", new Gson().toJson(msg));
+//            intent.putExtra("msg_id", msg.getMsg_id());
+//            intent.putExtra("bg_url", msg.getVideoMessage().getBg_url());
+//            intent.putExtra("from", PictureConfig.FROM_DEFAULT);//2 来自收藏详情
+//            intent.putExtra("can_collect", canCollect);
+//            intent.putExtra(PictureConfig.COLLECT_JSON, "");
+//            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//            startActivity(intent);
         }
     }
 
@@ -7278,7 +7304,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     /**
      * 批量收藏  (流程有变化，过滤掉不支持类型后，先调接口，再弹框，目前需求只显示一次)
-     * @param list 已过滤后的数据
+     *
+     * @param list     已过滤后的数据
      * @param isNormal 正常类型true 含有不支持类型false
      */
     public void toCollectList(List<MsgAllBean> list, boolean isNormal) {
@@ -7295,11 +7322,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 return;
                             }
                             if (response.body().isOk()) {
-                                if(isNormal){
+                                if (isNormal) {
                                     // data!=null代表有"源文件不存在"情况，提示弹框
                                     if (response.body().getData() != null) {
                                         showCollectListDialog(1);
-                                    }else {
+                                    } else {
                                         ToastUtil.show("收藏成功");
                                     }
                                 } else {
@@ -7332,9 +7359,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     }
                     //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
-                    if(isNormal){
+                    if (isNormal) {
                         ToastUtil.show("收藏成功");//离线提示
-                    }else {
+                    } else {
                         //用户选过不支持的类型，因此无论如何都要提示弹框
                         showCollectListDialog(1);
                     }
@@ -7404,7 +7431,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 过滤多选收藏消息
      *
-     * @param sourList 源数据
+     * @param sourList  源数据
      * @param isOverdue 是否已经过滤掉了过期文件(是否含有不存在文件)
      */
     @SuppressLint("CheckResult")
@@ -7422,7 +7449,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 msgIds[i] = msgAllBean.getMsg_id();
                             }
                             return msgDao.filterMsgForCollection(msgIds);
-                        }else {
+                        } else {
                             return new ArrayList<MsgAllBean>();
                         }
 
@@ -7555,7 +7582,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                             if (action == 1) {
                                                                 filterMsgForward(sourList,true);//是否过滤掉了过期文件
                                                             } else if (action == 2) {
-                                                                filterMsgCollection(sourList,true);
+                                                                filterMsgCollection(sourList, true);
                                                             }
                                                         }
                                                     } else {//都是过期的
@@ -7569,7 +7596,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                         if (action == 1) {
                                                             filterMsgForward(sourList,true);
                                                         } else if (action == 2) {
-                                                            filterMsgCollection(sourList,true);
+                                                            filterMsgCollection(sourList, true);
                                                         }
                                                     }
                                                 } else {

@@ -428,7 +428,7 @@ public class ChatInfoActivity extends AppActivity {
 
         }
         //已注销的用户不允许点击+号
-        if(fUserInfo.getFriendDeactivateStat()==-1){
+        if(fUserInfo != null && fUserInfo.getFriendDeactivateStat()==-1){
             canAdd = false;
         }
     }
@@ -491,7 +491,7 @@ public class ChatInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateReadDestroy(fuid, survivalTime);
-                    if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                    if (fUserInfo != null && fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
                         msgDao.noteMsgAddSurvivaltime(fuid, null);
                     }
                 }
@@ -554,7 +554,7 @@ public class ChatInfoActivity extends AppActivity {
                     return;
                 } else {
                     if (response.body().isOk()) {
-                        if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                        if (fUserInfo != null && fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
                             MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screenshot);
                             MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
                             if (bean != null) {

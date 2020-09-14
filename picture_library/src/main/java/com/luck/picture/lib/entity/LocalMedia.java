@@ -2,6 +2,7 @@ package com.luck.picture.lib.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 /**
@@ -30,7 +31,12 @@ public class LocalMedia implements Parcelable {
     private int height;
     private long size;
     private String msg_id;
-    private boolean canCollect=false;//是否显示收藏，点击大图可左右滑动，需要判断每张图片的条件，发送失败不允许收藏
+    private boolean canCollect = false;//是否显示收藏，点击大图可左右滑动，需要判断每张图片的条件，发送失败不允许收藏
+    private boolean hasRead = false;//是否已查看原图
+    private String videoUrl;//视频url
+    private String videoBgUrl;//视频背景url
+    private String videoLocalUrl;//视频本地url
+    private String content;//内容json
 
     public LocalMedia() {
 
@@ -201,6 +207,46 @@ public class LocalMedia implements Parcelable {
         this.size = size;
     }
 
+    public boolean isHasRead() {
+        return hasRead;
+    }
+
+    public void setHasRead(boolean hasRead) {
+        this.hasRead = hasRead;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public String getVideoBgUrl() {
+        return videoBgUrl;
+    }
+
+    public void setVideoBgUrl(String videoBgUrl) {
+        this.videoBgUrl = videoBgUrl;
+    }
+
+    public String getVideoLocalUrl() {
+        return videoLocalUrl;
+    }
+
+    public void setVideoLocalUrl(String videoLocalUrl) {
+        this.videoLocalUrl = videoLocalUrl;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -224,6 +270,11 @@ public class LocalMedia implements Parcelable {
         dest.writeLong(this.size);
         dest.writeString(this.msg_id);
         dest.writeByte(this.canCollect ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.hasRead ? (byte) 1 : (byte) 0);
+        dest.writeString(this.videoUrl);
+        dest.writeString(this.videoBgUrl);
+        dest.writeString(this.videoLocalUrl);
+        dest.writeString(this.content);
     }
 
     protected LocalMedia(Parcel in) {
@@ -240,9 +291,14 @@ public class LocalMedia implements Parcelable {
         this.compressed = in.readByte() != 0;
         this.width = in.readInt();
         this.height = in.readInt();
-        this.size=in.readLong();
-        this.msg_id=in.readString();
+        this.size = in.readLong();
+        this.msg_id = in.readString();
         this.canCollect = in.readByte() != 0;
+        this.hasRead = in.readByte() != 0;
+        this.videoUrl = in.readString();
+        this.videoBgUrl = in.readString();
+        this.videoLocalUrl = in.readString();
+        this.content = in.readString();
     }
 
     public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {
@@ -256,4 +312,14 @@ public class LocalMedia implements Parcelable {
             return new LocalMedia[size];
         }
     };
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj != null && obj instanceof LocalMedia) {
+            if (!TextUtils.isEmpty(msg_id) && !TextUtils.isEmpty(((LocalMedia) obj).getMsg_id()) && msg_id.equals(((LocalMedia) obj).getMsg_id())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

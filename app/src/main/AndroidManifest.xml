@@ -709,6 +709,10 @@
             android:screenOrientation="portrait" />
         <activity android:name=".pay.ui.select.ViewAllowMemberActivity" />
 
+        <activity
+            android:name=".user.ui.image.PreviewMediaActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
     </application>
 
 </manifest>
