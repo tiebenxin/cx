@@ -281,6 +281,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         } else {
             pausePlay();
             cancelTimer();
+            reset();
             updatePlayStatus(false);
         }
     }
@@ -338,13 +339,15 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                     public void onPrepared(MediaPlayer mp) {
                         LogUtil.getLog().i(TAG, "onPrepared");
                         if (viewModel.isPlaying.getValue() != null && !viewModel.isPlaying.getValue() && getActivity() != null && !getActivity().isFinishing()) {
-                            LogUtil.getLog().i(TAG, "onPrepared--1");
-                            mediaPlayer.start();
-                            videoDuration = mp.getDuration();
-                            ui.seekBar.setMax(videoDuration);
-                            setSeekTo(mCurrentPosition);
-                            setTime(videoDuration / 1000, ui.tvEndTime);
-                            getCurrentProgress();
+                            if (isAutoPlay()) {
+                                LogUtil.getLog().i(TAG, "onPrepared--1");
+                                mediaPlayer.start();
+                                videoDuration = mp.getDuration();
+                                ui.seekBar.setMax(videoDuration);
+                                setSeekTo(mCurrentPosition);
+                                setTime(videoDuration / 1000, ui.tvEndTime);
+                                getCurrentProgress();
+                            }
                         }
                     }
                 });
@@ -401,7 +404,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         mediaPlayer.setLooping(false);
         mediaPlayer.prepareAsync();
         mediaPlayer.seekTo(0);
-        mediaPlayer.start();
+        if (isAutoPlay()) {
+            mediaPlayer.start();
+        }
     }
 
     private void pausePlay() {
@@ -644,7 +649,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                     if (currentPosition > mCurrentPosition) {
                         mCurrentPosition = currentPosition;
                     }
-//                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
+                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
                     ui.tvStartTime.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -654,9 +659,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                             if (viewModel.isPlaying.getValue() != null && viewModel.isPlaying.getValue()) {
                                 if (currentPosition > 0 && currentPosition < videoDuration) {
                                     ui.seekBar.setProgress(mCurrentPosition);
-                                } else {
+                                }/* else {
                                     updatePlayStatus(false);
-                                }
+                                }*/
                                 setTime(mCurrentPosition / 1000, ui.tvStartTime);
                             } else {
                                 updatePlayStatus(true);

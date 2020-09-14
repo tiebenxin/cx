@@ -130,6 +130,11 @@ public class PreviewMediaActivity extends FragmentActivity {
             if (fragment == null) {
                 if (media.getMimeType() == PictureConfig.TYPE_VIDEO) {//视频
                     fragment = LookUpVideoFragment.newInstance(media, PictureConfig.FROM_DEFAULT);
+                    if (fragmentMap.size() == 0) {
+                        fragment.setAutoPlay(true);
+                    } else {
+                        fragment.setAutoPlay(false);
+                    }
                     fragment.setCurrentPosition(currentPosition);
                 } else {//图片
                     fragment = LookUpPhotoFragment.newInstance(media, PictureConfig.FROM_DEFAULT);
