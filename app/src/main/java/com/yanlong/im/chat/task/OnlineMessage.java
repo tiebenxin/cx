@@ -83,6 +83,7 @@ public class OnlineMessage extends DispatchMessage {
                 for (int i = 0; i < size; i++) {
                     MsgBean.UniversalMessage.WrapMessage msg = msgList.get(i);
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
+                    LogUtil.writeLog("dispatch--在线消息--" + "msgId=" + msg.getMsgId() + "--msgType=" + msg.getMsgType() + "--gid=" + msg.getGid() + "--fromUid=" + msg.getFromUid());
                     //开始处理消息
                     boolean toDOResult = handlerMessage(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
                             i == msgList.size() - 1);

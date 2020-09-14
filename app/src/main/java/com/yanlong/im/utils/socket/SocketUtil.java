@@ -554,7 +554,12 @@ public class SocketUtil {
      * @param msg
      */
     public void sendData4Msg(MsgBean.UniversalMessage.Builder msg) {
-//        LogUtil.getLog().e("=sendData4Msg=msg=="+msg);
+        try {
+            LogUtil.writeLog("sendData4Msg--" + "msgId=" + msg.getWrapMsg(0).getMsgId() + "--msgType=" + msg.getWrapMsg(0).getMsgType()
+                    + "--gid=" + msg.getWrapMsg(0).getGid() + "--toUid=" + msg.getWrapMsg(0).getToUid());
+        } catch (Exception e) {
+
+        }
         //添加到消息队中监听
         SendList.addSendList(msg.getRequestId(), msg);
         sendData(SocketPacket.getPackage(SocketPacket.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg, msg.getRequestId());

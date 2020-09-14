@@ -149,6 +149,7 @@ public class OfflineMessage extends DispatchMessage {
                             break;
                         }
                         MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
+                        LogUtil.writeLog("dispatch--离线消息--" + "msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType() + "--gid=" + wrapMessage.getGid() + "--fromUid=" + wrapMessage.getFromUid());
                         //是否为本批消息的最后一条消息,并发的只能取数量
                         boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
                         boolean toDOResult = false;
