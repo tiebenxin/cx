@@ -232,7 +232,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             path = localUrl;
         } else {
             path = media.getVideoUrl();
-            if (path.contains("http://") && path.contains("https://")) {
+            if (path.startsWith("http") || path.startsWith("https")) {
                 downloadVideo(path, media.getMsg_id(), false);
             }
         }
@@ -429,7 +429,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         if (TextUtils.isEmpty(url)) {
             return;
         }
-        viewModel.isLoading.setValue(true);
+        if (isCurrent(media.getPosition())) {
+            viewModel.isLoading.setValue(true);
+        }
         final File appDir = new File(Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
