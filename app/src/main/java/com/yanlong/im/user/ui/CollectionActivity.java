@@ -24,9 +24,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
@@ -67,7 +71,6 @@ import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
-import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.CoreEnum;
@@ -76,7 +79,6 @@ import net.cb.cb.library.inter.SwipeLayoutOpenCloseListener;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.InputUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -225,6 +227,20 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                 .asBitmap()
                                                 .load(thumbnail)
                                                 .apply(mRequestOptions)
+                                                .listener(new RequestListener<Bitmap>() {
+                                                    @Override
+                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                                        if (e.getMessage().contains("FileNotFoundException")) {
+                                                            binding.ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                        }
+                                                        return false;
+                                                    }
+
+                                                    @Override
+                                                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                                        return false;
+                                                    }
+                                                })
                                                 .into(new SimpleTarget<Bitmap>() {
                                                     @Override
                                                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -234,30 +250,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                     }else{
                                         binding.ivPic.setImageBitmap(localBitmap);
                                     }
-
-
-
-//                                    if(NetUtil.isNetworkConnected()){
-//                                        if (!TextUtils.isEmpty(bean2.getPreview())) {
-//                                            Glide.with(CollectionActivity.this).load(bean2.getPreview())
-//                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
-//                                        } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
-//                                            Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
-//                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
-//                                        }
-//                                    }else {
-//                                        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
-//                                        if (localBitmap == null) {
-//                                            Glide.with(CollectionActivity.this)
-//                                                    .asBitmap()
-//                                                    .load(thumbnail)
-//                                                    .apply(GlideOptionsUtil.defaultImageOptions())
-//                                                    .into(binding.ivPic);
-//                                        } else {
-//                                            binding.ivPic.setImageBitmap(localBitmap);
-//                                        }
-
-//                                    }
                                 }
                                 break;
                             case ChatEnum.EMessageType.SHIPPED_EXPRESSION: //大表情
@@ -287,8 +279,23 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                     //有网情况走网络请求，无网情况拿缓存
                                     if(NetUtil.isNetworkConnected()){
                                         if (!TextUtils.isEmpty(bgUrl)) {
-                                            Glide.with(CollectionActivity.this).load(bgUrl)
-                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+                                            Glide.with(CollectionActivity.this).asBitmap().load(bgUrl)
+                                                    .apply(GlideOptionsUtil.defaultImageOptions())
+                                                    .listener(new RequestListener<Bitmap>() {
+                                                        @Override
+                                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                                            if (e.getMessage().contains("FileNotFoundException")) {
+                                                                binding.ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                            }
+                                                            return false;
+                                                        }
+
+                                                        @Override
+                                                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+                                                    })
+                                                    .into(binding.ivPic);
                                         }
                                     }else {
                                         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(bgUrl);
@@ -297,6 +304,20 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                     .asBitmap()
                                                     .load(bgUrl)
                                                     .apply(GlideOptionsUtil.defaultImageOptions())
+                                                    .listener(new RequestListener<Bitmap>() {
+                                                        @Override
+                                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                                            if (e.getMessage().contains("FileNotFoundException")) {
+                                                                binding.ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                            }
+                                                            return false;
+                                                        }
+
+                                                        @Override
+                                                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+                                                    })
                                                     .into(binding.ivPic);
                                         } else {
                                             binding.ivPic.setImageBitmap(localBitmap);
@@ -341,6 +362,20 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                             Glide.with(CollectionActivity.this)
                                                     .asBitmap()
                                                     .load(locationImg)
+                                                    .listener(new RequestListener<Bitmap>() {
+                                                        @Override
+                                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                                            if (e.getMessage().contains("FileNotFoundException")) {
+                                                                binding.ivLocation.setImageResource(R.mipmap.ic_img_past);
+                                                            }
+                                                            return false;
+                                                        }
+
+                                                        @Override
+                                                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+                                                    })
                                                     .into(new SimpleTarget<Bitmap>() {
                                                         @Override
                                                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -353,6 +388,20 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                 Glide.with(CollectionActivity.this)
                                                         .asBitmap()
                                                         .load(locationImg)
+                                                        .listener(new RequestListener<Bitmap>() {
+                                                            @Override
+                                                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                                                if (e.getMessage().contains("FileNotFoundException")) {
+                                                                    binding.ivLocation.setImageResource(R.mipmap.ic_img_past);
+                                                                }
+                                                                return false;
+                                                            }
+
+                                                            @Override
+                                                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                                                return false;
+                                                            }
+                                                        })
                                                         .into(new SimpleTarget<Bitmap>() {
                                                             @Override
                                                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
