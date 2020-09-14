@@ -467,6 +467,34 @@ public class MsgDao {
         return groupInfoBean;
     }
 
+    /***
+     * 群成员是否存在于该群中
+     * @param gid
+     * @param uid
+     * @return
+     */
+    public boolean inThisGroup(String gid,long uid) {
+        Realm realm = DaoUtil.open();
+        try {
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                if(group.getUsers()!=null && group.getUsers().size()>0){
+                    for(MemberUser user : group.getUsers()){
+                        if (uid == user.getUid()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return false;
+    }
+
     /***双向删除
      * 删除好友某时间戳之前的聊天记录-单聊
      * @param fromUid 发的指令对方

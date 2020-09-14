@@ -19,6 +19,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.eventbus.CancelInviteEvent;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.InviteDetailsActivity;
@@ -26,6 +27,7 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.utils.ViewUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -283,7 +285,6 @@ public class HtmlTransitonUtils {
 
     private void setType2(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
         List<HtmlBeanList> list = htmlBean.getList();
-        List<UserInfo> invitelist = new ArrayList<>();//被邀请人列表
         for (final HtmlBeanList bean : list) {
             if (bean.getType() == 3) {
                 builder.append("你");
@@ -320,11 +321,6 @@ public class HtmlTransitonUtils {
                 String content = "\"" + bean.getName() + "\"、";
                 builder.append(content);
 
-                UserInfo userInfo = new UserInfo();
-                userInfo.setUid(Long.valueOf(bean.getId()));
-                userInfo.setName(bean.getName());
-                invitelist.add(userInfo);
-
                 int state = builder.toString().length() - content.length() + 1;
                 int end = builder.toString().length() - 2;
 
@@ -349,29 +345,38 @@ public class HtmlTransitonUtils {
             builder.delete(builder.length() - 1, builder.length());
         builder.append("加入了群聊");
         //去撤销
-//        if(list.get(list.size()-1).getId().equals("-98")){
-//            HtmlBeanList lastBean = list.get(list.size()-1);
-//            String content = "，" + lastBean.getName();
-//            builder.append(content);
-//            int state = builder.toString().length() - content.length() + 1;
-//            int end = builder.toString().length();
-//            ClickableSpan clickProtocol = new ClickableSpan() {
-//                @Override
-//                public void onClick(View widget) {
-//                    CancelInviteEvent event = new CancelInviteEvent();
-//                    event.setUserInfoList(invitelist);
-//                    EventBus.getDefault().post(event);
-//                }
-//
-//                @Override
-//                public void updateDrawState(TextPaint ds) {
-//                    ds.setUnderlineText(false);
-//                }
-//            };
-//            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
-//            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        }
+        if(list.get(list.size()-1).getId().equals("-98")){
+            HtmlBeanList lastBean = list.get(list.size()-1);
+            String content = "，" + lastBean.getName();
+            builder.append(content);
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length();
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    List<UserInfo> invitelist = new ArrayList<>();//被邀请人列表
+                    for (final HtmlBeanList bean : list){
+                        if(bean.getType() == 2){
+                            UserInfo userInfo = new UserInfo();
+                            userInfo.setUid(Long.valueOf(bean.getId()));
+                            userInfo.setName(bean.getName());
+                            invitelist.add(userInfo);
+                        }
+                    }
+                    CancelInviteEvent event = new CancelInviteEvent();
+                    event.setUserInfoList(invitelist);
+                    EventBus.getDefault().post(event);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
     }
 
     private void setType3(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
