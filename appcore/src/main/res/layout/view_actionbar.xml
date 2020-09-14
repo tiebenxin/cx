@@ -4,9 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/actionbar_height"
     android:addStatesFromChildren="true"
-    android:background="@drawable/bg_action"
+    android:background="@drawable/bg_status_bar"
     android:gravity="center_vertical"
     android:orientation="vertical">
+
+    <!--      android:background="@drawable/bg_action"-->
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -28,9 +30,9 @@
             <ImageView
                 android:layout_width="12dp"
                 android:layout_height="12dp"
-                android:src="@mipmap/ic_disturb_new"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
+                android:src="@mipmap/ic_disturb_new"
                 android:visibility="invisible" />
 
             <ImageView
@@ -44,10 +46,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:paddingLeft="100dp"
-            android:paddingRight="100dp"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="100dp"
+            android:paddingRight="100dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -61,14 +63,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxLines="1"
-                    android:maxWidth="150dp"
-                    android:text="主标题"
-                    android:visibility="visible"
-                    android:textSize="18sp"
                     android:gravity="center_vertical"
+                    android:maxWidth="150dp"
+                    android:maxLines="1"
+                    android:text="主标题"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:visibility="visible" />
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -85,50 +87,53 @@
                         android:maxLines="1"
                         android:text="聊天标题"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="@color/white"
+                        android:textColor="@color/black"
                         android:textSize="15sp"
                         android:visibility="gone" />
+
                     <TextView
                         android:id="@+id/tv_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:text="(0)"
                         android:maxLines="1"
-                        android:textSize="15sp"
-                        android:visibility="gone"
+                        android:text="(0)"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:visibility="gone" />
                 </RelativeLayout>
 
                 <ImageView
                     android:id="@+id/iv_load_bar"
                     android:layout_width="17dp"
                     android:layout_height="17dp"
-                    android:layout_marginLeft="5dp"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
                     android:visibility="gone" />
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:id="@+id/txt_title_more"
                     style="@style/app_txt_content_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textColor="@color/white"
+                    android:textColor="@color/c_878787"
                     android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/iv_group_load_bar"
                     android:layout_width="17dp"
                     android:layout_height="17dp"
-                    android:layout_marginLeft="5dp"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
                     android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
@@ -155,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/btn_icon"
                 android:gravity="center"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="15sp"
                 android:visibility="visible" />
         </LinearLayout>
@@ -166,10 +171,10 @@
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:gravity="center"
             android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:visibility="visible">
 
             <TextView
@@ -177,8 +182,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:textColor="@color/white"
                 android:text="确定"
+                android:textColor="@color/black"
                 android:textSize="15sp" />
 
             <ImageView
@@ -203,8 +208,8 @@
                 android:id="@+id/iv_disturb"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
-                android:src="@mipmap/ic_disturb_new"
                 android:layout_marginRight="5dp"
+                android:src="@mipmap/ic_disturb_new"
                 android:visibility="gone" />
 
             <ImageView

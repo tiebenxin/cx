@@ -18,6 +18,7 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.dailog.DialogBalanceNoEnough;
@@ -57,7 +58,7 @@ import static com.hm.cxpay.global.PayConstants.RESULT;
  * @by zjy
  * @备注：
  */
-public class RechargeActivity extends AppActivity {
+public class RechargeActivity extends BasePayActivity {
 
     private HeadView headView;
     private ActionbarView actionbar;

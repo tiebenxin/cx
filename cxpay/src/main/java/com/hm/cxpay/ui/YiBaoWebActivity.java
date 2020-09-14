@@ -16,6 +16,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.global.PayEnum;
 
@@ -36,7 +37,7 @@ import org.greenrobot.eventbus.ThreadMode;
  * @author Liszt
  * @date 2020年6月21日
  */
-public class YiBaoWebActivity extends AppActivity {
+public class YiBaoWebActivity extends BasePayActivity {
     private final String TAG = getClass().getSimpleName();
     /**
      * 参数:打开的url

@@ -144,8 +144,7 @@ public class LocationActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
-        getWindow().setStatusBarColor(getResources().getColor(R.color.blue_title));
-
+        getWindow().setStatusBarColor(getResources().getColor(R.color.white));
         findViews();
         initEvent();
 

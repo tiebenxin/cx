@@ -425,7 +425,7 @@ public class UserAction {
         }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
-        LogUtil.writeLog("设置token" + "--uid=" + token.getUid() + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
+        LogUtil.writeLog("设置token" + "--uid=" + token.getUid() + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate + "--appVersion=" + AppConfig.getVersionName());
     }
 
 
@@ -454,8 +454,8 @@ public class UserAction {
     /***
      * 好友同意
      */
-    public void friendAgree(Long uid, String contactName,String alias, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.acceptFriend(uid, contactName,alias), callback);
+    public void friendAgree(Long uid, String contactName, String alias, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.acceptFriend(uid, contactName, alias), callback);
     }
 
     /***

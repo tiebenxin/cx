@@ -49,7 +49,6 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
@@ -1757,6 +1756,31 @@ public class MsgDao {
                 } else {
                     applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat", stat).findFirst();
                 }
+                if (applyBean != null) {
+                    bean = realm.copyFromRealm(applyBean);
+                    list.add(bean);
+                }
+
+            }
+        }
+        realm.close();
+        return list;
+    }
+
+    /**
+     * 根据aid批量查询入群申请列表的用户信息
+     *
+     * @param aidList
+     * @return
+     */
+    public List<ApplyBean> getApplysByAid(List<String> aidList) {
+        Realm realm = DaoUtil.open();
+        List<ApplyBean> list = new ArrayList<>();
+        if (aidList != null && aidList.size() > 0) {
+            for (int i = 0; i < aidList.size(); i++) {
+                ApplyBean bean;
+                ApplyBean applyBean;
+                applyBean = realm.where(ApplyBean.class).equalTo("aid", aidList.get(i)).findFirst();
                 if (applyBean != null) {
                     bean = realm.copyFromRealm(applyBean);
                     list.add(bean);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hm.cxpay.widget;
+package net.cb.cb.library.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -36,7 +36,7 @@ import android.support.annotation.DrawableRes;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 
-import com.hm.cxpay.R;
+import net.cb.cb.library.R;
 
 
 public class CircleImageView extends AppCompatImageView {

@@ -173,7 +173,6 @@ public class MessageRepository {
         if(!TextUtils.isEmpty(wrapMessage.getMessageProcessedSync().getMsgId())){
             new MsgDao().updateInviteNoticeMsg(wrapMessage.getMessageProcessedSync().getMsgId());//数据库先更新，入群通知消息改为"已确认"
             EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
-            event.setMsgId(wrapMessage.getMessageProcessedSync().getMsgId());
             EventBus.getDefault().post(event);
         }
         return true;

@@ -23,8 +23,11 @@ import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -35,6 +38,7 @@ import com.yanlong.im.utils.ImageUtils;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.QRCodeBean;
@@ -54,6 +58,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MyselfQRCodeActivity extends AppActivity {
@@ -63,7 +69,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     public static final String GROUP_NAME = "groupName";
 
     private HeadView mHeadView;
-    private ImageView mImgHead;
+    private MultiImageView mImgHead;
     private ConstraintLayout mViewMyQrcode;
     private TextView mTvUserName;
     private ImageView mCrCode;
@@ -100,8 +106,6 @@ public class MyselfQRCodeActivity extends AppActivity {
         mViewMyQrcode = findViewById(R.id.view_my_qrcode);
         viewQrCode = findViewById(R.id.view_qr_code);
         valid_time_tv = findViewById(R.id.valid_time_tv);
-
-
         type = getIntent().getIntExtra(TYPE, 0);
         UMShareAPI.get(this);
     }
@@ -136,13 +140,16 @@ public class MyselfQRCodeActivity extends AppActivity {
         if (type == 0) {
             String uid = userInfo.getUid() + "";
             // mImgHead.setImageURI(userInfo.getHead() + "");
-            Glide.with(this).load(userInfo.getHead())
-                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
+            List<String> avatars = new ArrayList<>();
+            avatars.add(userInfo.getHead());
+            mImgHead.setList(avatars);
+//            Glide.with(this).load(userInfo.getHead())
+//                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
 
             mTvUserName.setText(userInfo.getName() + "");
             mHeadView.getActionbar().setTitle("我的二维码");
 
-            imageCodeHead.setVisibility(View.VISIBLE);
+//            imageCodeHead.setVisibility(View.VISIBLE);
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_FRIEND_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, uid);
@@ -154,8 +161,8 @@ public class MyselfQRCodeActivity extends AppActivity {
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
             // mImgHead.setImageURI(groupHead + "");
-            ImageUtils.showImg(this, groupHead, mImgHead, groupId);
-
+//            ImageUtils.showImg(this, groupHead, mImgHead, groupId);
+            loadGroupHeads(groupId, mImgHead);
             mTvUserName.setText(groupName + "");
             mHeadView.getActionbar().setTitle("群二维码");
             imageCodeHead.setVisibility(View.GONE);
@@ -360,6 +367,28 @@ public class MyselfQRCodeActivity extends AppActivity {
             intent.putExtra(ChatActivity.AGM_TOUID, userInfo.getUid());
             startActivity(intent);
 
+        }
+    }
+
+    /**
+     * 加载群头像
+     *
+     * @param gid
+     * @param imgHead
+     */
+    public synchronized void loadGroupHeads(String gid, MultiImageView imgHead) {
+        MsgDao msgDao = new MsgDao();
+        Group gginfo = msgDao.getGroup4Id(gid);
+        if (gginfo != null) {
+            int i = gginfo.getUsers().size();
+            i = i > 9 ? 9 : i;
+            //头像地址
+            List<String> headList = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                MemberUser userInfo = gginfo.getUsers().get(j);
+                headList.add(userInfo.getHead());
+            }
+            imgHead.setList(headList);
         }
     }
 

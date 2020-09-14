@@ -26,7 +26,7 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <com.hm.cxpay.widget.CircleImageView
+            <net.cb.cb.library.view.CircleImageView
                 android:id="@+id/img_uhead"
                 style="@style/app_img_head"
                 android:layout_width="58dp"

@@ -403,6 +403,7 @@
         <!--加群聊-->
         <activity
             android:name=".chat.ui.AddGroupActivity"
+            android:windowSoftInputMode="adjustNothing"
             android:screenOrientation="portrait" />
 
         <!--群助手信息-->
@@ -696,6 +697,9 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.InviteDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".user.ui.InviteRemoveActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.UploadLogActivity"

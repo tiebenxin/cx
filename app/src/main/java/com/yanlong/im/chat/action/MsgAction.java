@@ -387,6 +387,17 @@ public class MsgAction {
     }
 
     /**
+     * 撤销邀请
+     * @param gid
+     * @param name
+     * @param uid
+     * @param callback
+     */
+    public void httpCancelInvite(final String gid, String name,Long uid, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpCancelInvite(gid,name,uid), callback);
+    }
+
+    /**
      * 全员禁言
      *
      * @param gid
