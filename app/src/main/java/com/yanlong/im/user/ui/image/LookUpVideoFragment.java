@@ -103,7 +103,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     private Timer mTimer;
     private int videoDuration;//视频时长
     private VideoPlayViewModel viewModel = new VideoPlayViewModel();
-    private boolean canCollect = false;//是否显示收藏项
+    private boolean canCollect = true;//是否显示收藏项
     private CommonSelectDialog dialogFour;
     private MsgDao msgDao = new MsgDao();
     private MsgAllBean msgAllBean;
