@@ -729,7 +729,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                             checkFileIsExist(msgAllBean, "", false);
                         }
                     } else if (postsion == 1) {
-//                        checkFileIsExist(msgAllBean, "",true);
+                        checkFileIsExist(msgAllBean, "",true);
                     } else if (postsion == 2) {
                         insertVideoToMediaStore(getActivity(), path, System.currentTimeMillis(), mediaPlayer.getVideoWidth(), mediaPlayer.getVideoHeight(), mediaPlayer.getDuration());
                         //点击保存视频，若已经下载完成则提示"成功"；若没有下载完成，则无操作，等待下载完成后提示"成功"
@@ -805,8 +805,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                             if (isCollect) {
                                 //收藏
                                 EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-//                                MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
-//                                eventCollectImgOrVideo.setMsgId(msgAllBeanForm.getMsg_id());
+                                eventCollectImgOrVideo.setMsgId(media.getMsg_id());
                                 EventBus.getDefault().post(eventCollectImgOrVideo);
                             } else {
                                 onRetransmission(msgBean, collectJson);
@@ -827,8 +826,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         } else {
             if (isCollect) {
                 EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-//                MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
-//                eventCollectImgOrVideo.setMsgId(msgAllBeanForm.getMsg_id());
+                eventCollectImgOrVideo.setMsgId(media.getMsg_id());
                 EventBus.getDefault().post(eventCollectImgOrVideo);
             } else {
                 onRetransmission(msgBean, collectJson);
