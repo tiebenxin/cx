@@ -283,6 +283,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             cancelTimer();
             reset();
             updatePlayStatus(false);
+//            setAutoPlay(false);
         }
     }
 
@@ -328,7 +329,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                         surfaceHeight = ui.textureView.getWidth();
                     }
                 } else {
-                    if (!isPressHome()) {
+                    if (!isPressHome() && isAutoPlay()) {
                         startPlay();
                     } else {
                         loadVideoBg();
@@ -729,7 +730,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                             checkFileIsExist(msgAllBean, "", false);
                         }
                     } else if (postsion == 1) {
-                        checkFileIsExist(msgAllBean, "",true);
+                        checkFileIsExist(msgAllBean, "", true);
                     } else if (postsion == 2) {
                         insertVideoToMediaStore(getActivity(), path, System.currentTimeMillis(), mediaPlayer.getVideoWidth(), mediaPlayer.getVideoHeight(), mediaPlayer.getDuration());
                         //点击保存视频，若已经下载完成则提示"成功"；若没有下载完成，则无操作，等待下载完成后提示"成功"

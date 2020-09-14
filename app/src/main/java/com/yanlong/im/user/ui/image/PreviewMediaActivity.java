@@ -103,9 +103,17 @@ public class PreviewMediaActivity extends FragmentActivity {
     }
 
     private void setCurrent(int currentPosition, boolean autoPlay) {
-        if (fragmentMap != null && fragmentMap.get(currentPosition) != null) {
-            fragmentMap.get(currentPosition).setCurrentPosition(currentPosition);
-            fragmentMap.get(currentPosition).setAutoPlay(autoPlay);
+        if (fragmentMap != null) {
+            if (fragmentMap.get(currentPosition) != null) {
+                fragmentMap.get(currentPosition).setCurrentPosition(currentPosition);
+                fragmentMap.get(currentPosition).setAutoPlay(autoPlay);
+            }
+            if (fragmentMap.get(currentPosition - 1) != null) {
+                fragmentMap.get(currentPosition - 1).setAutoPlay(false);
+            }
+            if (fragmentMap.get(currentPosition + 1) != null) {
+                fragmentMap.get(currentPosition + 1).setAutoPlay(false);
+            }
         }
     }
 
