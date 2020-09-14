@@ -95,7 +95,8 @@ public class OnlineMessage extends DispatchMessage {
                         result = false;
                     }
                 }
-                if (size == 1 && bean.getWrapMsg(0) != null && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+                //不需要发送回执
+                if (size == 1 && !bean.getRequestId().contains("NONE_ACK")) {
                     LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
                     SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
                 }
