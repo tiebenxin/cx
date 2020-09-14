@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:gravity="center_horizontal">
         
-        <net.cb.cb.library.view.CircleImageView
+        <ImageView
             android:id="@+id/sd_image_head"
             style="@style/app_img_head"
             android:layout_marginTop="50dp"
