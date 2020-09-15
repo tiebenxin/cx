@@ -25,7 +25,6 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -132,17 +131,19 @@ public class AddGroupActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     Group bean = response.body().getData();
+                    //更新群人数
+                    if(bean!=null && bean.getUsers()!=null && bean.getUsers().size()>0){
+//                        DaoUtil.update(bean);
+                    }
                     String url = "";
                     if (!TextUtils.isEmpty(bean.getAvatar())) {
                         url = bean.getAvatar();
                     }else {
                         MsgDao msgDao = new MsgDao();
+                        //群头像未设置时会有一个默认生成的拼接头像，考虑到成员数会变动，每次最好根据最新成员数重新生成
+                        GroupHeadImageUtil.creatAndSaveImg(context, gid);
                         url = msgDao.groupHeadImgGet(gid);
-                        if(!StringUtil.isNotNull(url)){
-                            //头像为空 创建一次
-                            GroupHeadImageUtil.creatAndSaveImg(context,gid);
-                            url = msgDao.groupHeadImgGet(gid);
-                        }
+
                     }
                     Glide.with(context).load(url)
                             .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
