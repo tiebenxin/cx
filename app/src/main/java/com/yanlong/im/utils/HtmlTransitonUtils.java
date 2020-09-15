@@ -281,6 +281,39 @@ public class HtmlTransitonUtils {
             }
         }
         builder.append("分享的二维码加入了群聊");
+        //去撤销
+        if(list.get(list.size()-1).getId().equals("-98")){
+            HtmlBeanList lastBean = list.get(list.size()-1);
+            String content = "，" + lastBean.getName();
+            builder.append(content);
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length();
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    List<UserInfo> invitelist = new ArrayList<>();//被邀请人列表
+                    for (final HtmlBeanList bean : list){
+                        if(bean.getType() == 2){
+                            UserInfo userInfo = new UserInfo();
+                            userInfo.setUid(Long.valueOf(bean.getId()));
+                            userInfo.setName(bean.getName());
+                            invitelist.add(userInfo);
+                        }
+                    }
+                    CancelInviteEvent event = new CancelInviteEvent();
+                    event.setUserInfoList(invitelist);
+                    EventBus.getDefault().post(event);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
     }
 
     private void setType2(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
