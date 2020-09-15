@@ -199,7 +199,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     }
 
     private void loadVideoBg() {
-        if (!TextUtils.isEmpty(media.getVideoBgUrl())) {
+        if (media != null && !TextUtils.isEmpty(media.getVideoBgUrl()) && ui != null && ui.ivBg != null) {
             ui.ivBg.setVisibility(View.VISIBLE);
             Glide.with(this).load(media.getVideoBgUrl()).into(ui.ivBg);
         }
@@ -312,6 +312,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     private void prepareMediaPlayer() {
         LogUtil.getLog().i("video_log", "prepareMediaPlayer");
         if (media == null || !isCurrent(media.getPosition()) || (viewModel.isPlaying.getValue() != null && viewModel.isPlaying.getValue())) {
+            loadVideoBg();
             return;
         }
         LogUtil.getLog().i("video_log", "prepareMediaPlayer--w未开始");
@@ -599,14 +600,15 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    setSeekTo(mCurrentPosition);
-                    mediaPlayer.start();
+                    LogUtil.getLog().d("TAG", "onPrepared--replay");
                     //初始化时长及进度条
                     videoDuration = mp.getDuration();
                     ui.seekBar.setMax(videoDuration);
-                    setSeekTo(mCurrentPosition);
                     setTime(videoDuration / 1000, ui.tvEndTime);
+                    setSeekTo(mCurrentPosition);
+                    mediaPlayer.start();
                     getCurrentProgress();
+
                 }
             });
             mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -655,10 +657,11 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             public void run() {
                 if (mediaPlayer != null) {
                     int currentPosition = mediaPlayer.getCurrentPosition();
+                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
                     if (currentPosition > mCurrentPosition) {
                         mCurrentPosition = currentPosition;
                     }
-//                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
+                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
                     ui.tvStartTime.postDelayed(new Runnable() {
                         @Override
                         public void run() {
