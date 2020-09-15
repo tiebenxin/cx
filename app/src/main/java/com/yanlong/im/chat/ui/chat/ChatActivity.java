@@ -135,8 +135,9 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
-import com.yanlong.im.chat.eventbus.CancelInviteEvent;
+import com.yanlong.im.chat.eventbus.EventCancelInvite;
 import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
+import com.yanlong.im.chat.eventbus.EventShowDialog;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -148,7 +149,6 @@ import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.SearchMsgActivity;
-import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.cell.ChatCellBase;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
@@ -443,6 +443,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
     private CommonSelectDialog dialogFive;//是否撤销提示弹框
     private CommonSelectDialog dialogSix;//成员已经离开群聊提示弹框
+    private CommonSelectDialog dialogSeven;//你没有权限提示弹框
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -3501,8 +3502,25 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //撤销入群邀请
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void cancelInvite(CancelInviteEvent event){
+    public void cancelInvite(EventCancelInvite event){
         cancelInviteDialog(event.getUserInfoList());
+    }
+
+    //撤销入群邀请
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventShowDialog(EventShowDialog event){
+        if(event.getType()==1){
+            if(dialogSeven==null){
+                dialogSeven = builder.setTitle("没有操作权限")
+                        .setShowLeftText(false)
+                        .setRightText("确定")
+                        .setRightOnClickListener(v -> {
+                            dialogSeven.dismiss();
+                        })
+                        .build();
+            }
+            dialogSeven.show();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
