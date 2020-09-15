@@ -3506,7 +3506,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         cancelInviteDialog(event.getUserInfoList());
     }
 
-    //撤销入群邀请
+    //我是普通成员，没有权限撤销
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventShowDialog(EventShowDialog event){
         if(event.getType()==1){
@@ -7206,7 +7206,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             if(oldNum==1){
                 notice = "该成员已离开群聊";
             }else {
-                notice = "该"+oldNum+"位成员已离开群聊";
+                notice = "成员已离开群聊";
             }
             dialogSix = builder.setTitle(notice)
                     .setShowLeftText(false)
