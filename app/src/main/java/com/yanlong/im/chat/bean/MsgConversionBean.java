@@ -381,8 +381,7 @@ public class MsgConversionBean {
                 String node;
                 //最后一个名字，不显示、号
                 if (names.endsWith("、")) names = names.substring(0, names.length() - 2);
-
-                String ifCancel = "\"<font color='#276baa' id='" + "-98" + "'><a href=''>" + "撤销" + "</a></font>\"";//"撤销"模拟成一个超链接对象id为-98
+                String ifCancel = "<font color='#276baa' id='" + "-98" + "'><a href=''>" + "撤销" + "</a></font>";//"撤销"模拟成一个超链接对象id为-98
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
                     gNotice.setMsgType(1);
                     if(isMe){
