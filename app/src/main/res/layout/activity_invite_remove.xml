@@ -4,11 +4,12 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="移除群聊">
+    app:headview_title="选择要移出的成员">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rc_view"
+        android:background="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"/>
 
 </net.cb.cb.library.view.HeadView>
