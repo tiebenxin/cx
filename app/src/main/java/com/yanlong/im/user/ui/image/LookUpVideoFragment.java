@@ -1,7 +1,6 @@
 package com.yanlong.im.user.ui.image;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +16,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,7 +30,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -502,12 +499,16 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        changeVideoSize();
+        if(mediaPlayer!=null){
+            changeVideoSize();
+        }
     }
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-        changeVideoSize();
+        if(mediaPlayer!=null){
+            changeVideoSize();
+        }
     }
 
     public void changeVideoSize() {
