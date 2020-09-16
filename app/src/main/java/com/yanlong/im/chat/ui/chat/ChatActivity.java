@@ -3658,7 +3658,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 显示大图
      *
      * @param msgId
-     * @param uri
      */
     private void scanImageAndVideo(String msgId) {
         ArrayList<LocalMedia> selectList = new ArrayList<>();
@@ -7168,7 +7167,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 是否撤销提示弹框
      */
     private void cancelInviteDialog(List<UserInfo> list) {
-        int oldNum = 0;//邀请了几个人
+        int oldNum;//邀请了几个人
         oldNum = list.size();
         List<UserInfo> filterList = new ArrayList<>();
         //1 先过滤掉已经被移除的群员
@@ -7258,8 +7257,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                             dao.noteMsgAddRb(mid, UserAction.getMyId(), toGid, note);
                                             taskGroupInfo();
                                             taskRefreshMessage(false);
-                                            dialogFive.dismiss();
+                                        }else {
+                                            if(!TextUtils.isEmpty(response.body().getMsg())){
+                                                ToastUtil.show(response.body().getMsg());
+                                            }
                                         }
+                                        dialogFive.dismiss();
                                     }
                                 }
 

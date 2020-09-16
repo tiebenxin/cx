@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -30,6 +29,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.CircleImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +128,7 @@ public class InviteRemoveActivity extends AppActivity {
 
         //自动寻找ViewHold
         @Override
-        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
+        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) { //撤销列表头像改为圆的
             RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_invite_remove, view, false));
             return holder;
         }
@@ -168,7 +168,7 @@ public class InviteRemoveActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private ImageView ivIcon;
+            private CircleImageView ivIcon;
             private TextView tvName;
             private TextView tvRemove;
 
@@ -218,10 +218,14 @@ public class InviteRemoveActivity extends AppActivity {
                                     note.setMsgType(3);
                                     note.setNote("你将\"" + finalName + "\"移出群聊");
                                     new MsgDao().noteMsgAddRb(mid, UserAction.getMyId(), gid, note);
-                                    dialogOne.dismiss();
                                     dataList.remove(position);
                                     adapter.notifyDataSetChanged();
+                                }else {
+                                    if(!TextUtils.isEmpty(response.body().getMsg())){
+                                        ToastUtil.show(response.body().getMsg());
+                                    }
                                 }
+                                dialogOne.dismiss();
                             }
                         }
 
