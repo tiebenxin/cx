@@ -224,30 +224,34 @@ public class DateUtils {
 
     //获取当前月最初时间及最后时间（下个月最初时间）
     public static Long[] getStartAndEndTimeOfMonth(Calendar calendar) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(calendar.getTimeInMillis());
         Long[] result = new Long[2];
-        result[0] = getStartTimeOfMonth(calendar);
-        calendar.add(Calendar.MONTH, 1);//下月最初时间
-        result[1] = getStartTimeOfMonth(calendar);
+        result[0] = getStartTimeOfMonth(c);
+        c.add(Calendar.MONTH, 1);//下月最初时间
+        result[1] = getStartTimeOfMonth(c);
         return result;
     }
 
 
     //获取当前月最初时间及最后时间（下个月最初时间）,不含本周时间
     public static Long[] getStartAndEndTimeOfMonth2(Calendar calendar) {
-        Calendar calendar1 = Calendar.getInstance();
-        calendar1.setTimeInMillis(calendar.getTimeInMillis());
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(calendar.getTimeInMillis());
         Long[] result = new Long[2];
-        result[0] = getStartTimeOfMonth(calendar);
-        result[1] = getStartTimeOfWeek(calendar1);
+        result[0] = getStartTimeOfMonth(c);
+        result[1] = getStartTimeOfWeek(c);
         return result;
     }
 
     //获取当前周最初时间及最后时间（下个月最初时间）
     public static Long[] getStartAndEndTimeOfWeek(Calendar calendar) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(calendar.getTimeInMillis());
         Long[] result = new Long[2];
-        result[0] = getStartTimeOfWeek(calendar);
-        calendar.add(Calendar.WEEK_OF_MONTH, 1);//下月最初时间
-        result[1] = getStartTimeOfWeek(calendar);
+        result[0] = getStartTimeOfWeek(c);
+        c.add(Calendar.WEEK_OF_MONTH, 1);//下月最初时间
+        result[1] = getStartTimeOfWeek(c);
         return result;
     }
 
