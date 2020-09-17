@@ -3840,15 +3840,15 @@ public class MsgDao {
         List<MsgAllBean> totals = new ArrayList<>();
         Realm realm = DaoUtil.open();
         try {
-            Number numberMin = realm.where(MsgAllBean.class).equalTo("gid", gid).and().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).min("timestamp");
-            Number numberMax = realm.where(MsgAllBean.class).notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).max("timestamp");
+            Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+            Number numberMin = realm.where(MsgAllBean.class).equalTo("gid", gid).and().in("msg_type", supportType).min("timestamp");
+            Number numberMax = realm.where(MsgAllBean.class).equalTo("gid", gid).and().in("msg_type", supportType).max("timestamp");
             Long[] timeRange = new Long[2];
             timeRange[0] = numberMin.longValue();
             timeRange[1] = numberMax.longValue();
             Calendar calendar = Calendar.getInstance();
             Long[] timeZone = null;
             boolean isCurrentWeek;
-            boolean isCurrentMonth;
             GroupPreviewBean bean = null;
             //本周
             if (isCurrentWeek = com.hm.cxpay.utils.DateUtils.isCurrentWeek(time)) {
@@ -3868,7 +3868,7 @@ public class MsgDao {
                 //获取当前月剩余周的本月数据
                 if (isCurrentWeek) {
                     calendar.setTimeInMillis(time);
-                    getCurrentMonthMsg(gid, groupBeanList, totals, realm, calendar);
+                    getCurrentMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar);
                     //下一月
                     int count = 1;
                     while (totals.size() < 160) {
@@ -3877,7 +3877,7 @@ public class MsgDao {
                         }
                         calendar.setTimeInMillis(time);
                         calendar.add(Calendar.MONTH, -count);
-                        getPrefMonthMsg(gid, groupBeanList, totals, realm, calendar, timeRange);
+                        getPrefMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar, timeRange);
                         count++;
                     }
                 } else {
@@ -3903,19 +3903,16 @@ public class MsgDao {
                             if (hasPre) {
                                 calendar.setTimeInMillis(time);
                                 calendar.add(Calendar.MONTH, -count);
-                                hasPre = getPrefMonthMsg(gid, groupBeanList, totals, realm, calendar, timeRange);
+                                hasPre = getPrefMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar, timeRange);
                             }
-
                             if (hasNext) {
                                 calendar.setTimeInMillis(time);
                                 calendar.add(Calendar.MONTH, count);
-                                hasNext = getNextMonthMsg(gid, groupBeanList, totals, realm, calendar, timeRange);
+                                hasNext = getNextMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar, timeRange);
                             }
-
                             count++;
                         }
                     }
-
                 }
             }
             realm.close();
@@ -3927,7 +3924,7 @@ public class MsgDao {
         return groupBeanList;
     }
 
-    private void getCurrentMonthMsg(String gid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar) {
+    private void getCurrentMonthMsgInGroup(String gid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar) {
         Long[] timeZone;
         GroupPreviewBean bean;
         timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth2(calendar);
@@ -3938,7 +3935,7 @@ public class MsgDao {
     }
 
     //返回结果表示是否还在时间范围之内，false，则无需再查了
-    private boolean getPrefMonthMsg(String gid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar, Long[] range) {
+    private boolean getPrefMonthMsgInGroup(String gid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar, Long[] range) {
         Long[] timeZone;
         GroupPreviewBean bean;
         timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth(calendar);
@@ -3957,7 +3954,7 @@ public class MsgDao {
     }
 
     //返回结果表示是否还在时间范围之内，false，则无需再查了
-    private boolean getNextMonthMsg(String gid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar, Long[] range) {
+    private boolean getNextMonthMsgInGroup(String gid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar, Long[] range) {
         Long[] timeZone;
         GroupPreviewBean bean;
         timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth(calendar);
@@ -3982,8 +3979,20 @@ public class MsgDao {
         List<MsgAllBean> totals = new ArrayList<>();
         Realm realm = DaoUtil.open();
         try {
+            Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+            Number numberMin = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and()
+                    .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                    .and().in("msg_type", supportType).min("timestamp");
+            Number numberMax = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and()
+                    .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                    .and().in("msg_type", supportType).max("timestamp");
+            Long[] timeRange = new Long[2];
+            timeRange[0] = numberMin.longValue();
+            timeRange[1] = numberMax.longValue();
+            Calendar calendar = Calendar.getInstance();
+            Long[] timeZone = null;
             boolean isCurrentWeek;
-            boolean isCurrentMonth;
+            GroupPreviewBean bean = null;
             //本周
             if (isCurrentWeek = com.hm.cxpay.utils.DateUtils.isCurrentWeek(time)) {
                 if (com.hm.cxpay.utils.DateUtils.isFirstWeek(time)) {
@@ -3991,32 +4000,62 @@ public class MsgDao {
                 } else {
                     isCurrentWeek = true;
                 }
-                Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(time);
-                Long[] timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfWeek(calendar);
-                getBetweenTimeMsgInUser(uid, "本周", groupBeanList, totals, realm, timeZone);
+                timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfWeek(calendar);
+                bean = getBetweenTimeMsgInUser(uid, "本周", totals, realm, timeZone);
+                if (bean != null) {
+                    groupBeanList.add(bean);
+                }
             }
-            if (totals.size() < 80) {
+            if (totals.size() < 160) {
                 //获取当前月剩余周的本月数据
                 if (isCurrentWeek) {
-                    Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(time);
-                    Long[] timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth2(calendar);
-                    getBetweenTimeMsgInUser(uid, "本月", groupBeanList, totals, realm, timeZone);
-                } else {
-                    if (isCurrentMonth = com.hm.cxpay.utils.DateUtils.isCurrentWeek(time)) {
-                        //前一个月
-                        Calendar calendar = Calendar.getInstance();
+                    getCurrentMonthMsgInUser(uid, groupBeanList, totals, realm, calendar);
+                    //下一月
+                    int count = 1;
+                    while (totals.size() < 160) {
+                        if (count == 6) {
+                            break;
+                        }
                         calendar.setTimeInMillis(time);
-                        calendar.add(Calendar.MONTH, 1);
-                        Long[] timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth(calendar);
+                        calendar.add(Calendar.MONTH, -count);
+                        getPrefMonthMsgInUser(uid, groupBeanList, totals, realm, calendar, timeRange);
+                        count++;
+                    }
+                } else {
+                    if (com.hm.cxpay.utils.DateUtils.isCurrentWeek(time)) {
+                        //前一个月
+                        calendar.setTimeInMillis(time);
+                        calendar.add(Calendar.MONTH, -1);
+                        timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth(calendar);
                         String timeString = com.hm.cxpay.utils.DateUtils.getYYYY_MM(time, "");
-                        getBetweenTimeMsgInUser(uid, timeString, groupBeanList, totals, realm, timeZone);
+                        bean = getBetweenTimeMsgInUser(uid, timeString, totals, realm, timeZone);
+                        if (bean != null) {
+                            groupBeanList.add(0, bean);
+                        }
                     } else {
                         //非当前月。获取前后月数据
-
+                        int count = 1;
+                        boolean hasPre = true;
+                        boolean hasNext = true;
+                        while (totals.size() < 160) {
+                            if (count == 3 || (!hasPre && !hasNext)) {
+                                break;
+                            }
+                            if (hasPre) {
+                                calendar.setTimeInMillis(time);
+                                calendar.add(Calendar.MONTH, -count);
+                                hasPre = getPrefMonthMsgInUser(uid, groupBeanList, totals, realm, calendar, timeRange);
+                            }
+                            if (hasNext) {
+                                calendar.setTimeInMillis(time);
+                                calendar.add(Calendar.MONTH, count);
+                                hasNext = getNextMonthMsgInUser(uid, groupBeanList, totals, realm, calendar, timeRange);
+                            }
+                            count++;
+                        }
                     }
-
                 }
             }
             realm.close();
@@ -4046,12 +4085,14 @@ public class MsgDao {
             GroupPreviewBean bean = new GroupPreviewBean();
             bean.setTime(time);
             bean.setMsgAllBeans(beans);
+            bean.setStartTime(beans.get(0).getTimestamp());
+            bean.setEndTime(beans.get(beans.size() - 1).getTimestamp());
             return bean;
         }
         return null;
     }
 
-    private void getBetweenTimeMsgInUser(Long uid, String time, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Long[] timeZone) {
+    private GroupPreviewBean getBetweenTimeMsgInUser(Long uid, String time, List<MsgAllBean> totals, Realm realm, Long[] timeZone) {
         List<MsgAllBean> beans;
         Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
         RealmResults results = realm.where(MsgAllBean.class)
@@ -4068,11 +4109,14 @@ public class MsgDao {
         if (results != null && results.size() > 0) {
             beans = realm.copyFromRealm(results);
             totals.addAll(beans);
-            GroupPreviewBean bean1 = new GroupPreviewBean();
-            bean1.setTime(time);
-            bean1.setMsgAllBeans(beans);
-            groupBeanList.add(bean1);
+            GroupPreviewBean bean = new GroupPreviewBean();
+            bean.setTime(time);
+            bean.setMsgAllBeans(beans);
+            bean.setStartTime(beans.get(0).getTimestamp());
+            bean.setEndTime(beans.get(beans.size() - 1).getTimestamp());
+            return bean;
         }
+        return null;
     }
 
     //检测时间是否在可查询时间范围之内
@@ -4089,6 +4133,54 @@ public class MsgDao {
 //                time[1]= range[1];
                 return true;
             }
+        }
+        return false;
+    }
+
+    private void getCurrentMonthMsgInUser(Long uid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar) {
+        Long[] timeZone;
+        GroupPreviewBean bean;
+        timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth2(calendar);
+        bean = getBetweenTimeMsgInUser(uid, "本月", totals, realm, timeZone);
+        if (bean != null) {
+            groupBeanList.add(0, bean);
+        }
+    }
+
+    //返回结果表示是否还在时间范围之内，false，则无需再查了
+    private boolean getPrefMonthMsgInUser(Long uid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar, Long[] range) {
+        Long[] timeZone;
+        GroupPreviewBean bean;
+        timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth(calendar);
+        String timeString = "";
+        if (com.hm.cxpay.utils.DateUtils.isCurrentYear(calendar.getTimeInMillis())) {
+            timeString = com.hm.cxpay.utils.DateUtils.getYYYY_MM(calendar.getTimeInMillis(), "MM月");
+        }
+        if (isInRange(timeZone, range)) {
+            bean = getBetweenTimeMsgInUser(uid, timeString, totals, realm, timeZone);
+            if (bean != null) {
+                groupBeanList.add(0, bean);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    //返回结果表示是否还在时间范围之内，false，则无需再查了
+    private boolean getNextMonthMsgInUser(Long uid, List<GroupPreviewBean> groupBeanList, List<MsgAllBean> totals, Realm realm, Calendar calendar, Long[] range) {
+        Long[] timeZone;
+        GroupPreviewBean bean;
+        timeZone = com.hm.cxpay.utils.DateUtils.getStartAndEndTimeOfMonth(calendar);
+        String timeString = "";
+        if (com.hm.cxpay.utils.DateUtils.isCurrentYear(calendar.getTimeInMillis())) {
+            timeString = com.hm.cxpay.utils.DateUtils.getYYYY_MM(calendar.getTimeInMillis(), "");
+        }
+        if (isInRange(timeZone, range)) {
+            bean = getBetweenTimeMsgInUser(uid, timeString, totals, realm, timeZone);
+            if (bean != null) {
+                groupBeanList.add(bean);
+            }
+            return true;
         }
         return false;
     }

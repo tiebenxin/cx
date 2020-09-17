@@ -265,7 +265,6 @@ public class DateUtils {
     }
 
     //当前时间是否是在本周
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public static boolean isCurrentMonth(long time) {
         Calendar calendar = Calendar.getInstance();
         Calendar calendar1 = Calendar.getInstance();
@@ -276,7 +275,7 @@ public class DateUtils {
         return false;
     }
 
-    //当前时间是否是在本周（未考虑跨年）
+    //当前时间是否是在本周
     public static boolean isCurrentWeek(long time) {
         Calendar calendar = Calendar.getInstance();
         Calendar calendar1 = Calendar.getInstance();
@@ -311,15 +310,36 @@ public class DateUtils {
 
     //获取当前周的最初时间
     public static long getStartTimeOfWeek(Calendar calendar) {
-        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
-        calendar.set(Calendar.WEEK_OF_YEAR, calendar.get(Calendar.WEEK_OF_YEAR));
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);//周日为一周的第一天
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        LogUtil.getLog().i("时间LOG--getStartTimeOfWeek", TimeToString.YYYY_MM_DD_HH_MM_SS(calendar.getTimeInMillis()));
-        return calendar.getTimeInMillis();
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
+        calendar1.set(Calendar.WEEK_OF_MONTH, calendar.get(Calendar.WEEK_OF_MONTH));
+        calendar1.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);//周日为一周的第一天
+        calendar1.set(Calendar.HOUR_OF_DAY, 0);
+        calendar1.set(Calendar.MINUTE, 0);
+        calendar1.set(Calendar.SECOND, 0);
+        calendar1.set(Calendar.MILLISECOND, 0);
+        if (calendar1.get(Calendar.MONTH) == calendar.get(Calendar.MONTH)) {
+            LogUtil.getLog().i("时间LOG--getStartTimeOfWeek", TimeToString.YYYY_MM_DD_HH_MM_SS(calendar1.getTimeInMillis()));
+        } else if (calendar1.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && calendar1.get(Calendar.MONTH) < calendar.get(Calendar.MONTH)) {
+            calendar1.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
+            calendar1.set(Calendar.DAY_OF_MONTH, 1);
+            calendar1.set(Calendar.HOUR_OF_DAY, 0);
+            calendar1.set(Calendar.MINUTE, 0);
+            calendar1.set(Calendar.SECOND, 0);
+            calendar1.set(Calendar.MILLISECOND, 0);
+            LogUtil.getLog().i("时间LOG--getStartTimeOfWeek--本年跨月", TimeToString.YYYY_MM_DD_HH_MM_SS(calendar1.getTimeInMillis()));
+        } else if (calendar1.get(Calendar.YEAR) < calendar.get(Calendar.YEAR) && calendar1.get(Calendar.MONTH) > calendar.get(Calendar.MONTH)) {
+            calendar1.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
+            calendar1.set(Calendar.DAY_OF_MONTH, 1);
+            calendar1.set(Calendar.HOUR_OF_DAY, 0);
+            calendar1.set(Calendar.MINUTE, 0);
+            calendar1.set(Calendar.SECOND, 0);
+            calendar1.set(Calendar.MILLISECOND, 0);
+            LogUtil.getLog().i("时间LOG--getStartTimeOfWeek--跨年跨月", TimeToString.YYYY_MM_DD_HH_MM_SS(calendar1.getTimeInMillis()));
+        }
+        return calendar1.getTimeInMillis();
+
     }
+
 
 }
