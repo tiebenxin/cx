@@ -126,10 +126,10 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                 .map(new Function<Integer, List<GroupPreviewBean>>() {
                     @Override
                     public List<GroupPreviewBean> apply(Integer integer) throws Exception {
-//                        return msgAction.getAllMediaMsg(gid, toUid, time);
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.MONTH, -1);
-                        return msgAction.getAllMediaMsg(gid, toUid, calendar.getTimeInMillis());
+                        return msgAction.getAllMediaMsg(gid, toUid, time);
+//                        Calendar calendar = Calendar.getInstance();
+//                        calendar.add(Calendar.MONTH, -1);
+//                        return msgAction.getAllMediaMsg(gid, toUid, calendar.getTimeInMillis());
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -140,6 +140,7 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                         dismissLoadingDialog();
                         previewBeans = list;
                         mAdapter.setData(list);
+                        bindingView.recyclerView.smoothScrollToPosition(list.size() - 1);
                     }
                 });
 
