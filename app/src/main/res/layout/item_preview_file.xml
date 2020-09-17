@@ -19,7 +19,7 @@
             android:textColor="@color/white"
             android:textSize="12sp" />
 
-        <android.support.v7.widget.RecyclerView
+        <net.cb.cb.library.view.recycler.NoScrollRecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
