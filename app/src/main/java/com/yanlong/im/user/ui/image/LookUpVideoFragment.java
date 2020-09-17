@@ -949,8 +949,8 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     @Override
     public void setPressHome(boolean b) {
         super.setPressHome(b);
-        if (b) {
-            reset();
-        }
+//        if (b) {
+//            reset();
+//        }
     }
 }
