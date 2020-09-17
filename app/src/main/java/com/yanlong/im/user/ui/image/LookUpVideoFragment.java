@@ -499,14 +499,14 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if(mediaPlayer!=null){
+        if (mediaPlayer != null) {
             changeVideoSize();
         }
     }
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-        if(mediaPlayer!=null){
+        if (mediaPlayer != null) {
             changeVideoSize();
         }
     }
@@ -635,9 +635,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     }
 
     private void setTime(int time, TextView tv) {
-//        if (tv.getId() == ui.tvStartTime.getId()) {
-//            LogUtil.getLog().i(TAG, "time=" + time);
-//        }
+        if (tv == null) {
+            return;
+        }
         int mHour = time / 3600;
         int mMin = time % 3600 / 60;
         int mSecond = time % 60;
@@ -709,6 +709,14 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     private void reset() {
         LogUtil.getLog().i(TAG, "reset");
         mCurrentPosition = 0;
+        if (ui != null) {
+            if (ui.tvStartTime != null) {
+                setTime(mCurrentPosition, ui.tvStartTime);
+            }
+            if (ui.seekBar != null) {
+                ui.seekBar.setProgress(mCurrentPosition);
+            }
+        }
     }
 
 
@@ -936,5 +944,13 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void setPressHome(boolean b) {
+        super.setPressHome(b);
+        if (b) {
+            reset();
+        }
     }
 }
