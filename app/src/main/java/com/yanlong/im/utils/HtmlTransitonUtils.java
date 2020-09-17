@@ -30,6 +30,7 @@ import com.yanlong.im.user.ui.InviteDetailsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
@@ -153,7 +154,13 @@ public class HtmlTransitonUtils {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
+
                 if(!TextUtils.isEmpty(id)){
+                    //去重
+                    if(System.currentTimeMillis()<(ClickFilter.time+ClickFilter.TIME_FT)){
+                        return;
+                    }
+                    ClickFilter.time=System.currentTimeMillis();
                     //邀请入群点击"去确认/已确认"，"去确认"为一个id=-99的对象
                     if(IDs!=null && id.equals("-99")){
                         // 被封号无权限
@@ -310,6 +317,11 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
+                    //去重
+                    if(System.currentTimeMillis()<(ClickFilter.time+ClickFilter.TIME_FT)){
+                        return;
+                    }
+                    ClickFilter.time=System.currentTimeMillis();
                     // 被封号无权限
                     if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
                         ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
@@ -411,6 +423,11 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
+                    //去重
+                    if(System.currentTimeMillis()<(ClickFilter.time+ClickFilter.TIME_FT)){
+                        return;
+                    }
+                    ClickFilter.time=System.currentTimeMillis();
                     // 被封号无权限
                     if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
                         ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
