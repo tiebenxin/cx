@@ -8,9 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.engine.cache.SafeKeyGenerator;
@@ -21,9 +19,7 @@ import com.luck.picture.lib.glide.OriginalKey;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
@@ -118,6 +114,31 @@ public class GroupHeadImageUtil {
             msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
         }
     }
+
+    //通过最新数据创建群头像
+    public static void creatAndSaveImgByList(Context mContext,Group group) {
+        MsgDao msgDao = new MsgDao();
+        if (group != null) {
+            int i = group.getUsers().size();
+            i = i > 9 ? 9 : i;
+            //头像地址
+            String url[] = new String[i];
+            for (int j = 0; j < i; j++) {
+                MemberUser userInfo = group.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+                url[j] = userInfo.getHead();
+            }
+            File file = GroupHeadImageUtil.synthesis(mContext, url);
+//        Glide.with(this).load(file)
+//                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+            msgDao.groupHeadImgCreate(group.getGid(), file.getAbsolutePath());
+        }
+    }
+
 
 
     public static File getCacheFileDisk(String url) {

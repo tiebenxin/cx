@@ -19,8 +19,11 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.chat.eventbus.CancelInviteEvent;
+import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventCancelInvite;
+import com.yanlong.im.chat.eventbus.EventShowDialog;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.InviteDetailsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -150,21 +153,29 @@ public class HtmlTransitonUtils {
                 if(!TextUtils.isEmpty(id)){
                     //邀请入群点击"去确认/已确认"，"去确认"为一个id=-99的对象
                     if(IDs!=null && id.equals("-99")){
-                        boolean toConfirm = true;
-                        if(!TextUtils.isEmpty(name)){
-                            if(name.equals("去确认")){
-                                toConfirm = true;//"去确认"
-                            }else {
-                                toConfirm = false;//"已确认"
+                        //判断我是否拥有权限，若不是群主管理员则提示无权限
+                        long myUid = UserAction.getMyId().longValue();
+                        if(new MsgDao().isMemberInCharge(gid,myUid)){
+                            boolean toConfirm = true;
+                            if(!TextUtils.isEmpty(name)){
+                                if(name.equals("去确认")){
+                                    toConfirm = true;//"去确认"
+                                }else {
+                                    toConfirm = false;//"已确认"
+                                }
                             }
+                            Intent intent = new Intent(context, InviteDetailsActivity.class);
+                            intent.putExtra(InviteDetailsActivity.ALL_INVITE_IDS, new Gson().toJson(IDs));
+                            intent.putExtra(InviteDetailsActivity.REMARK,remark==null ? "" : remark);
+                            intent.putExtra(InviteDetailsActivity.MSG_ID,msgId);
+                            intent.putExtra(InviteDetailsActivity.CONFIRM_STATE,toConfirm);
+                            intent.putExtra(InviteDetailsActivity.JOIN_TYPE,joinType);
+                            context.startActivity(intent);
+                        }else {
+                            EventShowDialog event = new EventShowDialog();
+                            event.setType(1);
+                            EventBus.getDefault().post(event);
                         }
-                        Intent intent = new Intent(context, InviteDetailsActivity.class);
-                        intent.putExtra(InviteDetailsActivity.ALL_INVITE_IDS, new Gson().toJson(IDs));
-                        intent.putExtra(InviteDetailsActivity.REMARK,remark==null ? "" : remark);
-                        intent.putExtra(InviteDetailsActivity.MSG_ID,msgId);
-                        intent.putExtra(InviteDetailsActivity.CONFIRM_STATE,toConfirm);
-                        intent.putExtra(InviteDetailsActivity.JOIN_TYPE,joinType);
-                        context.startActivity(intent);
                     }else {
                         goToUserInfoActivity(context, Long.valueOf(id), gid, true);
                     }
@@ -281,6 +292,39 @@ public class HtmlTransitonUtils {
             }
         }
         builder.append("分享的二维码加入了群聊");
+        //去撤销
+        if(list.get(list.size()-1).getId().equals("-98")){
+            HtmlBeanList lastBean = list.get(list.size()-1);
+            String content = "，" + lastBean.getName();
+            builder.append(content);
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length();
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    List<UserInfo> invitelist = new ArrayList<>();//被邀请人列表
+                    for (final HtmlBeanList bean : list){
+                        if(bean.getType() == 2){
+                            UserInfo userInfo = new UserInfo();
+                            userInfo.setUid(Long.valueOf(bean.getId()));
+                            userInfo.setName(bean.getName());
+                            invitelist.add(userInfo);
+                        }
+                    }
+                    EventCancelInvite event = new EventCancelInvite();
+                    event.setUserInfoList(invitelist);
+                    EventBus.getDefault().post(event);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
     }
 
     private void setType2(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
@@ -363,7 +407,7 @@ public class HtmlTransitonUtils {
                             invitelist.add(userInfo);
                         }
                     }
-                    CancelInviteEvent event = new CancelInviteEvent();
+                    EventCancelInvite event = new EventCancelInvite();
                     event.setUserInfoList(invitelist);
                     EventBus.getDefault().post(event);
                 }

@@ -29385,6 +29385,15 @@ public final class MsgBean {
      */
     com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * true 隐藏提醒消息（xx将xxx移除群聊）
+     * </pre>
+     *
+     * <code>bool hide_notice = 3;</code>
+     */
+    boolean getHideNotice();
   }
   /**
    * <pre>
@@ -29405,6 +29414,7 @@ public final class MsgBean {
     private RemoveGroupMember2Message() {
       uid_ = java.util.Collections.emptyList();
       noticeMessage_ = java.util.Collections.emptyList();
+      hideNotice_ = false;
     }
 
     @java.lang.Override
@@ -29468,6 +29478,11 @@ public final class MsgBean {
                   input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.parser(), extensionRegistry));
               break;
             }
+            case 24: {
+
+              hideNotice_ = input.readBool();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -29498,6 +29513,7 @@ public final class MsgBean {
               com.yanlong.im.utils.socket.MsgBean.RemoveGroupMember2Message.class, com.yanlong.im.utils.socket.MsgBean.RemoveGroupMember2Message.Builder.class);
     }
 
+    private int bitField0_;
     public static final int UID_FIELD_NUMBER = 1;
     private java.util.List<java.lang.Long> uid_;
     /**
@@ -29568,6 +29584,19 @@ public final class MsgBean {
       return noticeMessage_.get(index);
     }
 
+    public static final int HIDE_NOTICE_FIELD_NUMBER = 3;
+    private boolean hideNotice_;
+    /**
+     * <pre>
+     * true 隐藏提醒消息（xx将xxx移除群聊）
+     * </pre>
+     *
+     * <code>bool hide_notice = 3;</code>
+     */
+    public boolean getHideNotice() {
+      return hideNotice_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -29590,6 +29619,9 @@ public final class MsgBean {
       }
       for (int i = 0; i < noticeMessage_.size(); i++) {
         output.writeMessage(2, noticeMessage_.get(i));
+      }
+      if (hideNotice_ != false) {
+        output.writeBool(3, hideNotice_);
       }
       unknownFields.writeTo(output);
     }
@@ -29617,6 +29649,10 @@ public final class MsgBean {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, noticeMessage_.get(i));
       }
+      if (hideNotice_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, hideNotice_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -29637,6 +29673,8 @@ public final class MsgBean {
           .equals(other.getUidList());
       result = result && getNoticeMessageList()
           .equals(other.getNoticeMessageList());
+      result = result && (getHideNotice()
+          == other.getHideNotice());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -29656,6 +29694,9 @@ public final class MsgBean {
         hash = (37 * hash) + NOTICE_MESSAGE_FIELD_NUMBER;
         hash = (53 * hash) + getNoticeMessageList().hashCode();
       }
+      hash = (37 * hash) + HIDE_NOTICE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getHideNotice());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -29798,6 +29839,8 @@ public final class MsgBean {
         } else {
           noticeMessageBuilder_.clear();
         }
+        hideNotice_ = false;
+
         return this;
       }
 
@@ -29821,6 +29864,7 @@ public final class MsgBean {
       public com.yanlong.im.utils.socket.MsgBean.RemoveGroupMember2Message buildPartial() {
         com.yanlong.im.utils.socket.MsgBean.RemoveGroupMember2Message result = new com.yanlong.im.utils.socket.MsgBean.RemoveGroupMember2Message(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           uid_ = java.util.Collections.unmodifiableList(uid_);
           bitField0_ = (bitField0_ & ~0x00000001);
@@ -29835,6 +29879,8 @@ public final class MsgBean {
         } else {
           result.noticeMessage_ = noticeMessageBuilder_.build();
         }
+        result.hideNotice_ = hideNotice_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -29911,6 +29957,9 @@ public final class MsgBean {
               noticeMessageBuilder_.addAllMessages(other.noticeMessage_);
             }
           }
+        }
+        if (other.getHideNotice() != false) {
+          setHideNotice(other.getHideNotice());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -30272,6 +30321,44 @@ public final class MsgBean {
           noticeMessage_ = null;
         }
         return noticeMessageBuilder_;
+      }
+
+      private boolean hideNotice_ ;
+      /**
+       * <pre>
+       * true 隐藏提醒消息（xx将xxx移除群聊）
+       * </pre>
+       *
+       * <code>bool hide_notice = 3;</code>
+       */
+      public boolean getHideNotice() {
+        return hideNotice_;
+      }
+      /**
+       * <pre>
+       * true 隐藏提醒消息（xx将xxx移除群聊）
+       * </pre>
+       *
+       * <code>bool hide_notice = 3;</code>
+       */
+      public Builder setHideNotice(boolean value) {
+        
+        hideNotice_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * true 隐藏提醒消息（xx将xxx移除群聊）
+       * </pre>
+       *
+       * <code>bool hide_notice = 3;</code>
+       */
+      public Builder clearHideNotice() {
+        
+        hideNotice_ = false;
+        onChanged();
+        return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -67517,187 +67604,187 @@ public final class MsgBean {
       "(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGroupType\022\024\n" +
       "\014inviter_name\030\004 \001(\t\"E\n\030RemoveGroupMember" +
       "Message\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004" +
-      "name\030\003 \001(\t\"U\n\031RemoveGroupMember2Message\022" +
+      "name\030\003 \001(\t\"j\n\031RemoveGroupMember2Message\022" +
       "\013\n\003uid\030\001 \003(\004\022+\n\016notice_message\030\002 \003(\0132\023.G" +
-      "roupNoticeMessage\";\n\030ChangeGroupMasterMe" +
-      "ssage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"\211" +
-      "\001\n\027ChangeViceAdminsMessage\022$\n\007members\030\001 " +
-      "\003(\0132\023.GroupNoticeMessage\022)\n\003opt\030\002 \001(\0162\034." +
-      "ChangeViceAdminsMessage.Opt\"\035\n\003Opt\022\n\n\006RE" +
-      "MOVE\020\000\022\n\n\006APPEND\020\001\"\253\001\n\026ChangeGroupMetaMe" +
-      "ssage\022\016\n\004name\030\001 \001(\tH\000\022\030\n\016protect_member\030" +
-      "\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(\tH\000\022\021\n\007shut_up\030\004 \001" +
-      "(\010H\000\022!\n\027screenshot_notification\030\005 \001(\010H\000\022" +
-      "\023\n\tforbbiden\030\006 \001(\010H\000B\n\n\010real_msg\"@\n\023Dest" +
-      "royGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002" +
-      " \001(\t\022\014\n\004name\030\003 \001(\t\"2\n\031ChangeSurvivalTime" +
-      "Message\022\025\n\rsurvival_time\030\001 \001(\021\"S\n\021P2PAuV" +
-      "ideoMessage\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoTy" +
-      "pe\022\021\n\toperation\030\002 \001(\t\022\014\n\004desc\030\003 \001(\t\"6\n\025P" +
-      "2PAuVideoDialMessage\022\035\n\007av_type\030\001 \001(\0162\014." +
-      "AuVideoType\"H\n\023ForceOfflineMessage\0221\n\024fo" +
-      "rce_offline_reason\030\001 \001(\0162\023.ForceOfflineR" +
-      "eason\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(\t\".\n" +
-      "\020RecommendMessage\022\013\n\003uid\030\001 \001(\004\022\r\n\005phone\030" +
-      "\002 \001(\004\"\215\001\n\027ActiveStatChangeMessage\0228\n\013act" +
-      "ive_type\030\001 \001(\0162#.ActiveStatChangeMessage" +
-      ".ActiveType\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActive" +
-      "Type\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023Resour" +
-      "ceLockMessage\022A\n\022resource_lock_type\030\001 \001(" +
-      "\0162%.ResourceLockMessage.ResourceLockType" +
-      "\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLockType\022\024\n\020CL" +
-      "OUDREDENVELOPE\020\000\" \n\013ReadMessage\022\021\n\ttimes" +
-      "tamp\030\001 \001(\004\"\027\n\025TakeScreenshotMessage\"\025\n\023H" +
-      "istoryCleanMessage\"\235\001\n\nRefMessage\022\021\n\ttim" +
-      "estamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.Message" +
-      "Type\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\020" +
-      "\n\010nickname\030\005 \001(\t\022\016\n\006avatar\030\006 \001(\t\022\013\n\003url\030" +
-      "\007 \001(\t\022\013\n\003msg\030\010 \001(\t\"\200\001\n\024ReplySpecificMess" +
-      "age\022\034\n\007ref_msg\030\001 \001(\0132\013.RefMessage\022 \n\010cha" +
-      "t_msg\030\002 \001(\0132\014.ChatMessageH\000\022\034\n\006at_msg\030\003 " +
-      "\001(\0132\n.AtMessageH\000B\n\n\010real_msg\"\253\002\n\023Switch" +
-      "ChangeMessage\0224\n\013switch_type\030\001 \001(\0162\037.Swi" +
-      "tchChangeMessage.SwitchType\022\024\n\014switch_va" +
-      "lue\030\002 \001(\005\022$\n\007members\030\003 \003(\0132\023.GroupNotice" +
-      "Message\"\241\001\n\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020" +
-      "\001\022\017\n\013MASTER_READ\020\002\022\013\n\007SHUT_UP\020\003\022\031\n\025OPEN_" +
-      "UP_RED_ENVELOPER\020\004\022\016\n\nSCREENSHOT\020\005\022\r\n\tGE" +
-      "O_TRACK\020\006\022\021\n\rFRIEND_LOCKED\020\007\022\025\n\021FRIEND_D" +
-      "EACTIVATE\020\010\"\265\001\n\020PayResultMessage\022+\n\006resu" +
-      "lt\030\001 \001(\0162\033.PayResultMessage.PayResult\022\020\n" +
-      "\010trade_id\030\002 \001(\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\ter" +
-      "ror_msg\030\004 \001(\t\022\014\n\004sign\030\005 \001(\t\".\n\tPayResult" +
-      "\022\013\n\007SUCCESS\020\000\022\010\n\004FAIL\020\001\022\n\n\006REFUND\020\002\"&\n\022T" +
-      "ransNotifyMessage\022\020\n\010trade_id\030\001 \001(\004\".\n\016L" +
-      "abelValueItem\022\r\n\005label\030\001 \001(\t\022\r\n\005value\030\002 " +
-      "\001(\t\"\366\001\n\027BalanceAssistantMessage\022\020\n\010trade" +
-      "_id\030\001 \001(\004\0228\n\013detail_type\030\002 \001(\0162#.Balance" +
-      "AssistantMessage.DetailType\022\014\n\004time\030\003 \001(" +
-      "\004\022\r\n\005title\030\004 \001(\t\022\021\n\tamt_label\030\005 \001(\t\022\013\n\003a" +
-      "mt\030\006 \001(\004\022\035\n\004item\030\007 \003(\0132\017.LabelValueItem\"" +
-      "3\n\nDetailType\022\010\n\004NONE\020\000\022\020\n\014RED_ENVELOPE\020" +
-      "\001\022\t\n\005TRANS\020\002\"5\n\021OfflineMsgRequest\022\020\n\010req" +
-      "Count\030\001 \001(\005\022\016\n\006latest\030\002 \001(\010\"1\n\022ChangeOnl" +
-      "ineStatus\022\033\n\004stat\030\001 \001(\0162\r.OnlineStatus\"J" +
-      "\n\tReportMsg\0221\n\022changeOnlineStatus\030d \001(\0132" +
-      "\023.ChangeOnlineStatusH\000B\n\n\010real_msg\"H\n\tRe" +
-      "qRspMsg\022/\n\021offlineMsgRequest\030d \001(\0132\022.Off" +
-      "lineMsgRequestH\000B\n\n\010real_msg\"\236\001\n\nAckMess" +
-      "age\022 \n\013reject_type\030\001 \001(\0162\013.RejectType\022\022\n" +
-      "\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttim" +
-      "estamp\030\004 \001(\004\022\014\n\004desc\030\005 \001(\t\022)\n\rmergedNext" +
-      "Req\030\006 \001(\0132\022.OfflineMsgRequest\"*\n\022AuthReq" +
-      "uestMessage\022\024\n\014access_token\030\001 \001(\t\":\n\023Aut" +
-      "hResponseMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\tti" +
-      "mestamp\030\002 \001(\004\"\333\024\n\020UniversalMessage\022\022\n\nre" +
-      "quest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_fr" +
-      "om\030\003 \001(\r\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMe" +
-      "ssage.WrapMessage\032\337\023\n\013WrapMessage\022\021\n\ttim" +
-      "estamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.Message" +
-      "Type\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013" +
-      "\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030" +
-      "\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\025\n\rsurvival_ti" +
-      "me\030\t \001(\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_uid\030" +
-      "\013 \001(\004\022\020\n\010executor\030\014 \001(\004\022\017\n\007read_ts\030\r \001(\004" +
-      "\022\031\n\021executor_nickname\030\016 \001(\004\022\027\n\017executor_" +
-      "avatar\030\017 \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessag" +
-      "eH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014" +
-      "red_envelope\030\222N \001(\0132\023.RedEnvelopeMessage" +
-      "H\000\022;\n\024receive_red_envelope\030\223N \001(\0132\032.Rece" +
-      "iveRedEnvelopeMessageH\000\022%\n\010transfer\030\224N \001" +
-      "(\0132\020.TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r" +
-      ".StampMessageH\000\022.\n\rbusiness_card\030\226N \001(\0132" +
-      "\024.BusinessCardMessageH\000\022\037\n\005voice\030\227N \001(\0132" +
-      "\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessag" +
-      "eH\000\022\'\n\tassistant\030\231N \001(\0132\021.AssistantMessa" +
-      "geH\000\022!\n\006cancel\030\232N \001(\0132\016.CancelMessageH\000\022" +
-      "*\n\013short_video\030\233N \001(\0132\022.ShortVideoMessag" +
-      "eH\000\0226\n\021snapshot_location\030\234N \001(\0132\030.Snapsh" +
-      "otLocationMessageH\000\0222\n\017take_scrennshot\030\235" +
-      "N \001(\0132\026.TakeScreenshotMessageH\000\0228\n\022shipp" +
-      "ed_expression\030\236N \001(\0132\031.ShippedExpression" +
-      "MessageH\000\022:\n\023assistant_promotion\030\237N \001(\0132" +
-      "\032.AssistantPromotionMessageH\000\0220\n\016request" +
-      "_friend\030\364N \001(\0132\025.RequestFriendMessageH\000\022" +
-      "5\n\021accept_be_friends\030\365N \001(\0132\027.AcceptBeFr" +
-      "iendsMessageH\000\022.\n\rremove_friend\030\366N \001(\0132\024" +
-      ".RemoveFriendMessageH\000\022.\n\rhistory_clean\030" +
-      "\367N \001(\0132\024.HistoryCleanMessageH\000\022\'\n\005reply\030" +
-      "\370N \001(\0132\025.ReplySpecificMessageH\000\022.\n\rreque" +
-      "st_group\030\330O \001(\0132\024.RequestGroupMessageH\000\022" +
-      "1\n\017accept_be_group\030\331O \001(\0132\025.AcceptBeGrou" +
-      "pMessageH\000\0229\n\023remove_group_member\030\332O \001(\013" +
-      "2\031.RemoveGroupMemberMessageH\000\0229\n\023change_" +
-      "group_master\030\333O \001(\0132\031.ChangeGroupMasterM" +
-      "essageH\000\022.\n\rdestroy_group\030\336O \001(\0132\024.Destr" +
-      "oyGroupMessageH\000\022;\n\024remove_group_member2" +
-      "\030\337O \001(\0132\032.RemoveGroupMember2MessageH\000\022&\n" +
-      "\tout_group\030\342O \001(\0132\020.OutGroupMessageH\000\0225\n" +
-      "\021change_group_meta\030\344O \001(\0132\027.ChangeGroupM" +
-      "etaMessageH\000\022;\n\024change_survival_time\030\345O " +
-      "\001(\0132\032.ChangeSurvivalTimeMessageH\000\022+\n\014p2p" +
-      "_au_video\030\352O \001(\0132\022.P2PAuVideoMessageH\000\0224" +
-      "\n\021p2p_au_video_dial\030\353O \001(\0132\026.P2PAuVideoD" +
-      "ialMessageH\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessag" +
-      "eH\000\022&\n\tsend_file\030\355O \001(\0132\020.SendFileMessag" +
-      "eH\000\0227\n\022change_vice_admins\030\356O \001(\0132\030.Chang" +
-      "eViceAdminsMessageH\000\022\'\n\trecommend\030\360O \001(\013" +
-      "2\021.RecommendMessageH\000\022.\n\rforce_offline\030\274" +
-      "P \001(\0132\024.ForceOfflineMessageH\000\0227\n\022active_" +
-      "stat_change\030\275P \001(\0132\030.ActiveStatChangeMes" +
-      "sageH\000\022.\n\rresource_lock\030\276P \001(\0132\024.Resourc" +
-      "eLockMessageH\000\022.\n\rswitch_change\030\277P \001(\0132\024" +
-      ".SwitchChangeMessageH\000\0222\n\023multi_terminal" +
-      "_sync\030\300P \001(\0132\022.MultiTerminalSyncH\000\0229\n\023re" +
-      "port_geo_position\030\301P \001(\0132\031.ReportGeoPosi" +
-      "tionMessageH\000\0228\n\026message_processed_sync\030" +
-      "\302P \001(\0132\025.MessageProcessedSyncH\000\022(\n\npay_r" +
-      "esult\030\261T \001(\0132\021.PayResultMessageH\000\0226\n\021bal" +
-      "ance_assistant\030\262T \001(\0132\030.BalanceAssistant" +
-      "MessageH\000\022,\n\014trans_notify\030\263T \001(\0132\023.Trans" +
-      "NotifyMessageH\000B\n\n\010real_msg*\246\007\n\013MessageT" +
-      "ype\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPE" +
-      "R\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSF" +
-      "ER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VO" +
-      "ICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n" +
-      "\022\017\n\013SHORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020\014" +
-      "\022\023\n\017TAKE_SCREENSHOT\020\r\022\026\n\022SHIPPED_EXPRESS" +
-      "ION\020\016\022\021\n\rHISTORY_CLEAN\020\017\022\022\n\016REPLY_SPECIF" +
-      "IC\020\020\022\027\n\023ASSISTANT_PROMOTION\020\021\022\022\n\016REQUEST" +
-      "_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMO" +
-      "VE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT" +
-      "_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023" +
-      "CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_ME" +
-      "MBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020" +
-      "n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHANGE_SURVI" +
-      "VAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_V" +
-      "IDEO_DIAL\020w\022\010\n\004READ\020x\022\r\n\tSEND_FILE\020y\022\026\n\022" +
-      "CHANGE_VICE_ADMINS\020z\022\026\n\022GROUP_ANNOUNCEME" +
-      "NT\020{\022\r\n\tRECOMMEND\020|\022\032\n\026MESSAGE_PROCESSED" +
-      "_SYNC\020}\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_ST" +
-      "AT_CHANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\rSWIT" +
-      "CH_CHANGE\020\313\001\022\030\n\023MULTI_TERMINAL_SYNC\020\314\001\022\030" +
-      "\n\023REPORT_GEO_POSITION\020\315\001\022\017\n\nPAY_RESULT\020\264" +
-      "\002\022\026\n\021BALANCE_ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIF" +
-      "Y\020\266\002*&\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022\n\n\006HIDD" +
-      "EN\020\001*\205\001\n\022ForceOfflineReason\022\014\n\010CONFLICT\020" +
-      "\000\022\n\n\006LOCKED\020\001\022\024\n\020PASSWORD_CHANGED\020\002\022\025\n\021U" +
-      "SER_DEACTIVATING\020\003\022\027\n\023BOUND_PHONE_CHANGE" +
-      "D\020\004\022\017\n\013APPEAL_PASS\020\005*\333\001\n\nRejectType\022\014\n\010A" +
-      "CCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER" +
-      "\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_NOT_ALLOWE" +
-      "D\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\017\n\013SELF_LOCKED\020\005\022" +
-      "\021\n\rFRIEND_LOCKED\020\006\022\025\n\021FRIEND_DEACTIVATE\020" +
-      "\007\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAILABLE" +
-      "\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSI" +
-      "VE\020\001*\226\001\n\025MultiTerminalSyncType\022\023\n\017MY_SEL" +
-      "F_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001\022\024\n\020MY" +
-      "_GROUP_CHANGED\020\002\022\025\n\021MY_FRIEND_DELETED\020\003\022" +
-      "\021\n\rMY_GROUP_QUIT\020\004\022\021\n\rMY_GROUP_READ\020\005*(\n" +
-      "\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*" +
-      "#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033" +
-      "com.yanlong.im.utils.socketB\007MsgBeanb\006pr" +
-      "oto3"
+      "roupNoticeMessage\022\023\n\013hide_notice\030\003 \001(\010\";" +
+      "\n\030ChangeGroupMasterMessage\022\013\n\003uid\030\001 \001(\004\022" +
+      "\022\n\nmembername\030\002 \001(\t\"\211\001\n\027ChangeViceAdmins" +
+      "Message\022$\n\007members\030\001 \003(\0132\023.GroupNoticeMe" +
+      "ssage\022)\n\003opt\030\002 \001(\0162\034.ChangeViceAdminsMes" +
+      "sage.Opt\"\035\n\003Opt\022\n\n\006REMOVE\020\000\022\n\n\006APPEND\020\001\"" +
+      "\253\001\n\026ChangeGroupMetaMessage\022\016\n\004name\030\001 \001(\t" +
+      "H\000\022\030\n\016protect_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003" +
+      " \001(\tH\000\022\021\n\007shut_up\030\004 \001(\010H\000\022!\n\027screenshot_" +
+      "notification\030\005 \001(\010H\000\022\023\n\tforbbiden\030\006 \001(\010H" +
+      "\000B\n\n\010real_msg\"@\n\023DestroyGroupMessage\022\013\n\003" +
+      "uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"" +
+      "2\n\031ChangeSurvivalTimeMessage\022\025\n\rsurvival" +
+      "_time\030\001 \001(\021\"S\n\021P2PAuVideoMessage\022\035\n\007av_t" +
+      "ype\030\001 \001(\0162\014.AuVideoType\022\021\n\toperation\030\002 \001" +
+      "(\t\022\014\n\004desc\030\003 \001(\t\"6\n\025P2PAuVideoDialMessag" +
+      "e\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoType\"H\n\023Forc" +
+      "eOfflineMessage\0221\n\024force_offline_reason\030" +
+      "\001 \001(\0162\023.ForceOfflineReason\"\036\n\017OutGroupMe" +
+      "ssage\022\013\n\003gid\030\001 \001(\t\".\n\020RecommendMessage\022\013" +
+      "\n\003uid\030\001 \001(\004\022\r\n\005phone\030\002 \001(\004\"\215\001\n\027ActiveSta" +
+      "tChangeMessage\0228\n\013active_type\030\001 \001(\0162#.Ac" +
+      "tiveStatChangeMessage.ActiveType\022\021\n\ttime" +
+      "stamp\030\002 \001(\004\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022\n" +
+      "\n\006ONLINE\020\001\"\220\001\n\023ResourceLockMessage\022A\n\022re" +
+      "source_lock_type\030\001 \001(\0162%.ResourceLockMes" +
+      "sage.ResourceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020R" +
+      "esourceLockType\022\024\n\020CLOUDREDENVELOPE\020\000\" \n" +
+      "\013ReadMessage\022\021\n\ttimestamp\030\001 \001(\004\"\027\n\025TakeS" +
+      "creenshotMessage\"\025\n\023HistoryCleanMessage\"" +
+      "\235\001\n\nRefMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg" +
+      "_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(" +
+      "\t\022\020\n\010from_uid\030\004 \001(\004\022\020\n\010nickname\030\005 \001(\t\022\016\n" +
+      "\006avatar\030\006 \001(\t\022\013\n\003url\030\007 \001(\t\022\013\n\003msg\030\010 \001(\t\"" +
+      "\200\001\n\024ReplySpecificMessage\022\034\n\007ref_msg\030\001 \001(" +
+      "\0132\013.RefMessage\022 \n\010chat_msg\030\002 \001(\0132\014.ChatM" +
+      "essageH\000\022\034\n\006at_msg\030\003 \001(\0132\n.AtMessageH\000B\n" +
+      "\n\010real_msg\"\253\002\n\023SwitchChangeMessage\0224\n\013sw" +
+      "itch_type\030\001 \001(\0162\037.SwitchChangeMessage.Sw" +
+      "itchType\022\024\n\014switch_value\030\002 \001(\005\022$\n\007member" +
+      "s\030\003 \003(\0132\023.GroupNoticeMessage\"\241\001\n\nSwitchT" +
+      "ype\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013MASTER_READ\020\002\022" +
+      "\013\n\007SHUT_UP\020\003\022\031\n\025OPEN_UP_RED_ENVELOPER\020\004\022" +
+      "\016\n\nSCREENSHOT\020\005\022\r\n\tGEO_TRACK\020\006\022\021\n\rFRIEND" +
+      "_LOCKED\020\007\022\025\n\021FRIEND_DEACTIVATE\020\010\"\265\001\n\020Pay" +
+      "ResultMessage\022+\n\006result\030\001 \001(\0162\033.PayResul" +
+      "tMessage.PayResult\022\020\n\010trade_id\030\002 \001(\004\022\021\n\t" +
+      "action_id\030\003 \001(\t\022\021\n\terror_msg\030\004 \001(\t\022\014\n\004si" +
+      "gn\030\005 \001(\t\".\n\tPayResult\022\013\n\007SUCCESS\020\000\022\010\n\004FA" +
+      "IL\020\001\022\n\n\006REFUND\020\002\"&\n\022TransNotifyMessage\022\020" +
+      "\n\010trade_id\030\001 \001(\004\".\n\016LabelValueItem\022\r\n\005la" +
+      "bel\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\366\001\n\027BalanceAssi" +
+      "stantMessage\022\020\n\010trade_id\030\001 \001(\004\0228\n\013detail" +
+      "_type\030\002 \001(\0162#.BalanceAssistantMessage.De" +
+      "tailType\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 \001(\t\022\021\n" +
+      "\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004item\030\007 " +
+      "\003(\0132\017.LabelValueItem\"3\n\nDetailType\022\010\n\004NO" +
+      "NE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"5\n\021Off" +
+      "lineMsgRequest\022\020\n\010reqCount\030\001 \001(\005\022\016\n\006late" +
+      "st\030\002 \001(\010\"1\n\022ChangeOnlineStatus\022\033\n\004stat\030\001" +
+      " \001(\0162\r.OnlineStatus\"J\n\tReportMsg\0221\n\022chan" +
+      "geOnlineStatus\030d \001(\0132\023.ChangeOnlineStatu" +
+      "sH\000B\n\n\010real_msg\"H\n\tReqRspMsg\022/\n\021offlineM" +
+      "sgRequest\030d \001(\0132\022.OfflineMsgRequestH\000B\n\n" +
+      "\010real_msg\"\236\001\n\nAckMessage\022 \n\013reject_type\030" +
+      "\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 \001(\t\022\016" +
+      "\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\022\014\n\004des" +
+      "c\030\005 \001(\t\022)\n\rmergedNextReq\030\006 \001(\0132\022.Offline" +
+      "MsgRequest\"*\n\022AuthRequestMessage\022\024\n\014acce" +
+      "ss_token\030\001 \001(\t\":\n\023AuthResponseMessage\022\020\n" +
+      "\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030\002 \001(\004\"\333\024\n\020U" +
+      "niversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006t" +
+      "o_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001(\r\022/\n\007wrapMsg" +
+      "\030\221N \003(\0132\035.UniversalMessage.WrapMessage\032\337" +
+      "\023\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg" +
+      "_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(" +
+      "\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nick" +
+      "name\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmembername" +
+      "\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\023\n\013device_" +
+      "type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\020\n\010executor\030\014" +
+      " \001(\004\022\017\n\007read_ts\030\r \001(\004\022\031\n\021executor_nickna" +
+      "me\030\016 \001(\004\022\027\n\017executor_avatar\030\017 \001(\004\022\035\n\004cha" +
+      "t\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\013" +
+      "2\r.ImageMessageH\000\022,\n\014red_envelope\030\222N \001(\013" +
+      "2\023.RedEnvelopeMessageH\000\022;\n\024receive_red_e" +
+      "nvelope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessa" +
+      "geH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMessag" +
+      "eH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\r" +
+      "business_card\030\226N \001(\0132\024.BusinessCardMessa" +
+      "geH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n" +
+      "\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassistant\030\231N" +
+      " \001(\0132\021.AssistantMessageH\000\022!\n\006cancel\030\232N \001" +
+      "(\0132\016.CancelMessageH\000\022*\n\013short_video\030\233N \001" +
+      "(\0132\022.ShortVideoMessageH\000\0226\n\021snapshot_loc" +
+      "ation\030\234N \001(\0132\030.SnapshotLocationMessageH\000" +
+      "\0222\n\017take_scrennshot\030\235N \001(\0132\026.TakeScreens" +
+      "hotMessageH\000\0228\n\022shipped_expression\030\236N \001(" +
+      "\0132\031.ShippedExpressionMessageH\000\022:\n\023assist" +
+      "ant_promotion\030\237N \001(\0132\032.AssistantPromotio" +
+      "nMessageH\000\0220\n\016request_friend\030\364N \001(\0132\025.Re" +
+      "questFriendMessageH\000\0225\n\021accept_be_friend" +
+      "s\030\365N \001(\0132\027.AcceptBeFriendsMessageH\000\022.\n\rr" +
+      "emove_friend\030\366N \001(\0132\024.RemoveFriendMessag" +
+      "eH\000\022.\n\rhistory_clean\030\367N \001(\0132\024.HistoryCle" +
+      "anMessageH\000\022\'\n\005reply\030\370N \001(\0132\025.ReplySpeci" +
+      "ficMessageH\000\022.\n\rrequest_group\030\330O \001(\0132\024.R" +
+      "equestGroupMessageH\000\0221\n\017accept_be_group\030" +
+      "\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023remov" +
+      "e_group_member\030\332O \001(\0132\031.RemoveGroupMembe" +
+      "rMessageH\000\0229\n\023change_group_master\030\333O \001(\013" +
+      "2\031.ChangeGroupMasterMessageH\000\022.\n\rdestroy" +
+      "_group\030\336O \001(\0132\024.DestroyGroupMessageH\000\022;\n" +
+      "\024remove_group_member2\030\337O \001(\0132\032.RemoveGro" +
+      "upMember2MessageH\000\022&\n\tout_group\030\342O \001(\0132\020" +
+      ".OutGroupMessageH\000\0225\n\021change_group_meta\030" +
+      "\344O \001(\0132\027.ChangeGroupMetaMessageH\000\022;\n\024cha" +
+      "nge_survival_time\030\345O \001(\0132\032.ChangeSurviva" +
+      "lTimeMessageH\000\022+\n\014p2p_au_video\030\352O \001(\0132\022." +
+      "P2PAuVideoMessageH\000\0224\n\021p2p_au_video_dial" +
+      "\030\353O \001(\0132\026.P2PAuVideoDialMessageH\000\022\035\n\004rea" +
+      "d\030\354O \001(\0132\014.ReadMessageH\000\022&\n\tsend_file\030\355O" +
+      " \001(\0132\020.SendFileMessageH\000\0227\n\022change_vice_" +
+      "admins\030\356O \001(\0132\030.ChangeViceAdminsMessageH" +
+      "\000\022\'\n\trecommend\030\360O \001(\0132\021.RecommendMessage" +
+      "H\000\022.\n\rforce_offline\030\274P \001(\0132\024.ForceOfflin" +
+      "eMessageH\000\0227\n\022active_stat_change\030\275P \001(\0132" +
+      "\030.ActiveStatChangeMessageH\000\022.\n\rresource_" +
+      "lock\030\276P \001(\0132\024.ResourceLockMessageH\000\022.\n\rs" +
+      "witch_change\030\277P \001(\0132\024.SwitchChangeMessag" +
+      "eH\000\0222\n\023multi_terminal_sync\030\300P \001(\0132\022.Mult" +
+      "iTerminalSyncH\000\0229\n\023report_geo_position\030\301" +
+      "P \001(\0132\031.ReportGeoPositionMessageH\000\0228\n\026me" +
+      "ssage_processed_sync\030\302P \001(\0132\025.MessagePro" +
+      "cessedSyncH\000\022(\n\npay_result\030\261T \001(\0132\021.PayR" +
+      "esultMessageH\000\0226\n\021balance_assistant\030\262T \001" +
+      "(\0132\030.BalanceAssistantMessageH\000\022,\n\014trans_" +
+      "notify\030\263T \001(\0132\023.TransNotifyMessageH\000B\n\n\010" +
+      "real_msg*\246\007\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IM" +
+      "AGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_" +
+      "ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\r" +
+      "BUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tAS" +
+      "SISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\025" +
+      "\n\021SNAPSHOT_LOCATION\020\014\022\023\n\017TAKE_SCREENSHOT" +
+      "\020\r\022\026\n\022SHIPPED_EXPRESSION\020\016\022\021\n\rHISTORY_CL" +
+      "EAN\020\017\022\022\n\016REPLY_SPECIFIC\020\020\022\027\n\023ASSISTANT_P" +
+      "ROMOTION\020\021\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT" +
+      "_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQU" +
+      "EST_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMO" +
+      "VE_GROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER" +
+      "\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022\021\n\rDESTROY_" +
+      "GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GROUP_M" +
+      "ETA\020p\022\030\n\024CHANGE_SURVIVAL_TIME\020q\022\020\n\014P2P_A" +
+      "U_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ" +
+      "\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_VICE_ADMINS\020" +
+      "z\022\026\n\022GROUP_ANNOUNCEMENT\020{\022\r\n\tRECOMMEND\020|" +
+      "\022\032\n\026MESSAGE_PROCESSED_SYNC\020}\022\022\n\rFORCE_OF" +
+      "FLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRES" +
+      "OURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\030\n\023MUL" +
+      "TI_TERMINAL_SYNC\020\314\001\022\030\n\023REPORT_GEO_POSITI" +
+      "ON\020\315\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BALANCE_ASSIST" +
+      "ANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*&\n\014OnlineStatu" +
+      "s\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*\205\001\n\022ForceOffli" +
+      "neReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED\020\001\022\024\n\020PA" +
+      "SSWORD_CHANGED\020\002\022\025\n\021USER_DEACTIVATING\020\003\022" +
+      "\027\n\023BOUND_PHONE_CHANGED\020\004\022\017\n\013APPEAL_PASS\020" +
+      "\005*\333\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FR" +
+      "IENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020" +
+      "\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\021\n\rFRIEND_FROZE" +
+      "N\020\004\022\017\n\013SELF_LOCKED\020\005\022\021\n\rFRIEND_LOCKED\020\006\022" +
+      "\025\n\021FRIEND_DEACTIVATE\020\007\022\016\n\nRATE_LIMIT\020c\022\027" +
+      "\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGroupType" +
+      "\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*\226\001\n\025MultiTermi" +
+      "nalSyncType\022\023\n\017MY_SELF_CHANGED\020\000\022\025\n\021MY_F" +
+      "RIEND_CHANGED\020\001\022\024\n\020MY_GROUP_CHANGED\020\002\022\025\n" +
+      "\021MY_FRIEND_DELETED\020\003\022\021\n\rMY_GROUP_QUIT\020\004\022" +
+      "\021\n\rMY_GROUP_READ\020\005*(\n\017RedEnvelopeType\022\t\n" +
+      "\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuVideoType\022\t\n\005A" +
+      "udio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im.util" +
+      "s.socketB\007MsgBeanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -67890,7 +67977,7 @@ public final class MsgBean {
     internal_static_RemoveGroupMember2Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveGroupMember2Message_descriptor,
-        new java.lang.String[] { "Uid", "NoticeMessage", });
+        new java.lang.String[] { "Uid", "NoticeMessage", "HideNotice", });
     internal_static_ChangeGroupMasterMessage_descriptor =
       getDescriptor().getMessageTypes().get(29);
     internal_static_ChangeGroupMasterMessage_fieldAccessorTable = new

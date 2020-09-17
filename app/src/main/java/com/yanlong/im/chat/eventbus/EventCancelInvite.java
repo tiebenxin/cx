@@ -12,7 +12,7 @@ import java.util.List;
  * @by zjy
  * @备注：
  */
-public class CancelInviteEvent extends BaseEvent {
+public class EventCancelInvite extends BaseEvent {
 
     private List<UserInfo> userInfoList;
 

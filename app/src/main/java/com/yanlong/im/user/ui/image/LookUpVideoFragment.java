@@ -1,7 +1,6 @@
 package com.yanlong.im.user.ui.image;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +16,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,7 +30,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -503,12 +500,16 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        changeVideoSize();
+        if (mediaPlayer != null) {
+            changeVideoSize();
+        }
     }
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-        changeVideoSize();
+        if (mediaPlayer != null) {
+            changeVideoSize();
+        }
     }
 
     public void changeVideoSize() {
@@ -637,9 +638,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     }
 
     private void setTime(int time, TextView tv) {
-//        if (tv.getId() == ui.tvStartTime.getId()) {
-//            LogUtil.getLog().i(TAG, "time=" + time);
-//        }
+        if (tv == null) {
+            return;
+        }
         int mHour = time / 3600;
         int mMin = time % 3600 / 60;
         int mSecond = time % 60;
@@ -711,6 +712,14 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     private void reset() {
         LogUtil.getLog().i(TAG, "reset");
         mCurrentPosition = 0;
+        if (ui != null) {
+            if (ui.tvStartTime != null) {
+                setTime(mCurrentPosition, ui.tvStartTime);
+            }
+            if (ui.seekBar != null) {
+                ui.seekBar.setProgress(mCurrentPosition);
+            }
+        }
     }
 
 
@@ -938,5 +947,13 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void setPressHome(boolean b) {
+        super.setPressHome(b);
+        if (b) {
+            reset();
+        }
     }
 }

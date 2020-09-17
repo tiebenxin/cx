@@ -135,8 +135,9 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
-import com.yanlong.im.chat.eventbus.CancelInviteEvent;
+import com.yanlong.im.chat.eventbus.EventCancelInvite;
 import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
+import com.yanlong.im.chat.eventbus.EventShowDialog;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -442,6 +443,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
     private CommonSelectDialog dialogFive;//是否撤销提示弹框
     private CommonSelectDialog dialogSix;//成员已经离开群聊提示弹框
+    private CommonSelectDialog dialogSeven;//你没有权限提示弹框
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -3500,8 +3502,25 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //撤销入群邀请
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void cancelInvite(CancelInviteEvent event){
+    public void cancelInvite(EventCancelInvite event){
         cancelInviteDialog(event.getUserInfoList());
+    }
+
+    //我是普通成员，没有权限撤销
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventShowDialog(EventShowDialog event){
+        if(event.getType()==1){
+            if(dialogSeven==null){
+                dialogSeven = builder.setTitle("没有操作权限")
+                        .setShowLeftText(false)
+                        .setRightText("确定")
+                        .setRightOnClickListener(v -> {
+                            dialogSeven.dismiss();
+                        })
+                        .build();
+            }
+            dialogSeven.show();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -3639,7 +3658,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 显示大图
      *
      * @param msgId
-     * @param uri
      */
     private void scanImageAndVideo(String msgId) {
         ArrayList<LocalMedia> selectList = new ArrayList<>();
@@ -7149,7 +7167,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 是否撤销提示弹框
      */
     private void cancelInviteDialog(List<UserInfo> list) {
-        int oldNum = 0;//邀请了几个人
+        int oldNum;//邀请了几个人
         oldNum = list.size();
         List<UserInfo> filterList = new ArrayList<>();
         //1 先过滤掉已经被移除的群员
@@ -7187,7 +7205,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             if(oldNum==1){
                 notice = "该成员已离开群聊";
             }else {
-                notice = "该"+oldNum+"位成员已离开群聊";
+                notice = "成员已离开群聊";
             }
             dialogSix = builder.setTitle(notice)
                     .setShowLeftText(false)
@@ -7239,8 +7257,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                             dao.noteMsgAddRb(mid, UserAction.getMyId(), toGid, note);
                                             taskGroupInfo();
                                             taskRefreshMessage(false);
-                                            dialogFive.dismiss();
+                                        }else {
+                                            if(!TextUtils.isEmpty(response.body().getMsg())){
+                                                ToastUtil.show(response.body().getMsg());
+                                            }
                                         }
+                                        dialogFive.dismiss();
                                     }
                                 }
 
