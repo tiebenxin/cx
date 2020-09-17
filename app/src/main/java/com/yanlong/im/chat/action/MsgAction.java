@@ -7,6 +7,7 @@ import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
+import com.yanlong.im.chat.bean.GroupPreviewBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -388,13 +389,14 @@ public class MsgAction {
 
     /**
      * 撤销邀请
+     *
      * @param gid
      * @param name
      * @param uid
      * @param callback
      */
-    public void httpCancelInvite(final String gid, String name,Long uid, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.httpCancelInvite(gid,name,uid), callback);
+    public void httpCancelInvite(final String gid, String name, Long uid, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpCancelInvite(gid, name, uid), callback);
     }
 
     /**
@@ -700,5 +702,19 @@ public class MsgAction {
 
     private static RequestBody getRequestBody(String json) {
         return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+    }
+
+    /***
+     * 获取全部图片,视频，文件
+     * @param gid
+     * @param uid
+
+     * @return
+     */
+    public List<GroupPreviewBean> getAllMediaMsg(String gid, Long uid, long time) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMediaMsgInGroup(gid, time);
+        }
+        return dao.getMediaMsgInUser(uid, time);
     }
 }

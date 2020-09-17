@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -70,6 +69,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -103,6 +103,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
     private boolean isHttp;
     private boolean isOriginal;
     private int fromWhere;
+    private ImageView ivPreview;
 
 
     public static LookUpPhotoFragment newInstance(LocalMedia media, int from) {
@@ -124,6 +125,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         ivDownload = rootView.findViewById(R.id.iv_download);
         pbLoading = rootView.findViewById(R.id.pb_loading);
         llLook = rootView.findViewById(R.id.ll_look);
+        ivPreview = rootView.findViewById(R.id.iv_preview);
         initData();
         return rootView;
     }
@@ -218,6 +220,16 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
             @Override
             public void onClick(View v) {
                 downloadOriginImage(media.getPath(), true, isGif);
+            }
+        });
+
+        ivPreview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                ((PreviewMediaActivity) getActivity()).startPreviewAll(media.getMsg_id());
             }
         });
     }

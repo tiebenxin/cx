@@ -148,7 +148,6 @@ import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.SearchMsgActivity;
-import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.cell.ChatCellBase;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;

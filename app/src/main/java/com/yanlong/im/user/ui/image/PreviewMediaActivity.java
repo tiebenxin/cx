@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui.image;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -271,5 +272,15 @@ public class PreviewMediaActivity extends FragmentActivity {
                 }
             }
         }
+    }
+
+    public void startPreviewAll(String msgId) {
+        MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+        if (msgAllBean == null) {
+            return;
+        }
+        Intent intent = PreviewMediaAllActivity.newIntent(this, gid, toUid, msgId, msgAllBean.getTimestamp());
+        startActivity(intent);
+
     }
 }

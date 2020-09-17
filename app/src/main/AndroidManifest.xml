@@ -712,6 +712,7 @@
         <activity
             android:name=".user.ui.image.PreviewMediaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".user.ui.image.PreviewMediaAllActivity" />
 
     </application>
 

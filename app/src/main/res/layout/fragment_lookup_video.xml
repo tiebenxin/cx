@@ -53,6 +53,18 @@
                 android:clickable="true" />
 
 
+            <ImageView
+                android:id="@+id/iv_preview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|right"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="50dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_download" />
+
+
             <RelativeLayout
                 android:id="@+id/rl_bottom"
                 android:layout_width="343dp"

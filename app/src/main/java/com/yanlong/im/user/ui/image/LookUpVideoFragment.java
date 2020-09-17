@@ -195,6 +195,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         ui.ivBarPlay.setOnClickListener(this);
         ui.ivPlay.setOnClickListener(this);
         ui.ivClose.setOnClickListener(this);
+        ui.ivPreview.setOnClickListener(this);
         loadVideoBg();
     }
 
@@ -459,7 +460,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
 
                 @Override
                 public void onDownloading(int progress) {
-                    LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
+//                    LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
                     downloadState = 1;
                 }
 
@@ -570,6 +571,8 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         } else if (v.getId() == ui.ivClose.getId()) {
             destroyPlay();
             getActivity().finish();
+        }else if (v.getId() == ui.ivPreview.getId()) {
+            ((PreviewMediaActivity) getActivity()).startPreviewAll(media.getMsg_id());
         }
     }
 
