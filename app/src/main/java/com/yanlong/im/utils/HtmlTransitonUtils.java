@@ -15,6 +15,7 @@ import android.text.style.URLSpan;
 import android.view.View;
 
 import com.google.gson.Gson;
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
@@ -28,6 +29,9 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.InviteDetailsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -150,9 +154,20 @@ public class HtmlTransitonUtils {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
+
                 if(!TextUtils.isEmpty(id)){
+                    //去重
+                    if(System.currentTimeMillis()<(ClickFilter.time+ClickFilter.TIME_FT)){
+                        return;
+                    }
+                    ClickFilter.time=System.currentTimeMillis();
                     //邀请入群点击"去确认/已确认"，"去确认"为一个id=-99的对象
                     if(IDs!=null && id.equals("-99")){
+                        // 被封号无权限
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                            ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                            return;
+                        }
                         //判断我是否拥有权限，若不是群主管理员则提示无权限
                         long myUid = UserAction.getMyId().longValue();
                         if(new MsgDao().isMemberInCharge(gid,myUid)){
@@ -302,6 +317,16 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
+                    //去重
+                    if(System.currentTimeMillis()<(ClickFilter.time+ClickFilter.TIME_FT)){
+                        return;
+                    }
+                    ClickFilter.time=System.currentTimeMillis();
+                    // 被封号无权限
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                        ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
                     List<UserInfo> invitelist = new ArrayList<>();//被邀请人列表
                     for (final HtmlBeanList bean : list){
                         if(bean.getType() == 2){
@@ -398,6 +423,16 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
+                    //去重
+                    if(System.currentTimeMillis()<(ClickFilter.time+ClickFilter.TIME_FT)){
+                        return;
+                    }
+                    ClickFilter.time=System.currentTimeMillis();
+                    // 被封号无权限
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {
+                        ToastUtil.show(context.getResources().getString(R.string.user_disable_message));
+                        return;
+                    }
                     List<UserInfo> invitelist = new ArrayList<>();//被邀请人列表
                     for (final HtmlBeanList bean : list){
                         if(bean.getType() == 2){

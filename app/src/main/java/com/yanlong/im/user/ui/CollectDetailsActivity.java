@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.text.SpannableString;
@@ -37,7 +38,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.gson.Gson;
 import com.hm.cxpay.utils.DateUtils;
@@ -354,10 +357,11 @@ public class CollectDetailsActivity extends AppActivity {
                                     //有网情况走网络请求->显示预览图，无网情况显示Glide自带缓存缩略图
                                     if (NetUtil.isNetworkConnected()) {
                                         Glide.with(this)
+                                                .asBitmap()
                                                 .load(gif)
-                                                .listener(new RequestListener<Drawable>() {
+                                                .listener(new RequestListener<Bitmap>() {
                                                     @Override
-                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                                         if (e.getMessage().contains("FileNotFoundException")) {
                                                             ivPic.setImageResource(R.mipmap.ic_img_past);
                                                         } else {
@@ -372,12 +376,17 @@ public class CollectDetailsActivity extends AppActivity {
                                                     }
 
                                                     @Override
-                                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                                                         return false;
                                                     }
                                                 })
                                                 .apply(GlideOptionsUtil.notDefImageOptions())
-                                                .into(ivPic);
+                                                .into(new SimpleTarget<Bitmap>() {
+                                                    @Override
+                                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                        ivPic.setImageBitmap(resource);
+                                                    }
+                                                });
                                     } else {
                                         //TODO 无需再取缓存多余处理，既然点击大图可以正常显示，说明Glide已经缓存好了，直接复用即可
                                         Glide.with(this)
