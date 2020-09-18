@@ -3511,17 +3511,18 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //我是普通成员，没有权限撤销
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventShowDialog(EventShowDialog event){
-        if(event.getType()==1){
-            if(dialogSeven==null){
-                dialogSeven = builder.setTitle("没有操作权限")
-                        .setShowLeftText(false)
-                        .setRightText("确定")
-                        .setRightOnClickListener(v -> {
-                            dialogSeven.dismiss();
-                        })
-                        .build();
+    public void eventShowDialog(EventShowDialog event) {
+        if (event.getType() == 1) {
+            if (activity == null || activity.isFinishing()) {
+                return;
             }
+            dialogSeven = builder.setTitle("没有操作权限")
+                    .setShowLeftText(false)
+                    .setRightText("确定")
+                    .setRightOnClickListener(v -> {
+                        dialogSeven.dismiss();
+                    })
+                    .build();
             dialogSeven.show();
         }
     }

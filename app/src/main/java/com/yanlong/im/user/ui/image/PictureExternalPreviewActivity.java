@@ -2,6 +2,7 @@ package com.yanlong.im.user.ui.image;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -97,6 +98,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private AdapterPreviewImage mAdapter;
     String indexPath;
     private String collectJson = "";//收藏详情点击大图转发需要的数据
+    private Activity activity;
 
 
     @Override
@@ -121,8 +123,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         left_back.setOnClickListener(this);
         MessageManager.getInstance().initPreviewID(gid, toUid);
         initAndPermissions();
-
-        builder = new CommonSelectDialog.Builder(this);
+        activity = this;
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
     @Override
@@ -360,6 +362,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
+        if(activity==null || activity.isFinishing()){
+            return;
+        }
         dialogFour = builder.setTitle("你所选的消息已失效")
                 .setShowLeftText(false)
                 .setRightText("确定")
