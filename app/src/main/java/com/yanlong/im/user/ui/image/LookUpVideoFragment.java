@@ -10,6 +10,8 @@ import android.databinding.DataBindingUtil;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -448,7 +450,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                         msgDao.fixVideoLocalUrl(msgId, fileVideo.getAbsolutePath());
                     }
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
-//                    scanFile(getContext(),fileVideo.getAbsolutePath());
+                    scanFile(getContext(),fileVideo.getAbsolutePath());
                     downloadState = 2;
                     if (showToast) {
                         ToastUtil.show("保存相册成功");
@@ -872,7 +874,6 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
 
     // 检测文件存在
     private static boolean checkFile(String filePath) {
-        //boolean result = FileUtil.fileIsExist(filePath);
         boolean result = false;
         File mFile = new File(filePath);
         if (mFile.exists()) {
@@ -949,11 +950,17 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         return false;
     }
 
-    @Override
-    public void setPressHome(boolean b) {
-        super.setPressHome(b);
-        if (b) {
-            reset();
+    //TODO android更新媒体库这么麻烦，搞了一下午，吐了，终于实现
+    public void scanFile(Context context, String filePath) {
+        try {
+            MediaScannerConnection.scanFile(context, new String[]{filePath}, new String[]{"video/mp4"},
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

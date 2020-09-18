@@ -107,18 +107,10 @@ public class AboutAsActivity extends AppActivity {
                         return;
                     }
                     UpdateManage updateManage = new UpdateManage(context, AboutAsActivity.this);
-                    if (response.body().getData().getForceUpdate() == 0) {
-                        if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                        }
+                    if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     } else {
-                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                        } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                        }
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                     }
                 }
             }

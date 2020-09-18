@@ -848,6 +848,12 @@ public class MessageRepository {
     public boolean handlerRemoveGroupMember2(MsgBean.UniversalMessage.WrapMessage
                                                      wrapMessage, Realm realm) {
         boolean result = true;
+        //邀请入群撤销，仅邀请人和被撤人会收到被移除的通知
+        if(wrapMessage.getRemoveGroupMember2()!=null){
+            if(wrapMessage.getRemoveGroupMember2().getHideNotice()==true){
+                return true;
+            }
+        }
         // 判断是否是管理员 群主 是就显示被剔的消息
         if (localDataSource.isGroupMasterOrManager(realm, wrapMessage.getGid(), UserAction.getMyId())) {
             // 保存被剔消息

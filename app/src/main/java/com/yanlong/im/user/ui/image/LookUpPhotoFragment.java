@@ -558,7 +558,8 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                             ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                             return;
                         }
-                        sendToFriend(msgId, PictureConfig.FROM_COLLECT_DETAIL);
+//                        sendToFriend(msgId, PictureConfig.FROM_COLLECT_DETAIL);
+                        ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,1,media);
                     } else if (position == 1) {//保存
                         saveImageToLocal(ivImage, media);
                     }
@@ -570,7 +571,8 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
+//                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
+                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,1,media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
                         } else if (position == 2) {//收藏
@@ -578,9 +580,10 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-                            eventCollectImgOrVideo.setMsgId(msgId);
-                            EventBus.getDefault().post(eventCollectImgOrVideo);
+                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,2,media);
+//                            EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+//                            eventCollectImgOrVideo.setMsgId(msgId);
+//                            EventBus.getDefault().post(eventCollectImgOrVideo);
                         } else if (position == 3) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
@@ -593,14 +596,16 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
-                            Bundle bundle = new Bundle();
-                            bundle.putString("imgpath", media.getCompressPath());
-                            bundle.putString("msg_id", msgId);
-                            bundle.putInt("img_width", media.getWidth());
-                            bundle.putInt("img_height", media.getHeight());
-                            intent.putExtras(bundle);
-                            getActivity().startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
+                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,3,media);
+
+//                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
+//                            Bundle bundle = new Bundle();
+//                            bundle.putString("imgpath", media.getCompressPath());
+//                            bundle.putString("msg_id", msgId);
+//                            bundle.putInt("img_width", media.getWidth());
+//                            bundle.putInt("img_height", media.getHeight());
+//                            intent.putExtras(bundle);
+//                            getActivity().startActivityForResult(intent, PreviewMediaActivity.IMG_EDIT);
                         }
 
                     } else {
@@ -610,7 +615,8 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
+//                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
+                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,1,media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
                         } else if (position == 2) {//识别二维码
@@ -625,14 +631,16 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
-                            Bundle bundle = new Bundle();
-                            bundle.putString("imgpath", media.getCompressPath());
-                            bundle.putString("msg_id", msgId);
-                            bundle.putInt("img_width", media.getWidth());
-                            bundle.putInt("img_height", media.getHeight());
-                            intent.putExtras(bundle);
-                            getActivity().startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
+                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,3,media);
+
+//                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
+//                            Bundle bundle = new Bundle();
+//                            bundle.putString("imgpath", media.getCompressPath());
+//                            bundle.putString("msg_id", msgId);
+//                            bundle.putInt("img_width", media.getWidth());
+//                            bundle.putInt("img_height", media.getHeight());
+//                            intent.putExtras(bundle);
+//                            getActivity().startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                         }
                     }
                 }

@@ -14,6 +14,8 @@ import android.util.SparseArray;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.google.gson.Gson;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
@@ -21,13 +23,22 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
 import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.databinding.ActivityPreviewBinding;
+import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
+import net.cb.cb.library.bean.FileBean;
+import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.AlertYesNo;
 
 import org.greenrobot.eventbus.EventBus;
@@ -38,12 +49,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Response;
+
 /**
  * @author Liszt
  * @date 2020/9/3
  * Description 图片视频浏览
  */
 public class PreviewMediaActivity extends FragmentActivity {
+
+    public static int IMG_EDIT = 0;//长按图片编辑
 
     private ActivityPreviewBinding ui;
     private List<LocalMedia> mediaList;
@@ -53,6 +69,8 @@ public class PreviewMediaActivity extends FragmentActivity {
     private Long toUid;
     private MsgDao msgDao = new MsgDao();
     private MediaPagerAdapter mAdapter;
+    private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
+    private CommonSelectDialog.Builder builder;
 
 
     @Override
@@ -272,6 +290,141 @@ public class PreviewMediaActivity extends FragmentActivity {
                 }
             }
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == IMG_EDIT) {
+                if (data != null) {
+                    //拿到编辑后新图片的本地路径，走转发逻辑
+                    String path = data.getStringExtra("showPath");
+                    Bundle bundle = new Bundle();
+                    bundle.putString("edit_pic_path", path);
+                    Intent intent = MsgForwardActivity.newIntent(PreviewMediaActivity.this, ChatEnum.EForwardMode.EDIT_PIC, bundle);
+                    startActivity(intent);
+                }
+            }
+        }
+    }
+
+    /**
+     * 转发前先检查文件是否过期
+     *
+     * @param msgId
+     * @param fromWhere
+     * @param type  1 转发 2 收藏 3 图片编辑
+     */
+    public void checkFile(String msgId, int fromWhere, int type , LocalMedia media) {
+        MsgAllBean msgbean = null;
+        if (!TextUtils.isEmpty(msgId)) {
+            msgbean = msgDao.getMsgById(msgId);
+        }
+        if (msgbean == null) {
+            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            return;
+        }
+
+        if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+            ArrayList<FileBean> list = new ArrayList<>();
+            FileBean fileBean = new FileBean();
+            if (msgbean.getImage() != null) {
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getImage().getPreview()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getImage().getPreview(), msgbean.getMsg_type()));
+            } else if (msgbean.getVideoMessage() != null) {
+                FileBean itemFileBean = new FileBean();
+                itemFileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getBg_url()));
+                itemFileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
+                list.add(itemFileBean);
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getVideoMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getVideoMessage().getUrl(), msgbean.getMsg_type()));
+            } else if (msgbean.getSendFileMessage() != null) {
+                fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgbean.getSendFileMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgbean.getSendFileMessage().getUrl(), msgbean.getMsg_type()));
+            }
+            list.add(fileBean);
+            UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+                    super.onResponse(call, response);
+                    if (response.body() != null && response.body().isOk()) {
+                        if (response.body().getData() != null && response.body().getData().size() != list.size()) {
+                            showMsgFailDialog();
+                        } else {
+                            if(type==1){
+                                sendToFriend(msgId, fromWhere);
+                            }else if(type==2){
+                                EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                                eventCollectImgOrVideo.setMsgId(msgId);
+                                EventBus.getDefault().post(eventCollectImgOrVideo);
+                            }else {
+                                Intent intent = new Intent(PreviewMediaActivity.this, ImageShowActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("imgpath", media.getCompressPath());
+                                bundle.putString("msg_id", msgId);
+                                bundle.putInt("img_width", media.getWidth());
+                                bundle.putInt("img_height", media.getHeight());
+                                intent.putExtras(bundle);
+                                startActivityForResult(intent, IMG_EDIT);
+                            }
+                        }
+
+                    } else {
+                        showMsgFailDialog();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+                    super.onFailure(call, t);
+                    showMsgFailDialog();
+                }
+            });
+        } else {
+            sendToFriend(msgId, fromWhere);
+        }
+    }
+
+    /**
+     * 转发
+     *
+     * @param msgId
+     */
+    private void sendToFriend(String msgId, int fromWhere) {
+        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
+            if (NetUtil.isNetworkConnected()) {
+//                startActivity(new Intent(this, MsgForwardActivity.class)
+//                        .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
+            } else {
+                ToastUtil.show("请检查网络连接是否正常");
+            }
+        } else {
+            if (!TextUtils.isEmpty(msgId)) {
+                MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+                if (msgAllBean != null) {
+                    startActivity(new Intent(this, MsgForwardActivity.class)
+                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                } else {
+                    ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+                }
+            }
+        }
+    }
+
+    /**
+     * 单选转发/收藏失效消息提示弹框
+     */
+    private void showMsgFailDialog() {
+        dialogFour = builder.setTitle("你所选的消息已失效")
+                .setShowLeftText(false)
+                .setRightText("确定")
+                .setRightOnClickListener(v -> {
+                    dialogFour.dismiss();
+                })
+                .build();
+        dialogFour.show();
     }
 
     public void startPreviewAll(String msgId) {

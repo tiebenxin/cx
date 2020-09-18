@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.chat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -444,6 +445,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogFive;//是否撤销提示弹框
     private CommonSelectDialog dialogSix;//成员已经离开群聊提示弹框
     private CommonSelectDialog dialogSeven;//你没有权限提示弹框
+    private Activity activity;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -461,7 +463,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         initEvent();
         initObserver();
         getOftenUseFace();
-        builder = new CommonSelectDialog.Builder(ChatActivity.this);
+        activity = this;
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
 
@@ -3508,17 +3511,18 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //我是普通成员，没有权限撤销
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventShowDialog(EventShowDialog event){
-        if(event.getType()==1){
-            if(dialogSeven==null){
-                dialogSeven = builder.setTitle("没有操作权限")
-                        .setShowLeftText(false)
-                        .setRightText("确定")
-                        .setRightOnClickListener(v -> {
-                            dialogSeven.dismiss();
-                        })
-                        .build();
+    public void eventShowDialog(EventShowDialog event) {
+        if (event.getType() == 1) {
+            if (activity == null || activity.isFinishing()) {
+                return;
             }
+            dialogSeven = builder.setTitle("没有操作权限")
+                    .setShowLeftText(false)
+                    .setRightText("确定")
+                    .setRightOnClickListener(v -> {
+                        dialogSeven.dismiss();
+                    })
+                    .build();
             dialogSeven.show();
         }
     }
@@ -7067,6 +7071,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void showDeleteDialog(List<MsgAllBean> msgList) {
+        if(activity==null || activity.isFinishing()){
+            return;
+        }
         DialogCommon dialogDelete = new DialogCommon(this);
         dialogDelete.setTitleAndSure(false, true)
                 .setContent("确定删除？", true)
@@ -7094,6 +7101,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 注销提示弹框
      */
     private void showLogOutDialog(int type) {
+        if(activity==null || activity.isFinishing()){
+            return;
+        }
         String content = "";
         if (type == 1) {
             content = "该账号正在注销中，为了保障你的资金安全，\n暂时无法交易";
@@ -7114,6 +7124,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * @param type 0 默认提示  1 包含收藏成功文案
      */
     private void showCollectListDialog(int type) {
+        if(activity==null || activity.isFinishing()){
+            return;
+        }
         String content;
         if (type==1) {
             content= "收藏成功\n\n你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
@@ -7134,6 +7147,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量转发提示弹框
      */
     private void showForwardListDialog(List<MsgAllBean> list) {
+        if(activity==null || activity.isFinishing()){
+            return;
+        }
         dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型或\n或已失效，系统已自动过滤此类型消息。")
                 .setShowLeftText(true)
                 .setRightText("继续发送")
@@ -7153,6 +7169,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
+        if(activity==null || activity.isFinishing()){ //TODO #284439
+            return;
+        }
         dialogFour = builder.setTitle("你所选的消息已失效")
                 .setShowLeftText(false)
                 .setRightText("确定")
@@ -7167,6 +7186,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 是否撤销提示弹框
      */
     private void cancelInviteDialog(List<UserInfo> list) {
+        if(activity==null || activity.isFinishing()){
+            return;
+        }
         int oldNum;//邀请了几个人
         oldNum = list.size();
         List<UserInfo> filterList = new ArrayList<>();

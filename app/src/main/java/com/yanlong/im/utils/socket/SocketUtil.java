@@ -590,7 +590,7 @@ public class SocketUtil {
         }
         LogUtil.getLog().d(TAG, "连接LOG " + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
         LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
-        if (!socketChannel.connect(new InetSocketAddress(host, AppHostUtil.TCP_PORT))) {
+        if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
             long ttime = System.currentTimeMillis();
@@ -908,17 +908,18 @@ public class SocketUtil {
         ExecutorManager.INSTANCE.getSocketThread().shutdown();
     }
 
+    //暂不解析DNS,有异常，且连接速度无明显提升
     public String parseDNS() {
         host = AppHostUtil.getTcpHost();
-        try {
-            InetAddress inetAddress = InetAddress.getByName(AppHostUtil.getTcpHost());
-            if (!TextUtils.isEmpty(inetAddress.getHostAddress())) {
-                host = inetAddress.getHostAddress();
-                LogUtil.getLog().i(TAG, "连接LOG--DNS-IP=" + host);
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            InetAddress inetAddress = InetAddress.getByName(AppHostUtil.getTcpHost());
+//            if (!TextUtils.isEmpty(inetAddress.getHostAddress())) {
+//                host = inetAddress.getHostAddress();
+//                LogUtil.getLog().i(TAG, "连接LOG--DNS-IP=" + host);
+//            }
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        }
         return host;
     }
 
