@@ -11,13 +11,11 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,7 +24,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
@@ -67,6 +64,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private int mCurrentColorPosition = 0;
     private InputMethodManager mManager;
     private int from;//从相机拍摄过来的，需要删除缓存图片图片
+    private TouchView mTouchView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -157,17 +155,17 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
 
     private void addTextToWindow() {
         mDp100 = (int) getResources().getDimension(R.dimen.dp100);
-        TouchView touchView = new TouchView(getApplicationContext());
+        mTouchView = new TouchView(getApplicationContext());
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(binding.tvTag.getWidth(), binding.tvTag.getHeight());
         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        touchView.setLayoutParams(layoutParams);
+        mTouchView.setLayoutParams(layoutParams);
         Bitmap bitmap = Bitmap.createBitmap(binding.tvTag.getWidth(), binding.tvTag.getHeight(), Bitmap.Config.ARGB_8888);
         binding.tvTag.draw(new Canvas(bitmap));
-        touchView.setBackground(new BitmapDrawable(bitmap));
+        mTouchView.setBackground(new BitmapDrawable(bitmap));
 
-        touchView.setLimitsX(0, mWindowWidth);
-        touchView.setLimitsY(0, mWindowHeight - mDp100 / 2);
-        touchView.setOnLimitsListener(new TouchView.OnLimitsListener() {
+        mTouchView.setLimitsX(0, mWindowWidth);
+        mTouchView.setLimitsY(0, mWindowHeight - mDp100 / 2);
+        mTouchView.setOnLimitsListener(new TouchView.OnLimitsListener() {
             @Override
             public void OnOutLimits(float x, float y) {
                 binding.tvHintDelete.setTextColor(Color.RED);
@@ -178,7 +176,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                 binding.tvHintDelete.setTextColor(Color.WHITE);
             }
         });
-        touchView.setOnTouchListener(new TouchView.OnTouchListener() {
+        mTouchView.setOnTouchListener(new TouchView.OnTouchListener() {
             @Override
             public void onDown(TouchView view, MotionEvent event) {
                 binding.tvHintDelete.setVisibility(View.VISIBLE);
@@ -198,7 +196,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             }
         });
 
-        binding.showRlBig.addView(touchView);
+        binding.showRlBig.addView(mTouchView);
 
         binding.etTag.setText("");
         binding.tvTag.setText("");
@@ -372,7 +370,9 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             startAnim(binding.rlEditText.getY(), 0, null);
         } else if (v.getId() == R.id.rb_cut) {// 裁剪
             binding.rbCut.setChecked(false);
-            startCrop(mPath);
+            Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
+            String savePath = saveImage(bitmap, 100);
+            startCrop(savePath);
         } else if (v.getId() == R.id.rb_mosaic) {// 马赛克
             binding.mpvView.setEnabled(true);
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.GRID);
@@ -474,6 +474,15 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                 mPath = resultUri.getPath();
                 if (TextUtils.isEmpty(mPath)) {
                     return;
+                }
+                // 清除之前画笔与马赛克
+                if (null != binding.mpvView) {
+                    if (binding.mpvView.canUndo()) {
+                        binding.mpvView.clearPaint();
+                    }
+                }
+                if (mTouchView != null) {
+                    binding.showRlBig.removeView(mTouchView);
                 }
                 init(true);
             } catch (Exception e) {
