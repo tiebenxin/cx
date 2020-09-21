@@ -36,7 +36,7 @@ ext {
     multidexVersion = '1.0.1'
     constraintVersion = '1.0.0'
     junitVersion = '4.12'
-    butterknifeVersion = '5.1.1'
+    butterknifeVersion = '10.2.0'
     glideVersion = '3.7.0'
     eventbusVersion = '3.0.0'
     magicIndicatorVersion = '1.5.0'

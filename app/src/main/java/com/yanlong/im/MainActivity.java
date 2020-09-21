@@ -60,6 +60,7 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.MsgMainFragment;
+import com.yanlong.im.circle.CircleFragment;
 import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
@@ -357,12 +358,13 @@ public class MainActivity extends BaseTcpActivity {
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
         mShowFragment = ShopFragemnt.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), mShowFragment, MyFragment.newInstance()};
-        tabs = new String[]{"消息", "通讯录", "商城", "我"};
-        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
-        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), mShowFragment,
+                CircleFragment.newInstance(), MyFragment.newInstance()};
+        tabs = new String[]{"消息", "通讯录", "商城", "广场", "我"};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_shop, R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h,R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
         viewPage.setCurrentItem(currentTab, false);
-        viewPage.setOffscreenPageLimit(4);
+        viewPage.setOffscreenPageLimit(5);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -465,7 +467,12 @@ public class MainActivity extends BaseTcpActivity {
             if (i == EMainTab.MSG) {//消息数量
                 sbmsg = sb;
             }
-
+            if (i == EMainTab.CIRCLE) {// 广场
+                sb.setSktype(1);
+                //设置值
+                sb.setNum(0, true);
+                sbshop = sb;
+            }
 
             txt.setText(tabs[i]);
             bottomTab.getTabAt(i).setCustomView(rootView);
@@ -1301,13 +1308,14 @@ public class MainActivity extends BaseTcpActivity {
     /*
      *from
      * */
-    @IntDef({EMainTab.MSG, EMainTab.CONTACT, EMainTab.SHOP, EMainTab.ME})
+    @IntDef({EMainTab.MSG, EMainTab.CONTACT, EMainTab.SHOP, EMainTab.ME,EMainTab.CIRCLE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMainTab {
         int MSG = 0; // 消息界面
         int CONTACT = 1; // 好友界面
         int SHOP = 2; // 商城界面
         int ME = 3; // 我的界面
+        int CIRCLE = 4; // 我的界面
     }
 
     /**

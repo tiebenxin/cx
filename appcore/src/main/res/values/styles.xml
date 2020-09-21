@@ -654,4 +654,25 @@
 <!--        <item name="android:paddingLeft">10dp</item>-->
     </style>
 
+    <!--    朋友圈发布 推荐、关注style-->
+    <style name="circle_radiobutton_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:button">@null</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!--    朋友圈发布 红点style-->
+    <style name="circle_red_dot_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:background">@mipmap/bg_red_num_small</item>
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>

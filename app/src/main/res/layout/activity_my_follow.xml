@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <net.cb.cb.library.view.HeadView
+        android:id="@+id/headView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        app:headview_title="我关注的人">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/view_search"
+                    style="@style/app_layout_list2_item_search"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/shape_search_bg">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="6dp"
+                        android:src="@mipmap/ic_msg_search" />
+
+                    <net.cb.cb.library.view.ClearEditText
+                        android:id="@+id/edit_search"
+                        style="@style/app_edt1"
+                        android:background="@color/transparent"
+                        android:gravity="center_vertical"
+                        android:hint="搜索昵称、备注"
+                        android:imeOptions="actionSearch" />
+                </LinearLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+        </LinearLayout>
+    </net.cb.cb.library.view.HeadView>
+</layout>

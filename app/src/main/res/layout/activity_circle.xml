@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".circle.CircleFragment">
+
+        <!--        <android.support.v7.widget.RecyclerView-->
+        <!--            android:id="@+id/recycler_title"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="@dimen/circle_title_height"-->
+        <!--            android:layout_centerHorizontal="true" />-->
+
+        <com.scwang.smartrefresh.layout.SmartRefreshLayout
+            android:id="@+id/refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srlEnableLoadMore="false"
+            app:srlEnableRefresh="true">
+
+            <net.cb.cb.library.view.EScrollView
+                android:id="@+id/scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="@color/red_400">
+
+                        <TextView
+                            android:id="@+id/tv_create_circle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginRight="20dp"
+                            android:layout_marginBottom="10dp"
+                            android:drawableTop="@mipmap/default_image"
+                            android:drawablePadding="5dp"
+                            android:text="发布动态" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginTop="155dp">
+
+                        <ImageView
+                            android:id="@+id/iv_header"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:src="@mipmap/default_image" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="15dp"
+                            android:layout_toRightOf="@id/iv_header"
+                            android:text="张学友"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="215dp">
+
+                        <RadioGroup
+                            android:id="@+id/group_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:orientation="horizontal">
+
+                            <RelativeLayout
+                                android:layout_width="60dp"
+                                android:layout_height="35dp">
+
+                                <RadioButton
+                                    android:id="@+id/rb_recommend"
+                                    style="@style/circle_radiobutton_style"
+                                    android:checked="true"
+                                    android:text="推荐"
+                                    android:textStyle="bold" />
+
+                                <ImageView
+                                    android:id="@+id/iv_recommend"
+                                    style="@style/circle_red_dot_style" />
+                            </RelativeLayout>
+
+                            <RelativeLayout
+                                android:layout_width="60dp"
+                                android:layout_height="35dp">
+
+                                <RadioButton
+                                    android:id="@+id/rb_follow"
+                                    style="@style/circle_radiobutton_style"
+                                    android:text="关注"
+                                    android:textSize="16sp" />
+
+                                <ImageView
+                                    android:id="@+id/iv_follow"
+                                    style="@style/circle_red_dot_style" />
+                            </RelativeLayout>
+                        </RadioGroup>
+
+                        <net.cb.cb.library.view.CircleViewPager
+                            android:id="@+id/view_pager"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_below="@+id/group_title" />
+                    </RelativeLayout>
+                </FrameLayout>
+            </net.cb.cb.library.view.EScrollView>
+        </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/white"
+            android:visibility="gone">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@color/white"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="广场动态"
+                    android:textColor="@color/black"
+                    android:textSize="18sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="60dp"
+                        android:layout_height="35dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_recommend_title"
+                            style="@style/circle_radiobutton_style"
+                            android:checked="true"
+                            android:text="推荐"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:id="@+id/iv_recommend_title"
+                            style="@style/circle_red_dot_style" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="60dp"
+                        android:layout_height="35dp">
+
+                        <RadioButton
+                            android:id="@+id/rb_follow_title"
+                            style="@style/circle_radiobutton_style"
+                            android:text="关注"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:id="@+id/iv_follow_title"
+                            style="@style/circle_red_dot_style" />
+                    </RelativeLayout>
+                </RadioGroup>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_create_circle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="30dp"
+            android:src="@drawable/ic_camera" />
+    </RelativeLayout>
+</layout>

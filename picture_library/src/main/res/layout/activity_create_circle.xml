@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fitsSystemWindows="true"
+    tools:context="com.luck.picture.lib.PictureSelectorActivity">
+
+    <LinearLayout
+        android:id="@+id/id_titleBar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/rl_picture_title"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="?colorPrimary"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/picture_left_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:padding="15dp"
+                android:src="?attr/picture.leftBack.icon" />
+
+            <TextView
+                android:id="@+id/picture_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxEms="11"
+                android:padding="6dp"
+                android:text="创建动态"
+                android:textColor="?picture.title.textColor"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/picture_right"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="发布"
+                android:textColor="?picture.right.textColor"
+                android:textSize="14sp" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/line_color" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rl_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/picture.bottom.bg"
+        android:gravity="center_vertical"
+        android:visibility="gone">
+
+
+        <TextView
+            android:id="@+id/picture_id_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:enabled="false"
+            android:gravity="left|center"
+            android:padding="12dp"
+            android:text="@string/picture_preview"
+            android:textColor="?attr/picture.preview.textColor"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <CheckBox
+            android:id="@+id/cb_original"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="原图" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/id_ll_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:enabled="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/picture_tv_img_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:background="?attr/picture.num.style"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/picture_tv_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center|left"
+                android:paddingRight="12dp"
+                android:text="@string/picture_please_select"
+                android:textColor="?attr/picture.complete.textColor"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.luck.picture.lib.widget.CustomerEditText
+        android:id="@+id/et_content"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/id_titleBar"
+        android:gravity="top"
+        android:hint="记录你此刻生活，分享给大家"
+        android:padding="10dp"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp">
+
+            <TextView
+                android:id="@+id/tv_location"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:singleLine="true"
+                android:text="长沙市"
+                android:textColor="@color/color_orange"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_power"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:text="广场可见"
+                android:textColor="@color/color_orange"
+                android:textSize="16sp" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/view_func"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/tab_select"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                style="@style/circle_create_item"
+                android:src="@drawable/ic_video_play" />
+
+            <ImageView
+                android:id="@+id/iv_vote"
+                style="@style/circle_create_item"
+                android:src="@drawable/ic_video_play" />
+
+            <ImageView
+                android:id="@+id/iv_picture"
+                style="@style/circle_create_item"
+                android:src="@drawable/ic_video_play" />
+
+            <ImageView
+                android:id="@+id/iv_face"
+                style="@style/circle_create_item"
+                android:src="@drawable/ic_lv_emoji" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/frame_content"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/chat_fuction_panel_height">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/picture_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:visibility="visible" />
+            <!-- 表情-->
+            <com.luck.picture.lib.face.FaceView
+                android:id="@+id/circle_view_faceview"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chat_fuction_panel_height"
+                android:background="@null"
+                android:paddingTop="10dp"
+                android:visibility="gone" />
+
+            <RelativeLayout
+                android:id="@+id/layout_vote"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tv_content_vote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="100dp"
+                    android:drawableTop="@drawable/ic_camera"
+                    android:drawablePadding="5dp"
+                    android:text="文字投票"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_picture_vote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/tv_content_vote"
+                    android:drawableTop="@drawable/ic_camera"
+                    android:drawablePadding="5dp"
+                    android:text="图片投票"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_picture_prview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/layout_bottom"
+        android:layout_below="@id/et_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/white"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:lineSpacingExtra="3dp"
+        android:text="@string/picture_empty"
+        android:textColor="@color/tab_color_false"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+</RelativeLayout>

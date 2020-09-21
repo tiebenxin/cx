@@ -1,6 +1,12 @@
 package com.yanlong.im.utils;
 
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.widget.TextView;
 
 import com.example.nim_lib.config.Preferences;
 import com.google.gson.Gson;
@@ -111,7 +117,7 @@ public class CommonUtils {
      * @param phone
      */
     public static void saveFriendInfo(String phone) {
-        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), "");
+        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER + UserAction.getMyId(), "");
         List<FriendInfoBean> list = new ArrayList<>();
         Gson gson = new Gson();
         if (TextUtils.isEmpty(friends)) {
@@ -119,7 +125,7 @@ public class CommonUtils {
             friendInfoBean.setPhone(phone);
             friendInfoBean.setCreateTime(System.currentTimeMillis());
             list.add(friendInfoBean);
-            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), gson.toJson(list));
+            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER + UserAction.getMyId(), gson.toJson(list));
         } else {
             list.addAll(gson.fromJson(friends, new TypeToken<List<FriendInfoBean>>() {
             }.getType()));
@@ -127,7 +133,7 @@ public class CommonUtils {
             friendInfoBean.setPhone(phone);
             friendInfoBean.setCreateTime(System.currentTimeMillis());
             list.add(friendInfoBean);
-            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), gson.toJson(list));
+            SpUtil.getSpUtil().putSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER + UserAction.getMyId(), gson.toJson(list));
         }
     }
 
@@ -137,7 +143,7 @@ public class CommonUtils {
      * @return
      */
     public static List<FriendInfoBean> getRedFriendInfo() {
-        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER+ UserAction.getMyId(), "");
+        String friends = SpUtil.getSpUtil().getSPValue(Preferences.RECENT_FRIENDS_RED_NUMBER + UserAction.getMyId(), "");
         List<FriendInfoBean> list = new ArrayList<>();
         Gson gson = new Gson();
         if (!TextUtils.isEmpty(friends)) {
@@ -145,6 +151,24 @@ public class CommonUtils {
             }.getType()));
         }
         return list;
+    }
+
+    /**
+     * 方法描述：文本设置多颜色
+     *
+     * @param var1     字符串1
+     * @param var2     字符串2
+     * @param color1   颜色1
+     * @param color2   颜色2
+     * @param tv       控件
+     * @param mContext 上下文
+     */
+    public static void setTextColor(String var1, String var2, int color1, int color2, TextView tv, Context mContext) {
+        String var = var1 + var2;
+        SpannableStringBuilder span = new SpannableStringBuilder(var);
+        span.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext, color1)), 0, var1.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);//前包括后不包括
+        span.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext, color2)), var1.length(), var.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        tv.setText(span);
     }
 
 }

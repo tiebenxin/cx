@@ -19,7 +19,8 @@ public class LocationMessage extends RealmObject implements IMsgContent {
 
     @Ignore
     private double distance=0d;//本地字段，与中心点的距离，两点之间的距离
-
+    @Ignore
+    private boolean isCheck;
 
     public LocationMessage() {
 
@@ -80,5 +81,13 @@ public class LocationMessage extends RealmObject implements IMsgContent {
 
     public void setDistance(double distance) {
         this.distance = distance;
+    }
+
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
     }
 }
