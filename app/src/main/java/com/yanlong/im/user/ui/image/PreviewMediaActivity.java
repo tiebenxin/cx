@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui.image;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -71,6 +72,7 @@ public class PreviewMediaActivity extends FragmentActivity {
     private MediaPagerAdapter mAdapter;
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
     private CommonSelectDialog.Builder builder;
+    private Activity activity;
 
 
     @Override
@@ -88,6 +90,8 @@ public class PreviewMediaActivity extends FragmentActivity {
         initData();
         MessageManager.getInstance().initPreviewID(gid, toUid);
         MessageManager.getInstance().setCanStamp(false);
+        activity = this;
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
     @Override //HOME键逻辑
@@ -417,6 +421,9 @@ public class PreviewMediaActivity extends FragmentActivity {
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
+        if(activity==null && activity.isFinishing()){
+            return;
+        }
         dialogFour = builder.setTitle("你所选的消息已失效")
                 .setShowLeftText(false)
                 .setRightText("确定")
