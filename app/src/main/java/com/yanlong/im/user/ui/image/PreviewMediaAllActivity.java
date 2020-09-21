@@ -127,9 +127,6 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     @Override
                     public List<GroupPreviewBean> apply(Integer integer) throws Exception {
                         return msgAction.getAllMediaMsg(gid, toUid, time);
-//                        Calendar calendar = Calendar.getInstance();
-//                        calendar.add(Calendar.MONTH, -1);
-//                        return msgAction.getAllMediaMsg(gid, toUid, calendar.getTimeInMillis());
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -140,6 +137,11 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                         dismissLoadingDialog();
                         previewBeans = list;
                         mAdapter.setData(previewBeans);
+                        int count = 0;
+                        for (int i = 0; i < previewBeans.size(); i++) {
+                            count += previewBeans.get(i).getMsgAllBeans().size();
+                        }
+                        bindingView.headView.setTitle("图片及视频（" + count + ")");
 //                        bindingView.recyclerView.smoothScrollToPosition(previewBeans.size() - 1);
                     }
                 });
