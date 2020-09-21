@@ -3880,6 +3880,21 @@ public class MsgDao {
                         getPrefMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar, timeRange);
                         count++;
                     }
+                } else if (com.hm.cxpay.utils.DateUtils.isCurrentMonth(time)) {
+                    //非本周，是本月，所以起始时间是当前时间
+//                    calendar.setTimeInMillis(time);
+                    getCurrentMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar);
+                    //下一月
+                    int count = 1;
+                    while (totals.size() < 160) {
+                        if (count == 6) {
+                            break;
+                        }
+                        calendar.setTimeInMillis(time);
+                        calendar.add(Calendar.MONTH, -count);
+                        getPrefMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar, timeRange);
+                        count++;
+                    }
                 } else {
                     if (com.hm.cxpay.utils.DateUtils.isCurrentWeek(time)) {
                         //前一个月
@@ -4011,6 +4026,20 @@ public class MsgDao {
                 //获取当前月剩余周的本月数据
                 if (isCurrentWeek) {
                     calendar.setTimeInMillis(time);
+                    getCurrentMonthMsgInUser(uid, groupBeanList, totals, realm, calendar);
+                    //下一月
+                    int count = 1;
+                    while (totals.size() < 160) {
+                        if (count == 6) {
+                            break;
+                        }
+                        calendar.setTimeInMillis(time);
+                        calendar.add(Calendar.MONTH, -count);
+                        getPrefMonthMsgInUser(uid, groupBeanList, totals, realm, calendar, timeRange);
+                        count++;
+                    }
+                } else if (com.hm.cxpay.utils.DateUtils.isCurrentMonth(time)) {
+                    //非本周，是本月，所以起始时间是当前时间
                     getCurrentMonthMsgInUser(uid, groupBeanList, totals, realm, calendar);
                     //下一月
                     int count = 1;

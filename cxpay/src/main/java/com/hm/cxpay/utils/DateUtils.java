@@ -28,13 +28,15 @@ public class DateUtils {
 
     //获取每月第一天的最初时间
     public static long getStartTimeOfMonth(Calendar calendar) {
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        LogUtil.getLog().i("时间LOG--getStartTimeOfMonth", TimeToString.YYYY_MM_DD_HH_MM_SS(calendar.getTimeInMillis()));
-        return calendar.getTimeInMillis();
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(calendar.getTimeInMillis());
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        LogUtil.getLog().i("时间LOG--getStartTimeOfMonth", TimeToString.YYYY_MM_DD_HH_MM_SS(c.getTimeInMillis()));
+        return c.getTimeInMillis();
     }
 
 
@@ -314,6 +316,7 @@ public class DateUtils {
 
     //获取当前周的最初时间
     public static long getStartTimeOfWeek(Calendar calendar) {
+        LogUtil.getLog().i("时间LOG--getStartTimeOfWeek", TimeToString.YYYY_MM_DD_HH_MM_SS(calendar.getTimeInMillis()));
         Calendar calendar1 = Calendar.getInstance();
         calendar1.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
         calendar1.set(Calendar.WEEK_OF_MONTH, calendar.get(Calendar.WEEK_OF_MONTH));

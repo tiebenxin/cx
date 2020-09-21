@@ -139,8 +139,8 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     public void accept(List<GroupPreviewBean> list) throws Exception {
                         dismissLoadingDialog();
                         previewBeans = list;
-                        mAdapter.setData(list);
-                        bindingView.recyclerView.smoothScrollToPosition(list.size() - 1);
+                        mAdapter.setData(previewBeans);
+//                        bindingView.recyclerView.smoothScrollToPosition(previewBeans.size() - 1);
                     }
                 });
 

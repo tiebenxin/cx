@@ -95,20 +95,15 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
                 tvDuration.setVisibility(View.GONE);
                 ImageMessage imageMessage = bean.getImage();
                 String url = imageMessage.getThumbnail();
-                RequestOptions options = new RequestOptions().centerCrop();
-                Glide.with(getContext()).load(url).apply(options).listener(new RequestListener<Drawable>() {
+                RequestOptions options = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE).dontAnimate();
+                Glide.with(getContext()).asDrawable().load(url).apply(options).listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         if (e.getMessage().contains("FileNotFoundException")) {
                             ivImage.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-
                                     ivImage.setImageResource(R.mipmap.ic_img_past);
-                                    //                                    if (getContext() == null) {
-//                                        return;
-//                                    }
-//                                    Glide.with(getContext()).load(R.mipmap.ic_img_past).apply(options).into(ivImage);
                                 }
                             }, 100);
 
