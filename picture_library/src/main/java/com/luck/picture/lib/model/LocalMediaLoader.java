@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 
 /**
@@ -171,7 +172,7 @@ public class LocalMediaLoader {
                                                 (data.getColumnIndexOrThrow(PROJECTION[5]));
 
                                         LocalMedia image = new LocalMedia
-                                                (path, duration, type, pictureType, w, h);
+                                                (path, duration, type, pictureType, w, h, UUID.randomUUID().toString());
 
                                         LocalMediaFolder folder = getImageFolder(path, imageFolders);
                                         List<LocalMedia> images = folder.getImages();
