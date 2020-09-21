@@ -3848,10 +3848,11 @@ public class MsgDao {
             timeRange[1] = numberMax.longValue();
             Calendar calendar = Calendar.getInstance();
             Long[] timeZone = null;
-            boolean isCurrentWeek;
+            boolean isCurrentWeek = com.hm.cxpay.utils.DateUtils.isCurrentWeek(time);
+            boolean isCurrentMonth = com.hm.cxpay.utils.DateUtils.isCurrentMonth(time);
             GroupPreviewBean bean = null;
             //本周
-            if (isCurrentWeek = com.hm.cxpay.utils.DateUtils.isCurrentWeek(time)) {
+            if (isCurrentWeek && isCurrentMonth) {
                 if (com.hm.cxpay.utils.DateUtils.isFirstWeek(time)) {
                     isCurrentWeek = false;
                 } else {
@@ -3880,7 +3881,7 @@ public class MsgDao {
                         getPrefMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar, timeRange);
                         count++;
                     }
-                } else if (com.hm.cxpay.utils.DateUtils.isCurrentMonth(time)) {
+                } else if (isCurrentMonth) {
                     //非本周，是本月，所以起始时间是当前时间
 //                    calendar.setTimeInMillis(time);
                     getCurrentMonthMsgInGroup(gid, groupBeanList, totals, realm, calendar);
@@ -3896,7 +3897,7 @@ public class MsgDao {
                         count++;
                     }
                 } else {
-                    if (com.hm.cxpay.utils.DateUtils.isCurrentWeek(time)) {
+                    if (isCurrentWeek) {
                         //前一个月
                         calendar.setTimeInMillis(time);
                         calendar.add(Calendar.MONTH, -1);
