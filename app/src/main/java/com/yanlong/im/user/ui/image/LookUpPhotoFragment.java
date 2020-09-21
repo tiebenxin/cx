@@ -857,12 +857,12 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                 targetHeight = screenHeight;
                 targetWidth = (int) (targetHeight * scale);
             } else {
-                targetWidth = screenWidth;
-                targetHeight = screenHeight;
+                targetWidth = realW;
+                targetHeight = realW;
             }
         } else {
-            targetWidth = screenWidth;
-            targetHeight = screenHeight;
+            targetWidth = realW;
+            targetHeight = realW;
         }
     }
 
