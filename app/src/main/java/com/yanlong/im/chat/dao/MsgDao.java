@@ -2094,10 +2094,10 @@ public class MsgDao {
      * @param originUrl
      * @param isread
      */
-    public void ImgReadStatSet(String originUrl, boolean isread) {
+    public void ImgReadStatSet(String msgId, boolean isread) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        ImageMessage img = realm.where(ImageMessage.class).equalTo("origin", originUrl).findFirst();
+        ImageMessage img = realm.where(ImageMessage.class).equalTo("msgid", msgId).findFirst();
         if (img != null) {
             img.setReadOrigin(isread);
             realm.insertOrUpdate(img);
