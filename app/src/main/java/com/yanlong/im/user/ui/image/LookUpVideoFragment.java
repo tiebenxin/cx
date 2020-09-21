@@ -929,6 +929,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
+        if(getActivity()==null && getActivity().isFinishing()){
+            return;
+        }
         CommonSelectDialog.Builder builder = new CommonSelectDialog.Builder(getActivity());
         dialogFour = builder.setTitle("你所选的消息已失效")
                 .setShowLeftText(false)
