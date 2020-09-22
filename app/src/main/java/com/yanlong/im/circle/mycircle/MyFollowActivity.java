@@ -2,7 +2,9 @@ package com.yanlong.im.circle.mycircle;
 
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
@@ -72,6 +74,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .skipMemoryCache(false)
+                                .error(R.drawable.ic_info_head)
                                 .centerCrop();
                         Glide.with(getContext())
                                 .load(userInfo.getHead())
@@ -91,6 +94,26 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                     }
                     //关注操作
                     binding.tvFollow.setOnClickListener(v -> httpToFollow());
+                    //搜索过滤
+                    bindingView.editSearch.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            String content = s.toString();
+                            if (TextUtils.isEmpty(content)) {
+//                                adapter.setList(listData);
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                        }
+                    });
+
                 }
             }
         };
@@ -136,4 +159,21 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     private void httpToFollow() {
         ToastUtil.show("接口未提供：关注操作");
     }
+
+    /**
+     * 搜索关键字
+     * @param name
+     */
+//    private void searchName(String name) {
+//        if (!TextUtils.isEmpty(name)) {
+//            seacchData.clear();
+//            for (FriendInfoBean bean : listData) {
+//                if (bean.getNickname().contains(name)) {
+//                    seacchData.add(bean);
+//                }
+//            }
+//            adapter.setList(seacchData);
+//            bindingView.mtListView.notifyDataSetChange();
+//        }
+//    }
 }

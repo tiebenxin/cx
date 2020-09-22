@@ -17,18 +17,15 @@
 
         <TextView
             android:id="@+id/tv_follow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="68dp"
+            android:layout_height="30dp"
             android:background="@drawable/shape_5radius_solid_32b053"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:paddingTop="7dp"
-            android:paddingBottom="7dp"
-            android:paddingLeft="9dp"
-            android:paddingRight="9dp"
+            android:gravity="center"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="15dp"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textColor="@color/white"
             android:text="关注TA" />
 
