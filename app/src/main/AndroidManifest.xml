@@ -562,9 +562,13 @@
         <activity
             android:name=".circle.details.CircleDetailsActivity"
             android:screenOrientation="portrait" />
-        <!-- 关注列表 -->
+        <!-- 我关注的人 -->
         <activity
             android:name=".circle.mycircle.MyFollowActivity"
+            android:screenOrientation="portrait" />
+        <!-- 关注我的人 -->
+        <activity
+            android:name=".circle.mycircle.FollowMeActivity"
             android:screenOrientation="portrait" />
         <!-- 方子题目 -->
         <activity
