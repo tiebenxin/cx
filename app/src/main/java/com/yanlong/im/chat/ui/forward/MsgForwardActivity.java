@@ -33,6 +33,7 @@ import com.yanlong.im.chat.bean.CollectLocationMessage;
 import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
 import com.yanlong.im.chat.bean.CollectVideoMessage;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -41,6 +42,7 @@ import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.WebMessage;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.tcp.TcpConnection;
@@ -1049,7 +1051,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (requestCode == 0) {
                 String gid = data.getStringExtra("gid");
                 if (!TextUtils.isEmpty(gid)) {
-                    onForward(-1L, gid, "", "");//仅仅是唤起弹窗
+                    MsgDao msgDao = new MsgDao();
+                    Group group = msgDao.getGroup4Id(gid);
+                    if (group != null) {
+                        onForward(-1L, gid, group.getAvatar(), msgDao.getGroupName(group));//仅仅是唤起弹窗
+                    }
                 }
             }
         }

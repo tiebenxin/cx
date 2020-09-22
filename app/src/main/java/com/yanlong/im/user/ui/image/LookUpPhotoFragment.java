@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -67,6 +68,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -103,6 +105,8 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
     private boolean isHttp;
     private boolean isOriginal;
     private int fromWhere;
+    private int targetHeight;
+    private int targetWidth;
     private ImageView ivPreview;
 
 
@@ -142,6 +146,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         isHttp = PictureMimeType.isHttp(previewUrl);
         boolean hasRead = media.isHasRead();
         isGif = isGif(media, isHttp, isOriginal);
+        getSize();
         if (isGif) {
             showLookOrigin(false);
             loadGif(originUrl);
@@ -272,7 +277,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                 .load(url)
                 .listener(requestListener)
                 .apply(options)
-                .into(new SimpleTarget<Bitmap>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
+                .into(new SimpleTarget<Bitmap>(/*Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL*/targetWidth, targetHeight) {
                     @Override
                     public void onLoadFailed(@Nullable Drawable errorDrawable) {
                         super.onLoadFailed(errorDrawable);
@@ -429,7 +434,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                     MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
                                 }
                                 //这边要改成已读
-                                msgDao.ImgReadStatSet(url, true);
+                                msgDao.ImgReadStatSet(media.getMsg_id(), true);
                             }
                         });
                         if (needSave) {
@@ -499,7 +504,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         if (tvViewOrigin == null) {
             return;
         }
-        LogUtil.getLog().i("LookUpPhotoFragment", "progress=" + progress);
+//        LogUtil.getLog().i("LookUpPhotoFragment", "progress=" + progress);
         tvViewOrigin.setText("已完成 " + progress + "%");
         if (progress == 100) {
             tvViewOrigin.setVisibility(View.GONE);
@@ -559,7 +564,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                             return;
                         }
 //                        sendToFriend(msgId, PictureConfig.FROM_COLLECT_DETAIL);
-                        ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,1,media);
+                        ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
                     } else if (position == 1) {//保存
                         saveImageToLocal(ivImage, media);
                     }
@@ -572,7 +577,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 return;
                             }
 //                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
-                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,1,media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
                         } else if (position == 2) {//收藏
@@ -580,7 +585,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,2,media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 2, media);
 //                            EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
 //                            eventCollectImgOrVideo.setMsgId(msgId);
 //                            EventBus.getDefault().post(eventCollectImgOrVideo);
@@ -596,7 +601,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,3,media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 3, media);
 
 //                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
 //                            Bundle bundle = new Bundle();
@@ -616,7 +621,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 return;
                             }
 //                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
-                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,1,media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
                         } else if (position == 2) {//识别二维码
@@ -631,7 +636,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity)getActivity()).checkFile(msgId,fromWhere,3,media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 3, media);
 
 //                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
 //                            Bundle bundle = new Bundle();
@@ -847,6 +852,29 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
             }, 100);
         } else if (drawable instanceof GifDrawable) {
 
+        }
+    }
+
+    private void getSize() {
+        int realW = media.getWidth();
+        int realH = media.getHeight();
+        int screenWidth = ScreenUtil.getScreenWidth(getActivity()) * 2;
+        int screenHeight = ScreenUtil.getScreenHeight(getActivity());
+        if (realH > 0) {
+            double scale = (realW * 1.00) / realH;
+            if (realW > screenWidth) {
+                targetWidth = screenWidth;
+                targetHeight = (int) (targetWidth / scale);
+            } else if (realH > screenHeight) {
+                targetHeight = screenHeight;
+                targetWidth = (int) (targetHeight * scale);
+            } else {
+                targetWidth = realW;
+                targetHeight = realW;
+            }
+        } else {
+            targetWidth = realW;
+            targetHeight = realW;
         }
     }
 

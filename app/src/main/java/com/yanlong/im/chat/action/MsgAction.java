@@ -25,6 +25,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -232,28 +233,33 @@ public class MsgAction {
                         return;
                     }
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
-                        Group newGroup = response.body().getData();
-
-                        newGroup.getMygroupName();
-                        Group group = DaoUtil.findOne(Group.class, "gid", gid);
-                        if (group != null && group.getUsers() != null) {
-                            if (MessageManager.getInstance().isGroupValid2(group)) {//在群中，才更新
-                                if (MessageManager.getInstance().isGroupValid2(newGroup)) {
-                                    dao.groupNumberSave(newGroup);
+                        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                Group newGroup = response.body().getData();
+                                newGroup.getMygroupName();
+                                Group group = DaoUtil.findOne(Group.class, "gid", gid);
+                                if (group != null && group.getUsers() != null) {
+                                    if (MessageManager.getInstance().isGroupValid2(group)) {//在群中，才更新
+                                        if (MessageManager.getInstance().isGroupValid2(newGroup)) {
+                                            dao.groupNumberSave(newGroup);
+                                        } else {
+                                            dao.removeGroupMember(group.getGid(), UserAction.getMyId());
+                                        }
+                                    } else {
+                                        if (MessageManager.getInstance().isGroupValid2(newGroup)) {//重新被拉进群，更新
+                                            dao.groupNumberSave(newGroup);
+                                        }
+                                    }
+                                    MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
                                 } else {
-                                    dao.removeGroupMember(group.getGid(), UserAction.getMyId());
-                                }
-                            } else {
-                                if (MessageManager.getInstance().isGroupValid2(newGroup)) {//重新被拉进群，更新
                                     dao.groupNumberSave(newGroup);
                                 }
+                                //8.8 取消从数据库里读取群成员信息
+                                if (callback != null) callback.onResponse(call, response);
                             }
-                            MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
-                        } else {
-                            dao.groupNumberSave(newGroup);
-                        }
-                        //8.8 取消从数据库里读取群成员信息
-                        if (callback != null) callback.onResponse(call, response);
+                        });
+
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
                         if (!response.body().isOk() && StringUtil.isNotNull(response.body().getMsg())) {

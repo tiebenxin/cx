@@ -351,8 +351,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
         // If we don't have an ImageView, call cleanup()
         if (null == imageView) {
             cleanup();
-            LogManager.getLogger().i(LOG_TAG,
-                    "ImageView no longer exists. You should not use this PhotoViewAttacher2 any more.");
+            LogManager.getLogger().i(LOG_TAG, "ImageView no longer exists. You should not use this PhotoViewAttacher2 any more.");
         }
 
         return imageView;
@@ -644,31 +643,23 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
         ImageView imageView = getImageView();
 
         if (null != imageView) {
-            setScale(scale,
-                    (imageView.getRight()) / 2,
-                    (imageView.getBottom()) / 2,
-                    animate);
+            setScale(scale, (imageView.getRight()) / 2, (imageView.getBottom()) / 2, animate);
         }
     }
 
     @Override
-    public void setScale(float scale, float focalX, float focalY,
-                         boolean animate) {
+    public void setScale(float scale, float focalX, float focalY, boolean animate) {
         ImageView imageView = getImageView();
 
         if (null != imageView) {
             // Check to see if the scale is within bounds
             if (scale < mMinScale || scale > mMaxScale) {
-                LogManager
-                        .getLogger()
-                        .i(LOG_TAG,
-                                "Scale must be within the range of minScale and maxScale");
+                LogManager.getLogger().i(LOG_TAG, "Scale must be within the range of minScale and maxScale");
                 return;
             }
 
             if (animate) {
-                imageView.post(new AnimatedZoomRunnable(getScale(), scale,
-                        focalX, focalY));
+                imageView.post(new AnimatedZoomRunnable(getScale(), scale, focalX, focalY));
             } else {
                 mSuppMatrix.setScale(scale, scale, focalX, focalY);
                 checkAndDisplayMatrix();
@@ -689,7 +680,6 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     public void setScaleType(ScaleType scaleType) {
         if (isSupportedScaleType(scaleType) && scaleType != mScaleType) {
             mScaleType = scaleType;
-
             // Finally update
             update();
         }
