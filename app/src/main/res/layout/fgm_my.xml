@@ -109,7 +109,7 @@
         <LinearLayout style="@style/app_layout_list2">
 
             <LinearLayout
-                android:id="@+id/layout_friend_circle"
+                android:id="@+id/layout_my_friend_circle"
                 style="@style/app_layout_list2_item">
 
                 <ImageView
@@ -159,7 +159,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/app_margin_item"
-                    android:src="@mipmap/ic_my_follow" />
+                    android:src="@mipmap/ic_follow_me" />
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -180,7 +180,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/app_margin_item"
-                    android:src="@mipmap/ic_my_follow" />
+                    android:src="@mipmap/ic_who_see_me" />
 
                 <TextView
                     style="@style/app_txt_title_2"

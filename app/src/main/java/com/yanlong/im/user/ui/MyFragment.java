@@ -33,6 +33,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.IUser;
@@ -56,7 +57,6 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
-import net.cb.cb.library.view.WebPageActivity;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -80,6 +80,10 @@ public class MyFragment extends Fragment {
     private LinearLayout viewMoney;
     private LinearLayout viewCollection;
     private LinearLayout viewSetting;
+    private LinearLayout layoutMyFriendCircle;//我的动态
+    private LinearLayout layoutMyFollow;//我关注的人
+    private LinearLayout layoutFollowMe;//关注我的人
+    private LinearLayout layoutWhoSeeMe;//谁看过我
     private TextView mTvInfo;
     private LinearLayout mViewScanQrcode;
     private LinearLayout mViewHelp;
@@ -104,6 +108,10 @@ public class MyFragment extends Fragment {
         mViewHelp = rootView.findViewById(R.id.view_help);
         tvNewVersions = rootView.findViewById(R.id.tv_new_versions);
         viewService = rootView.findViewById(R.id.view_service);
+        layoutMyFriendCircle = rootView.findViewById(R.id.layout_my_friend_circle);
+        layoutMyFollow = rootView.findViewById(R.id.layout_my_follow);
+        layoutFollowMe = rootView.findViewById(R.id.layout_follow_me);
+        layoutWhoSeeMe = rootView.findViewById(R.id.layout_who_see_me);
 
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
@@ -219,6 +227,26 @@ public class MyFragment extends Fragment {
             Intent intent = new Intent(getActivity(), CollectionActivity.class);
             intent.putExtra("from", CollectionActivity.FROM_DEFAULT);
             startActivity(intent);
+        });
+
+        layoutMyFriendCircle.setOnClickListener(o -> {
+
+
+        });
+        layoutMyFollow.setOnClickListener(o -> {
+            if (ViewUtils.isFastDoubleClick()) {
+                return;
+            }
+            Intent intent = new Intent(getActivity(), MyFollowActivity.class);
+            startActivity(intent);
+        });
+        layoutFollowMe.setOnClickListener(o -> {
+
+
+        });
+        layoutWhoSeeMe.setOnClickListener(o -> {
+
+
         });
     }
 

@@ -9,7 +9,6 @@ import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.chat.ChatEnum;
 
 import net.cb.cb.library.manager.Constants;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.PinyinUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -95,6 +94,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
     private int deactivateStat;//注销状态 0 正常 1 注销中 -1 已注销
     private int friendDeactivateStat;//好友注销状态 0 正常 1 注销中 -1 已注销
+
+
 
     public String getPinyin() {
         return pinyin;

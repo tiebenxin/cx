@@ -67,7 +67,6 @@ import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
-import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.CoreEnum;
@@ -76,7 +75,6 @@ import net.cb.cb.library.inter.SwipeLayoutOpenCloseListener;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.InputUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -234,30 +232,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                     }else{
                                         binding.ivPic.setImageBitmap(localBitmap);
                                     }
-
-
-
-//                                    if(NetUtil.isNetworkConnected()){
-//                                        if (!TextUtils.isEmpty(bean2.getPreview())) {
-//                                            Glide.with(CollectionActivity.this).load(bean2.getPreview())
-//                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
-//                                        } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
-//                                            Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
-//                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
-//                                        }
-//                                    }else {
-//                                        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
-//                                        if (localBitmap == null) {
-//                                            Glide.with(CollectionActivity.this)
-//                                                    .asBitmap()
-//                                                    .load(thumbnail)
-//                                                    .apply(GlideOptionsUtil.defaultImageOptions())
-//                                                    .into(binding.ivPic);
-//                                        } else {
-//                                            binding.ivPic.setImageBitmap(localBitmap);
-//                                        }
-
-//                                    }
                                 }
                                 break;
                             case ChatEnum.EMessageType.SHIPPED_EXPRESSION: //大表情

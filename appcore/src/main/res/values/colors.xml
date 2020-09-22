@@ -134,5 +134,9 @@
     <color name="c_666666">#666666</color>
     <color name="c_169BD5">#169BD5</color>
 
+    <!--朋友圈模块-->
+    <color name="c_333333">#333333</color>
+    <color name="c_d8d8d8">#d8d8d8</color>
+    <color name="c_527ea2">#527EA2</color>
 
 </resources>
