@@ -3,15 +3,12 @@ package com.yanlong.im.utils.update;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -148,12 +145,12 @@ public class UpdateAppDialog {
 
 
     public void updateProgress(int progress){
-        mProgressNum.setProgress(progress);
-        tvUpdatePercent.setText(progress+"%");
         //加限制条件，避免进度条偶现性错乱抖动
         if(progress > lastProgressValue){
             lastProgressValue = progress;
             setPos(progress);
+            mProgressNum.setProgress(progress);
+            tvUpdatePercent.setText(progress+"%");
         }
     }
 
