@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.mycircle;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -14,7 +15,9 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.databinding.ActivityMyFollowBinding;
 import com.yanlong.im.databinding.ItemFollowPersonBinding;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.utils.ToastUtil;
@@ -38,6 +41,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
 
     private CommonRecyclerViewAdapter<UserInfo, ItemFollowPersonBinding> mAdapter;
     private List<UserInfo> mList = new ArrayList<>();
+    private List<UserInfo> searchData = new ArrayList<>();
 
     @Override
     protected int setView() {
@@ -104,15 +108,21 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                         @Override
                         public void onTextChanged(CharSequence s, int start, int before, int count) {
                             String content = s.toString();
-                            if (TextUtils.isEmpty(content)) {
-//                                adapter.setList(listData);
-                            }
+                            searchName(content);
                         }
 
                         @Override
                         public void afterTextChanged(Editable s) {
+                            if(TextUtils.isEmpty(bindingView.editSearch.getText().toString())){
+                                //当没有搜索关键字的时候恢复数据
+                                mAdapter.setData(mList);
+                            }
                         }
                     });
+                    binding.layoutItem.setOnClickListener(v -> ToastUtil.show("跳转到朋友圈"));
+                    binding.ivHeader.setOnClickListener(v -> startActivity(new Intent(getContext(), UserInfoActivity.class)
+                            .putExtra(UserInfoActivity.ID, UserAction.getMyId())
+                            .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)));
 
                 }
             }
@@ -164,16 +174,15 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
      * 搜索关键字
      * @param name
      */
-//    private void searchName(String name) {
-//        if (!TextUtils.isEmpty(name)) {
-//            seacchData.clear();
-//            for (FriendInfoBean bean : listData) {
-//                if (bean.getNickname().contains(name)) {
-//                    seacchData.add(bean);
-//                }
-//            }
-//            adapter.setList(seacchData);
-//            bindingView.mtListView.notifyDataSetChange();
-//        }
-//    }
+    private void searchName(String name) {
+        if (!TextUtils.isEmpty(name) && mList.size()>0) {
+            searchData.clear();
+            for (UserInfo bean : mList) {
+                if (bean.getName4Show().contains(name)) {
+                    searchData.add(bean);
+                }
+            }
+            mAdapter.setData(searchData);
+        }
+    }
 }
