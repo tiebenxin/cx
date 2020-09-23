@@ -93,6 +93,8 @@ public class MyAppLication extends MainApplication {
         initBuildType();
         //初始化日志:开启本地日志
         LogUtil.getLog().init(/*AppConfig.DEBUG*/true);
+        //oss日志
+//        OSSLog.enableLog();
 
         //初始化数据库
         Realm.init(getApplicationContext());

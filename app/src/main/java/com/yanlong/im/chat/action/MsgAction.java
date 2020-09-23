@@ -723,4 +723,18 @@ public class MsgAction {
         }
         return dao.getMediaMsgInUser(uid, time);
     }
+
+    /***
+     * 获取更多全部图片,视频，文件
+     * @param gid
+     * @param uid
+     * @param refreshType  刷新类型：0-下拉刷新，1-上拉加载更多
+     * @return
+     */
+    public List<GroupPreviewBean> getMoreMediaMsg(String gid, Long uid, long time, int refreshType) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMoreMediaMsgInGroup(gid, time, refreshType);
+        }
+        return dao.getMoreMediaMsgInUser(uid, time, refreshType);
+    }
 }
