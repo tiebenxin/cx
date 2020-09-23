@@ -14,9 +14,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
+import com.yanlong.im.circle.bean.FriendUserBean;
 import com.yanlong.im.databinding.ActivityMyFollowBinding;
 import com.yanlong.im.databinding.ItemFollowPersonBinding;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
@@ -46,9 +46,10 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
 
     public static final int DEFAULT_PAGE_SIZE = 20;//默认分页请求数量
 
-    private CommonRecyclerViewAdapter<UserInfo, ItemFollowPersonBinding> mAdapter;
-    private List<UserInfo> mList;
-    private List<UserInfo> searchData;//搜索后的数据
+    private CommonRecyclerViewAdapter<FriendUserBean, ItemFollowPersonBinding> mAdapter;
+    private List<FriendUserBean> mList;
+    private List<FriendUserBean> allData;//全部数据
+    private List<FriendUserBean> searchData;//搜索后的数据
     private TempAction action;
 
     @Override
@@ -59,6 +60,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     @Override
     protected void init(Bundle savedInstanceState) {
         mList = new ArrayList<>();
+        allData = new ArrayList<>();
         searchData = new ArrayList<>();
         action = new TempAction();
     }
@@ -70,28 +72,28 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
 
     @Override
     protected void loadData() {
-        mAdapter = new CommonRecyclerViewAdapter<UserInfo, ItemFollowPersonBinding>(this, R.layout.item_follow_person) {
+        mAdapter = new CommonRecyclerViewAdapter<FriendUserBean, ItemFollowPersonBinding>(this, R.layout.item_follow_person) {
             @Override
-            public void bind(ItemFollowPersonBinding binding, UserInfo data, int position, RecyclerView.ViewHolder viewHolder) {
+            public void bind(ItemFollowPersonBinding binding, FriendUserBean data, int position, RecyclerView.ViewHolder viewHolder) {
                 if (mList != null && mList.size() > 0) {
-                    UserInfo userInfo = mList.get(position);
+                    FriendUserBean userInfo = mList.get(position);
                     //昵称
-                    if(!TextUtils.isEmpty(userInfo.getName())){
-                        binding.tvName.setText(userInfo.getName());
+                    if(!TextUtils.isEmpty(userInfo.getNickname())){
+                        binding.tvName.setText(userInfo.getNickname());
                     }
-                    //签名
+                    //最新一条说说
                     if(!TextUtils.isEmpty(userInfo.getContent())){
                         binding.tvNote.setText(userInfo.getContent());
                     }
                     //头像
-                    if(!TextUtils.isEmpty(userInfo.getHead())){
+                    if(!TextUtils.isEmpty(userInfo.getAvatar())){
                         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .skipMemoryCache(false)
                                 .error(R.drawable.ic_info_head)
                                 .centerCrop();
                         Glide.with(getContext())
-                                .load(userInfo.getHead())
+                                .load(userInfo.getAvatar())
                                 .apply(mRequestOptions)
                                 .into(binding.ivHeader);
                     }
@@ -116,27 +118,6 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                             ToastUtil.show("已相互关注");
                         }
                     });
-                    //搜索过滤
-                    bindingView.editSearch.addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-                            String content = s.toString();
-                            searchName(content);
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable s) {
-                            if(TextUtils.isEmpty(bindingView.editSearch.getText().toString())){
-                                //当没有搜索关键字的时候恢复数据
-                                mAdapter.setData(mList);
-                            }
-                        }
-                    });
                     binding.layoutItem.setOnClickListener(v -> ToastUtil.show("跳转到朋友圈"));
                     binding.ivHeader.setOnClickListener(v -> startActivity(new Intent(getContext(), UserInfoActivity.class)
                             .putExtra(UserInfoActivity.ID, userInfo.getUid())
@@ -145,6 +126,27 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                 }
             }
         };
+        //搜索过滤
+        bindingView.editSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String content = s.toString();
+                searchName(content);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(TextUtils.isEmpty(bindingView.editSearch.getText().toString())){
+                    //当没有搜索关键字的时候恢复数据
+                    mAdapter.refreshData(allData);
+                }
+            }
+        });
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
         bindingView.recyclerView.setAdapter(mAdapter);
         httpGetMyFollow();
@@ -154,9 +156,9 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
      * 发请求->获取我关注的人列表
      */
     private void httpGetMyFollow() {
-        action.httpGetMyFollowList(1, DEFAULT_PAGE_SIZE, new CallBack<ReturnBean<List<UserInfo>>>() {
+        action.httpGetMyFollowList(1, DEFAULT_PAGE_SIZE, new CallBack<ReturnBean<List<FriendUserBean>>>() {
             @Override
-            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+            public void onResponse(Call<ReturnBean<List<FriendUserBean>>> call, Response<ReturnBean<List<FriendUserBean>>> response) {
                 super.onResponse(call, response);
                 if (response.body() == null) {
                     return;
@@ -165,13 +167,14 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                     if(response.body().getData()!=null && response.body().getData().size()>0){
                         mList.clear();
                         mList.addAll(response.body().getData());
+                        allData.addAll(response.body().getData());
                         mAdapter.setData(mList);
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+            public void onFailure(Call<ReturnBean<List<FriendUserBean>>> call, Throwable t) {
                 super.onFailure(call, t);
                 ToastUtil.show("获取我关注的人列表失败");
             }
@@ -235,14 +238,14 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
      * @param name
      */
     private void searchName(String name) {
-        if (!TextUtils.isEmpty(name) && mList.size()>0) {
+        if (!TextUtils.isEmpty(name) && allData.size()>0) {
             searchData.clear();
-            for (UserInfo bean : mList) {
-                if (bean.getName4Show().contains(name)) {
+            for (FriendUserBean bean : allData) {
+                if (!TextUtils.isEmpty(bean.getNickname()) && bean.getNickname().contains(name)) {
                     searchData.add(bean);
                 }
             }
-            mAdapter.setData(searchData);
+            mAdapter.refreshData(searchData);
         }
     }
 }

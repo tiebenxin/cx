@@ -224,10 +224,6 @@ public class DaoMigration implements RealmMigration {
                 updateV51(schema);
                 oldVersion++;
             }
-            if (newVersion > oldVersion && oldVersion == 51) {
-                updateV52(schema);
-                oldVersion++;
-            }
         }
     }
 
@@ -902,11 +898,6 @@ public class DaoMigration implements RealmMigration {
                 .addField("remark",String.class);
         schema.get("Remind")
                 .addField("gid", String.class);
-    }
-    //朋友圈->新增个性签名字段
-    private final void updateV52(RealmSchema schema) {
-        schema.get("UserInfo")
-                .addField("content",String.class);
     }
 
 

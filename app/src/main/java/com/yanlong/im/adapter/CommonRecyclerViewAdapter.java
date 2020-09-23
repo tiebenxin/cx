@@ -39,6 +39,12 @@ public abstract class CommonRecyclerViewAdapter<T, VB extends ViewDataBinding> e
         notifyDataSetChanged();
     }
 
+    public void refreshData(List<T> list) {
+        mList.clear();
+        mList.addAll(list);
+        notifyDataSetChanged();
+    }
+
     public void add(List<T> list) {
 
         if (list == null || list.size() == 0) return;

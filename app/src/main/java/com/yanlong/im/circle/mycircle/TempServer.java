@@ -1,6 +1,6 @@
 package com.yanlong.im.circle.mycircle;
 
-import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.circle.bean.FriendUserBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 
@@ -15,7 +15,11 @@ public interface TempServer {
 
     @POST("/follow/my-follow")
     @FormUrlEncoded
-    Call<ReturnBean<List<UserInfo>>> httpGetMyFollowList(@Field("currentPage") int page, @Field("pageSize") int pageSize);
+    Call<ReturnBean<List<FriendUserBean>>> httpGetMyFollowList(@Field("currentPage") int page, @Field("pageSize") int pageSize);
+
+    @POST("/follow/follow-my")
+    @FormUrlEncoded
+    Call<ReturnBean<List<FriendUserBean>>> httpGetFollowMeList(@Field("currentPage") int page, @Field("pageSize") int pageSize);
 
     @POST("/follow/add")
     @FormUrlEncoded
