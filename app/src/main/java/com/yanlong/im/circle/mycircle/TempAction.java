@@ -37,14 +37,14 @@ public class TempAction {
     }
 
     /**
-     * 关注好友
+     * 关注用户
      */
     public void httpToFollow(final long uid, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.httpToFollow(uid), callback);
     }
 
     /**
-     * 取消关注好友
+     * 取消关注用户
      */
     public void httpCancelFollow(final long uid, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.httpCancelFollow(uid), callback);
