@@ -95,6 +95,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     private int deactivateStat;//注销状态 0 正常 1 注销中 -1 已注销
     private int friendDeactivateStat;//好友注销状态 0 正常 1 注销中 -1 已注销
 
+    //TODO 朋友圈新增字段
+    private String content;//个性签名
+
 
 
     public String getPinyin() {
@@ -435,6 +438,13 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
         toTag();
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     /***
      * 重设tag

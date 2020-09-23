@@ -55,7 +55,7 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     }
 
     @Override
-    protected void loadData() { //TODO 还差2个接口未提供
+    protected void loadData() {
         mAdapter = new CommonRecyclerViewAdapter<UserInfo, ItemFollowPersonBinding>(this, R.layout.item_follow_person) {
             @Override
             public void bind(ItemFollowPersonBinding binding, UserInfo data, int position, RecyclerView.ViewHolder viewHolder) {
@@ -134,7 +134,7 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     private void httpGetMyFollow() {
         ToastUtil.show("接口未提供：获取列表");
         String head = "https://himg.bdimg.com/sys/portraitn/item/beaf7a68756461786961736869776fff26";
-        //模拟数据 TODO 接口未提供
+        //模拟数据
         UserInfo userOne = new UserInfo();
         userOne.setName("未关注用户");
         userOne.setHead(head);

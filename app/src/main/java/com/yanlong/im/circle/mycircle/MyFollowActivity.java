@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.widget.TextView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
@@ -15,16 +16,20 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.databinding.ActivityMyFollowBinding;
 import com.yanlong.im.databinding.ItemFollowPersonBinding;
-import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * @version V1.0
@@ -39,9 +44,12 @@ import java.util.List;
 public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> {
     public static final String path = "/mycircle/MyFollowActivity";
 
+    public static final int DEFAULT_PAGE_SIZE = 20;//默认分页请求数量
+
     private CommonRecyclerViewAdapter<UserInfo, ItemFollowPersonBinding> mAdapter;
-    private List<UserInfo> mList = new ArrayList<>();
-    private List<UserInfo> searchData = new ArrayList<>();
+    private List<UserInfo> mList;
+    private List<UserInfo> searchData;//搜索后的数据
+    private TempAction action;
 
     @Override
     protected int setView() {
@@ -50,7 +58,9 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
 
     @Override
     protected void init(Bundle savedInstanceState) {
-
+        mList = new ArrayList<>();
+        searchData = new ArrayList<>();
+        action = new TempAction();
     }
 
     @Override
@@ -59,7 +69,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     }
 
     @Override
-    protected void loadData() { //TODO 还差2个接口未提供
+    protected void loadData() {
         mAdapter = new CommonRecyclerViewAdapter<UserInfo, ItemFollowPersonBinding>(this, R.layout.item_follow_person) {
             @Override
             public void bind(ItemFollowPersonBinding binding, UserInfo data, int position, RecyclerView.ViewHolder viewHolder) {
@@ -70,8 +80,8 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                         binding.tvName.setText(userInfo.getName());
                     }
                     //签名
-                    if(!TextUtils.isEmpty(userInfo.getDescribe())){
-                        binding.tvNote.setText(userInfo.getDescribe());
+                    if(!TextUtils.isEmpty(userInfo.getContent())){
+                        binding.tvNote.setText(userInfo.getContent());
                     }
                     //头像
                     if(!TextUtils.isEmpty(userInfo.getHead())){
@@ -85,19 +95,27 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                                 .apply(mRequestOptions)
                                 .into(binding.ivHeader);
                     }
-                    //关注状态
-                    if(userInfo.getStat()==0){
-                        binding.tvFollow.setText("关注TA");
-                        binding.tvFollow.setBackgroundResource(R.drawable.shape_5radius_solid_32b053);
+                    //关注状态   刚进来全部是已关注，1 已关注 2 未关注 3 相互关注
+                    if(userInfo.getStat()==3){
+                        binding.tvFollow.setText("相互关注");
+                        binding.tvFollow.setBackgroundResource(R.drawable.shape_5radius_solid_527ea2);
                     }else if(userInfo.getStat()==1){
                         binding.tvFollow.setText("已关注");
                         binding.tvFollow.setBackgroundResource(R.drawable.shape_5radius_solid_d8d8d8);
                     }else {
-                        binding.tvFollow.setText("相互关注");
-                        binding.tvFollow.setBackgroundResource(R.drawable.shape_5radius_solid_527ea2);
+                        binding.tvFollow.setText("关注TA");
+                        binding.tvFollow.setBackgroundResource(R.drawable.shape_5radius_solid_32b053);
                     }
                     //关注操作
-                    binding.tvFollow.setOnClickListener(v -> httpToFollow());
+                    binding.tvFollow.setOnClickListener(v -> {
+                        if(binding.tvFollow.getText().equals("已关注")){
+                            httpCancelFollow(userInfo.getUid(),position,binding.tvFollow);
+                        }else if(binding.tvFollow.getText().equals("关注TA")){
+                            httpToFollow(userInfo.getUid(),position,binding.tvFollow);
+                        }else {
+                            ToastUtil.show("已相互关注");
+                        }
+                    });
                     //搜索过滤
                     bindingView.editSearch.addTextChangedListener(new TextWatcher() {
                         @Override
@@ -121,7 +139,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                     });
                     binding.layoutItem.setOnClickListener(v -> ToastUtil.show("跳转到朋友圈"));
                     binding.ivHeader.setOnClickListener(v -> startActivity(new Intent(getContext(), UserInfoActivity.class)
-                            .putExtra(UserInfoActivity.ID, UserAction.getMyId())
+                            .putExtra(UserInfoActivity.ID, userInfo.getUid())
                             .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)));
 
                 }
@@ -133,41 +151,83 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     }
 
     /**
-     * 获取我关注的人列表
+     * 发请求->获取我关注的人列表
      */
     private void httpGetMyFollow() {
-        ToastUtil.show("接口未提供：获取列表");
-        String head = "https://himg.bdimg.com/sys/portraitn/item/beaf7a68756461786961736869776fff26";
-        //模拟数据 TODO 接口未提供
-        UserInfo userOne = new UserInfo();
-        userOne.setName("未关注用户");
-        userOne.setHead(head);
-        userOne.setDescribe("未关注用户个性签名");
-        userOne.setStat(0);// 0 未关注 1 已关注 2 相互关注
+        action.httpGetMyFollowList(1, DEFAULT_PAGE_SIZE, new CallBack<ReturnBean<List<UserInfo>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    if(response.body().getData()!=null && response.body().getData().size()>0){
+                        mList.clear();
+                        mList.addAll(response.body().getData());
+                        mAdapter.setData(mList);
+                    }
+                }
+            }
 
-        UserInfo userTwo = new UserInfo();
-        userTwo.setName("已关注用户");
-        userTwo.setHead(head);
-        userTwo.setDescribe("已关注用户个性签名");
-        userTwo.setStat(1);// 0 未关注 1 已关注 2 相互关注
-
-        UserInfo userThree = new UserInfo();
-        userThree.setName("互相关注用户");
-        userThree.setHead(head);
-        userThree.setDescribe("互相关注用户个性签名");
-        userThree.setStat(2);// 0 未关注 1 已关注 2 相互关注
-
-        mList.add(userOne);
-        mList.add(userTwo);
-        mList.add(userThree);
-        mAdapter.setData(mList);
+            @Override
+            public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("获取我关注的人列表失败");
+            }
+        });
     }
 
     /**
-     * 关注操作
+     * 发请求->关注
      */
-    private void httpToFollow() {
-        ToastUtil.show("接口未提供：关注操作");
+    private void httpToFollow(long uid,int position, TextView tvFollow) {
+        action.httpToFollow(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("关注成功");
+                    mList.get(position).setStat(1);
+                    mAdapter.notifyItemChanged(position,tvFollow);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("关注失败");
+            }
+        });
+    }
+
+    /**
+     * 发请求->取消关注
+     */
+    private void httpCancelFollow(long uid, int position, TextView tvFollow) {
+        action.httpCancelFollow(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("取消关注成功");
+                    mList.get(position).setStat(2);
+                    mAdapter.notifyItemChanged(position,tvFollow);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("取消关注失败");
+            }
+        });
     }
 
     /**
