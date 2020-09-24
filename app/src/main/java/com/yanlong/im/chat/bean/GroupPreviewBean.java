@@ -72,4 +72,11 @@ public class GroupPreviewBean extends BaseBean implements Comparable<GroupPrevie
 
         return false;
     }
+
+    public boolean isBetween(long time) {
+        if (time >= startTime && time <= endTime) {
+            return true;
+        }
+        return false;
+    }
 }

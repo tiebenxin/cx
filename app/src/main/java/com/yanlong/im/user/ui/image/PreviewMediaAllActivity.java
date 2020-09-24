@@ -15,12 +15,14 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.GroupPreviewBean;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.databinding.ActivityPreviewFileBinding;
 import com.yanlong.im.databinding.ItemPreviewFileBinding;
 
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -45,6 +47,8 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
     private String msgId;
     boolean isSelect = false;
     private List<GroupPreviewBean> previewBeans;
+    private int currentPosition;
+    private int count;
 
     public static Intent newIntent(Context context, String gid, Long toUid, String msgId, long time) {
         Intent intent = new Intent(context, PreviewMediaAllActivity.class);
@@ -126,7 +130,16 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                 .map(new Function<Integer, List<GroupPreviewBean>>() {
                     @Override
                     public List<GroupPreviewBean> apply(Integer integer) throws Exception {
-                        return msgAction.getAllMediaMsg(gid, toUid, time);
+                        List<GroupPreviewBean> list = msgAction.getAllMediaMsg(gid, toUid, time);
+                        count = 0;
+                        for (int i = 0; i < list.size(); i++) {
+                            GroupPreviewBean bean = list.get(i);
+                            count += bean.getMsgAllBeans().size();
+                            if (bean.isBetween(time)) {
+                                currentPosition = i;
+                            }
+                        }
+                        return list;
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -137,14 +150,82 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                         dismissLoadingDialog();
                         previewBeans = list;
                         mAdapter.setData(previewBeans);
-                        int count = 0;
-                        for (int i = 0; i < previewBeans.size(); i++) {
-                            count += previewBeans.get(i).getMsgAllBeans().size();
-                        }
                         bindingView.headView.setTitle("图片及视频（" + count + ")");
-//                        bindingView.recyclerView.smoothScrollToPosition(previewBeans.size() - 1);
+                        bindingView.recyclerView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (currentPosition >= 0) {
+                                    bindingView.recyclerView.scrollToPosition(currentPosition);
+                                } else {
+                                    bindingView.recyclerView.scrollToPosition(previewBeans.size() - 1);
+                                }
+                            }
+                        }, 300);
                     }
                 });
+    }
 
+    // refreshType 0 下拉刷新，1 上拉加载更多
+    @SuppressLint("CheckResult")
+    public void loadMore(long time, int refreshType) {
+        Observable.just(0)
+                .map(new Function<Integer, List<GroupPreviewBean>>() {
+                    @Override
+                    public List<GroupPreviewBean> apply(Integer integer) throws Exception {
+                        List<GroupPreviewBean> list = msgAction.getMoreMediaMsg(gid, toUid, time, refreshType);
+                        count = 0;
+                        int size = list.size();
+                        List<GroupPreviewBean> removeList = new ArrayList<>();
+                        for (int i = 0; i < size; i++) {
+                            GroupPreviewBean bean = list.get(i);
+                            if (previewBeans.contains(bean)) {
+                                int index = previewBeans.indexOf(bean);
+                                if (index >= 0 && index < previewBeans.size()) {
+                                    removeList.add(bean);
+                                    GroupPreviewBean b = previewBeans.get(index);
+                                    if (refreshType == 0) {
+                                        List<MsgAllBean> result = b.getMsgAllBeans();
+                                        result.addAll(0, bean.getMsgAllBeans());
+                                        b.setMsgAllBeans(result);
+                                    } else {
+                                        List<MsgAllBean> result = b.getMsgAllBeans();
+                                        result.addAll(bean.getMsgAllBeans());
+                                        b.setMsgAllBeans(result);
+                                    }
+                                }
+                            }
+                            count += bean.getMsgAllBeans().size();
+                            if (bean.isBetween(time)) {
+                                currentPosition = i;
+                            }
+                        }
+
+                        if (removeList.size() > 0) {
+                            list.removeAll(removeList);
+                        }
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<GroupPreviewBean>>empty())
+                .subscribe(new Consumer<List<GroupPreviewBean>>() {
+                    @Override
+                    public void accept(List<GroupPreviewBean> list) throws Exception {
+                        dismissLoadingDialog();
+                        previewBeans = list;
+                        mAdapter.setData(previewBeans);
+                        bindingView.headView.setTitle("图片及视频（" + count + ")");
+                        bindingView.recyclerView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (currentPosition >= 0) {
+                                    bindingView.recyclerView.scrollToPosition(currentPosition);
+                                } else {
+                                    bindingView.recyclerView.scrollToPosition(previewBeans.size() - 1);
+                                }
+                            }
+                        }, 300);
+                    }
+                });
     }
 }
