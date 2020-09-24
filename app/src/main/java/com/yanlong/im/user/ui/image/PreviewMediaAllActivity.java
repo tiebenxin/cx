@@ -21,6 +21,7 @@ import com.yanlong.im.databinding.ItemPreviewFileBinding;
 
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.recycler.SuperSwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,6 +116,46 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+
+        bindingView.swipeRefreshLayout.setOnPullRefreshListener(new SuperSwipeRefreshLayout.OnPullRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (previewBeans == null) {
+                    return;
+                }
+                loadMore(previewBeans.get(0).getStartTime(), 0);
+            }
+
+            @Override
+            public void onPullDistance(int distance) {
+
+            }
+
+            @Override
+            public void onPullEnable(boolean enable) {
+
+            }
+        });
+
+        bindingView.swipeRefreshLayout.setOnPushLoadMoreListener(new SuperSwipeRefreshLayout.OnPushLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (previewBeans == null) {
+                    return;
+                }
+                loadMore(previewBeans.get(previewBeans.size() - 1).getEndTime(), 1);
+            }
+
+            @Override
+            public void onPushDistance(int distance) {
+
+            }
+
+            @Override
+            public void onPushEnable(boolean enable) {
+
+            }
+        });
     }
 
     @SuppressLint("CheckResult")
@@ -173,7 +214,6 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     @Override
                     public List<GroupPreviewBean> apply(Integer integer) throws Exception {
                         List<GroupPreviewBean> list = msgAction.getMoreMediaMsg(gid, toUid, time, refreshType);
-                        count = 0;
                         int size = list.size();
                         List<GroupPreviewBean> removeList = new ArrayList<>();
                         for (int i = 0; i < size; i++) {
@@ -186,10 +226,13 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                                     if (refreshType == 0) {
                                         List<MsgAllBean> result = b.getMsgAllBeans();
                                         result.addAll(0, bean.getMsgAllBeans());
+                                        b.setStartTime(bean.getMsgAllBeans().get(0).getTimestamp());
                                         b.setMsgAllBeans(result);
                                     } else {
                                         List<MsgAllBean> result = b.getMsgAllBeans();
-                                        result.addAll(bean.getMsgAllBeans());
+                                        List<MsgAllBean> temp = bean.getMsgAllBeans();
+                                        result.addAll(temp);
+                                        b.setEndTime(temp.get(temp.size() - 1).getTimestamp());
                                         b.setMsgAllBeans(result);
                                     }
                                 }
@@ -212,19 +255,25 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     @Override
                     public void accept(List<GroupPreviewBean> list) throws Exception {
                         dismissLoadingDialog();
-                        previewBeans = list;
-                        mAdapter.setData(previewBeans);
+                        boolean needRefresh = true;
+                        if (list == null || list.size() <= 0) {
+                            needRefresh = false;
+                        }
                         bindingView.headView.setTitle("图片及视频（" + count + ")");
-                        bindingView.recyclerView.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (currentPosition >= 0) {
-                                    bindingView.recyclerView.scrollToPosition(currentPosition);
-                                } else {
-                                    bindingView.recyclerView.scrollToPosition(previewBeans.size() - 1);
-                                }
+                        if (refreshType == 0) {
+                            bindingView.swipeRefreshLayout.setRefreshing(false);
+                            if (needRefresh) {
+                                previewBeans.addAll(0, list);
                             }
-                        }, 300);
+                        } else {
+                            bindingView.swipeRefreshLayout.setLoadMore(false);
+                            if (needRefresh) {
+                                previewBeans.addAll(list);
+                            }
+                        }
+                        if (needRefresh) {
+                            mAdapter.setData(previewBeans);
+                        }
                     }
                 });
     }
