@@ -288,7 +288,7 @@ public class DateUtils {
         Calendar calendar = Calendar.getInstance();
         Calendar calendar1 = Calendar.getInstance();
         calendar1.setTimeInMillis(time);
-        if (calendar.get(Calendar.MONTH) == calendar1.get(Calendar.MONTH) && calendar.get(Calendar.WEEK_OF_YEAR) == calendar1.get(Calendar.WEEK_OF_YEAR)) {
+        if (/*calendar.get(Calendar.MONTH) == calendar1.get(Calendar.MONTH) && */calendar.get(Calendar.WEEK_OF_YEAR) == calendar1.get(Calendar.WEEK_OF_YEAR)) {
             return true;
         }
         return false;
@@ -300,17 +300,6 @@ public class DateUtils {
         Calendar calendar1 = Calendar.getInstance();
         calendar1.setTimeInMillis(time);
         if (calendar.get(Calendar.YEAR) == calendar1.get(Calendar.YEAR)) {
-            return true;
-        }
-        return false;
-    }
-
-    //当前时间是否是在本周
-    public static boolean isFirstWeek(long time) {
-        Calendar calendar = Calendar.getInstance();
-        Calendar calendar1 = Calendar.getInstance();
-        calendar1.setTimeInMillis(time);
-        if (calendar.get(Calendar.WEEK_OF_YEAR) == calendar1.get(Calendar.WEEK_OF_YEAR) && calendar.get(Calendar.WEEK_OF_MONTH) == 1) {
             return true;
         }
         return false;
@@ -492,7 +481,7 @@ public class DateUtils {
         } else if (type == 2) {
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(time);
-            c.add(Calendar.MONTH, -1);//前一个月最初时间
+            //当月最初
             result[0] = getStartTimeOfMonth(c);
             result[1] = time;
         } else {
