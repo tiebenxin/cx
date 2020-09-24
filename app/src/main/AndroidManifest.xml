@@ -570,6 +570,10 @@
         <activity
             android:name=".circle.mycircle.FollowMeActivity"
             android:screenOrientation="portrait" />
+        <!-- 谁看过我(我的遇见) -->
+        <activity
+            android:name=".circle.mycircle.MyMeetingActivity"
+            android:screenOrientation="portrait" />
         <!-- 方子题目 -->
         <activity
             android:name=".circle.TextTitleActivity"

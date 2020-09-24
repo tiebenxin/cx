@@ -35,6 +35,7 @@ import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
+import com.yanlong.im.circle.mycircle.MyMeetingActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.IUser;
@@ -254,7 +255,8 @@ public class MyFragment extends Fragment {
             if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
-
+            Intent intent = new Intent(getActivity(), MyMeetingActivity.class);
+            startActivity(intent);
         });
     }
 
