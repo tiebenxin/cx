@@ -38,8 +38,14 @@
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_view"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
+
+            <include
+                android:id="@+id/no_data_layout"
+                layout="@layout/layout_no_data"
+                android:visibility="visible"/>
         </LinearLayout>
     </net.cb.cb.library.view.HeadView>
 </layout>

@@ -366,20 +366,20 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             switch (loadState) {
                 case LOADING:
                     holder.footerLayout.setVisibility(View.VISIBLE);
-                    holder.loadingMore.setVisibility(View.VISIBLE);
-                    holder.loadingFinished.setVisibility(View.GONE);
+                    holder.loadingMore.setVisibility(View.GONE);
+                    holder.loading.setVisibility(View.VISIBLE);
                     holder.loadingNoMore.setVisibility(View.GONE);
                     break;
                 case LOADING_MORE:
                     holder.footerLayout.setVisibility(View.VISIBLE);
-                    holder.loadingMore.setVisibility(View.GONE);
-                    holder.loadingFinished.setVisibility(View.VISIBLE);
+                    holder.loadingMore.setVisibility(View.VISIBLE);
+                    holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.GONE);
                     break;
                 case LOADING_END:
                     holder.footerLayout.setVisibility(View.VISIBLE);
                     holder.loadingMore.setVisibility(View.GONE);
-                    holder.loadingFinished.setVisibility(View.GONE);
+                    holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.VISIBLE);
                     break;
                 case LOADING_GONE:
@@ -428,16 +428,16 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     // 尾部
     class FootHolder extends RecyclerView.ViewHolder {
+        private TextView loading;
         private TextView loadingMore;
-        private TextView loadingFinished;
         private TextView loadingNoMore;
         private LinearLayout footerLayout;
 
         public FootHolder(View itemView) {
             super(itemView);
+            loading = itemView.findViewById(R.id.loading);
             loadingMore = itemView.findViewById(R.id.loading_more);
-            loadingFinished = itemView.findViewById(R.id.loading_finished);
-            loadingNoMore = itemView.findViewById(R.id.loading_nomore);
+            loadingNoMore = itemView.findViewById(R.id.loading_no_more);
             footerLayout = itemView.findViewById(R.id.footer_layout);
         }
     }

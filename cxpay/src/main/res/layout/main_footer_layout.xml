@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/loading_more"
+        android:id="@+id/loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="加载中..."
@@ -17,7 +17,7 @@
         android:textColor="@color/c_353535"
         />
     <TextView
-        android:id="@+id/loading_finished"
+        android:id="@+id/loading_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="加载更多"
@@ -27,7 +27,7 @@
         />
 
     <TextView
-        android:id="@+id/loading_nomore"
+        android:id="@+id/loading_no_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="没有更多数据了"

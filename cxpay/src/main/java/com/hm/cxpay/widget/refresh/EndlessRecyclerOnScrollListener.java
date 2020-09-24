@@ -6,7 +6,7 @@ import android.support.v7.widget.RecyclerView;
 /**
  * @类名：RecyclerView加载更多监听器
  * @Date：2019-01-28
- * @备注：上拉加载需超过一页屏幕或4个项，才能顺利触发
+ * @备注：上拉加载需超过一页屏幕，才能顺利触发
  *
  * @by zjy
  */
