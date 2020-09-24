@@ -76,6 +76,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     private boolean isGif = false;
     private int downY;
     private boolean isMultiPoint = false;//是否是多点触控
+    private int downX;
 
     private static void checkZoomLevels(float minZoom, float midZoom,
                                         float maxZoom) {
@@ -515,6 +516,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                         isMultiPoint = ev.getPointerCount() > 1;
                     }
                     downY = (int) ev.getY();
+                    downX = (int) ev.getX();
                     // If we're flinging, and the user presses down, cancel
                     // fling
                     cancelFling();
@@ -538,10 +540,14 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                         }
                     }
                     if (!isMultiPoint) {
+                        int upX = (int) ev.getX();
                         int upY = (int) ev.getY();
-                        if (upY - downY > FLIP_DISTANCE) {
-                            if (mViewTapListener != null) {
-                                mViewTapListener.onViewTap(v, ev.getX(), ev.getY());
+                        //禁止横向滑动退出
+                        if (upX - downX < upY - downY ){
+                            if (upY - downY > FLIP_DISTANCE) {
+                                if (mViewTapListener != null) {
+                                    mViewTapListener.onViewTap(v, ev.getX(), ev.getY());
+                                }
                             }
                         }
                     }
