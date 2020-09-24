@@ -403,8 +403,8 @@
         <!--加群聊-->
         <activity
             android:name=".chat.ui.AddGroupActivity"
-            android:windowSoftInputMode="adjustNothing"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
 
         <!--群助手信息-->
         <activity
@@ -707,12 +707,16 @@
         <activity
             android:name=".pay.ui.select.EnvelopeReceiverActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".pay.ui.select.ViewAllowMemberActivity" />
+        <activity
+            android:name=".pay.ui.select.ViewAllowMemberActivity"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".user.ui.image.PreviewMediaActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".user.ui.image.PreviewMediaAllActivity" />
+        <activity
+            android:name=".user.ui.image.PreviewMediaAllActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 

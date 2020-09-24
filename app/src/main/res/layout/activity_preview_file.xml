@@ -17,17 +17,18 @@
             android:layout_height="match_parent"
             android:background="@color/black">
 
-            <net.cb.cb.library.view.recycler.SuperSwipeRefreshLayout
-                android:id="@+id/swipe_refresh_layout"
+            <net.cb.cb.library.view.springview.widget.SpringView
+                android:id="@+id/spring_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:type="follow">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
-            </net.cb.cb.library.view.recycler.SuperSwipeRefreshLayout>
+            </net.cb.cb.library.view.springview.widget.SpringView>
 
 
             <TextView

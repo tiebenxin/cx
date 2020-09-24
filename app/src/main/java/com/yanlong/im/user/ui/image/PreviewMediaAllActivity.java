@@ -22,6 +22,11 @@ import com.yanlong.im.databinding.ItemPreviewFileBinding;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.recycler.SuperSwipeRefreshLayout;
+import net.cb.cb.library.view.springview.container.DefaultFooter;
+import net.cb.cb.library.view.springview.container.DefaultHeader;
+import net.cb.cb.library.view.springview.container.LoadFooter;
+import net.cb.cb.library.view.springview.container.LoadHeader;
+import net.cb.cb.library.view.springview.widget.SpringView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -116,8 +121,9 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
-
-        bindingView.swipeRefreshLayout.setOnPullRefreshListener(new SuperSwipeRefreshLayout.OnPullRefreshListener() {
+        bindingView.springView.setHeader(new LoadHeader());
+        bindingView.springView.setFooter(new LoadFooter());
+        bindingView.springView.setListener(new SpringView.OnFreshListener() {
             @Override
             public void onRefresh() {
                 if (previewBeans == null) {
@@ -127,33 +133,11 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
             }
 
             @Override
-            public void onPullDistance(int distance) {
-
-            }
-
-            @Override
-            public void onPullEnable(boolean enable) {
-
-            }
-        });
-
-        bindingView.swipeRefreshLayout.setOnPushLoadMoreListener(new SuperSwipeRefreshLayout.OnPushLoadMoreListener() {
-            @Override
             public void onLoadMore() {
                 if (previewBeans == null) {
                     return;
                 }
                 loadMore(previewBeans.get(previewBeans.size() - 1).getEndTime(), 1);
-            }
-
-            @Override
-            public void onPushDistance(int distance) {
-
-            }
-
-            @Override
-            public void onPushEnable(boolean enable) {
-
             }
         });
     }
@@ -261,12 +245,10 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                         }
                         bindingView.headView.setTitle("图片及视频（" + count + ")");
                         if (refreshType == 0) {
-                            bindingView.swipeRefreshLayout.setRefreshing(false);
                             if (needRefresh) {
                                 previewBeans.addAll(0, list);
                             }
                         } else {
-                            bindingView.swipeRefreshLayout.setLoadMore(false);
                             if (needRefresh) {
                                 previewBeans.addAll(list);
                             }
@@ -274,6 +256,7 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                         if (needRefresh) {
                             mAdapter.setData(previewBeans);
                         }
+                        bindingView.springView.onFinishFreshAndLoad();
                     }
                 });
     }
