@@ -55,6 +55,7 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
     private List<GroupPreviewBean> previewBeans;
     private int currentPosition;
     private int count;
+    private boolean hasMoreData;
 
     public static Intent newIntent(Context context, String gid, Long toUid, String msgId, long time) {
         Intent intent = new Intent(context, PreviewMediaAllActivity.class);
@@ -193,12 +194,16 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
     // refreshType 0 下拉刷新，1 上拉加载更多
     @SuppressLint("CheckResult")
     public void loadMore(long time, int refreshType) {
+        hasMoreData = false;
         Observable.just(0)
                 .map(new Function<Integer, List<GroupPreviewBean>>() {
                     @Override
                     public List<GroupPreviewBean> apply(Integer integer) throws Exception {
                         List<GroupPreviewBean> list = msgAction.getMoreMediaMsg(gid, toUid, time, refreshType);
                         int size = list.size();
+                        if (size > 0) {
+                            hasMoreData = true;
+                        }
                         List<GroupPreviewBean> removeList = new ArrayList<>();
                         for (int i = 0; i < size; i++) {
                             GroupPreviewBean bean = list.get(i);
@@ -253,8 +258,9 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                                 previewBeans.addAll(list);
                             }
                         }
-                        if (needRefresh) {
+                        if (hasMoreData) {
                             mAdapter.setData(previewBeans);
+                            hasMoreData = false;
                         }
                         bindingView.springView.onFinishFreshAndLoad();
                     }

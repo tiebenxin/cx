@@ -3845,19 +3845,16 @@ public class MsgDao {
             if (totalResult != null) {
                 int gSize = totalResult.size();
                 if (gSize < maxSize && gSize > 0) {
+                    //降序的
                     lessList = getLessTimeMsgInGroup(gid, time, realm, maxSize - gSize);
-                } else {
-                    totalResult = getLessTimeMsgInGroup(gid, time, realm, maxSize - gSize);
                 }
-            } else {
-                totalResult = getLessTimeMsgInGroup(gid, time, realm, maxSize);
             }
             if (totalResult != null) {
                 int size = totalResult.size();
                 if (size > 0) {
                     MsgAllBean firstMsg;
                     if (lessList != null && lessList.size() > 0) {
-                        firstMsg = lessList.get(0);
+                        firstMsg = lessList.get(lessList.size() - 1);
                     } else {
                         firstMsg = totalResult.get(0);
                     }
@@ -3873,7 +3870,6 @@ public class MsgDao {
                             }
                         }
                     }
-
                 }
             }
             realm.close();
@@ -3952,6 +3948,21 @@ public class MsgDao {
         return results;
     }
 
+    //  获取 > time的消息
+    private RealmResults<MsgAllBean> getGreaterTimeMsgInGroup2(String gid, long time, Realm realm, int size) {
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .greaterThan("timestamp", time)
+                .sort("timestamp", Sort.ASCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
     //获取小于time 的消息
     private RealmResults<MsgAllBean> getLessTimeMsgInGroup(String gid, long time, Realm realm, int size) {
         Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
@@ -3961,7 +3972,7 @@ public class MsgDao {
                 .in("msg_type", supportType)
                 .and()
                 .lessThan("timestamp", time)
-                .sort("timestamp", Sort.ASCENDING)
+                .sort("timestamp", Sort.DESCENDING)
                 .limit(size)
                 .findAll();
         return results;
@@ -4034,6 +4045,24 @@ public class MsgDao {
         return results;
     }
 
+    //获取 > time 的消息
+    private RealmResults<MsgAllBean> getGreaterTimeMsgInUser2(Long uid, long time, Realm realm, int size) {
+        List<MsgAllBean> beans = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .greaterThan("timestamp", time)
+                .sort("timestamp", Sort.ASCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
     //获取小于time 的消息
     private RealmResults<MsgAllBean> getLessTimeMsgInUser(Long uid, long time, Realm realm, int size) {
         Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
@@ -4059,26 +4088,35 @@ public class MsgDao {
             int maxSize = 160;
             RealmResults<MsgAllBean> totalResult;
             if (refreshType == 0) {
+                //倒序的
                 totalResult = getLessTimeMsgInGroup(gid, time, realm, maxSize);
             } else {
-                totalResult = getGreaterTimeMsgInGroup(gid, time, realm, maxSize);
+                totalResult = getGreaterTimeMsgInGroup2(gid, time, realm, maxSize);
             }
             if (totalResult != null) {
                 int size = totalResult.size();
                 if (size > 0) {
-                    MsgAllBean firstMsg = totalResult.get(0);
-                    MsgAllBean lastMsg = totalResult.get(size - 1);
-                    List<Long[]> list = com.hm.cxpay.utils.DateUtils.getSplitTime(firstMsg.getTimestamp(), lastMsg.getTimestamp());
-                    if (list != null) {
-                        int timeSize = list.size();
-                        for (int i = 0; i < timeSize; i++) {
-                            Long[] zone = list.get(i);
-                            GroupPreviewBean bean = getBetweenMsgInGroup(gid, realm, zone);
-                            if (bean != null) {
-                                if (refreshType == 0) {
-                                    groupBeanList.add(0, bean);
-                                } else {
-                                    groupBeanList.add(bean);
+                    MsgAllBean firstMsg, lastMsg;
+                    if (refreshType == 0) {
+                        firstMsg = totalResult.get(size - 1);
+                        lastMsg = totalResult.get(0);
+                    } else {
+                        firstMsg = totalResult.get(0);
+                        lastMsg = totalResult.get(size - 1);
+                    }
+                    if (firstMsg != null && lastMsg != null) {
+                        List<Long[]> list = com.hm.cxpay.utils.DateUtils.getSplitTime(firstMsg.getTimestamp(), lastMsg.getTimestamp());
+                        if (list != null) {
+                            int timeSize = list.size();
+                            for (int i = 0; i < timeSize; i++) {
+                                Long[] zone = list.get(i);
+                                GroupPreviewBean bean = getBetweenMsgInGroup(gid, realm, zone);
+                                if (bean != null) {
+                                    if (refreshType == 0) {
+                                        groupBeanList.add(0, bean);
+                                    } else {
+                                        groupBeanList.add(bean);
+                                    }
                                 }
                             }
                         }
@@ -4104,7 +4142,7 @@ public class MsgDao {
             if (refreshType == 0) {
                 totalResult = getLessTimeMsgInUser(uid, time, realm, maxSize);
             } else {
-                totalResult = getGreaterTimeMsgInUser(uid, time, realm, maxSize);
+                totalResult = getGreaterTimeMsgInUser2(uid, time, realm, maxSize);
             }
             if (totalResult != null) {
                 int size = totalResult.size();
