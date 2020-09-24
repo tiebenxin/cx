@@ -686,6 +686,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (msgList == null) {
                 return;
             }
+        }else if (model == ChatEnum.EForwardMode.EDIT_PIC){
+            imageUrl = editPicPath;
         }
 
         alertForward.init(MsgForwardActivity.this, type, mIcon, mName, txt, imageUrl, btm, toGid, isVertical, new AlertForward.Event() {
