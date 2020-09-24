@@ -34,7 +34,7 @@ import retrofit2.Response;
  */
 public class UpFileAction {
     public static enum PATH {
-        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE, VIDEO, FILE, PC_MSG
+        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE, VIDEO, FILE, PC_MSG, VIDEO_FRAME
     }
 
     private UpFileServer server;
@@ -103,6 +103,9 @@ public class UpFileAction {
                 break;
             case VIDEO:
                 pt = "video/";
+                break;
+            case VIDEO_FRAME:
+                pt = "frame/";
                 break;
             case FILE:
                 pt = "file/";
@@ -235,7 +238,7 @@ public class UpFileAction {
 //                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
-                                            configBean.getBucket(), callback, filePath, fileByte,false);
+                                            configBean.getBucket(), callback, filePath, fileByte, false);
 
                                     UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
                                 }
@@ -295,7 +298,7 @@ public class UpFileAction {
 //                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id, fileName), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
-                                            configBean.getBucket(), callback, filePath, fileByte,false);
+                                            configBean.getBucket(), callback, filePath, fileByte, false);
 
                                     UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
                                 }
@@ -381,7 +384,7 @@ public class UpFileAction {
                                                 public void inProgress(long progress, long zong) {
                                                     callback.inProgress(progress, zong);
                                                 }
-                                            }, filep, null,false);
+                                            }, filep, null, false);
                                 }
                             }).start();
 

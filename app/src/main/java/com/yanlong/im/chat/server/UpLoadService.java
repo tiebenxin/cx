@@ -371,7 +371,7 @@ public class UpLoadService extends Service {
      */
     private static void uploadImageOfVideo(Context mContext, String file, final UpLoadCallback upLoadCallback, boolean isLocalTake) {
         UpFileAction upFileAction = new UpFileAction();
-        upFileAction.upFile(UpFileAction.PATH.VIDEO, mContext, new UpFileUtil.OssUpCallback() {
+        upFileAction.upFile(UpFileAction.PATH.VIDEO_FRAME, mContext, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
                 upLoadCallback.success(url);
