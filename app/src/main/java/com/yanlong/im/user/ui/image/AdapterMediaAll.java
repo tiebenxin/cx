@@ -22,11 +22,15 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LabelItem;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.base.AbstractViewHolder;
+import net.cb.cb.library.utils.ToastUtil;
+
+import java.util.List;
 
 /**
  * @author Liszt
@@ -35,6 +39,8 @@ import net.cb.cb.library.base.AbstractViewHolder;
  */
 public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
     private boolean isSelect = false;
+    private List<MsgAllBean> selectList;
+    private ISelectListener listener;
 
     public AdapterMediaAll(Context ctx) {
         super(ctx);
@@ -57,8 +63,9 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
         return isSelect;
     }
 
-    public void setSelect(boolean select) {
+    public void setSelect(boolean select, List<MsgAllBean> list) {
         isSelect = select;
+        selectList = list;
         notifyDataSetChanged();
     }
 
@@ -86,6 +93,11 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
         public void bindData(MsgAllBean bean) {
             if (isSelect) {
                 llCheck.setVisibility(View.VISIBLE);
+                if (selectList.contains(bean)) {
+                    tvCheck.setSelected(true);
+                } else {
+                    tvCheck.setSelected(false);
+                }
             } else {
                 llCheck.setVisibility(View.GONE);
             }
@@ -124,6 +136,64 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
                 Glide.with(getContext()).load(videoMessage.getBg_url()).into(ivImage);
                 tvDuration.setText(DateUtils.timeParse(videoMessage.getDuration()));
             }
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    if (tvCheck.isSelected()) {
+//                        selectList.remove(bean);
+//                        tvCheck.setSelected(false);
+//                        if (listener != null) {
+//                            listener.onSelect(bean);
+//                        }
+//                    } else {
+//                        if (selectList.size() < 9) {
+//                            selectList.add(bean);
+//                            tvCheck.setSelected(true);
+//                            if (listener != null) {
+//                                listener.onRemove(bean);
+//                            }
+//                        } else {
+//                            ToastUtil.show("最多选择9个");
+//                        }
+//                    }
+                }
+            });
+
+            llCheck.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (tvCheck.isSelected()) {
+                        selectList.remove(bean);
+                        tvCheck.setSelected(false);
+                        if (listener != null) {
+                            listener.onSelect(bean);
+                        }
+                    } else {
+                        if (selectList.size() < 9) {
+                            selectList.add(bean);
+                            tvCheck.setSelected(true);
+                            if (listener != null) {
+                                listener.onRemove(bean);
+                            }
+                        } else {
+                            ToastUtil.show("最多选择9个");
+                        }
+                    }
+                }
+            });
         }
+
+    }
+
+
+    public interface ISelectListener {
+        void onSelect(MsgAllBean bean);
+
+        void onRemove(MsgAllBean bean);
+    }
+
+    public void setListener(ISelectListener l) {
+        listener = l;
     }
 }
