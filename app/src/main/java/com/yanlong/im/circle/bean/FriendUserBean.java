@@ -18,6 +18,8 @@ public class FriendUserBean extends RealmObject {
     private String alias;//备注名
     private String content;//最后一条说说的内容
     private int stat;//关注状态 (1 A关注了B  2 A被B关注 3 相互关注)
+    private long lastTime;//最近访问对方主页时间 (谁看过我/我看过谁)
+    private String imid;//常信号
 
     public Long getUid() {
         return uid;
@@ -65,5 +67,21 @@ public class FriendUserBean extends RealmObject {
 
     public void setStat(int stat) {
         this.stat = stat;
+    }
+
+    public long getLastTime() {
+        return lastTime;
+    }
+
+    public void setLastTime(long lastTime) {
+        this.lastTime = lastTime;
+    }
+
+    public String getImid() {
+        return imid;
+    }
+
+    public void setImid(String imid) {
+        this.imid = imid;
     }
 }

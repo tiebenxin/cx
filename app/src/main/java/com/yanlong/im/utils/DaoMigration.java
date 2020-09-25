@@ -912,7 +912,9 @@ public class DaoMigration implements RealmMigration {
                 .addField("avatar", String.class)
                 .addField("alias", String.class)
                 .addField("content", String.class)
-                .addField("stat", int.class);
+                .addField("stat", int.class)
+                .addField("lastTime", long.class)
+                .addField("imid", String.class);
     }
 
 

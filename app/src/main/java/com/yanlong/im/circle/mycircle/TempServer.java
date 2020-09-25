@@ -29,4 +29,12 @@ public interface TempServer {
     @FormUrlEncoded
     Call<ReturnBean> httpCancelFollow(@Field("followId") long followId);
 
+    @POST("/square/user/access-records")
+    @FormUrlEncoded
+    Call<ReturnBean<List<FriendUserBean>>> httpGetWhoSeeMeList(@Field("currentPage") int page, @Field("pageSize") int pageSize, @Field("type") int type);
+
+    @POST("/square/user/access-record-del")
+    @FormUrlEncoded
+    Call<ReturnBean> httpDeleteVisitRecord(@Field("uid") long uid);
+
 }

@@ -36,7 +36,9 @@ public class MyMeetingActivity extends BaseBindActivity<ActivityMyMeetingBinding
     protected void init(Bundle savedInstanceState) {
         fragments = new ArrayList<>();
         FGWhoSeeMe = new MyMeetingFragment();
+        FGWhoSeeMe.setType(2);
         FGISeeMe = new MyMeetingFragment();
+        FGISeeMe.setType(1);
         fragments.add(FGWhoSeeMe);
         fragments.add(FGISeeMe);
         adapter = new CommonPagerAdapter(getSupportFragmentManager(),fragments);
@@ -84,14 +86,14 @@ public class MyMeetingActivity extends BaseBindActivity<ActivityMyMeetingBinding
         bindingView.viewpager.setCurrentItem(position);
         if(position == 0){
             bindingView.tvWhoSeeMe.setTextColor(getResources().getColor(R.color.c_343434));
-            bindingView.tvWhoSeeMe.setTextSize(TypedValue.COMPLEX_UNIT_SP,21);
+            bindingView.tvWhoSeeMe.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
             bindingView.tvISeeWho.setTextColor(getResources().getColor(R.color.c_767676));
-            bindingView.tvISeeWho.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+            bindingView.tvISeeWho.setTextSize(TypedValue.COMPLEX_UNIT_SP,15);
         }else if(position == 1){
             bindingView.tvWhoSeeMe.setTextColor(getResources().getColor(R.color.c_767676));
-            bindingView.tvWhoSeeMe.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+            bindingView.tvWhoSeeMe.setTextSize(TypedValue.COMPLEX_UNIT_SP,15);
             bindingView.tvISeeWho.setTextColor(getResources().getColor(R.color.c_343434));
-            bindingView.tvISeeWho.setTextSize(TypedValue.COMPLEX_UNIT_SP,21);
+            bindingView.tvISeeWho.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
         }
     }
 }

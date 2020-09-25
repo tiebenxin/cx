@@ -49,4 +49,23 @@ public class TempAction {
     public void httpCancelFollow(final long uid, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.httpCancelFollow(uid), callback);
     }
+
+    /**
+     * 获取谁看过我列表
+     * @param type 1 我看过谁 2 谁看过我
+     */
+
+    public void httpGetWhoSeeMeList(final int currentPage, final int pageSize, final int type, final CallBack<ReturnBean<List<FriendUserBean>>>  callback) {
+        NetUtil.getNet().exec(server.httpGetWhoSeeMeList(currentPage,pageSize,type), callback);
+    }
+
+    /**
+     * 删除访问记录 (我看过谁)
+     * @param uid 对方uid
+     */
+
+    public void httpDeleteVisitRecord(final long uid, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpDeleteVisitRecord(uid), callback);
+    }
+
 }

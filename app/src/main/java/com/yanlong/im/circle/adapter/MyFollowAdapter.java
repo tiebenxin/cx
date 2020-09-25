@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.FriendUserBean;
 import com.yanlong.im.circle.mycircle.TempAction;
@@ -22,6 +23,7 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
@@ -58,15 +60,19 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     // 隐藏底部
     public final int LOADING_GONE = 4;
 
+    private int type;//0 我关注的人(关注我的人) 1 我看过谁 2 谁看过我
+
     private LayoutInflater inflater;
     private Activity activity;
     private List<FriendUserBean> dataList;//列表数据
-
     private RequestOptions mRequestOptions;
+    private CommonSelectDialog dialog;
+    private CommonSelectDialog.Builder builder;
 
-    public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList) {
+    public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList,int type) {
         inflater = LayoutInflater.from(activity);
         this.activity = activity;
+        this.type = type;
         this.dataList = new ArrayList<>();
         if(dataList!=null && dataList.size()>0){
             this.dataList.addAll(dataList);
@@ -75,8 +81,10 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         mRequestOptions = RequestOptions.centerInsideTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
+                .placeholder(com.yanlong.im.R.drawable.ic_info_head)
                 .error(com.yanlong.im.R.drawable.ic_info_head)
                 .centerCrop();
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
     //刷新数据
@@ -130,10 +138,21 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (!TextUtils.isEmpty(userInfo.getNickname())) {
                         holder.tvName.setText(userInfo.getNickname());
                     }
-                    //最新一条说说
-                    if (!TextUtils.isEmpty(userInfo.getContent())) {
-                        holder.tvNote.setText(userInfo.getContent());
+                    if(type==0){
+                        //最新一条说说
+                        if (!TextUtils.isEmpty(userInfo.getContent())) {
+                            holder.tvNote.setText(userInfo.getContent());
+                        }else {
+                            holder.tvNote.setText("暂无个性签名");
+                        }
+                    }else{
+                        if (userInfo.getLastTime()!=0) {
+                            holder.tvNote.setText("最近访问："+TimeToString.getTimeForCollect(userInfo.getLastTime()));
+                        }else {
+                            holder.tvNote.setText("最近没有访问");
+                        }
                     }
+
                     //头像
                     if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                         Glide.with(activity)
@@ -146,27 +165,37 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 .apply(mRequestOptions)
                                 .into(holder.ivHeader);
                     }
-                    //关注状态   刚进来全部是已关注，1 已关注 2 未关注 3 相互关注
-                    if (userInfo.getStat() == 3) {
-                        holder.tvFollow.setText("相互关注");
-                        holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_527ea2);
-                    } else if (userInfo.getStat() == 1) {
-                        holder.tvFollow.setText("已关注");
-                        holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_d8d8d8);
-                    } else {
-                        holder.tvFollow.setText("关注TA");
-                        holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_32b053);
-                    }
-                    //关注操作
-                    holder.tvFollow.setOnClickListener(v -> {
-                        if (holder.tvFollow.getText().equals("已关注")) {
-                            httpCancelFollow(userInfo.getUid(), position, holder.tvFollow);
-                        } else if (holder.tvFollow.getText().equals("关注TA")) {
-                            httpToFollow(userInfo.getUid(), position, holder.tvFollow);
+                    if(type==1){
+                        //显示删除访问记录
+                        holder.tvFollow.setVisibility(View.GONE);
+                        holder.tvDeleteRecord.setVisibility(View.VISIBLE);
+                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position));
+                    }else {
+                        holder.tvFollow.setVisibility(View.VISIBLE);
+                        holder.tvDeleteRecord.setVisibility(View.GONE);
+                        //关注状态   刚进来全部是已关注，1 已关注 2 未关注 3 相互关注
+                        if (userInfo.getStat() == 3) {
+                            holder.tvFollow.setText("相互关注");
+                            holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_527ea2);
+                        } else if (userInfo.getStat() == 1) {
+                            holder.tvFollow.setText("已关注");
+                            holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_d8d8d8);
                         } else {
-                            ToastUtil.show("已相互关注");
+                            holder.tvFollow.setText("关注TA");
+                            holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_32b053);
                         }
-                    });
+                        //关注操作
+                        holder.tvFollow.setOnClickListener(v -> {
+                            if (holder.tvFollow.getText().equals("已关注")) {
+                                httpCancelFollow(userInfo.getUid(), position, holder.tvFollow);
+                            } else if (holder.tvFollow.getText().equals("关注TA")) {
+                                httpToFollow(userInfo.getUid(), position, holder.tvFollow);
+                            } else {
+                                ToastUtil.show("已相互关注");
+                            }
+                        });
+                    }
+
                     holder.layoutItem.setOnClickListener(v -> ToastUtil.show("跳转到朋友圈"));
                     holder.ivHeader.setOnClickListener(v -> activity.startActivity(new Intent(activity, UserInfoActivity.class)
                             .putExtra(UserInfoActivity.ID, userInfo.getUid())
@@ -223,6 +252,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView tvFollow;
         private TextView tvName;
         private TextView tvNote;
+        private TextView tvDeleteRecord;
         private RelativeLayout layoutItem;
 
         public ContentHolder(View itemView) {
@@ -231,6 +261,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             tvFollow = itemView.findViewById(R.id.tv_follow);
             tvName = itemView.findViewById(R.id.tv_name);
             tvNote = itemView.findViewById(R.id.tv_note);
+            tvDeleteRecord = itemView.findViewById(R.id.tv_delete_record);
             layoutItem = itemView.findViewById(R.id.layout_item);
         }
     }
@@ -313,4 +344,51 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         });
     }
+
+    /**
+     * 发请求->删除访问记录
+     */
+    private void httpDeleteVisitRecord(long uid, int position) {
+        new TempAction().httpDeleteVisitRecord(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("删除成功");
+                    dataList.remove(position);//删除数据源,移除集合中当前下标的数据
+                    notifyItemRemoved(position);//刷新被删除的地方
+                    notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("删除失败");
+            }
+        });
+    }
+
+    /**
+     * 是否删除访问记录提示弹框
+     */
+    private void showDeleteDialog(long uid,int position) {
+        dialog = builder.setTitle("是否确认删除?")
+                .setShowLeftText(true)
+                .setRightText("确认")
+                .setLeftText("取消")
+                .setRightOnClickListener(v -> {
+                    httpDeleteVisitRecord(uid,position);
+                    dialog.dismiss();
+                })
+                .setLeftOnClickListener(v ->
+                        dialog.dismiss()
+                )
+                .build();
+        dialog.show();
+    }
+
 }
