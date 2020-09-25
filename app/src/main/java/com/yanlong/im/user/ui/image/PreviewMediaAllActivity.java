@@ -8,11 +8,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
@@ -41,7 +44,6 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -91,6 +93,7 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
     private boolean hasMoreData;
     private List<MsgAllBean> selectMsg = new ArrayList<>();
     private int firstOffset;
+    private LinearLayoutManager layoutManager;
 
     public static Intent newIntent(Context context, String gid, Long toUid, String msgId, long time) {
         Intent intent = new Intent(context, PreviewMediaAllActivity.class);
@@ -115,13 +118,16 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                 binding.tvTime.setText(data.getTime());
                 GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 4);
                 binding.recyclerView.setLayoutManager(layoutManager);
+                binding.recyclerView.setItemAnimator(null);
                 AdapterMediaAll adapter = new AdapterMediaAll(getContext());
                 adapter.setSelect(isSelect, selectMsg);
                 adapter.bindData(data.getMsgAllBeans());
                 binding.recyclerView.setAdapter(adapter);
             }
         };
-        bindingView.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        layoutManager = new LinearLayoutManager(this);
+        bindingView.recyclerView.setLayoutManager(layoutManager);
+        bindingView.recyclerView.setItemAnimator(null);
         bindingView.recyclerView.setAdapter(mAdapter);
         bindingView.tvTime.setVisibility(View.GONE);
     }
@@ -151,10 +157,10 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     } else {
 
                     }
+                    switchSelectMode(false);
+                } else {
+                    switchSelectMode(true);
                 }
-                isSelect = !isSelect;
-                bindingView.headView.getActionbar().setTxtRight(isSelect ? "取消" : "选择");
-                mAdapter.notifyDataSetChanged();
             }
         });
 
@@ -200,6 +206,42 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                 loadMore(previewBeans.get(previewBeans.size() - 1).getEndTime(), 1);
             }
         });
+
+        bindingView.ivForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                filterMessageValid(selectMsg, 1);
+            }
+        });
+        bindingView.ivCollection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                filterMessageValid(selectMsg, 2);
+            }
+        });
+        bindingView.ivDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                showDeleteDialog(selectMsg);
+            }
+        });
+        bindingView.ivDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+            }
+        });
     }
 
     @SuppressLint("CheckResult")
@@ -239,11 +281,14 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                         bindingView.recyclerView.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                if (currentPosition >= 0) {
-                                    bindingView.recyclerView.scrollToPosition(currentPosition);
-                                } else {
-                                    bindingView.recyclerView.scrollToPosition(previewBeans.size() - 1);
-                                }
+//                                if (currentPosition >= 0 ) {
+//                                    bindingView.recyclerView.scrollToPosition(currentPosition);
+//                                } else {
+//                                    bindingView.recyclerView.scrollToPosition(previewBeans.size() - 1);
+//                                }
+//                                bindingView.recyclerView.scrollToPosition(previewBeans.size() - 1);
+                                bindingView.recyclerView.scrollBy(0, Integer.MAX_VALUE);
+
                             }
                         }, 100);
                     }
@@ -317,18 +362,18 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                                 previewBeans.addAll(list);
                             }
                         }
-                        if (hasMoreData) {
+                        if (hasMoreData && refreshType == 0) {
                             mAdapter.setData(previewBeans);
                             hasMoreData = false;
 
-                            //                        if (currentPosition >= 0) {
-//                            bindingView.recyclerView.postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    bindingView.recyclerView.scrollToPosition(currentPosition);
-//                                }
-//                            }, 100);
-//                        }
+                            if (currentPosition >= 0) {
+                                bindingView.recyclerView.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        layoutManager.scrollToPositionWithOffset(currentPosition, firstOffset);
+                                    }
+                                }, 100);
+                            }
                         }
 
 
@@ -340,12 +385,16 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
     @Override
     public void onSelect(MsgAllBean bean) {
         selectMsg.add(bean);
+        showBottom(true);
         mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onRemove(MsgAllBean bean) {
         selectMsg.remove(bean);
+        if (selectMsg.size() == 0) {
+            showBottom(false);
+        }
         mAdapter.notifyDataSetChanged();
     }
 
@@ -632,10 +681,6 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     public void onSure() {
                         toForward(list);
                         dialogValid.dismiss();
-//                        if (clear) {
-//                            mAdapter.clearSelectedMsg();
-//                            hideMultiSelect(ivCollection);
-//                        }
                     }
 
                     @Override
@@ -652,8 +697,8 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
         if (list != null && list.size() > 0) {
             onForwardActivity(ChatEnum.EForwardMode.ONE_BY_ONE, new Gson().toJson(list));
         }
-//        mAdapter.clearSelectedMsg();
-//        hideMultiSelect(ivForward);
+        clearSelectMsg();
+        switchSelectMode(false);
     }
 
     /**
@@ -678,8 +723,8 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     public void onClick() {
                         dialogValid.dismiss();
                         if (clear) {
-//                            mAdapter.clearSelectedMsg();
-//                            hideMultiSelect(ivCollection);
+                            clearSelectMsg();
+                            switchSelectMode(false);
                         }
                     }
                 }).show();
@@ -750,8 +795,8 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
                     }
                 }
             }
-//            mAdapter.clearSelectedMsg();
-//            hideMultiSelect(ivCollection);
+            clearSelectMsg();
+            switchSelectMode(false);
         }
     }
 
@@ -948,6 +993,106 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
             }
         }
         return isOk;
+    }
+
+    public void showBottom(boolean b) {
+        if (b) {
+            bindingView.ivForward.setEnabled(true);
+            bindingView.ivDelete.setEnabled(true);
+            bindingView.ivCollection.setEnabled(true);
+            bindingView.ivDownload.setEnabled(true);
+            bindingView.ivForward.setAlpha(1f);
+            bindingView.ivDelete.setAlpha(1f);
+            bindingView.ivCollection.setAlpha(1f);
+            bindingView.ivDownload.setAlpha(1f);
+        } else {
+            bindingView.ivForward.setEnabled(false);
+            bindingView.ivDelete.setEnabled(false);
+            bindingView.ivCollection.setEnabled(false);
+            bindingView.ivDownload.setEnabled(false);
+            bindingView.ivForward.setAlpha(0.6f);
+            bindingView.ivDelete.setAlpha(0.6f);
+            bindingView.ivCollection.setAlpha(0.6f);
+            bindingView.ivDownload.setAlpha(0.6f);
+        }
+    }
+
+    private void clearSelectMsg() {
+        selectMsg.clear();
+    }
+
+    public void switchSelectMode(boolean isOpen) {
+        if (isOpen) {
+            isSelect = true;
+            bindingView.headView.getActionbar().setTxtRight("取消");
+            mAdapter.notifyItemRangeChanged(0, previewBeans.size());
+            bindingView.llMore.setVisibility(View.VISIBLE);
+        } else {
+            isSelect = false;
+            bindingView.headView.getActionbar().setTxtRight("选择");
+            mAdapter.notifyItemRangeChanged(0, previewBeans.size());
+            bindingView.llMore.setVisibility(View.GONE);
+            clearSelectMsg();
+        }
+    }
+
+    private void showDeleteDialog(List<MsgAllBean> msgList) {
+        if (this.isFinishing()) {
+            return;
+        }
+        DialogCommon dialogDelete = new DialogCommon(this);
+        dialogDelete.setTitleAndSure(false, true)
+                .setContent("确定删除？", true)
+                .setLeft("取消")
+                .setRight("删除")
+                .setListener(new DialogCommon.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        if (MyAppLication.INSTANCE().repository != null) {
+                            MyAppLication.INSTANCE().repository.deleteMsgList(msgList);
+                        }
+                        deleteMsgList(msgList);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+                }).show();
+    }
+
+    @SuppressLint("CheckResult")
+    public void deleteMsgList(List<MsgAllBean> list) {
+        Observable.just(0)
+                .map(new Function<Integer, List<GroupPreviewBean>>() {
+                    @Override
+                    public List<GroupPreviewBean> apply(Integer integer) throws Exception {
+
+                        int size = previewBeans.size();
+                        int removeSize = list.size();
+                        for (int i = 0; i < removeSize; i++) {
+                            MsgAllBean msgAllBean = list.get(i);
+                            for (int j = 0; j < size; j++) {
+                                GroupPreviewBean bean = previewBeans.get(j);
+                                if (bean.isBetween(msgAllBean.getTimestamp())) {
+                                    bean.getMsgAllBeans().remove(msgAllBean);
+                                }
+                            }
+                        }
+                        count = count - removeSize;
+                        return previewBeans;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<GroupPreviewBean>>empty())
+                .subscribe(new Consumer<List<GroupPreviewBean>>() {
+                    @Override
+                    public void accept(List<GroupPreviewBean> list) throws Exception {
+                        previewBeans = list;
+                        mAdapter.setData(previewBeans);
+                        bindingView.headView.setTitle("图片及视频（" + count + ")");
+                        switchSelectMode(false);
+                    }
+                });
     }
 
 }

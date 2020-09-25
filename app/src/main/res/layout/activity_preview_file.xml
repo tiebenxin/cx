@@ -43,7 +43,50 @@
                 android:textColor="@color/white"
                 android:textSize="12sp" />
 
+
+            <LinearLayout
+                android:id="@+id/ll_more"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="bottom"
+                android:background="@color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_forward"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:src="@mipmap/ic_multi_forward" />
+
+                <ImageView
+                    android:id="@+id/iv_collection"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:src="@mipmap/ic_multi_collection" />
+
+                <ImageView
+                    android:id="@+id/iv_delete"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:src="@mipmap/ic_multi_delete" />
+
+                <ImageView
+                    android:id="@+id/iv_download"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:src="@mipmap/ic_multi_download" />
+
+
+            </LinearLayout>
+
         </FrameLayout>
+
 
     </net.cb.cb.library.view.HeadView>
 </layout>
