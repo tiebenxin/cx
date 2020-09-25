@@ -101,17 +101,16 @@ public class MyMeetingFragment extends Fragment {
                         if (page > 1) {
                             mList.addAll(response.body().getData());
                             adapter.addMoreList(mList);
-                            showNoDataLayout(false);
                             adapter.setLoadState(adapter.LOADING_MORE);
                         } else {
                             //1-2 第一次加载，若超过8个显示加载更多
                             mList.addAll(response.body().getData());
                             adapter.updateList(mList);
-                            showNoDataLayout(false);
                             if (mList.size() >= 8) {
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             }
                         }
+                        showNoDataLayout(false);
                         page++;
                     } else {
                         //2 无数据
