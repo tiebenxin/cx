@@ -254,10 +254,11 @@ public class MsgAction {
                                 } else {
                                     dao.groupNumberSave(newGroup);
                                 }
-                                //8.8 取消从数据库里读取群成员信息
-                                if (callback != null) callback.onResponse(call, response);
+
                             }
                         });
+                        //8.8 取消从数据库里读取群成员信息
+                        if (callback != null) callback.onResponse(call, response);
 
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
