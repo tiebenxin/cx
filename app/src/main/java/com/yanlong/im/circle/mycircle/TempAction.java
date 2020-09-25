@@ -68,4 +68,13 @@ public class TempAction {
         NetUtil.getNet().exec(server.httpDeleteVisitRecord(uid), callback);
     }
 
+
+    /**
+     * 我的说说列表 (我的动态)
+     * @param uid 对方uid
+     */
+
+    public void httpMyTrends(final long uid, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpDeleteVisitRecord(uid), callback);
+    }
 }
