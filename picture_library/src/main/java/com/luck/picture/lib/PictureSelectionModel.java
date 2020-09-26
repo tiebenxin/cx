@@ -269,7 +269,7 @@ public class PictureSelectionModel {
     }
 
     /**
-     * @param Less than how many KB images are not compressed
+     * @param size Less than how many KB images are not compressed
      * @return
      */
     public PictureSelectionModel minimumCompressSize(int size) {
@@ -407,9 +407,9 @@ public class PictureSelectionModel {
 
     /**
      * @param isArtworkMaster 是否开启发送原图按钮
-     * */
-    public PictureSelectionModel selectArtworkMaster(boolean isArtworkMaster){
-        selectionConfig.isArtworkMaster  = isArtworkMaster;
+     */
+    public PictureSelectionModel selectArtworkMaster(boolean isArtworkMaster) {
+        selectionConfig.isArtworkMaster = isArtworkMaster;
         return this;
     }
 
@@ -475,9 +475,8 @@ public class PictureSelectionModel {
 
     /**
      * 打开头像大图通用
-     *
-     * */
-    public void openExternalPreviewImage(int position, List<LocalMedia> medias){
+     */
+    public void openExternalPreviewImage(int position, List<LocalMedia> medias) {
         if (selector != null) {
             selector.externalPicturePreviewImage(position, medias);
         } else {
@@ -487,7 +486,6 @@ public class PictureSelectionModel {
 
 
     /**
-     *
      * @param position
      * @param medias
      * @param gid
@@ -495,16 +493,13 @@ public class PictureSelectionModel {
      * @param from
      * @param collectJson 收藏点击大图，转发需要把CollectInfo带过去
      */
-    public void openExternalPreview1(int position, List<LocalMedia> medias,String gid,Long toUid,int from,String collectJson) {
+    public void openExternalPreview1(int position, List<LocalMedia> medias, String gid, Long toUid, int from, String collectJson) {
         if (selector != null) {
-            selector.externalPicturePreview1(position, medias,gid,toUid,from,collectJson);
+            selector.externalPicturePreview1(position, medias, gid, toUid, from, collectJson);
         } else {
             throw new NullPointerException("This PictureSelector is Null");
         }
     }
-
-
-
 
 
     /**
@@ -520,7 +515,6 @@ public class PictureSelectionModel {
             throw new NullPointerException("This PictureSelector is Null");
         }
     }
-
 
 
 }

@@ -7,11 +7,13 @@
         android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/white"
         app:headview_title="编辑投票">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/white"
             android:orientation="vertical"
             android:paddingLeft="15dp"
             android:paddingRight="15dp">
@@ -19,9 +21,15 @@
             <EditText
                 android:id="@+id/et_title"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/vote_item_height"
+                android:layout_height="100dp"
                 android:background="@null"
+                android:gravity="top"
                 android:hint="请输入投票标题或描述，最多200字"
+                android:maxLength="200"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:scrollbars="vertical"
+                android:textColor="@color/gray_343"
                 android:textSize="16dp" />
 
             <View style="@style/app_line" />
@@ -32,6 +40,21 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white" />
 
+            <TextView
+                android:id="@+id/tv_add"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:drawableLeft="@mipmap/ic_vote_add"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:paddingRight="30dp"
+                android:text="添加选项"
+                android:textColor="@color/color_527"
+                android:textSize="16sp" />
+
+            <View
+                android:id="@+id/view_line"
+                style="@style/app_line" />
         </LinearLayout>
     </net.cb.cb.library.view.HeadView>
 

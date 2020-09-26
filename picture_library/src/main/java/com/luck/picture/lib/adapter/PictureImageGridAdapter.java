@@ -116,7 +116,18 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     public List<LocalMedia> getSelectedImages() {
-        if (selectImages == null) {
+        try {
+            if (selectImages == null) {
+                selectImages = new ArrayList<>();
+            } else {
+                for (int i = selectImages.size() - 1; i >= 0; i--) {
+                    if (selectImages.get(i).isShowAdd()) {
+                        selectImages.remove(i);
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
             selectImages = new ArrayList<>();
         }
         return selectImages;
@@ -217,8 +228,8 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                             ToastManage.s(context, PictureMimeType.s(context, mediaMimeType));
                             return;
                         }
-                        if(mediaMimeType == PictureConfig.TYPE_VIDEO){
-                            if(!TextUtils.isEmpty(path)){
+                        if (mediaMimeType == PictureConfig.TYPE_VIDEO) {
+                            if (!TextUtils.isEmpty(path)) {
                                 long length = PicImgSizeUtil.getVideoSize(path);
                                 long duration = Long.parseLong(getVideoAtt(path));
                                 // 大于50M、5分钟不发送

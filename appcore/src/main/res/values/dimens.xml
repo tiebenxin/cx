@@ -3,6 +3,8 @@
     <!-- 统一的左右Margin值 -->
     <dimen name="app_margin_main">16dp</dimen>
 
+    <dimen name="app_margin_circle">15dp</dimen>
+
     <dimen name="actionbar_height">56dp</dimen>
     <!-- 统一的viewMargin值 -->
     <dimen name="app_margin_item">12dp</dimen>
@@ -25,6 +27,8 @@
 
     <dimen name="chat_fuction_panel_height">240dp</dimen>
     <dimen name="chat_fuction_panel_max_height">380dp</dimen>
+
+    <dimen name="circle_details_face_height">197dp</dimen>
 
     <dimen name="emoji_bottom_width">28dp</dimen>
     <dimen name="emoji_bottom_height">28dp</dimen>

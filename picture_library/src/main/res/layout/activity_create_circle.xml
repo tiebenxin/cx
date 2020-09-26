@@ -7,59 +7,44 @@
     android:fitsSystemWindows="true"
     tools:context="com.luck.picture.lib.PictureSelectorActivity">
 
-    <LinearLayout
-        android:id="@+id/id_titleBar"
+    <RelativeLayout
+        android:id="@+id/rl_picture_title"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:background="@color/white"
+        android:gravity="center_vertical">
 
-        <RelativeLayout
-            android:id="@+id/rl_picture_title"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="?colorPrimary"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/picture_left_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:padding="15dp"
-                android:src="?attr/picture.leftBack.icon" />
-
-            <TextView
-                android:id="@+id/picture_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:maxEms="11"
-                android:padding="6dp"
-                android:text="创建动态"
-                android:textColor="?picture.title.textColor"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/picture_right"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:text="发布"
-                android:textColor="?picture.right.textColor"
-                android:textSize="14sp" />
-        </RelativeLayout>
+        <ImageView
+            android:id="@+id/picture_left_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:src="@mipmap/ic_title_back" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="@color/line_color" />
-    </LinearLayout>
+            android:id="@+id/picture_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxEms="11"
+            android:padding="6dp"
+            android:text="创建动态"
+            android:textColor="@color/black"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/picture_right"
+            style="@style/app_btn_green_s"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp"
+            android:gravity="center"
+            android:text="发布" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/rl_bottom"
@@ -139,10 +124,16 @@
         android:id="@+id/et_content"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_below="@+id/id_titleBar"
+        android:layout_below="@+id/rl_picture_title"
+        android:background="@color/transparent"
         android:gravity="top"
         android:hint="记录你此刻生活，分享给大家"
-        android:padding="10dp"
+        android:maxLength="500"
+        android:paddingLeft="15dp"
+        android:paddingTop="10dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="10dp"
+        android:scrollbars="vertical"
         android:textColor="@color/black"
         android:textSize="16sp" />
 
@@ -155,67 +146,88 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp">
+            android:layout_height="45dp">
 
             <TextView
                 android:id="@+id/tv_location"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:drawableLeft="@mipmap/ic_circle_location_gray"
+                android:drawablePadding="7dp"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
+                android:maxWidth="200dp"
                 android:paddingLeft="15dp"
-                android:paddingRight="15dp"
                 android:singleLine="true"
-                android:text="长沙市"
-                android:textColor="@color/color_orange"
+                android:text="@string/you_location"
+                android:textColor="@color/color_b1b"
                 android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/iv_delete_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/tv_location"
+                android:padding="10dp"
+                android:src="@mipmap/ic_circle_delete"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tv_power"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
+                android:drawableRight="@mipmap/ic_right_arrow"
+                android:drawablePadding="7dp"
                 android:gravity="center_vertical"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:text="广场可见"
-                android:textColor="@color/color_orange"
+                android:textColor="@color/color_69"
                 android:textSize="16sp" />
         </RelativeLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/color_line" />
+        <!-- 功能选项-->
         <LinearLayout
             android:id="@+id/view_func"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@color/tab_select"
+            android:background="@color/white"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/iv_voice"
                 style="@style/circle_create_item"
-                android:src="@drawable/ic_video_play" />
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/selector_circle_vote" />
 
             <ImageView
                 android:id="@+id/iv_vote"
                 style="@style/circle_create_item"
-                android:src="@drawable/ic_video_play" />
+                android:src="@drawable/selector_circle_voice" />
 
             <ImageView
                 android:id="@+id/iv_picture"
                 style="@style/circle_create_item"
-                android:src="@drawable/ic_video_play" />
+                android:src="@drawable/selector_circle_picture" />
 
             <ImageView
                 android:id="@+id/iv_face"
                 style="@style/circle_create_item"
-                android:src="@drawable/ic_lv_emoji" />
+                android:src="@drawable/selector_circle_emoji" />
         </LinearLayout>
 
         <FrameLayout
             android:id="@+id/frame_content"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/chat_fuction_panel_height">
-
+            android:layout_height="@dimen/circle_fuction_height">
+            <!-- 图片-->
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/picture_recycler"
                 android:layout_width="match_parent"
@@ -227,56 +239,119 @@
             <com.luck.picture.lib.face.FaceView
                 android:id="@+id/circle_view_faceview"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/chat_fuction_panel_height"
+                android:layout_height="match_parent"
                 android:background="@null"
                 android:paddingTop="10dp"
                 android:visibility="gone" />
-
-            <RelativeLayout
+            <!-- 投票-->
+            <LinearLayout
                 android:id="@+id/layout_vote"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:visibility="visible">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/tv_content_vote"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/layout_char_vote"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="100dp"
-                    android:drawableTop="@drawable/ic_camera"
-                    android:drawablePadding="5dp"
-                    android:text="文字投票"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_picture_vote"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tv_content_vote"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableTop="@mipmap/ic_char_vote"
+                        android:drawablePadding="15dp"
+                        android:text="文字投票"
+                        android:textColor="@color/color_333"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="投票选项只支持文字"
+                        android:textColor="@color/color_69"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/tv_content_vote"
-                    android:drawableTop="@drawable/ic_camera"
-                    android:drawablePadding="5dp"
-                    android:text="图片投票"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-            </RelativeLayout>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_picture_vote"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableTop="@mipmap/ic_pictrue_vote"
+                        android:drawablePadding="15dp"
+                        android:text="图片投票"
+                        android:textColor="@color/color_333"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="投票选项只支持图片"
+                        android:textColor="@color/color_69"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+            <!-- 语音-->
+            <include
+                android:id="@+id/layout_audio"
+                layout="@layout/view_audio_recorder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_max_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/et_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="15dp"
+        android:text="0/500"
+        android:textColor="@color/color_ccc"
+        android:textSize="15sp"
+        android:visibility="gone" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_picture_prview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/layout_bottom"
-        android:layout_below="@id/et_content"
+        android:layout_below="@id/tv_max_number"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="10dp"
         android:background="@color/white"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/layout_voice"
+        layout="@layout/view_audio_play"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/layout_bottom"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="10dp"
         android:visibility="gone" />
 
     <TextView

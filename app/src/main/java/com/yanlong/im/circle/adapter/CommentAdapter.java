@@ -51,6 +51,6 @@ public class CommentAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
     @Override
     protected void convert(BaseViewHolder helper, String result) {
         TextView tvMessage = helper.getView(R.id.tv_message);
-        CommonUtils.setTextColor("我：", result, R.color.blue_100, R.color.color_2e2, tvMessage, mContext);
+        CommonUtils.setTextColor("我：", result, R.color.color_488, R.color.gray_484, tvMessage, mContext);
     }
 }

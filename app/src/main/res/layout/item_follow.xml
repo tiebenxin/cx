@@ -6,81 +6,105 @@
     android:background="@color/white"
     android:paddingTop="14dp">
 
-    <ImageView
-        android:id="@+id/iv_header"
-        android:layout_width="41dp"
-        android:layout_height="41dp"
-        android:layout_marginLeft="15dp"
-        android:src="@mipmap/default_image" />
+    <FrameLayout
+        android:id="@+id/layout_head"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/app_margin_circle">
+
+        <com.hm.cxpay.widget.CircleImageView
+            android:id="@+id/iv_header"
+            style="@style/app_img_head"
+            android:src="@mipmap/default_image" />
+
+        <ImageView
+            android:id="@+id/iv_follow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="36dp"
+            android:src="@mipmap/ic_circle_follow"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/ll_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="12dp"
-        android:layout_marginRight="15dp"
-        android:layout_toRightOf="@+id/iv_header"
+        android:layout_toRightOf="@+id/layout_head"
         android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/tv_user_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/iv_setup"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:text="张三丰"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/gray_767"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_user_name"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:lineSpacingExtra="5dp"
+                android:maxLines="3"
+                android:text="昨天 15:30"
+                android:textColor="@color/gray_b4b"
+                android:textIsSelectable="true"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_follow"
+                style="@style/app_btn_green_s"
+                android:layout_width="65dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
+                android:gravity="center"
+                android:text="关注TA"
+                android:visibility="gone" />
 
             <ImageView
-                android:id="@+id/iv_revoke"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignTop="@+id/tv_user_name"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="0dp"
-                android:layout_toRightOf="@+id/tv_user_name"
-                android:src="@mipmap/ic_my_collect" />
-
-            <ImageView
+                android:id="@+id/iv_setup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@mipmap/location_one" />
+                android:layout_centerVertical="true"
+                android:paddingLeft="25dp"
+                android:paddingTop="15dp"
+                android:paddingRight="@dimen/app_margin_circle"
+                android:paddingBottom="15dp"
+                android:src="@mipmap/ic_circle_more" />
         </RelativeLayout>
-
-        <TextView
-            android:id="@+id/tv_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:ellipsize="end"
-            android:lineSpacingExtra="5dp"
-            android:maxLines="3"
-            android:text="昨天 15:30"
-            android:textColor="@color/gray_300"
-            android:textIsSelectable="true"
-            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="@dimen/app_margin_circle"
+            android:layout_marginBottom="10dp"
             android:lineSpacingExtra="3dp"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
-
+            android:text="美好的一天，天山的风景真的是太漂亮了，让人流连忘返。"
+            android:textColor="@color/gray_484"
+            android:textSize="15sp" />
+        <!-- 视频-->
         <RelativeLayout
             android:id="@+id/rl_video"
-            android:layout_width="160dp"
-            android:layout_height="113dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:background="@color/white"
             android:visibility="gone">
@@ -88,65 +112,79 @@
             <android.support.v7.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="0dp">
+                android:elevation="0dp"
+                app:cardCornerRadius="13dp">
 
                 <ImageView
                     android:id="@+id/iv_video"
-                    android:layout_width="160dp"
-                    android:layout_height="113dp"
-                    android:scaleType="centerCrop" />
-
+                    android:layout_width="186dp"
+                    android:layout_height="255dp"
+                    android:background="@mipmap/bg_image1" />
             </android.support.v7.widget.CardView>
-            >
 
             <ImageView
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_centerInParent="true"
-                android:background="@mipmap/video_play_play" />
+                android:id="@+id/iv_play"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:background="@mipmap/video_msg_play_show"
+                android:elevation="2dp" />
         </RelativeLayout>
-
+        <!-- 图片-->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp" />
-
+            android:layout_marginRight="@dimen/app_margin_circle"
+            android:visibility="visible" />
+        <!-- 评论-->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="@dimen/app_margin_circle"
             android:layout_marginBottom="5dp">
 
             <TextView
                 android:id="@+id/tv_location"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:drawableLeft="@mipmap/location_one"
-                android:drawablePadding="5dp"
+                android:layout_toLeftOf="@+id/iv_like"
+                android:clickable="false"
+                android:drawableLeft="@mipmap/ic_circle_location_gray"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:singleLine="true"
                 android:text="长沙市"
-                android:textColor="@color/gray_300"
-                android:textSize="16sp" />
+                android:textColor="@color/gray_b2b"
+                android:textSize="15sp" />
 
-            <ImageView
+            <TextView
                 android:id="@+id/iv_comment"
-                android:layout_width="40dp"
+                android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:padding="5dp"
-                android:src="@mipmap/default_image" />
+                android:drawableLeft="@mipmap/ic_circle_common"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:text="10"
+                android:textColor="@color/gray_b2b" />
 
-            <ImageView
+            <TextView
                 android:id="@+id/iv_like"
-                android:layout_width="40dp"
+                android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="20dp"
+                android:layout_marginRight="30dp"
                 android:layout_toLeftOf="@+id/iv_comment"
-                android:padding="5dp"
-                android:src="@mipmap/default_image" />
+                android:drawableLeft="@mipmap/ic_circle_give"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                android:text="20"
+                android:textColor="@color/gray_b2b" />
 
         </RelativeLayout>
 
@@ -155,8 +193,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="所有评论（10）"
-            android:textColor="@color/gray_300"
-            android:textSize="16sp"
+            android:textColor="@color/color_8f8"
+            android:textSize="13sp"
             android:visibility="gone" />
 
         <android.support.v7.widget.RecyclerView
@@ -167,4 +205,8 @@
             android:layout_marginBottom="10dp"
             android:visibility="gone" />
     </LinearLayout>
+
+    <View
+        style="@style/app_line"
+        android:layout_below="@+id/ll_content" />
 </RelativeLayout>

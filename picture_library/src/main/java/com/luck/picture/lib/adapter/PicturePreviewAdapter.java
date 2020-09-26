@@ -13,9 +13,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.luck.picture.lib.OnPhotoPreviewChangedListener;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -33,11 +32,13 @@ import java.util.List;
 public class PicturePreviewAdapter extends RecyclerView.Adapter<PicturePreviewAdapter.ViewHolder> {
     private Context mContext;
     private List<LocalMedia> folders = new ArrayList<>();
+    private OnPhotoPreviewChangedListener listener;
 
-    public PicturePreviewAdapter(Context mContext, List<LocalMedia> list) {
+    public PicturePreviewAdapter(Context mContext, List<LocalMedia> list, OnPhotoPreviewChangedListener listener) {
         super();
         this.mContext = mContext;
         this.folders = list;
+        this.listener = listener;
     }
 
     @Override
@@ -49,26 +50,32 @@ public class PicturePreviewAdapter extends RecyclerView.Adapter<PicturePreviewAd
     @Override
     public void onBindViewHolder(final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         final LocalMedia folder = folders.get(position);
-        RequestOptions options = new RequestOptions()
-                .placeholder(R.drawable.ic_placeholder)
-                .centerCrop()
-                .sizeMultiplier(0.5f)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .override(160, 160);
-        Glide.with(holder.itemView.getContext())
-                .asBitmap()
-                .load(folder.getPath())
+        if (folder.isShowAdd()) {
+            holder.rl_delet.setVisibility(View.GONE);
+            holder.iv_img.setImageResource(R.mipmap.ic_add_violation);
+        } else {
+            holder.rl_delet.setVisibility(View.VISIBLE);
+            Glide.with(holder.itemView.getContext())
+                    .asBitmap()
+                    .load(folder.getPath())
 //                .apply(options)
-                .into(new BitmapImageViewTarget(holder.iv_img) {
-                    @Override
-                    protected void setResource(Bitmap resource) {
-                        RoundedBitmapDrawable circularBitmapDrawable =
-                                RoundedBitmapDrawableFactory.
-                                        create(mContext.getResources(), resource);
-                        circularBitmapDrawable.setCornerRadius(8);
-                        holder.iv_img.setImageDrawable(circularBitmapDrawable);
-                    }
-                });
+                    .into(new BitmapImageViewTarget(holder.iv_img) {
+                        @Override
+                        protected void setResource(Bitmap resource) {
+                            RoundedBitmapDrawable circularBitmapDrawable =
+                                    RoundedBitmapDrawableFactory.
+                                            create(mContext.getResources(), resource);
+                            circularBitmapDrawable.setCornerRadius(8);
+                            holder.iv_img.setImageDrawable(circularBitmapDrawable);
+                        }
+                    });
+        }
+//        RequestOptions options = new RequestOptions()
+//                .placeholder(R.drawable.ic_placeholder)
+//                .centerCrop()
+//                .sizeMultiplier(0.5f)
+//                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                .override(160, 160);
         if (PictureMimeType.ofVideo() == PictureMimeType.isPictureType(folder.getPictureType())) {
             holder.iv_play_video.setVisibility(View.VISIBLE);
         } else {
@@ -78,7 +85,21 @@ public class PicturePreviewAdapter extends RecyclerView.Adapter<PicturePreviewAd
             @Override
             public void onClick(View v) {
                 folders.remove(position);
-                notifyDataSetChanged();
+                if (getItemCount() == 1) {
+                    folders.clear();
+                }
+                // 回调取消相册选择
+                if (listener != null) {
+                    listener.onUpdateChange(folders);
+                }
+            }
+        });
+        holder.iv_img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onPicturePrviewClick(folder, position);
+                }
             }
         });
     }

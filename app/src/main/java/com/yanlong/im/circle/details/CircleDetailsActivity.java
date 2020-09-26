@@ -2,15 +2,13 @@ package com.yanlong.im.circle.details;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 
-import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.annotation.Route;
-import com.alibaba.android.arouter.launcher.ARouter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.CircleCommentDialog;
-import com.yanlong.im.circle.LocationCircleActivity;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
@@ -19,8 +17,9 @@ import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
 
 import net.cb.cb.library.base.bind.BaseBindMvpActivity;
-import net.cb.cb.library.utils.NetUtil;
-import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.inter.ICustomerItemClick;
+import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
@@ -62,7 +61,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPres
 
     @Override
     public void initEvent() {
-        bindingView.headView.getActionbar().getRightImage().setImageResource(R.mipmap.ic_chat_bubble_ysq);
+        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
+        ivRight.setImageResource(R.mipmap.ic_circle_more);
+        ivRight.setVisibility(View.VISIBLE);
+        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
+                ScreenUtil.dip2px(this, 10), 0);
         bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -71,7 +74,20 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPres
 
             @Override
             public void onRight() {
+                DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity.this, new ICustomerItemClick() {
+                    @Override
+                    public void onClickItemVideo() {
+                    }
 
+                    @Override
+                    public void onClickItemVoice() {
+                    }
+
+                    @Override
+                    public void onClickItemCancel() {
+
+                    }
+                });
             }
         });
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -83,14 +99,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPres
                 switch (view.getId()) {
                     case R.id.iv_comment:
                         showCommentDialog();
-                        break;
-                    case R.id.tv_location:
-                        if (NetUtil.isNetworkConnected()) {
-                            Postcard postcard = ARouter.getInstance().build(LocationCircleActivity.path);
-                            postcard.navigation();
-                        } else {
-                            ToastUtil.show("当前网络不可用，请检查你的网络设置");
-                        }
                         break;
                 }
             }

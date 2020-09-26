@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:paddingTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:src="@mipmap/ic_vote_delete" />
+
+        <View
+            android:id="@+id/view_line"
+            style="@style/app_line"
+            android:layout_alignParentBottom="true" />
+
+        <EditText
+            android:id="@+id/et_value"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/view_line"
+            android:layout_toRightOf="@+id/iv_delete"
+            android:background="@null"
+            android:ellipsize="end"
+            android:hint="选项A"
+            android:maxLength="50"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@color/gray_343"
+            android:textSize="16sp" />
+
+
+    </RelativeLayout>
+</layout>

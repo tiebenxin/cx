@@ -12,4 +12,10 @@ import net.cb.cb.library.base.bind.IBaseView;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public interface CircleView extends IBaseView {
+
+    void onSuccess();
+
+    void uploadSuccess(String url);
+
+    void showMessage(String message);
 }

@@ -47,7 +47,11 @@ public class CirclePowerSetupActivity extends BaseBindActivity<ActivityCirclePow
             public void bind(ItemCirclePowerSetupBinding binding, CirclePowerBean data, int position, RecyclerView.ViewHolder viewHolder) {
                 binding.tvName.setText(data.getTitle());
                 binding.tvNote.setText(data.getNote());
-                binding.rbCheck.setChecked(data.isCheck());
+                if (data.isCheck()) {
+                    binding.ivSelect.setImageResource(R.drawable.bg_cheack_green_s);
+                } else {
+                    binding.ivSelect.setImageResource(R.drawable.bg_cheack_green_e);
+                }
                 binding.layoutRoot.setOnClickListener(o -> {
                     for (CirclePowerBean bean : mList) {
                         bean.setCheck(false);

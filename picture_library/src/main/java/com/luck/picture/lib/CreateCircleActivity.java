@@ -4,18 +4,22 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,22 +31,30 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.google.gson.Gson;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
+import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.audio.AudioRecorder;
+import com.luck.picture.lib.audio.IAudioPlayListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.dialog.CustomDialog;
+import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.EventEntity;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.face.FaceView;
 import com.luck.picture.lib.face.FaceViewPager;
 import com.luck.picture.lib.face.bean.FaceBean;
@@ -58,16 +70,20 @@ import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastManage;
+import com.luck.picture.lib.utils.DateUtil;
 import com.luck.picture.lib.utils.InputUtil;
 import com.luck.picture.lib.utils.PatternUtil;
 import com.luck.picture.lib.utils.SoftKeyBoardListener;
 import com.luck.picture.lib.widget.CustomerEditText;
+import com.luck.picture.lib.widget.DonutProgress;
 import com.luck.picture.lib.widget.FolderPopWindow;
 import com.luck.picture.lib.widget.PhotoPopupWindow;
 import com.luck.picture.lib.widget.PhotoPopupWindow.OnItemClickListener;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropMulti;
 import com.yalantis.ucrop.model.CutInfo;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.Serializable;
@@ -84,22 +100,30 @@ import io.reactivex.disposables.Disposable;
  * @描述: Media 选择页面
  */
 public class CreateCircleActivity extends PictureBaseActivity implements View.OnClickListener, PictureAlbumDirectoryAdapter.OnItemClickListener,
-        OnPhotoSelectChangedListener, OnItemClickListener {
+        OnPhotoSelectChangedListener, OnItemClickListener, IAudioPlayListener, OnPhotoPreviewChangedListener {
     private final static String TAG = CreateCircleActivity.class.getSimpleName();
     private static final int SHOW_DIALOG = 0;
     private static final int DISMISS_DIALOG = 1;
     private static final int REQUEST_CODE_LOCATION = 100;
     private static final int REQUEST_CODE_POWER = 200;
+    private static final int REQUEST_CODE_VOTE_TXT = 300;
+    private static final int REQUEST_CODE_VOTE_PICTRUE = 400;
     public static final String INTENT_LOCATION_NAME = "intent_location_name";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
     public static final String INTENT_POWER = "intent_power";
-    private ImageView picture_left_back, iv_face, iv_picture, iv_vote;
+    private final String ADDRESS_NOT_SHOW = "不显示位置";
+    private ImageView picture_left_back, iv_face, iv_picture, iv_vote, iv_voice, iv_delete_voice,
+            iv_voice_play, iv_delete_location;
     private TextView picture_title, picture_right, picture_tv_ok, tv_empty,
             picture_tv_img_num, picture_id_preview, tv_PlayPause, tv_Stop, tv_Quit,
-            tv_musicStatus, tv_musicTotal, tv_musicTime, tv_location, tv_power, tv_content_vote, tv_picture_vote;
+            tv_musicStatus, tv_musicTotal, tv_musicTime, tv_location, tv_power,
+            tv_content_vote, tv_picture_vote, tv_max_number, tv_time;
     private CheckBox cb_original;
+    private ProgressBar pb_progress;
     private CustomerEditText etContent;
-    private RelativeLayout rl_picture_title, layout_vote;
-    private LinearLayout id_ll_ok, layoutFunc;
+    private RelativeLayout rl_picture_title, layout_audio;
+    private LinearLayout id_ll_ok, layout_vote, layoutFunc, layout_voice;
     private FrameLayout frame_content;
     private RecyclerView picture_recycler, recycler_picture_prview;
     private PictureImageGridAdapter adapter;
@@ -116,7 +140,22 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private boolean isPlayAudio = false;
     private CustomDialog audioDialog;
     private int audioH;
+    private double mLatitude, mLongitude;
     private int mKeyboardHeight = 0;// 记录软键盘的高度
+    private int mFuncHeight = 0;// 功能面板默认高度
+
+    // 录音相关
+    private boolean isOpenSoft = false;// 是否打开软件盘
+    private boolean isShowFace = true;// 是否显示表情
+    private boolean isPlaying = false;// 是否在播放录音
+    private boolean isRecording;// 是否在录音
+    private int mAudioState = 0;//0未录音 1在录音 2停止录音
+    private final int MAX_SECOND = 90;// 录制最大90秒
+    private AudioRecorder recorder;// 录音对象
+    private String currentAudioFile;// 录音文件
+    private DonutProgress dp_action;// 录音进度条
+    private ImageView iv_action, iv_reset, iv_confirm, iv_voice_bg;
+    private TextView tv_voice_time, tv_voice_tip;
 
     // 选择的图片集合
     private List<LocalMedia> mList = new ArrayList<>();
@@ -220,11 +259,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     }
 
     private void initEvent() {
+        mFuncHeight = ScreenUtils.dip2px(CreateCircleActivity.this, 197);
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                iv_face.setImageLevel(0);
+                isOpenSoft = true;
                 isRestHeight = true;
                 frame_content.setVisibility(View.VISIBLE);
                 setRecyclerViewHeight(h);
@@ -232,12 +272,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
             @Override
             public void keyBoardHide(int h) {
-                iv_face.setImageLevel(1);
-//                isRestHeight = true;
-//                setRecyclerViewHeight(ScreenUtils.dip2px(CreateCircleActivity.this, 240));
-                if (isOpen) {
+                isOpenSoft = false;
+                if (isShowFace) {
                     frame_content.setVisibility(View.GONE);
                 }
+                isRestHeight = true;
+                setRecyclerViewHeight(mFuncHeight);
             }
 
             @Override
@@ -275,6 +315,22 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 }
             }
         });
+        etContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tv_max_number.setText(s.length() + "/500");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void setRecyclerViewHeight(int height) {
@@ -309,10 +365,29 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         iv_picture = findViewById(R.id.iv_picture);
         iv_face = findViewById(R.id.iv_face);
         layout_vote = findViewById(R.id.layout_vote);
+        layout_audio = findViewById(R.id.layout_audio);
         iv_vote = findViewById(R.id.iv_vote);
+        iv_voice = findViewById(R.id.iv_voice);
+        tv_max_number = findViewById(R.id.tv_max_number);
         tv_content_vote = findViewById(R.id.tv_content_vote);
         tv_picture_vote = findViewById(R.id.tv_picture_vote);
         circle_view_faceview = findViewById(R.id.circle_view_faceview);
+
+        layout_voice = findViewById(R.id.layout_voice);
+        iv_delete_voice = findViewById(R.id.iv_delete_voice);
+        pb_progress = findViewById(R.id.pb_progress);
+        tv_time = findViewById(R.id.tv_time);
+        iv_voice_play = findViewById(R.id.iv_voice_play);
+        iv_delete_location = findViewById(R.id.iv_delete_location);
+
+        dp_action = findViewById(R.id.dp_action);
+        iv_action = findViewById(R.id.iv_action);
+        iv_reset = findViewById(R.id.iv_reset);
+        iv_confirm = findViewById(R.id.iv_confirm);
+        tv_voice_time = findViewById(R.id.tv_voice_time);
+        tv_voice_tip = findViewById(R.id.tv_voice_tip);
+        iv_voice_bg = findViewById(R.id.iv_voice_bg);
+        iv_picture.setImageLevel(1);
         isNumComplete(numComplete);
         if (config.mimeType == PictureMimeType.ofAll()) {
             popupWindow = new PhotoPopupWindow(this);
@@ -341,7 +416,15 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         tv_location.setOnClickListener(this);
         tv_power.setOnClickListener(this);
         iv_vote.setOnClickListener(this);
+        iv_voice.setOnClickListener(this);
+        dp_action.setOnClickListener(this);
+        iv_reset.setOnClickListener(this);
+        iv_confirm.setOnClickListener(this);
+        iv_delete_voice.setOnClickListener(this);
         picture_id_preview.setOnClickListener(this);
+        iv_voice_play.setOnClickListener(this);
+        iv_delete_location.setOnClickListener(this);
+
         if (config.mimeType == PictureMimeType.ofAudio()) {
             picture_id_preview.setVisibility(View.GONE);
             audioH = ScreenUtils.getScreenHeight(mContext)
@@ -412,7 +495,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             config.isCamera = StringUtils.isCamera(titleText);
         }
 
-        mPictureAdapter = new PicturePreviewAdapter(this, mList);
+        mPictureAdapter = new PicturePreviewAdapter(this, mList, this);
         recycler_picture_prview.addItemDecoration(new GridSpacingItemDecoration(3,
                 ScreenUtils.dip2px(this, 10), false));
         recycler_picture_prview.setLayoutManager(new GridLayoutManager(this, 3));
@@ -606,16 +689,66 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         return imageUri;
     }
 
-    private boolean isOpen = false;
+    private void createNewCircle() {
+        String content = etContent.getText().toString().trim();
+        if (TextUtils.isEmpty(content)) {
+            etContent.requestFocus();
+            Toast.makeText(this, "请输入动态内容", Toast.LENGTH_LONG).show();
+            return;
+        }
+        int visibility = 0;// 可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
+        switch (tv_power.getText().toString()) {
+            case "广场可见":
+                visibility = 0;
+                break;
+            case "仅好友可见":
+                visibility = 1;
+                break;
+            case "仅陌生人可见":
+                visibility = 2;
+                break;
+            case "自己可见":
+                visibility = 3;
+                break;
+        }
+
+        EventFactory.CreateCircleEvent createCircleEvent = new EventFactory.CreateCircleEvent();
+        EventFactory.CreateCircleEvent.CircleBean circleBean = new EventFactory.CreateCircleEvent.CircleBean();
+        circleBean.setContent(content);
+        circleBean.setVisibility(visibility);
+        circleBean.setType(PictureEnum.EContentType.TXT);
+        if (!TextUtils.isEmpty(tv_location.getText().toString())) {
+            circleBean.setPosition(tv_location.getText().toString());
+            circleBean.setLatitude(mLatitude + "");
+            circleBean.setLongitude(mLongitude + "");
+        }
+        Gson gson = new Gson();
+        if (!TextUtils.isEmpty(currentAudioFile)) {
+            List<AttachmentBean> list = new ArrayList<>();
+            AttachmentBean attachmentBean = new AttachmentBean();
+            attachmentBean.setUrl(currentAudioFile);
+            attachmentBean.setDuration(getSendTime(time));
+            attachmentBean.setType(PictureEnum.EContentType.VOICE);
+            list.add(attachmentBean);
+            circleBean.setAttachment(gson.toJson(list));
+            circleBean.setType(PictureEnum.EContentType.VOICE);
+        }
+        createCircleEvent.circleBean = circleBean;
+        EventBus.getDefault().post(createCircleEvent);
+    }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.picture_left_back || id == R.id.picture_right) {
+        if (id == R.id.picture_left_back) {
             if (folderWindow.isShowing()) {
                 folderWindow.dismiss();
             } else {
                 closeActivity();
+            }
+        } else if (id == R.id.picture_right) {// 发布
+            if (!DoubleUtils.isFastDoubleClick()) {
+                createNewCircle();
             }
         } else if (id == R.id.picture_title) {
             if (folderWindow.isShowing()) {
@@ -637,40 +770,150 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         } else if (id == R.id.tv_location) {
             if (!DoubleUtils.isFastDoubleClick()) {
                 Postcard postcard = ARouter.getInstance().build("/circle/LocationCircleActivity");
+                String city = tv_location.getText().toString();
+                if (city.equals(getString(R.string.you_location))) {
+                    city = "";
+                }
+                postcard.withString("address_name", city);
                 postcard.navigation(this, REQUEST_CODE_LOCATION);
             }
+        } else if (id == R.id.iv_delete_location) {// 删除位置
+            Drawable drawable = getResources().getDrawable(R.mipmap.ic_circle_location_gray);
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
+            tv_location.setCompoundDrawables(drawable, null, null, null);
+            tv_location.setTextColor(getResources().getColor(R.color.color_b1b));
+            tv_location.setText(getString(R.string.you_location));
+            iv_delete_location.setVisibility(View.GONE);
         } else if (id == R.id.tv_power) {
             if (!DoubleUtils.isFastDoubleClick()) {
                 Postcard postcard = ARouter.getInstance().build("/circle/CirclePowerSetupActivity");
                 postcard.navigation(this, REQUEST_CODE_POWER);
             }
-        } else if (id == R.id.iv_picture) {
+        } else if (id == R.id.dp_action) {// 录音
+            setRecyclerViewHeight(mFuncHeight);
+            switch (mAudioState) {
+                case PictureEnum.EAudioType.NO_AUDIO: // 开始录音
+                    iv_action.setVisibility(View.VISIBLE);
+                    tv_voice_tip.setText("正在录音");
+                    dp_action.setMax(100 * 10 * MAX_SECOND);
+                    iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder_ing);
+                    iv_action.setImageResource(R.drawable.bg_audio_recorder_green);
+                    mAudioHandler.removeCallbacks(mAudioRunnable);
+                    time = 0;
+                    mAudioHandler.postDelayed(mAudioRunnable, 100);
+                    startRecord();
+                    mAudioState = 1;
+                    break;
+                case PictureEnum.EAudioType.ING_AUDIO:// 停止
+                    iv_action.setVisibility(View.VISIBLE);
+                    iv_action.setImageResource(R.mipmap.ic_start_recorder);
+                    iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
+                    dp_action.setDonut_progress("" + 0);
+                    stopRecord();
+                    AudioPlayUtil.stopAudioPlay();
+                    mAudioHandler.removeCallbacks(mAudioRunnable);
+                    tv_voice_tip.setText("点击播放");
+                    iv_reset.setVisibility(View.VISIBLE);
+                    iv_confirm.setVisibility(View.VISIBLE);
+                    mAudioState = 2;
+                    break;
+                case PictureEnum.EAudioType.STOP_AUDIO:// 播放
+                    iv_action.setVisibility(View.VISIBLE);
+                    iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
+                    dp_action.setDonut_progress("" + 0);
+                    if (!TextUtils.isEmpty(currentAudioFile)) {
+                        isPlaying = !isPlaying;
+                        if (isPlaying) {
+                            iv_action.setImageResource(R.mipmap.ic_audio_start);
+                            tv_voice_tip.setText("正在播放");
+                            AudioPlayUtil.startAudioPlay(this, currentAudioFile, this);
+                        } else {
+                            tv_voice_tip.setText("点击播放");
+                            iv_action.setImageResource(R.mipmap.ic_start_recorder);
+                            AudioPlayUtil.stopAudioPlay();
+                        }
+                    }
+                    break;
+            }
+        } else if (id == R.id.iv_reset) {// 取消录音
+            resetAudio(true);
+        } else if (id == R.id.iv_confirm) {// 录音完成
+            if (time < 1000) {
+                Toast.makeText(this, "录制时间不能小于1秒", Toast.LENGTH_LONG).show();
+                return;
+            }
+            layout_voice.setVisibility(View.VISIBLE);
+            tv_time.setText(getPlayTime(time));
+            resetAudio(false);
+        } else if (id == R.id.iv_delete_voice) {// 删除语音
+            layout_voice.setVisibility(View.GONE);
+            resetAudio(true);
+        } else if (id == R.id.iv_voice_play) {// 播放语音
+            if (!TextUtils.isEmpty(currentAudioFile)) {
+                AudioPlayUtil.startAudioPlay(this, currentAudioFile, this);
+            }
+        } else if (id == R.id.iv_voice) {// 语音
+            if (isOpenSoft) {
+                isShowFace = false;
+                InputUtil.hideKeyboard(etContent);
+            }
+            frame_content.setVisibility(View.VISIBLE);
+            iv_picture.setImageLevel(0);
+            iv_vote.setImageLevel(0);
+            iv_voice.setImageLevel(1);
+            layout_audio.setVisibility(View.VISIBLE);
+            layout_vote.setVisibility(View.GONE);
+            picture_recycler.setVisibility(View.GONE);
+            circle_view_faceview.setVisibility(View.GONE);
+            delayMillis();
+        } else if (id == R.id.iv_picture) {// 图片
+            if (isOpenSoft) {
+                isShowFace = false;
+                InputUtil.hideKeyboard(etContent);
+            }
+            frame_content.setVisibility(View.VISIBLE);
+            setRecyclerViewHeight(mFuncHeight);
             picture_recycler.setVisibility(View.VISIBLE);
             circle_view_faceview.setVisibility(View.GONE);
             layout_vote.setVisibility(View.GONE);
-        } else if (id == R.id.iv_vote) {
+            layout_audio.setVisibility(View.GONE);
+            iv_picture.setImageLevel(1);
+            iv_vote.setImageLevel(0);
+            iv_voice.setImageLevel(0);
+            delayMillis();
+        } else if (id == R.id.iv_vote) {// 投票
+            if (isOpenSoft) {
+                isShowFace = true;
+                InputUtil.hideKeyboard(etContent);
+            }
+            frame_content.setVisibility(View.VISIBLE);
+            setRecyclerViewHeight(mFuncHeight);
             layout_vote.setVisibility(View.VISIBLE);
+            layout_audio.setVisibility(View.GONE);
             picture_recycler.setVisibility(View.GONE);
             circle_view_faceview.setVisibility(View.GONE);
-        } else if (id == R.id.tv_content_vote) {
+            iv_picture.setImageLevel(0);
+            iv_vote.setImageLevel(1);
+            iv_voice.setImageLevel(0);
+            delayMillis();
+        } else if (id == R.id.tv_content_vote) {// 文字投票
             if (!DoubleUtils.isFastDoubleClick()) {
-                Postcard postcard = ARouter.getInstance().build("/circle/TextTitleActivity");
-                postcard.navigation(this, REQUEST_CODE_POWER);
+                Postcard postcard = ARouter.getInstance().build("/circle/VoteTextActivity");
+                postcard.navigation(this, REQUEST_CODE_VOTE_TXT);
             }
-        } else if (id == R.id.tv_picture_vote) {
-
-        } else if (id == R.id.iv_face) {
+        } else if (id == R.id.tv_picture_vote) {// 图片投票
+            if (!DoubleUtils.isFastDoubleClick()) {
+                Postcard postcard = ARouter.getInstance().build("/circle/VotePictrueActivity");
+                postcard.navigation(this, REQUEST_CODE_VOTE_PICTRUE);
+            }
+        } else if (id == R.id.iv_face) {// 表情
             if (frame_content.getVisibility() == View.GONE) {
                 frame_content.setVisibility(View.VISIBLE);
             }
-            isOpen = !isOpen;
-            if (isOpen) {
-                etContent.requestFocus();
-                InputUtil.showKeyboard(etContent);
-            } else {
-                InputUtil.hideKeyboard(etContent);
-            }
+            isShowFace = !isShowFace;
+            showOrHideInput();
             layout_vote.setVisibility(View.GONE);
+            layout_audio.setVisibility(View.GONE);
             picture_recycler.setVisibility(View.GONE);
             circle_view_faceview.setVisibility(View.VISIBLE);
 
@@ -714,14 +957,102 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     }
 
+    /**
+     * 延迟0.1秒显示内容
+     */
+    private void delayMillis() {
+        try {
+            if (!isFinishing()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        iv_face.setImageLevel(0);
+                        isShowFace = true;
+                        frame_content.setVisibility(View.VISIBLE);
+                    }
+                }, 100);
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void addShowAdd() {
+        LocalMedia localMedia = new LocalMedia();
+        localMedia.setShowAdd(true);
+        mList.add(localMedia);
+    }
+
+    private void showOrHideInput() {
+        if (isShowFace) {
+            iv_face.setImageLevel(0);
+            etContent.requestFocus();
+            InputUtil.showKeyboard(etContent);
+        } else {
+            iv_face.setImageLevel(1);
+            InputUtil.hideKeyboard(etContent);
+        }
+    }
+
+    private String getAudioFile() {
+        File dir = new File(getExternalFilesDir(null).getAbsolutePath(), AudioRecorder.AUDIO_FILE_NAME);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        File file = new File(dir, DateUtil.getCurrTime(DateUtil.DATE_PATTERN_yyyyMMddHHmmss));
+        return file.getAbsolutePath();
+    }
+
+    private void resetAudio(boolean isDelete) {
+        iv_action.setVisibility(View.GONE);
+        if (isPlaying) {
+            AudioPlayUtil.stopAudioPlay();
+            isPlaying = !isPlaying;
+        }
+        dp_action.setDonut_progress("" + 0);
+        tv_voice_time.setText("0s");
+        tv_voice_tip.setText("点击开始录音");
+        iv_reset.setVisibility(View.GONE);
+        iv_confirm.setVisibility(View.GONE);
+        if (isDelete && !TextUtils.isEmpty(currentAudioFile)) {
+            File file = new File(currentAudioFile);
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        mAudioState = 0;
+    }
+
+    private void startRecord() {
+        // FIXME: 2018/10/10 权限是否有权限，没权限提示错误，并返回
+        isRecording = true;
+        if (recorder == null) {
+            recorder = new AudioRecorder(this);
+        }
+        currentAudioFile = getAudioFile();
+        recorder.startRecord(currentAudioFile);
+    }
+
+    private void stopRecord() {
+        if (!isRecording) {
+            return;
+        }
+        if (recorder != null) {
+            recorder.stopRecord();
+        }
+        isRecording = false;
+    }
+
     private void previewImage(List<LocalMedia> previewImages, List<LocalMedia> selectedImages, int position) {
+        Intent intent = new Intent(this, PicturePreviewActivity.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) previewImages);
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
         bundle.putInt(PictureConfig.EXTRA_POSITION, position);
         bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
-        startActivity(PicturePreviewActivity.class, bundle,
+        intent.putExtras(bundle);
+        startActivityForResult(intent,
                 config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
     }
 
@@ -732,8 +1063,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
      */
     private void audioDialog(final String path) {
         audioDialog = new CustomDialog(mContext,
-                LinearLayout.LayoutParams.MATCH_PARENT, audioH
-                ,
+                LinearLayout.LayoutParams.MATCH_PARENT, audioH,
                 R.layout.picture_audio_dialog, R.style.Theme_dialog);
         audioDialog.getWindow().setWindowAnimations(R.style.Dialog_Audio_StyleAnim);
         tv_musicStatus = (TextView) audioDialog.findViewById(R.id.tv_musicStatus);
@@ -811,6 +1141,65 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     };
 
+    private Handler mAudioHandler = new Handler(Looper.getMainLooper());
+    private long time = 0;
+    private Runnable mAudioRunnable = new Runnable() {
+        @Override
+        public void run() {
+            time = time + 100;
+            dp_action.setDonut_progress("" + time);
+            tv_voice_time.setText(getTime(time));
+            if (time < 100 * 10 * MAX_SECOND) {
+                mAudioHandler.postDelayed(this, 100);
+            } else {
+                iv_action.setImageResource(R.mipmap.ic_start_recorder);
+                iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
+                dp_action.setDonut_progress("" + 0);
+                stopRecord();
+                mAudioHandler.removeCallbacks(mAudioRunnable);
+                tv_voice_tip.setText("点击播放");
+                iv_reset.setVisibility(View.VISIBLE);
+                iv_confirm.setVisibility(View.VISIBLE);
+                mAudioState = 2;
+            }
+        }
+    };
+
+    private String getTime(long count) {
+        long min = count / (60 * 1000);
+        long sec = count / 1000 % 60;
+        if (min > 0) {
+            sec = min * 60 + sec;
+        }
+        return sec + "s";
+    }
+
+    private long getSendTime(long count) {
+        long min = count / (60 * 1000);
+        long sec = count / 1000 % 60;
+        if (min > 0) {
+            sec = min * 60 + sec;
+        }
+        return sec;
+    }
+
+    private String getPlayTime(long count) {
+        String time = "";
+        long min = count / (60 * 1000);
+        long sec = count / 1000 % 60;
+        if (min < 10) {
+            time = time + "0" + min;
+        } else {
+            time = time + min;
+        }
+        if (sec < 10) {
+            time = time + ":0" + sec;
+        } else {
+            time = time + ":" + sec;
+        }
+        return time;
+    }
+
     /**
      * 初始化音频播放组件
      *
@@ -826,6 +1215,27 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onStart(Uri var1) {
+
+    }
+
+    @Override
+    public void onStop(Uri var1) {
+
+    }
+
+    @Override
+    public void onComplete(Uri var1) {
+        iv_action.setVisibility(View.VISIBLE);
+        iv_action.setImageResource(R.mipmap.ic_start_recorder);
+        iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
+        tv_voice_tip.setText("点击播放");
+        iv_reset.setVisibility(View.VISIBLE);
+        iv_confirm.setVisibility(View.VISIBLE);
+        mAudioState = 2;
     }
 
     /**
@@ -982,6 +1392,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         if (selectImages != null && selectImages.size() > 0) {
             mList.clear();
             mList.addAll(selectImages);
+            if (mList.size() < 9) {
+                addShowAdd();
+            }
             mPictureAdapter.notifyDataSetChanged();
             recycler_picture_prview.setVisibility(View.VISIBLE);
         } else {
@@ -993,25 +1406,73 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     public void onPictureClick(LocalMedia media, int position) {
 //        List<LocalMedia> images = adapter.getImages();
 //        startPreview(images, position);
-
         List<LocalMedia> previewList = new ArrayList<>();
         int index = -1;
         previewList.addAll(adapter.getSelectedImages());
         for (int i = 0; i < adapter.getSelectedImages().size(); i++) {
             LocalMedia localMedia = adapter.getSelectedImages().get(i);
-            if (localMedia.getPath() == media.getPath()) {//是否在被选中数组中
-                index = adapter.getSelectedImages().indexOf(media);
+            if (localMedia.getPath().equals(media.getPath())) {//是否在被选中数组中
+                index = i;
                 break;
             }
         }
+        Log.i("1212", "index:" + index);
         if (index == -1) {//没有找到，没有被选中
             previewList.add(media);
             index = previewList.size() - 1;
         }
         isRestHeight = false;
         previewImage(previewList, adapter.getSelectedImages(), index);
-
     }
+
+    @Override
+    public void onUpdateChange(List<LocalMedia> selectImages) {
+        if (adapter != null) {
+            List<LocalMedia> list = new ArrayList<>();
+            for (LocalMedia localMedia : selectImages) {
+                if (!localMedia.isShowAdd()) {
+                    list.add(localMedia);
+                }
+            }
+            adapter.bindSelectImages(list);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onPicturePrviewClick(LocalMedia media, int position) {
+        if (media.isShowAdd()) {
+            PictureSelector.create(this)
+                    .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                    .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                    .previewImage(false)// 是否可预览图片 true or false
+                    .isCamera(true)// 是否显示拍照按钮 ture or false
+                    .maxVideoSelectNum(1)
+                    .compress(true)// 是否压缩 true or false
+                    .isGif(true)
+                    .selectArtworkMaster(true)
+                    .selectionMedia(adapter.getSelectedImages())
+                    .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
+        } else {
+            List<LocalMedia> previewList = new ArrayList<>();
+            int index = -1;
+            previewList.addAll(adapter.getSelectedImages());
+            for (int i = 0; i < adapter.getSelectedImages().size(); i++) {
+                LocalMedia localMedia = adapter.getSelectedImages().get(i);
+                if (localMedia.getPath().equals(media.getPath())) {//是否在被选中数组中
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {//没有找到，没有被选中
+                previewList.add(media);
+                index = previewList.size() - 1;
+            }
+            isRestHeight = false;
+            previewImage(previewList, adapter.getSelectedImages(), index);
+        }
+    }
+
 
     /**
      * preview image and video
@@ -1252,13 +1713,48 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                         }
                     }
                     break;
-                case REQUEST_CODE_LOCATION:
+                case REQUEST_CODE_LOCATION:// 设置位置
                     String name = data.getStringExtra(INTENT_LOCATION_NAME);
+                    mLatitude = data.getDoubleExtra(LATITUDE, -1);
+                    mLongitude = data.getDoubleExtra(LONGITUDE, -1);
+                    Drawable drawable;
+                    if (ADDRESS_NOT_SHOW.equals(name)) {
+                        name = getString(R.string.you_location);
+                        tv_location.setTextColor(getResources().getColor(R.color.color_b1b));
+                        drawable = getResources().getDrawable(R.mipmap.ic_circle_location_gray);
+                        iv_delete_location.setVisibility(View.GONE);
+                    } else {
+                        tv_location.setTextColor(getResources().getColor(R.color.green_500));
+                        drawable = getResources().getDrawable(R.mipmap.ic_circle_location_check);
+                        iv_delete_location.setVisibility(View.VISIBLE);
+                    }
+                    drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
+                    tv_location.setCompoundDrawables(drawable, null, null, null);
                     tv_location.setText(name);
                     break;
-                case REQUEST_CODE_POWER:
+                case REQUEST_CODE_POWER:// 设置权限
                     name = data.getStringExtra(INTENT_POWER);
                     tv_power.setText(name);
+                    break;
+                case PictureConfig.CHOOSE_REQUEST:// 图片回调
+                    List<LocalMedia> selectImages = (List<LocalMedia>) data.getSerializableExtra(PictureConfig.EXTRA_RESULT_SELECTION);
+                    if (selectImages != null && selectImages.size() > 0) {
+                        // 底部图片更新
+                        if (adapter != null) {
+                            adapter.bindSelectImages(selectImages);
+                            adapter.notifyDataSetChanged();
+                        }
+                        // 预览图片更新
+                        mList.clear();
+                        mList.addAll(selectImages);
+                        if (mList.size() < 9) {
+                            addShowAdd();
+                        }
+                        mPictureAdapter.notifyDataSetChanged();
+                        recycler_picture_prview.setVisibility(View.VISIBLE);
+                    } else {
+                        recycler_picture_prview.setVisibility(View.GONE);
+                    }
                     break;
             }
         } else if (resultCode == RESULT_CANCELED) {
@@ -1335,6 +1831,11 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             mediaPlayer.release();
             mediaPlayer = null;
         }
+        if (recorder != null && mAudioHandler != null) {
+            mAudioHandler.removeCallbacks(mAudioRunnable);
+            recorder.stopRecord();
+        }
+        time = 0;
     }
 
     @Override

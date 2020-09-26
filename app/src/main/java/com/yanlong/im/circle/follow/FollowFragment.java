@@ -8,15 +8,16 @@ import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.luck.picture.lib.tools.DoubleUtils;
+import com.scwang.smartrefresh.header.MaterialHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
-import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.databinding.FragmentFollowBinding;
 import com.yanlong.im.interf.ICircleClickListener;
 
@@ -53,12 +54,20 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         mFlowAdapter = new CircleFlowAdapter(null, false, this);
         bindingView.recyclerFollow.setAdapter(mFlowAdapter);
         bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
+        bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
         mPresenter.getFollowData();
     }
 
     @Override
     public void initEvent() {
+        bindingView.srlFollow.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(@android.support.annotation.NonNull RefreshLayout refreshLayout) {
+                bindingView.srlFollow.finishRefresh();
+                bindingView.srlFollow.finishLoadMore();
+            }
+        });
         bindingView.srlFollow.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
@@ -82,10 +91,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     case R.id.iv_comment:
                         gotoCircleDetailsActivity(true);
                         break;
-                    case R.id.iv_revoke:
-                        Postcard postcard = ARouter.getInstance().build(MyFollowActivity.path);
-                        postcard.navigation();
-                        break;
+//                    case R.id.iv_revoke:
+//                        Postcard postcard = ARouter.getInstance().build(MyFollowActivity.path);
+//                        postcard.navigation();
+//                        break;
                     case R.id.iv_header:
 
                         break;

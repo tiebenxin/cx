@@ -1,24 +1,24 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
 
     <GridView
         android:id="@+id/view_face_pager_gridview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:cacheColorHint="@color/transparent"
-        android:verticalSpacing="15dp"
         android:listSelector="@color/transparent"
-        android:numColumns="auto_fit" />
+        android:numColumns="auto_fit"
+        android:verticalSpacing="15dp" />
 
     <LinearLayout
         android:id="@+id/view_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:paddingBottom="60dp" >
+        android:paddingBottom="18dp">
 
         <TextView
             android:layout_width="0dp"
@@ -29,10 +29,10 @@
             android:id="@+id/view_face_pager_btn_delete"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:scaleType="center"
             android:layout_weight="1"
             android:background="@null"
             android:contentDescription="@null"
+            android:scaleType="center"
             android:src="@mipmap/ic_emoj_del" />
     </LinearLayout>
 

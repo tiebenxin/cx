@@ -94,4 +94,71 @@ public class DialogHelper {
         });
         selectDialog.show();
     }
+
+    /**
+     * 音视频通话弹框
+     *
+     * @param context
+     * @param iCustomerItemClick
+     */
+    public void createFollowDialog(Context context, final ICustomerItemClick iCustomerItemClick) {
+
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth();
+
+        View dialogview = LayoutInflater.from(context).inflate(R.layout.dialog_circle_follow, null);
+        final Dialog selectDialog = new Dialog(context, R.style.upload_image_methods_dialog);
+        selectDialog.setContentView(dialogview);
+        Window window = selectDialog.getWindow();
+        WindowManager.LayoutParams dialogParams = window.getAttributes();
+        dialogParams.gravity = Gravity.BOTTOM;
+        dialogParams.width = width;
+        window.setAttributes(dialogParams);
+        dialogview.findViewById(R.id.txt_cancle).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+            }
+        });
+        dialogview.findViewById(R.id.tv_follow).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+            }
+        });
+        dialogview.findViewById(R.id.tv_add).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+            }
+        });
+        dialogview.findViewById(R.id.tv_chat).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+            }
+        });
+        dialogview.findViewById(R.id.tv_report).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+            }
+        });
+        selectDialog.show();
+    }
 }
