@@ -1,5 +1,10 @@
 package com.yanlong.im.circle;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+
+import java.util.WeakHashMap;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -10,4 +15,6 @@ package com.yanlong.im.circle;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public interface CircleApi {
+
+    void createNewCircle(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
 }

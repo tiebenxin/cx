@@ -77,6 +77,8 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         if (isDetails) {
             helper.setVisible(R.id.tv_comment_count, true);
             helper.setVisible(R.id.recycler_comment, true);
+            helper.setVisible(R.id.tv_follow, true);
+            helper.setGone(R.id.iv_setup, false);
             RecyclerView recyclerComment = helper.getView(R.id.recycler_comment);
             recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
             CommentAdapter checkTxtAdapter = new CommentAdapter(false);
@@ -90,12 +92,14 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         } else {
             helper.setGone(R.id.tv_comment_count, false);
             helper.setGone(R.id.recycler_comment, false);
+            helper.setGone(R.id.tv_follow, false);
+            helper.setVisible(R.id.iv_setup, true);
         }
         TextView tvContent = helper.getView(R.id.tv_content);
         tvContent.setText(messageInfoBean.getContent());
         toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
                 "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
-        helper.addOnClickListener(R.id.iv_comment, R.id.tv_location, R.id.iv_revoke, R.id.iv_header);
+        helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow);
     }
 
     /**

@@ -23,4 +23,16 @@
     <color name="green_200">#67c257</color>
     <color name="blue_100">#1BADEE</color>
     <color name="tab_select">#699fe2</color>
+    <color name="color_line">#dcdddd</color>
+    <color name="green_500">#32b053</color>
+    <color name="color_ccc">#cccccc</color>
+    <color name="color_333">#333333</color>
+    <color name="color_666">#666666</color>
+    <color name="color_b4b">#B4B4B4</color>
+    <color name="color_e9e">#E9E9E9</color>
+    <color name="color_73c">#73C16F</color>
+    <color name="color_f4f">#F4F4F4</color>
+    <color name="color_b1b">#B1B1B1</color>
+    <!--按钮按下颜色-->
+    <color name="gray_250">#B5B5B5</color>
 </resources>

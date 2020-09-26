@@ -2,5 +2,6 @@
 <resources>
     <dimen name="margin_top">8dp</dimen>
     <dimen name="chat_fuction_panel_max_height">380dp</dimen>
-    <dimen name="chat_fuction_panel_height">240dp</dimen>
+    <dimen name="circle_fuction_height">197dp</dimen>
+    <dimen name="audio_recorder_height">79dp</dimen>
 </resources>

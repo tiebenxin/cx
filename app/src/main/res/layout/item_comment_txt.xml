@@ -3,12 +3,11 @@
     android:id="@+id/tv_message"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingRight="15dp"
-    android:paddingTop="1dp"
-    android:paddingBottom="1dp"
-    android:gravity="center_vertical"
-    android:textSize="15sp"
     android:background="@drawable/item_default_trans"
     android:clickable="true"
     android:focusable="true"
-    />
+    android:gravity="center_vertical"
+    android:paddingTop="1dp"
+    android:paddingRight="15dp"
+    android:paddingBottom="1dp"
+    android:textSize="15sp" />

@@ -574,9 +574,13 @@
         <activity
             android:name=".circle.mycircle.MyMeetingActivity"
             android:screenOrientation="portrait" />
-        <!-- 方子题目 -->
+        <!-- 文字投票 -->
         <activity
-            android:name=".circle.TextTitleActivity"
+            android:name=".circle.VoteTextActivity"
+            android:screenOrientation="portrait" />
+        <!-- 图片投票 -->
+        <activity
+            android:name=".circle.VotePictrueActivity"
             android:screenOrientation="portrait" />
     </application>
 

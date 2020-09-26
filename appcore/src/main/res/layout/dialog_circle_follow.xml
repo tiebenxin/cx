@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rect_30_30_0_0_white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/layout_voice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:orientation="horizontal"
+        android:paddingTop="30dp"
+        android:paddingBottom="30dp">
+
+        <TextView
+            android:id="@+id/tv_follow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@mipmap/ic_circle_details_follow"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="关注TA"
+            android:textColor="@color/color_3A3"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_add"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@mipmap/ic_circle_add_friend"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="添加好友"
+            android:textColor="@color/color_3A3"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_chat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@mipmap/ic_circle_chat"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="私聊"
+            android:textColor="@color/color_3A3"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_report"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@mipmap/ic_circle_report"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="举报"
+            android:textColor="@color/color_3A3"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@color/color_f4f" />
+
+    <TextView
+        android:id="@+id/txt_cancle"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_item_click_select"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="取消"
+        android:textColor="@color/color_222"
+        android:textSize="16sp" />
+</LinearLayout>

@@ -238,7 +238,7 @@ public interface UserServer {
 
     @POST("/user/deactivate-user")
     @FormUrlEncoded
-    Call<ReturnBean> logoutAccount(@Field("captcha") String code,@Field("phone") String phone);
+    Call<ReturnBean> logoutAccount(@Field("captcha") String code, @Field("phone") String phone);
 
     @POST("user/get-sms-captcha")
     @FormUrlEncoded

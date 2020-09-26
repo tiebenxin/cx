@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_voice_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="0s"
+        android:textColor="@color/color_333"
+        android:textSize="20sp" />
+
+    <RelativeLayout
+        android:id="@+id/rl_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <ImageView
+            android:id="@+id/iv_voice_bg"
+            android:layout_width="@dimen/audio_recorder_height"
+            android:layout_height="@dimen/audio_recorder_height"
+            android:layout_centerInParent="true"
+            android:src="@drawable/bg_audio_recorder" />
+
+        <com.luck.picture.lib.widget.DonutProgress
+            android:id="@+id/dp_action"
+            android:layout_width="@dimen/audio_recorder_height"
+            android:layout_height="@dimen/audio_recorder_height"
+            android:layout_centerInParent="true"
+            app:donut_finished_color="#73C16F"
+            app:donut_finished_stroke_width="6dp"
+            app:donut_unfinished_color="#ffe4fbea"
+            app:donut_unfinished_stroke_width="6dp" />
+
+        <ImageView
+            android:id="@+id/iv_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:src="@mipmap/ic_start_recorder" />
+
+        <ImageView
+            android:id="@+id/iv_confirm"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="58dp"
+            android:src="@mipmap/ic_voice_ok"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/iv_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="58dp"
+            android:src="@mipmap/ic_voice_delete"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_voice_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:text="点击开始录音"
+        android:textColor="@color/color_666"
+        android:textSize="14sp" />
+
+</RelativeLayout>

@@ -4,48 +4,49 @@
     <RelativeLayout
         android:id="@+id/layout_root"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@drawable/item_default_trans"
-        android:paddingTop="10dp"
-        android:layout_height="wrap_content">
+        android:paddingTop="10dp">
 
-        <RadioButton
-            android:id="@+id/rb_check"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:id="@+id/iv_select"
             android:layout_width="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:clickable="false"
-            android:layout_centerVertical="true"/>
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/app_margin_circle"
+            android:layout_marginRight="21dp"
+            android:src="@drawable/bg_cheack_green_e" />
 
         <LinearLayout
             android:id="@+id/layout_content"
             android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:layout_toRightOf="@+id/rb_check"
-            android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/tv_name"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:text="刘德华"
-                    android:singleLine="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:id="@+id/tv_note"
-                    android:textSize="14sp"
-                    android:text="这是一个好城市"
-                    android:layout_marginTop="3dp"
-                    android:singleLine="true"
-                    android:textColor="@color/gray_300"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/iv_select"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="刘德华"
+                android:textColor="@color/gray_343"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:singleLine="true"
+                android:text="这是一个好城市"
+                android:textColor="@color/gray_300"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <View
+            style="@style/app_line"
             android:layout_below="@+id/layout_content"
-            android:layout_marginTop="10dp"
-            android:layout_toRightOf="@+id/rb_check"
-            style="@style/app_line"/>
+            android:layout_marginTop="10dp" />
     </RelativeLayout>
 </layout>
