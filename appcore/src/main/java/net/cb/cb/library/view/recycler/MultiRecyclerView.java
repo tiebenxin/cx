@@ -54,7 +54,7 @@ public class MultiRecyclerView extends LinearLayout {
         pullRefreshLayout.setRefreshDrawable(new MaterialDrawable(getContext(), pullRefreshLayout));
         pullRefreshLayout.setEnabled(false);
         layoutManager = new YLLinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-        layoutManager.setStackFromEnd(true);
+//        layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         recyclerView.setItemAnimator(null);

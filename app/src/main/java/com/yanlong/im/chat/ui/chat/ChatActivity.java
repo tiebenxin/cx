@@ -615,6 +615,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void onChanged(@Nullable Boolean value) {
                 if (value) {
                     viewReplyMessage.setVisible(true);
+                    mViewModel.isInputText.setValue(true);
                 } else {
                     viewReplyMessage.setVisible(false);
                 }
