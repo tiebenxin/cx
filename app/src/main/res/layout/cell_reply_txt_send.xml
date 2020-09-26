@@ -124,7 +124,7 @@
                         android:layout_gravity="right"
                         android:layout_marginBottom="4dp"
                         android:background="@drawable/selector_chat_me_touch"
-                        android:gravity="right|center_vertical"
+                        android:gravity="left|center_vertical"
                         android:orientation="vertical"
                         android:visibility="visible">
 
