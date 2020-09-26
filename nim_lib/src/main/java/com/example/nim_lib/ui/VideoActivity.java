@@ -546,6 +546,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+//        returnVideoActivity = false;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         try {

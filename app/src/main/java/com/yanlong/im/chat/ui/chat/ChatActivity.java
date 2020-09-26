@@ -6130,6 +6130,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         mAdapter.removeMsgList(list);
         removeUnreadCount(list.size());
+        mtListView.getListView().setFocusable(false);
+        mtListView.getListView().setFocusableInTouchMode(false);
         notifyData();
         //有面板，则滑到底部
         if (mViewModel.isInputText.getValue() || mViewModel.isOpenEmoj.getValue() || mViewModel.isOpenFuction.getValue()) {
