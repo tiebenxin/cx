@@ -20,6 +20,12 @@ public class FriendUserBean extends RealmObject {
     private int stat;//关注状态 (1 A关注了B  2 A被B关注 3 相互关注)
     private long lastTime;//最近访问对方主页时间 (谁看过我/我看过谁)
     private String imid;//常信号
+    private String bgImage;//主页背景图
+    private long accessCount;//看过我的人
+    private int followMyCount;//关注我的人
+    private int myFollowCount;//我关注的人
+
+
 
     public Long getUid() {
         return uid;
@@ -83,5 +89,37 @@ public class FriendUserBean extends RealmObject {
 
     public void setImid(String imid) {
         this.imid = imid;
+    }
+
+    public String getBgImage() {
+        return bgImage;
+    }
+
+    public void setBgImage(String bgImage) {
+        this.bgImage = bgImage;
+    }
+
+    public long getAccessCount() {
+        return accessCount;
+    }
+
+    public void setAccessCount(long accessCount) {
+        this.accessCount = accessCount;
+    }
+
+    public int getFollowMyCount() {
+        return followMyCount;
+    }
+
+    public void setFollowMyCount(int followMyCount) {
+        this.followMyCount = followMyCount;
+    }
+
+    public int getMyFollowCount() {
+        return myFollowCount;
+    }
+
+    public void setMyFollowCount(int myFollowCount) {
+        this.myFollowCount = myFollowCount;
     }
 }

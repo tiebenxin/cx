@@ -11,12 +11,12 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white"
             android:orientation="vertical">
 
             <RelativeLayout
                 android:id="@+id/layout_top"
                 android:layout_width="match_parent"
+                android:background="@color/white"
                 android:layout_height="wrap_content">
 
                 <com.hm.cxpay.widget.CircleImageView
@@ -31,23 +31,23 @@
                     android:id="@+id/tv_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:textSize="18sp"
-                    android:text="用户名"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@+id/iv_header"
-                    android:textColor="@color/c_363636"/>
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="24dp"
+                    android:text="用户名"
+                    android:textColor="@color/c_363636"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tv_imid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tv_name"
-                    android:layout_marginTop="10dp"
                     android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:text="常信号"
                     android:textColor="@color/c_868686"
-                    android:textSize="14sp"
-                    android:text="常信号"/>
+                    android:textSize="14sp" />
 
                 <View
                     android:id="@+id/view_one"
@@ -55,28 +55,106 @@
                     android:layout_height="0.5dp"
                     android:layout_below="@+id/tv_imid"
                     android:layout_marginTop="28dp"
-                    android:background="@color/c_e6e6e6"/>
+                    android:background="@color/c_e6e6e6" />
+
                 <LinearLayout
-                    android:layout_below="@+id/view_one"
                     android:layout_width="match_parent"
-                    android:layout_height="73.5dp">
+                    android:layout_height="73.5dp"
+                    android:gravity="center_vertical"
+                    android:layout_below="@+id/view_one">
+
                     <LinearLayout
-                        android:id="@+id/layout_i_follow"
+                        android:id="@+id/layout_my_follow"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"/>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
                         <TextView
+                            android:id="@+id/tv_my_follow_num"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="21sp"
+                            android:text="0"
+                            android:textStyle="bold"
                             android:textColor="@color/c_343434"
-                            android:text="0"/>
-                    <TextView
+                            android:textSize="21sp" />
+
+                        <TextView
+                            android:id="@+id/tv_my_follow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="关注"
+                            android:textColor="@color/c_868686"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/view_two"
+                        android:layout_width="0.5dp"
+                        android:layout_height="38dp"
+                        android:background="@color/c_e6e6e6" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_follow_me"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="@color/c_868686"
-                        android:text="0"/>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_follow_me_num"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textStyle="bold"
+                            android:textColor="@color/c_343434"
+                            android:textSize="21sp" />
+
+                        <TextView
+                            android:id="@+id/tv_follow_me"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="被关注"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/c_868686"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/view_three"
+                        android:layout_width="0.5dp"
+                        android:layout_height="38dp"
+                        android:background="@color/c_e6e6e6" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_who_see_me"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_who_see_me_num"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textStyle="bold"
+                            android:textColor="@color/c_343434"
+                            android:textSize="21sp" />
+
+                        <TextView
+                            android:id="@+id/tv_who_see_me"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="看过我"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/c_868686"
+                            android:textSize="13sp" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </RelativeLayout>
@@ -85,7 +163,9 @@
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone" />
+                android:background="@color/white"
+                android:layout_marginTop="8dp"
+                android:visibility="visible" />
 
             <include
                 android:id="@+id/no_data_layout"
