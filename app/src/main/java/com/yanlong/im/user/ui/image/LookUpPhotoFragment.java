@@ -422,6 +422,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                     MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
                                 }
                                 //这边要改成已读
+                                media.setHasRead(true);
                                 msgDao.ImgReadStatSet(media.getMsg_id(), true);
                             }
                         });
