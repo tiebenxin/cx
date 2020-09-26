@@ -358,9 +358,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                 }
             }
         };
-
         msgAction.groupInfo4Db(gid, callBack);
-        msgAction.groupInfo(gid, true, callBack);
     }
 
 

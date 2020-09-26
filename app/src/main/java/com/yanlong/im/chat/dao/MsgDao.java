@@ -91,7 +91,9 @@ public class MsgDao {
                 int size = memberUsers.size();
                 for (int j = 0; j < size; j++) {
                     MemberUser memberUser = memberUsers.get(j);
-                    memberUser.init(group.getGid());
+                    if (memberUser != null) {
+                        memberUser.init(group.getGid());
+                    }
                 }
             }
         }
@@ -424,17 +426,21 @@ public class MsgDao {
      * 保存群成员到数据库
      * @param
      */
-    public void groupNumberSave(Group ginfo) {
-        if (ginfo == null) {
+    public void groupNumberSave(Group group) {
+        if (group == null) {
             return;
         }
-        for (MemberUser sv : ginfo.getUsers()) {
-            sv.init(ginfo.getGid());
+        for (MemberUser sv : group.getUsers()) {
+            if (sv != null && !TextUtils.isEmpty(group.getGid())) {
+                sv.init(group.getGid());
+            } else {
+                System.out.println("为空了" + sv);
+            }
         }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            realm.insertOrUpdate(ginfo);
+            realm.insertOrUpdate(group);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -473,13 +479,13 @@ public class MsgDao {
      * @param uid
      * @return
      */
-    public boolean inThisGroup(String gid,long uid) {
+    public boolean inThisGroup(String gid, long uid) {
         Realm realm = DaoUtil.open();
         try {
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
-                if(group.getUsers()!=null && group.getUsers().size()>0){
-                    for(MemberUser user : group.getUsers()){
+                if (group.getUsers() != null && group.getUsers().size() > 0) {
+                    for (MemberUser user : group.getUsers()) {
                         if (uid == user.getUid()) {
                             return true;
                         }
