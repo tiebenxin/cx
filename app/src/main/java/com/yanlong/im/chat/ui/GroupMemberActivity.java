@@ -222,28 +222,26 @@ public class GroupMemberActivity extends AppActivity {
                     }
                 }
             } else {
-                if (isAdmin() || (UserAction.getMyId() != null && isAdministrators(UserAction.getMyId()))) {
-                    if (position == ginfo.getUsers().size() - 1) {
-                        //  holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
-                        holder.imgHead.setImageResource(R.mipmap.ic_group_c);
-                        holder.txtName.setText("");
-                        holder.itemView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                taskDel();
-                            }
-                        });
-                    } else {
-                        // holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
-                        holder.imgHead.setImageResource(R.mipmap.ic_group_a);
-                        holder.txtName.setText("");
-                        holder.itemView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                taskAdd();
-                            }
-                        });
-                    }
+                if ((isAdmin() || (UserAction.getMyId() != null && isAdministrators(UserAction.getMyId()))) && position == ginfo.getUsers().size() - 1) {
+                    //  holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
+                    holder.imgHead.setImageResource(R.mipmap.ic_group_c);
+                    holder.txtName.setText("");
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            taskDel();
+                        }
+                    });
+                } else {
+                    // holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+                    holder.imgHead.setImageResource(R.mipmap.ic_group_a);
+                    holder.txtName.setText("");
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            taskAdd();
+                        }
+                    });
                 }
             }
         }
@@ -272,6 +270,7 @@ public class GroupMemberActivity extends AppActivity {
             }
 
         }
+
     }
 
 
