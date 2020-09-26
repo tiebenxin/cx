@@ -2260,12 +2260,12 @@ public class MsgDao {
         msgAllBean.setSurvival_time(survivaltime);
         String survivaNotice = "";
         if (survivaltime == -1) {
-            survivaNotice = "你设置了退出即焚.";
+            survivaNotice = "你设置了退出即焚";
         } else if (survivaltime == 0) {
-            survivaNotice = "你取消了阅后即焚.";
+            survivaNotice = "你取消了阅后即焚";
         } else {
             survivaNotice = "你设置了消息" +
-                    new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失.";
+                    new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失";
         }
         MsgCancel survivaMsgCel = new MsgCancel();
         survivaMsgCel.setMsgid(msgid);
