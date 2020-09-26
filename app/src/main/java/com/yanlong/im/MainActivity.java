@@ -177,7 +177,7 @@ public class MainActivity extends BaseTcpActivity {
     private MsgDao msgDao = new MsgDao();
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
-    private ShopFragemnt mShowFragment;
+//    private ShopFragemnt mShowFragment;
     @EMainTab
     private int currentTab = EMainTab.MSG;
     private long firstPressTime = 0;//第一次双击时间
@@ -358,13 +358,13 @@ public class MainActivity extends BaseTcpActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        mShowFragment = ShopFragemnt.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), mShowFragment, MyFragment.newInstance()};
-        tabs = new String[]{"消息", "通讯录", "商城", "我"};
-        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
-        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
+//        mShowFragment = ShopFragemnt.newInstance();
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), /*mShowFragment,*/ MyFragment.newInstance()};
+        tabs = new String[]{"消息", "通讯录", /*"商城",*/ "我"};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, /*R.mipmap.ic_shop,*/ R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, /*R.mipmap.ic_shop_h,*/ R.mipmap.ic_me_h};
         viewPage.setCurrentItem(currentTab, false);
-        viewPage.setOffscreenPageLimit(4);
+        viewPage.setOffscreenPageLimit(3);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -380,13 +380,13 @@ public class MainActivity extends BaseTcpActivity {
         bottomTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == EMainTab.SHOP) {
-                    viewPage.setCurrentItem(currentTab, false);
-                    boolean hasToken = check();
-                    if (!hasToken) {
-                        showLoginDialog();
-                    }
-                }
+//                if (tab.getPosition() == EMainTab.SHOP) {
+//                    viewPage.setCurrentItem(currentTab, false);
+//                    boolean hasToken = check();
+//                    if (!hasToken) {
+//                        showLoginDialog();
+//                    }
+//                }
                 currentTab = tab.getPosition();
                 viewPage.setCurrentItem(tab.getPosition(), false);
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {
@@ -447,12 +447,12 @@ public class MainActivity extends BaseTcpActivity {
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
             ImageView ivRed = rootView.findViewById(R.id.iv_disturb_unread);
-            if (i == EMainTab.SHOP) {
-                sb.setSktype(1);
-                //设置值
-                sb.setNum(0, true);
-                sbshop = sb;
-            }
+//            if (i == EMainTab.SHOP) {
+//                sb.setSktype(1);
+//                //设置值
+//                sb.setNum(0, true);
+//                sbshop = sb;
+//            }
             if (i == EMainTab.ME) {
                 sb.setSktype(1);
                 //设置值
@@ -1283,13 +1283,13 @@ public class MainActivity extends BaseTcpActivity {
     /*
      *from
      * */
-    @IntDef({EMainTab.MSG, EMainTab.CONTACT, EMainTab.SHOP, EMainTab.ME})
+    @IntDef({EMainTab.MSG, EMainTab.CONTACT, /*EMainTab.SHOP,*/ EMainTab.ME})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMainTab {
         int MSG = 0; // 消息界面
         int CONTACT = 1; // 好友界面
-        int SHOP = 2; // 商城界面
-        int ME = 3; // 我的界面
+//        int SHOP = 2; // 商城界面
+        int ME = 2; // 我的界面
     }
 
     /**
