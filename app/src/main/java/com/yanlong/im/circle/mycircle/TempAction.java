@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.mycircle;
 
+import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.FriendUserBean;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -70,11 +71,17 @@ public class TempAction {
 
 
     /**
-     * 我的说说列表 (我的动态)
-     * @param uid 对方uid
+     * 获取我的动态(说说主页及列表)
      */
 
-    public void httpMyTrends(final long uid, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.httpDeleteVisitRecord(uid), callback);
+    public void httpGetMyTrends(final int currentPage, final int pageSize, final CallBack<ReturnBean<CircleTrendsBean>> callback) {
+        NetUtil.getNet().exec(server.httpGetMyTrends(currentPage,pageSize), callback);
+    }
+
+    /**
+     * 更新背景图
+     */
+    public void httpSetBackground(final String url, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpSetBackground(url), callback);
     }
 }

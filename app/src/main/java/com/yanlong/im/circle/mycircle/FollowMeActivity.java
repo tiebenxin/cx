@@ -155,6 +155,9 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                             showNoDataLayout(true);
                         }
                     }
+                }else {
+                    ToastUtil.show("获取我关注的人列表失败");
+                    showNoDataLayout(false);
                 }
             }
 
@@ -185,7 +188,6 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
 
     /**
      * 是否显示无数据占位图
-     *
      * @param ifShow
      */
     private void showNoDataLayout(boolean ifShow) {

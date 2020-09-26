@@ -334,6 +334,8 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ToastUtil.show("取消关注成功");
                     dataList.get(position).setStat(2);
                     notifyItemChanged(position,tvFollow);
+                }else {
+                    ToastUtil.show("取消关注失败");
                 }
             }
 
@@ -361,6 +363,8 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     dataList.remove(position);//删除数据源,移除集合中当前下标的数据
                     notifyItemRemoved(position);//刷新被删除的地方
                     notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
+                }else {
+                    ToastUtil.show("删除失败");
                 }
             }
 

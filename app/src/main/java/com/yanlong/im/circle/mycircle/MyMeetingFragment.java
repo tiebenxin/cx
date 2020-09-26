@@ -124,13 +124,16 @@ public class MyMeetingFragment extends Fragment {
                             showNoDataLayout(true);
                         }
                     }
+                }else {
+                    ToastUtil.show("获取谁看过我/我看过谁列表失败");
+                    showNoDataLayout(false);
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<FriendUserBean>>> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show("数据获取失败");
+                ToastUtil.show("获取谁看过我/我看过谁列表失败");
                 showNoDataLayout(false);
             }
         });
@@ -139,7 +142,6 @@ public class MyMeetingFragment extends Fragment {
 
     /**
      * 是否显示无数据占位图
-     *
      * @param ifShow
      */
     private void showNoDataLayout(boolean ifShow) {

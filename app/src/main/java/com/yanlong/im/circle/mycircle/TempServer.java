@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.mycircle;
 
+import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.FriendUserBean;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -36,5 +37,14 @@ public interface TempServer {
     @POST("/square/user/access-record-del")
     @FormUrlEncoded
     Call<ReturnBean> httpDeleteVisitRecord(@Field("uid") long uid);
+
+    @POST("/square/moment/my-moment-home")
+    @FormUrlEncoded
+    Call<ReturnBean<CircleTrendsBean>> httpGetMyTrends(@Field("currentPage") int page, @Field("pageSize") int pageSize);
+
+    @POST("/square/user/update-bg-image")
+    @FormUrlEncoded
+    Call<ReturnBean> httpSetBackground(@Field("bgImage") String bgImage);
+
 
 }

@@ -574,6 +574,10 @@
         <activity
             android:name=".circle.mycircle.MyMeetingActivity"
             android:screenOrientation="portrait" />
+        <!-- 我的动态(我的朋友圈) -->
+        <activity
+            android:name=".circle.mycircle.MyCircleActivity"
+            android:screenOrientation="portrait" />
         <!-- 文字投票 -->
         <activity
             android:name=".circle.VoteTextActivity"

@@ -36,9 +36,10 @@ import retrofit2.Response;
  */
 @Route(path = MyFollowActivity.path)
 public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> {
-    public static final String path = "/mycircle/MyFollowActivity";
 
+    public static final String path = "/mycircle/MyFollowActivity";
     public static final int DEFAULT_PAGE_SIZE = 20;//默认分页请求数量
+
     private int page = 1;//默认第一页
     private boolean isSearchMode = false;//是否处于搜索模式，搜索模式不允许上拉加载更多
 
@@ -157,6 +158,9 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                             showNoDataLayout(true);
                         }
                     }
+                }else {
+                    ToastUtil.show("获取我关注的人列表失败");
+                    showNoDataLayout(false);
                 }
             }
 
@@ -187,7 +191,6 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
 
     /**
      * 是否显示无数据占位图
-     *
      * @param ifShow
      */
     private void showNoDataLayout(boolean ifShow) {

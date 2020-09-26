@@ -4,7 +4,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * @类名：朋友圈用户
+ * @类名：朋友圈用户资料
  * @Date：2020/9/23
  * @by zjy
  * @备注：
@@ -21,9 +21,6 @@ public class FriendUserBean extends RealmObject {
     private long lastTime;//最近访问对方主页时间 (谁看过我/我看过谁)
     private String imid;//常信号
     private String bgImage;//主页背景图
-    private long accessCount;//看过我的人
-    private int followMyCount;//关注我的人
-    private int myFollowCount;//我关注的人
 
 
 
@@ -97,29 +94,5 @@ public class FriendUserBean extends RealmObject {
 
     public void setBgImage(String bgImage) {
         this.bgImage = bgImage;
-    }
-
-    public long getAccessCount() {
-        return accessCount;
-    }
-
-    public void setAccessCount(long accessCount) {
-        this.accessCount = accessCount;
-    }
-
-    public int getFollowMyCount() {
-        return followMyCount;
-    }
-
-    public void setFollowMyCount(int followMyCount) {
-        this.followMyCount = followMyCount;
-    }
-
-    public int getMyFollowCount() {
-        return myFollowCount;
-    }
-
-    public void setMyFollowCount(int myFollowCount) {
-        this.myFollowCount = myFollowCount;
     }
 }
