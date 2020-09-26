@@ -847,6 +847,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     @Override
     protected void onStart() {
         super.onStart();
+        mtListView.setStackBottom(false);
         initActionBarLoading();
         SocketUtil.getSocketUtil().addEvent(msgEvent);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
