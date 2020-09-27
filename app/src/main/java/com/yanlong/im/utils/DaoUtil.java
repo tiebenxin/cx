@@ -32,7 +32,7 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 53;
+        long dbVer = 54;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
@@ -61,9 +61,7 @@ public class DaoUtil {
     public static DaoUtil get() {
         if (util == null) {
             util = new DaoUtil();
-
         }
-
         return util;
     }
 
@@ -268,7 +266,7 @@ public class DaoUtil {
                 public void run() {
                     executeTransactionAsync(realm, transaction, onSuccess, onError);
                 }
-            },1000);
+            }, 1000);
 
         }
     }

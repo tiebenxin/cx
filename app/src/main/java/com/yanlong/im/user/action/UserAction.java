@@ -2,9 +2,7 @@ package com.yanlong.im.user.action;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
@@ -15,10 +13,10 @@ import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.bean.AddressBookMatchingBean;
+import com.yanlong.im.user.bean.DailyReportBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
@@ -1187,6 +1185,36 @@ public class UserAction {
 
             @Override
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
+            }
+        });
+
+
+    }
+
+    /**
+     * 临时登录
+     */
+    public void dailyReport(CallBack<ReturnBean<DailyReportBean>> callback) {
+        NetUtil.getNet().exec(server.dailyReport(), new CallBack<ReturnBean<DailyReportBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<DailyReportBean>> call, Response<ReturnBean<DailyReportBean>> response) {
+                if (response.body() != null && response.body().isOk()) {//保存token
+                    DailyReportBean bean = response.body().getData();
+                    if (bean != null && bean.getHistoryClean() == 1) {
+                        UserBean user = (UserBean) UserAction.getMyInfo();
+                        if (user != null) {
+                            user.setHistoryClear(bean.getHistoryClean());
+                            dao.updateUserBean(user);
+                        }
+                    }
+                }
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<DailyReportBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
             }

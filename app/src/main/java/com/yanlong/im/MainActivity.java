@@ -67,6 +67,7 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.DailyReportBean;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -774,31 +775,11 @@ public class MainActivity extends BaseTcpActivity {
         }
     }
 
-    //    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void eventRunState(EventRunState event) {
-//        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
-//        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
-//        if (event.getRun()) {
-//            if (mMsgMainFragment != null) {
-//                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
-//            }
-//            startTCP();
-//        } else {
-//            if (mMsgMainFragment != null) {
-//                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
-//            }
-//            stopTCP();
-//        }
-//
-//    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
-//        if (!event.isOn()) {
-//            Glide.with(this).pauseRequests();
-//        } else {
-//            Glide.with(this).resumeRequests();
-//        }
+        if (event.isOn()) {
+            reportDaily();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1154,25 +1135,6 @@ public class MainActivity extends BaseTcpActivity {
     }
 
 
-//    private void getSurvivalTimeData() {
-//        //延时操作，等待数据库初始化
-//        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    //子线程延时 等待myapplication初始化完成
-//                    //查询所有阅后即焚消息加入定时器
-//                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-//                    if (list != null && list.size() > 0) {
-////                        BurnManager.getInstance().addMsgAllBeans(list);
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
-
     /**
      * 检查是否开启悬浮窗权限
      * OPPO 手机必须开启程序自动启动或开启悬浮窗权限，程序退到后台才能弹出音视频界面
@@ -1417,42 +1379,6 @@ public class MainActivity extends BaseTcpActivity {
         }, file.getAbsolutePath());
     }
 
-    private void showLoginDialog() {
-        if (isFinishing()) {
-            return;
-        }
-        DialogCommon dialogLogin = new DialogCommon(this);
-        dialogLogin.setContent("请退出重登后使用此功能", true)
-                .setTitleAndSure(false, true)
-                .setRight("开启")
-                .setLeft("拒绝")
-                .setListener(new DialogCommon.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        if (!isFinishing()) {
-                            loginoutComment();
-                            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-                            startActivity(loginIntent);
-                            finish();
-                        }
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        viewPage.setCurrentItem(EMainTab.MSG, false);
-                    }
-                }).show();
-
-    }
-
-    public final boolean check() {
-        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
-            return false;
-        }
-        return true;
-    }
-
 
     public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
@@ -1476,26 +1402,6 @@ public class MainActivity extends BaseTcpActivity {
                 }
             }
         });
-
-    }
-
-    //检测是否需要更新token
-    private void checkTokenValid() {
-        if (!isFromLogin) {
-            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-            if (token != null) {
-                Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-                if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-                    LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
-                    userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
-                        @Override
-                        public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                            super.onResponse(call, response);
-                        }
-                    });
-                }
-            }
-        }
     }
 
     private void getIP() {
@@ -1520,6 +1426,21 @@ public class MainActivity extends BaseTcpActivity {
                 }
             });
             ExecutorManager.INSTANCE.getNormalThread().shutdown();
+        }
+    }
+
+    private void reportDaily() {
+        long time = SpUtil.getSpUtil().getSPValue("reportDaily", 0L);
+        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 24)) {
+            userAction.dailyReport(new CallBack<ReturnBean<DailyReportBean>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<DailyReportBean>> call, Response<ReturnBean<DailyReportBean>> response) {
+                    super.onResponse(call, response);
+                    if (response.isSuccessful()){
+                        SpUtil.getSpUtil().putSPValue("reportDaily", System.currentTimeMillis());
+                    }
+                }
+            });
         }
     }
 }
