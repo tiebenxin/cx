@@ -742,7 +742,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         editChat.clearFocus();
         resumeRecord();
-        mViewModel.dealBurnMessage();
     }
 
     private void resumeRecord() {
@@ -848,6 +847,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     @Override
     protected void onStart() {
         super.onStart();
+        mViewModel.dealBurnMessage();
         mtListView.setStackBottom(false);
         initActionBarLoading();
         SocketUtil.getSocketUtil().addEvent(msgEvent);
