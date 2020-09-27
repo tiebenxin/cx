@@ -232,6 +232,10 @@ public class DaoMigration implements RealmMigration {
                 updateV53(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 53) {
+                updateV54(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -900,10 +904,11 @@ public class DaoMigration implements RealmMigration {
                 .addField("canReview", int.class)
                 .addRealmListField("allowUsers", schema.get("MemberUser"));
     }
+
     //通知消息新增入群备注字段
     private final void updateV51(RealmSchema schema) {
         schema.get("MsgNotice")
-                .addField("remark",String.class);
+                .addField("remark", String.class);
 
         schema.get("Remind")
                 .addField("gid", String.class);
@@ -912,13 +917,19 @@ public class DaoMigration implements RealmMigration {
     //通知消息新增入群方式字段
     private final void updateV52(RealmSchema schema) {
         schema.get("MsgNotice")
-                .addField("joinGroupType",int.class);
+                .addField("joinGroupType", int.class);
     }
 
     //通知消息新增入群方式字段
     private final void updateV53(RealmSchema schema) {
         schema.get("MsgNotice")
                 .addRealmListField("ids", String.class);
+    }
+
+    //增加能否双向清除
+    private final void updateV54(RealmSchema schema) {
+        schema.get("UserBean")
+                .addField("historyClear", int.class);
     }
 
 

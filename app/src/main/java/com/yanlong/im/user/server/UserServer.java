@@ -4,6 +4,7 @@ package com.yanlong.im.user.server;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.user.bean.AddressBookMatchingBean;
+import com.yanlong.im.user.bean.DailyReportBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
@@ -238,7 +239,7 @@ public interface UserServer {
 
     @POST("/user/deactivate-user")
     @FormUrlEncoded
-    Call<ReturnBean> logoutAccount(@Field("captcha") String code,@Field("phone") String phone);
+    Call<ReturnBean> logoutAccount(@Field("captcha") String code, @Field("phone") String phone);
 
     @POST("user/get-sms-captcha")
     @FormUrlEncoded
@@ -256,4 +257,7 @@ public interface UserServer {
 
     @POST("user/temp-login")
     Call<ReturnBean<TokenBean>> tempLogin(@Body WeakHashMap<String, Object> params);
+
+    @POST("/user/daily-report")
+    Call<ReturnBean<DailyReportBean>> dailyReport();
 }
