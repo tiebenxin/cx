@@ -167,7 +167,7 @@
         </activity>
         <!--群聊成员-->
         <activity
-            android:name=".chat.ui.GroupInfoMumberActivity"
+            android:name=".chat.ui.GroupMemberActivity"
             android:screenOrientation="portrait">
 
         </activity>

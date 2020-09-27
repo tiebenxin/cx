@@ -539,7 +539,11 @@ public class DB {
             if (ginfo.getUsers() != null) {
                 //更新信息到用户表
                 for (MemberUser sv : ginfo.getUsers()) {
-                    sv.init(ginfo.getGid());
+                    if (sv != null) {
+                        if (sv != null) {
+                            sv.init(ginfo.getGid());
+                        }
+                    }
                 }
             }
             realm.beginTransaction();

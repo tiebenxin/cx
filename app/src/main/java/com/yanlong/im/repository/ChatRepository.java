@@ -67,7 +67,7 @@ public class ChatRepository {
     }
 
     public void onDestory() {
-        localDataSource.onDestory();
+        localDataSource.onDestroy();
     }
     /**
      * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接

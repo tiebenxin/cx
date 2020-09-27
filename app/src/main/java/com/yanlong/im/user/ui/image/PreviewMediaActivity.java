@@ -318,9 +318,9 @@ public class PreviewMediaActivity extends FragmentActivity {
      *
      * @param msgId
      * @param fromWhere
-     * @param type  1 转发 2 收藏 3 图片编辑
+     * @param type      1 转发 2 收藏 3 图片编辑
      */
-    public void checkFile(String msgId, int fromWhere, int type , LocalMedia media) {
+    public void checkFile(String msgId, int fromWhere, int type, LocalMedia media) {
         MsgAllBean msgbean = null;
         if (!TextUtils.isEmpty(msgId)) {
             msgbean = msgDao.getMsgById(msgId);
@@ -357,13 +357,13 @@ public class PreviewMediaActivity extends FragmentActivity {
                         if (response.body().getData() != null && response.body().getData().size() != list.size()) {
                             showMsgFailDialog();
                         } else {
-                            if(type==1){
+                            if (type == 1) {
                                 sendToFriend(msgId, fromWhere);
-                            }else if(type==2){
+                            } else if (type == 2) {
                                 EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                                 eventCollectImgOrVideo.setMsgId(msgId);
                                 EventBus.getDefault().post(eventCollectImgOrVideo);
-                            }else {
+                            } else {
                                 Intent intent = new Intent(PreviewMediaActivity.this, ImageShowActivity.class);
                                 Bundle bundle = new Bundle();
                                 bundle.putString("imgpath", media.getCompressPath());
@@ -421,7 +421,7 @@ public class PreviewMediaActivity extends FragmentActivity {
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
-        if(activity==null && activity.isFinishing()){
+        if (activity == null || activity.isFinishing() || builder == null) {
             return;
         }
         dialogFour = builder.setTitle("你所选的消息已失效")

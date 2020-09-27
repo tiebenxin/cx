@@ -289,7 +289,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 //  ToastUtil.show(getContext(),"更多");
-                startActivity(new Intent(getContext(), GroupInfoMumberActivity.class).putExtra(AGM_GID, gid));
+                startActivity(new Intent(getContext(), GroupMemberActivity.class).putExtra(AGM_GID, gid));
             }
         });
 

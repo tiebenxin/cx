@@ -3,6 +3,7 @@ package com.yanlong.im.chat.manager;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.example.nim_lib.ui.VideoActivity;
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
@@ -844,4 +845,10 @@ public class MessageManager {
         }
         return memberIDs;
     }
+
+    //是否视频通话界面Live
+    public boolean isCallLive() {
+        return VideoActivity.returnVideoActivity;
+    }
+
 }

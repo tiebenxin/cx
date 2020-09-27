@@ -93,7 +93,9 @@ public class MsgDao {
                 int size = memberUsers.size();
                 for (int j = 0; j < size; j++) {
                     MemberUser memberUser = memberUsers.get(j);
-                    memberUser.init(group.getGid());
+                    if (memberUser != null) {
+                        memberUser.init(group.getGid());
+                    }
                 }
             }
         }
@@ -426,17 +428,21 @@ public class MsgDao {
      * 保存群成员到数据库
      * @param
      */
-    public void groupNumberSave(Group ginfo) {
-        if (ginfo == null) {
+    public void groupNumberSave(Group group) {
+        if (group == null) {
             return;
         }
-        for (MemberUser sv : ginfo.getUsers()) {
-            sv.init(ginfo.getGid());
+        for (MemberUser sv : group.getUsers()) {
+            if (sv != null && !TextUtils.isEmpty(group.getGid())) {
+                sv.init(group.getGid());
+            } else {
+                System.out.println("为空了" + sv);
+            }
         }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            realm.insertOrUpdate(ginfo);
+            realm.insertOrUpdate(group);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -2255,12 +2261,12 @@ public class MsgDao {
         msgAllBean.setSurvival_time(survivaltime);
         String survivaNotice = "";
         if (survivaltime == -1) {
-            survivaNotice = "你设置了退出即焚.";
+            survivaNotice = "你设置了退出即焚";
         } else if (survivaltime == 0) {
-            survivaNotice = "你取消了阅后即焚.";
+            survivaNotice = "你取消了阅后即焚";
         } else {
             survivaNotice = "你设置了消息" +
-                    new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失.";
+                    new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失";
         }
         MsgCancel survivaMsgCel = new MsgCancel();
         survivaMsgCel.setMsgid(msgid);

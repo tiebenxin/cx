@@ -615,6 +615,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void onChanged(@Nullable Boolean value) {
                 if (value) {
                     viewReplyMessage.setVisible(true);
+                    mViewModel.isInputText.setValue(true);
                 } else {
                     viewReplyMessage.setVisible(false);
                 }
@@ -741,6 +742,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         editChat.clearFocus();
         resumeRecord();
+        mViewModel.dealBurnMessage();
     }
 
     private void resumeRecord() {
@@ -846,6 +848,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     @Override
     protected void onStart() {
         super.onStart();
+        mtListView.setStackBottom(false);
         initActionBarLoading();
         SocketUtil.getSocketUtil().addEvent(msgEvent);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
@@ -1038,7 +1041,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         fixSendTime(bean.getMsgId(0));
                     }
                     //群聊自己发送的消息直接加入阅后即焚队列
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
+//                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
@@ -1181,7 +1184,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         fixSendTime(bean.getMsgId(0));
                     }
                     //群聊自己发送的消息直接加入阅后即焚队列
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
+//                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
@@ -2868,7 +2871,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (currentScrollPosition > 0) {
                             scrollChatToPosition(currentScrollPosition);
                         } else {
-                            scrollChatToPosition(length);
+//                            scrollChatToPosition(length);
+                            mtListView.scrollToEnd();
                         }
                     }
                 }
@@ -5013,17 +5017,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             fixLastPosition(mAdapter.getMsgList(), list);
                         }
                         int len = list.size();
-//                        if (mAdapter != null) {
-//                            list = isRetainAll(mAdapter.getMsgList(), list);
-//                        }
-//                        int len2 = list.size();
-//                        if (len2 < len) {
-//                            addMsg(list);
-//                        } else {
-//                            mAdapter.bindData(list, false);
-//                            mAdapter.setReadStatus(checkIsRead());
-//                            notifyData2Bottom(isScrollBottom);
-//                        }
+                        if (len > 20) {
+                            mtListView.setStackBottom(true);
+                        }
 
                         mAdapter.bindData(list, false);
                         mAdapter.setReadStatus(checkIsRead());
@@ -6136,10 +6132,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         mAdapter.removeMsgList(list);
         removeUnreadCount(list.size());
+        mtListView.getListView().setFocusable(false);
+        mtListView.getListView().setFocusableInTouchMode(false);
         notifyData();
         //有面板，则滑到底部
         if (mViewModel.isInputText.getValue() || mViewModel.isOpenEmoj.getValue() || mViewModel.isOpenFuction.getValue()) {
             mtListView.scrollToEnd();
+        }else {
+            scrollListView(false);
         }
     }
 

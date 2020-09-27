@@ -408,6 +408,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         } else if (v.getId() == R.id.cb_change_voice) {// 视频切换到语音
             mAVChatController.switchVideoToAudio(avChatData.getChatId(), this);
         } else if (v.getId() == R.id.img_minimize) {// 语音最小化
+            returnVideoActivity = false;
             permissionCheck(true);
         } else if (v.getId() == R.id.cb_convert_camera) {// 摄像头切换
             mAVChatController.switchCamera();
@@ -543,6 +544,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         AVChatManager.getInstance().observeCalleeAckNotification(callAckObserver, register);
 //        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, mIsInComingCall, this);
         PhoneCallStateObserver.getInstance().observeAutoHangUpForLocalPhone(autoHangUpForLocalPhoneObserver, register);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        returnVideoActivity = false;
     }
 
     @Override

@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
     android:paddingRight="@dimen/app_margin_main"
@@ -123,7 +124,7 @@
                         android:layout_gravity="right"
                         android:layout_marginBottom="4dp"
                         android:background="@drawable/selector_chat_me_touch"
-                        android:gravity="right|center_vertical"
+                        android:gravity="left|center_vertical"
                         android:orientation="vertical"
                         android:visibility="visible">
 
