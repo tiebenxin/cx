@@ -51,6 +51,7 @@ public class MultiRecyclerView extends LinearLayout {
         loadView = viewRoot.findViewById(R.id.load_view);
         pullRefreshLayout = viewRoot.findViewById(R.id.swipe_view);
         recyclerView = viewRoot.findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
         pullRefreshLayout.setRefreshDrawable(new MaterialDrawable(getContext(), pullRefreshLayout));
         pullRefreshLayout.setEnabled(false);
         layoutManager = new YLLinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -102,13 +103,13 @@ public class MultiRecyclerView extends LinearLayout {
         if (layoutManager == null || mAdapter == null) {
             return;
         }
-        LogUtil.getLog().i("scroll","scrollToEnd");
+        LogUtil.getLog().i("scroll", "scrollToEnd");
         layoutManager.scrollToPositionWithOffset(mAdapter.getItemCount() - 1, Integer.MIN_VALUE);
 //        recyclerView.scrollBy(0, Integer.MAX_VALUE);
     }
 
     public void setStackBottom(boolean b) {
-//        layoutManager.setStackFromEnd(b);
+        layoutManager.setStackFromEnd(b);
     }
 
 }

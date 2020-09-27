@@ -1041,7 +1041,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         fixSendTime(bean.getMsgId(0));
                     }
                     //群聊自己发送的消息直接加入阅后即焚队列
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
+//                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
@@ -1184,7 +1184,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         fixSendTime(bean.getMsgId(0));
                     }
                     //群聊自己发送的消息直接加入阅后即焚队列
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
+//                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
@@ -2871,7 +2871,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (currentScrollPosition > 0) {
                             scrollChatToPosition(currentScrollPosition);
                         } else {
-                            scrollChatToPosition(length);
+//                            scrollChatToPosition(length);
+                            mtListView.scrollToEnd();
                         }
                     }
                 }
@@ -6133,11 +6134,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         removeUnreadCount(list.size());
         mtListView.getListView().setFocusable(false);
         mtListView.getListView().setFocusableInTouchMode(false);
-//        notifyData();
-        mAdapter.notifyDataSetChanged();
+        notifyData();
         //有面板，则滑到底部
         if (mViewModel.isInputText.getValue() || mViewModel.isOpenEmoj.getValue() || mViewModel.isOpenFuction.getValue()) {
             mtListView.scrollToEnd();
+        }else {
+            scrollListView(false);
         }
     }
 
