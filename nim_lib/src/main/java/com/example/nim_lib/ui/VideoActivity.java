@@ -413,6 +413,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         } else if (v.getId() == R.id.cb_convert_camera) {// 摄像头切换
             mAVChatController.switchCamera();
         } else if (v.getId() == R.id.img_minimize_video) {// 视频最小化
+            returnVideoActivity = false;
             permissionCheck(true);
         } else if (v.getId() == R.id.cb_mute) {// 音频开关
             mAVChatController.toggleMute();
