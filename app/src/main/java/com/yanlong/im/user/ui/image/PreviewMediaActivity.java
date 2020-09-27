@@ -439,7 +439,7 @@ public class PreviewMediaActivity extends FragmentActivity {
         if (msgAllBean == null) {
             return;
         }
-        Intent intent = PreviewMediaAllActivity.newIntent(this, gid, toUid, msgId, msgAllBean.getTimestamp());
+        Intent intent = PreviewMediaAllActivity2.newIntent(this, gid, toUid, msgId, msgAllBean.getTimestamp());
         startActivity(intent);
 
     }

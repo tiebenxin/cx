@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -37,7 +38,7 @@ import java.util.List;
  * @date 2020/9/16
  * Description 查看所有图片，视频，文件
  */
-public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
+public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
     private boolean isSelect = false;
     private List<MsgAllBean> selectList;
     private ISelectListener listener;
@@ -53,10 +54,32 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        MsgAllBean msgAllBean = mBeanList.get(position);
-        MediaAllHolder viewHolder = (MediaAllHolder) holder;
-        viewHolder.bindData(msgAllBean);
+        if (holder.getItemViewType() == 0) {
+            Object object = mBeanList.get(position);
+            if (object instanceof String) {
+                MediaTitleHolder titleHolder = (MediaTitleHolder) holder;
+                titleHolder.bindData((String) object);
+            }
+        } else if (holder.getItemViewType() == 1) {
+            Object object = mBeanList.get(position);
+            if (object instanceof MsgAllBean) {
+                MediaAllHolder viewHolder = (MediaAllHolder) holder;
+                viewHolder.bindData((MsgAllBean) object);
+            }
+        }
+    }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (mBeanList != null) {
+            Object o = mBeanList.get(position);
+            if (o instanceof String) {//title
+                return 0;
+            } else {//msg
+                return 1;
+            }
+        }
+        return 0;
     }
 
     public boolean isSelect() {
@@ -69,6 +92,7 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
         notifyDataSetChanged();
     }
 
+    //图片视频ViewHolder
     class MediaAllHolder extends AbstractViewHolder<MsgAllBean> {
 
         private final ImageView ivImage;
@@ -184,6 +208,24 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<MsgAllBean> {
             });
         }
 
+    }
+
+    //标题ViewHolder
+    public class MediaTitleHolder extends AbstractViewHolder<String> {
+
+        private final TextView tvTitle;
+
+        public MediaTitleHolder(View itemView) {
+            super(itemView);
+            tvTitle = itemView.findViewById(R.id.tv_title);
+        }
+
+        @Override
+        public void bindData(String bean) {
+            if (!TextUtils.isEmpty(bean)) {
+                tvTitle.setText(bean);
+            }
+        }
     }
 
 
