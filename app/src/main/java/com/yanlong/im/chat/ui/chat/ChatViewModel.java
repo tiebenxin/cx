@@ -174,4 +174,8 @@ public class ChatViewModel extends ViewModel {
             repository.onDestory();
         }
     }
+
+    public void dealBurnMessage() {
+        repository.dealToBurnMsgs(toGid, toUId);
+    }
 }

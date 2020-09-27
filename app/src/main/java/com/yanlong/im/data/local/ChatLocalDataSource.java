@@ -116,9 +116,9 @@ public class ChatLocalDataSource {
      * @param toUid
      */
     public void dealToBurnMsgs(String toGid, Long toUid){
-//        if (MessageManager.getInstance().isCallLive()){
-//            return;
-//        }
+        if (MessageManager.getInstance().isCallLive()){
+            return;
+        }
         if(!isFinishedToBurn){//等待事务完成，1秒后重试
             handler.postDelayed(new Runnable() {
                 @Override
@@ -184,7 +184,7 @@ public class ChatLocalDataSource {
         return result;
     }
 
-    public void onDestory() {
+    public void onDestroy() {
         if (realm != null) {
             if (realm != null) {
                 if (realm.isInTransaction()) {

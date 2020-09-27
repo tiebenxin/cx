@@ -742,6 +742,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         editChat.clearFocus();
         resumeRecord();
+        mViewModel.dealBurnMessage();
     }
 
     private void resumeRecord() {
@@ -6132,7 +6133,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         removeUnreadCount(list.size());
         mtListView.getListView().setFocusable(false);
         mtListView.getListView().setFocusableInTouchMode(false);
-        notifyData();
+//        notifyData();
+        mAdapter.notifyDataSetChanged();
         //有面板，则滑到底部
         if (mViewModel.isInputText.getValue() || mViewModel.isOpenEmoj.getValue() || mViewModel.isOpenFuction.getValue()) {
             mtListView.scrollToEnd();
