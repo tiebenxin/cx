@@ -243,9 +243,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                     holder.tvLike.setOnClickListener(v -> {
                         if(bean.getLike()==0){
-                            httpLike(bean.getId(),bean.getUid(),holder.tvLike,position);
+                            httpLike(bean.getId(),bean.getUid(),holder.tvLike,position,bean.getLikeCount());
                         }else {
-                            httpCancleLike(bean.getId(),bean.getUid(),holder.tvLike,position);
+                            httpCancleLike(bean.getId(),bean.getUid(),holder.tvLike,position,bean.getLikeCount());
                         }
                     });
                 }
@@ -384,7 +384,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->点赞
      */
-    private void httpLike(long id,long uid, TextView tvLike,int position) {
+    private void httpLike(long id,long uid, TextView tvLike,int position,int oldCount) {
         action.httpLike(id,uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -395,6 +395,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body().isOk()){
                     ToastUtil.show("点赞成功");
                     dataList.get(position).setLike(1);
+                    dataList.get(position).setLikeCount(oldCount+1);
                     notifyItemChanged(position,tvLike);
                 }
             }
@@ -410,7 +411,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->取消点赞
      */
-    private void httpCancleLike(long id,long uid, TextView tvdisLike,int position) {
+    private void httpCancleLike(long id,long uid, TextView tvLike,int position,int oldCount) {
         action.httpCancleLike(id,uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -421,7 +422,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body().isOk()){
                     ToastUtil.show("已取消点赞");
                     dataList.get(position).setLike(0);
-                    notifyItemChanged(position,tvdisLike);
+                    dataList.get(position).setLikeCount(oldCount-1);
+                    notifyItemChanged(position,tvLike);
                 }
             }
 
