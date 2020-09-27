@@ -30,4 +30,6 @@ public class CircleModel extends BaseModel implements CircleApi {
     public void createNewCircle(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.careateNewCircle(params), callback);
     }
+
+
 }

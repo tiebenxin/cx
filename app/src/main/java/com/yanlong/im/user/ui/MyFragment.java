@@ -34,7 +34,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
-import com.yanlong.im.circle.mycircle.MyCircleActivity;
+import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -236,7 +236,7 @@ public class MyFragment extends Fragment {
             if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
-            Intent intent = new Intent(getActivity(), MyCircleActivity.class);
+            Intent intent = new Intent(getActivity(), MyTrendsActivity.class);
             startActivity(intent);
         });
         layoutMyFollow.setOnClickListener(o -> {

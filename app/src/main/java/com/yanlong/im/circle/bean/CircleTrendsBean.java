@@ -16,7 +16,7 @@ public class CircleTrendsBean extends BaseBean {
     private String bgImage;//主页背景图
     private int followMyCount;//关注我的人总数
     private int myFollowCount;//我关注的人总数
-    private List<TrendBean> trendsList;//说说列表
+    private List<TrendBean> momentList;//说说列表
 
     public int getAccessCount() {
         return accessCount;
@@ -50,11 +50,11 @@ public class CircleTrendsBean extends BaseBean {
         this.myFollowCount = myFollowCount;
     }
 
-    public List<TrendBean> getTrendsList() {
-        return trendsList;
+    public List<TrendBean> getMomentList() {
+        return momentList;
     }
 
-    public void setTrendsList(List<TrendBean> trendsList) {
-        this.trendsList = trendsList;
+    public void setMomentList(List<TrendBean> momentList) {
+        this.momentList = momentList;
     }
 }

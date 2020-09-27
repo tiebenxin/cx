@@ -46,5 +46,13 @@ public interface TempServer {
     @FormUrlEncoded
     Call<ReturnBean> httpSetBackground(@Field("bgImage") String bgImage);
 
+    @POST("/square/moment/like")
+    @FormUrlEncoded
+    Call<ReturnBean> httpLike(@Field("momentId") long momentId,@Field("momentUid") long momentUid);
+
+    @POST("/square/moment/cancel-like")
+    @FormUrlEncoded
+    Call<ReturnBean> httpCancleLike(@Field("momentId") long momentId,@Field("momentUid") long momentUid);
+
 
 }

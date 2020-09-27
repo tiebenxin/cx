@@ -16,13 +16,14 @@ public class TrendBean extends BaseBean {
     private int commentCount;//评论数量
     private String content;//说说内容
     private String createTime;//说说发布时间
-    private int id;//说说ID
+    private long id;//说说ID
     private int isTop;//是否置顶 0:否|1:是
     private int like;//我是否点了赞 (0:否|1:是)
     private int likeCount;//点赞数量
     private String position;//说说发布时详细位置
-    private int uid;//说说发布者ID
+    private long uid;//说说发布者ID
     private String vote;//投票信息
+    private int visibility;//可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
     private VoteAnswerBean voteAnswer;//投票结果
 
     public String getAttachment() {
@@ -65,11 +66,11 @@ public class TrendBean extends BaseBean {
         this.createTime = createTime;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -105,11 +106,11 @@ public class TrendBean extends BaseBean {
         this.position = position;
     }
 
-    public int getUid() {
+    public long getUid() {
         return uid;
     }
 
-    public void setUid(int uid) {
+    public void setUid(long uid) {
         this.uid = uid;
     }
 
@@ -129,6 +130,13 @@ public class TrendBean extends BaseBean {
         this.voteAnswer = voteAnswer;
     }
 
+    public int getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(int visibility) {
+        this.visibility = visibility;
+    }
 
     public static class VoteAnswerBean {
 

@@ -68,6 +68,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private RequestOptions mRequestOptions;
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
+    private TempAction action;
 
     public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList,int type) {
         inflater = LayoutInflater.from(activity);
@@ -77,6 +78,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if(dataList!=null && dataList.size()>0){
             this.dataList.addAll(dataList);
         }
+        init();
+    }
+
+    //初始化相关设置
+    private void init() {
+        action = new TempAction();
         //图片相关设置
         mRequestOptions = RequestOptions.centerInsideTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -86,6 +93,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .centerCrop();
         builder = new CommonSelectDialog.Builder(activity);
     }
+
 
     //刷新数据
     public void updateList(List<FriendUserBean> list) {
@@ -297,7 +305,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * 发请求->关注
      */
     private void httpToFollow(long uid,int position, TextView tvFollow) {
-        new TempAction().httpToFollow(uid, new CallBack<ReturnBean>() {
+        action.httpToFollow(uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
@@ -323,7 +331,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * 发请求->取消关注
      */
     private void httpCancelFollow(long uid, int position, TextView tvFollow) {
-        new TempAction().httpCancelFollow(uid, new CallBack<ReturnBean>() {
+        action.httpCancelFollow(uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
@@ -351,7 +359,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * 发请求->删除访问记录
      */
     private void httpDeleteVisitRecord(long uid, int position) {
-        new TempAction().httpDeleteVisitRecord(uid, new CallBack<ReturnBean>() {
+        action.httpDeleteVisitRecord(uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);

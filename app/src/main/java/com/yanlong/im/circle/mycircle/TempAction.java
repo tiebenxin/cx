@@ -84,4 +84,18 @@ public class TempAction {
     public void httpSetBackground(final String url, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.httpSetBackground(url), callback);
     }
+
+    /**
+     * 点赞
+     */
+    public void httpLike(final long id,final long uid, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpLike(id,uid), callback);
+    }
+
+    /**
+     * 取消点赞
+     */
+    public void httpCancleLike(final long id,final long uid, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpCancleLike(id,uid), callback);
+    }
 }

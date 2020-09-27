@@ -8,11 +8,14 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
+import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
+import com.yanlong.im.circle.bean.TrendBean;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
@@ -26,8 +29,11 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.ViewUtils;
+import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
@@ -42,7 +48,7 @@ import static com.yanlong.im.circle.mycircle.MyFollowActivity.DEFAULT_PAGE_SIZE;
  * @备注：
  */
 
-public class MyCircleActivity extends BaseBindActivity<ActivityMyCircleBinding> {
+public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> {
 
 
     private int page = 1;//默认第一页
@@ -51,6 +57,8 @@ public class MyCircleActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private TempAction action;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private UpFileAction upFileAction;
+    private MyTrendsAdapter adapter;
+    private List<TrendBean> mList;
 
 
     @Override
@@ -61,6 +69,7 @@ public class MyCircleActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     @Override
     protected void init(Bundle savedInstanceState) {
         action = new TempAction();
+        mList = new ArrayList<>();
     }
 
     @Override
@@ -70,21 +79,21 @@ public class MyCircleActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
-            Intent intent = new Intent(MyCircleActivity.this, MyFollowActivity.class);
+            Intent intent = new Intent(MyTrendsActivity.this, MyFollowActivity.class);
             startActivity(intent);
         });
         bindingView.layoutFollowMe.setOnClickListener(v -> {
             if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
-            Intent intent = new Intent(MyCircleActivity.this, FollowMeActivity.class);
+            Intent intent = new Intent(MyTrendsActivity.this, FollowMeActivity.class);
             startActivity(intent);
         });
         bindingView.layoutWhoSeeMe.setOnClickListener(v -> {
             if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
-            Intent intent = new Intent(MyCircleActivity.this, MyMeetingActivity.class);
+            Intent intent = new Intent(MyTrendsActivity.this, MyMeetingActivity.class);
             startActivity(intent);
         });
     }
@@ -93,11 +102,22 @@ public class MyCircleActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     protected void loadData() {
         showTopLayout();
         httpGetMyTrends();
+        adapter = new MyTrendsAdapter(MyTrendsActivity.this,mList,0);
+        bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
+        bindingView.recyclerView.setAdapter(adapter);
+        //加载更多
+        bindingView.recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
+            @Override
+            public void onLoadMore() {
+                adapter.setLoadState(adapter.LOADING);
+                httpGetMyTrends();
+            }
+        });
         //点击布局切换背景
-        bindingView.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(MyCircleActivity.this, new CheckPermission2Util.Event() {
+        bindingView.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(MyTrendsActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
-                PictureSelector.create(MyCircleActivity.this)
+                PictureSelector.create(MyTrendsActivity.this)
                         .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
@@ -124,7 +144,7 @@ public class MyCircleActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         if(userBean!=null){
             //头像 昵称 常信号 关注 被关注 看过我
             if(!TextUtils.isEmpty(userBean.getHead())){
-                Glide.with(MyCircleActivity.this)
+                Glide.with(MyTrendsActivity.this)
                         .load(userBean.getHead())
                         .into(bindingView.ivHeader);
             }
@@ -151,21 +171,50 @@ public class MyCircleActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     return;
                 }
                 if (response.body().isOk()){
+                    //1 有数据
                     if(response.body().getData()!=null){
                         CircleTrendsBean bean = response.body().getData();
-                        //第一页拿部分数据，我关注的，关注我的，看过我的总数
-                        if(page==1){
-                            bindingView.tvMyFollowNum.setText(bean.getMyFollowCount()+"");
-                            bindingView.tvFollowMeNum.setText(bean.getFollowMyCount()+"");
-                            bindingView.tvWhoSeeMeNum.setText(bean.getAccessCount()+"");
-                            if(!TextUtils.isEmpty(bean.getBgImage())){
-                                bindingView.ivBackground.setVisibility(View.VISIBLE);
-                                changeTextColor(true);
-                                Glide.with(MyCircleActivity.this).load(bean.getBgImage())
-                                        .apply(GlideOptionsUtil.defImageOptions1()).into(bindingView.ivBackground);
+                        //动态列表
+                        if(bean.getMomentList()!=null && bean.getMomentList().size()>0){
+                            //1-1 加载更多，则分页数据填充到尾部
+                            if (page > 1) {
+                                mList.addAll(bean.getMomentList());
+                                adapter.addMoreList(mList);
+                                adapter.setLoadState(adapter.LOADING_MORE);
                             }else {
-                                bindingView.ivBackground.setVisibility(View.GONE);
-                                changeTextColor(false);
+                                //1-2 第一次加载，若超过3个显示加载更多
+                                mList.addAll(bean.getMomentList());
+                                adapter.updateList(mList);
+                                if(mList.size()>=3){
+                                    adapter.setLoadState(adapter.LOADING_MORE);
+                                }
+                                //第一页拿部分数据，我关注的，关注我的，看过我的总数
+                                bindingView.tvMyFollowNum.setText(bean.getMyFollowCount() + "");
+                                bindingView.tvFollowMeNum.setText(bean.getFollowMyCount() + "");
+                                bindingView.tvWhoSeeMeNum.setText(bean.getAccessCount() + "");
+                                //展示背景图
+                                if (!TextUtils.isEmpty(bean.getBgImage())) {
+                                    bindingView.ivBackground.setVisibility(View.VISIBLE);
+                                    changeTextColor(true);
+                                    Glide.with(MyTrendsActivity.this).load(bean.getBgImage())
+                                            .apply(GlideOptionsUtil.defImageOptions1()).into(bindingView.ivBackground);
+                                } else {
+                                    bindingView.ivBackground.setVisibility(View.GONE);
+                                    changeTextColor(false);
+                                }
+                            }
+                            showNoDataLayout(false);
+                            page++;
+                        }else {
+                            //2 无数据
+                            //2-1 加载更多，当没有数据的时候，提示已经到底了
+                            if (page > 1) {
+                                adapter.setLoadState(adapter.LOADING_END);
+                                showNoDataLayout(false);
+                            } else {
+                                //2-2 第一次加载，没有数据则不显示尾部
+                                adapter.setLoadState(adapter.LOADING_GONE);
+                                showNoDataLayout(true);
                             }
                         }
                     }

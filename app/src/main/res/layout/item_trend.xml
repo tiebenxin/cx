@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:id="@+id/layout_top"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginLeft="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/iv_istop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:src="@mipmap/ic_istop"/>
+        <TextView
+            android:id="@+id/tv_istop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_marginLeft="4dp"
+            android:visibility="gone"
+            android:layout_marginRight="6dp"
+            android:textColor="@color/c_32b053"
+            android:text="置顶"/>
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/c_b4b4b4"
+            android:text="未知时间"/>
+    </LinearLayout>
+
+
+
+    <TextView
+        android:id="@+id/tv_can_see"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/c_b4b4b4"
+        android:layout_marginTop="16dp"
+        android:layout_toLeftOf="@+id/iv_setup"
+        android:text="广场可见"/>
+
+    <ImageView
+        android:id="@+id/iv_setup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="5dp"
+        android:src="@mipmap/ic_circle_more" />
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/c_474747"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="25dp"
+        android:layout_below="@+id/layout_top"
+        android:text="内容"/>
+
+    <RelativeLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_content"
+        android:layout_marginLeft="11dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/tv_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/tv_like"
+            android:clickable="false"
+            android:drawableLeft="@mipmap/ic_circle_location_gray"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:text="未定位该地点"
+            android:textColor="@color/c_b1b1b1"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tv_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:drawableLeft="@mipmap/ic_circle_common"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"
+            android:text="0"
+            android:textColor="@color/gray_b2b" />
+
+        <TextView
+            android:id="@+id/tv_like"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="30dp"
+            android:layout_toLeftOf="@+id/tv_comment"
+            android:drawableLeft="@mipmap/ic_circle_give"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"
+            android:text="0"
+            android:textColor="@color/gray_b2b" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_below="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/c_e6e6e6"/>
+
+
+</RelativeLayout>
