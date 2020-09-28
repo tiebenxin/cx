@@ -243,6 +243,7 @@ public class DialogHelper {
      * 通用列表选择弹框 (默认4个选项，视实际情况自行添加)
      *
      * @param context
+     * @param items 支持修改每项文案
      * @param clickListner
      */
     public void createCommonSelectListDialog(Context context,List<String> items, final ICommonSelectClickListner clickListner) {
