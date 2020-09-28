@@ -1,6 +1,8 @@
 package com.yanlong.im.circle.adapter;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -14,19 +16,32 @@ import android.widget.TextView;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.bumptech.glide.Glide;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
+import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.TrendBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.mycircle.FollowMeActivity;
+import com.yanlong.im.circle.mycircle.MyFollowActivity;
+import com.yanlong.im.circle.mycircle.MyMeetingActivity;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.circle.mycircle.TempAction;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICommonSelectClickListner;
 import net.cb.cb.library.inter.ITrendClickListner;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +62,7 @@ import static com.yanlong.im.circle.follow.FollowFragment.IS_OPEN;
 public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     //头部尾部数量(可直接修改数量控制头部和尾部)
-    private final static int HEAD_COUNT = 0;
+    private final static int HEAD_COUNT = 1;
     private final static int FOOT_COUNT = 1;
     //区分布局类型
     private final static int TYPE_HEAD = 0;
@@ -71,11 +86,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private LayoutInflater inflater;
     private Activity activity;
+    private CircleTrendsBean topData;//顶部数据
     private List<TrendBean> dataList;//动态列表数据
     private Drawable dislike;
     private Drawable like;
     private TempAction action;
     private MyTrendsActivity.RefreshListenr refreshListenr;
+    private UserBean userBean;
+    private CheckPermission2Util permission2Util = new CheckPermission2Util();
 
     public MyTrendsAdapter(Activity activity, List<TrendBean> dataList, int type) {
         inflater = LayoutInflater.from(activity);
@@ -99,6 +117,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         dislike.setBounds(0, 0, dislike.getMinimumWidth(), dislike.getMinimumHeight());
         like.setBounds(0, 0, like.getMinimumWidth(), like.getMinimumHeight());
         action = new TempAction();
+        userBean = (UserBean) new UserAction().getMyInfo();
     }
 
     //刷新数据
@@ -112,6 +131,17 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void addMoreList(List list) {
         dataList.addAll(list);
         notifyDataSetChanged();
+    }
+
+    //设置头部数据
+    public void setTopData(CircleTrendsBean topData){
+        this.topData = topData;
+    }
+
+    public void notifyBackground(String localPath){
+        topData.setBgImage(localPath);
+        notifyItemChanged(0);
+
     }
 
     //列表内容数量
@@ -146,8 +176,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (viewHolder instanceof MyTrendsAdapter.ContentHolder) {
             ContentHolder holder = (ContentHolder) viewHolder;
             if (dataList != null && dataList.size() > 0) {
-                if (dataList.get(position) != null) {
-                    TrendBean bean = dataList.get(position);
+                if (dataList.get(position-1) != null) {
+                    TrendBean bean = dataList.get(position-1);
                     //时间
                     if(!TextUtils.isEmpty(bean.getCreateTime())){
                         holder.tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM(Long.parseLong(bean.getCreateTime())));
@@ -215,25 +245,25 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     @Override
                                     public void selectOne() {
                                         //广场可见
-                                        httpSetVisibility(bean.getId(),0,holder.tvCanSee,position);
+                                        httpSetVisibility(bean.getId(),0,holder.tvCanSee,position-1);
                                     }
 
                                     @Override
                                     public void selectTwo() {
                                         //好友可见
-                                        httpSetVisibility(bean.getId(),1,holder.tvCanSee,position);
+                                        httpSetVisibility(bean.getId(),1,holder.tvCanSee,position-1);
                                     }
 
                                     @Override
                                     public void selectThree() {
                                         //陌生人可见
-                                        httpSetVisibility(bean.getId(),2,holder.tvCanSee,position);
+                                        httpSetVisibility(bean.getId(),2,holder.tvCanSee,position-1);
                                     }
 
                                     @Override
                                     public void selectFour() {
                                         //自己可见
-                                        httpSetVisibility(bean.getId(),3,holder.tvCanSee,position);
+                                        httpSetVisibility(bean.getId(),3,holder.tvCanSee,position-1);
                                     }
 
                                     @Override
@@ -275,14 +305,20 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                     holder.tvLike.setOnClickListener(v -> {
                         if(bean.getLike()==0){
-                            httpLike(bean.getId(),bean.getUid(),holder.tvLike,position,bean.getLikeCount());
+                            httpLike(bean.getId(),bean.getUid(),holder.tvLike,position-1,bean.getLikeCount());
                         }else {
-                            httpCancleLike(bean.getId(),bean.getUid(),holder.tvLike,position,bean.getLikeCount());
+                            httpCancleLike(bean.getId(),bean.getUid(),holder.tvLike,position-1,bean.getLikeCount());
                         }
                     });
+                    //第一项显示顶部横条(0为头部)
+                    if(position==1){
+                        holder.lineOne.setVisibility(View.VISIBLE);
+                    }else {
+                        holder.lineOne.setVisibility(View.GONE);
+                    }
                 }
             }
-        } else {
+        } else if(viewHolder instanceof MyTrendsAdapter.FootHolder){
             //加载更多-尾部
             FootHolder holder = (FootHolder) viewHolder;
             switch (loadState) {
@@ -310,6 +346,85 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 default:
                     break;
             }
+        }else {
+            //头部
+            HeadHolder holder = (HeadHolder) viewHolder;
+            if(userBean!=null){
+                //头像 昵称 常信号 关注 被关注 看过我
+                if(!TextUtils.isEmpty(userBean.getHead())){
+                    Glide.with(activity)
+                            .load(userBean.getHead())
+                            .into(holder.ivHeader);
+                }
+                if(!TextUtils.isEmpty(userBean.getName())){
+                    holder.tvName.setText(userBean.getName());
+                }else {
+                    holder.tvName.setText("未知用户名");
+                }
+                if(!TextUtils.isEmpty(userBean.getImid())){
+                    holder.tvImid.setText("常信号："+userBean.getImid());
+                }
+            }
+            //展示头部数据
+            if(topData!=null){
+                //第一页拿部分数据，我关注的，关注我的，看过我的总数
+                holder.tvMyFollowNum.setText(topData.getMyFollowCount() + "");
+                holder.tvFollowMeNum.setText(topData.getFollowMyCount() + "");
+                holder.tvWhoSeeMeNum.setText(topData.getAccessCount() + "");
+                //展示背景图
+                if (!TextUtils.isEmpty(topData.getBgImage())) {
+                    holder.ivBackground.setVisibility(View.VISIBLE);
+                    changeTextColor(true,holder.tvName,holder.tvImid);
+                    Glide.with(activity).load(topData.getBgImage())
+                            .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
+                } else {
+                    holder.ivBackground.setVisibility(View.GONE);
+                    changeTextColor(false,holder.tvName,holder.tvImid);
+                }
+            }
+            holder.layoutMyFollow.setOnClickListener(v -> {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                Intent intent = new Intent(activity, MyFollowActivity.class);
+                activity.startActivity(intent);
+            });
+            holder.layoutFollowMe.setOnClickListener(v -> {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                Intent intent = new Intent(activity, FollowMeActivity.class);
+                activity.startActivity(intent);
+            });
+            holder.layoutWhoSeeMe.setOnClickListener(v -> {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                Intent intent = new Intent(activity, MyMeetingActivity.class);
+                activity.startActivity(intent);
+            });
+            //点击布局切换背景
+            holder.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(activity, new CheckPermission2Util.Event() {
+                @Override
+                public void onSuccess() {
+                    PictureSelector.create(activity)
+                            .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                            .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                            .previewImage(false)// 是否可预览图片 true or false
+                            .isCamera(false)// 是否显示拍照按钮 ture or false
+                            .compress(true)// 是否压缩 true or false
+                            .enableCrop(true)
+                            .withAspectRatio(1, 1)
+                            .freeStyleCropEnabled(false)
+                            .rotateEnabled(false)
+                            .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+                }
+
+                @Override
+                public void onFail() {
+                    ToastUtil.show("请允许访问权限");
+                }
+            }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
         }
     }
 
@@ -320,9 +435,12 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (position == TYPE_CONTENT) {
             View itemView = inflater.inflate(R.layout.item_trend, parent, false);
             return new MyTrendsAdapter.ContentHolder(itemView);
-        } else {
+        } else if (position == TYPE_FOOTER){
             View itemView = inflater.inflate(R.layout.main_footer_layout, parent, false);
             return new MyTrendsAdapter.FootHolder(itemView);
+        }else {
+            View itemView = inflater.inflate(R.layout.trend_head, parent, false);
+            return new MyTrendsAdapter.HeadHolder(itemView);
         }
     }
 
@@ -338,6 +456,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private ImageView ivIstop;
         private TextView tvIstop;
         private RelativeLayout layoutItem;
+        private View lineOne;
 
         public ContentHolder(View itemView) {
             super(itemView);
@@ -351,6 +470,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ivSetup = itemView.findViewById(R.id.iv_setup);
             ivIstop = itemView.findViewById(R.id.iv_istop);
             tvIstop = itemView.findViewById(R.id.tv_istop);
+            lineOne = itemView.findViewById(R.id.line_one);
         }
     }
 
@@ -367,6 +487,36 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             loadingMore = itemView.findViewById(R.id.loading_more);
             loadingNoMore = itemView.findViewById(R.id.loading_no_more);
             footerLayout = itemView.findViewById(R.id.footer_layout);
+        }
+    }
+
+    // 头部
+    class HeadHolder extends RecyclerView.ViewHolder {
+        private ImageView ivHeader;
+        private TextView tvName;
+        private TextView tvImid;
+        private TextView tvMyFollowNum;
+        private TextView tvFollowMeNum;
+        private TextView tvWhoSeeMeNum;
+        private ImageView ivBackground;
+        private LinearLayout layoutMyFollow;
+        private LinearLayout layoutFollowMe;
+        private LinearLayout layoutWhoSeeMe;
+        private RelativeLayout layoutTop;
+
+        public HeadHolder(View itemView) {
+            super(itemView);
+            ivHeader = itemView.findViewById(R.id.iv_header);
+            tvName = itemView.findViewById(R.id.tv_name);
+            tvImid = itemView.findViewById(R.id.tv_imid);
+            tvMyFollowNum = itemView.findViewById(R.id.tv_my_follow_num);
+            tvFollowMeNum = itemView.findViewById(R.id.tv_follow_me_num);
+            tvWhoSeeMeNum = itemView.findViewById(R.id.tv_who_see_me_num);
+            ivBackground = itemView.findViewById(R.id.iv_background);
+            layoutMyFollow = itemView.findViewById(R.id.layout_my_follow);
+            layoutFollowMe = itemView.findViewById(R.id.layout_follow_me);
+            layoutWhoSeeMe = itemView.findViewById(R.id.layout_who_see_me);
+            layoutTop = itemView.findViewById(R.id.layout_top);
         }
     }
 
@@ -428,7 +578,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ToastUtil.show("点赞成功");
                     dataList.get(position).setLike(1);
                     dataList.get(position).setLikeCount(oldCount+1);
-                    notifyItemChanged(position,tvLike);
+                    notifyItemChanged(position+1,tvLike);
                 }
             }
 
@@ -455,7 +605,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ToastUtil.show("已取消点赞");
                     dataList.get(position).setLike(0);
                     dataList.get(position).setLikeCount(oldCount-1);
-                    notifyItemChanged(position,tvLike);
+                    notifyItemChanged(position+1,tvLike);
                 }
             }
 
@@ -514,7 +664,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body().isOk()){
                     ToastUtil.show("设置成功");
                     dataList.get(position).setVisibility(visibility);
-                    notifyItemChanged(position,tvCanSee);
+                    notifyItemChanged(position+1,tvCanSee);
                 }
             }
 
@@ -552,4 +702,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //            }
 //        });
     }
+
+    /**
+     * 改变顶部文字颜色
+     * @param hadBackground 是否有背景图
+     */
+    private void changeTextColor(boolean hadBackground,TextView tvName,TextView tvImid){
+        if(hadBackground){
+            tvName.setTextColor(activity.getResources().getColor(R.color.white));
+            tvImid.setTextColor(activity.getResources().getColor(R.color.white));
+        }else {
+            tvName.setTextColor(activity.getResources().getColor(R.color.c_363636));
+            tvImid.setTextColor(activity.getResources().getColor(R.color.c_868686));
+        }
+    }
+
 }

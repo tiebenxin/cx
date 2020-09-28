@@ -1,42 +1,31 @@
 package com.yanlong.im.circle.mycircle;
 
-import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
-import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.TrendBean;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserBean;
-import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
-import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -54,9 +43,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     private int page = 1;//默认第一页
 
-    private UserBean userBean;
     private TempAction action;
-    private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private UpFileAction upFileAction;
     private MyTrendsAdapter adapter;
     private List<TrendBean> mList;
@@ -75,36 +62,15 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     @Override
     protected void initEvent() {
         setActionBarLeft(bindingView.headView);
-        bindingView.layoutMyFollow.setOnClickListener(v -> {
-            if (ViewUtils.isFastDoubleClick()) {
-                return;
-            }
-            Intent intent = new Intent(MyTrendsActivity.this, MyFollowActivity.class);
-            startActivity(intent);
-        });
-        bindingView.layoutFollowMe.setOnClickListener(v -> {
-            if (ViewUtils.isFastDoubleClick()) {
-                return;
-            }
-            Intent intent = new Intent(MyTrendsActivity.this, FollowMeActivity.class);
-            startActivity(intent);
-        });
-        bindingView.layoutWhoSeeMe.setOnClickListener(v -> {
-            if (ViewUtils.isFastDoubleClick()) {
-                return;
-            }
-            Intent intent = new Intent(MyTrendsActivity.this, MyMeetingActivity.class);
-            startActivity(intent);
-        });
     }
 
     @Override
     protected void loadData() {
-        showTopLayout();
         httpGetMyTrends();
         adapter = new MyTrendsAdapter(MyTrendsActivity.this,mList,0);
-        bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
         bindingView.recyclerView.setAdapter(adapter);
+        bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
+
         //加载更多
         bindingView.recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
@@ -130,50 +96,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             }
         });
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
-        //点击布局切换背景
-        bindingView.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(MyTrendsActivity.this, new CheckPermission2Util.Event() {
-            @Override
-            public void onSuccess() {
-                PictureSelector.create(MyTrendsActivity.this)
-                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                        .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
-                        .previewImage(false)// 是否可预览图片 true or false
-                        .isCamera(false)// 是否显示拍照按钮 ture or false
-                        .compress(true)// 是否压缩 true or false
-                        .enableCrop(true)
-                        .withAspectRatio(1, 1)
-                        .freeStyleCropEnabled(false)
-                        .rotateEnabled(false)
-                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-
-            }
-
-            @Override
-            public void onFail() {
-                ToastUtil.show("请允许访问权限");
-            }
-        }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
-    }
-
-    //展示头部数据
-    private void showTopLayout() {
-        userBean = (UserBean) new UserAction().getMyInfo();
-        if(userBean!=null){
-            //头像 昵称 常信号 关注 被关注 看过我
-            if(!TextUtils.isEmpty(userBean.getHead())){
-                Glide.with(MyTrendsActivity.this)
-                        .load(userBean.getHead())
-                        .into(bindingView.ivHeader);
-            }
-            if(!TextUtils.isEmpty(userBean.getName())){
-                bindingView.tvName.setText(userBean.getName());
-            }else {
-                bindingView.tvName.setText("未知用户名");
-            }
-            if(!TextUtils.isEmpty(userBean.getImid())){
-                bindingView.tvImid.setText("常信号："+userBean.getImid());
-            }
-        }
+        //发新动态
+        bindingView.ivCreateCircle.setOnClickListener(v -> {
+            ToastUtil.show("发新动态");
+        });
     }
 
     /**
@@ -202,23 +128,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                 //1-2 第一次加载，若超过3个显示加载更多
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
+                                adapter.setTopData(bean);
                                 adapter.updateList(mList);
                                 if(mList.size()>=3){
                                     adapter.setLoadState(adapter.LOADING_MORE);
-                                }
-                                //第一页拿部分数据，我关注的，关注我的，看过我的总数
-                                bindingView.tvMyFollowNum.setText(bean.getMyFollowCount() + "");
-                                bindingView.tvFollowMeNum.setText(bean.getFollowMyCount() + "");
-                                bindingView.tvWhoSeeMeNum.setText(bean.getAccessCount() + "");
-                                //展示背景图
-                                if (!TextUtils.isEmpty(bean.getBgImage())) {
-                                    bindingView.ivBackground.setVisibility(View.VISIBLE);
-                                    changeTextColor(true);
-                                    Glide.with(MyTrendsActivity.this).load(bean.getBgImage())
-                                            .apply(GlideOptionsUtil.defImageOptions1()).into(bindingView.ivBackground);
-                                } else {
-                                    bindingView.ivBackground.setVisibility(View.GONE);
-                                    changeTextColor(false);
                                 }
                             }
                             showNoDataLayout(false);
@@ -249,13 +162,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 bindingView.swipeRefreshLayout.setRefreshing(false);
             }
         });
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        permission2Util.onRequestPermissionsResult();
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -269,13 +175,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     // 例如 LocalMedia 里面返回两种path
                     // 1.media.getPath(); 为原图path
                     // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
-                    Uri uri = Uri.fromFile(new File(file));
+//                    Uri uri = Uri.fromFile(new File(file));
                     alert.show();
                     //显示背景图
-                    Glide.with(this).load(uri)
-                            .apply(GlideOptionsUtil.defImageOptions1()).into(bindingView.ivBackground);
-                    bindingView.ivBackground.setVisibility(View.VISIBLE);
-                    changeTextColor(true);
+                    adapter.notifyBackground(file);
                     //上传背景图
                     if(upFileAction==null){
                         upFileAction = new UpFileAction();
@@ -342,20 +245,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         } else {
             bindingView.recyclerView.setVisibility(View.VISIBLE);
             bindingView.noDataLayout.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * 改变顶部文字颜色
-     * @param hadBackground 是否有背景图
-     */
-    private void changeTextColor(boolean hadBackground){
-        if(hadBackground){
-            bindingView.tvName.setTextColor(getResources().getColor(R.color.white));
-            bindingView.tvImid.setTextColor(getResources().getColor(R.color.white));
-        }else {
-            bindingView.tvName.setTextColor(getResources().getColor(R.color.c_363636));
-            bindingView.tvImid.setTextColor(getResources().getColor(R.color.c_868686));
         }
     }
 
