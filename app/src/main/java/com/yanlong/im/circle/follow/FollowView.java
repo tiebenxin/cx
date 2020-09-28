@@ -17,5 +17,7 @@ import java.util.List;
  */
 public interface FollowView extends IBaseView {
 
-    void setFollowData(List<MessageFlowItemBean> list);
+    void onSuccess(List<MessageFlowItemBean> list);
+
+    void onShowMessage(String msg);
 }

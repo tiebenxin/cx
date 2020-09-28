@@ -22,6 +22,7 @@ import com.yanlong.im.databinding.FragmentFollowBinding;
 import com.yanlong.im.interf.ICircleClickListener;
 
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import java.util.List;
@@ -39,6 +40,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     private CircleFlowAdapter mFlowAdapter;
     public static final String IS_OPEN = "is_open";
+    private final int PAGE_SIZE = 10;
+    private int mCurrentPage = 1;
 
     protected FollowPresenter createPresenter() {
         return new FollowPresenter(getContext());
@@ -56,7 +59,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
-        mPresenter.getFollowData();
+        mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
     }
 
     @Override
@@ -64,8 +67,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         bindingView.srlFollow.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@android.support.annotation.NonNull RefreshLayout refreshLayout) {
-                bindingView.srlFollow.finishRefresh();
-                bindingView.srlFollow.finishLoadMore();
+                mCurrentPage = 1;
+                mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
             }
         });
         bindingView.srlFollow.setOnLoadMoreListener(new OnLoadMoreListener() {
@@ -110,8 +113,15 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     @Override
-    public void setFollowData(List<MessageFlowItemBean> list) {
+    public void onSuccess(List<MessageFlowItemBean> list) {
         mFlowAdapter.setNewData(list);
+        bindingView.srlFollow.finishRefresh();
+        bindingView.srlFollow.finishLoadMore();
+    }
+
+    @Override
+    public void onShowMessage(String msg) {
+        ToastUtil.show(msg);
     }
 
     /**

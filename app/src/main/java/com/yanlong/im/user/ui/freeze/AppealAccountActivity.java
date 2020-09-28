@@ -2,10 +2,7 @@ package com.yanlong.im.user.ui.freeze;
 
 import android.Manifest;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -13,21 +10,10 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 
-import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.annotation.Route;
-import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.example.nim_lib.action.VideoAction;
-import com.example.nim_lib.bean.TokenBean;
 import com.example.nim_lib.ui.BaseBindActivity;
-import com.example.nim_lib.util.SharedPreferencesUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -39,45 +25,29 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.databinding.ActivityAppealAccountBinding;
 import com.yanlong.im.databinding.ItemAppealAccountBinding;
-import com.yanlong.im.databinding.ItemFaceViewBinding;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.ImageBean;
-import com.yanlong.im.user.ui.FeedbackActivity;
 import com.yanlong.im.user.ui.FeedbackShowImageActivity;
-import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.view.face.AddFaceActivity;
-import com.yanlong.im.view.face.bean.FaceBean;
 
-import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.IntentUtil;
-import net.cb.cb.library.utils.NetIntrtceptor;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
-import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.UpLoadFileUtil;
-import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PopupSelectView;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -313,22 +283,23 @@ public class AppealAccountActivity extends BaseBindActivity<ActivityAppealAccoun
                                     }
                                 }
                                 if (isPic) {
-                                    UpLoadFileUtil.getInstance().upLoadFile(AppealAccountActivity.this, mList, true, new UpLoadFileUtil.OnUploadFileListener() {
-                                        @Override
-                                        public void onUploadFile(HashMap<String, String> netFile) {
-                                            String file = "";
-                                            for (int i = 0; i < mList.size(); i++) {
-                                                file = file + netFile.get(getMediaPath(mList.get(i))) + ",";
-                                            }
-                                            file = file.substring(0, file.length() - 1);
-                                            commit(content, file);
-                                        }
+                                    UpLoadFileUtil.getInstance().upLoadFile(AppealAccountActivity.this, mList, true,
+                                            UpFileAction.PATH.FEEDBACK, new UpLoadFileUtil.OnUploadFileListener() {
+                                                @Override
+                                                public void onUploadFile(HashMap<String, String> netFile) {
+                                                    String file = "";
+                                                    for (int i = 0; i < mList.size(); i++) {
+                                                        file = file + netFile.get(getMediaPath(mList.get(i))) + ",";
+                                                    }
+                                                    file = file.substring(0, file.length() - 1);
+                                                    commit(content, file);
+                                                }
 
-                                        @Override
-                                        public void onFail() {
-                                            ToastUtil.show("图片上传失败");
-                                        }
-                                    });
+                                                @Override
+                                                public void onFail() {
+                                                    ToastUtil.show("图片上传失败");
+                                                }
+                                            });
                                 } else {
                                     commit(content, "");
                                 }

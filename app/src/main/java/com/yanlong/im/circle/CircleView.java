@@ -2,6 +2,8 @@ package com.yanlong.im.circle;
 
 import net.cb.cb.library.base.bind.IBaseView;
 
+import java.util.HashMap;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -15,7 +17,7 @@ public interface CircleView extends IBaseView {
 
     void onSuccess();
 
-    void uploadSuccess(String url);
+    void uploadSuccess(String url, int type, boolean isVideo, HashMap<String, String> netFile);
 
     void showMessage(String message);
 }

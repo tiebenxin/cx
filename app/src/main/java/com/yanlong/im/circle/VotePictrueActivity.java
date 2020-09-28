@@ -4,8 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
+import android.text.TextUtils;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.CreateCircleActivity;
 import com.luck.picture.lib.OnPhotoPreviewChangedListener;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
@@ -15,9 +19,11 @@ import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.circle.bean.CircleTitleBean;
 import com.yanlong.im.databinding.ActivityVotePictrueBinding;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
 import java.util.ArrayList;
@@ -48,11 +54,10 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
     @Override
     protected void init(Bundle savedInstanceState) {
         mList = new ArrayList<>();
-        addShowAdd();
         mPictureAdapter = new PicturePreviewAdapter(this, mList, this);
-        bindingView.recyclerView.addItemDecoration(new GridSpacingItemDecoration(3,
+        bindingView.recyclerView.addItemDecoration(new GridSpacingItemDecoration(4,
                 ScreenUtils.dip2px(this, 10), false));
-        bindingView.recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        bindingView.recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
         bindingView.recyclerView.setAdapter(mPictureAdapter);
     }
 
@@ -67,13 +72,61 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
 
             @Override
             public void onRight() {
+                if (TextUtils.isEmpty(bindingView.etTitle.getText().toString().trim())) {
+                    ToastUtil.show("请输入投票标题或描述");
+                    return;
+                }
+                if (mList != null && mList.size() < 3) {
+                    ToastUtil.show("请添加两张及以上图片");
+                    return;
+                }
+                Intent intent = new Intent();
+                List<CircleTitleBean> list = new ArrayList<>();
+                for (int i = mList.size() - 1; i >= 0; i--) {
+                    if (mList.get(i).isShowAdd()) {
+                        mList.remove(i);
+                    } else {
+                        list.add(new CircleTitleBean(mList.get(i).getPath()));
+                    }
+                }
+                intent.putExtra(CreateCircleActivity.VOTE_LOCATION_IMG, new Gson().toJson(mList));
+                intent.putExtra(CreateCircleActivity.VOTE_TXT, new Gson().toJson(list));
+                intent.putExtra(CreateCircleActivity.VOTE_TXT_TITLE, bindingView.etTitle.getText().toString());
+                setResult(RESULT_OK, intent);
+                finish();
             }
         });
     }
 
     @Override
     protected void loadData() {
-
+        String title = getIntent().getStringExtra(CreateCircleActivity.VOTE_TXT_TITLE);
+        String txtJson = getIntent().getStringExtra(CreateCircleActivity.VOTE_LOCATION_IMG);
+        bindingView.etTitle.setText(title);
+        if (!TextUtils.isEmpty(txtJson)) {
+            List<LocalMedia> list = new Gson().fromJson(txtJson,
+                    new TypeToken<List<LocalMedia>>() {
+                    }.getType());
+            if (list == null || list.size() == 0) {
+                addShowAdd();
+            } else {
+                mList.clear();
+                mList.addAll(list);
+                boolean isAdd = false;
+                if (list.size() < 4) {
+                    for (LocalMedia localMedia : list) {
+                        if (localMedia.isShowAdd()) {
+                            isAdd = true;
+                            break;
+                        }
+                    }
+                    if (!isAdd) {
+                        addShowAdd();
+                    }
+                }
+            }
+            mPictureAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -100,7 +153,6 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
     @Override
     public void onPicturePrviewClick(LocalMedia media, int position) {
         if (media.isShowAdd()) {
-
             PictureSelector.create(this)
                     .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                     .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE

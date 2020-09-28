@@ -1,7 +1,10 @@
 package com.yanlong.im.circle.server;
 
+import com.yanlong.im.circle.bean.MessageInfoBean;
+
 import net.cb.cb.library.bean.ReturnBean;
 
+import java.util.List;
 import java.util.WeakHashMap;
 
 import retrofit2.Call;
@@ -21,4 +24,7 @@ public interface CircleServer {
 
     @POST("square/moment/publish")
     Call<ReturnBean> careateNewCircle(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/follow-moment-list")
+    Call<ReturnBean<List<MessageInfoBean>>> getFollowMomentList(@Body WeakHashMap<String, Object> params);
 }

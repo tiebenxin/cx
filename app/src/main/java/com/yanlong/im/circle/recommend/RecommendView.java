@@ -1,6 +1,10 @@
 package com.yanlong.im.circle.recommend;
 
+import com.yanlong.im.circle.bean.MessageFlowItemBean;
+
 import net.cb.cb.library.base.bind.IBaseView;
+
+import java.util.List;
 
 /**
  * @version V1.0
@@ -12,4 +16,6 @@ import net.cb.cb.library.base.bind.IBaseView;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public interface RecommendView extends IBaseView {
+
+    void setFollowData(List<MessageFlowItemBean> list);
 }

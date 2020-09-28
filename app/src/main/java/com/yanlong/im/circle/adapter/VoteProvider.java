@@ -2,7 +2,6 @@ package com.yanlong.im.circle.adapter;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
@@ -23,11 +22,6 @@ import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.provider.BaseItemProvider;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.luck.picture.lib.PictureEnum;
-import com.luck.picture.lib.audio.AudioPlayUtil;
-import com.luck.picture.lib.entity.AttachmentBean;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
@@ -36,47 +30,37 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.utils.TimeToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @version V1.0
  * @createAuthor （Geoff）
- * @createDate 2020-09-09
+ * @createDate 2020-09-27
  * @updateAuthor
  * @updateDate
- * @description 关注适配器
+ * @description 投票适配器
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<MessageInfoBean>, BaseViewHolder> {
+public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageInfoBean>, BaseViewHolder> {
 
-    private boolean isDetails = false;
     private final int MAX_ROW_NUMBER = 3;
-    private ICircleClickListener clickListener;
     private final String END_MSG = " 收起";
-
-    public FollowProvider(boolean isDetails, ICircleClickListener clickListener) {
-        this.isDetails = isDetails;
-        this.clickListener = clickListener;
-    }
+    private ICircleClickListener clickListener;
 
     @Override
     public int viewType() {
-        return CircleFlowAdapter.MESSAGE_DEFAULT;
+        return CircleFlowAdapter.MESSAGE_VOTE;
     }
 
     @Override
     public int layout() {
-        return R.layout.item_follow;
+        return R.layout.view_circle_vote;
     }
 
     @Override
     public void convert(BaseViewHolder helper, MessageFlowItemBean<MessageInfoBean> data, int position) {
-        RecyclerView recyclerView = helper.getView(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         Glide.with(mContext)
                 .asBitmap()
                 .load(messageInfoBean.getAvatar())
@@ -103,67 +87,16 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         } else {
             helper.setText(R.id.iv_comment, "");
         }
-        // 附件
-        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
-            List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
-                    new TypeToken<List<AttachmentBean>>() {
-                    }.getType());
-            // 语音
-            if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
-                if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                    AttachmentBean attachmentBean = attachmentBeans.get(0);
-                    helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
-                    ivVoicePlay.setOnClickListener(o -> {
-                        if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), ivVoicePlay);
-                        }
-                    });
-                }
-                recyclerView.setVisibility(View.GONE);
-                helper.setVisible(R.id.layout_voice, true);
-            } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
-                List<String> imgs = new ArrayList<>();
-                helper.setGone(R.id.layout_voice, false);
-                recyclerView.setVisibility(View.VISIBLE);
-                if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                    for (AttachmentBean attachmentBean : attachmentBeans) {
-                        imgs.add(attachmentBean.getUrl());
-                    }
-                }
-                setRecycleView(recyclerView, imgs);
-            }
-        } else {
-            helper.setGone(R.id.layout_voice, false);
-            recyclerView.setVisibility(View.GONE);
-        }
-        helper.setGone(R.id.iv_delete_voice, false);
 
-        if (isDetails) {
-            helper.setVisible(R.id.tv_comment_count, true);
-            helper.setVisible(R.id.recycler_comment, true);
-            helper.setVisible(R.id.tv_follow, true);
-            helper.setGone(R.id.iv_setup, false);
-            RecyclerView recyclerComment = helper.getView(R.id.recycler_comment);
-            recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
-            CommentAdapter checkTxtAdapter = new CommentAdapter(false);
-            recyclerComment.setAdapter(checkTxtAdapter);
-            List<String> list = new ArrayList<>();
-            list.add("这是一条测试数据，可以张烨晗1");
-            list.add("这是一条测试数据，可以张烨晗2");
-            list.add("这是一条测试数据，可以张烨晗3");
-            list.add("这是一条测试数据，可以张烨晗4");
-            checkTxtAdapter.setNewData(list);
-        } else {
-            helper.setGone(R.id.tv_comment_count, false);
-            helper.setGone(R.id.recycler_comment, false);
-            helper.setGone(R.id.tv_follow, false);
-            helper.setVisible(R.id.iv_setup, true);
-        }
         TextView tvContent = helper.getView(R.id.tv_content);
         tvContent.setText(messageInfoBean.getContent());
         toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
                 "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow);
+
+        RecyclerView recyclerVote = helper.getView(R.id.recycler_vote);
+        recyclerVote.setLayoutManager(new LinearLayoutManager(mContext));
+        setRecycleView(recyclerVote, null);
     }
 
     /**
@@ -263,7 +196,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
     }
 
     private void setRecycleView(RecyclerView rv, List<String> imgs) {
-        rv.setLayoutManager(new GridLayoutManager(mContext, 3));
+        rv.setLayoutManager(new LinearLayoutManager(mContext));
         ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(imgs);

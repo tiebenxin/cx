@@ -21,6 +21,7 @@ import java.util.List;
 public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean, BaseViewHolder> {
 
     public static final int MESSAGE_DEFAULT = 0;// 默认
+    public static final int MESSAGE_VOTE = 1;// 默认
     private boolean isDetails = false;
     private ICircleClickListener clickListener;
 
@@ -45,5 +46,6 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
     @Override
     public void registerItemProvider() {
         mProviderDelegate.registerProvider(new FollowProvider(isDetails, clickListener));
+        mProviderDelegate.registerProvider(new VoteProvider());
     }
 }
