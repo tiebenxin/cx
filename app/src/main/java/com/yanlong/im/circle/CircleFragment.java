@@ -17,17 +17,22 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.event.EventFactory;
+import com.luck.picture.lib.rxbus2.RxBus;
 import com.yanlong.im.R;
+import com.yanlong.im.circle.bean.CircleTitleBean;
 import com.yanlong.im.databinding.ActivityCircleBinding;
 
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -44,6 +49,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     private ViewPagerAdapter mViewPagerAdapter;
     private EventFactory.CreateCircleEvent.CircleBean mCircleBean;
     private List<AttachmentBean> mList;
+    private List<CircleTitleBean> mVotePictrueList;
 
     @Override
     protected CirclePresenter createPresenter() {
@@ -83,13 +89,35 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             if (mList != null && mList.size() > 0) {
                 switch (mCircleBean.getType()) {
                     case PictureEnum.EContentType.VOICE:
-                        mPresenter.uploadFile(mList.get(0).getUrl());
+                        mPresenter.uploadFile(mList.get(0).getUrl(), PictureEnum.EContentType.VOICE, false, UpFileAction.PATH.VOICE);
                         break;
                     case PictureEnum.EContentType.VIDEO:
+                        mPresenter.uploadFile(mList.get(0).getBgUrl(), PictureEnum.EContentType.VIDEO, false, UpFileAction.PATH.VIDEO);
                         break;
                     case PictureEnum.EContentType.PICTRUE:
+                    case PictureEnum.EContentType.VOICE_AND_VOTE:
+                    case PictureEnum.EContentType.PICTRUE_AND_VOTE:
+                    case PictureEnum.EContentType.VIDEO_AND_VOTE:
+                        // 移除加号
+                        List<LocalMedia> list = event.getList();
+                        for (int i = list.size() - 1; i >= 0; i--) {
+                            if (list.get(i).isShowAdd()) {
+                                list.remove(i);
+                                break;
+                            }
+                        }
+                        mPresenter.batchFileCheck(list);
                         break;
                 }
+            }
+        } else if (!TextUtils.isEmpty(mCircleBean.getVote())) {// 投票
+            if (mPresenter.voteIsPictrue(mCircleBean.getVote())) {
+                mVotePictrueList = new Gson().fromJson(mCircleBean.getVote(),
+                        new TypeToken<List<CircleTitleBean>>() {
+                        }.getType());
+                mPresenter.batchFileCheck(event.getList());
+            } else {
+                mPresenter.setParams(mCircleBean);
             }
         } else {
             mPresenter.setParams(mCircleBean);
@@ -158,24 +186,44 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     @Override
     public void onSuccess() {
-        ToastUtil.show("成功");
+        ToastUtil.show("发布成功");
+        RxBus.getDefault().post(new EventFactory.CreateSuccessEvent());
     }
 
     @Override
-    public void uploadSuccess(String url) {
-        if (mList != null && mList.size() > 0) {
-            switch (mCircleBean.getType()) {
-                case PictureEnum.EContentType.VOICE:
-                    mList.get(0).setUrl(url);
-                    mCircleBean.setAttachment(new Gson().toJson(mList));
-                    break;
-                case PictureEnum.EContentType.VIDEO:
-                    break;
-                case PictureEnum.EContentType.PICTRUE:
-                    break;
+    public void uploadSuccess(String url, int type, boolean isVideo, HashMap<String, String> netFile) {
+        try {
+            if (mList != null && mList.size() > 0) {
+                AttachmentBean attachmentBean = mList.get(0);
+                switch (type) {
+                    case PictureEnum.EContentType.VOICE:
+                        attachmentBean.setUrl(url);
+                        break;
+                    case PictureEnum.EContentType.VIDEO:
+                        if (isVideo) {
+                            attachmentBean.setUrl(url);
+                        } else {
+                            attachmentBean.setBgUrl(url);
+                            mPresenter.uploadFile(attachmentBean.getUrl(), PictureEnum.EContentType.VIDEO, true, UpFileAction.PATH.VIDEO);
+                            return;
+                        }
+                        break;
+                    case PictureEnum.EContentType.PICTRUE:
+                        for (int i = 0; i < mList.size(); i++) {
+                            mList.get(i).setUrl(netFile.get(mList.get(i).getUrl()));
+                        }
+                        break;
+                }
+                mCircleBean.setAttachment(new Gson().toJson(mList));
+            } else if (mVotePictrueList != null && mVotePictrueList.size() > 0) {
+                for (int i = 0; i < mVotePictrueList.size(); i++) {
+                    mVotePictrueList.get(i).setContent(netFile.get(mVotePictrueList.get(i).getContent()));
+                }
+                mCircleBean.setVote(new Gson().toJson(mVotePictrueList));
             }
+            mPresenter.setParams(mCircleBean);
+        } catch (Exception e) {
         }
-        mPresenter.setParams(mCircleBean);
     }
 
     @Override

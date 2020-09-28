@@ -39,7 +39,7 @@ public class AudioPlayUtil {
     }
 
     //播放语音
-    public static void startAudioPlay(String audioUrl, ImageView imageView) {
+    public static void startAudioPlay(Context context, String audioUrl, ImageView imageView) {
         if (TextUtils.isEmpty(audioUrl)) {
             return;
         }

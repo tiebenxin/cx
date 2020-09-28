@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:background="@color/red_400"
         android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="2"
-            android:textColor="@color/blue"
-            android:textSize="18sp" />
+        <com.scwang.smartrefresh.layout.SmartRefreshLayout
+            android:id="@+id/srl_follow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srlEnableHeaderTranslationContent="true">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_recommend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never" />
+
+        </com.scwang.smartrefresh.layout.SmartRefreshLayout>
     </RelativeLayout>
 </layout>

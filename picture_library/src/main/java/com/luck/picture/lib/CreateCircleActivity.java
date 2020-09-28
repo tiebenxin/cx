@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
@@ -70,7 +71,9 @@ import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastManage;
+import com.luck.picture.lib.utils.CheckPermission2Util;
 import com.luck.picture.lib.utils.DateUtil;
+import com.luck.picture.lib.utils.GroupHeadImageUtil;
 import com.luck.picture.lib.utils.InputUtil;
 import com.luck.picture.lib.utils.PatternUtil;
 import com.luck.picture.lib.utils.SoftKeyBoardListener;
@@ -86,6 +89,7 @@ import com.yalantis.ucrop.model.CutInfo;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -109,10 +113,15 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private static final int REQUEST_CODE_VOTE_TXT = 300;
     private static final int REQUEST_CODE_VOTE_PICTRUE = 400;
     public static final String INTENT_LOCATION_NAME = "intent_location_name";
+    public static final String CITY_NAME = "city_name";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
     public static final String INTENT_POWER = "intent_power";
+    public static final String VOTE_TXT = "vote_txt";
+    public static final String VOTE_LOCATION_IMG = "vote_location_img";
+    public static final String VOTE_TXT_TITLE = "vote_txt_title";
     private final String ADDRESS_NOT_SHOW = "不显示位置";
+    private String mCityName = "", mTxtJson = "", mImgJson = "";
     private ImageView picture_left_back, iv_face, iv_picture, iv_vote, iv_voice, iv_delete_voice,
             iv_voice_play, iv_delete_location;
     private TextView picture_title, picture_right, picture_tv_ok, tv_empty,
@@ -148,7 +157,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private boolean isOpenSoft = false;// 是否打开软件盘
     private boolean isShowFace = true;// 是否显示表情
     private boolean isPlaying = false;// 是否在播放录音
-    private boolean isRecording;// 是否在录音
+    private boolean isRecording, isExistVoice = false;// 是否在录音\是否存在录音
     private int mAudioState = 0;//0未录音 1在录音 2停止录音
     private final int MAX_SECOND = 90;// 录制最大90秒
     private AudioRecorder recorder;// 录音对象
@@ -156,9 +165,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private DonutProgress dp_action;// 录音进度条
     private ImageView iv_action, iv_reset, iv_confirm, iv_voice_bg;
     private TextView tv_voice_time, tv_voice_tip;
+    private CheckPermission2Util permission2Util = new CheckPermission2Util();
 
     // 选择的图片集合
     private List<LocalMedia> mList = new ArrayList<>();
+    // 投票图片
+    private List<LocalMedia> mVoteList = new ArrayList<>();
     private PicturePreviewAdapter mPictureAdapter;
     private boolean isRestHeight = true;// 是否重设高度
 
@@ -212,6 +224,11 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 }
                 break;
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventFactory.CreateSuccessEvent event) {
+        finish();
     }
 
     @Override
@@ -496,9 +513,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
 
         mPictureAdapter = new PicturePreviewAdapter(this, mList, this);
-        recycler_picture_prview.addItemDecoration(new GridSpacingItemDecoration(3,
-                ScreenUtils.dip2px(this, 10), false));
-        recycler_picture_prview.setLayoutManager(new GridLayoutManager(this, 3));
+        recycler_picture_prview.addItemDecoration(new GridSpacingItemDecoration(4,
+                ScreenUtils.dip2px(this, 5), false));
+        recycler_picture_prview.setLayoutManager(new GridLayoutManager(this, 4));
         recycler_picture_prview.setAdapter(mPictureAdapter);
     }
 
@@ -717,14 +734,17 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         circleBean.setContent(content);
         circleBean.setVisibility(visibility);
         circleBean.setType(PictureEnum.EContentType.TXT);
-        if (!TextUtils.isEmpty(tv_location.getText().toString())) {
+        if (!TextUtils.isEmpty(tv_location.getText().toString()) &&
+                !tv_location.getText().toString().equals(getString(R.string.you_location))) {
             circleBean.setPosition(tv_location.getText().toString());
+            circleBean.setCity(mCityName);
             circleBean.setLatitude(mLatitude + "");
             circleBean.setLongitude(mLongitude + "");
         }
+        // 附件
         Gson gson = new Gson();
+        List<AttachmentBean> list = new ArrayList<>();
         if (!TextUtils.isEmpty(currentAudioFile)) {
-            List<AttachmentBean> list = new ArrayList<>();
             AttachmentBean attachmentBean = new AttachmentBean();
             attachmentBean.setUrl(currentAudioFile);
             attachmentBean.setDuration(getSendTime(time));
@@ -732,10 +752,87 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             list.add(attachmentBean);
             circleBean.setAttachment(gson.toJson(list));
             circleBean.setType(PictureEnum.EContentType.VOICE);
+        } else if (mList != null && mList.size() > 0) {// 图片或视频
+            for (LocalMedia localMedia : mList) {
+                if (!localMedia.isShowAdd()) {
+                    AttachmentBean attachment = new AttachmentBean();
+                    if (PictureMimeType.isPictureType(localMedia.getPictureType()) == PictureMimeType.ofImage()) {
+                        attachment.setUrl(localMedia.getPath());
+                        attachment.setType(PictureEnum.EContentType.PICTRUE);
+                        circleBean.setType(PictureEnum.EContentType.PICTRUE);
+                    } else {
+                        attachment.setBgUrl((getVideoAttBitmap(localMedia.getPath())));
+                        attachment.setUrl(localMedia.getPath());
+                        attachment.setType(PictureEnum.EContentType.VIDEO);
+                        circleBean.setType(PictureEnum.EContentType.VIDEO);
+                    }
+                    list.add(attachment);
+                }
+            }
+            if (PictureEnum.EContentType.PICTRUE == circleBean.getType()) {
+                // 移除加号
+                for (int i = mList.size() - 1; i >= 0; i--) {
+                    if (mList.get(i).isShowAdd()) {
+                        mList.remove(i);
+                        break;
+                    }
+                }
+                createCircleEvent.setList(mList);
+            }
+            circleBean.setAttachment(gson.toJson(list));
+        }
+        if (!TextUtils.isEmpty(mTxtJson) || !TextUtils.isEmpty(mImgJson)) {
+            if (!TextUtils.isEmpty(mTxtJson)) {
+                circleBean.setVote(mTxtJson);
+            } else {
+                circleBean.setVote(mImgJson);
+                createCircleEvent.setList(mVoteList);
+            }
+            if (!TextUtils.isEmpty(currentAudioFile)) {
+                circleBean.setType(PictureEnum.EContentType.VOICE_AND_VOTE);
+            } else if (mList != null && mList.size() > 0) {
+                if (PictureMimeType.isPictureType(mList.get(0).getPictureType()) == PictureMimeType.ofImage()) {
+                    circleBean.setType(PictureEnum.EContentType.PICTRUE_AND_VOTE);
+                } else {
+                    circleBean.setType(PictureEnum.EContentType.VIDEO_AND_VOTE);
+                }
+            } else {
+                circleBean.setType(PictureEnum.EContentType.VOTE);
+            }
         }
         createCircleEvent.circleBean = circleBean;
         EventBus.getDefault().post(createCircleEvent);
     }
+
+    /**
+     * 获取视频第一帧
+     *
+     * @param mUri
+     * @return
+     */
+    private String getVideoAttBitmap(String mUri) {
+        String path = "";
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null) {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+            } else {
+            }
+            while (mmr.getFrameAtTime() == null) {
+                Thread.sleep(1000);
+            }
+            File file = GroupHeadImageUtil.save2File(this, mmr.getFrameAtTime());
+            if (file != null) {
+                path = file.getAbsolutePath();
+            }
+        } catch (Exception ex) {
+        } finally {
+            mmr.release();
+        }
+        return path;
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -790,51 +887,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 postcard.navigation(this, REQUEST_CODE_POWER);
             }
         } else if (id == R.id.dp_action) {// 录音
-            setRecyclerViewHeight(mFuncHeight);
-            switch (mAudioState) {
-                case PictureEnum.EAudioType.NO_AUDIO: // 开始录音
-                    iv_action.setVisibility(View.VISIBLE);
-                    tv_voice_tip.setText("正在录音");
-                    dp_action.setMax(100 * 10 * MAX_SECOND);
-                    iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder_ing);
-                    iv_action.setImageResource(R.drawable.bg_audio_recorder_green);
-                    mAudioHandler.removeCallbacks(mAudioRunnable);
-                    time = 0;
-                    mAudioHandler.postDelayed(mAudioRunnable, 100);
-                    startRecord();
-                    mAudioState = 1;
-                    break;
-                case PictureEnum.EAudioType.ING_AUDIO:// 停止
-                    iv_action.setVisibility(View.VISIBLE);
-                    iv_action.setImageResource(R.mipmap.ic_start_recorder);
-                    iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
-                    dp_action.setDonut_progress("" + 0);
-                    stopRecord();
-                    AudioPlayUtil.stopAudioPlay();
-                    mAudioHandler.removeCallbacks(mAudioRunnable);
-                    tv_voice_tip.setText("点击播放");
-                    iv_reset.setVisibility(View.VISIBLE);
-                    iv_confirm.setVisibility(View.VISIBLE);
-                    mAudioState = 2;
-                    break;
-                case PictureEnum.EAudioType.STOP_AUDIO:// 播放
-                    iv_action.setVisibility(View.VISIBLE);
-                    iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
-                    dp_action.setDonut_progress("" + 0);
-                    if (!TextUtils.isEmpty(currentAudioFile)) {
-                        isPlaying = !isPlaying;
-                        if (isPlaying) {
-                            iv_action.setImageResource(R.mipmap.ic_audio_start);
-                            tv_voice_tip.setText("正在播放");
-                            AudioPlayUtil.startAudioPlay(this, currentAudioFile, this);
-                        } else {
-                            tv_voice_tip.setText("点击播放");
-                            iv_action.setImageResource(R.mipmap.ic_start_recorder);
-                            AudioPlayUtil.stopAudioPlay();
-                        }
-                    }
-                    break;
-            }
+            toVoice();
         } else if (id == R.id.iv_reset) {// 取消录音
             resetAudio(true);
         } else if (id == R.id.iv_confirm) {// 录音完成
@@ -842,9 +895,17 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 Toast.makeText(this, "录制时间不能小于1秒", Toast.LENGTH_LONG).show();
                 return;
             }
+            etContent.requestFocus();
+            InputUtil.showKeyboard(etContent);
+            iv_picture.setImageLevel(0);
+            iv_vote.setImageLevel(0);
+            iv_voice.setImageLevel(0);
+
             layout_voice.setVisibility(View.VISIBLE);
             tv_time.setText(getPlayTime(time));
             resetAudio(false);
+
+
         } else if (id == R.id.iv_delete_voice) {// 删除语音
             layout_voice.setVisibility(View.GONE);
             resetAudio(true);
@@ -853,6 +914,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 AudioPlayUtil.startAudioPlay(this, currentAudioFile, this);
             }
         } else if (id == R.id.iv_voice) {// 语音
+            if (layout_voice.getVisibility() == View.VISIBLE || mList.size() > 0 || mVoteList.size() > 0) {
+                Toast.makeText(this, getResources().getString(R.string.voice_message_wrong), Toast.LENGTH_LONG).show();
+                return;
+            }
             if (isOpenSoft) {
                 isShowFace = false;
                 InputUtil.hideKeyboard(etContent);
@@ -867,6 +932,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             circle_view_faceview.setVisibility(View.GONE);
             delayMillis();
         } else if (id == R.id.iv_picture) {// 图片
+            if (isExistVoice || mVoteList.size() > 0) {
+                Toast.makeText(this, getResources().getString(R.string.voice_message_wrong), Toast.LENGTH_LONG).show();
+                return;
+            }
             if (isOpenSoft) {
                 isShowFace = false;
                 InputUtil.hideKeyboard(etContent);
@@ -899,11 +968,19 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         } else if (id == R.id.tv_content_vote) {// 文字投票
             if (!DoubleUtils.isFastDoubleClick()) {
                 Postcard postcard = ARouter.getInstance().build("/circle/VoteTextActivity");
+                postcard.withString(VOTE_TXT_TITLE, etContent.getText().toString());
+                postcard.withString(VOTE_TXT, mTxtJson);
                 postcard.navigation(this, REQUEST_CODE_VOTE_TXT);
             }
         } else if (id == R.id.tv_picture_vote) {// 图片投票
             if (!DoubleUtils.isFastDoubleClick()) {
+                if (isExistVoice || mList.size() > 0) {
+                    Toast.makeText(this, getResources().getString(R.string.voice_message_wrong), Toast.LENGTH_LONG).show();
+                    return;
+                }
                 Postcard postcard = ARouter.getInstance().build("/circle/VotePictrueActivity");
+                postcard.withString(VOTE_TXT_TITLE, etContent.getText().toString());
+                postcard.withString(VOTE_LOCATION_IMG, new Gson().toJson(mVoteList));
                 postcard.navigation(this, REQUEST_CODE_VOTE_PICTRUE);
             }
         } else if (id == R.id.iv_face) {// 表情
@@ -957,6 +1034,69 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     }
 
+    private void toVoice() {
+        permission2Util.requestPermissions(CreateCircleActivity.this, new CheckPermission2Util.Event() {
+            @Override
+            public void onSuccess() {
+                startVoice();
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+    }
+
+    private void startVoice() {
+        setRecyclerViewHeight(mFuncHeight);
+        switch (mAudioState) {
+            case PictureEnum.EAudioType.NO_AUDIO: // 开始录音
+                isExistVoice = true;
+                iv_action.setVisibility(View.VISIBLE);
+                tv_voice_tip.setText("正在录音");
+                dp_action.setMax(100 * 10 * MAX_SECOND);
+                iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder_ing);
+                iv_action.setImageResource(R.drawable.bg_audio_recorder_green);
+                mAudioHandler.removeCallbacks(mAudioRunnable);
+                time = 0;
+                mAudioHandler.postDelayed(mAudioRunnable, 100);
+                startRecord();
+                mAudioState = 1;
+                break;
+            case PictureEnum.EAudioType.ING_AUDIO:// 停止
+                iv_action.setVisibility(View.VISIBLE);
+                iv_action.setImageResource(R.mipmap.ic_start_recorder);
+                iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
+                dp_action.setDonut_progress("" + 0);
+                stopRecord();
+                AudioPlayUtil.stopAudioPlay();
+                mAudioHandler.removeCallbacks(mAudioRunnable);
+                tv_voice_tip.setText("点击播放");
+                iv_reset.setVisibility(View.VISIBLE);
+                iv_confirm.setVisibility(View.VISIBLE);
+                mAudioState = 2;
+                break;
+            case PictureEnum.EAudioType.STOP_AUDIO:// 播放
+                iv_action.setVisibility(View.VISIBLE);
+                iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
+                dp_action.setDonut_progress("" + 0);
+                if (!TextUtils.isEmpty(currentAudioFile)) {
+                    isPlaying = !isPlaying;
+                    if (isPlaying) {
+                        iv_action.setImageResource(R.mipmap.ic_audio_start);
+                        tv_voice_tip.setText("正在播放");
+                        AudioPlayUtil.startAudioPlay(this, currentAudioFile, this);
+                    } else {
+                        tv_voice_tip.setText("点击播放");
+                        iv_action.setImageResource(R.mipmap.ic_start_recorder);
+                        AudioPlayUtil.stopAudioPlay();
+                    }
+                }
+                break;
+        }
+    }
+
     /**
      * 延迟0.1秒显示内容
      */
@@ -999,12 +1139,13 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         if (!dir.exists()) {
             dir.mkdir();
         }
-        File file = new File(dir, DateUtil.getCurrTime(DateUtil.DATE_PATTERN_yyyyMMddHHmmss));
+        File file = new File(dir, DateUtil.getCurrTime(DateUtil.DATE_PATTERN_yyyyMMddHHmmss) + ".aac");
         return file.getAbsolutePath();
     }
 
     private void resetAudio(boolean isDelete) {
         iv_action.setVisibility(View.GONE);
+
         if (isPlaying) {
             AudioPlayUtil.stopAudioPlay();
             isPlaying = !isPlaying;
@@ -1019,6 +1160,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             if (file.exists()) {
                 file.delete();
             }
+            isExistVoice = false;
         }
         mAudioState = 0;
     }
@@ -1398,6 +1540,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             mPictureAdapter.notifyDataSetChanged();
             recycler_picture_prview.setVisibility(View.VISIBLE);
         } else {
+            mList.clear();
             recycler_picture_prview.setVisibility(View.GONE);
         }
     }
@@ -1714,12 +1857,13 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     }
                     break;
                 case REQUEST_CODE_LOCATION:// 设置位置
-                    String name = data.getStringExtra(INTENT_LOCATION_NAME);
+                    String address = data.getStringExtra(INTENT_LOCATION_NAME);
+                    mCityName = data.getStringExtra(CITY_NAME);
                     mLatitude = data.getDoubleExtra(LATITUDE, -1);
                     mLongitude = data.getDoubleExtra(LONGITUDE, -1);
                     Drawable drawable;
-                    if (ADDRESS_NOT_SHOW.equals(name)) {
-                        name = getString(R.string.you_location);
+                    if (ADDRESS_NOT_SHOW.equals(address)) {
+                        address = getString(R.string.you_location);
                         tv_location.setTextColor(getResources().getColor(R.color.color_b1b));
                         drawable = getResources().getDrawable(R.mipmap.ic_circle_location_gray);
                         iv_delete_location.setVisibility(View.GONE);
@@ -1730,11 +1874,27 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     }
                     drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
                     tv_location.setCompoundDrawables(drawable, null, null, null);
-                    tv_location.setText(name);
+                    tv_location.setText(address);
                     break;
                 case REQUEST_CODE_POWER:// 设置权限
-                    name = data.getStringExtra(INTENT_POWER);
-                    tv_power.setText(name);
+                    address = data.getStringExtra(INTENT_POWER);
+                    tv_power.setText(address);
+                    break;
+                case REQUEST_CODE_VOTE_TXT:// 文字投票
+                    String title = data.getStringExtra(VOTE_TXT_TITLE);
+                    mTxtJson = data.getStringExtra(VOTE_TXT);
+                    etContent.setText(title);
+                    break;
+                case REQUEST_CODE_VOTE_PICTRUE:// 图片投票
+                    title = data.getStringExtra(VOTE_TXT_TITLE);
+                    mImgJson = data.getStringExtra(VOTE_TXT);
+                    String imgJson = data.getStringExtra(VOTE_LOCATION_IMG);
+                    if (!TextUtils.isEmpty(imgJson)) {
+                        mVoteList = new Gson().fromJson(imgJson,
+                                new TypeToken<List<LocalMedia>>() {
+                                }.getType());
+                    }
+                    etContent.setText(title);
                     break;
                 case PictureConfig.CHOOSE_REQUEST:// 图片回调
                     List<LocalMedia> selectImages = (List<LocalMedia>) data.getSerializableExtra(PictureConfig.EXTRA_RESULT_SELECTION);

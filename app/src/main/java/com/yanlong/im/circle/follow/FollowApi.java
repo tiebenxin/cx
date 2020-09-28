@@ -1,5 +1,13 @@
 package com.yanlong.im.circle.follow;
 
+import com.yanlong.im.circle.bean.MessageInfoBean;
+
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+
+import java.util.List;
+import java.util.WeakHashMap;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -10,4 +18,6 @@ package com.yanlong.im.circle.follow;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public interface FollowApi {
+
+    void getFollowMomentList(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<MessageInfoBean>>> callback);
 }

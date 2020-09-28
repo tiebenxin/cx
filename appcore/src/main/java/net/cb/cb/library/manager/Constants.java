@@ -17,7 +17,9 @@ public class Constants {
     // 文件传输小助手
 //    public static final Long CX_FILE_HELPER_UID = 3L;
 
-    public static final String  STATUS = "status";
+    public static final String STATUS = "status";
 
-    public static final String  ANDROID = "android";
+    public static final String ANDROID = "android";
+
+    public static final String OSS_REALM_NAME = "http://zx-im-img.oss-accelerate.aliyuncs.com/";
 }

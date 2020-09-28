@@ -42,4 +42,6 @@
     <string name="picture_confirm">确定</string>
 
     <string name="you_location">你的位置</string>
+    <string name="voice_message_wrong">不支行音频和其他媒体同时上传哦</string>
+
 </resources>

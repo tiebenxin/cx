@@ -35,11 +35,14 @@ public class UpLoadFileUtil {
     private List<LocalMedia> mediaList;
     private OnUploadFileListener listener;
     private DialogLoadingProgress mPayWaitDialog;
+    private UpFileAction.PATH mPath;
 
-    public void upLoadFile(Context context, List<LocalMedia> mediaList, boolean isShowDialog, OnUploadFileListener listener) {
+    public void upLoadFile(Context context, List<LocalMedia> mediaList, boolean isShowDialog,
+                           UpFileAction.PATH path, OnUploadFileListener listener) {
         this.context = context;
         this.mediaList = mediaList;
         this.listener = listener;
+        this.mPath = path;
         if (isShowDialog) {
             showLoadingDialog(context);
         }
@@ -100,7 +103,10 @@ public class UpLoadFileUtil {
     }
 
     private void uploadFile(final String file) {
-        new UpFileAction().upFile(UpFileAction.PATH.FEEDBACK, context, new UpFileUtil.OssUpCallback() {
+        if (mPath == UpFileAction.PATH.IMG) {
+            UpFileUtil.getInstance().setCheck(false);
+        }
+        new UpFileAction().upFile(mPath, context, new UpFileUtil.OssUpCallback() {
 
             @Override
             public void success(final String url) {

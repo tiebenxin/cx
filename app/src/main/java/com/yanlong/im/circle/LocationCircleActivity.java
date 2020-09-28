@@ -114,6 +114,7 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
     private void setResult(String name, double latitude, double longitude) {
         Intent intent = new Intent();
         intent.putExtra(CreateCircleActivity.INTENT_LOCATION_NAME, name);
+        intent.putExtra(CreateCircleActivity.CITY_NAME, mCity);
         intent.putExtra(CreateCircleActivity.LATITUDE, latitude);
         intent.putExtra(CreateCircleActivity.LONGITUDE, longitude);
         setResult(RESULT_OK, intent);
