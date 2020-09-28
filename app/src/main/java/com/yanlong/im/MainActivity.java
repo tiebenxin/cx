@@ -640,17 +640,22 @@ public class MainActivity extends BaseTcpActivity {
     protected void onResume() {
         super.onResume();
         //清除聊天界面的bitmap
-        ChatBitmapCache.getInstance().clearCache();
-        isActivityStop = false;
-        //显示消息未读数
-        taskGetMsgNum();
-        //显示通讯录未读数
-        taskGetFriendNum();
-        checkNotificationOK();
-        checkPayEnvironmentInit();
-        if (AppConfig.isOnline()) {
-            checkHasEnvelopeSendFailed();
+        try {
+            ChatBitmapCache.getInstance().clearCache();
+            isActivityStop = false;
+            //显示消息未读数
+            taskGetMsgNum();
+            //显示通讯录未读数
+            taskGetFriendNum();
+            checkNotificationOK();
+            checkPayEnvironmentInit();
+            if (AppConfig.isOnline()) {
+                checkHasEnvelopeSendFailed();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     //检测支付环境的初始化
