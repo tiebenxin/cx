@@ -577,8 +577,6 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             RealmResults<MsgAllBean> list = null;
-
-
             list = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findAll();
             //删除前先把子表数据干掉!!切记
             if (list != null) {
@@ -3947,7 +3945,7 @@ public class MsgDao {
                 .and()
                 .in("msg_type", supportType)
                 .and()
-                .beginGroup().greaterThan("timestamp", time).or().equalTo("timestamp", time).endGroup()
+                .beginGroup().greaterThanOrEqualTo("timestamp", time).endGroup()
                 .sort("timestamp", Sort.ASCENDING)
                 .limit(size)
                 .findAll();
@@ -4035,7 +4033,6 @@ public class MsgDao {
 
     //  获取 >= time的消息
     private RealmResults<MsgAllBean> getGreaterTimeMsgInUser(Long uid, long time, Realm realm, int size) {
-        List<MsgAllBean> beans = null;
         Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
         RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
                 .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
@@ -4044,7 +4041,7 @@ public class MsgDao {
                 .and()
                 .in("msg_type", supportType)
                 .and()
-                .beginGroup().greaterThan("timestamp", time).or().equalTo("timestamp", time).endGroup()
+                .beginGroup().greaterThanOrEqualTo("timestamp", time).endGroup()
                 .sort("timestamp", Sort.ASCENDING)
                 .limit(size)
                 .findAll();
@@ -4053,7 +4050,6 @@ public class MsgDao {
 
     //获取 > time 的消息
     private RealmResults<MsgAllBean> getGreaterTimeMsgInUser2(Long uid, long time, Realm realm, int size) {
-        List<MsgAllBean> beans = null;
         Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
         RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
                 .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()

@@ -25,10 +25,12 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LabelItem;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.base.AbstractViewHolder;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.List;
@@ -49,7 +51,15 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new MediaAllHolder(mInflater.inflate(R.layout.item_preview_image, parent, false));
+        if (viewType == 0) {
+            return new MediaTitleHolder(mInflater.inflate(R.layout.item_media_title, parent, false));
+        } else if (viewType == 1) {
+            return new MediaAllHolder(mInflater.inflate(R.layout.item_preview_image, parent, false));
+        } else if (viewType == 2) {
+            return new MediaFileHolder(mInflater.inflate(R.layout.item_media_file, parent, false));
+        } else {
+            return new MediaTitleHolder(mInflater.inflate(R.layout.item_media_title, parent, false));
+        }
     }
 
     @Override
@@ -66,6 +76,12 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                 MediaAllHolder viewHolder = (MediaAllHolder) holder;
                 viewHolder.bindData((MsgAllBean) object);
             }
+        } else if (holder.getItemViewType() == 2) {
+            Object object = mBeanList.get(position);
+            if (object instanceof MsgAllBean) {
+                MediaFileHolder viewHolder = (MediaFileHolder) holder;
+                viewHolder.bindData((MsgAllBean) object);
+            }
         }
     }
 
@@ -75,8 +91,14 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
             Object o = mBeanList.get(position);
             if (o instanceof String) {//title
                 return 0;
-            } else {//msg
-                return 1;
+            } else if (o instanceof MsgAllBean) {//msg
+                MsgAllBean bean = (MsgAllBean) o;
+                if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                    return 1;
+                } else if (bean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                    return 2;
+
+                }
             }
         }
         return 0;
@@ -89,7 +111,7 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
     public void setSelect(boolean select, List<MsgAllBean> list) {
         isSelect = select;
         selectList = list;
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
     }
 
     //图片视频ViewHolder
@@ -164,23 +186,9 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    if (tvCheck.isSelected()) {
-//                        selectList.remove(bean);
-//                        tvCheck.setSelected(false);
-//                        if (listener != null) {
-//                            listener.onSelect(bean);
-//                        }
-//                    } else {
-//                        if (selectList.size() < 9) {
-//                            selectList.add(bean);
-//                            tvCheck.setSelected(true);
-//                            if (listener != null) {
-//                                listener.onRemove(bean);
-//                            }
-//                        } else {
-//                            ToastUtil.show("最多选择9个");
-//                        }
-//                    }
+                    if (listener != null) {
+                        listener.onPreview(bean);
+                    }
                 }
             });
 
@@ -228,11 +236,82 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
         }
     }
 
+    //图片视频ViewHolder
+    class MediaFileHolder extends AbstractViewHolder<MsgAllBean> {
+
+        private final LinearLayout llCheck;
+        private final TextView tvCheck;
+        private final TextView tvName;
+        private final TextView tvSize;
+
+        public MediaFileHolder(View itemView) {
+            super(itemView);
+            llCheck = itemView.findViewById(R.id.ll_check);
+            tvCheck = itemView.findViewById(R.id.tv_check);
+            tvName = itemView.findViewById(R.id.tv_name);
+            tvSize = itemView.findViewById(R.id.tv_size);
+
+        }
+
+        @Override
+        public void bindData(MsgAllBean bean) {
+            if (isSelect) {
+                llCheck.setVisibility(View.VISIBLE);
+                if (selectList.contains(bean)) {
+                    tvCheck.setSelected(true);
+                } else {
+                    tvCheck.setSelected(false);
+                }
+            } else {
+                llCheck.setVisibility(View.GONE);
+            }
+            if (bean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                SendFileMessage fileMessage = bean.getSendFileMessage();
+                tvName.setText(fileMessage.getFile_name());
+                tvSize.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
+            }
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        listener.onPreview(bean);
+                    }
+                }
+            });
+
+            llCheck.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (tvCheck.isSelected()) {
+                        selectList.remove(bean);
+                        tvCheck.setSelected(false);
+                        if (listener != null) {
+                            listener.onSelect(bean);
+                        }
+                    } else {
+                        if (selectList.size() < 9) {
+                            selectList.add(bean);
+                            tvCheck.setSelected(true);
+                            if (listener != null) {
+                                listener.onRemove(bean);
+                            }
+                        } else {
+                            ToastUtil.show("最多选择9个");
+                        }
+                    }
+                }
+            });
+        }
+
+    }
+
 
     public interface ISelectListener {
         void onSelect(MsgAllBean bean);
 
         void onRemove(MsgAllBean bean);
+
+        void onPreview(MsgAllBean bean);
     }
 
     public void setListener(ISelectListener l) {

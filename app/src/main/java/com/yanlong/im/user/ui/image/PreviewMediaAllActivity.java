@@ -396,6 +396,11 @@ public class PreviewMediaAllActivity extends BaseBindActivity<ActivityPreviewFil
         mAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onPreview(MsgAllBean bean) {
+
+    }
+
     //检测图片，视频消息是否过期，过期则过滤。 action 1 转发，2收藏
     @SuppressLint("CheckResult")
     private void filterMessageValid(List<MsgAllBean> sourList, int action) {

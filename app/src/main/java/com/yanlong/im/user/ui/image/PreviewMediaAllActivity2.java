@@ -10,12 +10,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
-import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.CollectAtMessage;
@@ -32,7 +34,6 @@ import com.yanlong.im.chat.bean.OfflineCollect;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.databinding.ActivityPreviewFileBinding;
-import com.yanlong.im.databinding.ItemPreviewFileBinding;
 import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -43,6 +44,7 @@ import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -51,6 +53,7 @@ import net.cb.cb.library.view.springview.container.LoadFooter;
 import net.cb.cb.library.view.springview.container.LoadHeader;
 import net.cb.cb.library.view.springview.widget.SpringView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -85,13 +88,14 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
     private long time;
     private String msgId;
     boolean isSelect = false;
-    private List<Object> previewBeans;
+    private List<Object> listData = new ArrayList<>();
+    private List<GroupPreviewBean> previewBeans = new ArrayList<>();
     private int currentPosition;
     private int count;
     private boolean hasMoreData;
     private List<MsgAllBean> selectMsg = new ArrayList<>();
     private int firstOffset;
-    private LinearLayoutManager layoutManager;
+    private GridLayoutManager layoutManager;
 
     public static Intent newIntent(Context context, String gid, Long toUid, String msgId, long time) {
         Intent intent = new Intent(context, PreviewMediaAllActivity2.class);
@@ -109,22 +113,18 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
 
     @Override
     protected void init(Bundle savedInstanceState) {
-//        mAdapter = new CommonRecyclerViewAdapter<GroupPreviewBean, ItemPreviewFileBinding>(this, R.layout.item_preview_file) {
-//
-//            @Override
-//            public void bind(ItemPreviewFileBinding binding, GroupPreviewBean data, int position, RecyclerView.ViewHolder viewHolder) {
-//                binding.tvTime.setText(data.getTime());
-//                GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 4);
-//                binding.recyclerView.setLayoutManager(layoutManager);
-//                binding.recyclerView.setItemAnimator(null);
-//                AdapterMediaAll adapter = new AdapterMediaAll(getContext());
-//                adapter.setSelect(isSelect, selectMsg);
-//                adapter.bindData(data.getMsgAllBeans());
-//                binding.recyclerView.setAdapter(adapter);
-//            }
-//        };
         mAdapter = new AdapterMediaAll(this);
-        layoutManager = new LinearLayoutManager(this);
+        mAdapter.setListener(this);
+        layoutManager = new GridLayoutManager(this, 4);
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (mAdapter.getItemViewType(position) == 0) {
+                    return 4;
+                }
+                return 1;
+            }
+        });
         bindingView.recyclerView.setLayoutManager(layoutManager);
         bindingView.recyclerView.setItemAnimator(null);
         bindingView.recyclerView.setAdapter(mAdapter);
@@ -191,18 +191,26 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         bindingView.springView.setListener(new SpringView.OnFreshListener() {
             @Override
             public void onRefresh() {
-                if (previewBeans == null) {
+                if (listData == null) {
                     return;
                 }
-//                loadMore(previewBeans.get(0).getStartTime(), 0);
+                Object o = listData.get(1);//第一位msg
+                if (o instanceof MsgAllBean) {
+                    MsgAllBean msg = (MsgAllBean) o;
+                    loadMore(msg.getTimestamp(), 0);
+                }
             }
 
             @Override
             public void onLoadMore() {
-                if (previewBeans == null) {
+                if (listData == null) {
                     return;
                 }
-//                loadMore(previewBeans.get(previewBeans.size() - 1).getEndTime(), 1);
+                Object o = listData.get(listData.size() - 1);//最后一位msg
+                if (o instanceof MsgAllBean) {
+                    MsgAllBean msg = (MsgAllBean) o;
+                    loadMore(msg.getTimestamp(), 1);
+                }
             }
         });
 
@@ -230,7 +238,9 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                showDeleteDialog(selectMsg);
+                List<MsgAllBean> removeList = new ArrayList<>();
+                removeList.addAll(selectMsg);
+                showDeleteDialog(removeList);
             }
         });
         bindingView.ivDownload.setOnClickListener(new View.OnClickListener() {
@@ -260,8 +270,8 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                         count = 0;
                         for (int i = 0; i < list.size(); i++) {
                             GroupPreviewBean bean = list.get(i);
-                            previewBeans.add(bean.getTime());
-                            previewBeans.addAll(bean.getMsgAllBeans());
+                            listData.add(bean.getTime());
+                            listData.addAll(bean.getMsgAllBeans());
                             count += bean.getMsgAllBeans().size();
 //                            if (bean.isBetween(time)) {
 ////                                currentPosition = i;
@@ -276,8 +286,8 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                     @Override
                     public void accept(List<GroupPreviewBean> list) throws Exception {
                         dismissLoadingDialog();
-//                        previewBeans = list;
-                        mAdapter.bindData(previewBeans);
+                        previewBeans = list;
+                        mAdapter.bindData(listData);
                         bindingView.headView.setTitle("图片及视频（" + count + ")");
                         bindingView.recyclerView.postDelayed(new Runnable() {
                             @Override
@@ -306,25 +316,34 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                         List<GroupPreviewBean> removeList = new ArrayList<>();
                         for (int i = 0; i < size; i++) {
                             GroupPreviewBean bean = list.get(i);
-//                            if (previewBeans.contains(bean)) {
-//                                int index = previewBeans.indexOf(bean);
-//                                if (index >= 0 && index < previewBeans.size()) {
-//                                    removeList.add(bean);
-//                                    GroupPreviewBean b = previewBeans.get(index);
-//                                    if (refreshType == 0) {
-//                                        List<MsgAllBean> result = b.getMsgAllBeans();
-//                                        result.addAll(0, bean.getMsgAllBeans());
-//                                        b.setStartTime(bean.getMsgAllBeans().get(0).getTimestamp());
-//                                        b.setMsgAllBeans(result);
-//                                    } else {
-//                                        List<MsgAllBean> result = b.getMsgAllBeans();
-//                                        List<MsgAllBean> temp = bean.getMsgAllBeans();
-//                                        result.addAll(temp);
-//                                        b.setEndTime(temp.get(temp.size() - 1).getTimestamp());
-//                                        b.setMsgAllBeans(result);
-//                                    }
-//                                }
-//                            }
+                            if (previewBeans.contains(bean)) {
+                                int index = previewBeans.indexOf(bean);
+                                if (index >= 0 && index < previewBeans.size()) {
+                                    removeList.add(bean);
+                                    GroupPreviewBean b = previewBeans.get(index);
+                                    if (refreshType == 0) {
+                                        List<MsgAllBean> result = b.getMsgAllBeans();
+                                        result.addAll(0, bean.getMsgAllBeans());
+                                        b.setStartTime(bean.getMsgAllBeans().get(0).getTimestamp());
+                                        b.setMsgAllBeans(result);
+                                        listData.addAll(1, bean.getMsgAllBeans());
+                                    } else {
+                                        List<MsgAllBean> result = b.getMsgAllBeans();
+                                        List<MsgAllBean> temp = bean.getMsgAllBeans();
+                                        result.addAll(temp);
+                                        b.setEndTime(temp.get(temp.size() - 1).getTimestamp());
+                                        b.setMsgAllBeans(result);
+                                    }
+                                }
+                            } else {
+                                if (refreshType == 0) {
+                                    listData.add(0, bean.getTime());
+                                    listData.addAll(1, bean.getMsgAllBeans());
+                                } else {
+                                    listData.add(bean.getTime());
+                                    listData.addAll(bean.getMsgAllBeans());
+                                }
+                            }
                             count += bean.getMsgAllBeans().size();
                             if (bean.isBetween(time)) {
                                 currentPosition = i;
@@ -348,17 +367,17 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                             needRefresh = false;
                         }
                         bindingView.headView.setTitle("图片及视频（" + count + ")");
-                        if (refreshType == 0) {
-                            if (needRefresh) {
-                                previewBeans.addAll(0, list);
-                            }
-                        } else {
-                            if (needRefresh) {
-                                previewBeans.addAll(list);
-                            }
-                        }
+//                        if (refreshType == 0) {
+//                            if (needRefresh) {
+//                                listData.addAll(0, list);
+//                            }
+//                        } else {
+//                            if (needRefresh) {
+//                                listData.addAll(list);
+//                            }
+//                        }
                         if (hasMoreData && refreshType == 0) {
-                            mAdapter.bindData(previewBeans);
+                            mAdapter.bindData(listData);
                             hasMoreData = false;
 
                             if (currentPosition >= 0) {
@@ -391,6 +410,13 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
             showBottom(false);
         }
         mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPreview(MsgAllBean bean) {
+        if (bean != null) {
+            scanImageAndVideo(bean.getMsg_id());
+        }
     }
 
     //检测图片，视频消息是否过期，过期则过滤。 action 1 转发，2收藏
@@ -1020,12 +1046,14 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         if (isOpen) {
             isSelect = true;
             bindingView.headView.getActionbar().setTxtRight("取消");
-            mAdapter.notifyItemRangeChanged(0, previewBeans.size());
+            mAdapter.setSelect(isSelect, selectMsg);
+            mAdapter.notifyItemRangeChanged(0, listData.size());
             bindingView.llMore.setVisibility(View.VISIBLE);
         } else {
             isSelect = false;
             bindingView.headView.getActionbar().setTxtRight("选择");
-            mAdapter.notifyItemRangeChanged(0, previewBeans.size());
+            mAdapter.setSelect(isSelect, selectMsg);
+            mAdapter.notifyItemRangeChanged(0, listData.size());
             bindingView.llMore.setVisibility(View.GONE);
             clearSelectMsg();
         }
@@ -1046,7 +1074,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                         if (MyAppLication.INSTANCE().repository != null) {
                             MyAppLication.INSTANCE().repository.deleteMsgList(msgList);
                         }
-//                        deleteMsgList(msgList);
+                        deleteMsgList(msgList);
                     }
 
                     @Override
@@ -1055,38 +1083,93 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                 }).show();
     }
 
-//    @SuppressLint("CheckResult")
-//    public void deleteMsgList(List<MsgAllBean> list) {
-//        Observable.just(0)
-//                .map(new Function<Integer, List<GroupPreviewBean>>() {
-//                    @Override
-//                    public List<GroupPreviewBean> apply(Integer integer) throws Exception {
-//                        int size = previewBeans.size();
-//                        int removeSize = list.size();
-//                        for (int i = 0; i < removeSize; i++) {
-//                            MsgAllBean msgAllBean = list.get(i);
-//                            for (int j = 0; j < size; j++) {
-//                                GroupPreviewBean bean = previewBeans.get(j);
-//                                if (bean.isBetween(msgAllBean.getTimestamp())) {
-//                                    bean.getMsgAllBeans().remove(msgAllBean);
-//                                }
-//                            }
-//                        }
-//                        count = count - removeSize;
-//                        return previewBeans;
-//                    }
-//                }).subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .onErrorResumeNext(Observable.<List<GroupPreviewBean>>empty())
-//                .subscribe(new Consumer<List<GroupPreviewBean>>() {
-//                    @Override
-//                    public void accept(List<GroupPreviewBean> list) throws Exception {
-//                        previewBeans = list;
-//                        mAdapter.setData(previewBeans);
-//                        bindingView.headView.setTitle("图片及视频（" + count + ")");
-//                        switchSelectMode(false);
-//                    }
-//                });
-//    }
+    @SuppressLint("CheckResult")
+    public void deleteMsgList(List<MsgAllBean> list) {
+        listData.removeAll(list);
+        int removeSize = list.size();
+        count = count - removeSize;
+        mAdapter.bindData(listData);
+        bindingView.headView.setTitle("图片及视频（" + count + ")");
+        switchSelectMode(false);
+    }
+
+
+    /**
+     * 显示大图
+     *
+     * @param msgId
+     */
+    private void scanImageAndVideo(String msgId) {
+        ArrayList<LocalMedia> selectList = new ArrayList<>();
+        List<LocalMedia> temp = new ArrayList<>();
+        int pos = 0;
+        List<MsgAllBean> listdata = msgAction.getMsg4UserImg(gid, toUid);
+        for (int i = 0; i < listdata.size(); i++) {
+            MsgAllBean msgl = listdata.get(i);
+            if (msgId.equals(msgl.getMsg_id())) {
+                pos = i;
+            }
+            LocalMedia lc = new LocalMedia();
+            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
+            if (msgl.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                lc.setCanCollect(true);
+            }
+            lc.setMsg_id(msgl.getMsg_id());
+            if (msgl.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                lc.setMimeType(PictureConfig.TYPE_VIDEO);
+                String localUrl = msgl.getVideoMessage().getLocalUrl();
+                if (StringUtil.isNotNull(localUrl)) {
+                    File file = new File(localUrl);
+                    if (file.exists()) {
+                        lc.setVideoLocalUrl(localUrl);
+                    }
+                }
+                lc.setVideoUrl(msgl.getVideoMessage().getUrl());
+                lc.setVideoBgUrl(msgl.getVideoMessage().getBg_url());
+                lc.setWidth((int) msgl.getVideoMessage().getWidth());
+                lc.setHeight((int) msgl.getVideoMessage().getHeight());
+                lc.setDuration(msgl.getVideoMessage().getDuration());
+            } else {
+                lc.setMimeType(PictureConfig.TYPE_IMAGE);
+                lc.setCutPath(msgl.getImage().getThumbnailShow());
+                lc.setCompressPath(msgl.getImage().getPreviewShow());
+                lc.setPath(msgl.getImage().getOriginShow());
+                lc.setSize(msgl.getImage().getSize());
+                lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
+                lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+                lc.setHasRead(msgl.getImage().isReadOrigin());
+            }
+            temp.add(lc);
+        }
+        int size = temp.size();
+        //取中间100张
+        if (size <= 100) {
+            selectList.addAll(temp);
+        } else {
+            if (pos - 50 <= 0) {//取前面
+                selectList.addAll(temp.subList(0, 100));
+            } else if (pos + 50 >= size) {//取后面
+                selectList.addAll(temp.subList(size - 100, size));
+            } else {//取中间
+                selectList.addAll(temp.subList(pos - 50, pos + 50));
+            }
+        }
+        pos = 0;
+        for (int i = 0; i < selectList.size(); i++) {
+            if (msgId.equals(selectList.get(i).getMsg_id())) {
+                pos = i;
+                break;
+            }
+        }
+        Intent intent = new Intent(this, PreviewMediaActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("data", selectList);
+        bundle.putInt("position", pos);
+        intent.putExtra(PictureConfig.GID, gid);
+        intent.putExtra(PictureConfig.TO_UID, toUid);
+        intent.putExtra("isFromSelf", true);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
 
 }

@@ -73,6 +73,7 @@ public class PreviewMediaActivity extends FragmentActivity {
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
     private CommonSelectDialog.Builder builder;
     private Activity activity;
+    private boolean isFromSelf;
 
 
     @Override
@@ -85,6 +86,7 @@ public class PreviewMediaActivity extends FragmentActivity {
         }
         mediaList = getIntent().getParcelableArrayListExtra("data");
         currentPosition = getIntent().getIntExtra("position", 0);
+        isFromSelf = getIntent().getBooleanExtra("isFromSelf", false);
         gid = getIntent().getStringExtra("gid");
         toUid = getIntent().getLongExtra(PictureConfig.TO_UID, 0L);
         initData();
@@ -435,12 +437,14 @@ public class PreviewMediaActivity extends FragmentActivity {
     }
 
     public void startPreviewAll(String msgId) {
-        MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-        if (msgAllBean == null) {
-            return;
+        if (!isFromSelf) {
+            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+            if (msgAllBean == null) {
+                return;
+            }
+            Intent intent = PreviewMediaAllActivity2.newIntent(this, gid, toUid, msgId, msgAllBean.getTimestamp());
+            startActivity(intent);
         }
-        Intent intent = PreviewMediaAllActivity2.newIntent(this, gid, toUid, msgId, msgAllBean.getTimestamp());
-        startActivity(intent);
-
+        finish();
     }
 }
