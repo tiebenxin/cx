@@ -546,6 +546,78 @@ public class UpFileAction {
 
     }
 
+    //图片上传
+    public void downloadFile(final String url, final Context context, final UpFileUtil.OssUpCallback callback, final File targetFile) {
+        signal = new CountDownLatch(1);
+        NetUtil.getNet().exec(
+                server.aliObs()
+                , new CallBack<ReturnBean<AliObsConfigBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, final Response<ReturnBean<AliObsConfigBean>> response) {
+                        Log.d("cc", "upFileSyn: onResponse");
+                        if (response.body() == null) {
+                            callback.fail();
+                            signal.countDown();
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            final AliObsConfigBean configBean = response.body().getData();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    String endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
+                                    UpFileUtil.getInstance().downloadFile(context, configBean.getAccessKeyId(),
+                                            configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
+                                            configBean.getBucket(), new UpFileUtil.OssUpCallback() {
+
+                                                @Override
+                                                public void success(final String url) {
+                                                    signal.countDown();
+                                                    callback.success(url);
+                                                }
+
+                                                @Override
+                                                public void fail() {
+                                                    signal.countDown();
+                                                    callback.fail();
+                                                }
+
+                                                @Override
+                                                public void inProgress(long progress, long zong) {
+                                                    callback.inProgress(progress, zong);
+                                                }
+                                            }, url, targetFile);
+                                }
+                            }).start();
+
+
+                        } else {
+                            signal.countDown();
+                            callback.fail();
+                            ToastUtil.show(context, "上传失败");
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
+                        signal.countDown();
+                        callback.fail();
+                        super.onFailure(call, t);
+                    }
+                });
+
+
+        try {
+            signal.await();
+            Log.d("", "upFileSyn: await");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }
 

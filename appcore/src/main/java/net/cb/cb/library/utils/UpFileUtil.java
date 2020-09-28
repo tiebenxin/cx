@@ -13,8 +13,11 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
 import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
@@ -27,6 +30,7 @@ import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -563,6 +567,57 @@ public class UpFileUtil {
             public void onFailure(ImagePersistRequest request, ClientException clientException, ServiceException serviceException) {
                 LogUtil.getLog().i(TAG, "asyncImagePersist--fail");
                 ossUpCallback.fail();
+            }
+        });
+    }
+
+
+    /**
+     * 下载文件
+     *
+     * @param context    application上下文对象
+     * @param path       文件存储空间，例如图片为 /image
+     * @param bucketName bucketName
+     * @param fileName   文件名称 例如md5.jpg
+     */
+    public void downloadFile(final Context context, final String keyId, final String secret, final String token, final String endpoint, final String bucketName, final UpFileUtil.OssUpCallback ossUpCallback, final String url, final File fileSave) {
+        getOSs(context, keyId, secret, token, endpoint);
+        String fromBucket = bucketName;
+        String fromObjectKey = getFileUrl(url, 0);
+
+        //图片持久化请求
+        GetObjectRequest getObjectRequest = new GetObjectRequest(fromBucket, fromObjectKey);
+        //6.11 图片上传引起界面刷新
+        oss.asyncGetObject(getObjectRequest, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
+
+            @Override
+            public void onSuccess(GetObjectRequest request, GetObjectResult result) {
+                //开始读取数据。
+                long length = result.getContentLength();
+                byte[] buffer = new byte[(int) length];
+                int readCount = 0;
+                while (readCount < length) {
+                    try {
+                        readCount += result.getObjectContent().read(buffer, readCount, (int) length - readCount);
+                    } catch (Exception e) {
+                        OSSLog.logInfo(e.toString());
+                    }
+                }
+                //将下载后的文件存放在指定的本地路径。
+                try {
+                    FileOutputStream fout = new FileOutputStream(fileSave.getAbsoluteFile());
+                    fout.write(buffer);
+                    fout.close();
+                    ossUpCallback.success(fileSave.getAbsolutePath());
+                } catch (Exception e) {
+                    OSSLog.logInfo(e.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(GetObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                ossUpCallback.fail();
+
             }
         });
     }

@@ -163,6 +163,9 @@ public class FileManager {
         return getImageCachePath() + "/" + System.currentTimeMillis() + ".jpg";
     }
 
+    public String createImagePath(String fileName) {
+        return getImageCachePath() + "/" + fileName;
+    }
 
     //清除日志文件夹中多余日志，仅保存最近10天
     public void clearLogDir() {

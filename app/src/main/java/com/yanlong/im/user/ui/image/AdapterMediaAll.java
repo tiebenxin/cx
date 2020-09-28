@@ -199,14 +199,14 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                         selectList.remove(bean);
                         tvCheck.setSelected(false);
                         if (listener != null) {
-                            listener.onSelect(bean);
+                            listener.onRemove(bean);
                         }
                     } else {
                         if (selectList.size() < 9) {
                             selectList.add(bean);
                             tvCheck.setSelected(true);
                             if (listener != null) {
-                                listener.onRemove(bean);
+                                listener.onSelect(bean);
                             }
                         } else {
                             ToastUtil.show("最多选择9个");

@@ -3,7 +3,10 @@ package com.yanlong.im.user.ui.image;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,6 +38,8 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.databinding.ActivityPreviewFileBinding;
 import com.yanlong.im.user.bean.CollectionInfo;
+import com.yanlong.im.utils.MyDiskCache;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
@@ -42,10 +47,16 @@ import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.manager.FileManager;
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -70,6 +81,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
 
 /**
  * @author Liszt
@@ -249,6 +261,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+                filterMessageValid(selectMsg, 3);
             }
         });
     }
@@ -419,7 +432,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         }
     }
 
-    //检测图片，视频消息是否过期，过期则过滤。 action 1 转发，2收藏
+    //检测图片，视频消息是否过期，过期则过滤。 action 1 转发，2收藏,3 下载
     @SuppressLint("CheckResult")
     private void filterMessageValid(List<MsgAllBean> sourList, int action) {
         int sourLen = sourList.size();
@@ -484,6 +497,8 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                                                                 filterMsgForward(sourList, false);
                                                             } else if (action == 2) {
                                                                 filterMsgCollection(sourList, false);
+                                                            } else if (action == 3) {
+                                                                downloadFile(sourList, false);
                                                             }
                                                         } else {
                                                             for (int i = 0; i < size; i++) {
@@ -501,6 +516,8 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                                                                 filterMsgForward(sourList, true);//是否过滤掉了过期文件
                                                             } else if (action == 2) {
                                                                 filterMsgCollection(sourList, true);
+                                                            } else if (action == 3) {
+                                                                downloadFile(sourList, true);
                                                             }
                                                         }
                                                     } else {//都是过期的
@@ -515,15 +532,17 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                                                             filterMsgForward(sourList, true);
                                                         } else if (action == 2) {
                                                             filterMsgCollection(sourList, true);
+                                                        } else if (action == 3) {
+                                                            downloadFile(sourList, true);
                                                         }
                                                     }
                                                 } else {
                                                     if (action == 1) {
                                                         ToastUtil.show("转发失败");
-//                                                        filterMsgForward(sourList);
                                                     } else if (action == 2) {
                                                         ToastUtil.show("收藏失败");
-//                                                        filterMsgCollection(sourList);
+                                                    } else if (action == 3) {
+                                                        ToastUtil.show("下载失败");
                                                     }
                                                 }
                                             }
@@ -533,10 +552,10 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                                                 super.onFailure(call, t);
                                                 if (action == 1) {
                                                     ToastUtil.show("转发失败");
-//                                                        filterMsgForward(sourList);
                                                 } else if (action == 2) {
                                                     ToastUtil.show("收藏失败");
-//                                                        filterMsgCollection(sourList);
+                                                } else if (action == 3) {
+                                                    ToastUtil.show("下载失败");
                                                 }
                                             }
                                         });
@@ -1170,6 +1189,146 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         intent.putExtra("isFromSelf", true);
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    public void downloadFile(List<MsgAllBean> list, boolean isOverdue) {
+        if (list != null && list.size() > 0) {
+            showLoadingDialog("下载中...");
+            download(list, 0);
+        }
+    }
+
+    public void download(List<MsgAllBean> list, int position) {
+        MsgAllBean bean = list.get(position);
+        String downUrl = "";
+        File targetFile = null;
+        if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+            if (!TextUtils.isEmpty(bean.getImage().getOrigin())) {
+                downUrl = bean.getImage().getOrigin();
+            } else {
+                downUrl = bean.getImage().getPreview();
+            }
+            targetFile = getImageFile(downUrl);
+        } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+            downUrl = bean.getVideoMessage().getUrl();
+            targetFile = getVideoFile(downUrl);
+        }
+        if (TextUtils.isEmpty(downUrl) || targetFile == null) {
+            return;
+        }
+        File finalTargetFile = targetFile;
+        UpFileAction action = new UpFileAction();
+        String finalDownUrl = downUrl;
+        File finalTargetFile1 = targetFile;
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+            @Override
+            public void run() {
+//                action.downloadFile(finalDownUrl, PreviewMediaAllActivity2.this, new UpFileUtil.OssUpCallback() {
+//                    @Override
+//                    public void success(String url) {
+//                        LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + url);
+//                        if (position != list.size() - 1) {
+//                            download(list, position + 1);
+//                        } else {
+//                            //下载完成
+//                            ThreadUtil.getInstance().runMainThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    dismissLoadingDialog();
+//                                    ToastUtil.show("下载完成");
+//                                    switchSelectMode(false);
+//                                }
+//                            });
+//                        }
+//                        msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
+//                        scanFile(getContext(), finalTargetFile.getAbsolutePath());
+//                    }
+//
+//                    @Override
+//                    public void fail() {
+//                        LogUtil.getLog().i("DownloadUtil", "Exception下载失败:");
+//                        if (position != list.size() - 1) {
+//                            download(list, position + 1);
+//                        } else {
+//                            //下载完成
+//                            ToastUtil.show("下载完成");
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void inProgress(long progress, long total) {
+//
+//                    }
+//                }, finalTargetFile1);
+
+                DownloadUtil.get().downLoadFile(finalDownUrl, finalTargetFile1, new DownloadUtil.OnDownloadListener() {
+                    @Override
+                    public void onDownloadSuccess(File file) {
+                        if (file == null) {
+                            LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + null);
+                            return;
+                        }
+                        LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + file.getAbsolutePath());
+                        if (position != list.size() - 1) {
+                            download(list, position + 1);
+                        } else {
+                            //下载完成
+                            ToastUtil.show("下载完成");
+                        }
+                        msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
+                        scanFile(getContext(), finalTargetFile.getAbsolutePath());
+
+                    }
+
+                    @Override
+                    public void onDownloading(int progress) {
+//                LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
+                    }
+
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+                        LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
+                        if (position != list.size() - 1) {
+                            download(list, position + 1);
+                        } else {
+                            //下载完成
+                            ToastUtil.show("下载完成");
+                        }
+                    }
+                });
+            }
+        });
+
+
+    }
+
+    private File getVideoFile(String url) {
+        final File appDir = new File(Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/Mp4/");
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+        final String fileName = MyDiskCache.getFileNmae(url) + ".mp4";
+        return new File(appDir, fileName);
+    }
+
+    public File getImageFile(String url) {
+        final String filePath = FileManager.getInstance().getImageCachePath();
+//        final String filePath = getExternalCacheDir().getAbsolutePath() + "/Image/";
+        final String fileName = url.substring(url.lastIndexOf("/") + 1);
+        return new File(filePath + "/" + fileName);//原图保存路径
+    }
+
+    public void scanFile(Context context, String filePath) {
+        try {
+            MediaScannerConnection.scanFile(context, new String[]{filePath}, new String[]{"video/mp4"},
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

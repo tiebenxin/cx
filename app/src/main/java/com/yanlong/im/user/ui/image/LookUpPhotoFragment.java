@@ -65,6 +65,7 @@ import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -389,102 +390,105 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
             return;
         }
         String format = PictureFileUtils.getFileFormatName(url);
-        tvViewOrigin.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setDownloadProgress(tvViewOrigin, 0);
+        if (isHttp) {
+            tvViewOrigin.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setDownloadProgress(tvViewOrigin, 0);
+                }
+            }, 100);
+            if (activityIsFinish()) {
+                return;
             }
-        }, 100);
-        if (activityIsFinish()) {
-            return;
-        }
-        final String filePath = getActivity().getExternalCacheDir().getAbsolutePath() + "/Image/";
-        final String fileName = url.substring(url.lastIndexOf("/") + 1);
-        File fileSave = new File(filePath + "/" + fileName);//原图保存路径
-        if (!isGif) {
-            if (fileSave.exists()) {
-                long fsize = (long) tvViewOrigin.getTag();
-                long fsize2 = fileSave.length();
-                boolean broken = fsize2 < fsize;
-                if (broken) {//缓存清理
-                    fileSave.delete();
-                    new File(fileSave.getAbsolutePath() + FileBitmapDecoderFactory.cache_name).delete();
+            final String fileName = url.substring(url.lastIndexOf("/") + 1);
+            final String filePath = FileManager.getInstance().getImageCachePath();
+//        final String filePath = getActivity().getExternalCacheDir().getAbsolutePath() + "/Image/";
+            File fileSave = new File(filePath + "/" + fileName);//原图保存路径
+            if (!isGif) {
+                if (fileSave.exists()) {
+                    long fsize = (long) tvViewOrigin.getTag();
+                    long fsize2 = fileSave.length();
+                    boolean broken = fsize2 < fsize;
+                    if (broken) {//缓存清理
+                        fileSave.delete();
+                        new File(fileSave.getAbsolutePath() + FileBitmapDecoderFactory.cache_name).delete();
+                    }
                 }
             }
-        }
 
-        //TODO 下载要做取消 9.5
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                downloadCall = DownloadUtil.get().download(url, filePath, fileName, new DownloadUtil.OnDownloadListener() {
-                    @Override
-                    public void onDownloadSuccess(final File file) {
-                        if (activityIsFinish()) {
-                            return;
-                        }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (isGif) {
-                                } else {
-                                    setDownloadProgress(tvViewOrigin, 100);
-                                    ivDownload.setEnabled(true);
-                                    loadImage(file.getAbsolutePath());
-                                    MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
-                                }
-                                //这边要改成已读
-                                media.setHasRead(true);
-                                msgDao.ImgReadStatSet(media.getMsg_id(), true);
+            //TODO 下载要做取消 9.5
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    downloadCall = DownloadUtil.get().download(url, filePath, fileName, new DownloadUtil.OnDownloadListener() {
+                        @Override
+                        public void onDownloadSuccess(final File file) {
+                            if (activityIsFinish()) {
+                                return;
                             }
-                        });
-                        if (needSave) {
-                            saveImageFromCacheFile(file.getAbsolutePath(), format);
-                        }
-                    }
-
-                    @Override
-                    public void onDownloading(final int progress) {
-//                        Log.d(TAG, "onDownloading: " + progress);
-                        if (isGif) {
-                            return;
-                        }
-                        if (activityIsFinish()) {
-                            return;
-                        }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setDownloadProgress(tvViewOrigin, progress);
-                            }
-                        });
-
-                    }
-
-                    @Override
-                    public void onDownloadFailed(Exception e) {
-                        ivDownload.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                ivImage.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        preProgress = 0;
-                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
-
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (isGif) {
+                                    } else {
+                                        setDownloadProgress(tvViewOrigin, 100);
+                                        ivDownload.setEnabled(true);
+                                        loadImage(file.getAbsolutePath());
+                                        MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
                                     }
-                                }, 100);
+                                    //这边要改成已读
+                                    media.setHasRead(true);
+                                    msgDao.ImgReadStatSet(media.getMsg_id(), true);
+                                }
+                            });
+                            if (needSave) {
+                                saveImageFromCacheFile(file.getAbsolutePath(), format);
                             }
-                        }, 100);
-                        new File(filePath + "/" + fileName).delete();
-                        new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
-                        e.printStackTrace();
-                    }
-                });
-            }
+                        }
 
+                        @Override
+                        public void onDownloading(final int progress) {
+//                        Log.d(TAG, "onDownloading: " + progress);
+                            if (isGif) {
+                                return;
+                            }
+                            if (activityIsFinish()) {
+                                return;
+                            }
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setDownloadProgress(tvViewOrigin, progress);
+                                }
+                            });
 
-        }).start();
+                        }
+
+                        @Override
+                        public void onDownloadFailed(Exception e) {
+                            ivDownload.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ivImage.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            preProgress = 0;
+                                            ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                                        }
+                                    }, 100);
+                                }
+                            }, 100);
+                            new File(filePath + "/" + fileName).delete();
+                            new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            }).start();
+        } else {
+            saveImageFromCacheFile(url, format);
+        }
     }
 
     private boolean activityIsFinish() {

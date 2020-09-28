@@ -52,11 +52,11 @@ public class DownloadUtil {
 
         OkHttpClient client = new OkHttpClient();
 
-        try {
-            Response response = client.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Response response = client.newCall(request).execute();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         //异步请求
         call = okHttpClient.newCall(request);
 

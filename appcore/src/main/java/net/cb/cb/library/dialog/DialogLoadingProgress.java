@@ -1,8 +1,10 @@
 package net.cb.cb.library.dialog;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -19,6 +21,7 @@ import net.cb.cb.library.base.BaseDialog;
 public class DialogLoadingProgress extends BaseDialog {
 
     private ImageView ivProgress;
+    private TextView tvContent;
 
     public DialogLoadingProgress(Context context) {
         this(context, R.style.MyDialogTheme);
@@ -31,6 +34,7 @@ public class DialogLoadingProgress extends BaseDialog {
     @Override
     public void initView() {
         setContentView(R.layout.dialog_loading_progress);
+        tvContent = findViewById(R.id.tv_content);
         ivProgress = findViewById(R.id.iv_progress);
         RequestOptions options = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.RESOURCE);
         Glide.with(getContext()).load(R.drawable.offline_loading).apply(options).into(ivProgress);
@@ -39,5 +43,11 @@ public class DialogLoadingProgress extends BaseDialog {
     @Override
     public void processClick(View view) {
 
+    }
+
+    public void setContent(String s) {
+        if (tvContent != null && !TextUtils.isEmpty(s)) {
+            tvContent.setText(s);
+        }
     }
 }

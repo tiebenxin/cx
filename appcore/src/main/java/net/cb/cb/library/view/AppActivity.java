@@ -226,6 +226,23 @@ public class AppActivity extends AppCompatActivity {
                     payWaitDialog = new DialogLoadingProgress(AppActivity.this);
                 }
                 if (isActivityValid()) {
+                    payWaitDialog.setContent("正在加载中...");
+                    payWaitDialog.show();
+                }
+            }
+        });
+
+    }
+
+    public void showLoadingDialog(final String s) {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (payWaitDialog == null) {
+                    payWaitDialog = new DialogLoadingProgress(AppActivity.this);
+                }
+                if (isActivityValid()) {
+                    payWaitDialog.setContent(s);
                     payWaitDialog.show();
                 }
             }
