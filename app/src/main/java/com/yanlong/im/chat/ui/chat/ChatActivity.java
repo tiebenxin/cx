@@ -4245,13 +4245,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
                     return false;
                     // 这里如果返回true的话，touch事件将被拦截
-                    // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+                    // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss`
                 }
             });
 
             popupWindowDismiss(listener);
             // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
-            if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < location[1]) {
+            if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < (location[1])) {
                 // 内容展示完，向上弹出
                 if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < mtListView.getMeasuredHeight())) {
                     mRlUp.setVisibility(VISIBLE);
@@ -4264,7 +4264,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     mRlUp.setVisibility(GONE);
                     mImgTriangleUp.setVisibility(GONE);
                     mRlDown.setVisibility(VISIBLE);
-                    setArrowLocation(v, 1, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
+                    setArrowLocation(v, 2, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
                     showPopupWindowUp(v, 1);
                 }
             } else if (locationView[1] < (location[1] + spacing)) {
@@ -6138,7 +6138,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         //有面板，则滑到底部
         if (mViewModel.isInputText.getValue() || mViewModel.isOpenEmoj.getValue() || mViewModel.isOpenFuction.getValue()) {
             mtListView.scrollToEnd();
-        }else {
+        } else {
             scrollListView(false);
         }
     }

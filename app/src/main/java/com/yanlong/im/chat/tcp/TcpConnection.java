@@ -44,32 +44,37 @@ public class TcpConnection implements Connection {
 
 
     private void initNetReceiver() {
-        if (context == null) {
-            return;
-        }
-        mNetworkChangeReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
-                LogUtil.writeLog(TAG + "--连接LOG--" + "网路状态改变--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
-
-                if (NetUtil.isNetworkConnected()) {//链接成功
-                    if (!isRunning) {
-                        startConnect(from);
-                    } else {
-                        if (!SocketUtil.getSocketUtil().isRun()) {
-                            SocketUtil.getSocketUtil().startSocket();
-                        }
-                    }
-                } else {//链接失败
-//                    stopConnect();
-                    SocketUtil.getSocketUtil().stopSocket();
-                }
+        try {
+            if (context == null) {
+                return;
             }
-        };
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        context.registerReceiver(mNetworkChangeReceiver, intentFilter);
+            mNetworkChangeReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
+                    LogUtil.writeLog(TAG + "--连接LOG--" + "网路状态改变--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
+
+                    if (NetUtil.isNetworkConnected()) {//链接成功
+                        if (!isRunning) {
+                            startConnect(from);
+                        } else {
+                            if (!SocketUtil.getSocketUtil().isRun()) {
+                                SocketUtil.getSocketUtil().startSocket();
+                            }
+                        }
+                    } else {//链接失败
+//                    stopConnect();
+                        SocketUtil.getSocketUtil().stopSocket();
+                    }
+                }
+            };
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+            context.registerReceiver(mNetworkChangeReceiver, intentFilter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
