@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -60,7 +61,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private MyTrendsAdapter adapter;
     private List<TrendBean> mList;
 
-
     @Override
     protected int setView() {
         return R.layout.activity_my_circle;
@@ -113,6 +113,23 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 httpGetMyTrends();
             }
         });
+        //下拉刷新
+        bindingView.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                page = 1;
+                httpGetMyTrends();
+            }
+        });
+        //置顶->刷新回调
+        adapter.setOnRefreshListenr(new RefreshListenr() {
+            @Override
+            public void onRefresh() {
+                page = 1;
+                httpGetMyTrends();
+            }
+        });
+        bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
         //点击布局切换背景
         bindingView.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(MyTrendsActivity.this, new CheckPermission2Util.Event() {
             @Override
@@ -183,6 +200,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             }else {
                                 //1-2 第一次加载，若超过3个显示加载更多
+                                mList.clear();
                                 mList.addAll(bean.getMomentList());
                                 adapter.updateList(mList);
                                 if(mList.size()>=3){
@@ -221,12 +239,14 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 }else {
                     ToastUtil.show("获取我的动态失败");
                 }
+                bindingView.swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<ReturnBean<CircleTrendsBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 ToastUtil.show("获取我的动态失败");
+                bindingView.swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -337,5 +357,12 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             bindingView.tvName.setTextColor(getResources().getColor(R.color.c_363636));
             bindingView.tvImid.setTextColor(getResources().getColor(R.color.c_868686));
         }
+    }
+
+    /**
+     * 刷新回调
+     */
+    public interface RefreshListenr{
+        void onRefresh();
     }
 }

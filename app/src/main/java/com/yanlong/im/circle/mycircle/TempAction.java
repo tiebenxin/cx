@@ -98,4 +98,19 @@ public class TempAction {
     public void httpCancleLike(final long id,final long uid, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.httpCancleLike(id,uid), callback);
     }
+
+    /**
+     * 置顶/取消置顶
+     */
+    public void httpIsTop(final long id,final int isTop, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpIsTop(id,isTop), callback);
+    }
+
+    /**
+     * 设置可见度
+     */
+    public void httpSetVisibility(final long id,final int visibility, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpSetVisibility(id,visibility), callback);
+    }
+
 }

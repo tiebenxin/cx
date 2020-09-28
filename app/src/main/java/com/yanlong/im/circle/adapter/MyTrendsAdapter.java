@@ -17,6 +17,7 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.TrendBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.circle.mycircle.TempAction;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -74,7 +75,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Drawable dislike;
     private Drawable like;
     private TempAction action;
-//    private RequestOptions mRequestOptions;
+    private MyTrendsActivity.RefreshListenr refreshListenr;
 
     public MyTrendsAdapter(Activity activity, List<TrendBean> dataList, int type) {
         inflater = LayoutInflater.from(activity);
@@ -85,13 +86,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.dataList.addAll(dataList);
         }
         init();
-        //图片相关设置
-//        mRequestOptions = RequestOptions.centerInsideTransform()
-//                .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                .skipMemoryCache(false)
-//                .placeholder(R.drawable.ic_info_head)
-//                .error(R.drawable.ic_info_head)
-//                .centerCrop();
+    }
+
+    public void setOnRefreshListenr(MyTrendsActivity.RefreshListenr refreshListenr) {
+        this.refreshListenr = refreshListenr;
     }
 
     //初始化相关设置
@@ -170,7 +168,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvCanSee.setText("广场可见");
                     }else if(bean.getVisibility()==1){
                         holder.tvCanSee.setText("好友可见");
-                    }else if(bean.getVisibility()==1){
+                    }else if(bean.getVisibility()==2){
                         holder.tvCanSee.setText("陌生人可见");
                     }else {
                         holder.tvCanSee.setText("自己可见");
@@ -184,11 +182,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     @Override
                                     public void selectOne() {
                                         //置顶
+                                        httpIsTop(bean.getId(),1);
                                     }
 
                                     @Override
                                     public void selectTwo() {
                                         //取消置顶
+                                        httpIsTop(bean.getId(),0);
                                     }
 
                                     @Override
@@ -210,12 +210,44 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                             @Override
                             public void clickAuthority() {
+                                //设置动态可见度
+                                DialogHelper.getInstance().createCommonSelectListDialog(activity, listTwo, new ICommonSelectClickListner() {
+                                    @Override
+                                    public void selectOne() {
+                                        //广场可见
+                                        httpSetVisibility(bean.getId(),0,holder.tvCanSee,position);
+                                    }
+
+                                    @Override
+                                    public void selectTwo() {
+                                        //好友可见
+                                        httpSetVisibility(bean.getId(),1,holder.tvCanSee,position);
+                                    }
+
+                                    @Override
+                                    public void selectThree() {
+                                        //陌生人可见
+                                        httpSetVisibility(bean.getId(),2,holder.tvCanSee,position);
+                                    }
+
+                                    @Override
+                                    public void selectFour() {
+                                        //自己可见
+                                        httpSetVisibility(bean.getId(),3,holder.tvCanSee,position);
+                                    }
+
+                                    @Override
+                                    public void onCancle() {
+
+                                    }
+                                });
+
 
                             }
 
                             @Override
                             public void clickDelete() {
-
+                                ToastUtil.show("接口未提供");
                             }
 
                             @Override
@@ -438,28 +470,62 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->置顶
      */
-    private void httpIsTop(long id,long uid, TextView tvLike,int position) {
-//        action.httpIsTop(id,uid, new CallBack<ReturnBean>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                super.onResponse(call, response);
-//                if (response.body() == null) {
-//                    return;
-//                }
-//                if (response.body().isOk()){
-//                    ToastUtil.show("删除成功");
-//                    dataList.get(position).setLike(1);
-//                    notifyItemChanged(position,tvLike);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ReturnBean> call, Throwable t) {
-//                super.onFailure(call, t);
-//                ToastUtil.show("删除失败");
-//            }
-//        });
+    private void httpIsTop(long id,int isTop) {
+        action.httpIsTop(id,isTop, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    if(isTop==1){
+                        ToastUtil.show("置顶成功");
+                    }else {
+                        ToastUtil.show("取消置顶成功");
+                    }
+                    refreshListenr.onRefresh();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                if(isTop==1){
+                    ToastUtil.show("置顶失败");
+                }else {
+                    ToastUtil.show("取消置顶失败");
+                }
+            }
+        });
     }
+
+    /**
+     * 发请求->修改可见度
+     */
+    private void httpSetVisibility(long id,int visibility, TextView tvCanSee,int position) {
+        action.httpSetVisibility(id,visibility, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("设置成功");
+                    dataList.get(position).setVisibility(visibility);
+                    notifyItemChanged(position,tvCanSee);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("设置失败");
+            }
+        });
+    }
+
 
     /**
      * 发请求->删除动态

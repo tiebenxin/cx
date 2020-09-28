@@ -54,5 +54,12 @@ public interface TempServer {
     @FormUrlEncoded
     Call<ReturnBean> httpCancleLike(@Field("momentId") long momentId,@Field("momentUid") long momentUid);
 
+    @POST("/square/moment/update-top")
+    @FormUrlEncoded
+    Call<ReturnBean> httpIsTop(@Field("momentId") long momentId,@Field("isTop") int isTop);
+
+    @POST("/square/moment/update-visibility")
+    @FormUrlEncoded
+    Call<ReturnBean> httpSetVisibility(@Field("momentId") long momentId,@Field("visibility") int visibility);
 
 }
