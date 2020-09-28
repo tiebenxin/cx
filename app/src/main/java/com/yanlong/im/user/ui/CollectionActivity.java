@@ -1174,7 +1174,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 send(info, content, userId, groupId);
             }
         });
-        alertForward.show();
+        if (isActivityValid()) {
+            alertForward.show();
+        }
     }
 
     //获取传过来的数据
