@@ -147,7 +147,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         getSize();
         if (isGif) {
             showLookOrigin(false);
-            loadGif(originUrl);
+            loadGif(!TextUtils.isEmpty(originUrl) ? originUrl : previewUrl);
         } else {
             if (isHttp) {
                 if (isOriginal && hasRead) {
@@ -851,19 +851,22 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
     private void getSize() {
         int realW = media.getWidth();
         int realH = media.getHeight();
-        int screenWidth = ScreenUtil.getScreenWidth(getActivity()) * 2;
+        int screenWidth = ScreenUtil.getScreenWidth(getActivity());
         int screenHeight = ScreenUtil.getScreenHeight(getActivity());
         if (realH > 0) {
             double scale = (realW * 1.00) / realH;
-            if (realW > screenWidth) {
+            if (realW > screenWidth && realW < screenWidth * 2) {
                 targetWidth = screenWidth;
                 targetHeight = (int) (targetWidth / scale);
             } else if (realH > screenHeight) {
                 targetHeight = screenHeight;
                 targetWidth = (int) (targetHeight * scale);
+            } else if (realW == realH) {
+                targetWidth = screenWidth;
+                targetHeight = screenWidth;
             } else {
                 targetWidth = realW;
-                targetHeight = realW;
+                targetHeight = (int) (targetWidth / scale);
             }
         } else {
             targetWidth = realW;
