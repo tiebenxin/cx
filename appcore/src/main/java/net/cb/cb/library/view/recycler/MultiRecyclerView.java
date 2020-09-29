@@ -109,7 +109,7 @@ public class MultiRecyclerView extends LinearLayout {
     }
 
     public void setStackBottom(boolean b) {
-        layoutManager.setStackFromEnd(b);
+//        layoutManager.setStackFromEnd(b);
     }
 
 }
