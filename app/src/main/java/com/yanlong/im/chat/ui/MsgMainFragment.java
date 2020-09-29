@@ -390,7 +390,7 @@ public class MsgMainFragment extends Fragment {
                 for (int i = 0; i < viewModel.sessionMores.size(); i++) {
                     viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
                 }
-                if (viewModel.isShowLoadAnim.getValue() && sessionDetails.size() >= Math.min(50, viewModel.getSessionSize())) {
+                if (viewModel.isShowLoadAnim.getValue() && sessionDetails.size() >= 0/*Math.min(50, viewModel.getSessionSize())*/) {
                     //只有第一次加载才会出现，有50条（可调整）数据，短时间内应该是看不到白板情况，可关闭进度条了
                     viewModel.isShowLoadAnim.setValue(false);
                 }
