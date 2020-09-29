@@ -42,6 +42,10 @@ public interface TempServer {
     @FormUrlEncoded
     Call<ReturnBean<CircleTrendsBean>> httpGetMyTrends(@Field("currentPage") int page, @Field("pageSize") int pageSize);
 
+    @POST("/square/moment/other-moment-home")
+    @FormUrlEncoded
+    Call<ReturnBean<CircleTrendsBean>> httpGetFriendTrends(@Field("currentPage") int page, @Field("pageSize") int pageSize,@Field("followId") long followId);
+
     @POST("/square/user/update-bg-image")
     @FormUrlEncoded
     Call<ReturnBean> httpSetBackground(@Field("bgImage") String bgImage);
@@ -61,5 +65,10 @@ public interface TempServer {
     @POST("/square/moment/update-visibility")
     @FormUrlEncoded
     Call<ReturnBean> httpSetVisibility(@Field("momentId") long momentId,@Field("visibility") int visibility);
+
+    @POST("/square/moment/del")
+    @FormUrlEncoded
+    Call<ReturnBean> httpDeleteTrend(@Field("momentId") long momentId);
+
 
 }

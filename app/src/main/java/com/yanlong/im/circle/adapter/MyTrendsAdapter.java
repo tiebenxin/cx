@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -27,10 +29,11 @@ import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
-import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.circle.mycircle.TempAction;
+import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -81,6 +84,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public final int LOADING_GONE = 4;
 
     private int type;//1 我的朋友圈 2 别人的朋友圈
+    private long friendUid;//朋友的uid
     private List<String> listOne = Arrays.asList("置顶","取消置顶");
     private List<String> listTwo = Arrays.asList("广场可见","仅好友可见","仅陌生人可见","自己可见");
 
@@ -91,14 +95,16 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Drawable dislike;
     private Drawable like;
     private TempAction action;
-    private MyTrendsActivity.RefreshListenr refreshListenr;
+    private IRefreshListenr refreshListenr;
     private UserBean userBean;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
+    private RequestOptions mRequestOptions;
 
-    public MyTrendsAdapter(Activity activity, List<TrendBean> dataList, int type) {
+    public MyTrendsAdapter(Activity activity, List<TrendBean> dataList, int type,long friendUid) {
         inflater = LayoutInflater.from(activity);
         this.activity = activity;
         this.type = type;
+        this.friendUid = friendUid;
         this.dataList = new ArrayList<>();
         if(dataList!=null && dataList.size()>0){
             this.dataList.addAll(dataList);
@@ -106,7 +112,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         init();
     }
 
-    public void setOnRefreshListenr(MyTrendsActivity.RefreshListenr refreshListenr) {
+    public void setOnRefreshListenr(IRefreshListenr refreshListenr) {
         this.refreshListenr = refreshListenr;
     }
 
@@ -117,7 +123,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         dislike.setBounds(0, 0, dislike.getMinimumWidth(), dislike.getMinimumHeight());
         like.setBounds(0, 0, like.getMinimumWidth(), like.getMinimumHeight());
         action = new TempAction();
-        userBean = (UserBean) new UserAction().getMyInfo();
+        //图片相关设置
+        mRequestOptions = RequestOptions.centerInsideTransform()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .skipMemoryCache(false)
+                .placeholder(com.yanlong.im.R.drawable.ic_info_head)
+                .error(com.yanlong.im.R.drawable.ic_info_head)
+                .centerCrop();
+        if(type==1){
+            userBean = (UserBean) new UserAction().getMyInfo();
+        }else {
+            userBean = new UserBean();
+            httpGetUserInfo(friendUid);
+        }
     }
 
     //刷新数据
@@ -194,99 +212,104 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.tvLike.setText(bean.getLikeCount()+"");
                     holder.tvComment.setText(bean.getCommentCount()+"");
                     //说说可见度
-                    if(bean.getVisibility()==0){
-                        holder.tvCanSee.setText("广场可见");
-                    }else if(bean.getVisibility()==1){
-                        holder.tvCanSee.setText("好友可见");
-                    }else if(bean.getVisibility()==2){
-                        holder.tvCanSee.setText("陌生人可见");
-                    }else {
-                        holder.tvCanSee.setText("自己可见");
-                    }
-                    //设置-> 置顶 权限 删除
-                    holder.ivSetup.setOnClickListener(v -> {
-                        DialogHelper.getInstance().createTrendDialog(activity, new ITrendClickListner() {
-                            @Override
-                            public void clickIsTop() {
-                                DialogHelper.getInstance().createCommonSelectListDialog(activity, listOne, new ICommonSelectClickListner() {
-                                    @Override
-                                    public void selectOne() {
-                                        //置顶
-                                        httpIsTop(bean.getId(),1);
-                                    }
+                    if(type==1){
+                        holder.tvCanSee.setVisibility(View.VISIBLE);
+                        if(bean.getVisibility()==0){
+                            holder.tvCanSee.setText("广场可见");
+                        }else if(bean.getVisibility()==1){
+                            holder.tvCanSee.setText("好友可见");
+                        }else if(bean.getVisibility()==2){
+                            holder.tvCanSee.setText("陌生人可见");
+                        }else {
+                            holder.tvCanSee.setText("自己可见");
+                        }
+                        holder.ivSetup.setVisibility(View.VISIBLE);
+                        //设置-> 置顶 权限 删除
+                        holder.ivSetup.setOnClickListener(v -> {
+                            DialogHelper.getInstance().createTrendDialog(activity, new ITrendClickListner() {
+                                @Override
+                                public void clickIsTop() {
+                                    DialogHelper.getInstance().createCommonSelectListDialog(activity, listOne, new ICommonSelectClickListner() {
+                                        @Override
+                                        public void selectOne() {
+                                            //置顶
+                                            httpIsTop(bean.getId(),1);
+                                        }
 
-                                    @Override
-                                    public void selectTwo() {
-                                        //取消置顶
-                                        httpIsTop(bean.getId(),0);
-                                    }
+                                        @Override
+                                        public void selectTwo() {
+                                            //取消置顶
+                                            httpIsTop(bean.getId(),0);
+                                        }
 
-                                    @Override
-                                    public void selectThree() {
+                                        @Override
+                                        public void selectThree() {
 
-                                    }
+                                        }
 
-                                    @Override
-                                    public void selectFour() {
+                                        @Override
+                                        public void selectFour() {
 
-                                    }
+                                        }
 
-                                    @Override
-                                    public void onCancle() {
+                                        @Override
+                                        public void onCancle() {
 
-                                    }
-                                });
-                            }
+                                        }
+                                    });
+                                }
 
-                            @Override
-                            public void clickAuthority() {
-                                //设置动态可见度
-                                DialogHelper.getInstance().createCommonSelectListDialog(activity, listTwo, new ICommonSelectClickListner() {
-                                    @Override
-                                    public void selectOne() {
-                                        //广场可见
-                                        httpSetVisibility(bean.getId(),0,holder.tvCanSee,position-1);
-                                    }
+                                @Override
+                                public void clickAuthority() {
+                                    //设置动态可见度
+                                    DialogHelper.getInstance().createCommonSelectListDialog(activity, listTwo, new ICommonSelectClickListner() {
+                                        @Override
+                                        public void selectOne() {
+                                            //广场可见
+                                            httpSetVisibility(bean.getId(),0,holder.tvCanSee,position-1);
+                                        }
 
-                                    @Override
-                                    public void selectTwo() {
-                                        //好友可见
-                                        httpSetVisibility(bean.getId(),1,holder.tvCanSee,position-1);
-                                    }
+                                        @Override
+                                        public void selectTwo() {
+                                            //好友可见
+                                            httpSetVisibility(bean.getId(),1,holder.tvCanSee,position-1);
+                                        }
 
-                                    @Override
-                                    public void selectThree() {
-                                        //陌生人可见
-                                        httpSetVisibility(bean.getId(),2,holder.tvCanSee,position-1);
-                                    }
+                                        @Override
+                                        public void selectThree() {
+                                            //陌生人可见
+                                            httpSetVisibility(bean.getId(),2,holder.tvCanSee,position-1);
+                                        }
 
-                                    @Override
-                                    public void selectFour() {
-                                        //自己可见
-                                        httpSetVisibility(bean.getId(),3,holder.tvCanSee,position-1);
-                                    }
+                                        @Override
+                                        public void selectFour() {
+                                            //自己可见
+                                            httpSetVisibility(bean.getId(),3,holder.tvCanSee,position-1);
+                                        }
 
-                                    @Override
-                                    public void onCancle() {
+                                        @Override
+                                        public void onCancle() {
 
-                                    }
-                                });
+                                        }
+                                    });
+                                }
 
+                                @Override
+                                public void clickDelete() {
+                                    //删除动态
+                                    httpDeleteTrend(bean.getId(),position);
+                                }
 
-                            }
+                                @Override
+                                public void clickCancle() {
 
-                            @Override
-                            public void clickDelete() {
-                                ToastUtil.show("接口未提供");
-                            }
-
-                            @Override
-                            public void clickCancle() {
-
-                            }
+                                }
+                            });
                         });
-
-                    });
+                    }else {
+                        holder.tvCanSee.setVisibility(View.GONE);
+                        holder.ivSetup.setVisibility(View.GONE);
+                    }
                     //跳详情
                     holder.layoutItem.setOnClickListener(v -> gotoCircleDetailsActivity(false));
                     //是否置顶
@@ -354,15 +377,17 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if(!TextUtils.isEmpty(userBean.getHead())){
                     Glide.with(activity)
                             .load(userBean.getHead())
+                            .apply(mRequestOptions)
+                            .into(holder.ivHeader);
+                }else {
+                    Glide.with(activity)
+                            .load(R.drawable.ic_info_head)
                             .into(holder.ivHeader);
                 }
                 if(!TextUtils.isEmpty(userBean.getName())){
                     holder.tvName.setText(userBean.getName());
                 }else {
                     holder.tvName.setText("未知用户名");
-                }
-                if(!TextUtils.isEmpty(userBean.getImid())){
-                    holder.tvImid.setText("常信号："+userBean.getImid());
                 }
             }
             //展示头部数据
@@ -373,13 +398,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 holder.tvWhoSeeMeNum.setText(topData.getAccessCount() + "");
                 //展示背景图
                 if (!TextUtils.isEmpty(topData.getBgImage())) {
-                    holder.ivBackground.setVisibility(View.VISIBLE);
-                    changeTextColor(true,holder.tvName,holder.tvImid);
                     Glide.with(activity).load(topData.getBgImage())
                             .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
-                } else {
-                    holder.ivBackground.setVisibility(View.GONE);
-                    changeTextColor(false,holder.tvName,holder.tvImid);
+                }else {
+                    Glide.with(activity).load(R.color.c_169BD5)
+                            .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
                 }
             }
             holder.layoutMyFollow.setOnClickListener(v -> {
@@ -404,27 +427,32 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 activity.startActivity(intent);
             });
             //点击布局切换背景
-            holder.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(activity, new CheckPermission2Util.Event() {
-                @Override
-                public void onSuccess() {
-                    PictureSelector.create(activity)
-                            .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                            .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
-                            .previewImage(false)// 是否可预览图片 true or false
-                            .isCamera(false)// 是否显示拍照按钮 ture or false
-                            .compress(true)// 是否压缩 true or false
-                            .enableCrop(true)
-                            .withAspectRatio(1, 1)
-                            .freeStyleCropEnabled(false)
-                            .rotateEnabled(false)
-                            .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-                }
+            if(type==1){
+                holder.layoutCenter.setVisibility(View.VISIBLE);
+                holder.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(activity, new CheckPermission2Util.Event() {
+                    @Override
+                    public void onSuccess() {
+                        PictureSelector.create(activity)
+                                .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                                .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                                .previewImage(false)// 是否可预览图片 true or false
+                                .isCamera(false)// 是否显示拍照按钮 ture or false
+                                .compress(true)// 是否压缩 true or false
+                                .enableCrop(true)
+                                .withAspectRatio(1, 1)
+                                .freeStyleCropEnabled(false)
+                                .rotateEnabled(false)
+                                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+                    }
 
-                @Override
-                public void onFail() {
-                    ToastUtil.show("请允许访问权限");
-                }
-            }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
+                    @Override
+                    public void onFail() {
+                        ToastUtil.show("请允许访问权限");
+                    }
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
+            }else {
+                holder.layoutCenter.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -494,7 +522,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     class HeadHolder extends RecyclerView.ViewHolder {
         private ImageView ivHeader;
         private TextView tvName;
-        private TextView tvImid;
         private TextView tvMyFollowNum;
         private TextView tvFollowMeNum;
         private TextView tvWhoSeeMeNum;
@@ -503,12 +530,12 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutFollowMe;
         private LinearLayout layoutWhoSeeMe;
         private RelativeLayout layoutTop;
+        private LinearLayout layoutCenter;
 
         public HeadHolder(View itemView) {
             super(itemView);
             ivHeader = itemView.findViewById(R.id.iv_header);
             tvName = itemView.findViewById(R.id.tv_name);
-            tvImid = itemView.findViewById(R.id.tv_imid);
             tvMyFollowNum = itemView.findViewById(R.id.tv_my_follow_num);
             tvFollowMeNum = itemView.findViewById(R.id.tv_follow_me_num);
             tvWhoSeeMeNum = itemView.findViewById(R.id.tv_who_see_me_num);
@@ -517,6 +544,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             layoutFollowMe = itemView.findViewById(R.id.layout_follow_me);
             layoutWhoSeeMe = itemView.findViewById(R.id.layout_who_see_me);
             layoutTop = itemView.findViewById(R.id.layout_top);
+            layoutCenter = itemView.findViewById(R.id.layout_center);
         }
     }
 
@@ -529,33 +557,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.loadState = loadState;
         notifyDataSetChanged();
     }
-
-    /**
-     * 发请求->关注
-     */
-//    private void httpToFollow(long uid,int position, TextView tvFollow) {
-//        new TempAction().httpToFollow(uid, new CallBack<ReturnBean>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                super.onResponse(call, response);
-//                if (response.body() == null) {
-//                    return;
-//                }
-//                if (response.body().isOk()){
-//                    ToastUtil.show("关注成功");
-//                    dataList.get(position).setStat(1);
-//                    notifyItemChanged(position,tvFollow);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ReturnBean> call, Throwable t) {
-//                super.onFailure(call, t);
-//                ToastUtil.show("关注失败");
-//            }
-//        });
-//    }
-
 
     private void gotoCircleDetailsActivity(boolean isOpen) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
@@ -680,41 +681,50 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->删除动态
      */
-    private void httpDelete(long id,long uid, TextView tvLike,int position) {
-//        action.httpDelete(id,uid, new CallBack<ReturnBean>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                super.onResponse(call, response);
-//                if (response.body() == null) {
-//                    return;
-//                }
-//                if (response.body().isOk()){
-//                    ToastUtil.show("删除成功");
-//                    dataList.get(position).setLike(1);
-//                    notifyItemChanged(position,tvLike);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ReturnBean> call, Throwable t) {
-//                super.onFailure(call, t);
-//                ToastUtil.show("删除失败");
-//            }
-//        });
+    private void httpDeleteTrend(long id,int position) {
+        action.httpDeleteTrend(id, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("删除成功");
+                    dataList.remove(position);//删除数据源,移除集合中当前下标的数据
+                    notifyItemRemoved(position);//刷新被删除的地方
+                    notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("删除失败");
+            }
+        });
     }
 
-    /**
-     * 改变顶部文字颜色
-     * @param hadBackground 是否有背景图
-     */
-    private void changeTextColor(boolean hadBackground,TextView tvName,TextView tvImid){
-        if(hadBackground){
-            tvName.setTextColor(activity.getResources().getColor(R.color.white));
-            tvImid.setTextColor(activity.getResources().getColor(R.color.white));
-        }else {
-            tvName.setTextColor(activity.getResources().getColor(R.color.c_363636));
-            tvImid.setTextColor(activity.getResources().getColor(R.color.c_868686));
-        }
+
+    private void httpGetUserInfo(long uid) {
+        new UserAction().getUserInfo4Id(uid, new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                if (response.body() == null || response.body().getData() == null) {
+                    return;
+                }
+                UserInfo mUserInfo = response.body().getData();
+                //只要拿用户最新昵称和头像
+                if(!TextUtils.isEmpty(mUserInfo.getHead())){
+                    userBean.setHead(mUserInfo.getHead());
+                }
+                if(!TextUtils.isEmpty(mUserInfo.getName())){
+                    userBean.setName(mUserInfo.getName());
+                }
+            }
+        });
+
     }
+
 
 }

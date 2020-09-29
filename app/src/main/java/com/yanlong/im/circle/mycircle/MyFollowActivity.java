@@ -140,7 +140,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                             allData.addAll(response.body().getData());
                             mList.addAll(response.body().getData());
                             adapter.updateList(mList);
-                            if(mList.size()>=8){
+                            if(mList.size()>=EndlessRecyclerOnScrollListener.DEFULT_SIZE_8){
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             }
                         }

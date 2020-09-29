@@ -578,6 +578,10 @@
         <activity
             android:name=".circle.mycircle.MyTrendsActivity"
             android:screenOrientation="portrait" />
+        <!-- 别人的动态(我的朋友圈) -->
+        <activity
+            android:name=".circle.mycircle.FriendTrendsActivity"
+            android:screenOrientation="portrait" />
         <!-- 文字投票 -->
         <activity
             android:name=".circle.VoteTextActivity"

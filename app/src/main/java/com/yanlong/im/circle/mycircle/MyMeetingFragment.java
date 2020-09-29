@@ -106,7 +106,7 @@ public class MyMeetingFragment extends Fragment {
                             //1-2 第一次加载，若超过8个显示加载更多
                             mList.addAll(response.body().getData());
                             adapter.updateList(mList);
-                            if (mList.size() >= 8) {
+                            if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_8) {
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             }
                         }

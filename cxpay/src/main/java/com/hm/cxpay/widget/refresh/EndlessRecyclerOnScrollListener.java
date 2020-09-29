@@ -16,6 +16,8 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
 
     //用来标记是否正在向上滑动
     private boolean isSlidingUpward = false;
+    public static final int DEFULT_SIZE_3 = 3;
+    public static final int DEFULT_SIZE_8 = 8;
 
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {

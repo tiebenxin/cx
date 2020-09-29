@@ -79,6 +79,14 @@ public class TempAction {
     }
 
     /**
+     * 获取好友的动态(说说主页及列表)
+     */
+
+    public void httpGetFriendTrends(final int currentPage, final int pageSize,final long uid, final CallBack<ReturnBean<CircleTrendsBean>> callback) {
+        NetUtil.getNet().exec(server.httpGetFriendTrends(currentPage,pageSize,uid), callback);
+    }
+
+    /**
      * 更新背景图
      */
     public void httpSetBackground(final String url, final CallBack<ReturnBean> callback) {
@@ -112,5 +120,14 @@ public class TempAction {
     public void httpSetVisibility(final long id,final int visibility, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.httpSetVisibility(id,visibility), callback);
     }
+
+
+    /**
+     * 删除一条动态
+     */
+    public void httpDeleteTrend(final long id, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpDeleteTrend(id), callback);
+    }
+
 
 }

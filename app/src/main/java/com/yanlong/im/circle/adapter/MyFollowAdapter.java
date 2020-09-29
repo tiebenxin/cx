@@ -18,6 +18,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.FriendUserBean;
+import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.TempAction;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
@@ -204,7 +205,11 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         });
                     }
 
-                    holder.layoutItem.setOnClickListener(v -> ToastUtil.show("跳转到朋友圈"));
+                    holder.layoutItem.setOnClickListener(v -> {
+                        Intent intent = new Intent(activity, FriendTrendsActivity.class);
+                        intent.putExtra("uid",userInfo.getUid());
+                        activity.startActivity(intent);
+                    });
                     holder.ivHeader.setOnClickListener(v -> activity.startActivity(new Intent(activity, UserInfoActivity.class)
                             .putExtra(UserInfoActivity.ID, userInfo.getUid())
                             .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)));

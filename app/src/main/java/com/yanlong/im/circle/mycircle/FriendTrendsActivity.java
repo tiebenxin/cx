@@ -1,27 +1,24 @@
 package com.yanlong.im.circle.mycircle;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.config.PictureConfig;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.TrendBean;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
-import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.UpFileAction;
-import net.cb.cb.library.utils.UpFileUtil;
+import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import java.util.ArrayList;
@@ -33,21 +30,21 @@ import retrofit2.Response;
 import static com.yanlong.im.circle.mycircle.MyFollowActivity.DEFAULT_PAGE_SIZE;
 
 /**
- * @类名：我的动态(我的朋友圈)
+ * @类名：别人的动态(别人的朋友圈)
  * @Date：2020/9/25
  * @by zjy
  * @备注：
  */
 
-public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> {
+public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> {
 
 
     private int page = 1;//默认第一页
 
     private TempAction action;
-    private UpFileAction upFileAction;
     private MyTrendsAdapter adapter;
     private List<TrendBean> mList;
+    private long friendUid;//别人的uid
 
     @Override
     protected int setView() {
@@ -58,20 +55,35 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     protected void init(Bundle savedInstanceState) {
         action = new TempAction();
         mList = new ArrayList<>();
-        bindingView.layoutFollow.setVisibility(View.GONE);
-        bindingView.layoutChat.setVisibility(View.GONE);
+        bindingView.layoutFollow.setVisibility(View.VISIBLE);
+        bindingView.layoutChat.setVisibility(View.VISIBLE);
     }
 
     @Override
     protected void initEvent() {
-        setActionBarLeft(bindingView.headView);
-        bindingView.headView.setTitle("我的动态");
+        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
+        ivRight.setImageResource(R.mipmap.ic_circle_more);
+        ivRight.setVisibility(View.VISIBLE);
+        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
+                ScreenUtil.dip2px(this, 10), 0);
+        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+                
+            }
+        });
     }
 
     @Override
     protected void loadData() {
-        httpGetMyTrends();
-        adapter = new MyTrendsAdapter(MyTrendsActivity.this,mList,1,0);
+        friendUid = getIntent().getLongExtra("uid",0);
+        httpGetFriendTrends();
+        adapter = new MyTrendsAdapter(FriendTrendsActivity.this,mList,2,friendUid);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
 
@@ -80,7 +92,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             @Override
             public void onLoadMore() {
                 adapter.setLoadState(adapter.LOADING);
-                httpGetMyTrends();
+                httpGetFriendTrends();
             }
         });
         //下拉刷新
@@ -88,7 +100,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             @Override
             public void onRefresh() {
                 page = 1;
-                httpGetMyTrends();
+                httpGetFriendTrends();
             }
         });
         //置顶->刷新回调
@@ -96,21 +108,32 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             @Override
             public void onRefresh() {
                 page = 1;
-                httpGetMyTrends();
+                httpGetFriendTrends();
             }
         });
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
-        //发新动态
-        bindingView.ivCreateCircle.setOnClickListener(v -> {
-            ToastUtil.show("发新动态");
+        bindingView.ivCreateCircle.setVisibility(View.GONE);
+        //关注
+        bindingView.layoutFollow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        //私聊
+        bindingView.layoutChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
         });
     }
 
     /**
-     * 发请求->获取我的动态(说说主页及列表)
+     * 发请求->获取好友的动态(说说主页及列表)
      */
-    private void httpGetMyTrends() {
-        action.httpGetMyTrends(page, DEFAULT_PAGE_SIZE, new CallBack<ReturnBean<CircleTrendsBean>>() {
+    private void httpGetFriendTrends() {
+        action.httpGetFriendTrends(page, DEFAULT_PAGE_SIZE,friendUid, new CallBack<ReturnBean<CircleTrendsBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<CircleTrendsBean>> call, Response<ReturnBean<CircleTrendsBean>> response) {
                 super.onResponse(call, response);
@@ -132,29 +155,25 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                 //1-2 第一次加载，若超过3个显示加载更多
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
-                                adapter.setTopData(bean);
                                 adapter.updateList(mList);
                                 if(mList.size()>=EndlessRecyclerOnScrollListener.DEFULT_SIZE_3){
                                     adapter.setLoadState(adapter.LOADING_MORE);
                                 }
                             }
-                            showNoDataLayout(false);
                             page++;
                         }else {
                             //2 无数据
                             //2-1 加载更多，当没有数据的时候，提示已经到底了
                             if (page > 1) {
                                 adapter.setLoadState(adapter.LOADING_END);
-                                showNoDataLayout(false);
                             } else {
                                 //2-2 第一次加载，没有数据则不显示尾部
                                 adapter.setLoadState(adapter.LOADING_GONE);
-                                showNoDataLayout(true);
                             }
                         }
                     }
                 }else {
-                    ToastUtil.show("获取我的动态失败");
+                    ToastUtil.show("获取好友动态失败");
                 }
                 bindingView.swipeRefreshLayout.setRefreshing(false);
             }
@@ -162,94 +181,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             @Override
             public void onFailure(Call<ReturnBean<CircleTrendsBean>> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show("获取我的动态失败");
+                ToastUtil.show("获取好友动态失败");
                 bindingView.swipeRefreshLayout.setRefreshing(false);
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case PictureConfig.CHOOSE_REQUEST:
-                    // 图片选择结果回调
-                    final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
-                    // 例如 LocalMedia 里面返回两种path
-                    // 1.media.getPath(); 为原图path
-                    // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
-//                    Uri uri = Uri.fromFile(new File(file));
-                    alert.show();
-                    //显示背景图
-                    adapter.notifyBackground(file);
-                    //上传背景图
-                    if(upFileAction==null){
-                        upFileAction = new UpFileAction();
-                    }
-                    upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.IMG, getContext(), new UpFileUtil.OssUpCallback() {
-                        @Override
-                        public void success(String url) {
-                            alert.dismiss();
-                            //通知更新背景图
-                            httpSetBackground(url);
-                        }
-
-                        @Override
-                        public void fail() {
-                            alert.dismiss();
-                            ToastUtil.show(getContext(), "背景图上传失败!");
-                        }
-
-                        @Override
-                        public void inProgress(long progress, long zong) {
-
-                        }
-                    }, file);
-                    break;
-            }
-        }
-    }
-
-    /**
-     * 发请求->更新背景图
-     * @param url
-     */
-    private void httpSetBackground(String url) {
-        action.httpSetBackground(url, new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                super.onResponse(call, response);
-                if (response.body() == null) {
-                    return;
-                }
-                if (response.body().isOk()){
-                    ToastUtil.show("更新背景图成功");
-                }else {
-                    ToastUtil.show("更新背景图失败");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ReturnBean> call, Throwable t) {
-                super.onFailure(call, t);
-                ToastUtil.show("更新背景图失败");
-            }
-        });
-    }
-
-    /**
-     * 是否显示无数据占位图
-     * @param ifShow
-     */
-    private void showNoDataLayout(boolean ifShow) {
-        if (ifShow) {
-            bindingView.recyclerView.setVisibility(View.GONE);
-            bindingView.noDataLayout.setVisibility(View.VISIBLE);
-        } else {
-            bindingView.recyclerView.setVisibility(View.VISIBLE);
-            bindingView.noDataLayout.setVisibility(View.GONE);
-        }
     }
 
 }
