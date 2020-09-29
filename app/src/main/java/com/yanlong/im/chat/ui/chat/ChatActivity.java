@@ -848,7 +848,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     protected void onStart() {
         super.onStart();
         mViewModel.dealBurnMessage();
-        mtListView.setStackBottom(false);
         initActionBarLoading();
         SocketUtil.getSocketUtil().addEvent(msgEvent);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
@@ -5017,10 +5016,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             fixLastPosition(mAdapter.getMsgList(), list);
                         }
                         int len = list.size();
-                        if (len > 20) {
-                            mtListView.setStackBottom(true);
-                        }
-
                         mAdapter.bindData(list, false);
                         mAdapter.setReadStatus(checkIsRead());
                         notifyData2Bottom(isScrollBottom);
