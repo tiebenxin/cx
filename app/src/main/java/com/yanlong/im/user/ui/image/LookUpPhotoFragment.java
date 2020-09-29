@@ -434,7 +434,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
 
                         @Override
                         public void onDownloading(final int progress) {
-//                        Log.d(TAG, "onDownloading: " + progress);
                             if (isGif) {
                                 return;
                             }
@@ -497,7 +496,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         if (tvViewOrigin == null) {
             return;
         }
-//        LogUtil.getLog().i("LookUpPhotoFragment", "progress=" + progress);
         tvViewOrigin.setText("已完成 " + progress + "%");
         if (progress == 100) {
             tvViewOrigin.setVisibility(View.GONE);
@@ -556,7 +554,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                             ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                             return;
                         }
-//                        sendToFriend(msgId, PictureConfig.FROM_COLLECT_DETAIL);
                         ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
                     } else if (position == 1) {//保存
                         saveImageToLocal(ivImage, media);
@@ -569,7 +566,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-//                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
                             ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
@@ -579,15 +575,11 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 return;
                             }
                             ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 2, media);
-//                            EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-//                            eventCollectImgOrVideo.setMsgId(msgId);
-//                            EventBus.getDefault().post(eventCollectImgOrVideo);
                         } else if (position == 3) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            // scanningImage(media.getPath());
                             scanningQrImage(media.getCompressPath(), ivImage);
                         } else if (position == 4) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
@@ -595,17 +587,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 return;
                             }
                             ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 3, media);
-
-//                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
-//                            Bundle bundle = new Bundle();
-//                            bundle.putString("imgpath", media.getCompressPath());
-//                            bundle.putString("msg_id", msgId);
-//                            bundle.putInt("img_width", media.getWidth());
-//                            bundle.putInt("img_height", media.getHeight());
-//                            intent.putExtras(bundle);
-//                            getActivity().startActivityForResult(intent, PreviewMediaActivity.IMG_EDIT);
                         }
-
                     } else {
                         //不含有收藏项
                         if (position == 0) {//默认转发
@@ -613,7 +595,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-//                            sendToFriend(msgId, PictureConfig.FROM_DEFAULT);
                             ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
@@ -622,7 +603,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            // scanningImage(media.getPath());
                             scanningQrImage(media.getCompressPath(), ivImage);
                         } else if (position == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
@@ -630,15 +610,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 return;
                             }
                             ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 3, media);
-
-//                            Intent intent = new Intent(getActivity(), ImageShowActivity.class);
-//                            Bundle bundle = new Bundle();
-//                            bundle.putString("imgpath", media.getCompressPath());
-//                            bundle.putString("msg_id", msgId);
-//                            bundle.putInt("img_width", media.getWidth());
-//                            bundle.putInt("img_height", media.getHeight());
-//                            intent.putExtras(bundle);
-//                            getActivity().startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                         }
                     }
                 }
@@ -662,16 +633,9 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         }
         Hashtable<DecodeHintType, String> hints = new Hashtable<>();
         hints.put(DecodeHintType.CHARACTER_SET, "UTF8"); //设置二维码内容的编码
-
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true; // 先获取原大小
-        Bitmap scan = BitmapFactory.decodeFile(path, options);
         options.inJustDecodeBounds = false; // 获取新的大小
-//        int sampleSize = (int) (options.outHeight / (float) 200);
-//        if (sampleSize <= 0)
-//            sampleSize = 1;
-        //  options.inSampleSize = sampleSize;
-
         Bitmap scanBitmap = null;
         if (bitmap != null) {
             scanBitmap = bitmap;
@@ -725,32 +689,6 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         } catch (Exception e) {
             ToastUtil.show(AppConfig.getContext(), "识别二维码失败");
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * 转发
-     *
-     * @param msgId
-     */
-    private void sendToFriend(String msgId, int fromWhere) {
-        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
-            if (NetUtil.isNetworkConnected()) {
-                getActivity().startActivity(new Intent(getActivity(), MsgForwardActivity.class)
-                        .putExtra(MsgForwardActivity.AGM_JSON, collectJson).putExtra("from_collect", true));
-            } else {
-                ToastUtil.show("请检查网络连接是否正常");
-            }
-        } else {
-            if (!TextUtils.isEmpty(msgId)) {
-                MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
-                if (msgAllBean != null) {
-                    getActivity().startActivity(new Intent(getActivity(), MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
-                } else {
-                    ToastUtil.show("消息已被删除或者被焚毁，不能转发");
-                }
-            }
         }
     }
 
@@ -874,4 +812,20 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         }
     }
 
+    private boolean isBigSize() {
+        boolean result = false;
+        int realW = media.getWidth();
+        int realH = media.getHeight();
+        int screenWidth = ScreenUtil.getScreenWidth(getActivity());
+        int screenHeight = ScreenUtil.getScreenHeight(getActivity());
+        if (realH > 0) {
+            double scale = (realW * 1.00) / realH;
+            if (realW > screenWidth) {
+                result = true;
+            } else if (realH > screenHeight) {
+                result = true;
+            }
+        }
+        return result;
+    }
 }
