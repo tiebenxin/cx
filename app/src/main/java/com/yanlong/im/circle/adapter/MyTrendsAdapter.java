@@ -401,9 +401,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     Glide.with(activity).load(topData.getBgImage())
                             .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
                 }else {
-                    Glide.with(activity).load(R.color.c_169BD5)
+                    String url ="https://tupian.qqw21.com/article/UploadPic/2020-1/202011422473670234.jpg";
+                    Glide.with(activity).load(url)
                             .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
                 }
+            }else {
+                String url ="https://tupian.qqw21.com/article/UploadPic/2020-1/202011422473670234.jpg";
+                Glide.with(activity).load(url)
+                        .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
             }
             holder.layoutMyFollow.setOnClickListener(v -> {
                 if (ViewUtils.isFastDoubleClick()) {
@@ -721,6 +726,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if(!TextUtils.isEmpty(mUserInfo.getName())){
                     userBean.setName(mUserInfo.getName());
                 }
+                notifyItemChanged(0);
             }
         });
 

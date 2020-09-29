@@ -12,6 +12,7 @@ import android.widget.TextView;
 import net.cb.cb.library.R;
 import net.cb.cb.library.inter.ICommonSelectClickListner;
 import net.cb.cb.library.inter.ICustomerItemClick;
+import net.cb.cb.library.inter.IFriendTrendClickListner;
 import net.cb.cb.library.inter.ITrendClickListner;
 
 import java.util.List;
@@ -370,6 +371,39 @@ public class DialogHelper {
                 }
                 if (!ViewUtils.isFastDoubleClick()) {
                     clickListner.onCancle();
+                }
+            }
+        });
+        selectDialog.show();
+    }
+
+    /**
+     * 好友动态(好友朋友圈) 底部弹框
+     * @param context
+     * @param clickListner
+     */
+    public void createFriendTrendDialog(Context context, final IFriendTrendClickListner clickListner) {
+
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth();
+
+        View dialogview = LayoutInflater.from(context).inflate(R.layout.dialog_friend_trend_set, null);
+        final Dialog selectDialog = new Dialog(context, R.style.upload_image_methods_dialog);
+        selectDialog.setContentView(dialogview);
+        Window window = selectDialog.getWindow();
+        WindowManager.LayoutParams dialogParams = window.getAttributes();
+        dialogParams.gravity = Gravity.BOTTOM;
+        dialogParams.width = width;
+        window.setAttributes(dialogParams);
+        dialogview.findViewById(R.id.tv_report).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+                if (!ViewUtils.isFastDoubleClick()) {
+                    clickListner.clickReport();
                 }
             }
         });

@@ -15,8 +15,7 @@
         <ImageView
             android:id="@+id/iv_background"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"/>
+            android:layout_height="match_parent"/>
 
         <com.hm.cxpay.widget.CircleImageView
             android:id="@+id/iv_header"

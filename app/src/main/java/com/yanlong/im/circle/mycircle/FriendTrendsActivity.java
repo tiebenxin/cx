@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.mycircle;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
@@ -12,10 +13,14 @@ import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.TrendBean;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
+import com.yanlong.im.user.ui.ComplaintActivity;
+import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.inter.IFriendTrendClickListner;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -74,7 +79,15 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
             @Override
             public void onRight() {
-                
+                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+                    @Override
+                    public void clickReport() {
+                        //举报
+                        Intent intent = new Intent(FriendTrendsActivity.this, ComplaintActivity.class);
+                        intent.putExtra(ComplaintActivity.UID, friendUid + "");
+                        startActivity(intent);
+                    }
+                });
             }
         });
     }
@@ -117,14 +130,19 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         bindingView.layoutFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if(true){
+                    httpToFollow(friendUid);
+                }else {
+                    httpCancelFollow(friendUid);
+                }
             }
         });
         //私聊
         bindingView.layoutChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                context.startActivity(new Intent(context, UserInfoActivity.class)
+                        .putExtra(UserInfoActivity.ID, friendUid));
             }
         });
     }
@@ -155,6 +173,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 //1-2 第一次加载，若超过3个显示加载更多
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
+                                adapter.setTopData(bean);
                                 adapter.updateList(mList);
                                 if(mList.size()>=EndlessRecyclerOnScrollListener.DEFULT_SIZE_3){
                                     adapter.setLoadState(adapter.LOADING_MORE);
@@ -183,6 +202,58 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 super.onFailure(call, t);
                 ToastUtil.show("获取好友动态失败");
                 bindingView.swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    /**
+     * 发请求->关注
+     */
+    private void httpToFollow(long uid) {
+        action.httpToFollow(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("关注成功");
+                    bindingView.tvFollow.setText("已关注");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("关注失败");
+            }
+        });
+    }
+
+    /**
+     * 发请求->取消关注
+     */
+    private void httpCancelFollow(long uid) {
+        action.httpCancelFollow(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("取消关注成功");
+                    bindingView.tvFollow.setText("关注");
+                }else {
+                    ToastUtil.show("取消关注失败");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("取消关注失败");
             }
         });
     }

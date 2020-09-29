@@ -1,12 +1,5 @@
 package com.yanlong.im.utils;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.DrawableRes;
-import android.widget.ImageView;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -60,8 +53,6 @@ public class GlideOptionsUtil {
     //普通图片 不带圆角有默认图
     public static RequestOptions defImageOptions1() {
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
-                .error(R.mipmap.ic_img_def)
-                .placeholder(R.mipmap.ic_img_def)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .centerCrop();
