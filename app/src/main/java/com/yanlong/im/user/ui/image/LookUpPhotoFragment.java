@@ -793,18 +793,23 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         int screenHeight = ScreenUtil.getScreenHeight(getActivity());
         if (realH > 0) {
             double scale = (realW * 1.00) / realH;
-            if (realW > screenWidth && realW < screenWidth * 2) {
-                targetWidth = screenWidth;
-                targetHeight = (int) (targetWidth / scale);
-            } else if (realH > screenHeight) {
-                targetHeight = screenHeight;
-                targetWidth = (int) (targetHeight * scale);
-            } else if (realW == realH) {
-                targetWidth = screenWidth;
-                targetHeight = screenWidth;
-            } else {
+            if (scale < 0.33) {//长图
                 targetWidth = realW;
-                targetHeight = (int) (targetWidth / scale);
+                targetHeight = realH;
+            } else {
+                if (realW > screenWidth && realW < screenWidth * 2) {
+                    targetWidth = screenWidth;
+                    targetHeight = (int) (targetWidth / scale);
+                } else if (realH > screenHeight) {
+                    targetHeight = screenHeight;
+                    targetWidth = (int) (targetHeight * scale);
+                } else if (realW == realH) {
+                    targetWidth = screenWidth;
+                    targetHeight = screenWidth;
+                } else {
+                    targetWidth = realW;
+                    targetHeight = (int) (targetWidth / scale);
+                }
             }
         } else {
             targetWidth = realW;
