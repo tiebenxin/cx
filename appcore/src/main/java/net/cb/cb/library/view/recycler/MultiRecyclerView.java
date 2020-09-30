@@ -108,4 +108,10 @@ public class MultiRecyclerView extends LinearLayout {
         layoutManager.scrollToPositionWithOffset(mAdapter.getItemCount() - 1, Integer.MIN_VALUE);
     }
 
+    public void setStackFromEnd(boolean b) {
+        if (layoutManager != null) {
+            layoutManager.setStackFromEnd(b);
+        }
+    }
+
 }
