@@ -48,5 +48,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:padding="10dp"
-        android:src="@mipmap/ic_circle_delete" />
+        android:src="@mipmap/ic_circle_location_delete" />
 </LinearLayout>

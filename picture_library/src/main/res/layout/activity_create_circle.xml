@@ -170,7 +170,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/tv_location"
                 android:padding="10dp"
-                android:src="@mipmap/ic_circle_delete"
+                android:src="@mipmap/ic_circle_location_delete"
                 android:visibility="gone" />
 
             <TextView

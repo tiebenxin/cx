@@ -45,4 +45,18 @@ public class PictureEnum {
         int VIDEO_AND_VOTE = 12;// 包含视频和投票
         int PICTRUE_AND_VIDEO_VOTE = 13;// 包含图片、视频和投票
     }
+
+    @IntDef({EVoteType.TXT, EVoteType.PICTRUE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EVoteType {
+        int TXT = 1;// 文字
+        int PICTRUE = 2;// 图片
+    }
+
+    @IntDef({ELikeType.NO, ELikeType.YES})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ELikeType {
+        int NO = 0;// 文字
+        int YES = 1;// 图片
+    }
 }

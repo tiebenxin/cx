@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.follow;
 
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -20,4 +21,22 @@ import java.util.WeakHashMap;
 public interface FollowApi {
 
     void getFollowMomentList(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<MessageInfoBean>>> callback);
+
+    void getRecommendList(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<MessageInfoBean>>> callback);
+
+    void queryById(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback);
+
+    void voteAnswer(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
+
+    void comentLike(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
+
+    void followAdd(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
+
+    void followCancle(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
+
+    void comentCancleLike(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
+
+    void circleComment(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
+
+    void circleCommentList(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<CircleCommentBean>>> callback);
 }

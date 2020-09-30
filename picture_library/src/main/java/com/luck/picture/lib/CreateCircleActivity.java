@@ -911,7 +911,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             resetAudio(true);
         } else if (id == R.id.iv_voice_play) {// 播放语音
             if (!TextUtils.isEmpty(currentAudioFile)) {
-                AudioPlayUtil.startAudioPlay(this, currentAudioFile, this);
+                AudioPlayUtil.startAudioPlay(this, currentAudioFile, pb_progress, iv_voice_play, this);
             }
         } else if (id == R.id.iv_voice) {// 语音
             if (layout_voice.getVisibility() == View.VISIBLE || mList.size() > 0 || mVoteList.size() > 0) {
@@ -1086,7 +1086,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     if (isPlaying) {
                         iv_action.setImageResource(R.mipmap.ic_audio_start);
                         tv_voice_tip.setText("正在播放");
-                        AudioPlayUtil.startAudioPlay(this, currentAudioFile, this);
+                        AudioPlayUtil.startAudioPlay(this, currentAudioFile, null, null, this);
                     } else {
                         tv_voice_tip.setText("点击播放");
                         iv_action.setImageResource(R.mipmap.ic_start_recorder);

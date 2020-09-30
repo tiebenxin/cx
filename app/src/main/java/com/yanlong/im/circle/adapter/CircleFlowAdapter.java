@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.MultipleItemRvAdapter;
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.interf.ICircleClickListener;
 
@@ -22,20 +23,26 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
 
     public static final int MESSAGE_DEFAULT = 0;// 默认
     public static final int MESSAGE_VOTE = 1;// 默认
-    private boolean isDetails = false;
+    private boolean isDetails, isFollow;
     private ICircleClickListener clickListener;
+    private List<CircleCommentBean> commentList;
 
-    public CircleFlowAdapter(@Nullable List<MessageFlowItemBean> data, boolean isDetails) {
-        super(data);
-        this.isDetails = isDetails;
-        finishInitialize();
-    }
-
-    public CircleFlowAdapter(@Nullable List<MessageFlowItemBean> data, boolean isDetails, ICircleClickListener listener) {
+    public CircleFlowAdapter(@Nullable List<MessageFlowItemBean> data, boolean isFollow,
+                             boolean isDetails, ICircleClickListener listener, List<CircleCommentBean> commentList) {
         super(data);
         this.isDetails = isDetails;
         this.clickListener = listener;
+        this.isFollow = isFollow;
+        this.commentList = commentList;
         finishInitialize();
+    }
+
+    public List<CircleCommentBean> getCommentList() {
+        return commentList;
+    }
+
+    public void setCommentList(List<CircleCommentBean> commentList) {
+        this.commentList = commentList;
     }
 
     @Override
@@ -45,7 +52,7 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
 
     @Override
     public void registerItemProvider() {
-        mProviderDelegate.registerProvider(new FollowProvider(isDetails, clickListener));
-        mProviderDelegate.registerProvider(new VoteProvider());
+        mProviderDelegate.registerProvider(new FollowProvider(isDetails, isFollow, clickListener, commentList));
+        mProviderDelegate.registerProvider(new VoteProvider(isDetails, isFollow, clickListener, commentList));
     }
 }

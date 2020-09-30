@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.follow;
 
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 
 import net.cb.cb.library.base.bind.IBaseView;
@@ -18,6 +19,16 @@ import java.util.List;
 public interface FollowView extends IBaseView {
 
     void onSuccess(List<MessageFlowItemBean> list);
+
+    void onSuccess(int position, MessageFlowItemBean flowItemBean);
+
+    void onCommentSuccess(List<CircleCommentBean> list);
+
+    void onVoteSuccess(int parentPostion, String msg);
+
+    void onLikeSuccess(int position, String msg);
+
+    void onSuccess(int position, String msg);
 
     void onShowMessage(String msg);
 }

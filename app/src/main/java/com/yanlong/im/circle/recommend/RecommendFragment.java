@@ -1,12 +1,20 @@
 package com.yanlong.im.circle.recommend;
 
+import android.content.Intent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.scwang.smartrefresh.header.MaterialHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -14,16 +22,27 @@ import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.VideoPlayActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.follow.FollowPresenter;
+import com.yanlong.im.circle.follow.FollowView;
 import com.yanlong.im.databinding.FragmentRecommendBinding;
 import com.yanlong.im.interf.ICircleClickListener;
+import com.yanlong.im.user.ui.ComplaintActivity;
+import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
+import net.cb.cb.library.inter.ICircleSetupClick;
+import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,15 +54,17 @@ import java.util.List;
  * @description 朋友圈 推荐
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, FragmentRecommendBinding>
-        implements RecommendView, ICircleClickListener {
+public class RecommendFragment extends BaseBindMvpFragment<FollowPresenter, FragmentRecommendBinding>
+        implements FollowView, ICircleClickListener {
 
     private CircleFlowAdapter mFlowAdapter;
+    private List<MessageFlowItemBean> mFollowList;
     public static final String IS_OPEN = "is_open";
+    private final int PAGE_SIZE = 10;
+    private int mCurrentPage = 0;
 
-    @Override
-    protected RecommendPresenter createPresenter() {
-        return new RecommendPresenter(getContext());
+    protected FollowPresenter createPresenter() {
+        return new FollowPresenter(getContext());
     }
 
     @Override
@@ -53,12 +74,13 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
     @Override
     public void init() {
-        mFlowAdapter = new CircleFlowAdapter(null, false, this);
+        mFollowList = new ArrayList<>();
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, false, false, this, null);
         bindingView.recyclerRecommend.setAdapter(mFlowAdapter);
         bindingView.recyclerRecommend.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
-        mPresenter.getFollowData();
+        mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE);
     }
 
     @Override
@@ -66,15 +88,14 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         bindingView.srlFollow.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@android.support.annotation.NonNull RefreshLayout refreshLayout) {
-                bindingView.srlFollow.finishRefresh();
-                bindingView.srlFollow.finishLoadMore();
+                mCurrentPage = 0;
+                mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE);
             }
         });
         bindingView.srlFollow.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-                bindingView.srlFollow.finishRefresh();
-                bindingView.srlFollow.finishLoadMore();
+                mPresenter.getRecommendMomentList(++mCurrentPage, PAGE_SIZE);
             }
         });
         mFlowAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
@@ -89,16 +110,69 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                if (DoubleUtils.isFastDoubleClick()) {
+                    return;
+                }
+                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 switch (view.getId()) {
-                    case R.id.iv_comment:
+                    case R.id.iv_comment:// 评论
                         gotoCircleDetailsActivity(true);
                         break;
-//                    case R.id.iv_revoke:
-//                        Postcard postcard = ARouter.getInstance().build(MyFollowActivity.path);
-//                        postcard.navigation();
-//                        break;
-                    case R.id.iv_header:
+                    case R.id.iv_header:// 头像
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
+                        break;
+                    case R.id.iv_like:// 点赞
+                        if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
+                            mPresenter.comentCancleLike(messageInfoBean.getId(), messageInfoBean.getUid(), position);
+                        } else {
+                            mPresenter.comentLike(messageInfoBean.getId(), messageInfoBean.getUid(), position);
+                        }
+                        break;
+                    case R.id.iv_setup:// 设置
+                        DialogHelper.getInstance().createFollowDialog(getActivity(), "关注",
+                                mPresenter.getUserType(messageInfoBean.getUid()) == 0 ? true : false, new ICircleSetupClick() {
+                                    @Override
+                                    public void onClickFollow() {
+                                        mPresenter.followCancle(messageInfoBean.getUid(), position);
+                                    }
 
+                                    @Override
+                                    public void onClickNoLook() {
+
+                                    }
+
+                                    @Override
+                                    public void onClickChat(boolean isFriend) {
+                                        if (isFriend) {
+                                            startActivity(new Intent(getContext(), ChatActivity.class)
+                                                    .putExtra(ChatActivity.AGM_TOUID, messageInfoBean.getUid()));
+                                        } else {
+                                            Intent intent = new Intent(getContext(), UserInfoActivity.class);
+                                            intent.putExtra(UserInfoActivity.ID, messageInfoBean.getUid());
+                                            startActivity(intent);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onClickReport() {
+                                        Intent intent = new Intent(getContext(), ComplaintActivity.class);
+                                        intent.putExtra(ComplaintActivity.UID, messageInfoBean.getUid() + "");
+                                        startActivity(intent);
+                                    }
+                                });
+                        break;
+                    case R.id.rl_video:// 播放视频
+                        List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                                new TypeToken<List<AttachmentBean>>() {
+                                }.getType());
+
+                        Intent intent = new Intent(getContext(), VideoPlayActivity.class);
+                        if (attachmentBeans.size() > 0) {
+                            intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                        }
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(intent);
                         break;
                 }
             }
@@ -112,26 +186,108 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     }
 
     @Override
-    public void setFollowData(List<MessageFlowItemBean> list) {
-        mFlowAdapter.setNewData(list);
+    public void onSuccess(List<MessageFlowItemBean> list) {
+        if (mCurrentPage == 0) {
+            mFollowList.clear();
+        }
+        if (mCurrentPage == 0 && list.size() == 0) {
+            View view = View.inflate(getActivity(), R.layout.view_follow_no_data, null);
+            TextView textView = view.findViewById(R.id.tv_message);
+            textView.setText("暂无数据");
+            bindingView.srlFollow.post(new Runnable() {
+                @Override
+                public void run() {
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            bindingView.srlFollow.getHeight());
+                    view.setLayoutParams(layoutParams);
+                    mFlowAdapter.setEmptyView(view);
+                }
+            });
+            bindingView.srlFollow.setEnableLoadMore(false);
+        } else {
+            mFollowList.addAll(list);
+            mFlowAdapter.notifyDataSetChanged();
+            if (list.size() > 0) {
+                bindingView.srlFollow.setEnableLoadMore(true);
+            } else {
+                bindingView.srlFollow.finishLoadMoreWithNoMoreData();
+            }
+        }
+        bindingView.srlFollow.finishRefresh();
+        bindingView.srlFollow.finishLoadMore();
+    }
+
+    @Override
+    public void onSuccess(int position, MessageFlowItemBean flowItemBean) {
+
+    }
+
+    @Override
+    public void onCommentSuccess(List<CircleCommentBean> list) {
+
+    }
+
+    @Override
+    public void onVoteSuccess(int parentPostion, String msg) {
+        ToastUtil.show("投票成功");
+        mFlowAdapter.notifyItemChanged(parentPostion);
+    }
+
+    @Override
+    public void onLikeSuccess(int position, String msg) {
+        MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+        int like;
+        if (messageInfoBean.getLike() != null) {
+            like = messageInfoBean.getLike().intValue() == PictureEnum.ELikeType.YES ? 0 : 1;
+        } else {
+            like = 1;
+        }
+        if (messageInfoBean.getLikeCount() != null) {
+            if (like == PictureEnum.ELikeType.YES) {
+                messageInfoBean.setLikeCount(messageInfoBean.getLikeCount() + 1);
+            } else {
+                messageInfoBean.setLikeCount(messageInfoBean.getLikeCount() - 1);
+            }
+        } else {
+            messageInfoBean.setLikeCount(1);
+        }
+        messageInfoBean.setLike(like);
+        mFlowAdapter.notifyItemChanged(position);
+    }
+
+    @Override
+    public void onSuccess(int postion, String msg) {
+        mCurrentPage = 1;
+        mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE);
+    }
+
+    @Override
+    public void onShowMessage(String msg) {
+        ToastUtil.show(msg);
     }
 
     /**
      * 内容展开、收起
      *
      * @param postion
-     * @param type    0：展开、收起 1：详情
+     * @param parentPostion 父类位置
+     * @param type          0：展开、收起 1：详情 2文字投票 3图片投票
      */
     @Override
-    public void onClick(int postion, int type) {
-        if (type == 0) {
-            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
-            messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
-            mFlowAdapter.notifyItemChanged(postion);
-        } else {
-            if (!DoubleUtils.isFastDoubleClick()) {
-                gotoCircleDetailsActivity(false);
+    public void onClick(int postion, int parentPostion, int type) {
+        if (type == 1 || type == 0) {
+            if (type == 0) {
+                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
+                messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
+                mFlowAdapter.notifyItemChanged(postion);
+            } else {
+                if (!DoubleUtils.isFastDoubleClick()) {
+                    gotoCircleDetailsActivity(false);
+                }
             }
+        } else {
+            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
+            mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
         }
     }
 }

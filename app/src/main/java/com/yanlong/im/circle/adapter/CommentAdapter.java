@@ -5,6 +5,7 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.yanlong.im.R;
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.utils.CommonUtils;
 
 /**
@@ -16,7 +17,7 @@ import com.yanlong.im.utils.CommonUtils;
  * @description
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class CommentAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
+public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean, BaseViewHolder> {
 
     private boolean isShowAll = false;// 是否全部显示
 
@@ -49,8 +50,8 @@ public class CommentAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, String result) {
+    protected void convert(BaseViewHolder helper, CircleCommentBean commentBean) {
         TextView tvMessage = helper.getView(R.id.tv_message);
-        CommonUtils.setTextColor("我：", result, R.color.color_488, R.color.gray_484, tvMessage, mContext);
+        CommonUtils.setTextColor("我：", commentBean.getContent(), R.color.color_488, R.color.gray_484, tvMessage, mContext);
     }
 }

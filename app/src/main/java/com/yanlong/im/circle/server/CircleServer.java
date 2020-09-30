@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.server;
 
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -27,4 +28,31 @@ public interface CircleServer {
 
     @POST("square/moment/follow-moment-list")
     Call<ReturnBean<List<MessageInfoBean>>> getFollowMomentList(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/recommend-list")
+    Call<ReturnBean<List<MessageInfoBean>>> getRecommendList(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/query-by-id")
+    Call<ReturnBean<MessageInfoBean>> queryById(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/vote/answer")
+    Call<ReturnBean> voteAnswer(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/like")
+    Call<ReturnBean> comentLike(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/cancel-like")
+    Call<ReturnBean> comentCancleLike(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/follow/add")
+    Call<ReturnBean> followAdd(@Body WeakHashMap<String, Object> params);
+
+    @POST("follow/cancel")
+    Call<ReturnBean> followCancle(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/comment")
+    Call<ReturnBean> circleComment(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/comment-list")
+    Call<ReturnBean<List<CircleCommentBean>>> circleCommentList(@Body WeakHashMap<String, Object> params);
 }

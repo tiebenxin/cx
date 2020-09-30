@@ -11,5 +11,5 @@ package com.yanlong.im.interf;
  */
 public interface ICircleClickListener {
 
-    void onClick(int postion, int type);
+    void onClick(int postion, int parentPostion, int type);
 }

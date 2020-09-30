@@ -1,12 +1,14 @@
 package com.yanlong.im.circle.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
+import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -15,6 +17,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,14 +29,20 @@ import com.chad.library.adapter.base.provider.BaseItemProvider;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.interf.ICircleClickListener;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.wight.avatar.RoundImageView;
 
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -50,14 +59,23 @@ import java.util.List;
  */
 public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<MessageInfoBean>, BaseViewHolder> {
 
-    private boolean isDetails = false;
+    private boolean isDetails, isFollow;
     private final int MAX_ROW_NUMBER = 3;
     private ICircleClickListener clickListener;
     private final String END_MSG = " 收起";
+    private List<CircleCommentBean> commentList;
 
-    public FollowProvider(boolean isDetails, ICircleClickListener clickListener) {
+    /**
+     * @param isDetails     是否是详情
+     * @param isFollow      是否是关注
+     * @param clickListener
+     */
+    public FollowProvider(boolean isDetails, boolean isFollow, ICircleClickListener clickListener,
+                          List<CircleCommentBean> commentList) {
         this.isDetails = isDetails;
+        this.isFollow = isFollow;
         this.clickListener = clickListener;
+        this.commentList = commentList;
     }
 
     @Override
@@ -76,7 +94,15 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
+        RoundImageView ivVideo = helper.getView(R.id.iv_video);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
+        TextView ivLike = helper.getView(R.id.iv_like);
+        ProgressBar pbProgress = helper.getView(R.id.pb_progress);
+        if (isFollow) {
+            helper.setVisible(R.id.iv_follow, true);
+        } else {
+            helper.setGone(R.id.iv_follow, false);
+        }
         Glide.with(mContext)
                 .asBitmap()
                 .load(messageInfoBean.getAvatar())
@@ -93,13 +119,23 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
 
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
-            helper.setText(R.id.iv_like, messageInfoBean.getLikeCount());
+            ivLike.setText(messageInfoBean.getLikeCount() + "");
         } else {
             helper.setText(R.id.iv_like, "");
         }
+        if (messageInfoBean.getLike() != null && messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
+            Drawable drawable = mContext.getResources().getDrawable(R.mipmap.ic_circle_like);
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
+            ivLike.setCompoundDrawables(drawable, null, null, null);
+        } else {
+            Drawable drawable = mContext.getResources().getDrawable(R.mipmap.ic_circle_give);
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
+            ivLike.setCompoundDrawables(drawable, null, null, null);
+        }
 
         if (messageInfoBean.getCommentCount() != null && messageInfoBean.getCommentCount() > 0) {
-            helper.setText(R.id.iv_comment, messageInfoBean.getCommentCount());
+            helper.setText(R.id.iv_comment, messageInfoBean.getCommentCount() + "");
+            helper.setText(R.id.tv_comment_count, "所有评论（" + messageInfoBean.getCommentCount() + "）");
         } else {
             helper.setText(R.id.iv_comment, "");
         }
@@ -108,22 +144,24 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
                     new TypeToken<List<AttachmentBean>>() {
                     }.getType());
-            // 语音
             if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
+                    pbProgress.setProgress(0);
                     ivVoicePlay.setOnClickListener(o -> {
                         if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), ivVoicePlay);
+                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), ivVoicePlay, pbProgress);
                         }
                     });
                 }
                 recyclerView.setVisibility(View.GONE);
+                helper.setGone(R.id.rl_video, false);
                 helper.setVisible(R.id.layout_voice, true);
             } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
                 List<String> imgs = new ArrayList<>();
                 helper.setGone(R.id.layout_voice, false);
+                helper.setGone(R.id.rl_video, false);
                 recyclerView.setVisibility(View.VISIBLE);
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     for (AttachmentBean attachmentBean : attachmentBeans) {
@@ -131,27 +169,50 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                     }
                 }
                 setRecycleView(recyclerView, imgs);
+            } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VIDEO) {
+                helper.setVisible(R.id.rl_video, true);
+                recyclerView.setVisibility(View.GONE);
+                helper.setGone(R.id.layout_voice, false);
+                if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                    AttachmentBean attachmentBean = attachmentBeans.get(0);
+                    Glide.with(mContext)
+                            .asBitmap()
+                            .load(attachmentBean.getBgUrl())
+                            .apply(GlideOptionsUtil.headImageOptions())
+                            .into(ivVideo);
+                }
+
             }
         } else {
             helper.setGone(R.id.layout_voice, false);
             recyclerView.setVisibility(View.GONE);
+            helper.setGone(R.id.rl_video, false);
         }
         helper.setGone(R.id.iv_delete_voice, false);
 
         if (isDetails) {
-            helper.setVisible(R.id.tv_comment_count, true);
-            helper.setVisible(R.id.recycler_comment, true);
+            if (messageInfoBean.getCommentCount() != null && messageInfoBean.getCommentCount() > 0) {
+                helper.setVisible(R.id.tv_comment_count, true);
+                helper.setVisible(R.id.recycler_comment, true);
+            } else {
+                helper.setGone(R.id.tv_comment_count, false);
+                helper.setGone(R.id.recycler_comment, false);
+            }
             helper.setVisible(R.id.tv_follow, true);
             helper.setGone(R.id.iv_setup, false);
+            if (isFollow) {
+                helper.setText(R.id.tv_follow, "取消关注");
+            } else {
+                helper.setText(R.id.tv_follow, "关注TA");
+            }
             RecyclerView recyclerComment = helper.getView(R.id.recycler_comment);
             recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
             CommentAdapter checkTxtAdapter = new CommentAdapter(false);
             recyclerComment.setAdapter(checkTxtAdapter);
-            List<String> list = new ArrayList<>();
-            list.add("这是一条测试数据，可以张烨晗1");
-            list.add("这是一条测试数据，可以张烨晗2");
-            list.add("这是一条测试数据，可以张烨晗3");
-            list.add("这是一条测试数据，可以张烨晗4");
+            List<CircleCommentBean> list = new ArrayList<>();
+            if (commentList != null) {
+                list.addAll(commentList);
+            }
             checkTxtAdapter.setNewData(list);
         } else {
             helper.setGone(R.id.tv_comment_count, false);
@@ -160,10 +221,31 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             helper.setVisible(R.id.iv_setup, true);
         }
         TextView tvContent = helper.getView(R.id.tv_content);
-        tvContent.setText(messageInfoBean.getContent());
+        tvContent.setText(getSpan(messageInfoBean.getContent()));
         toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
                 "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
-        helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow);
+        helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
+                R.id.iv_like, R.id.iv_setup, R.id.rl_video);
+    }
+
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(mContext, fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(mContext, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
+    }
+
+    private SpannableString getSpan(SpannableString spannableString) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        if (fontSize != null) {
+            return ExpressionUtil.getExpressionString(mContext, fontSize.intValue(), spannableString);
+        } else {
+            return ExpressionUtil.getExpressionString(mContext, ExpressionUtil.DEFAULT_SIZE, spannableString);
+        }
     }
 
     /**
@@ -193,7 +275,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                         if (messageInfoBean.isRowsMore()) {
                             setSpanClick(context, textView, originText + END_MSG, END_MSG, postion, endColorID);
                         } else {
-                            textView.setText(originText);
+                            textView.setText(getSpan((originText)));
                         }
                     } else {
                         int paddingLeft = textView.getPaddingLeft();
@@ -208,7 +290,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                             setSpanClick(context, textView, temp, endText, postion, endColorID);
                             messageInfoBean.setRowsMore(true);
                         } else {
-                            textView.setText(originText);
+                            textView.setText(getSpan((originText)));
                         }
                     }
                     if (Build.VERSION.SDK_INT >= 16) {
@@ -219,18 +301,18 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 }
             });
         } catch (Exception e) {
-            textView.setText(originText);
+            textView.setText(getSpan((originText)));
         }
     }
 
     private void setSpanClick(Context context, TextView textView, CharSequence temp, String endText, int postion, int endColorID) {
-        SpannableStringBuilder ssb = new SpannableStringBuilder(temp);
+        SpannableString ssb = new SpannableString(temp);
         ClickableSpan clickableSpan = new ClickableSpan() {
 
             @Override
             public void onClick(@NonNull View widget) {
                 if (clickListener != null) {
-                    clickListener.onClick(postion, 0);
+                    clickListener.onClick(postion, 0, 0);
                 }
             }
 
@@ -244,7 +326,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             @Override
             public void onClick(@NonNull View widget) {
                 if (clickListener != null) {
-                    clickListener.onClick(postion, 1);
+                    clickListener.onClick(postion, 0, 1);
                 }
             }
 
@@ -258,7 +340,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         ssb.setSpan(new ForegroundColorSpan(context.getResources().getColor(endColorID)),
                 temp.length() - endText.length(), temp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        textView.setText(ssb);
+        textView.setText(getSpan(ssb));
         textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
@@ -267,10 +349,25 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(imgs);
-        taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+        taskAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
-            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                toPictruePreview(position, imgs);
             }
         });
+    }
+
+    private void toPictruePreview(int postion, List<String> imgs) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        for (String s : imgs) {
+            LocalMedia localMedia = new LocalMedia();
+            localMedia.setPath(s);
+            localMedia.setCompressPath(s);
+            selectList.add(localMedia);
+        }
+        PictureSelector.create((Activity) mContext)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview(postion, selectList);
     }
 }

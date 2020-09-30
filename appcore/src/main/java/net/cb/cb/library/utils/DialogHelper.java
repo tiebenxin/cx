@@ -2,6 +2,7 @@ package net.cb.cb.library.utils;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.inter.ICommonSelectClickListner;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.inter.IFriendTrendClickListner;
@@ -105,15 +107,39 @@ public class DialogHelper {
      * 音视频通话弹框
      *
      * @param context
-     * @param iCustomerItemClick
+     * @param isFriend
+     * @param iCircleSetupClick
      */
-    public void createFollowDialog(Context context, final ICustomerItemClick iCustomerItemClick) {
+    public void createFollowDialog(Context context, String txt, boolean isFriend, final ICircleSetupClick iCircleSetupClick) {
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
 
         View dialogview = LayoutInflater.from(context).inflate(R.layout.dialog_circle_follow, null);
         final Dialog selectDialog = new Dialog(context, R.style.upload_image_methods_dialog);
+        TextView tvFollow = dialogview.findViewById(R.id.tv_follow);
+        TextView tvNoLook = dialogview.findViewById(R.id.tv_no_look);
+        TextView tvChat = dialogview.findViewById(R.id.tv_chat);
+        tvFollow.setText(txt);
+        Drawable drawable;
+        if ("取消关注".equals(txt)) {
+            drawable = context.getResources().getDrawable(R.mipmap.ic_cancle_follow);
+            tvNoLook.setVisibility(View.GONE);
+        } else {
+            drawable = context.getResources().getDrawable(R.mipmap.ic_circle_details_follow);
+            tvNoLook.setVisibility(View.VISIBLE);
+        }
+        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
+        tvFollow.setCompoundDrawables(null, drawable, null, null);
+        Drawable drawableChat;
+        if (isFriend) {
+            drawableChat = context.getResources().getDrawable(R.mipmap.ic_circle_chat);
+        } else {
+            drawableChat = context.getResources().getDrawable(R.mipmap.ic_circle_add_friend);
+        }
+        drawableChat.setBounds(0, 0, drawableChat.getMinimumWidth(), drawableChat.getMinimumHeight());//必须设置图片大小，否则不显示
+        tvChat.setCompoundDrawables(null, drawableChat, null, null);
+
         selectDialog.setContentView(dialogview);
         Window window = selectDialog.getWindow();
         WindowManager.LayoutParams dialogParams = window.getAttributes();
@@ -127,35 +153,41 @@ public class DialogHelper {
                 if (selectDialog != null) {
                     selectDialog.dismiss();
                 }
-                if (!ViewUtils.isFastDoubleClick()) {
-                    iCustomerItemClick.onClickItemVoice();
-                }
             }
         });
-        dialogview.findViewById(R.id.tv_follow).setOnClickListener(new View.OnClickListener() {
+        tvFollow.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if (selectDialog != null) {
                     selectDialog.dismiss();
                 }
+                if (iCircleSetupClick != null) {
+                    iCircleSetupClick.onClickFollow();
+                }
             }
         });
-        dialogview.findViewById(R.id.tv_add).setOnClickListener(new View.OnClickListener() {
+        tvNoLook.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if (selectDialog != null) {
                     selectDialog.dismiss();
                 }
+                if (iCircleSetupClick != null) {
+                    iCircleSetupClick.onClickNoLook();
+                }
             }
         });
-        dialogview.findViewById(R.id.tv_chat).setOnClickListener(new View.OnClickListener() {
+        tvChat.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 if (selectDialog != null) {
                     selectDialog.dismiss();
+                }
+                if (iCircleSetupClick != null) {
+                    iCircleSetupClick.onClickChat(isFriend);
                 }
             }
         });
@@ -166,6 +198,9 @@ public class DialogHelper {
                 if (selectDialog != null) {
                     selectDialog.dismiss();
                 }
+                if (iCircleSetupClick != null) {
+                    iCircleSetupClick.onClickReport();
+                }
             }
         });
         selectDialog.show();
@@ -173,6 +208,7 @@ public class DialogHelper {
 
     /**
      * 我的动态(我的朋友圈) 底部弹框
+     *
      * @param context
      * @param clickListner
      */
@@ -247,7 +283,7 @@ public class DialogHelper {
      * @param items 支持修改每项文案
      * @param clickListner
      */
-    public void createCommonSelectListDialog(Context context,List<String> items, final ICommonSelectClickListner clickListner) {
+    public void createCommonSelectListDialog(Context context, List<String> items, final ICommonSelectClickListner clickListner) {
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
@@ -270,7 +306,7 @@ public class DialogHelper {
         View lineThree = dialogview.findViewById(R.id.line_three);
         View lineFour = dialogview.findViewById(R.id.line_four);
         //展示数量 + 更改每项文案
-        if(items.size()==1){
+        if (items.size() == 1) {
             tvOne.setVisibility(View.VISIBLE);
             tvOne.setText(items.get(0));
             tvTwo.setVisibility(View.GONE);
@@ -280,7 +316,7 @@ public class DialogHelper {
             lineTwo.setVisibility(View.GONE);
             lineThree.setVisibility(View.GONE);
             lineFour.setVisibility(View.GONE);
-        }else if(items.size()==2){
+        } else if (items.size() == 2) {
             tvOne.setVisibility(View.VISIBLE);
             tvOne.setText(items.get(0));
             tvTwo.setVisibility(View.VISIBLE);
@@ -291,7 +327,7 @@ public class DialogHelper {
             lineTwo.setVisibility(View.VISIBLE);
             lineThree.setVisibility(View.GONE);
             lineFour.setVisibility(View.GONE);
-        }else if(items.size()==3){
+        } else if (items.size() == 3) {
             tvOne.setVisibility(View.VISIBLE);
             tvOne.setText(items.get(0));
             tvTwo.setVisibility(View.VISIBLE);
@@ -303,7 +339,7 @@ public class DialogHelper {
             lineTwo.setVisibility(View.VISIBLE);
             lineThree.setVisibility(View.VISIBLE);
             lineFour.setVisibility(View.GONE);
-        }else {
+        } else {
             tvOne.setVisibility(View.VISIBLE);
             tvOne.setText(items.get(0));
             tvTwo.setVisibility(View.VISIBLE);

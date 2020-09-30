@@ -1,29 +1,45 @@
 package com.yanlong.im.circle.details;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.VideoPlayActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.CircleCommentDialog;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
+import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.follow.FollowFragment;
+import com.yanlong.im.circle.follow.FollowPresenter;
+import com.yanlong.im.circle.follow.FollowView;
 import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.ui.ComplaintActivity;
+import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BaseBindMvpActivity;
-import net.cb.cb.library.inter.ICustomerItemClick;
+import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ScreenUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @version V1.0
@@ -35,15 +51,24 @@ import java.util.ArrayList;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 @Route(path = CircleDetailsActivity.path)
-public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPresenter, ActivityCircleDetailsBinding>
-        implements CircleDetailsView, ICircleClickListener {
+public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, ActivityCircleDetailsBinding>
+        implements FollowView, ICircleClickListener {
     public static final String path = "/circle/details/CircleDetailsActivity";
 
+    public static final String SOURCE_TYPE = "source_type";
+    public static final String ITEM_DATA = "item_data";
+    public static final String ITEM_DATA_TYPE = "item_data_type";
+
     private CircleFlowAdapter mFlowAdapter;
+    private List<MessageFlowItemBean> mFollowList;
+    private MessageInfoBean mMessageInfoBean;
+    private boolean isFollow;
+    private final int PAGE_SIZE = 10;
+    private int mCurrentPage = 1;
 
     @Override
-    protected CircleDetailsPresenter createPresenter() {
-        return new CircleDetailsPresenter(getContext());
+    protected FollowPresenter createPresenter() {
+        return new FollowPresenter(getContext());
     }
 
     @Override
@@ -53,10 +78,21 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPres
 
     @Override
     protected void init(Bundle savedInstanceState) {
-        mFlowAdapter = new CircleFlowAdapter(null, true, this);
+        isFollow = getIntent().getBooleanExtra(SOURCE_TYPE, false);
+        String dataJson = getIntent().getStringExtra(ITEM_DATA);
+        int itemType = getIntent().getIntExtra(ITEM_DATA_TYPE, 0);
+        mFollowList = new ArrayList<>();
+        if (!TextUtils.isEmpty(dataJson)) {
+            mMessageInfoBean = new Gson().fromJson(dataJson, MessageInfoBean.class);
+            MessageFlowItemBean flowItemBean = new MessageFlowItemBean(itemType, mMessageInfoBean);
+            mFollowList.add(flowItemBean);
+        }
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, isFollow, true, this, null);
         bindingView.recyclerFollow.setAdapter(mFlowAdapter);
         bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
-        mPresenter.getFollowData();
+
+        mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
+                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
     }
 
     @Override
@@ -74,20 +110,41 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPres
 
             @Override
             public void onRight() {
-                DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity.this, new ICustomerItemClick() {
-                    @Override
-                    public void onClickItemVideo() {
-                    }
+                DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity.this,
+                        isFollow ? "取消关注" : "关注TA", false, new ICircleSetupClick() {
+                            @Override
+                            public void onClickFollow() {
+                                if (isFollow) {
+                                    mPresenter.followCancle(mMessageInfoBean.getUid(), 0);
+                                } else {
+                                    mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
+                                }
+                            }
 
-                    @Override
-                    public void onClickItemVoice() {
-                    }
+                            @Override
+                            public void onClickNoLook() {
 
-                    @Override
-                    public void onClickItemCancel() {
+                            }
 
-                    }
-                });
+                            @Override
+                            public void onClickChat(boolean isFriend) {
+                                if (isFriend) {
+                                    startActivity(new Intent(getContext(), ChatActivity.class)
+                                            .putExtra(ChatActivity.AGM_TOUID, mMessageInfoBean.getUid()));
+                                } else {
+                                    Intent intent = new Intent(getContext(), UserInfoActivity.class);
+                                    intent.putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid());
+                                    startActivity(intent);
+                                }
+                            }
+
+                            @Override
+                            public void onClickReport() {
+                                Intent intent = new Intent(getContext(), ComplaintActivity.class);
+                                intent.putExtra(ComplaintActivity.UID, mMessageInfoBean.getUid() + "");
+                                startActivity(intent);
+                            }
+                        });
             }
         });
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -97,8 +154,38 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPres
                     return;
                 }
                 switch (view.getId()) {
-                    case R.id.iv_comment:
+                    case R.id.iv_comment:// 评论
                         showCommentDialog();
+                        break;
+                    case R.id.iv_header:// 头像
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid()));
+                        break;
+                    case R.id.iv_like:// 点赞
+                        if (mMessageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
+                            mPresenter.comentCancleLike(mMessageInfoBean.getId(), mMessageInfoBean.getUid(), position);
+                        } else {
+                            mPresenter.comentLike(mMessageInfoBean.getId(), mMessageInfoBean.getUid(), position);
+                        }
+                        break;
+                    case R.id.tv_follow:// 关注TA\取消关注
+                        if (isFollow) {
+                            mPresenter.followCancle(mMessageInfoBean.getUid(), position);
+                        } else {
+                            mPresenter.followAdd(mMessageInfoBean.getUid(), position);
+                        }
+                        break;
+                    case R.id.rl_video:// 播放视频
+                        List<AttachmentBean> attachmentBeans = new Gson().fromJson(mMessageInfoBean.getAttachment(),
+                                new TypeToken<List<AttachmentBean>>() {
+                                }.getType());
+
+                        Intent intent = new Intent(getContext(), VideoPlayActivity.class);
+                        if (attachmentBeans.size() > 0) {
+                            intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                        }
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(intent);
                         break;
                 }
             }
@@ -120,21 +207,92 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<CircleDetailsPres
         new CircleCommentDialog(CircleDetailsActivity.this, new CircleCommentDialog.OnMessageListener() {
             @Override
             public void OnMessage(String msg) {
+                mPresenter.circleComment(msg, mMessageInfoBean.getId(), mMessageInfoBean.getUid(), 0l);
             }
         }).show();
     }
 
+    /**
+     * 内容展开、收起
+     *
+     * @param postion
+     * @param parentPostion 父类位置
+     * @param type          0：展开、收起 1：详情 2文字投票 3图片投票
+     */
     @Override
-    public void setFollowData(ArrayList<MessageFlowItemBean> list) {
-        mFlowAdapter.setNewData(list);
-    }
-
-    @Override
-    public void onClick(int postion, int type) {
+    public void onClick(int postion, int parentPostion, int type) {
         if (type == 0) {
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
             messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
             mFlowAdapter.notifyItemChanged(postion);
         }
+    }
+
+    @Override
+    public void onSuccess(List<MessageFlowItemBean> list) {
+
+    }
+
+    @Override
+    public void onSuccess(int position, MessageFlowItemBean flowItemBean) {
+        try {
+            if (flowItemBean != null) {
+                // TODO 服务端没返回头像跟昵称所以取原来的数据
+                MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
+                MessageInfoBean locationInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+                serverInfoBean.setAvatar(locationInfoBean.getAvatar());
+                serverInfoBean.setNickname(locationInfoBean.getNickname());
+                mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
+                mFlowAdapter.notifyItemChanged(position);
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public void onCommentSuccess(List<CircleCommentBean> list) {
+        if (list != null && list.size() > 0) {
+            mFlowAdapter.setCommentList(list);
+            mFlowAdapter.notifyDataSetChanged();
+            mFlowAdapter.finishInitialize();
+        }
+    }
+
+    @Override
+    public void onVoteSuccess(int parentPostion, String msg) {
+
+    }
+
+    @Override
+    public void onLikeSuccess(int position, String msg) {
+        MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+        int like;
+        if (messageInfoBean.getLike() != null) {
+            like = messageInfoBean.getLike().intValue() == PictureEnum.ELikeType.YES ? 0 : 1;
+        } else {
+            like = 1;
+        }
+        if (messageInfoBean.getLikeCount() != null) {
+            if (like == PictureEnum.ELikeType.YES) {
+                messageInfoBean.setLikeCount(messageInfoBean.getLikeCount() + 1);
+            } else {
+                messageInfoBean.setLikeCount(messageInfoBean.getLikeCount() - 1);
+            }
+        } else {
+            messageInfoBean.setLikeCount(1);
+        }
+        messageInfoBean.setLike(like);
+        mFlowAdapter.notifyItemChanged(position);
+        // TODO 刷新列表
+    }
+
+    @Override
+    public void onSuccess(int position, String msg) {
+        finish();
+    }
+
+    @Override
+    public void onShowMessage(String msg) {
+        ToastUtil.show(msg);
     }
 }

@@ -24,7 +24,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="36dp"
             android:src="@mipmap/ic_circle_follow"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </FrameLayout>
 
     <LinearLayout
@@ -68,11 +68,13 @@
             <TextView
                 android:id="@+id/tv_follow"
                 style="@style/app_btn_green_s"
-                android:layout_width="65dp"
+                android:layout_width="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="15dp"
                 android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:text="关注TA"
                 android:visibility="gone" />
 
@@ -89,7 +91,7 @@
                 android:src="@mipmap/ic_circle_more" />
         </RelativeLayout>
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/tv_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -112,22 +114,15 @@
             android:id="@+id/rl_video"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:background="@color/white"
             android:visibility="gone">
 
-            <android.support.v7.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="0dp"
-                app:cardCornerRadius="13dp">
-
-                <ImageView
-                    android:id="@+id/iv_video"
-                    android:layout_width="186dp"
-                    android:layout_height="255dp"
-                    android:background="@mipmap/bg_image1" />
-            </android.support.v7.widget.CardView>
+            <com.yanlong.im.wight.avatar.RoundImageView
+                android:id="@+id/iv_video"
+                android:layout_width="186dp"
+                android:layout_height="255dp"
+                app:radius="5dp" />
 
             <ImageView
                 android:id="@+id/iv_play"
@@ -150,9 +145,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginRight="@dimen/app_margin_circle"
-            android:layout_marginBottom="5dp">
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="@dimen/app_margin_circle">
 
             <TextView
                 android:id="@+id/tv_location"
@@ -178,7 +172,6 @@
                 android:drawableLeft="@mipmap/ic_circle_common"
                 android:drawablePadding="5dp"
                 android:gravity="center_vertical"
-                android:text="10"
                 android:textColor="@color/gray_b2b" />
 
             <TextView
@@ -191,7 +184,6 @@
                 android:drawableLeft="@mipmap/ic_circle_give"
                 android:drawablePadding="5dp"
                 android:gravity="center_vertical"
-                android:text="20"
                 android:textColor="@color/gray_b2b" />
 
         </RelativeLayout>
@@ -200,7 +192,7 @@
             android:id="@+id/tv_comment_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="所有评论（10）"
+            android:text="所有评论（0）"
             android:textColor="@color/color_8f8"
             android:textSize="13sp"
             android:visibility="gone" />

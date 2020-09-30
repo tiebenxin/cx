@@ -5,8 +5,10 @@ import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import java.io.File;
+import java.math.BigDecimal;
 
 /**
  * 包路径：com.hanming.education.audio
@@ -23,7 +25,8 @@ public class AudioPlayUtil {
     private String file;
     private AnimationDrawable ani;
     private static Context context;
-    private boolean play;
+    private static ProgressBar mProgressBar;
+    private static boolean play, isPause;
     private Uri uri;
     private static IAudioPlayListener mIAudioPlayListener;
 
@@ -39,7 +42,7 @@ public class AudioPlayUtil {
     }
 
     //播放语音
-    public static void startAudioPlay(Context context, String audioUrl, ImageView imageView) {
+    public static void startAudioPlay(Context context, String audioUrl, ImageView imageView, ProgressBar progressBar) {
         if (TextUtils.isEmpty(audioUrl)) {
             return;
         }
@@ -52,11 +55,12 @@ public class AudioPlayUtil {
         if (playUtil == null) {
             playUtil = new AudioPlayUtil(context, audioUrl, (AnimationDrawable) imageView.getBackground());
         }
-
+        isPause = false;
+        mProgressBar = progressBar;
         playUtil.actAudio();
     }
 
-    public static void startAudioPlay(Context context, String audioUrl, IAudioPlayListener iAudioPlayListener) {
+    public static void startAudioPlay(Context context, String audioUrl, ProgressBar progressBar, ImageView imageView, IAudioPlayListener iAudioPlayListener) {
         if (TextUtils.isEmpty(audioUrl)) {
             return;
         }
@@ -68,9 +72,14 @@ public class AudioPlayUtil {
         }
 
         if (playUtil == null) {
-            playUtil = new AudioPlayUtil(context, audioUrl);
+            if (imageView != null) {
+                playUtil = new AudioPlayUtil(context, audioUrl, (AnimationDrawable) imageView.getBackground());
+            } else {
+                playUtil = new AudioPlayUtil(context, audioUrl);
+            }
         }
-
+        isPause = false;
+        mProgressBar = progressBar;
         playUtil.actAudio();
     }
 
@@ -121,6 +130,9 @@ public class AudioPlayUtil {
                 if (ani != null) {
                     ani.start();
                 }
+                if (mProgressBar != null) {
+                    setSeekBar(mProgressBar);
+                }
                 if (mIAudioPlayListener != null) {
                     mIAudioPlayListener.onStart(var1);
                 }
@@ -157,10 +169,15 @@ public class AudioPlayUtil {
     public void pause() {
         position = AudioPlayManager.getInstance().pausePlay();
         play = false;
+        isPause = true;
     }
 
-    public int getCurrentPosition() {
+    public static int getCurrentPosition() {
         return AudioPlayManager.getInstance().getCurrentPosition();
+    }
+
+    public static int getDuration() {
+        return AudioPlayManager.getInstance().getDuration();
     }
 
     public void stop() {
@@ -187,4 +204,31 @@ public class AudioPlayUtil {
         play = false;
     }
 
+    private static void setSeekBar(final ProgressBar progressBar) {
+        new Thread() {
+            @Override
+            public void run() {
+                while (play) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                    } finally {
+                        if (getDuration() > 0) {
+                            double progress = (getCurrentPosition() / Double.parseDouble(getDuration() + "")) * 100;
+                            BigDecimal bd = new BigDecimal(progress);
+                            if (progressBar != null) {
+                                progressBar.setProgress(bd.setScale(1, BigDecimal.ROUND_HALF_UP).intValue());
+                            } else {
+                                play = false;
+                            }
+                        } else {
+                            if (!isPause && progressBar != null) {
+                                progressBar.setProgress(0);
+                            }
+                        }
+                    }
+                }
+            }
+        }.start();
+    }
 }
