@@ -22,6 +22,7 @@ import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.constant.Route;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -122,7 +123,7 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
             @Override
             public void onClick(View widget) {
                 Intent intent = new Intent(SelectLoginActivity.this,WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL,"https://changxin.zhixun6.com/yszc.html");
+                intent.putExtra(WebPageActivity.AGM_URL, Route.URL_PRIVACY);
                 startActivity(intent);
 
             }
