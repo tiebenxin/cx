@@ -28,6 +28,7 @@ import com.yanlong.im.circle.bean.TrendBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
+import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
 import com.yanlong.im.circle.mycircle.TempAction;
 import com.yanlong.im.interf.IRefreshListenr;
@@ -99,6 +100,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private UserBean userBean;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private RequestOptions mRequestOptions;
+    private boolean haveNewMsg = false;//是否展示顶部新消息通知
 
     public MyTrendsAdapter(Activity activity, List<TrendBean> dataList, int type,long friendUid) {
         inflater = LayoutInflater.from(activity);
@@ -156,10 +158,16 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.topData = topData;
     }
 
+    //更新背景图
     public void notifyBackground(String localPath){
         topData.setBgImage(localPath);
-        notifyItemChanged(0);
+        notifyItemChanged(0);//第一项是头部
+    }
 
+    //展示顶部通知
+    public void showNotice(boolean haveNewMsg){
+        this.haveNewMsg = haveNewMsg;
+        notifyItemChanged(0);
     }
 
     //列表内容数量
@@ -297,7 +305,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 @Override
                                 public void clickDelete() {
                                     //删除动态
-                                    httpDeleteTrend(bean.getId(),position);
+                                    httpDeleteTrend(bean.getId(),position-1);
                                 }
 
                                 @Override
@@ -333,12 +341,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             httpCancleLike(bean.getId(),bean.getUid(),holder.tvLike,position-1,bean.getLikeCount());
                         }
                     });
-                    //第一项显示顶部横条(0为头部)
-                    if(position==1){
-                        holder.lineOne.setVisibility(View.VISIBLE);
-                    }else {
-                        holder.lineOne.setVisibility(View.GONE);
-                    }
                 }
             }
         } else if(viewHolder instanceof MyTrendsAdapter.FootHolder){
@@ -410,6 +412,20 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 Glide.with(activity).load(url)
                         .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
             }
+            //新消息提醒
+            if(haveNewMsg){
+                holder.layoutNotice.setVisibility(View.VISIBLE);
+            }else {
+                holder.layoutNotice.setVisibility(View.GONE);
+            }
+            holder.layoutNotice.setOnClickListener(v -> {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                holder.layoutNotice.setVisibility(View.GONE);
+                Intent intent = new Intent(activity, MyInteractActivity.class);
+                activity.startActivity(intent);
+            });
             holder.layoutMyFollow.setOnClickListener(v -> {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
@@ -458,6 +474,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }else {
                 holder.layoutCenter.setVisibility(View.GONE);
             }
+            //asd
         }
     }
 
@@ -489,7 +506,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private ImageView ivIstop;
         private TextView tvIstop;
         private RelativeLayout layoutItem;
-        private View lineOne;
+
 
         public ContentHolder(View itemView) {
             super(itemView);
@@ -503,7 +520,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ivSetup = itemView.findViewById(R.id.iv_setup);
             ivIstop = itemView.findViewById(R.id.iv_istop);
             tvIstop = itemView.findViewById(R.id.tv_istop);
-            lineOne = itemView.findViewById(R.id.line_one);
+
         }
     }
 
@@ -536,6 +553,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutWhoSeeMe;
         private RelativeLayout layoutTop;
         private LinearLayout layoutCenter;
+        private View lineOne;
+        private LinearLayout layoutNotice;
 
         public HeadHolder(View itemView) {
             super(itemView);
@@ -550,6 +569,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             layoutWhoSeeMe = itemView.findViewById(R.id.layout_who_see_me);
             layoutTop = itemView.findViewById(R.id.layout_top);
             layoutCenter = itemView.findViewById(R.id.layout_center);
+            lineOne = itemView.findViewById(R.id.line_one);
+            layoutNotice = itemView.findViewById(R.id.layout_notice);
         }
     }
 

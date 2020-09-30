@@ -50,6 +50,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private MyTrendsAdapter adapter;
     private List<TrendBean> mList;
     private long friendUid;//别人的uid
+    private int isFollow;//是否关注了该用户
 
     @Override
     protected int setView() {
@@ -130,7 +131,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         bindingView.layoutFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(true){
+                if(isFollow==0){
                     httpToFollow(friendUid);
                 }else {
                     httpCancelFollow(friendUid);
@@ -171,6 +172,12 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             }else {
                                 //1-2 第一次加载，若超过3个显示加载更多
+                                isFollow = bean.getMyFollow();
+                                if(isFollow==0){
+                                    bindingView.tvFollow.setText("关注");
+                                }else {
+                                    bindingView.tvFollow.setText("已关注");
+                                }
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
                                 adapter.setTopData(bean);

@@ -5,7 +5,7 @@ import net.cb.cb.library.base.BaseBean;
 import java.util.List;
 
 /**
- * @类名：我的动态实体类
+ * @类名：我的动态(好友动态)实体类
  * @Date：2020/9/26
  * @by zjy
  * @备注：
@@ -16,6 +16,7 @@ public class CircleTrendsBean extends BaseBean {
     private String bgImage;//主页背景图
     private int followMyCount;//关注我的人总数
     private int myFollowCount;//我关注的人总数
+    private int myFollow;//我是否关注了他(0:否|1:是)
     private List<TrendBean> momentList;//说说列表
 
     public int getAccessCount() {
@@ -56,5 +57,13 @@ public class CircleTrendsBean extends BaseBean {
 
     public void setMomentList(List<TrendBean> momentList) {
         this.momentList = momentList;
+    }
+
+    public int getMyFollow() {
+        return myFollow;
+    }
+
+    public void setMyFollow(int myFollow) {
+        this.myFollow = myFollow;
     }
 }

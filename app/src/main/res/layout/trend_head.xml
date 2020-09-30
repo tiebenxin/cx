@@ -141,6 +141,39 @@
         </LinearLayout>
 
     </LinearLayout>
+    <View
+        android:id="@+id/line_one"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@color/c_f1f1f1"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/layout_notice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_5radius_solid_32b053"
+        android:gravity="center_vertical"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        android:padding="5dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/ic_info_head" />
+
+        <TextView
+            android:id="@+id/tv_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:text="99条新消息 >"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
 
 
 </LinearLayout>

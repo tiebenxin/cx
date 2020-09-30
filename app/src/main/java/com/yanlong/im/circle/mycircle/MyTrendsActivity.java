@@ -74,7 +74,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         adapter = new MyTrendsAdapter(MyTrendsActivity.this,mList,1,0);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
-
+        httpGetNewMsg();
         //加载更多
         bindingView.recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
@@ -250,6 +250,11 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             bindingView.recyclerView.setVisibility(View.VISIBLE);
             bindingView.noDataLayout.setVisibility(View.GONE);
         }
+    }
+
+    //是否有收到新的通知 TODO 接口未提供，暂时模拟
+    private void httpGetNewMsg() {
+        adapter.showNotice(true);
     }
 
 }
