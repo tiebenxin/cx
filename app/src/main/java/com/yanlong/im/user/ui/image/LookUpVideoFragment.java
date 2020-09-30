@@ -449,7 +449,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                         msgDao.fixVideoLocalUrl(msgId, fileVideo.getAbsolutePath());
                     }
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
-                    scanFile(getContext(),fileVideo.getAbsolutePath());
+                    scanFile(getContext(), fileVideo.getAbsolutePath());
                     downloadState = 2;
                     if (showToast) {
                         ToastUtil.show("保存相册成功");
@@ -658,33 +658,42 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         mTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (mediaPlayer != null) {
-                    int currentPosition = mediaPlayer.getCurrentPosition();
-                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
-                    if (currentPosition > mCurrentPosition) {
-                        mCurrentPosition = currentPosition;
-                    }
-                    LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
-                    ui.tvStartTime.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (viewModel.isLoading.getValue() != null && viewModel.isLoading.getValue()) {
-                                viewModel.isLoading.setValue(false);
-                            }
-                            if (viewModel.isPlaying.getValue() != null && viewModel.isPlaying.getValue()) {
-                                if (currentPosition > 0 && currentPosition < videoDuration) {
-                                    ui.seekBar.setProgress(mCurrentPosition);
-                                }/* else {
+                try {
+                    if (mediaPlayer != null) {
+                        int currentPosition = mediaPlayer.getCurrentPosition();
+                        LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
+                        if (currentPosition > mCurrentPosition) {
+                            mCurrentPosition = currentPosition;
+                        }
+                        LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
+                        ui.tvStartTime.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (viewModel.isLoading.getValue() != null && viewModel.isLoading.getValue()) {
+                                    viewModel.isLoading.setValue(false);
+                                }
+                                if (viewModel.isPlaying.getValue() != null && viewModel.isPlaying.getValue()) {
+                                    if (currentPosition > 0 && currentPosition < videoDuration) {
+                                        ui.seekBar.setProgress(mCurrentPosition);
+                                    }/* else {
                                     updatePlayStatus(false);
                                 }*/
-                                setTime(mCurrentPosition / 1000, ui.tvStartTime);
-                            } else {
-                                updatePlayStatus(true);
+                                    setTime(mCurrentPosition / 1000, ui.tvStartTime);
+                                } else {
+                                    updatePlayStatus(true);
+                                }
                             }
-                        }
-                    }, 1);
-                } else {
-                    viewModel.isPlaying.setValue(false);
+                        }, 1);
+                    } else {
+                        ui.tvStartTime.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                viewModel.isPlaying.setValue(false);
+                            }
+                        }, 1);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }, 0, 300);
@@ -929,7 +938,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
-        if(getActivity()==null && getActivity().isFinishing()){
+        if (getActivity() == null && getActivity().isFinishing()) {
             return;
         }
         CommonSelectDialog.Builder builder = new CommonSelectDialog.Builder(getActivity());
