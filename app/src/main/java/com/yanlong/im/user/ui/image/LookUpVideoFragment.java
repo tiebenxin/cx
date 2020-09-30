@@ -728,6 +728,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 ui.seekBar.setProgress(mCurrentPosition);
             }
         }
+        loadVideoBg();
     }
 
 
