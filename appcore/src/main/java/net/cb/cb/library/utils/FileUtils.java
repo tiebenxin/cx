@@ -470,7 +470,7 @@ public class FileUtils {
     }
 
     public static boolean isNeedsMd5(String value) {
-        if ("image/".equals(value) || "video/".equals(value) || "file/".equals(value)) {
+        if ("image/".equals(value) || "video/".equals(value) || "file/".equals(value)|| "frame/".equals(value)) {
             return true;
         }
         return false;
