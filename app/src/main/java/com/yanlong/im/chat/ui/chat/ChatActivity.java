@@ -5019,7 +5019,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (len < 10) {
                             mtListView.setStackFromEnd(false);
                         }else {
-                            mtListView.setStackFromEnd(false);
+                            mtListView.setStackFromEnd(true);
                         }
                         mAdapter.bindData(list, false);
                         mAdapter.setReadStatus(checkIsRead());
