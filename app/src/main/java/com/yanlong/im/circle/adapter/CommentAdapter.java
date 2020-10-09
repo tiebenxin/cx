@@ -1,12 +1,15 @@
 package com.yanlong.im.circle.adapter;
 
-import android.widget.TextView;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.CircleCommentBean;
-import com.yanlong.im.utils.CommonUtils;
+import com.yanlong.im.utils.GlideOptionsUtil;
+
+import net.cb.cb.library.utils.TimeToString;
 
 /**
  * @version V1.0
@@ -51,7 +54,17 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean, BaseView
 
     @Override
     protected void convert(BaseViewHolder helper, CircleCommentBean commentBean) {
-        TextView tvMessage = helper.getView(R.id.tv_message);
-        CommonUtils.setTextColor("我：", commentBean.getContent(), R.color.color_488, R.color.gray_484, tvMessage, mContext);
+//        CommonUtils.setTextColor("我：", commentBean.getContent(), R.color.color_488, R.color.gray_484, tvMessage, mContext);
+        Glide.with(mContext)
+                .asBitmap()
+                .load(commentBean.getAvatar())
+                .apply(GlideOptionsUtil.headImageOptions())
+                .into((ImageView) helper.getView(R.id.iv_header));
+        helper.setText(R.id.tv_user_name, commentBean.getNickname());
+        helper.setText(R.id.tv_date, TimeToString.getTimeWx(commentBean.getCreateTime()));
+        helper.setText(R.id.tv_content, commentBean.getContent());
+
+        helper.addOnClickListener(R.id.layout_item, R.id.iv_header);
+        helper.addOnLongClickListener(R.id.layout_item);
     }
 }

@@ -35,7 +35,7 @@ public class CoreEnum {
      *
      * */
     @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO,
-            ERosterAction.LOAD_ALL_SUCCESS, ERosterAction.BLACK,ERosterAction.PHONE_MATCH})
+            ERosterAction.LOAD_ALL_SUCCESS, ERosterAction.BLACK, ERosterAction.PHONE_MATCH})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ERosterAction {
         int DEFAULT = 0; // 默认，无指令
@@ -111,5 +111,29 @@ public class CoreEnum {
     public @interface ECheckType {
         int NO = 0;
         int YES = 1;
+    }
+
+    /**
+     * 0：展开、收起 1：详情 2文字投票 3图片投票 4评论回复 5点击头像 6 长按
+     */
+    @IntDef({EClickType.CONTENT_DOWN, EClickType.CONTENT_DETAILS, EClickType.VOTE_CHAR, EClickType.VOTE_PICTRUE
+            , EClickType.COMMENT_REPLY, EClickType.COMMENT_HEAD, EClickType.COMMENT_LONG})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EClickType {
+        int CONTENT_DOWN = 0;// 展开、收起
+        int CONTENT_DETAILS = 1;// 详情
+        int VOTE_CHAR = 2;// 文字投票
+        int VOTE_PICTRUE = 3;// 图片投票
+        int COMMENT_REPLY = 4;// 评论回复
+        int COMMENT_HEAD = 5;// 点击头像
+        int COMMENT_LONG = 6;// 长按
+    }
+
+    @IntDef({ELongType.COPY, ELongType.DELETE, ELongType.REPORT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ELongType {
+        int COPY = 1;// 复制
+        int DELETE = 2;// 删除
+        int REPORT = 3;// 举报
     }
 }

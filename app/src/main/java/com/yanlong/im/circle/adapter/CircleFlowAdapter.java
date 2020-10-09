@@ -26,16 +26,14 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
     private boolean isDetails, isFollow;
     private ICircleClickListener clickListener;
     private List<CircleCommentBean> commentList;
-    private boolean isMe;
 
     public CircleFlowAdapter(@Nullable List<MessageFlowItemBean> data, boolean isFollow,
-                             boolean isDetails, ICircleClickListener listener, List<CircleCommentBean> commentList,boolean isMe) {
+                             boolean isDetails, ICircleClickListener listener, List<CircleCommentBean> commentList) {
         super(data);
         this.isDetails = isDetails;
         this.clickListener = listener;
         this.isFollow = isFollow;
         this.commentList = commentList;
-        this.isMe = isMe;
         finishInitialize();
     }
 
@@ -54,7 +52,7 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
 
     @Override
     public void registerItemProvider() {
-        mProviderDelegate.registerProvider(new FollowProvider(isDetails, isFollow, clickListener, commentList,isMe));
+        mProviderDelegate.registerProvider(new FollowProvider(isDetails, isFollow, clickListener, commentList));
         mProviderDelegate.registerProvider(new VoteProvider(isDetails, isFollow, clickListener, commentList));
     }
 }

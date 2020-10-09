@@ -1,5 +1,7 @@
 package com.yanlong.im.interf;
 
+import android.view.View;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -11,5 +13,5 @@ package com.yanlong.im.interf;
  */
 public interface ICircleClickListener {
 
-    void onClick(int postion, int parentPostion, int type);
+    void onClick(int postion, int parentPostion, int type, View view);
 }

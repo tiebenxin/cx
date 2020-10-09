@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.scwang.smartrefresh.header.MaterialHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -33,11 +34,16 @@ import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,13 +76,24 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Override
     public void init() {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         mFollowList = new ArrayList<>();
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, true, false, this, null,false);
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, true, false, this, null);
         bindingView.recyclerFollow.setAdapter(mFlowAdapter);
         bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
         mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     @Override
@@ -175,11 +192,17 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         });
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshFollow(EventFactory.RefreshFollowEvent event) {
+        mPresenter.queryById(event.id, event.uid, event.postion);
+    }
+
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, true);
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+        postcard.withInt(CircleDetailsActivity.ITEM_DATA_POSTION, position);
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, mFlowAdapter.getData().get(position).getItemType());
         postcard.navigation();
@@ -289,9 +312,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
      * @param type          0：展开、收起 1：详情 2文字投票 3图片投票
      */
     @Override
-    public void onClick(int postion, int parentPostion, int type) {
-        if (type == 1 || type == 0) {
-            if (type == 0) {
+    public void onClick(int postion, int parentPostion, int type, View view) {
+        if (type == CoreEnum.EClickType.CONTENT_DETAILS || type == CoreEnum.EClickType.CONTENT_DOWN) {
+            if (type == CoreEnum.EClickType.CONTENT_DOWN) {
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
                 messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
                 mFlowAdapter.notifyItemChanged(postion);

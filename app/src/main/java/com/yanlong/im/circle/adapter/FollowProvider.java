@@ -38,10 +38,12 @@ import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.interf.ICircleClickListener;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.wight.avatar.RoundImageView;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 
@@ -59,7 +61,7 @@ import java.util.List;
  */
 public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<MessageInfoBean>, BaseViewHolder> {
 
-    private boolean isDetails, isFollow, isMe;
+    private boolean isDetails, isFollow;
     private final int MAX_ROW_NUMBER = 3;
     private ICircleClickListener clickListener;
     private final String END_MSG = " 收起";
@@ -71,10 +73,9 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
      * @param clickListener
      */
     public FollowProvider(boolean isDetails, boolean isFollow, ICircleClickListener clickListener,
-                          List<CircleCommentBean> commentList,boolean isMe) {
+                          List<CircleCommentBean> commentList) {
         this.isDetails = isDetails;
         this.isFollow = isFollow;
-        this.isMe = isMe;
         this.clickListener = clickListener;
         this.commentList = commentList;
     }
@@ -199,31 +200,27 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 helper.setGone(R.id.tv_comment_count, false);
                 helper.setGone(R.id.recycler_comment, false);
             }
-            if(!isMe){
+            if (UserAction.getMyId() != null
+                    && messageInfoBean.getUid() != null &&
+                    UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
                 helper.setVisible(R.id.tv_follow, true);
-            }else {
+            } else {
                 helper.setVisible(R.id.tv_follow, false);
             }
             helper.setGone(R.id.iv_setup, false);
+            helper.setGone(R.id.view_line, false);
             if (isFollow) {
                 helper.setText(R.id.tv_follow, "取消关注");
             } else {
                 helper.setText(R.id.tv_follow, "关注TA");
             }
-            RecyclerView recyclerComment = helper.getView(R.id.recycler_comment);
-            recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
-            CommentAdapter checkTxtAdapter = new CommentAdapter(false);
-            recyclerComment.setAdapter(checkTxtAdapter);
-            List<CircleCommentBean> list = new ArrayList<>();
-            if (commentList != null) {
-                list.addAll(commentList);
-            }
-            checkTxtAdapter.setNewData(list);
+            setCommentRecycleView(helper.getView(R.id.recycler_comment));
         } else {
             helper.setGone(R.id.tv_comment_count, false);
             helper.setGone(R.id.recycler_comment, false);
             helper.setGone(R.id.tv_follow, false);
             helper.setVisible(R.id.iv_setup, true);
+            helper.setVisible(R.id.view_line, true);
         }
         TextView tvContent = helper.getView(R.id.tv_content);
         tvContent.setText(getSpan(messageInfoBean.getContent()));
@@ -317,7 +314,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             @Override
             public void onClick(@NonNull View widget) {
                 if (clickListener != null) {
-                    clickListener.onClick(postion, 0, 0);
+                    clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DOWN, widget);
                 }
             }
 
@@ -331,7 +328,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             @Override
             public void onClick(@NonNull View widget) {
                 if (clickListener != null) {
-                    clickListener.onClick(postion, 0, 1);
+                    clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DETAILS, widget);
                 }
             }
 
@@ -358,6 +355,47 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 toPictruePreview(position, imgs);
+            }
+        });
+    }
+
+    /**
+     * 评论
+     *
+     * @param recyclerComment
+     */
+    private void setCommentRecycleView(RecyclerView recyclerComment) {
+        recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
+        CommentAdapter checkTxtAdapter = new CommentAdapter(true);
+        recyclerComment.setAdapter(checkTxtAdapter);
+        List<CircleCommentBean> list = new ArrayList<>();
+        if (commentList != null) {
+            list.addAll(commentList);
+        }
+        checkTxtAdapter.setNewData(list);
+        checkTxtAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+            @Override
+            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                if (clickListener == null) {
+                    return;
+                }
+                switch (view.getId()) {
+                    case R.id.layout_item:
+                        clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_REPLY, view);
+                        break;
+                    case R.id.iv_header:
+                        clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_HEAD, view);
+                        break;
+                }
+            }
+        });
+        checkTxtAdapter.setOnItemChildLongClickListener(new BaseQuickAdapter.OnItemChildLongClickListener() {
+            @Override
+            public boolean onItemChildLongClick(BaseQuickAdapter adapter, View view, int position) {
+                if (clickListener != null) {
+                    clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_LONG, view);
+                }
+                return true;
             }
         });
     }
