@@ -201,10 +201,9 @@ public class PreviewMediaActivity extends FragmentActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshChat(EventFactory.ClosePictureEvent event) {
-        if (mediaList != null && event != null) {
-            LocalMedia media = new LocalMedia();
-            media.setMsg_id(event.msg_id);
-            if (mediaList.contains(media)) {
+        if (mediaList != null && event != null && currentPosition < mediaList.size()) {
+            LocalMedia media = mediaList.get(currentPosition);
+            if (media != null && !TextUtils.isEmpty(media.getMsg_id()) && media.getMsg_id().equals(event.msg_id)) {
                 showDialog(event.name);
             }
         }
