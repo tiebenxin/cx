@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,7 @@ import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -44,6 +46,7 @@ import net.cb.cb.library.inter.ITrendClickListner;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -217,7 +220,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM(bean.getCreateTime()));
                     //内容
                     if(!TextUtils.isEmpty(bean.getContent())){
-                        holder.tvContent.setText(bean.getContent());
+//                        holder.tvContent.setText(bean.getContent());
+                        holder.tvContent.setText(getSpan(bean.getContent()));
                     }
                     //位置
                     if(!TextUtils.isEmpty(bean.getCity())){
@@ -798,7 +802,26 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 notifyItemChanged(0);
             }
         });
+    }
 
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(activity, fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(activity, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
+    }
+
+    private SpannableString getSpan(SpannableString spannableString) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        if (fontSize != null) {
+            return ExpressionUtil.getExpressionString(activity, fontSize.intValue(), spannableString);
+        } else {
+            return ExpressionUtil.getExpressionString(activity, ExpressionUtil.DEFAULT_SIZE, spannableString);
+        }
     }
 
 
