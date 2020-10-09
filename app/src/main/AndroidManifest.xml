@@ -586,7 +586,7 @@
         <activity
             android:name=".circle.mycircle.MyInteractActivity"
             android:screenOrientation="portrait" />
-        MyInteractActivity
+
         <!-- 文字投票 -->
         <activity
             android:name=".circle.VoteTextActivity"
