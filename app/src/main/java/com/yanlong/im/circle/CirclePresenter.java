@@ -164,7 +164,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
      * @param type    类型
      * @param isVideo 是否是视频  视频用到
      */
-    public void uploadFile(String file, int type, boolean isVideo,UpFileAction.PATH path) {
+    public void uploadFile(String file, int type, boolean isVideo, UpFileAction.PATH path) {
         new UpFileAction().upFile(path, mContext, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
@@ -273,7 +273,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                                 batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
                             }
                         } else {
-                            mView.showMessage("图片上传失败");
+                            batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
                         }
                     }
 
