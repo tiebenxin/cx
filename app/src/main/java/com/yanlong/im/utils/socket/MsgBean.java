@@ -48842,39 +48842,56 @@ public final class MsgBean {
 
     /**
      * <pre>
-     *图片(优先显示)
+     *资源类型
      * </pre>
      *
-     * <code>string image = 5;</code>
+     * <code>.InteractMessage.ResourceType resource_type = 5;</code>
      */
-    java.lang.String getImage();
+    int getResourceTypeValue();
     /**
      * <pre>
-     *图片(优先显示)
+     *资源类型
      * </pre>
      *
-     * <code>string image = 5;</code>
+     * <code>.InteractMessage.ResourceType resource_type = 5;</code>
      */
-    com.google.protobuf.ByteString
-        getImageBytes();
+    com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType getResourceType();
 
     /**
      * <pre>
-     *文本
+     *资源
      * </pre>
      *
-     * <code>string text = 6;</code>
+     * <code>string resource = 6;</code>
      */
-    java.lang.String getText();
+    java.lang.String getResource();
     /**
      * <pre>
-     *文本
+     *资源
      * </pre>
      *
-     * <code>string text = 6;</code>
+     * <code>string resource = 6;</code>
      */
     com.google.protobuf.ByteString
-        getTextBytes();
+        getResourceBytes();
+
+    /**
+     * <pre>
+     *内容
+     * </pre>
+     *
+     * <code>string content = 7;</code>
+     */
+    java.lang.String getContent();
+    /**
+     * <pre>
+     *内容
+     * </pre>
+     *
+     * <code>string content = 7;</code>
+     */
+    com.google.protobuf.ByteString
+        getContentBytes();
   }
   /**
    * <pre>
@@ -48897,8 +48914,9 @@ public final class MsgBean {
       momentUid_ = 0L;
       interactId_ = 0L;
       interactType_ = 0;
-      image_ = "";
-      text_ = "";
+      resourceType_ = 0;
+      resource_ = "";
+      content_ = "";
     }
 
     @java.lang.Override
@@ -48953,16 +48971,22 @@ public final class MsgBean {
               interactType_ = rawValue;
               break;
             }
-            case 42: {
-              java.lang.String s = input.readStringRequireUtf8();
+            case 40: {
+              int rawValue = input.readEnum();
 
-              image_ = s;
+              resourceType_ = rawValue;
               break;
             }
             case 50: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              text_ = s;
+              resource_ = s;
+              break;
+            }
+            case 58: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              content_ = s;
               break;
             }
           }
@@ -49171,6 +49195,154 @@ public final class MsgBean {
       // @@protoc_insertion_point(enum_scope:InteractMessage.InteractType)
     }
 
+    /**
+     * Protobuf enum {@code InteractMessage.ResourceType}
+     */
+    public enum ResourceType
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <pre>
+       *文本
+       * </pre>
+       *
+       * <code>TEXT = 0;</code>
+       */
+      TEXT(0),
+      /**
+       * <pre>
+       * 图片
+       * </pre>
+       *
+       * <code>IMAGE = 1;</code>
+       */
+      IMAGE(1),
+      /**
+       * <pre>
+       * 语音
+       * </pre>
+       *
+       * <code>VOICE = 2;</code>
+       */
+      VOICE(2),
+      /**
+       * <pre>
+       * 视频
+       * </pre>
+       *
+       * <code>VIDEO = 3;</code>
+       */
+      VIDEO(3),
+      UNRECOGNIZED(-1),
+      ;
+
+      /**
+       * <pre>
+       *文本
+       * </pre>
+       *
+       * <code>TEXT = 0;</code>
+       */
+      public static final int TEXT_VALUE = 0;
+      /**
+       * <pre>
+       * 图片
+       * </pre>
+       *
+       * <code>IMAGE = 1;</code>
+       */
+      public static final int IMAGE_VALUE = 1;
+      /**
+       * <pre>
+       * 语音
+       * </pre>
+       *
+       * <code>VOICE = 2;</code>
+       */
+      public static final int VOICE_VALUE = 2;
+      /**
+       * <pre>
+       * 视频
+       * </pre>
+       *
+       * <code>VIDEO = 3;</code>
+       */
+      public static final int VIDEO_VALUE = 3;
+
+
+      public final int getNumber() {
+        if (this == UNRECOGNIZED) {
+          throw new java.lang.IllegalArgumentException(
+              "Can't get the number of an unknown enum value.");
+        }
+        return value;
+      }
+
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static ResourceType valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static ResourceType forNumber(int value) {
+        switch (value) {
+          case 0: return TEXT;
+          case 1: return IMAGE;
+          case 2: return VOICE;
+          case 3: return VIDEO;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<ResourceType>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          ResourceType> internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<ResourceType>() {
+              public ResourceType findValueByNumber(int number) {
+                return ResourceType.forNumber(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(ordinal());
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.InteractMessage.getDescriptor().getEnumTypes().get(1);
+      }
+
+      private static final ResourceType[] VALUES = values();
+
+      public static ResourceType valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        if (desc.getIndex() == -1) {
+          return UNRECOGNIZED;
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int value;
+
+      private ResourceType(int value) {
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:InteractMessage.ResourceType)
+    }
+
     public static final int MOMENT_ID_FIELD_NUMBER = 1;
     private long momentId_;
     /**
@@ -49234,84 +49406,108 @@ public final class MsgBean {
       return result == null ? com.yanlong.im.utils.socket.MsgBean.InteractMessage.InteractType.UNRECOGNIZED : result;
     }
 
-    public static final int IMAGE_FIELD_NUMBER = 5;
-    private volatile java.lang.Object image_;
+    public static final int RESOURCE_TYPE_FIELD_NUMBER = 5;
+    private int resourceType_;
     /**
      * <pre>
-     *图片(优先显示)
+     *资源类型
      * </pre>
      *
-     * <code>string image = 5;</code>
+     * <code>.InteractMessage.ResourceType resource_type = 5;</code>
      */
-    public java.lang.String getImage() {
-      java.lang.Object ref = image_;
+    public int getResourceTypeValue() {
+      return resourceType_;
+    }
+    /**
+     * <pre>
+     *资源类型
+     * </pre>
+     *
+     * <code>.InteractMessage.ResourceType resource_type = 5;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType getResourceType() {
+      com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType result = com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType.valueOf(resourceType_);
+      return result == null ? com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType.UNRECOGNIZED : result;
+    }
+
+    public static final int RESOURCE_FIELD_NUMBER = 6;
+    private volatile java.lang.Object resource_;
+    /**
+     * <pre>
+     *资源
+     * </pre>
+     *
+     * <code>string resource = 6;</code>
+     */
+    public java.lang.String getResource() {
+      java.lang.Object ref = resource_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        image_ = s;
+        resource_ = s;
         return s;
       }
     }
     /**
      * <pre>
-     *图片(优先显示)
+     *资源
      * </pre>
      *
-     * <code>string image = 5;</code>
+     * <code>string resource = 6;</code>
      */
     public com.google.protobuf.ByteString
-        getImageBytes() {
-      java.lang.Object ref = image_;
+        getResourceBytes() {
+      java.lang.Object ref = resource_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        image_ = b;
+        resource_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
 
-    public static final int TEXT_FIELD_NUMBER = 6;
-    private volatile java.lang.Object text_;
+    public static final int CONTENT_FIELD_NUMBER = 7;
+    private volatile java.lang.Object content_;
     /**
      * <pre>
-     *文本
+     *内容
      * </pre>
      *
-     * <code>string text = 6;</code>
+     * <code>string content = 7;</code>
      */
-    public java.lang.String getText() {
-      java.lang.Object ref = text_;
+    public java.lang.String getContent() {
+      java.lang.Object ref = content_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        text_ = s;
+        content_ = s;
         return s;
       }
     }
     /**
      * <pre>
-     *文本
+     *内容
      * </pre>
      *
-     * <code>string text = 6;</code>
+     * <code>string content = 7;</code>
      */
     public com.google.protobuf.ByteString
-        getTextBytes() {
-      java.lang.Object ref = text_;
+        getContentBytes() {
+      java.lang.Object ref = content_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        text_ = b;
+        content_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -49342,11 +49538,14 @@ public final class MsgBean {
       if (interactType_ != com.yanlong.im.utils.socket.MsgBean.InteractMessage.InteractType.FOLLOW.getNumber()) {
         output.writeEnum(4, interactType_);
       }
-      if (!getImageBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, image_);
+      if (resourceType_ != com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType.TEXT.getNumber()) {
+        output.writeEnum(5, resourceType_);
       }
-      if (!getTextBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, text_);
+      if (!getResourceBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, resource_);
+      }
+      if (!getContentBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 7, content_);
       }
       unknownFields.writeTo(output);
     }
@@ -49372,11 +49571,15 @@ public final class MsgBean {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(4, interactType_);
       }
-      if (!getImageBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, image_);
+      if (resourceType_ != com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType.TEXT.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(5, resourceType_);
       }
-      if (!getTextBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, text_);
+      if (!getResourceBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, resource_);
+      }
+      if (!getContentBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, content_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -49401,10 +49604,11 @@ public final class MsgBean {
       result = result && (getInteractId()
           == other.getInteractId());
       result = result && interactType_ == other.interactType_;
-      result = result && getImage()
-          .equals(other.getImage());
-      result = result && getText()
-          .equals(other.getText());
+      result = result && resourceType_ == other.resourceType_;
+      result = result && getResource()
+          .equals(other.getResource());
+      result = result && getContent()
+          .equals(other.getContent());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -49427,10 +49631,12 @@ public final class MsgBean {
           getInteractId());
       hash = (37 * hash) + INTERACT_TYPE_FIELD_NUMBER;
       hash = (53 * hash) + interactType_;
-      hash = (37 * hash) + IMAGE_FIELD_NUMBER;
-      hash = (53 * hash) + getImage().hashCode();
-      hash = (37 * hash) + TEXT_FIELD_NUMBER;
-      hash = (53 * hash) + getText().hashCode();
+      hash = (37 * hash) + RESOURCE_TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + resourceType_;
+      hash = (37 * hash) + RESOURCE_FIELD_NUMBER;
+      hash = (53 * hash) + getResource().hashCode();
+      hash = (37 * hash) + CONTENT_FIELD_NUMBER;
+      hash = (53 * hash) + getContent().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -49572,9 +49778,11 @@ public final class MsgBean {
 
         interactType_ = 0;
 
-        image_ = "";
+        resourceType_ = 0;
 
-        text_ = "";
+        resource_ = "";
+
+        content_ = "";
 
         return this;
       }
@@ -49602,8 +49810,9 @@ public final class MsgBean {
         result.momentUid_ = momentUid_;
         result.interactId_ = interactId_;
         result.interactType_ = interactType_;
-        result.image_ = image_;
-        result.text_ = text_;
+        result.resourceType_ = resourceType_;
+        result.resource_ = resource_;
+        result.content_ = content_;
         onBuilt();
         return result;
       }
@@ -49657,12 +49866,15 @@ public final class MsgBean {
         if (other.interactType_ != 0) {
           setInteractTypeValue(other.getInteractTypeValue());
         }
-        if (!other.getImage().isEmpty()) {
-          image_ = other.image_;
+        if (other.resourceType_ != 0) {
+          setResourceTypeValue(other.getResourceTypeValue());
+        }
+        if (!other.getResource().isEmpty()) {
+          resource_ = other.resource_;
           onChanged();
         }
-        if (!other.getText().isEmpty()) {
-          text_ = other.text_;
+        if (!other.getContent().isEmpty()) {
+          content_ = other.content_;
           onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
@@ -49870,110 +50082,85 @@ public final class MsgBean {
         return this;
       }
 
-      private java.lang.Object image_ = "";
+      private int resourceType_ = 0;
       /**
        * <pre>
-       *图片(优先显示)
+       *资源类型
        * </pre>
        *
-       * <code>string image = 5;</code>
+       * <code>.InteractMessage.ResourceType resource_type = 5;</code>
        */
-      public java.lang.String getImage() {
-        java.lang.Object ref = image_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          image_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      public int getResourceTypeValue() {
+        return resourceType_;
       }
       /**
        * <pre>
-       *图片(优先显示)
+       *资源类型
        * </pre>
        *
-       * <code>string image = 5;</code>
+       * <code>.InteractMessage.ResourceType resource_type = 5;</code>
        */
-      public com.google.protobuf.ByteString
-          getImageBytes() {
-        java.lang.Object ref = image_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          image_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       *图片(优先显示)
-       * </pre>
-       *
-       * <code>string image = 5;</code>
-       */
-      public Builder setImage(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        image_ = value;
+      public Builder setResourceTypeValue(int value) {
+        resourceType_ = value;
         onChanged();
         return this;
       }
       /**
        * <pre>
-       *图片(优先显示)
+       *资源类型
        * </pre>
        *
-       * <code>string image = 5;</code>
+       * <code>.InteractMessage.ResourceType resource_type = 5;</code>
        */
-      public Builder clearImage() {
+      public com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType getResourceType() {
+        com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType result = com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType.valueOf(resourceType_);
+        return result == null ? com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       *资源类型
+       * </pre>
+       *
+       * <code>.InteractMessage.ResourceType resource_type = 5;</code>
+       */
+      public Builder setResourceType(com.yanlong.im.utils.socket.MsgBean.InteractMessage.ResourceType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
         
-        image_ = getDefaultInstance().getImage();
+        resourceType_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
        * <pre>
-       *图片(优先显示)
+       *资源类型
        * </pre>
        *
-       * <code>string image = 5;</code>
+       * <code>.InteractMessage.ResourceType resource_type = 5;</code>
        */
-      public Builder setImageBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
+      public Builder clearResourceType() {
         
-        image_ = value;
+        resourceType_ = 0;
         onChanged();
         return this;
       }
 
-      private java.lang.Object text_ = "";
+      private java.lang.Object resource_ = "";
       /**
        * <pre>
-       *文本
+       *资源
        * </pre>
        *
-       * <code>string text = 6;</code>
+       * <code>string resource = 6;</code>
        */
-      public java.lang.String getText() {
-        java.lang.Object ref = text_;
+      public java.lang.String getResource() {
+        java.lang.Object ref = resource_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          text_ = s;
+          resource_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -49981,19 +50168,19 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       *文本
+       *资源
        * </pre>
        *
-       * <code>string text = 6;</code>
+       * <code>string resource = 6;</code>
        */
       public com.google.protobuf.ByteString
-          getTextBytes() {
-        java.lang.Object ref = text_;
+          getResourceBytes() {
+        java.lang.Object ref = resource_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          text_ = b;
+          resource_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
@@ -50001,49 +50188,138 @@ public final class MsgBean {
       }
       /**
        * <pre>
-       *文本
+       *资源
        * </pre>
        *
-       * <code>string text = 6;</code>
+       * <code>string resource = 6;</code>
        */
-      public Builder setText(
+      public Builder setResource(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   
-        text_ = value;
+        resource_ = value;
         onChanged();
         return this;
       }
       /**
        * <pre>
-       *文本
+       *资源
        * </pre>
        *
-       * <code>string text = 6;</code>
+       * <code>string resource = 6;</code>
        */
-      public Builder clearText() {
+      public Builder clearResource() {
         
-        text_ = getDefaultInstance().getText();
+        resource_ = getDefaultInstance().getResource();
         onChanged();
         return this;
       }
       /**
        * <pre>
-       *文本
+       *资源
        * </pre>
        *
-       * <code>string text = 6;</code>
+       * <code>string resource = 6;</code>
        */
-      public Builder setTextBytes(
+      public Builder setResourceBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
         
-        text_ = value;
+        resource_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object content_ = "";
+      /**
+       * <pre>
+       *内容
+       * </pre>
+       *
+       * <code>string content = 7;</code>
+       */
+      public java.lang.String getContent() {
+        java.lang.Object ref = content_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          content_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       *内容
+       * </pre>
+       *
+       * <code>string content = 7;</code>
+       */
+      public com.google.protobuf.ByteString
+          getContentBytes() {
+        java.lang.Object ref = content_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          content_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       *内容
+       * </pre>
+       *
+       * <code>string content = 7;</code>
+       */
+      public Builder setContent(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        content_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *内容
+       * </pre>
+       *
+       * <code>string content = 7;</code>
+       */
+      public Builder clearContent() {
+        
+        content_ = getDefaultInstance().getContent();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *内容
+       * </pre>
+       *
+       * <code>string content = 7;</code>
+       */
+      public Builder setContentBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        content_ = value;
         onChanged();
         return this;
       }
@@ -69266,136 +69542,139 @@ public final class MsgBean {
       "tailType\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 \001(\t\022\021\n" +
       "\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004item\030\007 " +
       "\003(\0132\017.LabelValueItem\"3\n\nDetailType\022\010\n\004NO" +
-      "NE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"\371\001\n\017In" +
+      "NE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"\360\002\n\017In" +
       "teractMessage\022\021\n\tmoment_id\030\001 \001(\004\022\022\n\nmome" +
       "nt_uid\030\002 \001(\004\022\023\n\013interact_id\030\003 \001(\004\0224\n\rint" +
       "eract_type\030\004 \001(\0162\035.InteractMessage.Inter" +
-      "actType\022\r\n\005image\030\005 \001(\t\022\014\n\004text\030\006 \001(\t\"W\n\014" +
-      "InteractType\022\n\n\006FOLLOW\020\000\022\010\n\004LIKE\020\001\022\013\n\007CO" +
-      "MMENT\020\002\022\t\n\005REPLY\020\003\022\010\n\004VOTE\020\004\022\017\n\013DEL_COMM" +
-      "ENT\020\005\"5\n\021OfflineMsgRequest\022\020\n\010reqCount\030\001" +
-      " \001(\005\022\016\n\006latest\030\002 \001(\010\"1\n\022ChangeOnlineStat" +
-      "us\022\033\n\004stat\030\001 \001(\0162\r.OnlineStatus\"J\n\tRepor" +
-      "tMsg\0221\n\022changeOnlineStatus\030d \001(\0132\023.Chang" +
-      "eOnlineStatusH\000B\n\n\010real_msg\"H\n\tReqRspMsg" +
-      "\022/\n\021offlineMsgRequest\030d \001(\0132\022.OfflineMsg" +
-      "RequestH\000B\n\n\010real_msg\"\236\001\n\nAckMessage\022 \n\013" +
-      "reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nreques" +
-      "t_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030" +
-      "\004 \001(\004\022\014\n\004desc\030\005 \001(\t\022)\n\rmergedNextReq\030\006 \001" +
-      "(\0132\022.OfflineMsgRequest\"*\n\022AuthRequestMes" +
-      "sage\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthRespon" +
-      "seMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp" +
-      "\030\002 \001(\004\"\202\025\n\020UniversalMessage\022\022\n\nrequest_i" +
-      "d\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001(" +
-      "\r\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage.W" +
-      "rapMessage\032\206\024\n\013WrapMessage\022\021\n\ttimestamp\030" +
-      "\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n" +
-      "\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005" +
-      " \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022" +
-      "\n\nmembername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(" +
-      "\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\020" +
-      "\n\010executor\030\014 \001(\004\022\017\n\007read_ts\030\r \001(\004\022\031\n\021exe" +
-      "cutor_nickname\030\016 \001(\004\022\027\n\017executor_avatar\030" +
-      "\017 \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005" +
-      "image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_env" +
-      "elope\030\222N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024r" +
-      "eceive_red_envelope\030\223N \001(\0132\032.ReceiveRedE" +
-      "nvelopeMessageH\000\022%\n\010transfer\030\224N \001(\0132\020.Tr" +
-      "ansferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampM" +
-      "essageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024.Busin" +
-      "essCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.Voice" +
-      "MessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\t" +
-      "assistant\030\231N \001(\0132\021.AssistantMessageH\000\022!\n" +
-      "\006cancel\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013shor" +
-      "t_video\030\233N \001(\0132\022.ShortVideoMessageH\000\0226\n\021" +
-      "snapshot_location\030\234N \001(\0132\030.SnapshotLocat" +
-      "ionMessageH\000\0222\n\017take_scrennshot\030\235N \001(\0132\026" +
-      ".TakeScreenshotMessageH\000\0228\n\022shipped_expr" +
-      "ession\030\236N \001(\0132\031.ShippedExpressionMessage" +
-      "H\000\022:\n\023assistant_promotion\030\237N \001(\0132\032.Assis" +
-      "tantPromotionMessageH\000\0220\n\016request_friend" +
-      "\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021acce" +
-      "pt_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMe" +
-      "ssageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.Remove" +
-      "FriendMessageH\000\022.\n\rhistory_clean\030\367N \001(\0132" +
-      "\024.HistoryCleanMessageH\000\022\'\n\005reply\030\370N \001(\0132" +
-      "\025.ReplySpecificMessageH\000\022.\n\rrequest_grou" +
-      "p\030\330O \001(\0132\024.RequestGroupMessageH\000\0221\n\017acce" +
-      "pt_be_group\030\331O \001(\0132\025.AcceptBeGroupMessag" +
-      "eH\000\0229\n\023remove_group_member\030\332O \001(\0132\031.Remo" +
-      "veGroupMemberMessageH\000\0229\n\023change_group_m" +
-      "aster\030\333O \001(\0132\031.ChangeGroupMasterMessageH" +
-      "\000\022.\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroup" +
-      "MessageH\000\022;\n\024remove_group_member2\030\337O \001(\013" +
-      "2\032.RemoveGroupMember2MessageH\000\022&\n\tout_gr" +
-      "oup\030\342O \001(\0132\020.OutGroupMessageH\000\0225\n\021change" +
-      "_group_meta\030\344O \001(\0132\027.ChangeGroupMetaMess" +
-      "ageH\000\022;\n\024change_survival_time\030\345O \001(\0132\032.C" +
-      "hangeSurvivalTimeMessageH\000\022+\n\014p2p_au_vid" +
-      "eo\030\352O \001(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_a" +
-      "u_video_dial\030\353O \001(\0132\026.P2PAuVideoDialMess" +
-      "ageH\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022&\n\t" +
-      "send_file\030\355O \001(\0132\020.SendFileMessageH\000\0227\n\022" +
-      "change_vice_admins\030\356O \001(\0132\030.ChangeViceAd" +
-      "minsMessageH\000\022\'\n\trecommend\030\360O \001(\0132\021.Reco" +
-      "mmendMessageH\000\022.\n\rforce_offline\030\274P \001(\0132\024" +
-      ".ForceOfflineMessageH\000\0227\n\022active_stat_ch" +
-      "ange\030\275P \001(\0132\030.ActiveStatChangeMessageH\000\022" +
-      ".\n\rresource_lock\030\276P \001(\0132\024.ResourceLockMe" +
-      "ssageH\000\022.\n\rswitch_change\030\277P \001(\0132\024.Switch" +
-      "ChangeMessageH\000\0222\n\023multi_terminal_sync\030\300" +
-      "P \001(\0132\022.MultiTerminalSyncH\000\0229\n\023report_ge" +
-      "o_position\030\301P \001(\0132\031.ReportGeoPositionMes" +
-      "sageH\000\0228\n\026message_processed_sync\030\302P \001(\0132" +
-      "\025.MessageProcessedSyncH\000\022(\n\npay_result\030\261" +
-      "T \001(\0132\021.PayResultMessageH\000\0226\n\021balance_as" +
-      "sistant\030\262T \001(\0132\030.BalanceAssistantMessage" +
-      "H\000\022,\n\014trans_notify\030\263T \001(\0132\023.TransNotifyM" +
-      "essageH\000\022%\n\010interact\030\370U \001(\0132\020.InteractMe" +
-      "ssageH\000B\n\n\010real_msg*\265\007\n\013MessageType\022\010\n\004C" +
-      "HAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025R" +
-      "ECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005" +
-      "STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n" +
-      "\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHOR" +
-      "T_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020\014\022\023\n\017TAKE" +
-      "_SCREENSHOT\020\r\022\026\n\022SHIPPED_EXPRESSION\020\016\022\021\n" +
-      "\rHISTORY_CLEAN\020\017\022\022\n\016REPLY_SPECIFIC\020\020\022\027\n\023" +
-      "ASSISTANT_PROMOTION\020\021\022\022\n\016REQUEST_FRIEND\020" +
-      "d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEN" +
-      "D\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROU" +
-      "P\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_G" +
-      "ROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022" +
-      "\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHA" +
-      "NGE_GROUP_META\020p\022\030\n\024CHANGE_SURVIVAL_TIME" +
-      "\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIA" +
-      "L\020w\022\010\n\004READ\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_V" +
-      "ICE_ADMINS\020z\022\026\n\022GROUP_ANNOUNCEMENT\020{\022\r\n\t" +
-      "RECOMMEND\020|\022\032\n\026MESSAGE_PROCESSED_SYNC\020}\022" +
-      "\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANG" +
-      "E\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANG" +
-      "E\020\313\001\022\030\n\023MULTI_TERMINAL_SYNC\020\314\001\022\030\n\023REPORT" +
-      "_GEO_POSITION\020\315\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BAL" +
-      "ANCE_ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002\022\r\n\010" +
-      "INTERACT\020\220\003*&\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022" +
-      "\n\n\006HIDDEN\020\001*\205\001\n\022ForceOfflineReason\022\014\n\010CO" +
-      "NFLICT\020\000\022\n\n\006LOCKED\020\001\022\024\n\020PASSWORD_CHANGED" +
-      "\020\002\022\025\n\021USER_DEACTIVATING\020\003\022\027\n\023BOUND_PHONE" +
-      "_CHANGED\020\004\022\017\n\013APPEAL_PASS\020\005*\333\001\n\nRejectTy" +
-      "pe\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP" +
-      "_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_NOT" +
-      "_ALLOWED\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\017\n\013SELF_LO" +
-      "CKED\020\005\022\021\n\rFRIEND_LOCKED\020\006\022\025\n\021FRIEND_DEAC" +
-      "TIVATE\020\007\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAV" +
-      "AILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013" +
-      "\n\007PASSIVE\020\001*\226\001\n\025MultiTerminalSyncType\022\023\n" +
-      "\017MY_SELF_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020" +
-      "\001\022\024\n\020MY_GROUP_CHANGED\020\002\022\025\n\021MY_FRIEND_DEL" +
-      "ETED\020\003\022\021\n\rMY_GROUP_QUIT\020\004\022\021\n\rMY_GROUP_RE" +
-      "AD\020\005*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SY" +
-      "STEM\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedi" +
-      "o\020\001B&\n\033com.yanlong.im.utils.socketB\007MsgB" +
-      "eanb\006proto3"
+      "actType\0224\n\rresource_type\030\005 \001(\0162\035.Interac" +
+      "tMessage.ResourceType\022\020\n\010resource\030\006 \001(\t\022" +
+      "\017\n\007content\030\007 \001(\t\"W\n\014InteractType\022\n\n\006FOLL" +
+      "OW\020\000\022\010\n\004LIKE\020\001\022\013\n\007COMMENT\020\002\022\t\n\005REPLY\020\003\022\010" +
+      "\n\004VOTE\020\004\022\017\n\013DEL_COMMENT\020\005\"9\n\014ResourceTyp" +
+      "e\022\010\n\004TEXT\020\000\022\t\n\005IMAGE\020\001\022\t\n\005VOICE\020\002\022\t\n\005VID" +
+      "EO\020\003\"5\n\021OfflineMsgRequest\022\020\n\010reqCount\030\001 " +
+      "\001(\005\022\016\n\006latest\030\002 \001(\010\"1\n\022ChangeOnlineStatu" +
+      "s\022\033\n\004stat\030\001 \001(\0162\r.OnlineStatus\"J\n\tReport" +
+      "Msg\0221\n\022changeOnlineStatus\030d \001(\0132\023.Change" +
+      "OnlineStatusH\000B\n\n\010real_msg\"H\n\tReqRspMsg\022" +
+      "/\n\021offlineMsgRequest\030d \001(\0132\022.OfflineMsgR" +
+      "equestH\000B\n\n\010real_msg\"\236\001\n\nAckMessage\022 \n\013r" +
+      "eject_type\030\001 \001(\0162\013.RejectType\022\022\n\nrequest" +
+      "_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004" +
+      " \001(\004\022\014\n\004desc\030\005 \001(\t\022)\n\rmergedNextReq\030\006 \001(" +
+      "\0132\022.OfflineMsgRequest\"*\n\022AuthRequestMess" +
+      "age\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthRespons" +
+      "eMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030" +
+      "\002 \001(\004\"\202\025\n\020UniversalMessage\022\022\n\nrequest_id" +
+      "\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001(\r" +
+      "\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage.Wr" +
+      "apMessage\032\206\024\n\013WrapMessage\022\021\n\ttimestamp\030\001" +
+      " \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006" +
+      "msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 " +
+      "\001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n" +
+      "\nmembername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021" +
+      "\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\020\n" +
+      "\010executor\030\014 \001(\004\022\017\n\007read_ts\030\r \001(\004\022\031\n\021exec" +
+      "utor_nickname\030\016 \001(\004\022\027\n\017executor_avatar\030\017" +
+      " \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005i" +
+      "mage\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_enve" +
+      "lope\030\222N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024re" +
+      "ceive_red_envelope\030\223N \001(\0132\032.ReceiveRedEn" +
+      "velopeMessageH\000\022%\n\010transfer\030\224N \001(\0132\020.Tra" +
+      "nsferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMe" +
+      "ssageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024.Busine" +
+      "ssCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceM" +
+      "essageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\ta" +
+      "ssistant\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006" +
+      "cancel\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013short" +
+      "_video\030\233N \001(\0132\022.ShortVideoMessageH\000\0226\n\021s" +
+      "napshot_location\030\234N \001(\0132\030.SnapshotLocati" +
+      "onMessageH\000\0222\n\017take_scrennshot\030\235N \001(\0132\026." +
+      "TakeScreenshotMessageH\000\0228\n\022shipped_expre" +
+      "ssion\030\236N \001(\0132\031.ShippedExpressionMessageH" +
+      "\000\022:\n\023assistant_promotion\030\237N \001(\0132\032.Assist" +
+      "antPromotionMessageH\000\0220\n\016request_friend\030" +
+      "\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021accep" +
+      "t_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMes" +
+      "sageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveF" +
+      "riendMessageH\000\022.\n\rhistory_clean\030\367N \001(\0132\024" +
+      ".HistoryCleanMessageH\000\022\'\n\005reply\030\370N \001(\0132\025" +
+      ".ReplySpecificMessageH\000\022.\n\rrequest_group" +
+      "\030\330O \001(\0132\024.RequestGroupMessageH\000\0221\n\017accep" +
+      "t_be_group\030\331O \001(\0132\025.AcceptBeGroupMessage" +
+      "H\000\0229\n\023remove_group_member\030\332O \001(\0132\031.Remov" +
+      "eGroupMemberMessageH\000\0229\n\023change_group_ma" +
+      "ster\030\333O \001(\0132\031.ChangeGroupMasterMessageH\000" +
+      "\022.\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroupM" +
+      "essageH\000\022;\n\024remove_group_member2\030\337O \001(\0132" +
+      "\032.RemoveGroupMember2MessageH\000\022&\n\tout_gro" +
+      "up\030\342O \001(\0132\020.OutGroupMessageH\000\0225\n\021change_" +
+      "group_meta\030\344O \001(\0132\027.ChangeGroupMetaMessa" +
+      "geH\000\022;\n\024change_survival_time\030\345O \001(\0132\032.Ch" +
+      "angeSurvivalTimeMessageH\000\022+\n\014p2p_au_vide" +
+      "o\030\352O \001(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_au" +
+      "_video_dial\030\353O \001(\0132\026.P2PAuVideoDialMessa" +
+      "geH\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022&\n\ts" +
+      "end_file\030\355O \001(\0132\020.SendFileMessageH\000\0227\n\022c" +
+      "hange_vice_admins\030\356O \001(\0132\030.ChangeViceAdm" +
+      "insMessageH\000\022\'\n\trecommend\030\360O \001(\0132\021.Recom" +
+      "mendMessageH\000\022.\n\rforce_offline\030\274P \001(\0132\024." +
+      "ForceOfflineMessageH\000\0227\n\022active_stat_cha" +
+      "nge\030\275P \001(\0132\030.ActiveStatChangeMessageH\000\022." +
+      "\n\rresource_lock\030\276P \001(\0132\024.ResourceLockMes" +
+      "sageH\000\022.\n\rswitch_change\030\277P \001(\0132\024.SwitchC" +
+      "hangeMessageH\000\0222\n\023multi_terminal_sync\030\300P" +
+      " \001(\0132\022.MultiTerminalSyncH\000\0229\n\023report_geo" +
+      "_position\030\301P \001(\0132\031.ReportGeoPositionMess" +
+      "ageH\000\0228\n\026message_processed_sync\030\302P \001(\0132\025" +
+      ".MessageProcessedSyncH\000\022(\n\npay_result\030\261T" +
+      " \001(\0132\021.PayResultMessageH\000\0226\n\021balance_ass" +
+      "istant\030\262T \001(\0132\030.BalanceAssistantMessageH" +
+      "\000\022,\n\014trans_notify\030\263T \001(\0132\023.TransNotifyMe" +
+      "ssageH\000\022%\n\010interact\030\370U \001(\0132\020.InteractMes" +
+      "sageH\000B\n\n\010real_msg*\265\007\n\013MessageType\022\010\n\004CH" +
+      "AT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RE" +
+      "CEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005S" +
+      "TAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002" +
+      "AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT" +
+      "_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020\014\022\023\n\017TAKE_" +
+      "SCREENSHOT\020\r\022\026\n\022SHIPPED_EXPRESSION\020\016\022\021\n\r" +
+      "HISTORY_CLEAN\020\017\022\022\n\016REPLY_SPECIFIC\020\020\022\027\n\023A" +
+      "SSISTANT_PROMOTION\020\021\022\022\n\016REQUEST_FRIEND\020d" +
+      "\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEND" +
+      "\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP" +
+      "\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_GR" +
+      "OUP_MASTER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022\021" +
+      "\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHAN" +
+      "GE_GROUP_META\020p\022\030\n\024CHANGE_SURVIVAL_TIME\020" +
+      "q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIAL" +
+      "\020w\022\010\n\004READ\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_VI" +
+      "CE_ADMINS\020z\022\026\n\022GROUP_ANNOUNCEMENT\020{\022\r\n\tR" +
+      "ECOMMEND\020|\022\032\n\026MESSAGE_PROCESSED_SYNC\020}\022\022" +
+      "\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE" +
+      "\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE" +
+      "\020\313\001\022\030\n\023MULTI_TERMINAL_SYNC\020\314\001\022\030\n\023REPORT_" +
+      "GEO_POSITION\020\315\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BALA" +
+      "NCE_ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002\022\r\n\010I" +
+      "NTERACT\020\220\003*&\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022\n" +
+      "\n\006HIDDEN\020\001*\205\001\n\022ForceOfflineReason\022\014\n\010CON" +
+      "FLICT\020\000\022\n\n\006LOCKED\020\001\022\024\n\020PASSWORD_CHANGED\020" +
+      "\002\022\025\n\021USER_DEACTIVATING\020\003\022\027\n\023BOUND_PHONE_" +
+      "CHANGED\020\004\022\017\n\013APPEAL_PASS\020\005*\333\001\n\nRejectTyp" +
+      "e\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_" +
+      "MEMBER\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_NOT_" +
+      "ALLOWED\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\017\n\013SELF_LOC" +
+      "KED\020\005\022\021\n\rFRIEND_LOCKED\020\006\022\025\n\021FRIEND_DEACT" +
+      "IVATE\020\007\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVA" +
+      "ILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n" +
+      "\007PASSIVE\020\001*\226\001\n\025MultiTerminalSyncType\022\023\n\017" +
+      "MY_SELF_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001" +
+      "\022\024\n\020MY_GROUP_CHANGED\020\002\022\025\n\021MY_FRIEND_DELE" +
+      "TED\020\003\022\021\n\rMY_GROUP_QUIT\020\004\022\021\n\rMY_GROUP_REA" +
+      "D\020\005*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYS" +
+      "TEM\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio" +
+      "\020\001B&\n\033com.yanlong.im.utils.socketB\007MsgBe" +
+      "anb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -69726,7 +70005,7 @@ public final class MsgBean {
     internal_static_InteractMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_InteractMessage_descriptor,
-        new java.lang.String[] { "MomentId", "MomentUid", "InteractId", "InteractType", "Image", "Text", });
+        new java.lang.String[] { "MomentId", "MomentUid", "InteractId", "InteractType", "ResourceType", "Resource", "Content", });
     internal_static_OfflineMsgRequest_descriptor =
       getDescriptor().getMessageTypes().get(52);
     internal_static_OfflineMsgRequest_fieldAccessorTable = new
