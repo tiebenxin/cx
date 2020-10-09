@@ -224,8 +224,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvContent.setText(getSpan(bean.getContent()));
                     }
                     //位置
-                    if(!TextUtils.isEmpty(bean.getCity())){
-                        holder.tvLocation.setText(bean.getCity());
+                    if(!TextUtils.isEmpty(bean.getPosition())){
+                        holder.tvLocation.setText(bean.getPosition());
                     }
                     //点赞数 评论数
                     holder.tvLike.setText(bean.getLikeCount()+"");
