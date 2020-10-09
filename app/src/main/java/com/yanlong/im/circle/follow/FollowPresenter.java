@@ -388,4 +388,36 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             }
         });
     }
+
+    /**
+     * 删除评论
+     *
+     * @param id        评论ID
+     * @param momentId  说说ID
+     * @param momentUid 说说发布者
+     * @param postion   位置
+     */
+    public void delComment(Long id, Long momentId, Long momentUid, int postion) {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("id", id);
+        params.put("momentId", momentId);
+        params.put("momentUid", momentUid);
+        mModel.delComment(params, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.code() == 200) {
+                    mView.onSuccess(postion, response.message());
+                } else {
+                    mView.onShowMessage(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                mView.onShowMessage("取消关注失败");
+            }
+        });
+    }
 }

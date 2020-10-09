@@ -31,8 +31,10 @@ import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.interf.ICircleClickListener;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -109,25 +111,26 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             }
             helper.setVisible(R.id.tv_follow, true);
             helper.setGone(R.id.iv_setup, false);
+            helper.setGone(R.id.view_line, false);
+            if (UserAction.getMyId() != null
+                    && messageInfoBean.getUid() != null &&
+                    UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
+                helper.setVisible(R.id.tv_follow, true);
+            } else {
+                helper.setVisible(R.id.tv_follow, false);
+            }
             if (isFollow) {
                 helper.setText(R.id.tv_follow, "取消关注");
             } else {
                 helper.setText(R.id.tv_follow, "关注TA");
             }
-            RecyclerView recyclerComment = helper.getView(R.id.recycler_comment);
-            recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
-            CommentAdapter checkTxtAdapter = new CommentAdapter(false);
-            recyclerComment.setAdapter(checkTxtAdapter);
-            List<CircleCommentBean> list = new ArrayList<>();
-            if (commentList != null) {
-                list.addAll(commentList);
-            }
-            checkTxtAdapter.setNewData(list);
+            setCommentRecycleView(helper.getView(R.id.recycler_comment));
         } else {
             helper.setGone(R.id.tv_comment_count, false);
             helper.setGone(R.id.recycler_comment, false);
             helper.setGone(R.id.tv_follow, false);
             helper.setVisible(R.id.iv_setup, true);
+            helper.setVisible(R.id.view_line, true);
         }
 
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
@@ -244,7 +247,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             @Override
             public void onClick(@NonNull View widget) {
                 if (clickListener != null) {
-                    clickListener.onClick(postion, 0, 0);
+                    clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DOWN, widget);
                 }
             }
 
@@ -258,7 +261,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             @Override
             public void onClick(@NonNull View widget) {
                 if (clickListener != null) {
-                    clickListener.onClick(postion, 0, 1);
+                    clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DETAILS, widget);
                 }
             }
 
@@ -296,20 +299,60 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                if (clickListener == null) {
+                    return;
+                }
                 if (isVote == -1) {
                     switch (view.getId()) {
                         case R.id.layout_vote_pictrue:// 图片投票
-                            if (clickListener != null) {
-                                clickListener.onClick(position, parentPostion, 3);
-                            }
+                            clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_PICTRUE, view);
                             break;
                         case R.id.layout_vote_txt:// 文字投票
-                            if (clickListener != null) {
-                                clickListener.onClick(position, parentPostion, 2);
-                            }
+                            clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_CHAR, view);
                             break;
                     }
                 }
+            }
+        });
+    }
+
+    /**
+     * 评论
+     *
+     * @param recyclerComment
+     */
+    private void setCommentRecycleView(RecyclerView recyclerComment) {
+        recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
+        CommentAdapter checkTxtAdapter = new CommentAdapter(true);
+        recyclerComment.setAdapter(checkTxtAdapter);
+        List<CircleCommentBean> list = new ArrayList<>();
+        if (commentList != null) {
+            list.addAll(commentList);
+        }
+        checkTxtAdapter.setNewData(list);
+        checkTxtAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+            @Override
+            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                if (clickListener == null) {
+                    return;
+                }
+                switch (view.getId()) {
+                    case R.id.layout_item:
+                        clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_REPLY, view);
+                        break;
+                    case R.id.iv_header:
+                        clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_HEAD, view);
+                        break;
+                }
+            }
+        });
+        checkTxtAdapter.setOnItemChildLongClickListener(new BaseQuickAdapter.OnItemChildLongClickListener() {
+            @Override
+            public boolean onItemChildLongClick(BaseQuickAdapter adapter, View view, int position) {
+                if (clickListener != null) {
+                    clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_LONG, view);
+                }
+                return true;
             }
         });
     }

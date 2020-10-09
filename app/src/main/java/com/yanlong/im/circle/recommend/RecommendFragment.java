@@ -75,7 +75,7 @@ public class RecommendFragment extends BaseBindMvpFragment<FollowPresenter, Frag
     @Override
     public void init() {
         mFollowList = new ArrayList<>();
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, false, false, this, null,false);
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, false, false, this, null);
         bindingView.recyclerRecommend.setAdapter(mFlowAdapter);
         bindingView.recyclerRecommend.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
@@ -274,7 +274,7 @@ public class RecommendFragment extends BaseBindMvpFragment<FollowPresenter, Frag
      * @param type          0：展开、收起 1：详情 2文字投票 3图片投票
      */
     @Override
-    public void onClick(int postion, int parentPostion, int type) {
+    public void onClick(int postion, int parentPostion, int type, View view) {
         if (type == 1 || type == 0) {
             if (type == 0) {
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();

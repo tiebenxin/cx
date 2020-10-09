@@ -1,13 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tv_message"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/item_default_trans"
-    android:clickable="true"
-    android:focusable="true"
-    android:gravity="center_vertical"
-    android:paddingTop="1dp"
-    android:paddingRight="15dp"
-    android:paddingBottom="1dp"
-    android:textSize="15sp" />
+    android:paddingTop="15dp">
+
+    <com.hm.cxpay.widget.CircleImageView
+        android:id="@+id/iv_header"
+        style="@style/app_img_head"
+        android:layout_marginLeft="15dp"
+        android:src="@mipmap/default_image" />
+
+    <LinearLayout
+        android:id="@+id/ll_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_toRightOf="@+id/iv_header"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/iv_setup"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="张三丰"
+                android:textColor="@color/gray_757"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_user_name"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:lineSpacingExtra="5dp"
+                android:maxLines="3"
+                android:text="昨天 15:30"
+                android:textColor="@color/gray_b4b"
+                android:textIsSelectable="true"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_follow"
+                style="@style/app_btn_green_s"
+                android:layout_width="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="关注TA"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/tv_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="@dimen/app_margin_circle"
+            android:lineSpacingExtra="3dp"
+            android:text="美好的一天，天山的风景真的是太漂亮了，让人流连忘返。"
+            android:textColor="@color/gray_484"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view_line"
+        style="@style/app_line"
+        android:layout_below="@+id/ll_content"
+        android:layout_marginTop="15dp" />
+</RelativeLayout>

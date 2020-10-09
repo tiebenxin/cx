@@ -132,4 +132,13 @@ public class EventFactory extends BaseEvent {
     public static class CreateSuccessEvent extends BaseEvent {
 
     }
+
+    /**
+     * 刷新关注列表
+     */
+    public static class RefreshFollowEvent extends BaseEvent {
+        public int postion;// 位置
+        public Long id;// 动态ID
+        public Long uid;// 发布者ID
+    }
 }
