@@ -71,7 +71,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Override
     public void init() {
         mFollowList = new ArrayList<>();
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, true, false, this, null);
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, true, false, this, null,false);
         bindingView.recyclerFollow.setAdapter(mFlowAdapter);
         bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));

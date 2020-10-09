@@ -75,7 +75,7 @@ public class RecommendFragment extends BaseBindMvpFragment<FollowPresenter, Frag
     @Override
     public void init() {
         mFollowList = new ArrayList<>();
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, false, false, this, null);
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, false, false, this, null,false);
         bindingView.recyclerRecommend.setAdapter(mFlowAdapter);
         bindingView.recyclerRecommend.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));

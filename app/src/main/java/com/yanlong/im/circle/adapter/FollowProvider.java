@@ -59,7 +59,7 @@ import java.util.List;
  */
 public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<MessageInfoBean>, BaseViewHolder> {
 
-    private boolean isDetails, isFollow;
+    private boolean isDetails, isFollow, isMe;
     private final int MAX_ROW_NUMBER = 3;
     private ICircleClickListener clickListener;
     private final String END_MSG = " 收起";
@@ -71,9 +71,10 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
      * @param clickListener
      */
     public FollowProvider(boolean isDetails, boolean isFollow, ICircleClickListener clickListener,
-                          List<CircleCommentBean> commentList) {
+                          List<CircleCommentBean> commentList,boolean isMe) {
         this.isDetails = isDetails;
         this.isFollow = isFollow;
+        this.isMe = isMe;
         this.clickListener = clickListener;
         this.commentList = commentList;
     }
@@ -198,7 +199,11 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 helper.setGone(R.id.tv_comment_count, false);
                 helper.setGone(R.id.recycler_comment, false);
             }
-            helper.setVisible(R.id.tv_follow, true);
+            if(!isMe){
+                helper.setVisible(R.id.tv_follow, true);
+            }else {
+                helper.setVisible(R.id.tv_follow, false);
+            }
             helper.setGone(R.id.iv_setup, false);
             if (isFollow) {
                 helper.setText(R.id.tv_follow, "取消关注");

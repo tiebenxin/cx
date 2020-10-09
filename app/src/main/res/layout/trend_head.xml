@@ -7,10 +7,9 @@
     android:background="@color/white">
 
     <RelativeLayout
-        android:id="@+id/layout_top"
         android:layout_width="match_parent"
         android:background="@color/white"
-        android:layout_height="200dp">
+        android:layout_height="230dp">
 
         <ImageView
             android:id="@+id/iv_background"
@@ -18,30 +17,52 @@
             android:layout_height="match_parent"/>
 
         <com.hm.cxpay.widget.CircleImageView
-            android:id="@+id/iv_header"
+            android:id="@+id/iv_friend_header"
             style="@style/app_img_head"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp" />
+            android:visibility="gone"
+            android:layout_marginTop="50dp" />
 
         <TextView
-            android:id="@+id/tv_name"
+            android:id="@+id/tv_friend_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/iv_header"
+            android:layout_below="@+id/iv_friend_header"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:text="用户名"
+            android:visibility="gone"
+            android:ellipsize="end"
+            android:maxLength="20"
             android:textColor="@color/white"
             android:textSize="18sp" />
 
-        <View
-            android:id="@+id/view_one"
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
+        <com.hm.cxpay.widget.CircleImageView
+            android:id="@+id/iv_my_header"
+            style="@style/app_img_head"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/c_e6e6e6" />
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="17dp"
+            android:layout_marginBottom="27dp"/>
+
+        <TextView
+            android:id="@+id/tv_my_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="用户名"
+            android:layout_toRightOf="@+id/iv_my_header"
+            android:layout_marginBottom="52dp"
+            android:layout_alignParentBottom="true"
+            android:visibility="visible"
+            android:ellipsize="end"
+            android:maxLength="20"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
     </RelativeLayout>
     <LinearLayout
         android:id="@+id/layout_center"
@@ -152,25 +173,26 @@
         android:id="@+id/layout_notice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/shape_5radius_solid_32b053"
+        android:background="@drawable/shape_16radius_solid_999999"
         android:gravity="center_vertical"
         android:layout_gravity="center_horizontal"
-        android:visibility="gone"
+        android:visibility="visible"
         android:padding="5dp"
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/ic_info_head" />
+        <com.hm.cxpay.widget.CircleImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@mipmap/ic_info_head" />
 
         <TextView
             android:id="@+id/tv_notice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="3dp"
+            android:layout_marginLeft="5dp"
             android:text="99条新消息 >"
+            android:textSize="15sp"
             android:textColor="@color/white" />
     </LinearLayout>
 

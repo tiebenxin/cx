@@ -17,7 +17,7 @@ public class CircleTrendsBean extends BaseBean {
     private int followMyCount;//关注我的人总数
     private int myFollowCount;//我关注的人总数
     private int myFollow;//我是否关注了他(0:否|1:是)
-    private List<TrendBean> momentList;//说说列表
+    private List<MessageInfoBean> momentList;//说说列表
 
     public int getAccessCount() {
         return accessCount;
@@ -51,11 +51,11 @@ public class CircleTrendsBean extends BaseBean {
         this.myFollowCount = myFollowCount;
     }
 
-    public List<TrendBean> getMomentList() {
+    public List<MessageInfoBean> getMomentList() {
         return momentList;
     }
 
-    public void setMomentList(List<TrendBean> momentList) {
+    public void setMomentList(List<MessageInfoBean> momentList) {
         this.momentList = momentList;
     }
 

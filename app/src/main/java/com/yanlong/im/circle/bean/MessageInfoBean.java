@@ -47,6 +47,34 @@ public class MessageInfoBean extends BaseBean {
     private Integer type;// 说说类型(0:无|1:图片|2:语音|4:视频|5:包含图片和视频|8:投票|9:包含图片和投票|10:包含语音和投票|12:包含视频和投票|13:包含图片、视频和投票)
     private boolean isShowAll;// 是否展开
     private boolean isRowsMore;// 是否超过3行
+    //TODO 我的/好友动态单独字段
+    private String city;//说说发布时定位城市
+    private int isTop;//是否置顶 0:否|1:是
+    private int visibility;//可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
+
+    public int getIsTop() {
+        return isTop;
+    }
+
+    public void setIsTop(int isTop) {
+        this.isTop = isTop;
+    }
+
+    public int getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(int visibility) {
+        this.visibility = visibility;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
 
     public Long getId() {
         return id;

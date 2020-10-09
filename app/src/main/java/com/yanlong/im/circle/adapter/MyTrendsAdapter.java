@@ -19,12 +19,13 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
-import com.yanlong.im.circle.bean.TrendBean;
+import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
@@ -54,6 +55,8 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static com.yanlong.im.circle.adapter.CircleFlowAdapter.MESSAGE_DEFAULT;
+import static com.yanlong.im.circle.adapter.CircleFlowAdapter.MESSAGE_VOTE;
 import static com.yanlong.im.circle.follow.FollowFragment.IS_OPEN;
 
 /**
@@ -92,7 +95,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private LayoutInflater inflater;
     private Activity activity;
     private CircleTrendsBean topData;//顶部数据
-    private List<TrendBean> dataList;//动态列表数据
+    private List<MessageInfoBean> dataList;//动态列表数据
     private Drawable dislike;
     private Drawable like;
     private TempAction action;
@@ -101,8 +104,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private RequestOptions mRequestOptions;
     private boolean haveNewMsg = false;//是否展示顶部新消息通知
+    private boolean isFollow = false;//是否关注
 
-    public MyTrendsAdapter(Activity activity, List<TrendBean> dataList, int type,long friendUid) {
+    public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type,long friendUid) {
         inflater = LayoutInflater.from(activity);
         this.activity = activity;
         this.type = type;
@@ -141,7 +145,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //刷新数据
-    public void updateList(List<TrendBean> list) {
+    public void updateList(List<MessageInfoBean> list) {
         dataList.clear();
         dataList.addAll(list);
         notifyDataSetChanged();
@@ -168,6 +172,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void showNotice(boolean haveNewMsg){
         this.haveNewMsg = haveNewMsg;
         notifyItemChanged(0);
+    }
+
+    //是否关注
+    public void ifFollow(boolean isFollow){
+        this.isFollow = isFollow;
     }
 
     //列表内容数量
@@ -203,11 +212,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ContentHolder holder = (ContentHolder) viewHolder;
             if (dataList != null && dataList.size() > 0) {
                 if (dataList.get(position-1) != null) {
-                    TrendBean bean = dataList.get(position-1);
+                    MessageInfoBean bean = dataList.get(position-1);
                     //时间
-                    if(!TextUtils.isEmpty(bean.getCreateTime())){
-                        holder.tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM(Long.parseLong(bean.getCreateTime())));
-                    }
+                    holder.tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM(bean.getCreateTime()));
                     //内容
                     if(!TextUtils.isEmpty(bean.getContent())){
                         holder.tvContent.setText(bean.getContent());
@@ -318,8 +325,17 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvCanSee.setVisibility(View.GONE);
                         holder.ivSetup.setVisibility(View.GONE);
                     }
-                    //跳详情
-                    holder.layoutItem.setOnClickListener(v -> gotoCircleDetailsActivity(false));
+                    //跳详情(拼凑一下昵称和头像)
+                    holder.layoutItem.setOnClickListener(v -> {
+                                if (!TextUtils.isEmpty(userBean.getHead())) {
+                                    bean.setAvatar(userBean.getHead());
+                                }
+                                if (!TextUtils.isEmpty(userBean.getName())) {
+                                    bean.setNickname(userBean.getName());
+                                }
+                                gotoCircleDetailsActivity(false, bean);
+                            }
+                    );
                     //是否置顶
                     if(bean.getIsTop()==0){
                         holder.ivIstop.setVisibility(View.GONE);
@@ -374,24 +390,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }else {
             //头部
             HeadHolder holder = (HeadHolder) viewHolder;
-            if(userBean!=null){
-                //头像 昵称 常信号 关注 被关注 看过我
-                if(!TextUtils.isEmpty(userBean.getHead())){
-                    Glide.with(activity)
-                            .load(userBean.getHead())
-                            .apply(mRequestOptions)
-                            .into(holder.ivHeader);
-                }else {
-                    Glide.with(activity)
-                            .load(R.drawable.ic_info_head)
-                            .into(holder.ivHeader);
-                }
-                if(!TextUtils.isEmpty(userBean.getName())){
-                    holder.tvName.setText(userBean.getName());
-                }else {
-                    holder.tvName.setText("未知用户名");
-                }
-            }
             //展示头部数据
             if(topData!=null){
                 //第一页拿部分数据，我关注的，关注我的，看过我的总数
@@ -403,13 +401,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     Glide.with(activity).load(topData.getBgImage())
                             .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
                 }else {
-                    String url ="https://tupian.qqw21.com/article/UploadPic/2020-1/202011422473670234.jpg";
-                    Glide.with(activity).load(url)
+                    Glide.with(activity).load(R.mipmap.ic_trend_default_bg)
                             .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
                 }
             }else {
-                String url ="https://tupian.qqw21.com/article/UploadPic/2020-1/202011422473670234.jpg";
-                Glide.with(activity).load(url)
+                Glide.with(activity).load(R.mipmap.ic_trend_default_bg)
                         .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
             }
             //新消息提醒
@@ -447,34 +443,77 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 Intent intent = new Intent(activity, MyMeetingActivity.class);
                 activity.startActivity(intent);
             });
-            //点击布局切换背景
-            if(type==1){
-                holder.layoutCenter.setVisibility(View.VISIBLE);
-                holder.layoutTop.setOnClickListener(v -> permission2Util.requestPermissions(activity, new CheckPermission2Util.Event() {
-                    @Override
-                    public void onSuccess() {
-                        PictureSelector.create(activity)
-                                .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                                .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
-                                .previewImage(false)// 是否可预览图片 true or false
-                                .isCamera(false)// 是否显示拍照按钮 ture or false
-                                .compress(true)// 是否压缩 true or false
-                                .enableCrop(true)
-                                .withAspectRatio(1, 1)
-                                .freeStyleCropEnabled(false)
-                                .rotateEnabled(false)
-                                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+            //我的动态顶部样式
+            if(userBean!=null){
+                if(type==1){
+                    holder.layoutCenter.setVisibility(View.VISIBLE);
+                    holder.ivFriendHeader.setVisibility(View.GONE);
+                    holder.tvFriendName.setVisibility(View.GONE);
+                    holder.ivMyHeader.setVisibility(View.VISIBLE);
+                    holder.tvMyName.setVisibility(View.VISIBLE);
+                    //头像 昵称
+                    if (!TextUtils.isEmpty(userBean.getHead())) {
+                        Glide.with(activity)
+                                .load(userBean.getHead())
+                                .apply(mRequestOptions)
+                                .into(holder.ivMyHeader);
+                    } else {
+                        Glide.with(activity)
+                                .load(R.drawable.ic_info_head)
+                                .into(holder.ivMyHeader);
                     }
+                    if (!TextUtils.isEmpty(userBean.getName())) {
+                        holder.tvMyName.setText(userBean.getName());
+                    } else {
+                        holder.tvMyName.setText("未知用户名");
+                    }
+                    //点击布局切换背景
+                    holder.ivBackground.setOnClickListener(v -> permission2Util.requestPermissions(activity, new CheckPermission2Util.Event() {
+                        @Override
+                        public void onSuccess() {
+                            PictureSelector.create(activity)
+                                    .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                                    .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                                    .previewImage(false)// 是否可预览图片 true or false
+                                    .isCamera(false)// 是否显示拍照按钮 ture or false
+                                    .compress(true)// 是否压缩 true or false
+                                    .enableCrop(true)
+                                    .withAspectRatio(1, 1)
+                                    .freeStyleCropEnabled(false)
+                                    .rotateEnabled(false)
+                                    .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+                        }
 
-                    @Override
-                    public void onFail() {
-                        ToastUtil.show("请允许访问权限");
+                        @Override
+                        public void onFail() {
+                            ToastUtil.show("请允许访问权限");
+                        }
+                    }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
+                }else {
+                    //好友的动态顶部样式
+                    holder.layoutCenter.setVisibility(View.GONE);
+                    holder.ivFriendHeader.setVisibility(View.VISIBLE);
+                    holder.tvFriendName.setVisibility(View.VISIBLE);
+                    holder.ivMyHeader.setVisibility(View.GONE);
+                    holder.tvMyName.setVisibility(View.GONE);
+                    if (!TextUtils.isEmpty(userBean.getHead())) {
+                        Glide.with(activity)
+                                .load(userBean.getHead())
+                                .apply(mRequestOptions)
+                                .into(holder.ivFriendHeader);
+                    } else {
+                        Glide.with(activity)
+                                .load(R.drawable.ic_info_head)
+                                .into(holder.ivFriendHeader);
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
-            }else {
-                holder.layoutCenter.setVisibility(View.GONE);
+                    if (!TextUtils.isEmpty(userBean.getName())) {
+                        holder.tvFriendName.setText(userBean.getName());
+                    } else {
+                        holder.tvFriendName.setText("未知用户名");
+                    }
+                }
             }
-            //asd
+
         }
     }
 
@@ -542,8 +581,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     // 头部
     class HeadHolder extends RecyclerView.ViewHolder {
-        private ImageView ivHeader;
-        private TextView tvName;
+        private ImageView ivFriendHeader;
+        private ImageView ivMyHeader;
+        private TextView tvFriendName;
+        private TextView tvMyName;
         private TextView tvMyFollowNum;
         private TextView tvFollowMeNum;
         private TextView tvWhoSeeMeNum;
@@ -551,15 +592,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutMyFollow;
         private LinearLayout layoutFollowMe;
         private LinearLayout layoutWhoSeeMe;
-        private RelativeLayout layoutTop;
         private LinearLayout layoutCenter;
-        private View lineOne;
         private LinearLayout layoutNotice;
 
         public HeadHolder(View itemView) {
             super(itemView);
-            ivHeader = itemView.findViewById(R.id.iv_header);
-            tvName = itemView.findViewById(R.id.tv_name);
+            ivFriendHeader = itemView.findViewById(R.id.iv_friend_header);
+            ivMyHeader = itemView.findViewById(R.id.iv_my_header);
+            tvFriendName = itemView.findViewById(R.id.tv_friend_name);
+            tvMyName = itemView.findViewById(R.id.tv_my_name);
             tvMyFollowNum = itemView.findViewById(R.id.tv_my_follow_num);
             tvFollowMeNum = itemView.findViewById(R.id.tv_follow_me_num);
             tvWhoSeeMeNum = itemView.findViewById(R.id.tv_who_see_me_num);
@@ -567,9 +608,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             layoutMyFollow = itemView.findViewById(R.id.layout_my_follow);
             layoutFollowMe = itemView.findViewById(R.id.layout_follow_me);
             layoutWhoSeeMe = itemView.findViewById(R.id.layout_who_see_me);
-            layoutTop = itemView.findViewById(R.id.layout_top);
             layoutCenter = itemView.findViewById(R.id.layout_center);
-            lineOne = itemView.findViewById(R.id.line_one);
             layoutNotice = itemView.findViewById(R.id.layout_notice);
         }
     }
@@ -584,11 +623,20 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    private void gotoCircleDetailsActivity(boolean isOpen) {
+    private void gotoCircleDetailsActivity(boolean isOpen,MessageInfoBean messageInfoBean) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
+        postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
+        postcard.withBoolean(CircleDetailsActivity.IS_ME, type==1 ? true:false);//是否为我自己的动态详情
+        postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
+        if(!TextUtils.isEmpty(messageInfoBean.getVote())){//是否含有投票
+            postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_VOTE);
+        }else {
+            postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_DEFAULT);
+        }
         postcard.navigation();
     }
+
 
     /**
      * 发请求->点赞

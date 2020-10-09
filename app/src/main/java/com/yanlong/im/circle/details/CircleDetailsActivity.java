@@ -58,11 +58,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     public static final String SOURCE_TYPE = "source_type";
     public static final String ITEM_DATA = "item_data";
     public static final String ITEM_DATA_TYPE = "item_data_type";
+    public static final String IS_ME = "is_me";//是否为自己 若为自己的朋友圈详情无需显示"去关注"按钮
 
     private CircleFlowAdapter mFlowAdapter;
     private List<MessageFlowItemBean> mFollowList;
     private MessageInfoBean mMessageInfoBean;
     private boolean isFollow;
+    private boolean isMe;
     private final int PAGE_SIZE = 10;
     private int mCurrentPage = 1;
 
@@ -79,6 +81,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @Override
     protected void init(Bundle savedInstanceState) {
         isFollow = getIntent().getBooleanExtra(SOURCE_TYPE, false);
+        isMe = getIntent().getBooleanExtra(IS_ME, false);
         String dataJson = getIntent().getStringExtra(ITEM_DATA);
         int itemType = getIntent().getIntExtra(ITEM_DATA_TYPE, 0);
         mFollowList = new ArrayList<>();
@@ -87,7 +90,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             MessageFlowItemBean flowItemBean = new MessageFlowItemBean(itemType, mMessageInfoBean);
             mFollowList.add(flowItemBean);
         }
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, isFollow, true, this, null);
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, isFollow, true, this, null,isMe);
         bindingView.recyclerFollow.setAdapter(mFlowAdapter);
         bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
 

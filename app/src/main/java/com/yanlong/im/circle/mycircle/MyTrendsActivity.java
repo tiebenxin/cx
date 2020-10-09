@@ -11,7 +11,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
-import com.yanlong.im.circle.bean.TrendBean;
+import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
@@ -47,7 +47,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private TempAction action;
     private UpFileAction upFileAction;
     private MyTrendsAdapter adapter;
-    private List<TrendBean> mList;
+    private List<MessageInfoBean> mList;
 
     @Override
     protected int setView() {

@@ -10,7 +10,7 @@ import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
-import com.yanlong.im.circle.bean.TrendBean;
+import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.ui.ComplaintActivity;
@@ -48,7 +48,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     private TempAction action;
     private MyTrendsAdapter adapter;
-    private List<TrendBean> mList;
+    private List<MessageInfoBean> mList;
     private long friendUid;//别人的uid
     private int isFollow;//是否关注了该用户
 
@@ -175,8 +175,10 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 isFollow = bean.getMyFollow();
                                 if(isFollow==0){
                                     bindingView.tvFollow.setText("关注");
+                                    adapter.ifFollow(false);
                                 }else {
                                     bindingView.tvFollow.setText("已关注");
+                                    adapter.ifFollow(true);
                                 }
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
