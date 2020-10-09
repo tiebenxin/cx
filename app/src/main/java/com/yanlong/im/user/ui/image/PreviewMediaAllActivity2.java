@@ -141,6 +141,8 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         bindingView.recyclerView.setItemAnimator(null);
         bindingView.recyclerView.setAdapter(mAdapter);
         bindingView.tvTime.setVisibility(View.GONE);
+        showBottom(false);
+
     }
 
     @Override
@@ -264,6 +266,14 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                 filterMessageValid(selectMsg, 3);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (selectMsg != null) {
+            selectMsg.clear();
+        }
     }
 
     @SuppressLint("CheckResult")
@@ -411,7 +421,9 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
 
     @Override
     public void onSelect(MsgAllBean bean) {
-        selectMsg.add(bean);
+        if (!selectMsg.contains(bean)) {
+            selectMsg.add(bean);
+        }
         showBottom(true);
         mAdapter.notifyDataSetChanged();
     }
@@ -428,6 +440,11 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
     @Override
     public void onPreview(MsgAllBean bean) {
         if (bean != null) {
+            MsgAllBean msg = msgDao.getMsgById(bean.getMsg_id());
+            if (msg == null) {
+                ToastUtil.show("该消息已不存在");
+                return;
+            }
             scanImageAndVideo(bean.getMsg_id());
         }
     }
@@ -1219,7 +1236,6 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         File finalTargetFile = targetFile;
         UpFileAction action = new UpFileAction();
         String finalDownUrl = downUrl;
-        File finalTargetFile1 = targetFile;
         ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
@@ -1261,7 +1277,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
 //                    }
 //                }, finalTargetFile1);
 
-                DownloadUtil.get().downLoadFile(finalDownUrl, finalTargetFile1, new DownloadUtil.OnDownloadListener() {
+                DownloadUtil.get().download(finalDownUrl, finalTargetFile, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
                         if (file == null) {
@@ -1273,7 +1289,15 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                             download(list, position + 1);
                         } else {
                             //下载完成
-                            ToastUtil.show("下载完成");
+                            bindingView.recyclerView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dismissLoadingDialog();
+                                    ToastUtil.show("下载完成");
+                                    switchSelectMode(false);
+                                }
+                            }, 100);
+
                         }
                         msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
                         scanFile(getContext(), finalTargetFile.getAbsolutePath());
@@ -1282,7 +1306,6 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
 
                     @Override
                     public void onDownloading(int progress) {
-//                LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
                     }
 
                     @Override
@@ -1292,7 +1315,14 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                             download(list, position + 1);
                         } else {
                             //下载完成
-                            ToastUtil.show("下载完成");
+                            bindingView.recyclerView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dismissLoadingDialog();
+                                    ToastUtil.show("下载失败");
+                                    switchSelectMode(false);
+                                }
+                            }, 100);
                         }
                     }
                 });

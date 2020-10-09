@@ -202,8 +202,10 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                             listener.onRemove(bean);
                         }
                     } else {
-                        if (selectList.size() < 9) {
-                            selectList.add(bean);
+                        if (selectList.size() < 9 ) {
+                            if (!selectList.contains(bean)) {
+                                selectList.add(bean);
+                            }
                             tvCheck.setSelected(true);
                             if (listener != null) {
                                 listener.onSelect(bean);

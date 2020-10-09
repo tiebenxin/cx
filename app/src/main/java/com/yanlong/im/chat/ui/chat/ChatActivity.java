@@ -5018,7 +5018,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         int len = list.size();
                         if (len < 10) {
                             mtListView.setStackFromEnd(false);
-                        }else {
+                        } else {
                             mtListView.setStackFromEnd(true);
                         }
                         mAdapter.bindData(list, false);
@@ -6864,6 +6864,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void accept(List<MsgAllBean> list) throws Exception {
                         searchTime = 0;
                         if (mAdapter != null) {
+                            if (list != null) {
+                                if (list.size() < 10) {
+                                    mtListView.setStackFromEnd(false);
+                                } else {
+                                    mtListView.setStackFromEnd(true);
+                                }
+                            }
                             mAdapter.bindData(list, false);
                             mAdapter.setReadStatus(checkIsRead());
 //                            notifyData();
