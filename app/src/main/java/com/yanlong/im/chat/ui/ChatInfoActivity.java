@@ -133,13 +133,18 @@ public class ChatInfoActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         IUser userInfo = UserAction.getMyInfo();
-        if (userInfo != null && IS_VIP.equals(userInfo.getVip()) && userInfo.getHistoryClear() == 1) {
+        if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
             //vip才开启双向清除功能
             tvTwoWayClearChat.setVisibility(View.VISIBLE);
             tvTwoWayClearChatHint.setVisibility(View.VISIBLE);
         } else {
-            tvTwoWayClearChat.setVisibility(View.GONE);
-            tvTwoWayClearChatHint.setVisibility(View.GONE);
+            if (userInfo != null && userInfo.getHistoryClear() == 1) {
+                tvTwoWayClearChat.setVisibility(View.VISIBLE);
+                tvTwoWayClearChatHint.setVisibility(View.VISIBLE);
+            } else {
+                tvTwoWayClearChat.setVisibility(View.GONE);
+                tvTwoWayClearChatHint.setVisibility(View.GONE);
+            }
         }
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
         taskGetInfo();
