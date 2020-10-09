@@ -659,7 +659,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static ImageMessage createImageMessage(String msgId, String local, String originUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size) {
+    public static ImageMessage createImageMessage(String msgId, String local, String originUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size, String thumbUrl) {
         ImageMessage image = new ImageMessage();
         String extTh = "/below-20k";
         String extPv = "/below-200k";
@@ -672,8 +672,16 @@ public class SocketData {
                 image.setThumbnail(originUrl);
             } else {
                 //TODO: 未发原图时，预览图使用原图url，避免像素下降
-                image.setPreview(originUrl);
-                image.setThumbnail(originUrl + extTh);
+                if (isOriginal) {
+                    image.setPreview(originUrl + extPv);
+                } else {
+                    image.setPreview(originUrl);
+                }
+                if (!TextUtils.isEmpty(thumbUrl)) {
+                    image.setThumbnail(thumbUrl);
+                } else {
+                    image.setThumbnail(originUrl + extTh);
+                }
             }
             if (isOriginal) {
                 image.setOrigin(originUrl);

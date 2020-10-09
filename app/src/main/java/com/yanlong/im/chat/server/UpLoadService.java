@@ -115,7 +115,7 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setThumb(thumb);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
                 ImageMessage image = msg.getImage();
-                ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize());
+                ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize(),thumb);
                 msg.setImage(imageMessage);
                 eventUpImgLoadEvent.setMsgAllBean(msg);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
@@ -438,6 +438,11 @@ public class UpLoadService extends Service {
 
         void fail();
 
+    }
+
+    //图片上传回调
+    public interface UploadImageCallback extends UpLoadCallback {
+        void success(String url, String thumb);
     }
 
     public static class UpProgress {

@@ -488,7 +488,7 @@ public class UpFileAction {
 
 
     //持久化图片
-    private void persistImage(final PATH type, final Context context, final String url, final UpFileUtil.OssUpCallback callback) {
+    public void persistImage(final PATH type, final Context context, final String url, final UpFileUtil.OssUpCallback callback) {
         startTime = SystemClock.currentThreadTimeMillis();
         NetUtil.getNet().exec(
                 server.aliObs()
