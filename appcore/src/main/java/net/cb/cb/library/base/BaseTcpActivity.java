@@ -16,6 +16,8 @@ import org.greenrobot.eventbus.ThreadMode;
  * Description tcp连接父类，适用于main，chat界面
  */
 public class BaseTcpActivity extends AppActivity {
+    private final String TAG = getClass().getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,11 +37,10 @@ public class BaseTcpActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
+        LogUtil.getLog().i(TAG, "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
         LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
         switchAppStatus(event.getRun());
         tcpConnect(event.getRun());
-
     }
 
     public void switchAppStatus(boolean isRun) {

@@ -254,6 +254,7 @@ public class SocketUtil {
      * @param state
      */
     private void setRunState(int state) {
+        LogUtil.getLog().i(TAG, "连接LOG--setRunState--status=" + state + "--time=" + System.currentTimeMillis());
         isRun = state;
         if (isRun == 0 || isRun == 1) {
             updateConnectStatus(EConnectionStatus.DEFAULT);
@@ -328,11 +329,13 @@ public class SocketUtil {
      */
     private void run() {
         if (isDestroyConnect || getOnlineState()) {
+            LogUtil.writeLog(TAG + "--连接LOG--run-return" + "isDestroyConnect--" + isDestroyConnect + "--onlineState=" + getOnlineState());
             return;
         }
         //无网络，不连接
         if (!NetUtil.isNetworkConnected()) {
             setRunState(0);
+            LogUtil.writeLog(TAG + "--连接LOG--run-return--无网络--isNetworkConnected");
             return;
         }
         setRunState(1);
@@ -350,12 +353,10 @@ public class SocketUtil {
             if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException || e instanceof CXSSLException) {
                 LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                 LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-//                setRunState(0);
                 run();
             } else {
                 LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                 LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-//                setRunState(0);
                 e.printStackTrace();
                 stop(true);
             }
@@ -380,6 +381,7 @@ public class SocketUtil {
         }
         //关闭信道
         try {
+            socketChannel.socket().close();
             socketChannel.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -404,6 +406,7 @@ public class SocketUtil {
         //关闭信道
         try {
             if (socketChannel != null) {
+                socketChannel.socket().close();
                 socketChannel.close();
             }
         } catch (Exception e) {
@@ -458,6 +461,7 @@ public class SocketUtil {
             LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
             return;
         }
+        LogUtil.getLog().i(TAG, "连接LOG--startSocket: status=0 ");
         setRunState(0);
         isStart = true;
         isDestroyConnect = false;
@@ -623,14 +627,6 @@ public class SocketUtil {
             //证书问题
             throw new CXSSLException();
         } else {
-            //TODO:人为制造异常
-//            if (sslCount < 3) {
-//                sslCount++;
-//                Thread.sleep(1000);
-//                //证书问题
-//                throw new CXSSLException();
-//            }
-//            sslCount = 0;
             updateConnectStatus(EConnectionStatus.SSL);
             long endTime = System.currentTimeMillis();
             LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>SSL握手成功,总耗时=" + (endTime - time));
@@ -643,7 +639,7 @@ public class SocketUtil {
         }
     }
 
-    private boolean checkConnect(long time) throws CXConnectTimeoutException, InterruptedException {
+    private synchronized boolean checkConnect(long time) throws CXConnectTimeoutException, InterruptedException {
         if (socketChannel == null) {
             LogUtil.getLog().e(TAG, "--连接LOG--" + "无效checkConnect--channel为空");
             return false;
@@ -652,7 +648,7 @@ public class SocketUtil {
             LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠200ms");
             long connTime = System.currentTimeMillis() - time;
             if (connTime > 3 * 1000) {
-                LogUtil.getLog().d(TAG, "连接LOG-->链接中3s超时");
+                LogUtil.getLog().d(TAG, "连接LOG-->链接中3s超时" + "--time=" + System.currentTimeMillis());
                 throw new CXConnectTimeoutException();
             }
             Thread.sleep(200);
@@ -670,7 +666,7 @@ public class SocketUtil {
             while (!socketChannel.finishConnect()) {
                 long connTime = System.currentTimeMillis() - time;
                 if (connTime > 3 * 1000) {
-                    LogUtil.getLog().d(TAG, ">>>链接中3s超时");
+                    LogUtil.getLog().d(TAG, ">>>链接中3s超时" + "--time=" + System.currentTimeMillis());
                     throw new CXConnectTimeoutException();
                 }
             }
@@ -679,9 +675,6 @@ public class SocketUtil {
             LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:finishConnect出错");
             Thread.sleep(100);
             throw new CXConnectTimeoutException();
-//            stop2();
-//            connect();
-//            return true;
         }
         return false;
     }

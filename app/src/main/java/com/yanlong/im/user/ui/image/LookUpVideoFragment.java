@@ -426,7 +426,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     }
 
 
-    private void downloadVideo(String url, String msgId, boolean showToast) {
+    private void downloadVideo(String url, String msgId, boolean isDownload) {
         LogUtil.getLog().i(TAG, "downloadVideo--msgId=" + msgId + "--url=" + url);
         if (TextUtils.isEmpty(url)) {
             return;
@@ -450,9 +450,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                         msgDao.fixVideoLocalUrl(msgId, fileVideo.getAbsolutePath());
                     }
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
-                    scanFile(getContext(), fileVideo.getAbsolutePath());
                     downloadState = 2;
-                    if (showToast) {
+                    if (isDownload) {
+                        scanFile(getContext(), fileVideo.getAbsolutePath());
                         ToastUtil.show("保存相册成功");
                     }
                 }
@@ -574,7 +574,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         } else if (v.getId() == ui.ivClose.getId()) {
             destroyPlay();
             getActivity().finish();
-        }else if (v.getId() == ui.ivPreview.getId()) {
+        } else if (v.getId() == ui.ivPreview.getId()) {
             ((PreviewMediaActivity) getActivity()).startPreviewAll(media.getMsg_id());
         }
     }
