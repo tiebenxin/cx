@@ -597,12 +597,11 @@ public class SocketUtil {
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
-            long ttime = System.currentTimeMillis();
-            if (finishConnect(ttime)) return;
-            boolean connected = checkConnect(ttime);
+            if (finishConnect()) return;
+            boolean connected = checkConnect();
             if (connected) {
                 updateConnectStatus(EConnectionStatus.CONNECTED);
-                LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
+                LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - startTime) + "--time=" + System.currentTimeMillis());
                 sslConnect();
             }
         }
@@ -639,11 +638,12 @@ public class SocketUtil {
         }
     }
 
-    private synchronized boolean checkConnect(long time) throws CXConnectTimeoutException, InterruptedException {
+    private synchronized boolean checkConnect() throws CXConnectTimeoutException, InterruptedException {
         if (socketChannel == null) {
             LogUtil.getLog().e(TAG, "--连接LOG--" + "无效checkConnect--channel为空");
             return false;
         }
+        long time = System.currentTimeMillis();
         while (!socketChannel.isConnected()) {
             LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠200ms");
             long connTime = System.currentTimeMillis() - time;
@@ -656,17 +656,18 @@ public class SocketUtil {
         return true;
     }
 
-    private boolean finishConnect(long time) throws Exception {
+    private boolean finishConnect() throws Exception {
         if (socketChannel == null) {
             LogUtil.getLog().e(TAG, "--连接LOG--" + "无效finishConnect--channel为空");
             return false;
         }
+        long time = System.currentTimeMillis();
         try {
             Thread.sleep(200);//给Socket200ms的pending时间,减少finish抛异常几率
             while (!socketChannel.finishConnect()) {
                 long connTime = System.currentTimeMillis() - time;
                 if (connTime > 3 * 1000) {
-                    LogUtil.getLog().d(TAG, ">>>链接中3s超时" + "--time=" + System.currentTimeMillis());
+                    LogUtil.getLog().d(TAG, "连接LOG-->>>链接中3s超时" + "--time=" + System.currentTimeMillis());
                     throw new CXConnectTimeoutException();
                 }
             }

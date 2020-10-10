@@ -7169,7 +7169,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (activity == null || activity.isFinishing()) {
             return;
         }
-        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型或\n或已失效，系统已自动过滤此类型消息。")
+        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型\n或已失效，系统已自动过滤此类型消息。")
                 .setShowLeftText(true)
                 .setRightText("继续发送")
                 .setLeftText("取消")

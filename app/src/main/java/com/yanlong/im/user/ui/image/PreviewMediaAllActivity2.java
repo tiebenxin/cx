@@ -729,7 +729,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
             return;
         }
         DialogCommon dialogValid = new DialogCommon(this);
-        dialogValid.setContent("你所选的消息包含了不支持转发的类型或\n或已失效，系统已自动过滤此类型消息。", true)
+        dialogValid.setContent("你所选的消息包含了不支持转发的类型\n或已失效，系统已自动过滤此类型消息。", true)
                 .setTitleAndSure(false, true)
                 .setRight("继续发送")
                 .setLeft("取消")
@@ -875,6 +875,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
 
         DialogCommon2 dialogValid = new DialogCommon2(this);
         dialogValid.setContent(content, true)
+                .hasTitle(false)
                 .setButtonTxt("确定")
                 .setListener(new DialogCommon2.IDialogListener() {
                     @Override
@@ -1212,6 +1213,8 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         if (list != null && list.size() > 0) {
             showLoadingDialog("下载中...");
             download(list, 0);
+        }else {
+            showValidMsgDialog(true);
         }
     }
 
@@ -1234,49 +1237,10 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
             return;
         }
         File finalTargetFile = targetFile;
-        UpFileAction action = new UpFileAction();
         String finalDownUrl = downUrl;
         ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
-//                action.downloadFile(finalDownUrl, PreviewMediaAllActivity2.this, new UpFileUtil.OssUpCallback() {
-//                    @Override
-//                    public void success(String url) {
-//                        LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + url);
-//                        if (position != list.size() - 1) {
-//                            download(list, position + 1);
-//                        } else {
-//                            //下载完成
-//                            ThreadUtil.getInstance().runMainThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    dismissLoadingDialog();
-//                                    ToastUtil.show("下载完成");
-//                                    switchSelectMode(false);
-//                                }
-//                            });
-//                        }
-//                        msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
-//                        scanFile(getContext(), finalTargetFile.getAbsolutePath());
-//                    }
-//
-//                    @Override
-//                    public void fail() {
-//                        LogUtil.getLog().i("DownloadUtil", "Exception下载失败:");
-//                        if (position != list.size() - 1) {
-//                            download(list, position + 1);
-//                        } else {
-//                            //下载完成
-//                            ToastUtil.show("下载完成");
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void inProgress(long progress, long total) {
-//
-//                    }
-//                }, finalTargetFile1);
-
                 DownloadUtil.get().download(finalDownUrl, finalTargetFile, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
@@ -1297,11 +1261,9 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                                     switchSelectMode(false);
                                 }
                             }, 100);
-
                         }
                         msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
                         scanFile(getContext(), finalTargetFile.getAbsolutePath());
-
                     }
 
                     @Override
@@ -1328,8 +1290,6 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                 });
             }
         });
-
-
     }
 
     private File getVideoFile(String url) {

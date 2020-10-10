@@ -80,7 +80,7 @@ public class TcpConnection implements Connection {
     @Override
     public void startConnect() {
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
-        LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--网络状态=" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
         this.from = EFrom.DEFAULT;
         if (NetUtil.isNetworkConnected()) {
             taskFixSendState();
@@ -93,7 +93,7 @@ public class TcpConnection implements Connection {
     //开始链接
     public void startConnect(@EFrom int from) {
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
-        LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
+        LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--网络状态=" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
         this.from = from;
         if (NetUtil.isNetworkConnected()) {
             taskFixSendState();

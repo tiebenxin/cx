@@ -242,8 +242,10 @@ public class NetUtil {
             ConnectivityManager cm = (ConnectivityManager) context
                     .getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
+            LogUtil.writeLog("Liszt_test" + "--连接LOG--网路状态--info=" + (info != null ? info.isConnected() : null));
             return info != null && info.isConnected();
         } else {
+            LogUtil.writeLog("Liszt_test" + "--连接LOG--网路状态false,context=null");
             return false;
         }
     }
