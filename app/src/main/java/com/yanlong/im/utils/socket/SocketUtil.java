@@ -356,7 +356,7 @@ public class SocketUtil {
                 run();
             } else {
                 LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                 e.printStackTrace();
                 stop(true);
             }
@@ -381,7 +381,6 @@ public class SocketUtil {
         }
         //关闭信道
         try {
-            socketChannel.socket().close();
             socketChannel.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -406,7 +405,6 @@ public class SocketUtil {
         //关闭信道
         try {
             if (socketChannel != null) {
-                socketChannel.socket().close();
                 socketChannel.close();
             }
         } catch (Exception e) {
@@ -616,10 +614,9 @@ public class SocketUtil {
         long time = System.currentTimeMillis();
         if (socketChannel.tryTLS(1) == 0) {
             if (socketChannel != null) {
-                socketChannel.socket().close();
+                setRunState(0);
                 socketChannel.close();
                 socketChannel = null;
-                setRunState(0);
             }
             LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
             LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
