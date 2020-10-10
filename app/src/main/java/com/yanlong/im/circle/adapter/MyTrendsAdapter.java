@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,11 +22,18 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
@@ -217,11 +226,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (dataList.get(position-1) != null) {
                     MessageInfoBean bean = dataList.get(position-1);
                     //时间
-                    holder.tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM(bean.getCreateTime()));
+                    holder.tvCreateTime.setText(TimeToString.YYYY_MM_DD_HH_MM(bean.getCreateTime()));
                     //内容
                     if(!TextUtils.isEmpty(bean.getContent())){
 //                        holder.tvContent.setText(bean.getContent());
-                        holder.tvContent.setText(getSpan(bean.getContent()));
+                        holder.tvText.setText(getSpan(bean.getContent()));
                     }
                     //位置
                     if(!TextUtils.isEmpty(bean.getPosition())){
@@ -361,6 +370,66 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             httpCancleLike(bean.getId(),bean.getUid(),holder.tvLike,position-1,bean.getLikeCount());
                         }
                     });
+                    //根据附件显示不同类型语音、图片、视频
+                    if (!TextUtils.isEmpty(bean.getAttachment())) {
+                        holder.layoutContent.setVisibility(View.VISIBLE);
+                        List<AttachmentBean> attachmentBeans = new Gson().fromJson(bean.getAttachment(),
+                                new TypeToken<List<AttachmentBean>>() {
+                                }.getType());
+                        if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOICE) {
+                            holder.recyclerView.setVisibility(View.GONE);
+                            holder.layoutVideo.setVisibility(View.GONE);
+                            holder.layoutVoice.setVisibility(View.VISIBLE);
+                            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                                holder.tvTime.setText(attachmentBean.getDuration() + "");
+                                holder.pbProgress.setProgress(0);
+                                holder.ivVoicePlay.setOnClickListener(o -> {
+                                    if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
+                                        AudioPlayUtil.startAudioPlay(activity, attachmentBean.getUrl(), holder.ivVoicePlay, holder.pbProgress);
+                                    }
+                                });
+                                holder.ivDeleteVoice.setVisibility(View.GONE);
+                            }
+
+                        } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.PICTRUE) {
+                            holder.recyclerView.setVisibility(View.VISIBLE);
+                            holder.layoutVideo.setVisibility(View.GONE);
+                            holder.layoutVoice.setVisibility(View.GONE);
+                            List<String> imgs = new ArrayList<>();
+                            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                                for (AttachmentBean attachmentBean : attachmentBeans) {
+                                    imgs.add(attachmentBean.getUrl());
+                                }
+                            }
+                            setRecycleView(holder.recyclerView, imgs);
+                        } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VIDEO) {
+                            holder.recyclerView.setVisibility(View.GONE);
+                            holder.layoutVideo.setVisibility(View.VISIBLE);
+                            holder.layoutVoice.setVisibility(View.GONE);
+                            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                                Glide.with(activity)
+                                        .asBitmap()
+                                        .load(attachmentBean.getBgUrl())
+                                        .apply(GlideOptionsUtil.headImageOptions())
+                                        .into(holder.ivVideo);
+                                holder.layoutVideo.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent(activity, VideoPlayActivity.class);
+                                        if (attachmentBeans.size() > 0) {
+                                            intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                                        }
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                        activity.startActivity(intent);
+                                    }
+                                });
+                            }
+                        }
+                    } else {
+                        holder.layoutContent.setVisibility(View.GONE);
+                    }
                 }
             }
         } else if(viewHolder instanceof MyTrendsAdapter.FootHolder){
@@ -539,9 +608,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     // 子项
     private class ContentHolder extends RecyclerView.ViewHolder {
-        private TextView tvTime;
+        private TextView tvCreateTime;
         private TextView tvCanSee;
-        private TextView tvContent;
+        private TextView tvText;
         private TextView tvLocation;
         private TextView tvLike;
         private TextView tvComment;
@@ -549,13 +618,22 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private ImageView ivIstop;
         private TextView tvIstop;
         private RelativeLayout layoutItem;
+        private LinearLayout layoutContent;
+        private RecyclerView recyclerView;
+        private RelativeLayout layoutVideo;
+        private ImageView ivVideo;
+        private LinearLayout layoutVoice;
+        private TextView tvTime;
+        private ProgressBar pbProgress;
+        private ImageView ivVoicePlay;
+        private ImageView ivDeleteVoice;
 
 
         public ContentHolder(View itemView) {
             super(itemView);
-            tvTime = itemView.findViewById(R.id.tv_time);
+            tvCreateTime = itemView.findViewById(R.id.tv_create_time);
             tvCanSee = itemView.findViewById(R.id.tv_can_see);
-            tvContent = itemView.findViewById(R.id.tv_content);
+            tvText = itemView.findViewById(R.id.tv_text);
             tvLocation = itemView.findViewById(R.id.tv_location);
             layoutItem = itemView.findViewById(R.id.layout_item);
             tvLike = itemView.findViewById(R.id.tv_like);
@@ -563,7 +641,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ivSetup = itemView.findViewById(R.id.iv_setup);
             ivIstop = itemView.findViewById(R.id.iv_istop);
             tvIstop = itemView.findViewById(R.id.tv_istop);
-
+            recyclerView = itemView.findViewById(R.id.recycler_view);
+            layoutVideo = itemView.findViewById(R.id.layout_video);
+            layoutContent = itemView.findViewById(R.id.layout_content);
+            ivVideo = itemView.findViewById(R.id.iv_video);
+            layoutVoice = itemView.findViewById(R.id.layout_voice);
+            tvTime = itemView.findViewById(R.id.tv_time);
+            pbProgress = itemView.findViewById(R.id.pb_progress);
+            ivVoicePlay = itemView.findViewById(R.id.iv_voice_play);
+            ivDeleteVoice = itemView.findViewById(R.id.iv_delete_voice);
         }
     }
 
@@ -822,6 +908,33 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             return ExpressionUtil.getExpressionString(activity, ExpressionUtil.DEFAULT_SIZE, spannableString);
         }
+    }
+
+    private void setRecycleView(RecyclerView rv, List<String> imgs) {
+        rv.setLayoutManager(new GridLayoutManager(activity, 3));
+        ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
+        rv.setAdapter(taskAdapter);
+        taskAdapter.setNewData(imgs);
+        taskAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                toPictruePreview(position, imgs);
+            }
+        });
+    }
+
+    private void toPictruePreview(int postion, List<String> imgs) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        for (String s : imgs) {
+            LocalMedia localMedia = new LocalMedia();
+            localMedia.setPath(s);
+            localMedia.setCompressPath(s);
+            selectList.add(localMedia);
+        }
+        PictureSelector.create(activity)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview(postion, selectList);
     }
 
 

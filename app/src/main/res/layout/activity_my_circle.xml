@@ -43,13 +43,12 @@
                android:layout_height="37dp"
                android:layout_marginLeft="15dp"
                android:layout_alignParentBottom="true"
-               android:gravity="center_vertical"
+               android:gravity="center"
                android:layout_marginBottom="6dp"
                android:background="@drawable/shape_5radius_solid_32b053">
                <ImageView
                    android:layout_width="25dp"
                    android:layout_height="25dp"
-                   android:layout_marginLeft="43dp"
                    android:src="@mipmap/ic_follow"/>
                <TextView
                    android:id="@+id/tv_follow"
@@ -67,14 +66,13 @@
                 android:layout_height="37dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:layout_marginRight="15dp"
                 android:layout_marginBottom="6dp"
                 android:background="@drawable/shape_5radius_solid_32b053">
                 <ImageView
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:layout_marginLeft="43dp"
                     android:src="@mipmap/ic_chat"/>
                 <TextView
                     android:layout_width="wrap_content"
