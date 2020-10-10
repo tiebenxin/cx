@@ -2,21 +2,31 @@ package com.yanlong.im.circle.adapter;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
@@ -122,6 +132,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private RequestOptions mRequestOptions;
     private boolean haveNewMsg = false;//是否展示顶部新消息通知
     private boolean isFollow = false;//是否关注
+    private final int MAX_ROW_NUMBER = 3;
+    private final String END_MSG = " 收起";
 
     public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type,long friendUid) {
         inflater = LayoutInflater.from(activity);
@@ -242,11 +254,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.tvCreateTime.setText(TimeToString.YYYY_MM_DD_HH_MM(bean.getCreateTime()));
                     //内容
                     if(!TextUtils.isEmpty(bean.getContent())){
-//                        holder.tvContent.setText(bean.getContent());
                         holder.tvText.setText(getSpan(bean.getContent()));
                     }else {
                         holder.tvText.setText("");
                     }
+                    //TODO 这个展开收起好像有点问题，"收起项"时有时无，且加载更多时全屏抖动
+//                    toggleEllipsize(activity, holder.tvText, MAX_ROW_NUMBER, bean.getContent(),
+//                            "展开", R.color.blue_500, bean.isShowAll(), position, bean);
                     //位置
                     if(!TextUtils.isEmpty(bean.getPosition())){
                         holder.tvLocation.setText(bean.getPosition());
@@ -766,7 +780,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         postcard.navigation();
     }
 
-
     /**
      * 发请求->点赞
      */
@@ -1112,5 +1125,102 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
         return flowItemBean;
     }
+
+    /**
+     * 设置textView结尾...后面显示的文字和颜色
+     *
+     * @param context    上下文
+     * @param textView   textview
+     * @param minLines   最少的行数
+     * @param originText 原文本
+     * @param endText    结尾文字
+     * @param endColorID 结尾文字颜色id
+     * @param isExpand   当前是否是展开状态
+     * @param postion    位置
+     */
+    public void toggleEllipsize(final Context context, final TextView textView, final int minLines,
+                                final String originText, final String endText, final int endColorID,
+                                final boolean isExpand, final int postion, MessageInfoBean messageInfoBean) {
+        if (TextUtils.isEmpty(originText)) {
+            return;
+        }
+        try {
+            textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
+                    .OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (isExpand) {
+                        if (messageInfoBean.isRowsMore()) {
+                            setSpanClick(context, textView, originText + END_MSG, END_MSG, postion, endColorID);
+                        } else {
+                            textView.setText(getSpan((originText)));
+                        }
+                    } else {
+                        int paddingLeft = textView.getPaddingLeft();
+                        int paddingRight = textView.getPaddingRight();
+                        TextPaint paint = textView.getPaint();
+                        float moreText = textView.getTextSize() * endText.length();
+                        float availableTextWidth = (textView.getWidth() - paddingLeft - paddingRight) * minLines - moreText;
+                        availableTextWidth = availableTextWidth - paint.measureText("中");// 减去一个字的宽度
+                        CharSequence ellipsizeStr = TextUtils.ellipsize(originText, paint, availableTextWidth, TextUtils.TruncateAt.END);
+                        if (ellipsizeStr.length() < originText.length()) {
+                            CharSequence temp = ellipsizeStr + endText;
+                            setSpanClick(context, textView, temp, endText, postion, endColorID);
+                            messageInfoBean.setRowsMore(true);
+                        } else {
+                            textView.setText(getSpan((originText)));
+                        }
+                    }
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        textView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    } else {
+                        textView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            textView.setText(getSpan((originText)));
+        }
+    }
+
+    private void setSpanClick(Context context, TextView textView, CharSequence temp, String endText, int postion, int endColorID) {
+        SpannableString ssb = new SpannableString(temp);
+        ClickableSpan clickableSpan = new ClickableSpan() {
+
+            @Override
+            public void onClick(@NonNull View widget) {
+                MessageInfoBean messageInfoBean = dataList.get(postion-1);
+                messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
+                notifyItemChanged(postion);
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                ds.setUnderlineText(false);
+            }
+        };
+        ClickableSpan contentSpan = new ClickableSpan() {
+
+            @Override
+            public void onClick(@NonNull View widget) {
+//                if (!DoubleUtils.isFastDoubleClick()) {
+//                    gotoCircleDetailsActivity(false, postion);
+//                }
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                ds.setUnderlineText(false);
+            }
+        };
+        ssb.setSpan(clickableSpan, temp.length() - endText.length(), temp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssb.setSpan(contentSpan, 0, temp.length() - endText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssb.setSpan(new ForegroundColorSpan(context.getResources().getColor(endColorID)),
+                temp.length() - endText.length(), temp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        textView.setText(getSpan(ssb));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
 
 }
