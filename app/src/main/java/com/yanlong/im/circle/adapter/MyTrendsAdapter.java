@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -35,8 +36,11 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
+import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
+import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.follow.FollowModel;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
@@ -63,6 +67,7 @@ import net.cb.cb.library.utils.ViewUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -196,6 +201,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return dataList.size();
     }
 
+    //更新某一条投票数据
+    public void updateOneData(int position,MessageInfoBean messageInfoBean){
+        if(messageInfoBean.getVoteAnswer()!=null){
+            dataList.get(position).setVoteAnswer(messageInfoBean.getVoteAnswer());
+            notifyItemChanged(position+1);//考虑到头部，第一条数据的位置是1
+        }
+    }
+
 
     @Override
     public int getItemViewType(int position) {
@@ -231,10 +244,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if(!TextUtils.isEmpty(bean.getContent())){
 //                        holder.tvContent.setText(bean.getContent());
                         holder.tvText.setText(getSpan(bean.getContent()));
+                    }else {
+                        holder.tvText.setText("");
                     }
                     //位置
                     if(!TextUtils.isEmpty(bean.getPosition())){
                         holder.tvLocation.setText(bean.getPosition());
+                    }else {
+                        holder.tvLocation.setText("未设置地点");
                     }
                     //点赞数 评论数
                     holder.tvLike.setText(bean.getLikeCount()+"");
@@ -372,7 +389,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     });
                     //根据附件显示不同类型语音、图片、视频
                     if (!TextUtils.isEmpty(bean.getAttachment())) {
-                        holder.layoutContent.setVisibility(View.VISIBLE);
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(bean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
@@ -427,8 +443,25 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 });
                             }
                         }
-                    } else {
-                        holder.layoutContent.setVisibility(View.GONE);
+                    }else {
+                        holder.recyclerView.setVisibility(View.GONE);
+                        holder.layoutVideo.setVisibility(View.GONE);
+                        holder.layoutVoice.setVisibility(View.GONE);
+                    }
+                    //投票
+                    if (!TextUtils.isEmpty(bean.getVote())) {
+                        holder.layoutVote.setVisibility(View.VISIBLE);
+                        VoteBean voteBean = new Gson().fromJson(bean.getVote(), VoteBean.class);
+                        //若我点击是postion是1，由于有头部，取数据则是从0开始起，故需要-1
+                        setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position-1,
+                                bean.getVoteAnswer().getSelfAnswerItem(),
+                                getVoteSum(bean.getVoteAnswer().getSumDataList())
+                                , bean.getVoteAnswer().getSumDataList());
+                    }else {
+                        holder.layoutVote.setVisibility(View.GONE);
+                    }
+                    if(bean.getVoteAnswer()!=null && bean.getVoteAnswer().getSumDataList()!=null && bean.getVoteAnswer().getSumDataList().size()>0){
+                        holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer().getSumDataList()) + "人参与了投票");
                     }
                 }
             }
@@ -627,6 +660,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private ProgressBar pbProgress;
         private ImageView ivVoicePlay;
         private ImageView ivDeleteVoice;
+        private RecyclerView recyclerVote;
+        private LinearLayout layoutVote;
+        private TextView tvVoteNumber;
 
 
         public ContentHolder(View itemView) {
@@ -650,6 +686,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             pbProgress = itemView.findViewById(R.id.pb_progress);
             ivVoicePlay = itemView.findViewById(R.id.iv_voice_play);
             ivDeleteVoice = itemView.findViewById(R.id.iv_delete_voice);
+            recyclerVote = itemView.findViewById(R.id.recycler_vote);
+            layoutVote = itemView.findViewById(R.id.layout_vote);
+            tvVoteNumber = itemView.findViewById(R.id.tv_vote_number);
         }
     }
 
@@ -937,5 +976,141 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .openExternalPreview(postion, selectList);
     }
 
+    private int getVoteSum(List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
+        int sum = 0;
+        if (sumDataList != null && sumDataList.size() > 0) {
+            for (MessageInfoBean.VoteAnswerBean.SumDataListBean bean : sumDataList) {
+                sum += bean.getCnt();
+            }
+        }
+        return sum;
+    }
+
+    /**
+     * 投票
+     *
+     * @param rv
+     * @param voteList
+     * @param type          类型 1文字 2 图片
+     * @param parentPostion 父类位置
+     * @param isVote        未投票-1，其他则为itemId:1-4
+     * @param voteSum       投票总数
+     * @param sumDataList   答案列表
+     */
+    private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
+                                int isVote, int voteSum, List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
+        rv.setLayoutManager(new LinearLayoutManager(activity));
+        VoteAdapter taskAdapter = new VoteAdapter(type, isVote, voteSum, sumDataList);
+        rv.setAdapter(taskAdapter);
+        taskAdapter.setNewData(voteList);
+        taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+            @Override
+            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                MessageInfoBean messageInfoBean = dataList.get(parentPostion);
+                if (isVote == -1) {
+                    switch (view.getId()) {
+                        case R.id.layout_vote_pictrue:// 图片投票
+                        case R.id.layout_vote_txt:// 文字投票
+                            voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 投票接口
+     *
+     * @param itemId 投票选项ID，1-4
+     * @param vid    说说ID
+     * @param vUid   投票发布者
+     */
+    public void voteAnswer(int itemId, int parentPostion, Long vid, Long vUid) {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("itemId", itemId);
+        params.put("vid", vid);
+        params.put("vUid", vUid);
+        new FollowModel().voteAnswer(params, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.code() == 200) {
+                    ToastUtil.show("投票成功");
+                    queryById(vid,vUid,parentPostion);
+                } else {
+                    ToastUtil.show(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("投票失败");
+            }
+        });
+    }
+
+    /**
+     * 获取单条朋友圈
+     *
+     * @param momentId  说说ID
+     * @param momentUid 说说发布者
+     * @param position  位置
+     */
+    public void queryById(Long momentId, Long momentUid, int position) {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("momentId", momentId);
+        params.put("momentUid", momentUid);
+        new FollowModel().queryById(params, new CallBack<ReturnBean<MessageInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
+                super.onResponse(call, response);
+                if (response.code() == 200) {
+                    if (response.body() != null && response.body().getData() != null) {
+                        MessageFlowItemBean flowItemBean = createFlowItemBean(response.body().getData());
+                        try {
+                            if (flowItemBean != null) {
+                                // TODO 服务端没返回头像跟昵称所以取原来的数据
+                                MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
+                                MessageInfoBean locationInfoBean = dataList.get(position);
+                                serverInfoBean.setAvatar(locationInfoBean.getAvatar());
+                                serverInfoBean.setNickname(locationInfoBean.getNickname());
+                                updateOneData(position,serverInfoBean);
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+                } else {
+                    ToastUtil.show(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("投票失败");
+            }
+        });
+    }
+
+    private MessageFlowItemBean createFlowItemBean(MessageInfoBean messageInfoBean) {
+        MessageFlowItemBean flowItemBean = null;
+        if (messageInfoBean != null) {
+            switch (messageInfoBean.getType()) {
+                case PictureEnum.EContentType.VOTE:
+                case PictureEnum.EContentType.PICTRUE_AND_VOTE:
+                case PictureEnum.EContentType.VOICE_AND_VOTE:
+                case PictureEnum.EContentType.VIDEO_AND_VOTE:
+                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VOTE, messageInfoBean);
+                    break;
+                default:
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_DEFAULT, messageInfoBean);
+                    break;
+            }
+        }
+        return flowItemBean;
+    }
 
 }
