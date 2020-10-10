@@ -74,6 +74,7 @@ public class BurnManager {
         toBurnMessages = realm.where(MsgAllBean.class)
                 .greaterThan("endTime", 0)
                 .findAllAsync();
+        LogUtil.getLog().i("阅后LOG", "initBurnQueue--size=" + toBurnMessages.size());
         toBurnMessages.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults>() {
             @Override
             public void onChange(RealmResults realmResults, OrderedCollectionChangeSet changeSet) {
@@ -81,6 +82,7 @@ public class BurnManager {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL
                         || changeSet.getInsertions().length > 0 || changeSet.getChanges().length > 0) {
                     //初始化
+                    LogUtil.getLog().i("阅后LOG", "initBurnQueue--onChange--size=" + toBurnMessages.size());
                     notifyBurnQuene();
                 }
             }
@@ -167,7 +169,7 @@ public class BurnManager {
             initBurnQueue();
             return;
         }
-
+        LogUtil.getLog().i("阅后LOG", "notifyBurnQuene--size=" + toBurnMessages.size());
         if (toBurnMessages != null && toBurnMessages.size() > 0) {
             Map<String, List<String>> gids = new HashMap<>();
             Map<Long, List<String>> uids = new HashMap<>();
@@ -212,6 +214,9 @@ public class BurnManager {
                         //删除前先把子表数据干掉!!切记
                         MsgDao msgDao = new MsgDao();
                         for (MsgAllBean msg : toDeletedResults) {
+                            if (msg.getChat() != null) {
+                                LogUtil.getLog().i("阅后LOG", "删除数据库消息--" + msg.getChat().getMsg());
+                            }
                             msgDao.deleteRealmMsg(msg);
                         }
                         //批量删除 已到阅后即焚时间

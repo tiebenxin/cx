@@ -340,6 +340,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private List<MsgAllBean> downloadList = new ArrayList<>();//下载列表
     private Map<String, MsgAllBean> uploadMap = new HashMap<>();//上传列表
     private List<MsgAllBean> uploadList = new ArrayList<>();//上传列表
+    private List<MsgAllBean> deleteList = new ArrayList<>();//已经删除列表。阅后即焚
 
     //红包和转账
     public static final int REQ_RP = 9653;
@@ -4886,10 +4887,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void notifyData() {
-        LogUtil.getLog().i(TAG, "刷新数据");
 //        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null && mAdapter.getItemCount() > 0) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
+            LogUtil.getLog().i(TAG, "刷新数据--阅后LOG--" + mAdapter.getItemCount());
             mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
         }
         mtListView.getSwipeLayout().setRefreshing(false);
@@ -4941,6 +4942,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--time=" + bean.getTimestamp());
                         ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
                         sendMessage(read, ChatEnum.EMessageType.READ);
+                    } else {
+                        LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
                     }
                 }
             }
@@ -5020,6 +5023,15 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             mtListView.setStackFromEnd(false);
                         } else {
                             mtListView.setStackFromEnd(true);
+                        }
+                        try {
+                            if (deleteList.size() > 0 && (list.contains(deleteList.get(0)) || list.contains(deleteList.get(deleteList.size() - 1)))) {
+                                LogUtil.getLog().i("阅后LOG", "校正数据--size=" + deleteList.size());
+                                list.removeAll(deleteList);
+                            }
+                            deleteList.clear();
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                         mAdapter.bindData(list, false);
                         mAdapter.setReadStatus(checkIsRead());
@@ -6130,11 +6142,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (mAdapter == null || mAdapter.getItemCount() <= 0 || list == null) {
             return;
         }
+        deleteList.addAll(list);
         mAdapter.removeMsgList(list);
         removeUnreadCount(list.size());
-        mtListView.getListView().setFocusable(false);
-        mtListView.getListView().setFocusableInTouchMode(false);
         notifyData();
+//        mAdapter.notifyDataSetChanged();
         //有面板，则滑到底部
         if (mViewModel.isInputText.getValue() || mViewModel.isOpenEmoj.getValue() || mViewModel.isOpenFuction.getValue()) {
             mtListView.scrollToEnd();

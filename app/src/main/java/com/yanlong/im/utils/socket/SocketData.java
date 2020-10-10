@@ -806,6 +806,7 @@ public class SocketData {
                 SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
                 MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
                 SocketUtil.getSocketUtil().sendData4Msg(msg);
+                LogUtil.getLog().i("消息LOG", "发送消息--requestId=" + bean.getRequest_id() + "--type=" + bean.getMsg_type() + "--chat=" + (bean.getChat() != null ? bean.getChat().getMsg() : ""));
             }
         } else {
             if (needSave) {

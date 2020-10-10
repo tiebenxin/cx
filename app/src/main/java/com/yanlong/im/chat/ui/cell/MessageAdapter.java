@@ -104,6 +104,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             } else {
                 mList = list;
             }
+            LogUtil.getLog().i("阅后LOG","bindData--size="+mList.size());
             refreshPositions();
             this.notifyDataSetChanged();
         } catch (Exception e) {
@@ -119,6 +120,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (mMsgIdPositions == null) {
             return;
         }
+        mMsgIdPositions.clear();
         mMsgIdPositions.clear();
         if (mList != null && mList.size() > 0) {
             for (int position = 0; position < mList.size(); position++) {
@@ -295,11 +297,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.add(msg);
+        LogUtil.getLog().i("阅后LOG","addMessage--size="+mList.size());
         refreshPositions();
     }
 
     public void setMessageList(List<MsgAllBean> msg) {
         mList = msg;
+        LogUtil.getLog().i("阅后LOG","setMessageList--size="+mList.size());
         refreshPositions();
     }
 
@@ -308,6 +312,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.addAll(position, msg);
+        LogUtil.getLog().i("阅后LOG","addMessageList--size="+mList.size());
         refreshPositions();
     }
 
@@ -345,14 +350,23 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     public synchronized void removeItem(MsgAllBean bean) {
         if (mList != null && bean != null) {
-            mList.remove(bean);
+            boolean result = mList.remove(bean);
+            if (!result) {
+                LogUtil.getLog().i("阅后LOG", "移出单个失败");
+            }
+            LogUtil.getLog().i("阅后LOG","removeItem--后--size="+mList.size());
         }
         refreshPositions();
     }
 
     public synchronized void removeMsgList(List<MsgAllBean> list) {
         if (mList != null && list != null) {
-            mList.removeAll(list);
+            LogUtil.getLog().i("阅后LOG", "removeMsgList-前--size=" + mList.size());
+            boolean result = mList.removeAll(list);
+            if (!result) {
+                LogUtil.getLog().i("阅后LOG", "移出list失败");
+            }
+            LogUtil.getLog().i("阅后LOG", "removeMsgList--后--size=" + mList.size());
         }
         refreshPositions();
     }

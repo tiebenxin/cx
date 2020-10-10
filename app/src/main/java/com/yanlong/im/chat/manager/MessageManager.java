@@ -622,6 +622,7 @@ public class MessageManager {
         if (list == null || type < 0) {
             return;
         }
+        LogUtil.getLog().i("阅后LOG","通知删除消息--size=" +list.size() );
         EventRefreshChat event = new EventRefreshChat();
         event.setList(list);
         event.setRefreshType(type);
