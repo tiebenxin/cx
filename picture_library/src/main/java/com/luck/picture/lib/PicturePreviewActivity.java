@@ -1,5 +1,6 @@
 package com.luck.picture.lib;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -67,6 +70,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private Handler mHandler;
     public final int EDIT_FROM_ALBUM = 1;//相册预览编辑
     private int fromWhere = 0;//跳转来源 0 默认 1 猜你想要
+    private CheckBox cbOrigin;
+    private boolean isOrigin;
 
     /**
      * EventBus 3.0 回调
@@ -126,8 +131,11 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         tv_img_num = (TextView) findViewById(R.id.tv_img_num);
         tv_title = (TextView) findViewById(R.id.picture_title);
         tvEdit = findViewById(R.id.tv_edit);
+        cbOrigin = findViewById(R.id.cb_original);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
         fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);
+        isOrigin = getIntent().getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+        cbOrigin.setChecked(isOrigin);
         tv_ok.setText(numComplete ? getString(R.string.picture_done_front_num,
                 0, config.selectionMode == PictureConfig.SINGLE ? 1 : config.maxSelectNum)
                 : getString(R.string.picture_please_select));
@@ -147,6 +155,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
         initViewPageAdapterData();
         ll_check.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("StringFormatMatches")
             @Override
             public void onClick(View view) {
                 if (images != null && images.size() > 0) {
@@ -158,6 +167,11 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                                 mimeToEqual(pictureType, image.getPictureType());
                         if (!toEqual) {
                             ToastManage.s(mContext, getString(R.string.picture_rule));
+                            return;
+                        }
+                        if (PictureMimeType.isVideo(pictureType) && (selectImages != null && selectImages.size() > 0)) {
+                            String str = getString(R.string.picture_message_video_max_num, 1);
+                            ToastManage.s(PicturePreviewActivity.this, str);
                             return;
                         }
                     }
@@ -241,6 +255,14 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 //如果当前图片存在于已选中列表则编辑后需要更新已选列表的数据；否则不需要更新已选列表的数据
                 int editIndex = getSelectedPosition(images.get(position));
                 ARouter.getInstance().build("/weixinrecorded/ImageShowActivity").withString("imgpath", images.get(position).getPath()).withInt("index", editIndex).withInt("img_width", images.get(position).getWidth()).withInt("img_height", images.get(position).getHeight()).navigation(PicturePreviewActivity.this, EDIT_FROM_ALBUM);
+            }
+        });
+
+        cbOrigin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isOrigin = isChecked;
+                updateOrigin();
             }
         });
     }
@@ -440,6 +462,16 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
     }
 
+    /**
+     * 更新图片选择原图
+     *
+     * @param isRefresh
+     */
+    private void updateOrigin() {
+        EventEntity obj = new EventEntity(PictureConfig.SELECT_ORIGINAL, selectImages, index);
+        RxBus.getDefault().post(obj);
+    }
+
     @Override
     public void onAnimationStart(Animation animation) {
     }
@@ -468,8 +500,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
             if (config.minSelectNum > 0) {
                 if (size < config.minSelectNum && config.selectionMode == PictureConfig.MULTIPLE) {
                     boolean eqImg = pictureType.startsWith(PictureConfig.IMAGE);
-                    String str = eqImg ? getString(R.string.picture_min_img_num, config.minSelectNum)
-                            : getString(R.string.picture_min_video_num, config.minSelectNum);
+                    @SuppressLint("StringFormatMatches")
+                    String str = eqImg ? getString(R.string.picture_min_img_num, config.minSelectNum) : getString(R.string.picture_min_video_num, config.minSelectNum);
                     ToastManage.s(mContext, str);
                     return;
                 }
