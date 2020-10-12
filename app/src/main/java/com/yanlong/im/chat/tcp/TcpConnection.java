@@ -51,10 +51,10 @@ public class TcpConnection implements Connection {
             mNetworkChangeReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
-                    LogUtil.writeLog(TAG + "--连接LOG--" + "网路状态改变--" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
-
-                    if (NetUtil.isNetworkConnected()) {//链接成功
+                    boolean isNetOk = NetUtil.isNetworkConnected();
+                    LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + isNetOk + "--time=" + System.currentTimeMillis());
+                    LogUtil.writeLog(TAG + "--连接LOG--" + "网路状态改变--" + isNetOk + "--time=" + System.currentTimeMillis());
+                    if (isNetOk) {//链接成功
                         if (!isRunning) {
                             startConnect(from);
                         } else {
@@ -64,7 +64,10 @@ public class TcpConnection implements Connection {
                         }
                     } else {//链接失败
 //                    stopConnect();
-                        SocketUtil.getSocketUtil().stopSocket();
+                        if (SocketUtil.getSocketUtil().isRun()) {
+                            LogUtil.writeLog(TAG + "--连接LOG--" + "stop连接--网络状态=" + false + "--time=" + System.currentTimeMillis());
+                            SocketUtil.getSocketUtil().stopSocket();
+                        }
                     }
                 }
             };
