@@ -4887,10 +4887,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void notifyData() {
-//        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null && mAdapter.getItemCount() > 0) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
-            LogUtil.getLog().i(TAG, "刷新数据--阅后LOG--" + mAdapter.getItemCount());
             mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
         }
         mtListView.getSwipeLayout().setRefreshing(false);
@@ -4944,6 +4942,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         sendMessage(read, ChatEnum.EMessageType.READ);
                     } else {
                         LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
+                        LogUtil.writeLog(TAG + "--发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
                     }
                 }
             }
@@ -5006,6 +5005,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 list = msgAction.getMsg4User(toGid, toUId, null, 80);
                             }
                         }
+                        sendRead();
                         taskMkName(list);
                         return list;
                     }
@@ -5026,7 +5026,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                         try {
                             if (deleteList.size() > 0 && (list.contains(deleteList.get(0)) || list.contains(deleteList.get(deleteList.size() - 1)))) {
-                                LogUtil.getLog().i("阅后LOG", "校正数据--size=" + deleteList.size());
                                 list.removeAll(deleteList);
                             }
                             deleteList.clear();
@@ -5041,8 +5040,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        //单聊发送已读消息
-                        sendRead();
                     }
                 });
 

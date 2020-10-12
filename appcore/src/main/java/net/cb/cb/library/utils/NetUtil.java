@@ -243,7 +243,7 @@ public class NetUtil {
                     .getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
             LogUtil.writeLog("Liszt_test" + "--连接LOG--网路状态--isConnected=" + (info != null ? info.isConnected() : null) + "--isAvailable=" + (info != null ? info.isAvailable() : null));
-            return info != null && info.isConnected();
+            return info != null && info.isAvailable();
         } else {
             LogUtil.writeLog("Liszt_test" + "--连接LOG--网路状态false,context=null");
             return false;

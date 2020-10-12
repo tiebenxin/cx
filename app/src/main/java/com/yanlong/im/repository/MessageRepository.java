@@ -296,8 +296,7 @@ public class MessageRepository {
      * @param wrapMessage
      * @param isOfflineMsg 是否为离线消息
      */
-    public void handlerRead(MsgBean.UniversalMessage.WrapMessage wrapMessage,
-                            boolean isOfflineMsg, Realm realm) {
+    public void handlerRead(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         if (!isFromSelf) {
