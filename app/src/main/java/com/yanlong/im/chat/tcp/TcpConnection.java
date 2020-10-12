@@ -85,11 +85,11 @@ public class TcpConnection implements Connection {
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
         LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--网络状态=" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
         this.from = EFrom.DEFAULT;
-        if (NetUtil.isNetworkConnected()) {
+//        if (NetUtil.isNetworkConnected()) {
             taskFixSendState();
             isRunning = true;
             SocketUtil.getSocketUtil().startSocket();
-        }
+//        }
         initNetReceiver();
     }
 
@@ -98,11 +98,11 @@ public class TcpConnection implements Connection {
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + NetUtil.isNetworkConnected());
         LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--网络状态=" + NetUtil.isNetworkConnected() + "--time=" + System.currentTimeMillis());
         this.from = from;
-        if (NetUtil.isNetworkConnected()) {
+//        if (NetUtil.isNetworkConnected()) {
             taskFixSendState();
             isRunning = true;
             SocketUtil.getSocketUtil().startSocket();
-        }
+//        }
         initNetReceiver();
     }
 

@@ -333,11 +333,11 @@ public class SocketUtil {
             return;
         }
         //无网络，不连接
-        if (!NetUtil.isNetworkConnected()) {
-            setRunState(0);
-            LogUtil.writeLog(TAG + "--连接LOG--run-return--无网络--isNetworkConnected");
-            return;
-        }
+//        if (!NetUtil.isNetworkConnected()) {
+//            setRunState(0);
+//            LogUtil.writeLog(TAG + "--连接LOG--run-return--无网络--isNetworkConnected");
+//            return;
+//        }
         setRunState(1);
         try {
             //!getOnlineState() 考虑连接OK,SSL鉴权失败的情况
