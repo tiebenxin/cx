@@ -8,6 +8,11 @@ import android.view.View;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.event.EventFactory;
+import com.luck.picture.lib.rxbus2.RxBus;
+import com.luck.picture.lib.rxbus2.Subscribe;
+import com.luck.picture.lib.rxbus2.ThreadMode;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
@@ -60,6 +65,9 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         mList = new ArrayList<>();
         bindingView.layoutFollow.setVisibility(View.GONE);
         bindingView.layoutChat.setVisibility(View.GONE);
+        if (!RxBus.getDefault().isRegistered(this)) {
+            RxBus.getDefault().register(this);
+        }
     }
 
     @Override
@@ -102,7 +110,16 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
         //发新动态
         bindingView.ivCreateCircle.setOnClickListener(v -> {
-            ToastUtil.show("发新动态");
+            PictureSelector.create(MyTrendsActivity.this)
+                    .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                    .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                    .previewImage(false)// 是否可预览图片 true or false
+                    .isCamera(true)// 是否显示拍照按钮 ture or false
+                    .maxVideoSelectNum(1)
+                    .compress(true)// 是否压缩 true or false
+                    .isGif(true)
+                    .selectArtworkMaster(true)
+                    .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
         });
     }
 
@@ -257,4 +274,18 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         adapter.showNotice(true);
     }
 
+    //发布新动态后直接刷新
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventFactory.CreateSuccessEvent event) {
+        page = 1;
+        httpGetMyTrends();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (RxBus.getDefault().isRegistered(this)) {
+            RxBus.getDefault().unregister(this);
+        }
+    }
 }
