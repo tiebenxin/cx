@@ -2491,6 +2491,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 ToastUtil.show(getResources().getString(R.string.to_disable_message));
                                 return;
                             }
+                            if (userInfo.getuType() == ChatEnum.EUserType.BLACK) {
+                                ToastUtil.show(getResources().getString(R.string.is_black_can_not_call));
+                                return;
+                            }
                             // 对方被注销
                             if (userInfo.getFriendDeactivateStat() != 0) {
                                 int status = userInfo.getFriendDeactivateStat();
