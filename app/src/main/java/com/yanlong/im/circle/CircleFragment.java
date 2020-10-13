@@ -25,6 +25,7 @@ import com.yanlong.im.circle.bean.CircleTitleBean;
 import com.yanlong.im.databinding.ActivityCircleBinding;
 
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
+import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 
@@ -50,6 +51,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     private EventFactory.CreateCircleEvent.CircleBean mCircleBean;
     private List<AttachmentBean> mList;
     private List<CircleTitleBean> mVotePictrueList;
+    private DialogLoadingProgress mLoadingProgress;
 
     @Override
     protected CirclePresenter createPresenter() {
@@ -81,6 +83,8 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshChat(EventFactory.CreateCircleEvent event) {
+        mLoadingProgress = new DialogLoadingProgress(event.context);
+        mLoadingProgress.show();
         mCircleBean = event.circleBean;
         if (!TextUtils.isEmpty(mCircleBean.getAttachment())) {
             mList = new Gson().fromJson(mCircleBean.getAttachment(),
@@ -129,6 +133,13 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         super.onDestroy();
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
+        }
+        dismiss();
+    }
+
+    private void dismiss() {
+        if (mLoadingProgress != null && mLoadingProgress.isShowing()) {
+            mLoadingProgress.dismiss();
         }
     }
 
@@ -186,6 +197,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     @Override
     public void onSuccess() {
+        dismiss();
         ToastUtil.show("发布成功");
         RxBus.getDefault().post(new EventFactory.CreateSuccessEvent());
     }
@@ -229,6 +241,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     @Override
     public void showMessage(String message) {
         ToastUtil.show(message);
+        dismiss();
     }
 
     public class ViewPagerAdapter extends FragmentPagerAdapter {

@@ -104,7 +104,7 @@ public class DialogHelper {
     }
 
     /**
-     * 音视频通话弹框
+     * 关注弹框
      *
      * @param context
      * @param isFriend

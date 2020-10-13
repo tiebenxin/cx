@@ -102,6 +102,17 @@
             android:textColor="@color/gray_484"
             android:textSize="15sp" />
 
+        <TextView
+            android:id="@+id/tv_show_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingRight="15dp"
+            android:text="展开"
+            android:textColor="@color/blue_500"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

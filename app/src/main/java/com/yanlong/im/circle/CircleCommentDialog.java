@@ -83,18 +83,14 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                binding.ivEmj.setImageLevel(0);
-                binding.viewFaceview.setVisibility(View.GONE);
                 setRecyclerViewHeight(60);
             }
 
             @Override
             public void keyBoardHide(int h) {
                 if (isKeyboard) {
-                    binding.viewFaceview.setVisibility(View.VISIBLE);
                     setRecyclerViewHeight(257);
                 } else {
-                    binding.viewFaceview.setVisibility(View.GONE);
                     setRecyclerViewHeight(60);
                 }
             }
@@ -181,11 +177,12 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
 
     private void showOrHideInput() {
         if (isKeyboard) {
-            binding.ivEmj.setImageLevel(0);
+            binding.ivEmj.setImageLevel(1);
             InputUtil.hideKeyboard(binding.etMessage);
         } else {
-            binding.ivEmj.setImageLevel(1);
+            binding.ivEmj.setImageLevel(0);
             binding.etMessage.requestFocus();
+            setRecyclerViewHeight(60);
             InputUtil.showKeyboard(binding.etMessage);
         }
     }

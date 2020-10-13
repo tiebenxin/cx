@@ -51,6 +51,7 @@ public class MessageInfoBean extends BaseBean {
     private String city;//说说发布时定位城市
     private int isTop;//是否置顶 0:否|1:是
     private int visibility;//可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
+    private boolean isFollow;// 是否关注
 
     public int getIsTop() {
         return isTop;
@@ -86,6 +87,14 @@ public class MessageInfoBean extends BaseBean {
 
     public Long getUid() {
         return uid;
+    }
+
+    public boolean isFollow() {
+        return isFollow;
+    }
+
+    public void setFollow(boolean follow) {
+        isFollow = follow;
     }
 
     public void setUid(Long uid) {

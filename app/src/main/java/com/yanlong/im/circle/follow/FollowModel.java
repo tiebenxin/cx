@@ -35,11 +35,6 @@ public class FollowModel extends BaseModel implements FollowApi {
     }
 
     @Override
-    public void getRecommendList(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<MessageInfoBean>>> callback) {
-        NetUtil.getNet().exec(server.getRecommendList(params), callback);
-    }
-
-    @Override
     public void queryById(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback) {
         NetUtil.getNet().exec(server.queryById(params), callback);
     }

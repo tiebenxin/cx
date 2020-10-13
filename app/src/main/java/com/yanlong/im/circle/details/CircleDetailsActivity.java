@@ -17,6 +17,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.tools.DoubleUtils;
@@ -86,7 +87,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private CommentAdapter mCommentTxtAdapter;
     private List<CircleCommentBean> mCommentList;
     private boolean isFollow;
-    private final int PAGE_SIZE = 10;
+    private final int PAGE_SIZE = 20;
     private int mCurrentPage = 1, mPostion;
     private CircleCommentDialog mCommentDialog;
 
@@ -102,6 +103,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     protected void init(Bundle savedInstanceState) {
+        AudioPlayUtil.stopAudioPlay();
         isFollow = getIntent().getBooleanExtra(SOURCE_TYPE, false);
         mPostion = getIntent().getIntExtra(ITEM_DATA_POSTION, 0);
         String dataJson = getIntent().getStringExtra(ITEM_DATA);
@@ -139,7 +141,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             @Override
             public void onRight() {
                 DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity.this,
-                        isFollow ? "取消关注" : "关注TA", false, new ICircleSetupClick() {
+                        (isFollow || mMessageInfoBean.isFollow()) ? "取消关注" : "关注TA", false, new ICircleSetupClick() {
                             @Override
                             public void onClickFollow() {
                                 if (isFollow) {
@@ -195,23 +197,17 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         break;
                     case R.id.tv_follow:// 关注TA\取消关注
                         if (isFollow) {
-                            AlertYesNo alertYesNo = new AlertYesNo();
-                            alertYesNo.init(CircleDetailsActivity.this, "提示", "确定取消关注?", "确定", "取消", new AlertYesNo.Event() {
-                                @Override
-                                public void onON() {
-                                }
-
-                                @Override
-                                public void onYes() {
-                                    mPresenter.followCancle(mMessageInfoBean.getUid(), position);
-                                }
-                            });
-                            alertYesNo.show();
+                            cancleFollowDialog(position);
                         } else {
-                            mPresenter.followAdd(mMessageInfoBean.getUid(), position);
+                            if (mMessageInfoBean.isFollow()) {
+                                cancleFollowDialog(position);
+                            } else {
+                                mPresenter.followAdd(mMessageInfoBean.getUid(), position);
+                            }
                         }
                         break;
                     case R.id.rl_video:// 播放视频
+                        AudioPlayUtil.stopAudioPlay();
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(mMessageInfoBean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
@@ -284,6 +280,27 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
         mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
                 UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AudioPlayUtil.stopAudioPlay();
+    }
+
+    private void cancleFollowDialog(int position) {
+        AlertYesNo alertYesNo = new AlertYesNo();
+        alertYesNo.init(CircleDetailsActivity.this, "提示", "确定取消关注?", "确定", "取消", new AlertYesNo.Event() {
+            @Override
+            public void onON() {
+            }
+
+            @Override
+            public void onYes() {
+                mPresenter.followCancle(mMessageInfoBean.getUid(), position);
+            }
+        });
+        alertYesNo.show();
     }
 
     /**
@@ -477,18 +494,36 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
      * 刷新关注列表 单条
      */
     private void refreshFollowList() {
-        EventFactory.RefreshSignFollowEvent event = new EventFactory.RefreshSignFollowEvent();
-        event.postion = mPostion;
-        event.id = mMessageInfoBean.getId();
-        event.uid = mMessageInfoBean.getUid();
-        EventBus.getDefault().post(event);
+        if (isFollow) {
+            EventFactory.RefreshSignFollowEvent event = new EventFactory.RefreshSignFollowEvent();
+            event.postion = mPostion;
+            event.id = mMessageInfoBean.getId();
+            event.uid = mMessageInfoBean.getUid();
+            EventBus.getDefault().post(event);
+        } else {
+            EventFactory.RefreshSignRecomendEvent event = new EventFactory.RefreshSignRecomendEvent();
+            event.postion = mPostion;
+            event.id = mMessageInfoBean.getId();
+            event.uid = mMessageInfoBean.getUid();
+            EventBus.getDefault().post(event);
+        }
     }
 
     @Override
     public void onSuccess(int position, boolean isCancleFollow, String msg) {
         if (isCancleFollow) {
-            EventBus.getDefault().post(new EventFactory.RefreshFollowEvent());
-            finish();
+            if (isFollow) {
+                EventBus.getDefault().post(new EventFactory.RefreshFollowEvent());
+                finish();
+            } else {
+                mMessageInfoBean.setFollow(false);
+                mFlowAdapter.notifyItemChanged(position);
+                EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
+            }
+        } else {
+            mMessageInfoBean.setFollow(true);
+            mFlowAdapter.notifyItemChanged(position);
+            EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
         }
     }
 

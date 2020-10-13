@@ -39,7 +39,9 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @version V1.0
@@ -56,6 +58,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     private final String END_MSG = " 收起";
     private ICircleClickListener clickListener;
     private boolean isFollow, isDetails;
+    private Map<Integer, TextView> hashMap = new HashMap<>();
 
     /**
      * @param isDetails            是否是详情
@@ -91,7 +94,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         helper.setText(R.id.tv_user_name, messageInfoBean.getNickname());
         helper.setText(R.id.tv_date, TimeToString.getTimeWx(messageInfoBean.getCreateTime()));
         helper.setText(R.id.tv_vote_number, getVoteSum(messageInfoBean.getVoteAnswer().getSumDataList()) + "人参与了投票");
-        if (isFollow) {
+        if (isFollow || messageInfoBean.isFollow()) {
             helper.setVisible(R.id.iv_follow, true);
         } else {
             helper.setGone(R.id.iv_follow, false);
@@ -115,7 +118,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             } else {
                 helper.setVisible(R.id.tv_follow, false);
             }
-            if (isFollow) {
+            if (isFollow || messageInfoBean.isFollow()) {
                 helper.setText(R.id.tv_follow, "取消关注");
             } else {
                 helper.setText(R.id.tv_follow, "关注TA");
@@ -124,8 +127,34 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             helper.setGone(R.id.tv_follow, false);
             helper.setVisible(R.id.iv_setup, true);
             helper.setVisible(R.id.view_line, true);
-            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
-                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
+//            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
+//                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
+            tvContent.setMaxLines(MAX_ROW_NUMBER);//默认三行
+            tvContent.setTag("" + helper.getAdapterPosition());
+            hashMap.put(helper.getAdapterPosition(), tvContent);
+            tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    // 避免重复监听
+                    for (Integer postion : hashMap.keySet()) {
+                        hashMap.get(postion).getViewTreeObserver().removeOnPreDrawListener(this);
+                    }
+                    int ellipsisCount = 0;
+                    if (tvContent.getLayout() != null) {
+                        ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
+                    }
+                    int line = tvContent.getLineCount();
+                    if (ellipsisCount > 0 || line > 3) {
+                        helper.setGone(R.id.tv_show_all, true);
+                        TextView tvMore = helper.getView(R.id.tv_show_all);
+                        // 内容高度小1000时不滚动
+                        setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
+                    } else {
+                        helper.setGone(R.id.tv_show_all, false);
+                    }
+                    return true;
+                }
+            });
         }
 
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
@@ -149,6 +178,15 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             helper.setText(R.id.iv_comment, "");
         }
 
+        helper.getView(R.id.tv_show_all).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (clickListener != null) {
+                    clickListener.onClick(position, 0, CoreEnum.EClickType.CONTENT_DOWN, v);
+                }
+            }
+        });
+
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
                 R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup);
 
@@ -160,6 +198,18 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     messageInfoBean.getVoteAnswer().getSelfAnswerItem(),
                     getVoteSum(messageInfoBean.getVoteAnswer().getSumDataList())
                     , messageInfoBean.getVoteAnswer().getSumDataList());
+        }
+    }
+
+    private void setTextViewLines(TextView content, TextView btn, boolean isShowAll, BaseViewHolder helper) {
+        if (!isShowAll) {
+            //显示3行，按钮设置为点击显示全部。
+            content.setMaxLines(MAX_ROW_NUMBER);
+            btn.setText("展开");
+        } else {
+            //展示全部，按钮设置为点击收起。
+            content.setMaxLines(Integer.MAX_VALUE);
+            btn.setText("收起");
         }
     }
 

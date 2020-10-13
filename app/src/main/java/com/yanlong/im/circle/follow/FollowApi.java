@@ -22,8 +22,6 @@ public interface FollowApi {
 
     void getFollowMomentList(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<MessageInfoBean>>> callback);
 
-    void getRecommendList(WeakHashMap<String, Object> params, CallBack<ReturnBean<List<MessageInfoBean>>> callback);
-
     void queryById(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback);
 
     void voteAnswer(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);

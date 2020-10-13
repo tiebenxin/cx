@@ -800,6 +800,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 circleBean.setType(PictureEnum.EContentType.VOTE);
             }
         }
+        createCircleEvent.context = this;
         createCircleEvent.circleBean = circleBean;
         EventBus.getDefault().post(createCircleEvent);
     }

@@ -68,7 +68,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<List<MessageInfoBean>>> call, Response<ReturnBean<List<MessageInfoBean>>> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     List<MessageFlowItemBean> flowList = new ArrayList<>();
                     if (response.body() != null && response.body().getData() != null) {
                         for (MessageInfoBean messageInfoBean : response.body().getData()) {
@@ -77,42 +77,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     }
                     mView.onSuccess(flowList);
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ReturnBean<List<MessageInfoBean>>> call, Throwable t) {
-                super.onFailure(call, t);
-                mView.onShowMessage("刷新失败");
-            }
-        });
-    }
-
-    /**
-     * 获取推荐列表
-     *
-     * @param nextId   页码
-     * @param pageSize 页数
-     */
-    public void getRecommendMomentList(int nextId, int pageSize) {
-        WeakHashMap<String, Object> params = new WeakHashMap<>();
-        params.put("nextId", nextId);
-        params.put("pageSize", pageSize);
-        mModel.getRecommendList(params, new CallBack<ReturnBean<List<MessageInfoBean>>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<List<MessageInfoBean>>> call, Response<ReturnBean<List<MessageInfoBean>>> response) {
-                super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
-                    List<MessageFlowItemBean> flowList = new ArrayList<>();
-                    if (response.body() != null && response.body().getData() != null) {
-                        for (MessageInfoBean messageInfoBean : response.body().getData()) {
-                            flowList.add(createFlowItemBean(messageInfoBean));
-                        }
-                    }
-                    mView.onSuccess(flowList);
-                } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -139,12 +104,12 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     if (response.body() != null && response.body().getData() != null) {
                         mView.onSuccess(position, createFlowItemBean(response.body().getData()));
                     }
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -191,10 +156,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onVoteSuccess(parentPostion, response.message());
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -221,10 +186,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onLikeSuccess(postion, response.message());
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -251,10 +216,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onLikeSuccess(postion, response.message());
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -279,10 +244,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onSuccess(postion, false, response.message());
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -307,10 +272,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onSuccess(postion, true, response.message());
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -340,10 +305,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onCommentSuccess(true);
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -375,10 +340,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<List<CircleCommentBean>>> call, Response<ReturnBean<List<CircleCommentBean>>> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onCommentSuccess(response.body().getData());
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 
@@ -406,10 +371,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.body().getCode() == 0) {
+                if (checkSuccess(response.body())) {
                     mView.onCommentSuccess(false);
                 } else {
-                    mView.onShowMessage(response.body().getMsg());
+                    mView.onShowMessage(getFailMessage(response.body()));
                 }
             }
 

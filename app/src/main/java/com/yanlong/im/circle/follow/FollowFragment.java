@@ -1,6 +1,7 @@
 package com.yanlong.im.circle.follow;
 
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -13,6 +14,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.tools.DoubleUtils;
@@ -62,7 +64,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     private CircleFlowAdapter mFlowAdapter;
     private List<MessageFlowItemBean> mFollowList;
     public static final String IS_OPEN = "is_open";
-    private final int PAGE_SIZE = 10;
+    private final int PAGE_SIZE = 20;
     private int mCurrentPage = 1;
 
     protected FollowPresenter createPresenter() {
@@ -176,6 +178,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                                 });
                         break;
                     case R.id.rl_video:// 播放视频
+                        AudioPlayUtil.stopAudioPlay();
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
@@ -247,6 +250,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 bindingView.srlFollow.setEnableLoadMore(true);
                 bindingView.srlFollow.finishLoadMore();
             }
+
+            if (mCurrentPage == 1) {
+                bindingView.recyclerFollow.smoothScrollToPosition(0);
+            }
         }
         bindingView.srlFollow.finishRefresh();
 
@@ -315,7 +322,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Override
     public void onShowMessage(String msg) {
-        ToastUtil.show(msg);
+        if (!TextUtils.isEmpty(msg)) {
+            ToastUtil.show(msg);
+        }
+        bindingView.srlFollow.finishLoadMore();
+        bindingView.srlFollow.finishRefresh();
     }
 
     @Override

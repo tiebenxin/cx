@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
 
 /**
@@ -60,5 +61,21 @@ public abstract class BasePresenter<M extends BaseModel, V extends IBaseView> im
         if (this.loadingDialog != null) {
             loadingDialog.dismiss();
         }
+    }
+
+    public boolean checkSuccess(ReturnBean returnBean) {
+        if (returnBean != null && returnBean.getCode() == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String getFailMessage(ReturnBean returnBean) {
+        String result = "";
+        if (returnBean != null) {
+            result = returnBean.getMsg();
+        }
+        return result;
     }
 }
