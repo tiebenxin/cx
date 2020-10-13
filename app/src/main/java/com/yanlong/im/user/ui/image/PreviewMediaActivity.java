@@ -31,6 +31,7 @@ import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.databinding.ActivityPreviewBinding;
 import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
@@ -319,15 +320,21 @@ public class PreviewMediaActivity extends FragmentActivity {
      *
      * @param msgId
      * @param fromWhere
-     * @param type      1 转发 2 收藏 3 图片编辑
+     * @param type
      */
-    public void checkFile(String msgId, int fromWhere, int type, LocalMedia media) {
+    public void checkFile(String msgId, int fromWhere, @CoreEnum.EActionType int type, LocalMedia media) {
         MsgAllBean msgbean = null;
         if (!TextUtils.isEmpty(msgId)) {
             msgbean = msgDao.getMsgById(msgId);
         }
         if (msgbean == null) {
-            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            if (type == CoreEnum.EActionType.FORWARD) {
+                ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            } else if (type == CoreEnum.EActionType.COLLECTION) {
+                ToastUtil.show("消息已被删除或者被焚毁，不能收藏");
+            } else if (type == CoreEnum.EActionType.EDIT) {
+                ToastUtil.show("消息已被删除或者被焚毁，不能编辑");
+            }
             return;
         }
 

@@ -133,7 +133,7 @@ public class FriendAddAcitvity extends AppActivity {
                     @Override
                     public void onError(SHARE_MEDIA share_media, Throwable throwable) {
                         if(throwable.getMessage().contains("2008")){
-                            ToastUtil.show(context,"请安装微信");
+                            ToastUtil.show(context,"您还未安装微信");
                         }
                     }
 

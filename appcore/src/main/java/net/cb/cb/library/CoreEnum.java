@@ -35,7 +35,7 @@ public class CoreEnum {
      *
      * */
     @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO,
-            ERosterAction.LOAD_ALL_SUCCESS, ERosterAction.BLACK,ERosterAction.PHONE_MATCH})
+            ERosterAction.LOAD_ALL_SUCCESS, ERosterAction.BLACK, ERosterAction.PHONE_MATCH})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ERosterAction {
         int DEFAULT = 0; // 默认，无指令
@@ -111,5 +111,17 @@ public class CoreEnum {
     public @interface ECheckType {
         int NO = 0;
         int YES = 1;
+    }
+
+    /*
+     * 查看大图或视频，长按操作类型
+     * */
+    @IntDef({EActionType.FORWARD, EActionType.SAVE, EActionType.COLLECTION, EActionType.EDIT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EActionType {
+        int FORWARD = 0; // 转发
+        int SAVE = 1; // 保存
+        int COLLECTION = 2; // 收藏
+        int EDIT = 3; // b编辑
     }
 }

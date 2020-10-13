@@ -517,11 +517,17 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
 
         if (id == R.id.picture_id_preview) {
-            List<LocalMedia> previewList = new ArrayList<>();
-            for (LocalMedia media : adapter.getSelectedImages()) {
-                previewList.add(media);
+//            List<LocalMedia> previewList = new ArrayList<>();
+//            for (LocalMedia media : adapter.getSelectedImages()) {
+//                previewList.add(media);
+//            }
+//            previewImage(previewList, adapter.getSelectedImages(), 0);
+            int index = 0;
+            if (adapter.getSelectedImages() != null && adapter.getSelectedImages().size() > 0) {
+                LocalMedia media = adapter.getSelectedImages().get(0);
+                index = images.indexOf(media);
             }
-            previewImage(previewList, adapter.getSelectedImages(), 0);
+            previewImage(images, adapter.getSelectedImages(), index);
             overridePendingTransition(R.anim.a5, 0);
         }
 
@@ -835,21 +841,22 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
 
     @Override
     public void onPictureClick(LocalMedia media, int position) {
-        List<LocalMedia> previewList = new ArrayList<>();
-        int index = -1;
-        previewList.addAll(adapter.getSelectedImages());
-        for (int i = 0; i < adapter.getSelectedImages().size(); i++) {
-            LocalMedia localMedia = adapter.getSelectedImages().get(i);
-            if (localMedia.getPath().equals(media.getPath())) {//是否在被选中数组中
-                index = i;
-                break;
-            }
-        }
-        if (index == -1) {//没有找到，没有被选中
-            previewList.add(media);
-            index = previewList.size() - 1;
-        }
-        previewImage(previewList, adapter.getSelectedImages(), index);
+//        List<LocalMedia> previewList = new ArrayList<>();
+//        int index = -1;
+//        previewList.addAll(adapter.getSelectedImages());
+//        for (int i = 0; i < adapter.getSelectedImages().size(); i++) {
+//            LocalMedia localMedia = adapter.getSelectedImages().get(i);
+//            if (localMedia.getPath().equals(media.getPath())) {//是否在被选中数组中
+//                index = i;
+//                break;
+//            }
+//        }
+//        if (index == -1) {//没有找到，没有被选中
+//            previewList.add(media);
+//            index = previewList.size() - 1;
+//        }
+        int index = images.indexOf(media);
+        previewImage(images, adapter.getSelectedImages(), index);
 
     }
 

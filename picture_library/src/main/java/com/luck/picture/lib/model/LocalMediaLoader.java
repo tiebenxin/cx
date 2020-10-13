@@ -156,27 +156,14 @@ public class LocalMediaLoader {
                                 if (count > 0) {
                                     data.moveToFirst();
                                     do {
-                                        String path = data.getString
-                                                (data.getColumnIndexOrThrow(PROJECTION[1]));
-
-                                        String pictureType = data.getString
-                                                (data.getColumnIndexOrThrow(PROJECTION[2]));
-
-                                        int w = data.getInt
-                                                (data.getColumnIndexOrThrow(PROJECTION[3]));
-
-                                        int h = data.getInt
-                                                (data.getColumnIndexOrThrow(PROJECTION[4]));
-
-                                        int duration = data.getInt
-                                                (data.getColumnIndexOrThrow(PROJECTION[5]));
-
-                                        LocalMedia image = new LocalMedia
-                                                (path, duration, type, pictureType, w, h, UUID.randomUUID().toString());
-
+                                        String path = data.getString(data.getColumnIndexOrThrow(PROJECTION[1]));
+                                        String pictureType = data.getString(data.getColumnIndexOrThrow(PROJECTION[2]));
+                                        int w = data.getInt(data.getColumnIndexOrThrow(PROJECTION[3]));
+                                        int h = data.getInt(data.getColumnIndexOrThrow(PROJECTION[4]));
+                                        int duration = data.getInt(data.getColumnIndexOrThrow(PROJECTION[5]));
+                                        LocalMedia image = new LocalMedia(path, duration, type, pictureType, w, h);
                                         LocalMediaFolder folder = getImageFolder(path, imageFolders);
                                         List<LocalMedia> images = folder.getImages();
-
                                         images.add(image);
                                         folder.setImageNum(folder.getImageNum() + 1);
                                         latelyImages.add(image);
@@ -187,11 +174,8 @@ public class LocalMediaLoader {
                                     if (latelyImages.size() > 0) {
                                         sortFolder(imageFolders);
                                         imageFolders.add(0, allImageFolder);
-                                        allImageFolder.setFirstImagePath
-                                                (latelyImages.get(0).getPath());
-                                        String title = type == PictureMimeType.ofAudio() ?
-                                                activity.getString(R.string.picture_all_audio)
-                                                : activity.getString(R.string.picture_camera_roll);
+                                        allImageFolder.setFirstImagePath(latelyImages.get(0).getPath());
+                                        String title = type == PictureMimeType.ofAudio() ? activity.getString(R.string.picture_all_audio) : activity.getString(R.string.picture_camera_roll);
                                         allImageFolder.setName(title);
                                         allImageFolder.setImages(latelyImages);
                                     }
@@ -223,7 +207,7 @@ public class LocalMediaLoader {
 //            //只过滤图片 大图
 //            if(images.get(i).getMimeType()==PictureMimeType.ofImage()) {
 //                imageFile = new File(images.get(i).getPath());
-                //2020/5/14 注释掉过滤大图，选择的时候会提示用户图片太大
+        //2020/5/14 注释掉过滤大图，选择的时候会提示用户图片太大
 //                if (imageFile.length() >= IMG_DURATION) {
 //
 //                    //   Log.d("TAG", "more: "+imageFile.length());

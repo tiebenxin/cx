@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -65,6 +66,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -752,12 +755,12 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 if (canCollect) {
                     if (postsion == 0) {
                         if (from == PictureConfig.FROM_COLLECT_DETAIL) {
-                            checkFileIsExist(msgAllBean, media.getContent(), false);
+                            checkFileIsExist(msgAllBean.getMsg_id(), media.getContent(), false);
                         } else {
-                            checkFileIsExist(msgAllBean, "", false);
+                            checkFileIsExist(msgAllBean.getMsg_id(), "", false);
                         }
                     } else if (postsion == 1) {
-                        checkFileIsExist(msgAllBean, "", true);
+                        checkFileIsExist(msgAllBean.getMsg_id(), "", true);
                     } else if (postsion == 2) {
                         insertVideoToMediaStore(getActivity(), path, System.currentTimeMillis(), mediaPlayer.getVideoWidth(), mediaPlayer.getVideoHeight(), mediaPlayer.getDuration());
                         //点击保存视频，若已经下载完成则提示"成功"；若没有下载完成，则无操作，等待下载完成后提示"成功"
@@ -772,9 +775,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 } else {
                     if (postsion == 0) {
                         if (from == PictureConfig.FROM_COLLECT_DETAIL) {
-                            checkFileIsExist(msgAllBean, media.getContent(), false);
+                            checkFileIsExist(msgAllBean.getMsg_id(), media.getContent(), false);
                         } else {
-                            checkFileIsExist(msgAllBean, "", false);
+                            checkFileIsExist(msgAllBean.getMsg_id(), "", false);
                         }
                     } else if (postsion == 1) {
                         insertVideoToMediaStore(getContext(), path, System.currentTimeMillis(), mediaPlayer.getVideoWidth(), mediaPlayer.getVideoHeight(), mediaPlayer.getDuration());
@@ -798,9 +801,17 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
 
 
     //isCollect 转发还是收藏
-    private void checkFileIsExist(MsgAllBean msgBean, String collectJson, boolean isCollect) {
+    private void checkFileIsExist(String msgId, String collectJson, boolean isCollect) {
+        MsgAllBean msgBean = null;
+        if (!TextUtils.isEmpty(msgId)) {
+            msgBean = msgDao.getMsgById(msgId);
+        }
         if (msgBean == null) {
-            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            if (isCollect){
+                ToastUtil.show("消息已被删除或者被焚毁，不能收藏");
+            }else {
+                ToastUtil.show("消息已被删除或者被焚毁，不能转发");
+            }
             return;
         }
         if (msgBean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgBean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
@@ -822,6 +833,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getSendFileMessage().getUrl(), msgBean.getMsg_type()));
             }
             list.add(fileBean);
+            MsgAllBean finalMsgBean = msgBean;
             UpFileUtil.getInstance().batchFileCheck(list, new CallBack<ReturnBean<List<String>>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
@@ -836,7 +848,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                                 eventCollectImgOrVideo.setMsgId(media.getMsg_id());
                                 EventBus.getDefault().post(eventCollectImgOrVideo);
                             } else {
-                                onRetransmission(msgBean, collectJson);
+                                onRetransmission(finalMsgBean, collectJson);
                             }
                         }
 
@@ -963,7 +975,6 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         return false;
     }
 
-    //TODO android更新媒体库这么麻烦，搞了一下午，吐了，终于实现
     public void scanFile(Context context, String filePath) {
         try {
             MediaScannerConnection.scanFile(context, new String[]{filePath}, new String[]{"video/mp4"},
@@ -976,4 +987,5 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             e.printStackTrace();
         }
     }
+
 }

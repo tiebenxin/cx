@@ -566,7 +566,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                             ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                             return;
                         }
-                        ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
+                        ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, CoreEnum.EActionType.FORWARD, media);
                     } else if (position == 1) {//保存
                         saveImageToLocal(ivImage, media);
                     }
@@ -578,7 +578,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, CoreEnum.EActionType.FORWARD, media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
                         } else if (position == 2) {//收藏
@@ -586,7 +586,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 2, media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, CoreEnum.EActionType.COLLECTION, media);
                         } else if (position == 3) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
@@ -598,7 +598,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 3, media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, CoreEnum.EActionType.EDIT, media);
                         }
                     } else {
                         //不含有收藏项
@@ -607,7 +607,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 1, media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, CoreEnum.EActionType.FORWARD, media);
                         } else if (position == 1) {//保存
                             saveImageToLocal(ivImage, media);
                         } else if (position == 2) {//识别二维码
@@ -621,7 +621,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                 return;
                             }
-                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, 3, media);
+                            ((PreviewMediaActivity) getActivity()).checkFile(msgId, fromWhere, CoreEnum.EActionType.EDIT, media);
                         }
                     }
                 }

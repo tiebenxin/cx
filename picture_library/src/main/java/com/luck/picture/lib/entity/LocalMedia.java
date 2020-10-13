@@ -57,14 +57,14 @@ public class LocalMedia implements Parcelable {
         this.pictureType = pictureType;
     }
 
-    public LocalMedia(String path, long duration, int mimeType, String pictureType, int width, int height,String id) {
+    public LocalMedia(String path, long duration, int mimeType, String pictureType, int width, int height) {
         this.path = path;
         this.duration = duration;
         this.mimeType = mimeType;
         this.pictureType = pictureType;
         this.width = width;
         this.height = height;
-        this.msg_id = id;
+        this.msg_id = "";
     }
 
     public LocalMedia(String path, long duration,
@@ -318,6 +318,10 @@ public class LocalMedia implements Parcelable {
     public boolean equals(@Nullable Object obj) {
         if (obj != null && obj instanceof LocalMedia) {
             if (!TextUtils.isEmpty(msg_id) && !TextUtils.isEmpty(((LocalMedia) obj).getMsg_id()) && msg_id.equals(((LocalMedia) obj).getMsg_id())) {
+                return true;
+            } else if (TextUtils.isEmpty(msg_id) && TextUtils.isEmpty(((LocalMedia) obj).getMsg_id())
+                    && !TextUtils.isEmpty(path) && !TextUtils.isEmpty(((LocalMedia) obj).getPath())
+                    && path.equals(((LocalMedia) obj).getPath())) {
                 return true;
             }
         }
