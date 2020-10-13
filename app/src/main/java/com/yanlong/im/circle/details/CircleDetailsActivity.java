@@ -4,7 +4,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,11 +20,15 @@ import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.tools.DoubleUtils;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
+import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.CircleCommentDialog;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
+import com.yanlong.im.circle.adapter.CommentAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
@@ -29,6 +36,7 @@ import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
 import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
+import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.ComplaintActivity;
@@ -42,6 +50,7 @@ import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -69,9 +78,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     public static final String IS_ME = "is_me";//是否为自己 若为自己的朋友圈详情无需显示"去关注"按钮
     public static final String ITEM_DATA_POSTION = "item_data_postion";
 
+    protected ViewCircleDetailsBinding binding;
     private CircleFlowAdapter mFlowAdapter;
     private List<MessageFlowItemBean> mFollowList;
     private MessageInfoBean mMessageInfoBean;
+
+    private CommentAdapter mCommentTxtAdapter;
+    private List<CircleCommentBean> mCommentList;
     private boolean isFollow;
     private final int PAGE_SIZE = 10;
     private int mCurrentPage = 1, mPostion;
@@ -99,12 +112,15 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             MessageFlowItemBean flowItemBean = new MessageFlowItemBean(itemType, mMessageInfoBean);
             mFollowList.add(flowItemBean);
         }
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, isFollow, true, this, null);
-        bindingView.recyclerFollow.setAdapter(mFlowAdapter);
-        bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, isFollow, true, this);
 
-        mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
+        // 评论列表
+        bindingView.recyclerComment.setLayoutManager(new LinearLayoutManager(this));
+        bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(this));
+        mCommentTxtAdapter = new CommentAdapter(true);
+        bindingView.recyclerComment.setAdapter(mCommentTxtAdapter);
+        mCommentList = new ArrayList<>();
+        mCommentTxtAdapter.setNewData(mCommentList);
     }
 
     @Override
@@ -165,10 +181,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 }
                 switch (view.getId()) {
                     case R.id.iv_comment:// 评论
-                        showCommentDialog(false);
+                        showCommentDialog("", 0l);
                         break;
                     case R.id.iv_header:// 头像
-                        gotoUserInfoActivity();
+                        gotoUserInfoActivity(mMessageInfoBean.getUid());
                         break;
                     case R.id.iv_like:// 点赞
                         if (mMessageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
@@ -179,7 +195,18 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         break;
                     case R.id.tv_follow:// 关注TA\取消关注
                         if (isFollow) {
-                            mPresenter.followCancle(mMessageInfoBean.getUid(), position);
+                            AlertYesNo alertYesNo = new AlertYesNo();
+                            alertYesNo.init(CircleDetailsActivity.this, "提示", "确定取消关注?", "确定", "取消", new AlertYesNo.Event() {
+                                @Override
+                                public void onON() {
+                                }
+
+                                @Override
+                                public void onYes() {
+                                    mPresenter.followCancle(mMessageInfoBean.getUid(), position);
+                                }
+                            });
+                            alertYesNo.show();
                         } else {
                             mPresenter.followAdd(mMessageInfoBean.getUid(), position);
                         }
@@ -199,26 +226,76 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 }
             }
         });
+        mCommentTxtAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+            @Override
+            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                try {
+                    if (UserAction.getMyId() != null && mCommentList.get(position).getUid() != null &&
+                            UserAction.getMyId().longValue() != mCommentList.get(position).getUid().longValue()) {
+                        switch (view.getId()) {
+                            case R.id.layout_item:
+                                onClick(position, 0, CoreEnum.EClickType.COMMENT_REPLY, view);
+                                break;
+                            case R.id.iv_header:
+                                gotoUserInfoActivity(mCommentList.get(position).getUid());
+                                break;
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
+        });
+        mCommentTxtAdapter.setOnItemChildLongClickListener(new BaseQuickAdapter.OnItemChildLongClickListener() {
+            @Override
+            public boolean onItemChildLongClick(BaseQuickAdapter adapter, View view, int position) {
+                boolean isMe = false;
+                if (UserAction.getMyId() != null && mCommentList.get(position).getUid() != null &&
+                        UserAction.getMyId().longValue() == mCommentList.get(position).getUid().longValue()) {
+                    isMe = true;
+                }
+                showPop(view, position, isMe);
+                return true;
+            }
+        });
+        bindingView.srlFollow.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+                mPresenter.circleCommentList(++mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
+                        UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
+            }
+        });
     }
 
     @Override
     protected void loadData() {
         boolean isOpen = getIntent().getBooleanExtra(FollowFragment.IS_OPEN, false);
         if (isOpen) {
-            showCommentDialog(false);
+            showCommentDialog("", 0l);
         }
+        binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.view_circle_details, null, false);
+        binding.recyclerView.setAdapter(mFlowAdapter);
+        binding.recyclerView.setLayoutManager(new YLLinearLayoutManager(getContext()));
+        mCommentTxtAdapter.addHeaderView(binding.getRoot());
+
+        if (mMessageInfoBean.getCommentCount() != null && mMessageInfoBean.getCommentCount() > 0) {
+            binding.tvCommentCount.setVisibility(View.VISIBLE);
+            binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
+        }
+
+        mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
+                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
     }
 
     /**
      * 显示评论输入框
      *
-     * @param isReply 是否是回复
+     * @param replyName 回复人昵称
      */
-    private void showCommentDialog(boolean isReply) {
-        mCommentDialog = new CircleCommentDialog(CircleDetailsActivity.this, new CircleCommentDialog.OnMessageListener() {
+    private void showCommentDialog(String replyName, Long replyUid) {
+        mCommentDialog = new CircleCommentDialog(CircleDetailsActivity.this, replyName, new CircleCommentDialog.OnMessageListener() {
             @Override
             public void OnMessage(String msg) {
-                mPresenter.circleComment(msg, mMessageInfoBean.getId(), mMessageInfoBean.getUid(), 0l);
+                mPresenter.circleComment(msg, mMessageInfoBean.getId(), mMessageInfoBean.getUid(), replyUid);
             }
         });
         if (mCommentDialog != null && !mCommentDialog.isShowing()) {
@@ -231,7 +308,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
      *
      * @param postion
      * @param parentPostion 父类位置
-     * @param type          0：展开、收起 1：详情 2文字投票 3图片投票
+     * @param type          0：展开、收起 1：详情 2文字投票 3图片投票 4评论回复 5点击头像 6 长按
      * @param view
      */
     @Override
@@ -244,22 +321,18 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
             mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
         } else if (type == CoreEnum.EClickType.COMMENT_REPLY) {
-            showCommentDialog(true);
-        } else if (type == CoreEnum.EClickType.COMMENT_HEAD) {
-            gotoUserInfoActivity();
-        } else if (type == CoreEnum.EClickType.COMMENT_LONG) {
-            showPop(view, postion);
+            showCommentDialog(mCommentList.get(postion).getNickname(), mCommentList.get(postion).getUid());
         }
     }
 
-    private void showPop(View view, int postion) {
-        new DeletPopWindow(this, true, new DeletPopWindow.OnClickListener() {
+    private void showPop(View view, int postion, boolean isMe) {
+        new DeletPopWindow(this, isMe, new DeletPopWindow.OnClickListener() {
             @Override
             public void onClick(int type) {
                 if (type == CoreEnum.ELongType.COPY) {
-                    onCopy(mFlowAdapter.getCommentList().get(postion).getContent());
+                    onCopy(mCommentList.get(postion).getContent());
                 } else if (type == CoreEnum.ELongType.DELETE) {
-                    mPresenter.delComment(mFlowAdapter.getCommentList().get(postion).getId(), mMessageInfoBean.getId(),
+                    mPresenter.delComment(mCommentList.get(postion).getId(), mMessageInfoBean.getId(),
                             mMessageInfoBean.getUid(), postion);
                 } else if (type == CoreEnum.ELongType.REPORT) {
                     gotoComplaintActivity();
@@ -286,9 +359,30 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         ToastUtil.show("复制成功");
     }
 
-    private void gotoUserInfoActivity() {
+    private void gotoUserInfoActivity(Long uid) {
         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                .putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid()));
+                .putExtra(UserInfoActivity.ID, uid));
+    }
+
+    @Override
+    public void onCommentSuccess(boolean isAdd) {
+        if (mCommentDialog != null && mCommentDialog.isShowing()) {
+            mCommentDialog.dismiss();
+        }
+        if (isAdd) {
+            mMessageInfoBean.setCommentCount(mMessageInfoBean.getCommentCount() + 1);
+        } else {
+            mMessageInfoBean.setCommentCount(mMessageInfoBean.getCommentCount() - 1);
+        }
+        if (mMessageInfoBean != null) {
+            mCurrentPage = 1;
+            mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
+                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
+        }
+        binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
+        mFlowAdapter.notifyDataSetChanged();
+        mFlowAdapter.finishInitialize();
+        refreshFollowList();
     }
 
     @Override
@@ -314,14 +408,40 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     public void onCommentSuccess(List<CircleCommentBean> list) {
-        if (list != null && list.size() > 0) {
-            mMessageInfoBean.setCommentCount(list.size());
-        } else {
-            mMessageInfoBean.setCommentCount(0);
+
+        if (mCurrentPage == 1) {
+            mCommentList.clear();
         }
-        mFlowAdapter.setCommentList(list);
-        mFlowAdapter.notifyDataSetChanged();
-        mFlowAdapter.finishInitialize();
+        if (mCurrentPage == 1 && (list == null || list.size() == 0)) {
+//            View view = View.inflate(this, R.layout.view_follow_no_data, null);
+//            TextView textView = view.findViewById(R.id.tv_message);
+//            textView.setText("快点给楼主写评论吧");
+//            bindingView.srlFollow.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+//                            bindingView.srlFollow.getHeight());
+//                    view.setLayoutParams(layoutParams);
+//                    mCommentTxtAdapter.setEmptyView(view);
+//                }
+//            });
+            bindingView.srlFollow.setEnableLoadMore(false);
+            bindingView.srlFollow.finishLoadMore();
+        } else {
+            if (list != null && list.size() > 0) {
+                mCommentList.addAll(list);
+                mCommentTxtAdapter.notifyDataSetChanged();
+            }
+            if (list == null || list.size() == 0) {
+                bindingView.srlFollow.setEnableLoadMore(false);
+                bindingView.srlFollow.finishLoadMore();
+            } else if (list.size() > 0 && list.size() < PAGE_SIZE) {
+                bindingView.srlFollow.finishLoadMoreWithNoMoreData();
+            } else {
+                bindingView.srlFollow.setEnableLoadMore(true);
+                bindingView.srlFollow.finishLoadMore();
+            }
+        }
     }
 
     @Override
@@ -354,10 +474,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     }
 
     /**
-     * 刷新关注列表
+     * 刷新关注列表 单条
      */
     private void refreshFollowList() {
-        EventFactory.RefreshFollowEvent event = new EventFactory.RefreshFollowEvent();
+        EventFactory.RefreshSignFollowEvent event = new EventFactory.RefreshSignFollowEvent();
         event.postion = mPostion;
         event.id = mMessageInfoBean.getId();
         event.uid = mMessageInfoBean.getUid();
@@ -365,15 +485,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     }
 
     @Override
-    public void onSuccess(int position, String msg) {
-        if (mCommentDialog != null && mCommentDialog.isShowing()) {
-            mCommentDialog.dismiss();
+    public void onSuccess(int position, boolean isCancleFollow, String msg) {
+        if (isCancleFollow) {
+            EventBus.getDefault().post(new EventFactory.RefreshFollowEvent());
+            finish();
         }
-        if (mMessageInfoBean != null) {
-            mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
-        }
-        refreshFollowList();
     }
 
     @Override

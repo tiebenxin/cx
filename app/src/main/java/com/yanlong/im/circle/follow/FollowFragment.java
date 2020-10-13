@@ -80,7 +80,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             EventBus.getDefault().register(this);
         }
         mFollowList = new ArrayList<>();
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, true, false, this, null);
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, true, false, this);
         bindingView.recyclerFollow.setAdapter(mFlowAdapter);
         bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
@@ -193,8 +193,14 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRefreshFollow(EventFactory.RefreshFollowEvent event) {
+    public void eventRefreshFollow(EventFactory.RefreshSignFollowEvent event) {
         mPresenter.queryById(event.id, event.uid, event.postion);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshFollow(EventFactory.RefreshFollowEvent event) {
+        mCurrentPage = 1;
+        mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
     }
 
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
@@ -225,17 +231,25 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 }
             });
             bindingView.srlFollow.setEnableLoadMore(false);
+            bindingView.srlFollow.finishLoadMore();
         } else {
-            mFollowList.addAll(list);
-            mFlowAdapter.notifyDataSetChanged();
-            if (list.size() > 0) {
-                bindingView.srlFollow.setEnableLoadMore(true);
-            } else {
+            if (list != null && list.size() > 0) {
+                mFollowList.addAll(list);
+                mFlowAdapter.notifyDataSetChanged();
+            }
+
+            if (list == null || list.size() == 0) {
+                bindingView.srlFollow.setEnableLoadMore(false);
+                bindingView.srlFollow.finishLoadMore();
+            } else if (list.size() > 0 && list.size() < PAGE_SIZE) {
                 bindingView.srlFollow.finishLoadMoreWithNoMoreData();
+            } else {
+                bindingView.srlFollow.setEnableLoadMore(true);
+                bindingView.srlFollow.finishLoadMore();
             }
         }
         bindingView.srlFollow.finishRefresh();
-        bindingView.srlFollow.finishLoadMore();
+
     }
 
     @Override
@@ -294,7 +308,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     @Override
-    public void onSuccess(int postion, String msg) {
+    public void onSuccess(int postion, boolean isCancleFollow, String msg) {
         mCurrentPage = 1;
         mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
     }
@@ -302,6 +316,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Override
     public void onShowMessage(String msg) {
         ToastUtil.show(msg);
+    }
+
+    @Override
+    public void onCommentSuccess(boolean isAdd) {
+
     }
 
     /**

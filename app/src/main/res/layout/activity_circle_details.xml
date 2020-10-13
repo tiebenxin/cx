@@ -8,10 +8,19 @@
         android:layout_height="match_parent"
         app:headview_title="详情">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_follow"
+        <com.scwang.smartrefresh.layout.SmartRefreshLayout
+            android:id="@+id/srl_follow"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:overScrollMode="never" />
+            android:layout_height="match_parent"
+            app:srlEnableHeaderTranslationContent="false"
+            app:srlEnableLoadMore="true"
+            app:srlEnableRefresh="false">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.scwang.smartrefresh.layout.SmartRefreshLayout>
     </net.cb.cb.library.view.HeadView>
 </layout>

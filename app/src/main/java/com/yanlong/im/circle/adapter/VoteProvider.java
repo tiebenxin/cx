@@ -6,6 +6,7 @@ import android.os.Build;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -26,18 +27,18 @@ import com.chad.library.adapter.base.provider.BaseItemProvider;
 import com.google.gson.Gson;
 import com.luck.picture.lib.PictureEnum;
 import com.yanlong.im.R;
-import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,14 +56,16 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     private final String END_MSG = " 收起";
     private ICircleClickListener clickListener;
     private boolean isFollow, isDetails;
-    private List<CircleCommentBean> commentList;
 
-    public VoteProvider(boolean isDetails, boolean isFollow, ICircleClickListener iCircleClickListener,
-                        List<CircleCommentBean> commentList) {
+    /**
+     * @param isDetails            是否是详情
+     * @param isFollow             关注还是推荐
+     * @param iCircleClickListener
+     */
+    public VoteProvider(boolean isDetails, boolean isFollow, ICircleClickListener iCircleClickListener) {
         this.isFollow = isFollow;
         this.isDetails = isDetails;
         clickListener = iCircleClickListener;
-        this.commentList = commentList;
     }
 
     @Override
@@ -87,7 +90,6 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 .into(ivHead);
         helper.setText(R.id.tv_user_name, messageInfoBean.getNickname());
         helper.setText(R.id.tv_date, TimeToString.getTimeWx(messageInfoBean.getCreateTime()));
-        helper.setText(R.id.tv_content, messageInfoBean.getContent());
         helper.setText(R.id.tv_vote_number, getVoteSum(messageInfoBean.getVoteAnswer().getSumDataList()) + "人参与了投票");
         if (isFollow) {
             helper.setVisible(R.id.iv_follow, true);
@@ -100,15 +102,9 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             helper.setVisible(R.id.tv_location, true);
             helper.setText(R.id.tv_location, messageInfoBean.getPosition());
         }
-
+        TextView tvContent = helper.getView(R.id.tv_content);
+        tvContent.setText(getSpan(messageInfoBean.getContent()));
         if (isDetails) {
-            if (messageInfoBean.getCommentCount() != null && messageInfoBean.getCommentCount() > 0) {
-                helper.setVisible(R.id.tv_comment_count, true);
-                helper.setVisible(R.id.recycler_comment, true);
-            } else {
-                helper.setGone(R.id.tv_comment_count, false);
-                helper.setGone(R.id.recycler_comment, false);
-            }
             helper.setVisible(R.id.tv_follow, true);
             helper.setGone(R.id.iv_setup, false);
             helper.setGone(R.id.view_line, false);
@@ -124,13 +120,12 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             } else {
                 helper.setText(R.id.tv_follow, "关注TA");
             }
-            setCommentRecycleView(helper.getView(R.id.recycler_comment));
         } else {
-            helper.setGone(R.id.tv_comment_count, false);
-            helper.setGone(R.id.recycler_comment, false);
             helper.setGone(R.id.tv_follow, false);
             helper.setVisible(R.id.iv_setup, true);
             helper.setVisible(R.id.view_line, true);
+            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
+                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
         }
 
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
@@ -150,15 +145,10 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
 
         if (messageInfoBean.getCommentCount() != null && messageInfoBean.getCommentCount() > 0) {
             helper.setText(R.id.iv_comment, messageInfoBean.getCommentCount() + "");
-            helper.setText(R.id.tv_comment_count, "所有评论（" + messageInfoBean.getCommentCount() + "）");
         } else {
             helper.setText(R.id.iv_comment, "");
         }
 
-        TextView tvContent = helper.getView(R.id.tv_content);
-        tvContent.setText(messageInfoBean.getContent());
-        toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
-                "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
                 R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup);
 
@@ -173,6 +163,12 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
     }
 
+    /**
+     * 投票总数
+     *
+     * @param sumDataList
+     * @return
+     */
     private int getVoteSum(List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
         int sum = 0;
         if (sumDataList != null && sumDataList.size() > 0) {
@@ -210,7 +206,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                         if (messageInfoBean.isRowsMore()) {
                             setSpanClick(context, textView, originText + END_MSG, END_MSG, postion, endColorID);
                         } else {
-                            textView.setText(originText);
+                            textView.setText(getSpan(originText));
                         }
                     } else {
                         int paddingLeft = textView.getPaddingLeft();
@@ -236,10 +232,20 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 }
             });
         } catch (Exception e) {
-            textView.setText(originText);
+            textView.setText(getSpan(originText));
         }
     }
 
+    /**
+     * 富文本点击事件
+     *
+     * @param context
+     * @param textView
+     * @param temp
+     * @param endText
+     * @param postion
+     * @param endColorID
+     */
     private void setSpanClick(Context context, TextView textView, CharSequence temp, String endText, int postion, int endColorID) {
         SpannableStringBuilder ssb = new SpannableStringBuilder(temp);
         ClickableSpan clickableSpan = new ClickableSpan() {
@@ -280,6 +286,23 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     }
 
     /**
+     * 获取富文有表情则显示表情
+     *
+     * @param msg
+     * @return
+     */
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(mContext, fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(mContext, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
+    }
+
+    /**
      * 投票
      *
      * @param rv
@@ -312,47 +335,6 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                             break;
                     }
                 }
-            }
-        });
-    }
-
-    /**
-     * 评论
-     *
-     * @param recyclerComment
-     */
-    private void setCommentRecycleView(RecyclerView recyclerComment) {
-        recyclerComment.setLayoutManager(new LinearLayoutManager(mContext));
-        CommentAdapter checkTxtAdapter = new CommentAdapter(true);
-        recyclerComment.setAdapter(checkTxtAdapter);
-        List<CircleCommentBean> list = new ArrayList<>();
-        if (commentList != null) {
-            list.addAll(commentList);
-        }
-        checkTxtAdapter.setNewData(list);
-        checkTxtAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
-            @Override
-            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-                if (clickListener == null) {
-                    return;
-                }
-                switch (view.getId()) {
-                    case R.id.layout_item:
-                        clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_REPLY, view);
-                        break;
-                    case R.id.iv_header:
-                        clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_HEAD, view);
-                        break;
-                }
-            }
-        });
-        checkTxtAdapter.setOnItemChildLongClickListener(new BaseQuickAdapter.OnItemChildLongClickListener() {
-            @Override
-            public boolean onItemChildLongClick(BaseQuickAdapter adapter, View view, int position) {
-                if (clickListener != null) {
-                    clickListener.onClick(position, 0, CoreEnum.EClickType.COMMENT_LONG, view);
-                }
-                return true;
             }
         });
     }

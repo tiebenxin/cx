@@ -68,7 +68,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<List<MessageInfoBean>>> call, Response<ReturnBean<List<MessageInfoBean>>> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (response.body().getCode() == 0) {
                     List<MessageFlowItemBean> flowList = new ArrayList<>();
                     if (response.body() != null && response.body().getData() != null) {
                         for (MessageInfoBean messageInfoBean : response.body().getData()) {
@@ -77,7 +77,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     }
                     mView.onSuccess(flowList);
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -103,7 +103,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<List<MessageInfoBean>>> call, Response<ReturnBean<List<MessageInfoBean>>> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (response.body().getCode() == 0) {
                     List<MessageFlowItemBean> flowList = new ArrayList<>();
                     if (response.body() != null && response.body().getData() != null) {
                         for (MessageInfoBean messageInfoBean : response.body().getData()) {
@@ -112,7 +112,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     }
                     mView.onSuccess(flowList);
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -139,12 +139,12 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (response.body().getCode() == 0) {
                     if (response.body() != null && response.body().getData() != null) {
                         mView.onSuccess(position, createFlowItemBean(response.body().getData()));
                     }
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -191,10 +191,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (response.body().getCode() == 0) {
                     mView.onVoteSuccess(parentPostion, response.message());
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -221,10 +221,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (response.body().getCode() == 0) {
                     mView.onLikeSuccess(postion, response.message());
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -251,10 +251,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (response.body().getCode() == 0) {
                     mView.onLikeSuccess(postion, response.message());
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -279,10 +279,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
-                    mView.onSuccess(postion, response.message());
+                if (response.body().getCode() == 0) {
+                    mView.onSuccess(postion, false, response.message());
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -307,10 +307,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
-                    mView.onSuccess(postion, response.message());
+                if (response.body().getCode() == 0) {
+                    mView.onSuccess(postion, true, response.message());
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -340,10 +340,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
-                    mView.onSuccess(0, response.message());
+                if (response.body().getCode() == 0) {
+                    mView.onCommentSuccess(true);
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -375,10 +375,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<List<CircleCommentBean>>> call, Response<ReturnBean<List<CircleCommentBean>>> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (response.body().getCode() == 0) {
                     mView.onCommentSuccess(response.body().getData());
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 
@@ -406,10 +406,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
-                    mView.onSuccess(postion, response.message());
+                if (response.body().getCode() == 0) {
+                    mView.onCommentSuccess(false);
                 } else {
-                    mView.onShowMessage(response.message());
+                    mView.onShowMessage(response.body().getMsg());
                 }
             }
 

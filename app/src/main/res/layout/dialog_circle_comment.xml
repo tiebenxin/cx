@@ -23,6 +23,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_btn_white"
                 android:hint="发表评论"
+                android:maxLength="150"
                 android:paddingLeft="9dp"
                 android:textColor="@color/gray_343"
                 android:textColorHint="@color/gray_300"

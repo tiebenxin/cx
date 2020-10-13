@@ -1,14 +1,19 @@
 package com.yanlong.im.circle.adapter;
 
+import android.text.SpannableString;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.CircleCommentBean;
+import com.yanlong.im.utils.CommonUtils;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 /**
@@ -54,17 +59,37 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean, BaseView
 
     @Override
     protected void convert(BaseViewHolder helper, CircleCommentBean commentBean) {
-//        CommonUtils.setTextColor("我：", commentBean.getContent(), R.color.color_488, R.color.gray_484, tvMessage, mContext);
         Glide.with(mContext)
                 .asBitmap()
                 .load(commentBean.getAvatar())
                 .apply(GlideOptionsUtil.headImageOptions())
                 .into((ImageView) helper.getView(R.id.iv_header));
-        helper.setText(R.id.tv_user_name, commentBean.getNickname());
+        TextView tvName = helper.getView(R.id.tv_user_name);
+        TextView tvContent = helper.getView(R.id.tv_content);
         helper.setText(R.id.tv_date, TimeToString.getTimeWx(commentBean.getCreateTime()));
-        helper.setText(R.id.tv_content, commentBean.getContent());
+        tvContent.setText(getSpan(commentBean.getContent()));
+        tvName.setText(commentBean.getNickname());
 
+        if (commentBean.getReplyUid() != null && commentBean.getReplyUid() != 0) {
+            tvName.setTextColor(mContext.getResources().getColor(R.color.color_488));
+            CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
+                    commentBean.getReplyNickname(), R.color.color_488, 2, tvContent, mContext);
+        } else {
+            tvName.setTextColor(mContext.getResources().getColor(R.color.gray_757));
+            tvContent.setTextColor(mContext.getResources().getColor(R.color.gray_484));
+        }
         helper.addOnClickListener(R.id.layout_item, R.id.iv_header);
         helper.addOnLongClickListener(R.id.layout_item);
+    }
+
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(mContext, fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(mContext, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
     }
 }
