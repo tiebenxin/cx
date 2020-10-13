@@ -25,15 +25,15 @@ public class CircleCommentBean extends BaseBean {
      * createTime : 1601453064000
      */
 
-    private Long id;
-    private String content;
-    private Long uid;
-    private String nickname;
-    private String avatar;
-    private Long replyUid;
-    private String replyNickname;
-    private String replyAvatar;
-    private Long createTime;
+    private Long id;// 评论id
+    private String content;// 评论内容
+    private Long uid;// 评论人id
+    private String nickname;// 昵称
+    private String avatar;// 头像
+    private Long replyUid;// 回复id
+    private String replyNickname;// 回复人昵称
+    private String replyAvatar;// 回复人头像
+    private Long createTime;// 创建时间
 
     public Long getId() {
         return id;

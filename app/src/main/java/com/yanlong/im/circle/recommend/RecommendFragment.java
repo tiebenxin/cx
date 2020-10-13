@@ -75,7 +75,7 @@ public class RecommendFragment extends BaseBindMvpFragment<FollowPresenter, Frag
     @Override
     public void init() {
         mFollowList = new ArrayList<>();
-        mFlowAdapter = new CircleFlowAdapter(mFollowList, false, false, this, null);
+        mFlowAdapter = new CircleFlowAdapter(mFollowList, false, false, this);
         bindingView.recyclerRecommend.setAdapter(mFlowAdapter);
         bindingView.recyclerRecommend.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
@@ -256,7 +256,7 @@ public class RecommendFragment extends BaseBindMvpFragment<FollowPresenter, Frag
     }
 
     @Override
-    public void onSuccess(int postion, String msg) {
+    public void onSuccess(int postion, boolean isCancleFollow, String msg) {
         mCurrentPage = 1;
         mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE);
     }
@@ -264,6 +264,11 @@ public class RecommendFragment extends BaseBindMvpFragment<FollowPresenter, Frag
     @Override
     public void onShowMessage(String msg) {
         ToastUtil.show(msg);
+    }
+
+    @Override
+    public void onCommentSuccess(boolean isAdd) {
+
     }
 
     /**

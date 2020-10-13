@@ -171,4 +171,10 @@ public class CommonUtils {
         tv.setText(span);
     }
 
+    public static void setSignTextColor(String var1, String var2, int color2, int start, TextView tv, Context mContext) {
+        String var = var1;
+        SpannableStringBuilder span = new SpannableStringBuilder(var);
+        span.setSpan(new ForegroundColorSpan(ContextCompat.getColor(mContext, color2)), start, var2.length() + start, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);//前包括后不包括
+        tv.setText(span);
+    }
 }

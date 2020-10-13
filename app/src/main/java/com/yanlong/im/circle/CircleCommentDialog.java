@@ -45,12 +45,13 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
     private int mKeyboardHeight = 0;// 记录软键盘的高度
     private int mFuncHeight = 0;// 功能面板默认高度
     private Window dialogWindow;
+    private String mReplyName;// 回复人昵称
 
-    public CircleCommentDialog(Context context, OnMessageListener listener) {
+    public CircleCommentDialog(Context context, String replyName, OnMessageListener listener) {
         super(context, R.style.AppDialog);
         mContext = context;
         mListener = listener;
-
+        mReplyName = replyName;
     }
 
     @Override
@@ -63,6 +64,9 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
     public void initView() {
         mFuncHeight = ScreenUtils.dip2px(mContext, mContext.getResources().getDimension(R.dimen.circle_details_face_height));
         binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_circle_comment, null, false);
+        if (!TextUtils.isEmpty(mReplyName)) {
+            binding.etMessage.setHint("回复" + mReplyName + ":");
+        }
         setContentView(binding.getRoot());
         dialogWindow = getWindow();
         WindowManager.LayoutParams lp = dialogWindow.getAttributes();
@@ -86,11 +90,13 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
 
             @Override
             public void keyBoardHide(int h) {
-//                if (isKeyboard) {
-//                    binding.viewFaceview.setVisibility(View.GONE);
-//                }
-                binding.viewFaceview.setVisibility(View.VISIBLE);
-                setRecyclerViewHeight(257);
+                if (isKeyboard) {
+                    binding.viewFaceview.setVisibility(View.VISIBLE);
+                    setRecyclerViewHeight(257);
+                } else {
+                    binding.viewFaceview.setVisibility(View.GONE);
+                    setRecyclerViewHeight(60);
+                }
             }
         });
 
@@ -176,11 +182,11 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
     private void showOrHideInput() {
         if (isKeyboard) {
             binding.ivEmj.setImageLevel(0);
-            binding.etMessage.requestFocus();
-            InputUtil.showKeyboard(binding.etMessage);
+            InputUtil.hideKeyboard(binding.etMessage);
         } else {
             binding.ivEmj.setImageLevel(1);
-            InputUtil.hideKeyboard(binding.etMessage);
+            binding.etMessage.requestFocus();
+            InputUtil.showKeyboard(binding.etMessage);
         }
     }
 

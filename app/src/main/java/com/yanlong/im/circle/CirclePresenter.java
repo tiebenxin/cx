@@ -280,6 +280,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                     @Override
                     public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
                         super.onFailure(call, t);
+                        batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
                     }
                 });
             }

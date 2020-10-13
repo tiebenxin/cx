@@ -180,27 +180,6 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_comment_count"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_below="@+id/ll_content"
-        android:background="@color/color_f4f"
-        android:gravity="center_vertical"
-        android:paddingLeft="15dp"
-        android:text="所有评论（0）"
-        android:textColor="@color/color_8f8"
-        android:textSize="13sp"
-        android:visibility="gone" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_comment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_comment_count"
-        android:layout_marginTop="5dp"
-        android:visibility="gone" />
-
     <View
         android:id="@+id/view_line"
         style="@style/app_line"

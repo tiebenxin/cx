@@ -28,7 +28,9 @@ public interface FollowView extends IBaseView {
 
     void onLikeSuccess(int position, String msg);
 
-    void onSuccess(int position, String msg);
+    void onSuccess(int position, boolean isCancleFollow, String msg);
 
     void onShowMessage(String msg);
+
+    void onCommentSuccess(boolean isAdd);
 }

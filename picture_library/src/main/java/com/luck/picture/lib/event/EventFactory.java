@@ -134,11 +134,17 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
-     * 刷新关注列表
+     * 刷新关注列表 单条
      */
-    public static class RefreshFollowEvent extends BaseEvent {
+    public static class RefreshSignFollowEvent extends BaseEvent {
         public int postion;// 位置
         public Long id;// 动态ID
         public Long uid;// 发布者ID
+    }
+
+    /**
+     * 刷新关注列表 全部
+     */
+    public static class RefreshFollowEvent extends BaseEvent {
     }
 }
