@@ -47,7 +47,9 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @version V1.0
@@ -64,10 +66,10 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
     private final int MAX_ROW_NUMBER = 3;
     private ICircleClickListener clickListener;
     private final String END_MSG = " 收起";
+    private Map<Integer, TextView> hashMap = new HashMap<>();
 
     /**
      * @param isDetails     是否是详情
-     * @param isFollow      是否是关注
      * @param clickListener
      */
     public FollowProvider(boolean isDetails, boolean isFollow, ICircleClickListener clickListener) {
@@ -95,7 +97,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
         ProgressBar pbProgress = helper.getView(R.id.pb_progress);
-        if (isFollow) {
+        if (isFollow || messageInfoBean.isFollow()) {
             helper.setVisible(R.id.iv_follow, true);
         } else {
             helper.setGone(R.id.iv_follow, false);
@@ -136,9 +138,14 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
-            List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
-                    new TypeToken<List<AttachmentBean>>() {
-                    }.getType());
+            List<AttachmentBean> attachmentBeans = null;
+            try {
+                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                        new TypeToken<List<AttachmentBean>>() {
+                        }.getType());
+            } catch (Exception e) {
+                attachmentBeans = new ArrayList<>();
+            }
             if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
@@ -196,7 +203,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             }
             helper.setGone(R.id.iv_setup, false);
             helper.setGone(R.id.view_line, false);
-            if (isFollow) {
+            if (isFollow || messageInfoBean.isFollow()) {
                 helper.setText(R.id.tv_follow, "取消关注");
             } else {
                 helper.setText(R.id.tv_follow, "关注TA");
@@ -205,11 +212,58 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             helper.setGone(R.id.tv_follow, false);
             helper.setVisible(R.id.iv_setup, true);
             helper.setVisible(R.id.view_line, true);
-            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
-                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
+//            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
+//                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
+            tvContent.setMaxLines(MAX_ROW_NUMBER);//默认三行
+            tvContent.setTag("" + helper.getAdapterPosition());
+            hashMap.put(helper.getAdapterPosition(), tvContent);
+            tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    // 避免重复监听
+                    for (Integer postion : hashMap.keySet()) {
+                        hashMap.get(postion).getViewTreeObserver().removeOnPreDrawListener(this);
+                    }
+                    int ellipsisCount = 0;
+                    if (tvContent.getLayout() != null) {
+                        ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
+                    }
+                    int line = tvContent.getLineCount();
+                    if (ellipsisCount > 0 || line > 3) {
+                        helper.setGone(R.id.tv_show_all, true);
+                        TextView tvMore = helper.getView(R.id.tv_show_all);
+                        // 内容高度小1000时不滚动
+                        setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
+                    } else {
+                        helper.setGone(R.id.tv_show_all, false);
+                    }
+                    return true;
+                }
+            });
         }
+
+        helper.getView(R.id.tv_show_all).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (clickListener != null) {
+                    clickListener.onClick(position, 0, CoreEnum.EClickType.CONTENT_DOWN, v);
+                }
+            }
+        });
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
                 R.id.iv_like, R.id.iv_setup, R.id.rl_video);
+    }
+
+    private void setTextViewLines(TextView content, TextView btn, boolean isShowAll, BaseViewHolder helper) {
+        if (!isShowAll) {
+            //显示3行，按钮设置为点击显示全部。
+            content.setMaxLines(MAX_ROW_NUMBER);
+            btn.setText("展开");
+        } else {
+            //展示全部，按钮设置为点击收起。
+            content.setMaxLines(Integer.MAX_VALUE);
+            btn.setText("收起");
+        }
     }
 
     /**
@@ -340,6 +394,15 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    // 记录点下去X坐标
+    private float downX;
+    // 记录点下去Y坐标
+    private float downY;
+    // 获取该组件在屏幕的x坐标
+    private float deltaX;
+    // 获取该组件在屏幕的y坐标
+    private float deltaY;
+
     /**
      * 图片列表
      *
@@ -360,8 +423,22 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         rv.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (clickListener != null) {
-                    clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DETAILS, v);
+                // 获取该组件在屏幕的x坐标
+                deltaX = event.getRawX();
+                // 获取该组件在屏幕的y坐标
+                deltaY = event.getRawY();
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // 获取x坐标
+                        downX = event.getRawX();
+                        // 获取y坐标
+                        downY = event.getRawY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // 判断是否触发点击事件
+                        if (Math.abs(downX - deltaX) < 10 && Math.abs(downY - deltaY) < 10 && null != clickListener) {
+                            clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DETAILS, v);
+                        }
                 }
                 return true;
             }

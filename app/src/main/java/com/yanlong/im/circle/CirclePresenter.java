@@ -142,10 +142,10 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
+                if (checkSuccess(response.body())) {
                     mView.onSuccess();
                 } else {
-                    mView.showMessage(response.message());
+                    mView.showMessage(getFailMessage(response.body()));
                 }
             }
 

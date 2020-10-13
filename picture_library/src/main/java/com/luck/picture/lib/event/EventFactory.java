@@ -1,5 +1,7 @@
 package com.luck.picture.lib.event;
 
+import android.content.Context;
+
 import com.luck.picture.lib.entity.LocalMedia;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public class EventFactory extends BaseEvent {
      * 发布广场动态
      */
     public static class CreateCircleEvent extends BaseEvent {
+        public Context context;
 
         public CircleBean circleBean;
 
@@ -146,5 +149,20 @@ public class EventFactory extends BaseEvent {
      * 刷新关注列表 全部
      */
     public static class RefreshFollowEvent extends BaseEvent {
+    }
+
+    /**
+     * 刷新推荐列表 单条
+     */
+    public static class RefreshSignRecomendEvent extends BaseEvent {
+        public int postion;// 位置
+        public Long id;// 动态ID
+        public Long uid;// 发布者ID
+    }
+
+    /**
+     * 刷新推荐列表 全部
+     */
+    public static class RefreshRecomendEvent extends BaseEvent {
     }
 }

@@ -44,7 +44,7 @@ public interface CircleServer {
     @POST("square/moment/cancel-like")
     Call<ReturnBean> comentCancleLike(@Body WeakHashMap<String, Object> params);
 
-    @POST("square/follow/add")
+    @POST("follow/add")
     Call<ReturnBean> followAdd(@Body WeakHashMap<String, Object> params);
 
     @POST("follow/cancel")
@@ -58,4 +58,7 @@ public interface CircleServer {
 
     @POST("square/moment/del-comment")
     Call<ReturnBean> delComment(@Body WeakHashMap<String, Object> params);
+
+    @POST("forbid-see/add")
+    Call<ReturnBean> addSee(@Body WeakHashMap<String, Object> params);
 }
