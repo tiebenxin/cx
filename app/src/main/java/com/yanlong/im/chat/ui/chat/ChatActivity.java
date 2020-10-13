@@ -212,7 +212,6 @@ import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -5955,11 +5954,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
-    //选择文件(限制最大5个，与网络请求并发数一致)
+    //选择文件(最大可选改为9个)
     private void toSelectFile() {
         FilePickerManager.INSTANCE
                 .from(this)
-                .maxSelectable(5)
+                .maxSelectable(9)
                 .forResult(FilePickerManager.REQUEST_CODE);
     }
 
