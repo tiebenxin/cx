@@ -51,7 +51,7 @@ public class TcpConnection implements Connection {
             mNetworkChangeReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    boolean isNetOk = NetUtil.isNetworkConnected();
+                    boolean isNetOk = NetUtil.isNetworkAvailable();
                     LogUtil.getLog().d(TAG, "连接LOG-->>>>>网路状态改变" + isNetOk + "--time=" + System.currentTimeMillis());
                     LogUtil.writeLog(TAG + "--连接LOG--" + "网路状态改变--" + isNetOk + "--time=" + System.currentTimeMillis());
                     if (isNetOk) {//链接成功
@@ -82,8 +82,7 @@ public class TcpConnection implements Connection {
 
     @Override
     public void startConnect() {
-        boolean isNetOk = NetUtil.isNetworkConnected();
-
+        boolean isNetOk = NetUtil.isNetworkAvailable();
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + isNetOk);
         LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--网络状态=" + isNetOk + "--time=" + System.currentTimeMillis());
         this.from = EFrom.DEFAULT;
@@ -97,7 +96,7 @@ public class TcpConnection implements Connection {
 
     //开始链接
     public void startConnect(@EFrom int from) {
-        boolean isNetOk = NetUtil.isNetworkConnected();
+        boolean isNetOk = NetUtil.isNetworkAvailable();
         LogUtil.getLog().d(TAG, "连接LOG--开始连接--" + isNetOk);
         LogUtil.writeLog(TAG + "--连接LOG--" + "开始连接--网络状态=" +isNetOk + "--time=" + System.currentTimeMillis());
         this.from = from;
@@ -112,7 +111,7 @@ public class TcpConnection implements Connection {
     //停止链接
     @Override
     public void stopConnect() {
-        LogUtil.getLog().d(TAG, "连接LOG--暂停连接--" + NetUtil.isNetworkConnected());
+        LogUtil.getLog().d(TAG, "连接LOG--暂停连接--" + NetUtil.isNetworkAvailable());
         LogUtil.writeLog(TAG + "--连接LOG--" + "暂停连接--" + "--time=" + System.currentTimeMillis());
         SocketUtil.getSocketUtil().stop(true);
     }
@@ -123,7 +122,7 @@ public class TcpConnection implements Connection {
         if (from == EFrom.OTHER) {
             return;
         }
-        LogUtil.getLog().d(TAG, "连接LOG--销毁连接--" + NetUtil.isNetworkConnected());
+        LogUtil.getLog().d(TAG, "连接LOG--销毁连接--" + NetUtil.isNetworkAvailable());
         LogUtil.writeLog(TAG + "--连接LOG--" + "销毁连接--" + "--time=" + System.currentTimeMillis());
         SocketUtil.getSocketUtil().endSocket();
         isRunning = false;

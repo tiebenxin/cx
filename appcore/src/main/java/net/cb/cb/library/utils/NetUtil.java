@@ -242,9 +242,28 @@ public class NetUtil {
             ConnectivityManager cm = (ConnectivityManager) context
                     .getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
+            return info != null && info.isConnected();
+        } else {
+            return false;
+        }
+    }
+
+    /***
+     * 网络连接检测
+     *
+     * @return
+     */
+    public static boolean isNetworkAvailable() {
+        Context context = AppConfig.APP_CONTEXT;
+        if (context != null) {
+            ConnectivityManager cm = (ConnectivityManager) context
+                    .getSystemService(CONNECTIVITY_SERVICE);
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            LogUtil.getLog().i("Liszt_test", "--连接LOG--网路状态--isConnected=" + (info != null ? info.isConnected() : null) + "--isAvailable=" + (info != null ? info.isAvailable() : null));
             LogUtil.writeLog("Liszt_test" + "--连接LOG--网路状态--isConnected=" + (info != null ? info.isConnected() : null) + "--isAvailable=" + (info != null ? info.isAvailable() : null));
             return info != null && info.isAvailable();
         } else {
+            LogUtil.getLog().i("Liszt_test", "--连接LOG--网路状态false,context=null");
             LogUtil.writeLog("Liszt_test" + "--连接LOG--网路状态false,context=null");
             return false;
         }
