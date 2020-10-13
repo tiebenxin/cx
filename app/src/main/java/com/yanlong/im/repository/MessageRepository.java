@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.data.local.MessageLocalDataSource;
 import com.yanlong.im.data.remote.MessageRemoteDataSource;
 import com.yanlong.im.user.action.UserAction;
@@ -1282,4 +1283,30 @@ public class MessageRepository {
         }
 
     }
+
+
+    /**
+     * 保存收到的朋友圈互动消息到本地(默认未读)
+     * @param wrapMessage
+     * @param realm
+     * @return
+     */
+    public void handlerInteractMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+        MsgBean.InteractMessage interactMessage = wrapMessage.getInteract();
+        InteractMessage localMsg = new InteractMessage();
+        localMsg.setMsgId(wrapMessage.getMsgId());
+        localMsg.setMomentId(interactMessage.getMomentId());
+        localMsg.setMomentUid(interactMessage.getMomentUid());
+        localMsg.setInteractId(interactMessage.getInteractId());
+        localMsg.setResource(interactMessage.getResource());
+        localMsg.setContent(interactMessage.getContent());
+        localMsg.setInteractType(interactMessage.getInteractTypeValue());
+        localMsg.setResourceType(interactMessage.getResourceTypeValue());
+        localMsg.setAvatar(wrapMessage.getAvatar());
+        localMsg.setNickname(wrapMessage.getNickname());
+        localMsg.setFromUid(wrapMessage.getFromUid());
+        localMsg.setTimeStamp(wrapMessage.getTimestamp());
+        localDataSource.saveInteractMessage(realm,localMsg);
+    }
+
 }

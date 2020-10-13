@@ -228,6 +228,10 @@ public class DaoMigration implements RealmMigration {
                 updateV52(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 52) {
+                updateV53(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -915,6 +919,23 @@ public class DaoMigration implements RealmMigration {
                 .addField("stat", int.class)
                 .addField("lastTime", long.class)
                 .addField("imid", String.class);
+    }
+
+    //新增互动消息实体类
+    private final void updateV53(RealmSchema schema) {
+        schema.create("InteractMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("momentId", long.class)
+                .addField("momentUid", long.class)
+                .addField("interactId", long.class)
+                .addField("resource", String.class)
+                .addField("content", String.class)
+                .addField("interactType", int.class)
+                .addField("resourceType", int.class)
+                .addField("hadRead", boolean.class)
+                .addField("greyColor", boolean.class)
+                .addField("avatar", String.class)
+                .addField("nickname", String.class);
     }
 
 

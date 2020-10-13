@@ -36,6 +36,7 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.IUser;
@@ -3972,6 +3973,26 @@ public class MsgDao {
         realm.close();
 
         return ret;
+    }
 
+    /**
+     * 查询全部互动消息
+     */
+    public List<InteractMessage> getAllInteractMsg() {
+        List<InteractMessage> list = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<InteractMessage> realmList = realm.where(InteractMessage.class)
+                    .sort("timeStamp", Sort.DESCENDING)
+                    .findAll();
+            if (realmList != null) {
+                list = realm.copyFromRealm(realmList);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
     }
 }

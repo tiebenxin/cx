@@ -2,7 +2,6 @@ package com.yanlong.im.data.local;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
@@ -16,6 +15,7 @@ import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -919,5 +919,25 @@ public class MessageLocalDataSource {
             result = true;
         }
         return result;
+    }
+
+    /**
+     * 保存收到的互动消息
+     *
+     * @param msg
+     */
+    public void saveInteractMessage(@NonNull Realm realm, InteractMessage msg) {
+        try {
+            checkInTransaction(realm);
+            realm.beginTransaction();
+            realm.insertOrUpdate(msg);
+            realm.commitTransaction();
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
     }
 }

@@ -211,6 +211,9 @@ public abstract class DispatchMessage {
             case RECOMMEND:// 好友推荐消息
                 repository.handlerRecentFriends(wrapMessage, realm);
                 break;
+            case INTERACT:// 朋友圈互动消息
+                repository.handlerInteractMsg(wrapMessage, realm);
+                break;
         }
 
         return result;
