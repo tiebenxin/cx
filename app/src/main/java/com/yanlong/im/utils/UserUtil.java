@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
@@ -189,5 +190,19 @@ public class UserUtil {
             }
         }
         return tempList;
+    }
+
+    // stat : 0:正常|1:待同意|2:黑名单|9:系统用户，如小助手
+    public static int getUserType(int stat) {
+        switch (stat) {
+            case 0:
+                return ChatEnum.EUserType.FRIEND;
+            case 2:
+                return ChatEnum.EUserType.BLACK;
+            case 9:
+                return ChatEnum.EUserType.ASSISTANT;
+            default:
+                return ChatEnum.EUserType.STRANGE;
+        }
     }
 }

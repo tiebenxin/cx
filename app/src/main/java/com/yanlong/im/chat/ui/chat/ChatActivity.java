@@ -5296,7 +5296,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         userInfoList.addAll(response.body().getData());
                         if (userInfoList.get(0) != null) {
                             UserInfo userInfo = userInfoList.get(0);
-                            userInfo.setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友
+                            userInfo.setuType(UserUtil.getUserType(userInfo.getStat()));
                             userInfo.toTag();
                             userDao.updateUserinfo(userInfo);//本地更新对方数据
                         }

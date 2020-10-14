@@ -169,15 +169,16 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                             ToastManage.s(mContext, getString(R.string.picture_rule));
                             return;
                         }
+
+                    }
+                    // 刷新图片列表中图片状态
+                    boolean isChecked;
+                    if (!check.isSelected()) {
                         if (PictureMimeType.isVideo(pictureType) && (selectImages != null && selectImages.size() > 0)) {
                             String str = getString(R.string.picture_message_video_max_num, 1);
                             ToastManage.s(PicturePreviewActivity.this, str);
                             return;
                         }
-                    }
-                    // 刷新图片列表中图片状态
-                    boolean isChecked;
-                    if (!check.isSelected()) {
                         isChecked = true;
                         check.setSelected(true);
                         check.startAnimation(animation);
