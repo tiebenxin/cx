@@ -183,13 +183,13 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvFollow.setVisibility(View.GONE);
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.VISIBLE);
-                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position,0));
+                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position,1));
                     }
                     if (type == 3) {
                         holder.tvFollow.setVisibility(View.GONE);
                         holder.tvDeleteNotSee.setVisibility(View.VISIBLE);
                         holder.tvDeleteRecord.setVisibility(View.GONE);
-                        holder.tvDeleteNotSee.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position,1));
+                        holder.tvDeleteNotSee.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position,2));
                     } else {
                         holder.tvFollow.setVisibility(View.VISIBLE);
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
