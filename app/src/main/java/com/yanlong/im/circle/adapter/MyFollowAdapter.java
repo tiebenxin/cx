@@ -155,7 +155,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             holder.tvNote.setText("暂无个性签名");
                         }
                         holder.tvNote.setVisibility(View.VISIBLE);
-                    } if (type == 3) {
+                    } else if (type == 3) {
                         holder.tvNote.setVisibility(View.GONE);
                     } else {
                         if (userInfo.getLastTime()!=0) {
