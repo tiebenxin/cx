@@ -365,13 +365,13 @@ public class PreviewMediaActivity extends FragmentActivity {
                         if (response.body().getData() != null && response.body().getData().size() != list.size()) {
                             showMsgFailDialog();
                         } else {
-                            if (type == 1) {
+                            if (type == CoreEnum.EActionType.FORWARD) {
                                 sendToFriend(msgId, fromWhere);
-                            } else if (type == 2) {
+                            } else if (type == CoreEnum.EActionType.COLLECTION) {
                                 EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                                 eventCollectImgOrVideo.setMsgId(msgId);
                                 EventBus.getDefault().post(eventCollectImgOrVideo);
-                            } else {
+                            } else if (type == CoreEnum.EActionType.EDIT){
                                 Intent intent = new Intent(PreviewMediaActivity.this, ImageShowActivity.class);
                                 Bundle bundle = new Bundle();
                                 bundle.putString("imgpath", media.getCompressPath());

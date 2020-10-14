@@ -5,6 +5,9 @@
     <color name="black_a_20">#40000000</color>
     <color name="transparent">#00000000</color>
 
+    <color name="white_b3">#BFffffff</color>
+
+
     <!-- 透明度 -->
     <color name="transparent_33">#33000000</color>
     <color name="transparent_80">#80000000</color>
