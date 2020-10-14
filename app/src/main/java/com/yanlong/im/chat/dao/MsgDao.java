@@ -3995,4 +3995,27 @@ public class MsgDao {
         }
         return list;
     }
+
+    /**
+     * 获取最新的一条互动消息(若存在未读状态的消息，则需要在我的动态顶部悬浮/红点提醒)
+     */
+    public InteractMessage getLastUnreadInteractMsg() {
+        InteractMessage message;
+        InteractMessage result = new InteractMessage();
+        Realm realm = DaoUtil.open();
+        try {
+            message = realm.where(InteractMessage.class)
+                    .sort("timeStamp", Sort.DESCENDING)
+                    .findFirst();
+            if (message != null) {
+                result = realm.copyFromRealm(message);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return result;
+    }
+
 }

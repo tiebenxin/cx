@@ -935,7 +935,9 @@ public class DaoMigration implements RealmMigration {
                 .addField("hadRead", boolean.class)
                 .addField("greyColor", boolean.class)
                 .addField("avatar", String.class)
-                .addField("nickname", String.class);
+                .addField("nickname", String.class)
+                .addField("fromUid", long.class)
+                .addField("timeStamp", long.class);
     }
 
 
