@@ -535,14 +535,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 //展示背景图
                 if (!TextUtils.isEmpty(topData.getBgImage())) {
                     Glide.with(activity).load(topData.getBgImage())
-                            .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
+                            .apply(bgRequestOptions).into(holder.ivBackground);
                 }else {
                     Glide.with(activity).load(R.mipmap.ic_trend_default_bg)
-                            .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
+                            .apply(bgRequestOptions).into(holder.ivBackground);
                 }
             }else {
                 Glide.with(activity).load(R.mipmap.ic_trend_default_bg)
-                        .apply(GlideOptionsUtil.defImageOptions1()).into(holder.ivBackground);
+                        .apply(bgRequestOptions).into(holder.ivBackground);
             }
             //新消息提醒
             if(haveNewMsg){
