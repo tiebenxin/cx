@@ -1083,12 +1083,14 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         if (isOpen) {
             isSelect = true;
             bindingView.headView.getActionbar().setTxtRight("取消");
+            bindingView.headView.getActionbar().setViewLeftShow(false);
             mAdapter.setSelect(isSelect, selectMsg);
             mAdapter.notifyItemRangeChanged(0, listData.size());
             bindingView.llMore.setVisibility(View.VISIBLE);
         } else {
             isSelect = false;
             bindingView.headView.getActionbar().setTxtRight("选择");
+            bindingView.headView.getActionbar().setViewLeftShow(true);
             mAdapter.setSelect(isSelect, selectMsg);
             mAdapter.notifyItemRangeChanged(0, listData.size());
             bindingView.llMore.setVisibility(View.GONE);
@@ -1213,7 +1215,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         if (list != null && list.size() > 0) {
             showLoadingDialog("下载中...");
             download(list, 0);
-        }else {
+        } else {
             showValidMsgDialog(true);
         }
     }

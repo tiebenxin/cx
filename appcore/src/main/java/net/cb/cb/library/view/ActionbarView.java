@@ -454,4 +454,10 @@ public class ActionbarView extends LinearLayout {
 
     }
 
+    public void setViewLeftShow(boolean b) {
+        if (ViewLeft != null) {
+            ViewLeft.setVisibility(b ? VISIBLE : GONE);
+        }
+    }
+
 }
