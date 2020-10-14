@@ -3,6 +3,7 @@ package com.yanlong.im.circle.mycircle;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
@@ -14,6 +15,7 @@ import com.luck.picture.lib.rxbus2.RxBus;
 import com.luck.picture.lib.rxbus2.Subscribe;
 import com.luck.picture.lib.rxbus2.ThreadMode;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
@@ -53,6 +55,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private UpFileAction upFileAction;
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
+    private MsgDao msgDao;
 
     @Override
     protected int setView() {
@@ -63,6 +66,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     protected void init(Bundle savedInstanceState) {
         action = new TempAction();
         mList = new ArrayList<>();
+        msgDao = new MsgDao();
         bindingView.layoutFollow.setVisibility(View.GONE);
         bindingView.layoutChat.setVisibility(View.GONE);
         if (!RxBus.getDefault().isRegistered(this)) {
@@ -82,7 +86,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         adapter = new MyTrendsAdapter(MyTrendsActivity.this,mList,1,0);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
-        httpGetNewMsg();
         //加载更多
         bindingView.recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
@@ -121,6 +124,19 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     .selectArtworkMaster(true)
                     .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
         });
+        //是否有未读互动消息
+        if(msgDao.getUnreadMsgList()!=null && msgDao.getUnreadMsgList().size()>0){
+            String avatar = "";
+            int size = msgDao.getUnreadMsgList().size();
+            if(msgDao.getUnreadMsgList().get(0)!=null){
+                if(!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())){
+                    avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
+                }
+            }
+            adapter.showNotice(true,avatar,size);
+        }else {
+            adapter.showNotice(false,"",0);
+        }
     }
 
     /**
@@ -267,11 +283,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             bindingView.recyclerView.setVisibility(View.VISIBLE);
             bindingView.noDataLayout.setVisibility(View.GONE);
         }
-    }
-
-    //是否有收到新的通知 TODO 接口未提供，暂时模拟
-    private void httpGetNewMsg() {
-        adapter.showNotice(true);
     }
 
     //发布新动态后直接刷新

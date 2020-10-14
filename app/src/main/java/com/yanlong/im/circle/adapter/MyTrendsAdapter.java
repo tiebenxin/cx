@@ -130,8 +130,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private UserBean userBean;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private RequestOptions mRequestOptions;
+    private RequestOptions bgRequestOptions;
     private boolean haveNewMsg = false;//是否展示顶部新消息通知
     private boolean isFollow = false;//是否关注
+    private String noticeAvatar;//新消息通知头像
+    private int noticeSize;//新消息数量
     private final int MAX_ROW_NUMBER = 3;
     private final String END_MSG = " 收起";
 
@@ -164,6 +167,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .skipMemoryCache(false)
                 .placeholder(com.yanlong.im.R.drawable.ic_info_head)
                 .error(com.yanlong.im.R.drawable.ic_info_head)
+                .centerCrop();
+        bgRequestOptions = RequestOptions.centerInsideTransform()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .skipMemoryCache(false)
+                .error(com.yanlong.im.R.mipmap.ic_trend_default_bg)
                 .centerCrop();
         if(type==1){
             userBean = (UserBean) new UserAction().getMyInfo();
@@ -198,8 +206,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //展示顶部通知
-    public void showNotice(boolean haveNewMsg){
+    public void showNotice(boolean haveNewMsg,String avatar,int size){
         this.haveNewMsg = haveNewMsg;
+        this.noticeAvatar = avatar;
+        this.noticeSize = size;
         notifyItemChanged(0);
     }
 
@@ -265,7 +275,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if(!TextUtils.isEmpty(bean.getPosition())){
                         holder.tvLocation.setText(bean.getPosition());
                     }else {
-                        holder.tvLocation.setText("未设置地点");
+                        if(!TextUtils.isEmpty(bean.getCity())){
+                            holder.tvLocation.setText(bean.getCity());
+                        }else {
+                            holder.tvLocation.setText("未设置地点");
+                        }
                     }
                     //点赞数 评论数
                     holder.tvLike.setText(bean.getLikeCount()+"");
@@ -371,11 +385,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                     //跳详情(拼凑一下昵称和头像)
                     holder.layoutItem.setOnClickListener(v -> {
-                                if (!TextUtils.isEmpty(userBean.getHead())) {
-                                    bean.setAvatar(userBean.getHead());
-                                }
-                                if (!TextUtils.isEmpty(userBean.getName())) {
-                                    bean.setNickname(userBean.getName());
+                                if(userBean!=null){
+                                    if (!TextUtils.isEmpty(userBean.getHead())) {
+                                        bean.setAvatar(userBean.getHead());
+                                    }
+                                    if (!TextUtils.isEmpty(userBean.getName())) {
+                                        bean.setNickname(userBean.getName());
+                                    }
                                 }
                                 gotoCircleDetailsActivity(false, bean);
                             }
@@ -531,6 +547,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //新消息提醒
             if(haveNewMsg){
                 holder.layoutNotice.setVisibility(View.VISIBLE);
+                if (!TextUtils.isEmpty(noticeAvatar)) {
+                    Glide.with(activity)
+                            .load(noticeAvatar)
+                            .apply(mRequestOptions)
+                            .into(holder.ivNoticeAvatar);
+                } else {
+                    Glide.with(activity)
+                            .load(R.drawable.ic_info_head)
+                            .into(holder.ivNoticeAvatar);
+                }
+                if(noticeSize!=0){
+                    holder.tvNotice.setText(noticeSize+"条新消息");
+                }
             }else {
                 holder.layoutNotice.setVisibility(View.GONE);
             }
@@ -737,6 +766,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutWhoSeeMe;
         private LinearLayout layoutCenter;
         private LinearLayout layoutNotice;
+        private TextView tvNotice;
+        private ImageView ivNoticeAvatar;
 
         public HeadHolder(View itemView) {
             super(itemView);
@@ -753,6 +784,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             layoutWhoSeeMe = itemView.findViewById(R.id.layout_who_see_me);
             layoutCenter = itemView.findViewById(R.id.layout_center);
             layoutNotice = itemView.findViewById(R.id.layout_notice);
+            tvNotice = itemView.findViewById(R.id.tv_notice);
+            ivNoticeAvatar = itemView.findViewById(R.id.iv_notice_avatar);
         }
     }
 
@@ -770,7 +803,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
-        postcard.withBoolean(CircleDetailsActivity.IS_ME, type==1 ? true:false);//是否为我自己的动态详情
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
         if(!TextUtils.isEmpty(messageInfoBean.getVote())){//是否含有投票
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_VOTE);

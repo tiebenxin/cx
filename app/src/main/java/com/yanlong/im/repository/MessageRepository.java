@@ -1293,20 +1293,25 @@ public class MessageRepository {
      */
     public void handlerInteractMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         MsgBean.InteractMessage interactMessage = wrapMessage.getInteract();
-        InteractMessage localMsg = new InteractMessage();
-        localMsg.setMsgId(wrapMessage.getMsgId());
-        localMsg.setMomentId(interactMessage.getMomentId());
-        localMsg.setMomentUid(interactMessage.getMomentUid());
-        localMsg.setInteractId(interactMessage.getInteractId());
-        localMsg.setResource(interactMessage.getResource());
-        localMsg.setContent(interactMessage.getContent());
-        localMsg.setInteractType(interactMessage.getInteractTypeValue());
-        localMsg.setResourceType(interactMessage.getResourceTypeValue());
-        localMsg.setAvatar(wrapMessage.getAvatar());
-        localMsg.setNickname(wrapMessage.getNickname());
-        localMsg.setFromUid(wrapMessage.getFromUid());
-        localMsg.setTimeStamp(wrapMessage.getTimestamp());
-        localDataSource.saveInteractMessage(realm,localMsg);
+        //需求->若操作类型是删除评论，直接修改本地消息记录
+        if(interactMessage.getInteractTypeValue()==5){
+            localDataSource.setDeleteCommentStatus(realm,interactMessage.getInteractId());
+        }else {
+            InteractMessage localMsg = new InteractMessage();
+            localMsg.setMsgId(wrapMessage.getMsgId());
+            localMsg.setMomentId(interactMessage.getMomentId());
+            localMsg.setMomentUid(interactMessage.getMomentUid());
+            localMsg.setInteractId(interactMessage.getInteractId());
+            localMsg.setResource(interactMessage.getResource());
+            localMsg.setContent(interactMessage.getContent());
+            localMsg.setInteractType(interactMessage.getInteractTypeValue());
+            localMsg.setResourceType(interactMessage.getResourceTypeValue());
+            localMsg.setAvatar(wrapMessage.getAvatar());
+            localMsg.setNickname(wrapMessage.getNickname());
+            localMsg.setFromUid(wrapMessage.getFromUid());
+            localMsg.setTimeStamp(wrapMessage.getTimestamp());
+            localDataSource.saveInteractMessage(realm,localMsg);
+        }
     }
 
 }

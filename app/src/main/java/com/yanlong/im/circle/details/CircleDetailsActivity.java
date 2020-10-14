@@ -76,7 +76,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     public static final String SOURCE_TYPE = "source_type";
     public static final String ITEM_DATA = "item_data";
     public static final String ITEM_DATA_TYPE = "item_data_type";
-    public static final String IS_ME = "is_me";//是否为自己 若为自己的朋友圈详情无需显示"去关注"按钮
     public static final String ITEM_DATA_POSTION = "item_data_postion";
 
     protected ViewCircleDetailsBinding binding;

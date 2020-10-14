@@ -57,7 +57,8 @@ public class MyInteractActivity extends BaseBindActivity<ActivityMyInteractBindi
         }else {
             showNoDataLayout(true);
         }
-
+        //点击进来则全部已读
+        msgDao.setReadedStatus();
     }
 
 

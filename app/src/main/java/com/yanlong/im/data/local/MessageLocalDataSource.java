@@ -940,4 +940,30 @@ public class MessageLocalDataSource {
             LogUtil.writeError(e);
         }
     }
+
+    /**
+     * 修改某一条互动消息状态 (评论->修改为删除评论)
+     *
+     * @param interactId 通过互动id找到该评论
+     */
+    public void setDeleteCommentStatus(@NonNull Realm realm, long interactId) {
+        try {
+            checkInTransaction(realm);
+            InteractMessage transfer = realm.where(InteractMessage.class)
+                    .equalTo("interactId", interactId)
+                    .findFirst();
+            if (transfer == null) {
+                return;
+            }
+            realm.beginTransaction();
+            transfer.setInteractType(5);
+            realm.commitTransaction();
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
+    }
 }

@@ -3997,25 +3997,50 @@ public class MsgDao {
     }
 
     /**
-     * 获取最新的一条互动消息(若存在未读状态的消息，则需要在我的动态顶部悬浮/红点提醒)
+     * 查出所有的未读的互动消息
      */
-    public InteractMessage getLastUnreadInteractMsg() {
-        InteractMessage message;
-        InteractMessage result = new InteractMessage();
+    public List<InteractMessage> getUnreadMsgList() {
+        List<InteractMessage> list = null;
         Realm realm = DaoUtil.open();
         try {
-            message = realm.where(InteractMessage.class)
+            RealmResults<InteractMessage> realmList = realm.where(InteractMessage.class)
                     .sort("timeStamp", Sort.DESCENDING)
-                    .findFirst();
-            if (message != null) {
-                result = realm.copyFromRealm(message);
+                    .equalTo("hadRead", false)
+                    .findAll();
+            if (realmList != null) {
+                list = realm.copyFromRealm(realmList);
             }
             realm.close();
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        return result;
+        return list;
     }
+
+    /**
+     * 所有的未读互动消息->全部设为已读
+     */
+    public void setReadedStatus() {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<InteractMessage> list = realm.where(InteractMessage.class).equalTo("hadRead", false).findAll();
+            if (list != null) {
+                for (InteractMessage msg : list) {
+                    msg.setHadRead(true);
+                }
+                realm.insertOrUpdate(list);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+
 
 }
