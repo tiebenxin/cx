@@ -328,17 +328,19 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
      * @param momentId    说说ID
      * @param momentUid   说说发布者
      * @param myLikeStat  该条说说是我发布的，是否获取我对该条说说的点赞状态(0或不传不返回,1返回)
+     * @param addBrowse   第一页时，是否需要添加浏览量(0:否,1:是)
      */
-    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat) {
+    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat, int addBrowse) {
         WeakHashMap<String, Object> params = new WeakHashMap<>();
         params.put("currentPage", currentPage);
         params.put("pageSize", pageSize);
         params.put("momentId", momentId);
         params.put("momentUid", momentUid);
         params.put("myLikeStat", myLikeStat);
-        mModel.circleCommentList(params, new CallBack<ReturnBean<List<CircleCommentBean>>>() {
+        params.put("addBrowse", addBrowse);
+        mModel.circleCommentList(params, new CallBack<ReturnBean<CircleCommentBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean<List<CircleCommentBean>>> call, Response<ReturnBean<List<CircleCommentBean>>> response) {
+            public void onResponse(Call<ReturnBean<CircleCommentBean>> call, Response<ReturnBean<CircleCommentBean>> response) {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
                     mView.onCommentSuccess(response.body().getData());
@@ -348,7 +350,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             }
 
             @Override
-            public void onFailure(Call<ReturnBean<List<CircleCommentBean>>> call, Throwable t) {
+            public void onFailure(Call<ReturnBean<CircleCommentBean>> call, Throwable t) {
                 super.onFailure(call, t);
             }
         });

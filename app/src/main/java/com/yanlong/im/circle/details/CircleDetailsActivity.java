@@ -84,7 +84,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private MessageInfoBean mMessageInfoBean;
 
     private CommentAdapter mCommentTxtAdapter;
-    private List<CircleCommentBean> mCommentList;
+    private List<CircleCommentBean.CommentListBean> mCommentList;
     private boolean isFollow;
     private final int PAGE_SIZE = 20;
     private int mCurrentPage = 1, mPostion;
@@ -256,7 +256,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
                 mPresenter.circleCommentList(++mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                        UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
+                        UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0);
             }
         });
     }
@@ -278,7 +278,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
 
         mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
+                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 1);
     }
 
     @Override
@@ -393,7 +393,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (mMessageInfoBean != null) {
             mCurrentPage = 1;
             mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0);
+                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0);
         }
         binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
         mFlowAdapter.notifyDataSetChanged();
@@ -423,11 +423,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     }
 
     @Override
-    public void onCommentSuccess(List<CircleCommentBean> list) {
+    public void onCommentSuccess(CircleCommentBean commentBean) {
 
         if (mCurrentPage == 1) {
             mCommentList.clear();
         }
+        List<CircleCommentBean.CommentListBean> list = commentBean.getCommentList();
         if (mCurrentPage == 1 && (list == null || list.size() == 0)) {
 //            View view = View.inflate(this, R.layout.view_follow_no_data, null);
 //            TextView textView = view.findViewById(R.id.tv_message);

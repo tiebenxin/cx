@@ -54,7 +54,7 @@ public interface CircleServer {
     Call<ReturnBean> circleComment(@Body WeakHashMap<String, Object> params);
 
     @POST("square/moment/comment-list")
-    Call<ReturnBean<List<CircleCommentBean>>> circleCommentList(@Body WeakHashMap<String, Object> params);
+    Call<ReturnBean<CircleCommentBean>> circleCommentList(@Body WeakHashMap<String, Object> params);
 
     @POST("square/moment/del-comment")
     Call<ReturnBean> delComment(@Body WeakHashMap<String, Object> params);

@@ -293,4 +293,28 @@ public class StringUtil {
         }
         return false;
     }
+
+    public static String numberFormart(int number) {
+        String value = "";
+        int w = number / 10000;
+        int k = number % 10000 / 1000;
+        int i = number / 1000;
+        int j = number % 1000 / 100;
+        if (number > 10000) {
+            if (k > 0) {
+                value = w + "." + k + "W";
+            } else {
+                value = w + "W";
+            }
+        } else if (number > 1000) {
+            if (j > 0) {
+                value = i + "." + j + "K";
+            } else {
+                value = i + "K";
+            }
+        } else {
+            value = number + "";
+        }
+        return value;
+    }
 }

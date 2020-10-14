@@ -37,6 +37,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.HashMap;
@@ -158,7 +159,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
 
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
-            ivLike.setText(messageInfoBean.getLikeCount() + "");
+            ivLike.setText(StringUtil.numberFormart(messageInfoBean.getLikeCount()));
         } else {
             helper.setText(R.id.iv_like, "");
         }
@@ -173,7 +174,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
 
         if (messageInfoBean.getCommentCount() != null && messageInfoBean.getCommentCount() > 0) {
-            helper.setText(R.id.iv_comment, messageInfoBean.getCommentCount() + "");
+            helper.setText(R.id.iv_comment, StringUtil.numberFormart(messageInfoBean.getCommentCount()));
         } else {
             helper.setText(R.id.iv_comment, "");
         }
@@ -384,6 +385,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                             clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_CHAR, view);
                             break;
                     }
+                } else {
+                    clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
                 }
             }
         });

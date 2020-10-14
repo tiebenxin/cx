@@ -289,4 +289,35 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             }
         });
     }
+
+    /**
+     * 投票接口
+     *
+     * @param itemId 投票选项ID，1-4
+     * @param vid    说说ID
+     * @param vUid   投票发布者
+     */
+    public void voteAnswer(int itemId, int parentPostion, Long vid, Long vUid) {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("itemId", itemId);
+        params.put("vid", vid);
+        params.put("vUid", vUid);
+        mModel.voteAnswer(params, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (checkSuccess(response.body())) {
+                    mView.onVoteSuccess(parentPostion, response.message());
+                } else {
+                    mView.onShowMessage(getFailMessage(response.body()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                mView.onShowMessage("刷新失败");
+            }
+        });
+    }
 }

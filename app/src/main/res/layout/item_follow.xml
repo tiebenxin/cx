@@ -97,8 +97,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginRight="@dimen/app_margin_circle"
+            android:ellipsize="end"
             android:lineSpacingExtra="3dp"
-            android:text="美好的一天，天山的风景真的是太漂亮了，让人流连忘返。"
+            android:maxLines="3"
+            android:scrollbars="none"
             android:textColor="@color/gray_484"
             android:textSize="15sp" />
 
@@ -182,10 +184,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:drawableLeft="@mipmap/ic_circle_common"
-                android:drawablePadding="3dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="5dp"
+                android:minWidth="50dp"
                 android:textColor="@color/gray_b2b" />
 
             <TextView
@@ -195,10 +195,8 @@
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/iv_comment"
                 android:drawableLeft="@mipmap/ic_circle_give"
-                android:drawablePadding="3dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="5dp"
+                android:minWidth="50dp"
                 android:textColor="@color/gray_b2b" />
 
         </RelativeLayout>

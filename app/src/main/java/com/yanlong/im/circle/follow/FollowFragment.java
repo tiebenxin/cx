@@ -276,7 +276,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     @Override
-    public void onCommentSuccess(List<CircleCommentBean> list) {
+    public void onCommentSuccess(CircleCommentBean commentBean) {
 
     }
 

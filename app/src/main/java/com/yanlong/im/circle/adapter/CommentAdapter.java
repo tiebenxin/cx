@@ -25,7 +25,7 @@ import net.cb.cb.library.utils.TimeToString;
  * @description
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean, BaseViewHolder> {
+public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentListBean, BaseViewHolder> {
 
     private boolean isShowAll = false;// 是否全部显示
 
@@ -58,7 +58,7 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean, BaseView
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, CircleCommentBean commentBean) {
+    protected void convert(BaseViewHolder helper, CircleCommentBean.CommentListBean commentBean) {
         Glide.with(mContext)
                 .asBitmap()
                 .load(commentBean.getAvatar())

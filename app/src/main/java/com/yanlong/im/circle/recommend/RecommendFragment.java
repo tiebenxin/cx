@@ -241,6 +241,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     gotoCircleDetailsActivity(false, postion);
                 }
             }
+        } else {
+            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
+            mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
         }
     }
 
@@ -271,10 +274,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             }
 
             if (list == null || list.size() == 0) {
-                bindingView.srlFollow.setEnableLoadMore(false);
-                bindingView.srlFollow.finishLoadMore();
+                bindingView.srlFollow.finishLoadMoreWithNoMoreData();
             } else if (list.size() > 0 && list.size() < PAGE_SIZE) {
-                mCurrentPage = ((MessageInfoBean) list.get(list.size() - 1).getData()).getId();
                 bindingView.srlFollow.finishLoadMoreWithNoMoreData();
             } else {
                 mCurrentPage = ((MessageInfoBean) list.get(list.size() - 1).getData()).getId();
@@ -346,6 +347,18 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 mFlowAdapter.notifyItemChanged(position);
             }
         } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public void onVoteSuccess(int parentPostion, String msg) {
+        try {
+            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
+            if (messageInfoBean != null) {
+                mPresenter.queryById(messageInfoBean.getId(), messageInfoBean.getUid(), parentPostion);
+            }
+        } catch (Exception e) {
+
         }
     }
 }
