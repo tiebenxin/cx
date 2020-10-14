@@ -3,6 +3,7 @@ package com.yanlong.im.circle.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +32,7 @@ import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.audio.IAudioPlayListener;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
@@ -44,6 +46,7 @@ import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -117,7 +120,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
 
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
-            ivLike.setText(messageInfoBean.getLikeCount() + "");
+            ivLike.setText(StringUtil.numberFormart(messageInfoBean.getLikeCount()));
         } else {
             helper.setText(R.id.iv_like, "");
         }
@@ -132,7 +135,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
 
         if (messageInfoBean.getCommentCount() != null && messageInfoBean.getCommentCount() > 0) {
-            helper.setText(R.id.iv_comment, messageInfoBean.getCommentCount() + "");
+            helper.setText(R.id.iv_comment, StringUtil.numberFormart(messageInfoBean.getCommentCount()));
         } else {
             helper.setText(R.id.iv_comment, "");
         }
@@ -150,10 +153,31 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
-                    pbProgress.setProgress(0);
+                    if (messageInfoBean.getPlayStatus() == CoreEnum.EPlayStatus.PLAY_ING) {
+
+                    } else if (messageInfoBean.getPlayStatus() == CoreEnum.EPlayStatus.STOP) {
+                        pbProgress.setProgress(AudioPlayUtil.getProgressValue());
+                    } else {
+                        pbProgress.setProgress(0);
+                    }
                     ivVoicePlay.setOnClickListener(o -> {
                         if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), ivVoicePlay, pbProgress);
+                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), pbProgress, ivVoicePlay, new IAudioPlayListener() {
+                                @Override
+                                public void onStart(Uri var1) {
+                                    messageInfoBean.setPlayStatus(CoreEnum.EPlayStatus.PLAY_ING);
+                                }
+
+                                @Override
+                                public void onStop(Uri var1) {
+                                    messageInfoBean.setPlayStatus(CoreEnum.EPlayStatus.STOP);
+                                }
+
+                                @Override
+                                public void onComplete(Uri var1) {
+                                    messageInfoBean.setPlayStatus(CoreEnum.EPlayStatus.DEFAULT);
+                                }
+                            });
                         }
                     });
                 }

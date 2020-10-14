@@ -22,7 +22,7 @@ public interface FollowView extends IBaseView {
 
     void onSuccess(int position, MessageFlowItemBean flowItemBean);
 
-    void onCommentSuccess(List<CircleCommentBean> list);
+    void onCommentSuccess(CircleCommentBean commentBean);
 
     void onVoteSuccess(int parentPostion, String msg);
 

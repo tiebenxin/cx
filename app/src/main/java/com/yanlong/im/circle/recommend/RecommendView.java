@@ -27,4 +27,6 @@ public interface RecommendView extends IBaseView {
     void addSeeSuccess(String msg);
 
     void onSuccess(int position, MessageFlowItemBean flowItemBean);
+
+    void onVoteSuccess(int parentPostion, String msg);
 }

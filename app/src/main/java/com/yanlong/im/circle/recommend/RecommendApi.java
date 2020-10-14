@@ -32,4 +32,6 @@ public interface RecommendApi {
     void addSee(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
 
     void queryById(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback);
+
+    void voteAnswer(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
 }

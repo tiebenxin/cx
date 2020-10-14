@@ -80,7 +80,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
             }
         }
         try {
-            if (mVoteAnswerList != null && mVoteAnswerList.size() > 0) {
+            if (mVoteAnswerList != null && mVoteAnswerList.size() > 0 && mAnswer != -1) {
                 double result = 0.0;
                 for (MessageInfoBean.VoteAnswerBean.SumDataListBean bean : mVoteAnswerList) {
                     if ((helper.getAdapterPosition() + 1) == bean.getId()) {
@@ -93,11 +93,15 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
                 tvPercentage.setText(bd.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue() + "%");
             } else {
                 progressBar.setProgress(0);
-                tvPercentage.setText("0.0%");
+                if (mAnswer != -1) {
+                    tvPercentage.setText("0.0%");
+                } else {
+                    tvPercentage.setText("");
+                }
             }
         } catch (Exception e) {
             progressBar.setProgress(0);
-            tvPercentage.setText("0.0%");
+            tvPercentage.setText("");
         }
         helper.addOnClickListener(R.id.layout_vote_pictrue, R.id.layout_vote_txt);
     }

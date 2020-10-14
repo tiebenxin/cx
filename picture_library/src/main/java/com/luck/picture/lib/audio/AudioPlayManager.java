@@ -329,8 +329,12 @@ public class AudioPlayManager implements SensorEventListener {
 
     public int getDuration() {
         int duration = 0;
-        if (this._mediaPlayer != null) {
-            duration = this._mediaPlayer.getDuration();
+        try {
+            if (this._mediaPlayer != null) {
+                duration = this._mediaPlayer.getDuration();
+            }
+        } catch (Exception e) {
+
         }
         return duration;
     }

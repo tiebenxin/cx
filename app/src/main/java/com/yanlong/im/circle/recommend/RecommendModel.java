@@ -62,4 +62,9 @@ public class RecommendModel extends BaseModel implements RecommendApi {
     public void queryById(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback) {
         NetUtil.getNet().exec(server.queryById(params), callback);
     }
+
+    @Override
+    public void voteAnswer(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.voteAnswer(params), callback);
+    }
 }
