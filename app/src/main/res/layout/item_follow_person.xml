@@ -47,6 +47,19 @@
                 android:visibility="gone"
                 android:textColor="@color/c_666666"
                 android:text="删除访问记录" />
+
+            <TextView
+                android:id="@+id/tv_delete_not_see"
+                android:layout_width="68dp"
+                android:layout_height="28dp"
+                android:background="@drawable/shape_5radius_solid_f4f4f4"
+                android:gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="15dp"
+                android:textSize="15sp"
+                android:visibility="gone"
+                android:textColor="@color/c_666666"
+                android:text="移除" />
         </LinearLayout>
 
         <LinearLayout

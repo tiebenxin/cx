@@ -129,5 +129,19 @@ public class TempAction {
         NetUtil.getNet().exec(server.httpDeleteTrend(id), callback);
     }
 
+    /**
+     * 获取我不看的人列表
+     */
+    public void httpGetNotSeeList(final int currentPage, final int pageSize, final CallBack<ReturnBean<List<FriendUserBean>>>  callback) {
+        NetUtil.getNet().exec(server.httpGetNotSeeList(currentPage,pageSize), callback);
+    }
+
+    /**
+     * 取消不看TA
+     */
+    public void httpDeleteNotSee(final long id, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpDeleteNotSee(id), callback);
+    }
+
 
 }

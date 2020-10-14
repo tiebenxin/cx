@@ -1310,7 +1310,9 @@ public class MessageRepository {
             localMsg.setNickname(wrapMessage.getNickname());
             localMsg.setFromUid(wrapMessage.getFromUid());
             localMsg.setTimeStamp(wrapMessage.getTimestamp());
-            localDataSource.saveInteractMessage(realm,localMsg);
+            if(localDataSource.saveInteractMessage(realm,localMsg)){
+                EventBus.getDefault().post(new com.luck.picture.lib.event.EventFactory.CheckUnreadMsgEvent());
+            }
         }
     }
 

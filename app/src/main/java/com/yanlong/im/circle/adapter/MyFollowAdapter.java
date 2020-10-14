@@ -61,7 +61,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     // 隐藏底部
     public final int LOADING_GONE = 4;
 
-    private int type;//0 我关注的人(关注我的人) 1 我看过谁 2 谁看过我
+    private int type;//0 我关注的人(关注我的人) 1 我看过谁 2 谁看过我 3 不看TA
 
     private LayoutInflater inflater;
     private Activity activity;
@@ -154,12 +154,16 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         }else {
                             holder.tvNote.setText("暂无个性签名");
                         }
-                    }else{
+                        holder.tvNote.setVisibility(View.VISIBLE);
+                    } if (type == 3) {
+                        holder.tvNote.setVisibility(View.GONE);
+                    } else {
                         if (userInfo.getLastTime()!=0) {
                             holder.tvNote.setText("最近访问："+TimeToString.getTimeForCollect(userInfo.getLastTime()));
                         }else {
                             holder.tvNote.setText("最近没有访问");
                         }
+                        holder.tvNote.setVisibility(View.VISIBLE);
                     }
 
                     //头像
@@ -177,10 +181,18 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if(type==1){
                         //显示删除访问记录
                         holder.tvFollow.setVisibility(View.GONE);
+                        holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.VISIBLE);
-                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position));
-                    }else {
+                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position,0));
+                    }
+                    if (type == 3) {
+                        holder.tvFollow.setVisibility(View.GONE);
+                        holder.tvDeleteNotSee.setVisibility(View.VISIBLE);
+                        holder.tvDeleteRecord.setVisibility(View.GONE);
+                        holder.tvDeleteNotSee.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position,1));
+                    } else {
                         holder.tvFollow.setVisibility(View.VISIBLE);
+                        holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.GONE);
                         //关注状态   刚进来全部是已关注，1 已关注 2 未关注 3 相互关注
                         if (userInfo.getStat() == 3) {
@@ -266,6 +278,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView tvName;
         private TextView tvNote;
         private TextView tvDeleteRecord;
+        private TextView tvDeleteNotSee;
         private RelativeLayout layoutItem;
 
         public ContentHolder(View itemView) {
@@ -275,6 +288,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             tvName = itemView.findViewById(R.id.tv_name);
             tvNote = itemView.findViewById(R.id.tv_note);
             tvDeleteRecord = itemView.findViewById(R.id.tv_delete_record);
+            tvDeleteNotSee = itemView.findViewById(R.id.tv_delete_not_see);
             layoutItem = itemView.findViewById(R.id.layout_item);
         }
     }
@@ -390,15 +404,52 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     /**
-     * 是否删除访问记录提示弹框
+     * 发请求->移除不看的人
      */
-    private void showDeleteDialog(long uid,int position) {
-        dialog = builder.setTitle("是否确认删除?")
+    private void httpDeleteNotSee(long uid, int position) {
+        action.httpDeleteNotSee(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    ToastUtil.show("移除成功");
+                    dataList.remove(position);//删除数据源,移除集合中当前下标的数据
+                    notifyItemRemoved(position);//刷新被删除的地方
+                    notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
+                }else {
+                    ToastUtil.show("移除失败");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("移除失败");
+            }
+        });
+    }
+
+
+    /**
+     * 提示弹框
+     * @param uid
+     * @param position
+     * @param type 1是否删除访问记录 2是否取消不看TA
+     */
+    private void showDeleteDialog(long uid,int position,int type) {
+        dialog = builder.setTitle(type==1 ? "是否确认删除?" : "是否确认移除?")
                 .setShowLeftText(true)
                 .setRightText("确认")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
-                    httpDeleteVisitRecord(uid,position);
+                    if(type==1){
+                        httpDeleteVisitRecord(uid,position);
+                    }else {
+                        httpDeleteNotSee(uid,position);
+                    }
                     dialog.dismiss();
                 })
                 .setLeftOnClickListener(v ->

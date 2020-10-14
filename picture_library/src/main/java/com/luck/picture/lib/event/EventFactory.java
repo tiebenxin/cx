@@ -165,4 +165,10 @@ public class EventFactory extends BaseEvent {
      */
     public static class RefreshRecomendEvent extends BaseEvent {
     }
+
+    /**
+     * 检查未读互动消息
+     */
+    public static class CheckUnreadMsgEvent extends BaseEvent {
+    }
 }

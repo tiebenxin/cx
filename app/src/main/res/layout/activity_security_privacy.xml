@@ -166,6 +166,23 @@
                 style="@style/app_txt_content_2"
                 android:text="被添加的联系人将无法发送消息给你。" />
 
+            <LinearLayout
+                android:id="@+id/layout_not_see"
+                style="@style/app_layout_list2_item">
+
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="不看他" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
+
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

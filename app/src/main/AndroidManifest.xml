@@ -586,7 +586,10 @@
         <activity
             android:name=".circle.mycircle.MyInteractActivity"
             android:screenOrientation="portrait" />
-
+        <!-- 不看他 -->
+        <activity
+            android:name=".circle.mycircle.NotSeeActivity"
+            android:screenOrientation="portrait" />
         <!-- 文字投票 -->
         <activity
             android:name=".circle.VoteTextActivity"

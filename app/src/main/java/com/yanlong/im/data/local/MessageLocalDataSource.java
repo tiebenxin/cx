@@ -926,18 +926,20 @@ public class MessageLocalDataSource {
      *
      * @param msg
      */
-    public void saveInteractMessage(@NonNull Realm realm, InteractMessage msg) {
+    public boolean saveInteractMessage(@NonNull Realm realm, InteractMessage msg) {
         try {
             checkInTransaction(realm);
             realm.beginTransaction();
             realm.insertOrUpdate(msg);
             realm.commitTransaction();
+            return true;
         } catch (Exception e) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
             LogUtil.writeError(e);
+            return false;
         }
     }
 

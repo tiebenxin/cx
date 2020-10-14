@@ -8,6 +8,7 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
 import com.yanlong.im.R;
+import com.yanlong.im.circle.mycircle.NotSeeActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -37,6 +38,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     private LinearLayout mViewSettingPassword;
     private LinearLayout mViewBlacklist;
     private LinearLayout viewSafeCenter;
+    private LinearLayout layoutNotSee;
     private HeadView mHeadView;
     private UserAction userAction;
     private UserBean userInfo;
@@ -62,6 +64,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
         mCbVerification = findViewById(R.id.cb_verification);
         mViewSettingPassword = findViewById(R.id.view_setting_password);
         mViewBlacklist = findViewById(R.id.view_blacklist);
+        layoutNotSee = findViewById(R.id.layout_not_see);
         mHeadView = findViewById(R.id.headView);
         ckSetRead = findViewById(R.id.ck_set_read);
         viewSafeCenter = findViewById(R.id.view_safe_center);
@@ -71,6 +74,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     private void initEvent() {
         mViewSettingPassword.setOnClickListener(this);
         mViewBlacklist.setOnClickListener(this);
+        layoutNotSee.setOnClickListener(this);
         viewSafeCenter.setOnClickListener(this);
         mCbFindPhone.setOnCheckedChangeListener(this);
         mCbFindProductNumber.setOnCheckedChangeListener(this);
@@ -148,6 +152,9 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                     return;
                 }
                 go(SafetyCenterActivity.class);
+                break;
+            case R.id.layout_not_see:
+                go(NotSeeActivity.class);
                 break;
         }
     }
