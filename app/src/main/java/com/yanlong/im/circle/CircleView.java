@@ -1,5 +1,7 @@
 package com.yanlong.im.circle;
 
+import com.yanlong.im.circle.bean.MessageFlowItemBean;
+
 import net.cb.cb.library.base.bind.IBaseView;
 
 import java.util.HashMap;
@@ -15,7 +17,7 @@ import java.util.HashMap;
  */
 public interface CircleView extends IBaseView {
 
-    void onSuccess();
+    void onSuccess(MessageFlowItemBean flowItemBean);
 
     void uploadSuccess(String url, int type, boolean isVideo, HashMap<String, String> netFile);
 

@@ -24,7 +24,7 @@ import retrofit2.http.POST;
 public interface CircleServer {
 
     @POST("square/moment/publish")
-    Call<ReturnBean> careateNewCircle(@Body WeakHashMap<String, Object> params);
+    Call<ReturnBean<MessageInfoBean>> careateNewCircle(@Body WeakHashMap<String, Object> params);
 
     @POST("square/moment/follow-moment-list")
     Call<ReturnBean<List<MessageInfoBean>>> getFollowMomentList(@Body WeakHashMap<String, Object> params);
@@ -61,4 +61,10 @@ public interface CircleServer {
 
     @POST("square/forbid-see/add")
     Call<ReturnBean> addSee(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/del")
+    Call<ReturnBean> circleDelete(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/moment/update-visibility")
+    Call<ReturnBean> updateVisibility(@Body WeakHashMap<String, Object> params);
 }

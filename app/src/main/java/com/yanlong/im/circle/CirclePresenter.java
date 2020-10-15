@@ -9,7 +9,10 @@ import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.event.EventFactory;
+import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleTitleBean;
+import com.yanlong.im.circle.bean.MessageFlowItemBean;
+import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.recommend.RecommendFragment;
@@ -138,23 +141,42 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
      * @param params 入参
      */
     public void createNewCircle(WeakHashMap<String, Object> params) {
-        mModel.createNewCircle(params, new CallBack<ReturnBean>() {
+        mModel.createNewCircle(params, new CallBack<ReturnBean<MessageInfoBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
-                    mView.onSuccess();
+                    mView.onSuccess(createFlowItemBean(response.body().getData()));
                 } else {
                     mView.showMessage(getFailMessage(response.body()));
                 }
             }
 
             @Override
-            public void onFailure(Call<ReturnBean> call, Throwable t) {
+            public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 mView.showMessage("发布动态失败");
             }
         });
+    }
+
+    private MessageFlowItemBean createFlowItemBean(MessageInfoBean messageInfoBean) {
+        MessageFlowItemBean flowItemBean = null;
+        if (messageInfoBean != null) {
+            switch (messageInfoBean.getType()) {
+                case PictureEnum.EContentType.VOTE:
+                case PictureEnum.EContentType.PICTRUE_AND_VOTE:
+                case PictureEnum.EContentType.VOICE_AND_VOTE:
+                case PictureEnum.EContentType.VIDEO_AND_VOTE:
+                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VOTE, messageInfoBean);
+                    break;
+                default:
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_DEFAULT, messageInfoBean);
+                    break;
+            }
+        }
+        return flowItemBean;
     }
 
     /**

@@ -40,6 +40,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     private ICircleClickListener clickListener;
     private boolean isFollow, isDetails;
     private Map<Integer, TextView> hashMap = new HashMap<>();
+    private int isVote;
 
     /**
      * @param isDetails            是否是详情
@@ -94,7 +96,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 .into(ivHead);
         helper.setText(R.id.tv_user_name, messageInfoBean.getNickname());
         helper.setText(R.id.tv_date, TimeToString.getTimeWx(messageInfoBean.getCreateTime()));
-        helper.setText(R.id.tv_vote_number, getVoteSum(messageInfoBean.getVoteAnswer().getSumDataList()) + "人参与了投票");
+        helper.setText(R.id.tv_vote_number, getVoteSum(messageInfoBean.getVoteAnswer()) + "人参与了投票");
         if (isFollow || messageInfoBean.isFollow()) {
             helper.setVisible(R.id.iv_follow, true);
         } else {
@@ -109,6 +111,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         TextView tvContent = helper.getView(R.id.tv_content);
         tvContent.setText(getSpan(messageInfoBean.getContent()));
         if (isDetails) {
+            tvContent.setMaxLines(Integer.MAX_VALUE);
             helper.setVisible(R.id.tv_follow, true);
             helper.setGone(R.id.iv_setup, false);
             helper.setGone(R.id.view_line, false);
@@ -125,8 +128,14 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 helper.setText(R.id.tv_follow, "关注TA");
             }
         } else {
+            if (UserAction.getMyId() != null
+                    && messageInfoBean.getUid() != null &&
+                    UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
+                helper.setVisible(R.id.iv_setup, true);
+            } else {
+                helper.setVisible(R.id.iv_setup, false);
+            }
             helper.setGone(R.id.tv_follow, false);
-            helper.setVisible(R.id.iv_setup, true);
             helper.setVisible(R.id.view_line, true);
 //            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
 //                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
@@ -195,10 +204,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         recyclerVote.setLayoutManager(new LinearLayoutManager(mContext));
         if (!TextUtils.isEmpty(messageInfoBean.getVote())) {
             VoteBean voteBean = new Gson().fromJson(messageInfoBean.getVote(), VoteBean.class);
-            setRecycleView(recyclerVote, voteBean.getItems(), voteBean.getType(), position,
-                    messageInfoBean.getVoteAnswer().getSelfAnswerItem(),
-                    getVoteSum(messageInfoBean.getVoteAnswer().getSumDataList())
-                    , messageInfoBean.getVoteAnswer().getSumDataList());
+            setRecycleView(recyclerVote, voteBean.getItems(), voteBean.getType(), position, messageInfoBean.getVoteAnswer(),
+                    getVoteSum(messageInfoBean.getVoteAnswer()));
         }
     }
 
@@ -217,14 +224,17 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     /**
      * 投票总数
      *
-     * @param sumDataList
+     * @param voteAnswerBean
      * @return
      */
-    private int getVoteSum(List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
+    private int getVoteSum(MessageInfoBean.VoteAnswerBean voteAnswerBean) {
         int sum = 0;
-        if (sumDataList != null && sumDataList.size() > 0) {
-            for (MessageInfoBean.VoteAnswerBean.SumDataListBean bean : sumDataList) {
-                sum += bean.getCnt();
+        if (voteAnswerBean != null) {
+            List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList = voteAnswerBean.getSumDataList();
+            if (sumDataList != null && sumDataList.size() > 0) {
+                for (MessageInfoBean.VoteAnswerBean.SumDataListBean bean : sumDataList) {
+                    sum += bean.getCnt();
+                }
             }
         }
         return sum;
@@ -360,13 +370,18 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
      * @param voteList
      * @param type          类型 1文字 2 图片
      * @param parentPostion 父类位置
-     * @param isVote        未投票-1，其他则为itemId:1-4
+     * @param answerBean    答案列表
      * @param voteSum       投票总数
-     * @param sumDataList   答案列表
      */
     private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
-                                int isVote, int voteSum, List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
+                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum) {
         rv.setLayoutManager(new LinearLayoutManager(mContext));
+        isVote = -1;// 未投票-1，其他则为itemId:1-4
+        List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList = new ArrayList<>();
+        if (answerBean != null) {
+            isVote = answerBean.getSelfAnswerItem();
+            sumDataList.addAll(answerBean.getSumDataList());
+        }
         VoteAdapter taskAdapter = new VoteAdapter(type, isVote, voteSum, sumDataList);
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);

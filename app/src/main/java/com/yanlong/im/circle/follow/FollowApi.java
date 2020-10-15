@@ -39,4 +39,6 @@ public interface FollowApi {
     void delComment(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
 
     void circleCommentList(WeakHashMap<String, Object> params, CallBack<ReturnBean<CircleCommentBean>> callback);
+
+    void circleDelete(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
 }

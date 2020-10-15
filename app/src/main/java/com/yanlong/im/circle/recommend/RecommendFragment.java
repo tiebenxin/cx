@@ -40,6 +40,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
@@ -65,8 +66,11 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     private CircleFlowAdapter mFlowAdapter;
     private List<MessageFlowItemBean> mFollowList;
     public static final String IS_OPEN = "is_open";
+    public static final String REFRESH_COUNT = "refresh_count";
     private final int PAGE_SIZE = 8;
     private Long mCurrentPage = 0l;
+    private final int MAX_REFRESH_COUNT = 2;// 刷新次数大于2不显示
+    private final int MAX_REFRESH_MINUTE = 2;// 超过3分钟不显示
 
     protected RecommendPresenter createPresenter() {
         return new RecommendPresenter(getContext());
@@ -97,6 +101,19 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+    }
+
+    /**
+     * 添加刚发布的一条动态
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void addRecomendEvent(EventFactory.AddRecomendEvent event) {
+        MessageInfoBean infoBean = new Gson().fromJson(event.content, MessageInfoBean.class);
+        MessageFlowItemBean flowItemBean = new MessageFlowItemBean(event.type, infoBean);
+        mFollowList.add(0, flowItemBean);
+        mFlowAdapter.notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -157,7 +174,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         }
                         break;
                     case R.id.iv_setup:// 设置
-                        DialogHelper.getInstance().createFollowDialog(getActivity(), messageInfoBean.isFollow() ? "取消关注" : "关注",
+                        DialogHelper.getInstance().createFollowDialog(getActivity(), messageInfoBean.isFollow() ? "取消关注" : "关注TA",
                                 mPresenter.getUserType(messageInfoBean.getUid()) == 0 ? true : false, new ICircleSetupClick() {
                                     @Override
                                     public void onClickFollow() {
@@ -251,6 +268,24 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     public void onSuccess(List<MessageFlowItemBean> list) {
         if (mCurrentPage == 0) {
             mFollowList.clear();
+            // 判断缓存是否有数据
+            SpUtil spUtil = SpUtil.getSpUtil();
+            String value = spUtil.getSPValue(REFRESH_COUNT, "");
+            if (!TextUtils.isEmpty(value)) {
+                MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
+                // 有则 判断刷新次数是否大于2 ，时间是否大于3分钟
+                long minute = System.currentTimeMillis() - infoBean.getCreateTime();
+                minute = minute / 1000 / 60;
+                if (infoBean.getRefreshCount() >= MAX_REFRESH_COUNT || (int) minute > MAX_REFRESH_MINUTE) {
+                    spUtil.putSPValue(REFRESH_COUNT, "");
+                } else {
+                    // 添加到头部
+                    infoBean.setRefreshCount(infoBean.getRefreshCount() + 1);
+                    spUtil.putSPValue(REFRESH_COUNT, new Gson().toJson(infoBean));
+                    MessageFlowItemBean flowItemBean = mPresenter.createFlowItemBean(infoBean);
+                    mFollowList.add(flowItemBean);
+                }
+            }
         }
         if (mCurrentPage == 0 && list.size() == 0) {
             View view = View.inflate(getActivity(), R.layout.view_follow_no_data, null);

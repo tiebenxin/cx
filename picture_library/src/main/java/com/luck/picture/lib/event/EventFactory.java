@@ -167,6 +167,14 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
+     * 添加评论
+     */
+    public static class AddRecomendEvent extends BaseEvent {
+        public String content;
+        public int type;
+    }
+
+    /**
      * 检查未读互动消息
      */
     public static class CheckUnreadMsgEvent extends BaseEvent {

@@ -1,5 +1,6 @@
 package com.yanlong.im.circle;
 
+import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.server.CircleServer;
 
 import net.cb.cb.library.base.bind.BaseModel;
@@ -27,7 +28,7 @@ public class CircleModel extends BaseModel implements CircleApi {
     }
 
     @Override
-    public void createNewCircle(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
+    public void createNewCircle(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback) {
         NetUtil.getNet().exec(server.careateNewCircle(params), callback);
     }
 

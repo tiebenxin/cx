@@ -136,12 +136,4 @@ public class CoreEnum {
         int DELETE = 2;// 删除
         int REPORT = 3;// 举报
     }
-
-    @IntDef({EPlayStatus.DEFAULT, EPlayStatus.PLAY_ING, EPlayStatus.STOP})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface EPlayStatus {
-        int DEFAULT = 0;// 默认未开始
-        int PLAY_ING = 1;// 播放中
-        int STOP = 2;// 暂停
-    }
 }

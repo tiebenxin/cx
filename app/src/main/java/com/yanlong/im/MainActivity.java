@@ -40,6 +40,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.DateUtils;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -387,6 +388,7 @@ public class MainActivity extends BaseTcpActivity {
 //                        showLoginDialog();
 //                    }
 //                }
+                AudioPlayUtil.stopAudioPlay();
                 currentTab = tab.getPosition();
                 viewPage.setCurrentItem(tab.getPosition(), false);
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {

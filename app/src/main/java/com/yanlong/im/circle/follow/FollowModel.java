@@ -79,4 +79,9 @@ public class FollowModel extends BaseModel implements FollowApi {
         NetUtil.getNet().exec(server.circleCommentList(params), callback);
     }
 
+    @Override
+    public void circleDelete(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.circleDelete(params), callback);
+    }
+
 }

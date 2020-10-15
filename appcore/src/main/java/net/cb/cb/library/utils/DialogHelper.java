@@ -120,14 +120,26 @@ public class DialogHelper {
         TextView tvFollow = dialogview.findViewById(R.id.tv_follow);
         TextView tvNoLook = dialogview.findViewById(R.id.tv_no_look);
         TextView tvChat = dialogview.findViewById(R.id.tv_chat);
+        TextView tvReport = dialogview.findViewById(R.id.tv_report);
         tvFollow.setText(txt);
-        Drawable drawable;
+        Drawable drawable = null;
+        Drawable drawableDel = null;
         if ("取消关注".equals(txt)) {
             drawable = context.getResources().getDrawable(R.mipmap.ic_cancle_follow);
             tvNoLook.setVisibility(View.GONE);
-        } else {
+        } else if ("关注TA".equals(txt)) {
             drawable = context.getResources().getDrawable(R.mipmap.ic_circle_details_follow);
             tvNoLook.setVisibility(View.VISIBLE);
+        } else {
+            drawable = context.getResources().getDrawable(R.mipmap.ic_circle_auth);
+            drawableDel = context.getResources().getDrawable(R.mipmap.ic_circle_delete);
+            drawableDel.setBounds(0, 0, drawableDel.getMinimumWidth(), drawableDel.getMinimumHeight());//必须设置图片大小，否则不显示
+            tvNoLook.setCompoundDrawables(null, drawableDel, null, null);
+
+            tvFollow.setText("权限");
+            tvNoLook.setText("删除");
+            tvChat.setVisibility(View.INVISIBLE);
+            tvReport.setVisibility(View.INVISIBLE);
         }
         drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
         tvFollow.setCompoundDrawables(null, drawable, null, null);
@@ -191,7 +203,7 @@ public class DialogHelper {
                 }
             }
         });
-        dialogview.findViewById(R.id.tv_report).setOnClickListener(new View.OnClickListener() {
+        tvReport.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -280,7 +292,7 @@ public class DialogHelper {
      * 通用列表选择弹框 (默认4个选项，视实际情况自行添加)
      *
      * @param context
-     * @param items 支持修改每项文案
+     * @param items        支持修改每项文案
      * @param clickListner
      */
     public void createCommonSelectListDialog(Context context, List<String> items, final ICommonSelectClickListner clickListner) {
@@ -415,6 +427,7 @@ public class DialogHelper {
 
     /**
      * 好友动态(好友朋友圈) 底部弹框
+     *
      * @param context
      * @param clickListner
      */

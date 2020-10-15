@@ -42,7 +42,7 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
         return new RecommendModel();
     }
 
-    private MessageFlowItemBean createFlowItemBean(MessageInfoBean messageInfoBean) {
+    public MessageFlowItemBean createFlowItemBean(MessageInfoBean messageInfoBean) {
         MessageFlowItemBean flowItemBean = null;
         if (messageInfoBean != null) {
             switch (messageInfoBean.getType()) {
@@ -320,4 +320,5 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             }
         });
     }
+
 }

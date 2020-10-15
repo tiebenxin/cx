@@ -1,5 +1,7 @@
 package com.yanlong.im.circle;
 
+import com.yanlong.im.circle.bean.MessageInfoBean;
+
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 
@@ -16,5 +18,5 @@ import java.util.WeakHashMap;
  */
 public interface CircleApi {
 
-    void createNewCircle(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
+    void createNewCircle(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback);
 }

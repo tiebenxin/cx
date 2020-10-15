@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -29,10 +30,15 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.bean.CircleTitleBean;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
+import com.yanlong.im.circle.bean.MessageFlowItemBean;
+import com.yanlong.im.circle.bean.MessageInfoBean;
+import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.databinding.ActivityCircleBinding;
+import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.ViewUtils;
@@ -171,6 +177,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             @Override
             public void onPageSelected(int position) {
                 setTitleBold(position);
+                AudioPlayUtil.stopAudioPlay();
             }
 
             @Override
@@ -187,6 +194,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             bindingView.viewPager.setCurrentItem(0);
         });
         bindingView.ivCreateCircle.setOnClickListener(o -> {
+            AudioPlayUtil.stopAudioPlay();
             PictureSelector.create(getActivity())
                     .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                     .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
@@ -222,10 +230,33 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     }
 
     @Override
-    public void onSuccess() {
+    public void onSuccess(MessageFlowItemBean flowItemBean) {
         dismiss();
-        ToastUtil.show("发布成功");
         RxBus.getDefault().post(new EventFactory.CreateSuccessEvent());
+        // 记录到缓存 记录刷新次数 默认0
+        try {
+            if (flowItemBean != null) {
+                // TODO 服务端没返回头像跟昵称所以取原来的数据
+                MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
+                serverInfoBean.setAvatar(UserAction.getMyInfo().getHead());
+                serverInfoBean.setNickname(UserAction.getMyInfo().getName());
+                serverInfoBean.setRefreshCount(0);
+
+                SpUtil spUtil = SpUtil.getSpUtil();
+                String jsonContent = new Gson().toJson(serverInfoBean);
+                spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, jsonContent);
+
+                EventFactory.AddRecomendEvent event = new EventFactory.AddRecomendEvent();
+                event.type = flowItemBean.getItemType();
+                event.content = jsonContent;
+                EventBus.getDefault().post(event);
+            }
+        } catch (Exception e) {
+
+        } finally {
+            bindingView.viewPager.setCurrentItem(0);
+            ToastUtil.show("发布成功");
+        }
     }
 
     @Override
