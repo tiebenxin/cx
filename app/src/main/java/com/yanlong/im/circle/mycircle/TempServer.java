@@ -70,12 +70,12 @@ public interface TempServer {
     @FormUrlEncoded
     Call<ReturnBean> httpDeleteTrend(@Field("momentId") long momentId);
 
-    @POST("/forbid-see/list")
+    @POST("/square/forbid-see/list")
     @FormUrlEncoded
     Call<ReturnBean<List<FriendUserBean>>> httpGetNotSeeList(@Field("currentPage") int page, @Field("pageSize") int pageSize);
 
 
-    @POST("/forbid-see/cancel")
+    @POST("/square/forbid-see/cancel")
     @FormUrlEncoded
     Call<ReturnBean> httpDeleteNotSee(@Field("forbidUid") long forbidUid);
 

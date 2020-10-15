@@ -4041,6 +4041,24 @@ public class MsgDao {
         }
     }
 
-
+    /**
+     * 互动消息点击后置灰->查询某一条消息，保存点击过状态为true
+     * @param msgId
+     * @return
+     */
+    public InteractMessage updateMsgGreyColor(String msgId) {
+        InteractMessage ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        InteractMessage interactMessage = realm.where(InteractMessage.class).equalTo("msgId", msgId).findFirst();
+        if (interactMessage != null) {
+            interactMessage.setGreyColor(true);
+            realm.insertOrUpdate(interactMessage);
+            ret = realm.copyFromRealm(interactMessage);
+        }
+        realm.commitTransaction();
+        realm.close();
+        return ret;
+    }
 
 }
