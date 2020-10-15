@@ -60,13 +60,6 @@ public class RxSchedulers {
                 return upstream.flatMap(new Function<T, ObservableSource<T>>() {
                     @Override
                     public ObservableSource<T> apply(T response) throws Exception {
-                        if (response instanceof IRespose) {
-//                            if (((IRespose) response).isSuccess()) {
-                            return createData(response);
-//                            } else {
-//                                return Observable.error(new ServerException(((IRespose) response).getIStatus(), ((IRespose) response).getMessage(), response));
-//                            }
-                        }
                         return createData(response);
                     }
                 });
