@@ -109,6 +109,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     private CommonSelectDialog dialogFour;
     private MsgDao msgDao = new MsgDao();
     private MsgAllBean msgAllBean;
+    private boolean isDownload;
 
 
     public static LookUpVideoFragment newInstance(LocalMedia media, int from) {
@@ -236,7 +237,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
         } else {
             path = media.getVideoUrl();
             if (path.startsWith("http") || path.startsWith("https")) {
-                downloadVideo(path, media.getMsg_id(), false);
+                downloadVideo(path, media.getMsg_id());
             }
         }
         if (!TextUtils.isEmpty(media.getMsg_id())) {
@@ -429,7 +430,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
     }
 
 
-    private void downloadVideo(String url, String msgId, boolean isDownload) {
+    private void downloadVideo(String url, String msgId) {
         LogUtil.getLog().i(TAG, "downloadVideo--msgId=" + msgId + "--url=" + url);
         if (TextUtils.isEmpty(url)) {
             return;
@@ -807,9 +808,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             msgBean = msgDao.getMsgById(msgId);
         }
         if (msgBean == null) {
-            if (isCollect){
+            if (isCollect) {
                 ToastUtil.show("消息已被删除或者被焚毁，不能收藏");
-            }else {
+            } else {
                 ToastUtil.show("消息已被删除或者被焚毁，不能转发");
             }
             return;
@@ -876,8 +877,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
 
     public void insertVideoToMediaStore(Context context, String filePath, long createTime, int width, int height, long duration) {
         if (!checkFile(filePath)) {
+            isDownload = true;
             if (downloadState != 1) {
-                downloadVideo(media.getMsg_id(), path, true);
+                downloadVideo(media.getMsg_id(), path);
             }
             return;
         }

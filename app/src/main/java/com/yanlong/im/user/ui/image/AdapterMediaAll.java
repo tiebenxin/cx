@@ -19,6 +19,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -147,12 +148,17 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
             } else {
                 llCheck.setVisibility(View.GONE);
             }
-            tvGif.setVisibility(View.VISIBLE);
-            tvGif.setText(DateUtils.timeStamp2Date(bean.getTimestamp(), "yyyy/MM/dd"));
+//            tvGif.setVisibility(View.VISIBLE);
+//            tvGif.setText(DateUtils.timeStamp2Date(bean.getTimestamp(), "yyyy/MM/dd"));
             if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
                 tvDuration.setVisibility(View.GONE);
                 ImageMessage imageMessage = bean.getImage();
                 String url = imageMessage.getThumbnail();
+                if (PictureMimeType.isImageGif(url)) {
+                    tvGif.setVisibility(View.VISIBLE);
+                } else {
+                    tvGif.setVisibility(View.GONE);
+                }
                 RequestOptions options = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE).dontAnimate();
                 Glide.with(getContext()).asDrawable().load(url).apply(options).listener(new RequestListener<Drawable>() {
                     @Override
@@ -202,7 +208,7 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                             listener.onRemove(bean);
                         }
                     } else {
-                        if (selectList.size() < 9 ) {
+                        if (selectList.size() < 9) {
                             if (!selectList.contains(bean)) {
                                 selectList.add(bean);
                             }

@@ -495,6 +495,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
+                            lastPosition =  - 1;
+                            lastOffset =  - 1;
                         }
                     }, delayMillis);
                 } else {//关闭
@@ -528,6 +530,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
+                            lastPosition =  - 1;
+                            lastOffset =  - 1;
                         }
                     }, 100);
                 } else {//关闭
@@ -568,6 +572,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
+                            lastPosition =  - 1;
+                            lastOffset =  - 1;
                         }
                     }, 100);
                 } else {//关闭
@@ -1474,7 +1480,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     }
                 }
                 isFirst++;
-
                 mtListView.scrollToEnd();
             }
 

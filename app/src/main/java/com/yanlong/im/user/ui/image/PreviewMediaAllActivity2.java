@@ -19,6 +19,7 @@ import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.utils.PicSaveUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -252,6 +253,9 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+                if (selectMsg == null || selectMsg.size() <= 0) {
+                    return;
+                }
                 List<MsgAllBean> removeList = new ArrayList<>();
                 removeList.addAll(selectMsg);
                 showDeleteDialog(removeList);
@@ -296,9 +300,6 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                             listData.add(bean.getTime());
                             listData.addAll(bean.getMsgAllBeans());
                             count += bean.getMsgAllBeans().size();
-//                            if (bean.isBetween(time)) {
-////                                currentPosition = i;
-////                            }
                         }
                         return list;
                     }
@@ -311,14 +312,10 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                         dismissLoadingDialog();
                         previewBeans = list;
                         mAdapter.bindData(listData);
-                        bindingView.headView.setTitle("图片及视频（" + count + ")");
-                        bindingView.recyclerView.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                bindingView.recyclerView.scrollBy(0, Integer.MAX_VALUE);
+                        currentPosition = getIndex(msgId);
+                        bindingView.headView.setTitle("图片及视频" /*+ count + ")"*/);
+                        bindingView.recyclerView.scrollToPosition(currentPosition);
 
-                            }
-                        }, 100);
                     }
                 });
     }
@@ -1265,7 +1262,11 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                             }, 100);
                         }
                         msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
-                        scanFile(getContext(), finalTargetFile.getAbsolutePath());
+                        if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+                            PicSaveUtils.sendBroadcast(finalTargetFile, getApplicationContext());
+                        } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                            scanFile(getContext(), finalTargetFile.getAbsolutePath());
+                        }
                     }
 
                     @Override
@@ -1321,6 +1322,20 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public int getIndex(String msgId) {
+        int index = 0;
+        if (listData != null && listData.size() > 0) {
+            MsgAllBean bean = new MsgAllBean();
+            bean.setMsg_id(msgId);
+            index = listData.indexOf(bean);
+            if (index < 0) {
+                index = 0;
+            }
+        }
+        return index;
+
     }
 
 }
