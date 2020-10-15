@@ -12,10 +12,13 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.CreateCircleActivity;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -28,6 +31,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.CircleCommentDialog;
+import com.yanlong.im.circle.CirclePowerSetupActivity;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.adapter.CommentAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
@@ -49,6 +53,7 @@ import net.cb.cb.library.base.bind.BaseBindMvpActivity;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ScreenUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -73,10 +78,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         implements FollowView, ICircleClickListener {
     public static final String path = "/circle/details/CircleDetailsActivity";
 
+    private static final int REQUEST_CODE_POWER = 200;
     public static final String SOURCE_TYPE = "source_type";
     public static final String ITEM_DATA = "item_data";
     public static final String ITEM_DATA_TYPE = "item_data_type";
     public static final String ITEM_DATA_POSTION = "item_data_postion";
+    public static final String MOMENT_ID = "moment_id";
+    public static final String VISIBLE = "visible";
 
     protected ViewCircleDetailsBinding binding;
     private CircleFlowAdapter mFlowAdapter;
@@ -139,20 +147,33 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
             @Override
             public void onRight() {
+                String type;
+                if (isMe()) {
+                    type = "";
+                } else {
+                    type = (isFollow || mMessageInfoBean.isFollow()) ? "取消关注" : "关注TA";
+                }
                 DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity.this,
-                        (isFollow || mMessageInfoBean.isFollow()) ? "取消关注" : "关注TA", false, new ICircleSetupClick() {
+                        type, false, new ICircleSetupClick() {
                             @Override
                             public void onClickFollow() {
-                                if (isFollow) {
-                                    mPresenter.followCancle(mMessageInfoBean.getUid(), 0);
+                                if (isMe()) {
+                                    Postcard postcard = ARouter.getInstance().build(CirclePowerSetupActivity.path);
+                                    postcard.withInt(VISIBLE, mMessageInfoBean.getVisibility());
+                                    postcard.withLong(MOMENT_ID, mMessageInfoBean.getId());
+                                    postcard.navigation(CircleDetailsActivity.this, REQUEST_CODE_POWER);
                                 } else {
-                                    mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
+                                    if (isFollow) {
+                                        mPresenter.followCancle(mMessageInfoBean.getUid(), 0);
+                                    } else {
+                                        mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
+                                    }
                                 }
                             }
 
                             @Override
                             public void onClickNoLook() {
-
+                                mPresenter.circleDelete(mMessageInfoBean.getId());
                             }
 
                             @Override
@@ -285,6 +306,16 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     protected void onDestroy() {
         super.onDestroy();
         AudioPlayUtil.stopAudioPlay();
+    }
+
+    private boolean isMe() {
+        if (UserAction.getMyId() != null
+                && mMessageInfoBean.getUid() != null &&
+                UserAction.getMyId().longValue() == mMessageInfoBean.getUid().longValue()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void cancleFollowDialog(int position) {
@@ -447,7 +478,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             if (list != null && list.size() > 0) {
                 mCommentList.addAll(list);
-                mCommentTxtAdapter.notifyDataSetChanged();
             }
             if (list == null || list.size() == 0) {
                 bindingView.srlFollow.setEnableLoadMore(false);
@@ -459,6 +489,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 bindingView.srlFollow.finishLoadMore();
             }
         }
+        if (mCommentList.size() > 0) {
+            binding.tvCommentCount.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvCommentCount.setVisibility(View.GONE);
+        }
+        mCommentTxtAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -530,5 +566,18 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @Override
     public void onShowMessage(String msg) {
         ToastUtil.show(msg);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_POWER) {
+                String visible = data.getStringExtra(CreateCircleActivity.INTENT_POWER);
+                if (mMessageInfoBean != null) {
+                    mMessageInfoBean.setVisibility(StringUtil.getVisible(visible));
+                }
+            }
+        }
     }
 }

@@ -3,7 +3,6 @@ package com.yanlong.im.circle.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,7 +31,6 @@ import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
-import com.luck.picture.lib.audio.IAudioPlayListener;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
@@ -139,6 +137,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         } else {
             helper.setText(R.id.iv_comment, "");
         }
+        AudioPlayUtil.stopAudioPlay();
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
@@ -153,31 +152,10 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
-                    if (messageInfoBean.getPlayStatus() == CoreEnum.EPlayStatus.PLAY_ING) {
-
-                    } else if (messageInfoBean.getPlayStatus() == CoreEnum.EPlayStatus.STOP) {
-                        pbProgress.setProgress(AudioPlayUtil.getProgressValue());
-                    } else {
-                        pbProgress.setProgress(0);
-                    }
+                    pbProgress.setProgress(0);
                     ivVoicePlay.setOnClickListener(o -> {
                         if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), pbProgress, ivVoicePlay, new IAudioPlayListener() {
-                                @Override
-                                public void onStart(Uri var1) {
-                                    messageInfoBean.setPlayStatus(CoreEnum.EPlayStatus.PLAY_ING);
-                                }
-
-                                @Override
-                                public void onStop(Uri var1) {
-                                    messageInfoBean.setPlayStatus(CoreEnum.EPlayStatus.STOP);
-                                }
-
-                                @Override
-                                public void onComplete(Uri var1) {
-                                    messageInfoBean.setPlayStatus(CoreEnum.EPlayStatus.DEFAULT);
-                                }
-                            });
+                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), ivVoicePlay, pbProgress);
                         }
                     });
                 }
@@ -218,6 +196,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         TextView tvContent = helper.getView(R.id.tv_content);
         tvContent.setText(getSpan(messageInfoBean.getContent()));
         if (isDetails) {
+            tvContent.setMaxLines(Integer.MAX_VALUE);
             if (UserAction.getMyId() != null
                     && messageInfoBean.getUid() != null &&
                     UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
@@ -233,8 +212,14 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 helper.setText(R.id.tv_follow, "关注TA");
             }
         } else {
+            if (UserAction.getMyId() != null
+                    && messageInfoBean.getUid() != null &&
+                    UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
+                helper.setVisible(R.id.iv_setup, true);
+            } else {
+                helper.setVisible(R.id.iv_setup, false);
+            }
             helper.setGone(R.id.tv_follow, false);
-            helper.setVisible(R.id.iv_setup, true);
             helper.setVisible(R.id.view_line, true);
 //            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
 //                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
@@ -441,6 +426,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         taskAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                AudioPlayUtil.stopAudioPlay();
                 toPictruePreview(position, imgs);
             }
         });

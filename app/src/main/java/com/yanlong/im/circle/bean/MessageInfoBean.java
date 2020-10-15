@@ -52,7 +52,15 @@ public class MessageInfoBean extends BaseBean {
     private int isTop;//是否置顶 0:否|1:是
     private int visibility;//可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
     private boolean isFollow;// 是否关注
-    private int playStatus;// 语音播放状态 0 未开始 1开始 2暂停
+    private int refreshCount;// 刷新次数
+
+    public int getRefreshCount() {
+        return refreshCount;
+    }
+
+    public void setRefreshCount(int refreshCount) {
+        this.refreshCount = refreshCount;
+    }
 
     public int getIsTop() {
         return isTop;
@@ -96,14 +104,6 @@ public class MessageInfoBean extends BaseBean {
 
     public void setFollow(boolean follow) {
         isFollow = follow;
-    }
-
-    public int getPlayStatus() {
-        return playStatus;
-    }
-
-    public void setPlayStatus(int playStatus) {
-        this.playStatus = playStatus;
     }
 
     public void setUid(Long uid) {

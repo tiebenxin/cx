@@ -32,6 +32,7 @@ import com.yanlong.im.chat.task.DispatchMessage;
 import com.yanlong.im.chat.task.OfflineMessage;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
+import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserBean;
@@ -61,6 +62,7 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
@@ -2021,6 +2023,8 @@ public class MessageManager {
         }
         //用户退出登录需清除阅后即焚数据
 //        BurnManager.getInstance().clear();
+        // 清除广场添加数据
+        SpUtil.getSpUtil().putSPValue(RecommendFragment.REFRESH_COUNT, "");
     }
 
     /*

@@ -19,6 +19,7 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.kye.net.NetRequestHelper;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
@@ -416,6 +417,7 @@ public class MyAppLication extends MainApplication {
                     event.isClose = false;
                     EventBus.getDefault().post(event);
                 }
+                AudioPlayUtil.stopAudioPlay();
             }
         });
     }

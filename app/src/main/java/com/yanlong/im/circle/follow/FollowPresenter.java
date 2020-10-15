@@ -1,17 +1,25 @@
 package com.yanlong.im.circle.follow;
 
+import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
+import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.SpUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -383,7 +391,46 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                mView.onShowMessage("取消关注失败");
+                mView.onShowMessage("删除失败");
+            }
+        });
+    }
+
+    /**
+     * 删除说说
+     *
+     * @param momentId 说说ID
+     */
+    public void circleDelete(Long momentId) {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("momentId", momentId);
+        mModel.circleDelete(params, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (checkSuccess(response.body())) {
+                    // 是刚发的则删除缓存
+                    SpUtil spUtil = SpUtil.getSpUtil();
+                    String value = spUtil.getSPValue(RecommendFragment.REFRESH_COUNT, "");
+                    if (!TextUtils.isEmpty(value)) {
+                        MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
+                        if (momentId.intValue() == infoBean.getId().intValue()) {
+                            spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
+                            EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
+                            if (mContext != null) {
+                                ((Activity) mContext).finish();
+                            }
+                        }
+                    }
+                } else {
+                    mView.onShowMessage(getFailMessage(response.body()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                mView.onShowMessage("删除失败");
             }
         });
     }

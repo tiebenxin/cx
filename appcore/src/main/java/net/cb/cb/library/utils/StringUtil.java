@@ -317,4 +317,23 @@ public class StringUtil {
         }
         return value;
     }
+
+    public static int getVisible(String value) {
+        int visibility = 0;// 可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
+        switch (value) {
+            case "广场可见":
+                visibility = 0;
+                break;
+            case "仅好友可见":
+                visibility = 1;
+                break;
+            case "仅陌生人可见":
+                visibility = 2;
+                break;
+            case "自己可见":
+                visibility = 3;
+                break;
+        }
+        return visibility;
+    }
 }
