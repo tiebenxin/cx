@@ -18,6 +18,7 @@ public class FriendUserBean extends RealmObject {
     private String alias;//备注名
     private String content;//最后一条说说的内容
     private int stat;//关注状态 (1 A关注了B  2 A被B关注 3 相互关注)
+    private int followStat;//关注状态 (1 A关注了B  2 A被B关注 3 相互关注)  TODO 谁看过我 单独字段
     private long lastTime;//最近访问对方主页时间 (谁看过我/我看过谁)
     private String imid;//常信号
     private String bgImage;//主页背景图
@@ -94,5 +95,13 @@ public class FriendUserBean extends RealmObject {
 
     public void setBgImage(String bgImage) {
         this.bgImage = bgImage;
+    }
+
+    public int getFollowStat() {
+        return followStat;
+    }
+
+    public void setFollowStat(int followStat) {
+        this.followStat = followStat;
     }
 }

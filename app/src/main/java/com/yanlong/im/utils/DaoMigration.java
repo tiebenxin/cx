@@ -917,6 +917,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("alias", String.class)
                 .addField("content", String.class)
                 .addField("stat", int.class)
+                .addField("followStat", int.class)
                 .addField("lastTime", long.class)
                 .addField("imid", String.class);
     }

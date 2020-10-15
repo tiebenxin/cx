@@ -196,15 +196,28 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.GONE);
                         //关注状态   刚进来全部是已关注，1 已关注 2 未关注 3 相互关注
-                        if (userInfo.getStat() == 3) {
-                            holder.tvFollow.setText("相互关注");
-                            holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_527ea2);
-                        } else if (userInfo.getStat() == 1) {
-                            holder.tvFollow.setText("已关注");
-                            holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_d8d8d8);
-                        } else {
-                            holder.tvFollow.setText("关注TA");
-                            holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_32b053);
+                        if(type==2){
+                            if (userInfo.getFollowStat() == 3) {
+                                holder.tvFollow.setText("相互关注");
+                                holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_527ea2);
+                            } else if (userInfo.getFollowStat() == 1) {
+                                holder.tvFollow.setText("已关注");
+                                holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_d8d8d8);
+                            } else {
+                                holder.tvFollow.setText("关注TA");
+                                holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_32b053);
+                            }
+                        }else {
+                            if (userInfo.getStat() == 3) {
+                                holder.tvFollow.setText("相互关注");
+                                holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_527ea2);
+                            } else if (userInfo.getStat() == 1) {
+                                holder.tvFollow.setText("已关注");
+                                holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_d8d8d8);
+                            } else {
+                                holder.tvFollow.setText("关注TA");
+                                holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_32b053);
+                            }
                         }
                         //关注操作
                         holder.tvFollow.setOnClickListener(v -> {
