@@ -459,6 +459,10 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             notifyItemChanged(position);
                             msgDao.updateMsgGreyColor(msgId);
                         }
+                        //如果是删除评论，直接提示
+                        if(dataList.get(position).getInteractType()==5){
+                            ToastUtil.show("该评论已删除");
+                        }
                     }
                 } else {
                     ToastUtil.show(response.message());

@@ -17,6 +17,6 @@
         <include
             android:id="@+id/no_data_layout"
             layout="@layout/layout_no_data"
-            android:visibility="visible" />
+            android:visibility="gone" />
     </LinearLayout>
 </layout>

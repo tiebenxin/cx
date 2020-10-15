@@ -146,13 +146,15 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //昵称
                     if (!TextUtils.isEmpty(userInfo.getNickname())) {
                         holder.tvName.setText(userInfo.getNickname());
+                    }else {
+                        holder.tvName.setText("该用户未设置昵称");
                     }
                     if(type==0){
                         //最新一条说说
                         if (!TextUtils.isEmpty(userInfo.getContent())) {
                             holder.tvNote.setText(userInfo.getContent());
                         }else {
-                            holder.tvNote.setText("暂无个性签名");
+                            holder.tvNote.setText("该用户暂无最新动态");
                         }
                         holder.tvNote.setVisibility(View.VISIBLE);
                     } else if (type == 3) {
@@ -161,7 +163,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (userInfo.getLastTime()!=0) {
                             holder.tvNote.setText("最近访问："+TimeToString.getTimeForCollect(userInfo.getLastTime()));
                         }else {
-                            holder.tvNote.setText("最近没有访问");
+                            holder.tvNote.setText("该用户最近没有访问");
                         }
                         holder.tvNote.setVisibility(View.VISIBLE);
                     }
@@ -184,8 +186,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.VISIBLE);
                         holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position,1));
-                    }
-                    if (type == 3) {
+                    }else if (type == 3) {
                         holder.tvFollow.setVisibility(View.GONE);
                         holder.tvDeleteNotSee.setVisibility(View.VISIBLE);
                         holder.tvDeleteRecord.setVisibility(View.GONE);
@@ -216,15 +217,26 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                         });
                     }
-
                     holder.layoutItem.setOnClickListener(v -> {
-                        Intent intent = new Intent(activity, FriendTrendsActivity.class);
-                        intent.putExtra("uid",userInfo.getUid());
-                        activity.startActivity(intent);
+                        //没注销的用户才允许跳朋友圈
+                        if (!TextUtils.isEmpty(userInfo.getNickname()) || !TextUtils.isEmpty(userInfo.getAvatar())) {
+                            Intent intent = new Intent(activity, FriendTrendsActivity.class);
+                            intent.putExtra("uid",userInfo.getUid());
+                            activity.startActivity(intent);
+                        }else {
+                            ToastUtil.show("该用户已注销");
+                        }
                     });
-                    holder.ivHeader.setOnClickListener(v -> activity.startActivity(new Intent(activity, UserInfoActivity.class)
-                            .putExtra(UserInfoActivity.ID, userInfo.getUid())
-                            .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)));
+                    holder.ivHeader.setOnClickListener(v -> {
+                        //没注销的用户才允许点头像看详细资料
+                        if (!TextUtils.isEmpty(userInfo.getNickname()) || !TextUtils.isEmpty(userInfo.getAvatar())) {
+                            activity.startActivity(new Intent(activity, UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.ID, userInfo.getUid())
+                                    .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
+                        }else {
+                            ToastUtil.show("该用户已注销");
+                        }
+                    });
                 }
             }
         } else {

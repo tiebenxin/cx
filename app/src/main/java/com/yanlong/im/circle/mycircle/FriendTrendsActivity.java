@@ -196,6 +196,14 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 adapter.setLoadState(adapter.LOADING_END);
                             } else {
                                 //2-2 第一次加载，没有数据则不显示尾部
+                                isFollow = bean.getMyFollow();
+                                if(isFollow==0){
+                                    bindingView.tvFollow.setText("关注");
+                                    adapter.ifFollow(false);
+                                }else {
+                                    bindingView.tvFollow.setText("已关注");
+                                    adapter.ifFollow(true);
+                                }
                                 adapter.setLoadState(adapter.LOADING_GONE);
                             }
                         }
@@ -229,6 +237,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 if (response.body().isOk()){
                     ToastUtil.show("关注成功");
                     bindingView.tvFollow.setText("已关注");
+                    isFollow = 1;
                 }
             }
 
@@ -254,6 +263,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 if (response.body().isOk()){
                     ToastUtil.show("取消关注成功");
                     bindingView.tvFollow.setText("关注");
+                    isFollow=0;
                 }else {
                     ToastUtil.show("取消关注失败");
                 }

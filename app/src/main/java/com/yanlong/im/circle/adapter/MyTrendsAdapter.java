@@ -370,7 +370,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 @Override
                                 public void clickDelete() {
                                     //删除动态
-                                    httpDeleteTrend(bean.getId(),position-1);
+                                    httpDeleteTrend(bean.getId(),position);
                                 }
 
                                 @Override
@@ -939,7 +939,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
                 if (response.body().isOk()){
                     ToastUtil.show("删除成功");
-                    dataList.remove(position);//删除数据源,移除集合中当前下标的数据
+                    dataList.remove(position-1);//删除数据源,移除集合中当前下标的数据
                     notifyItemRemoved(position);//刷新被删除的地方
                     notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
                 }

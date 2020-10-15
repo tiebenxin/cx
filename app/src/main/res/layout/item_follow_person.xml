@@ -32,6 +32,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="15dp"
                 android:textSize="14sp"
+                android:visibility="gone"
                 android:textColor="@color/white"
                 android:text="关注TA" />
 
@@ -76,7 +77,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:text="该用户未设置昵称"
+                android:text=""
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/c_333333"
