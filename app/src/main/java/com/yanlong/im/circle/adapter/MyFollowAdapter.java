@@ -154,7 +154,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (!TextUtils.isEmpty(userInfo.getContent())) {
                             holder.tvNote.setText(userInfo.getContent());
                         }else {
-                            holder.tvNote.setText("该用户暂无最新动态");
+                            holder.tvNote.setText("暂无最新动态");
                         }
                         holder.tvNote.setVisibility(View.VISIBLE);
                     } else if (type == 3) {
@@ -163,7 +163,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (userInfo.getLastTime()!=0) {
                             holder.tvNote.setText("最近访问："+TimeToString.getTimeForCollect(userInfo.getLastTime()));
                         }else {
-                            holder.tvNote.setText("该用户最近没有访问");
+                            holder.tvNote.setText("最近没有访问");
                         }
                         holder.tvNote.setVisibility(View.VISIBLE);
                     }
