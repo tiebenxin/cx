@@ -109,7 +109,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 .apply(GlideOptionsUtil.headImageOptions())
                 .into(ivHead);
         helper.setText(R.id.tv_user_name, messageInfoBean.getNickname());
-        helper.setText(R.id.tv_date, TimeToString.getTimeWx(messageInfoBean.getCreateTime()));
+        helper.setText(R.id.tv_date, TimeToString.formatCircleDate(messageInfoBean.getCreateTime()));
         helper.setText(R.id.tv_vote_number, getVoteSum(messageInfoBean.getVoteAnswer()) + "人参与了投票");
         if (isFollow || messageInfoBean.isFollow()) {
             helper.setVisible(R.id.iv_follow, true);

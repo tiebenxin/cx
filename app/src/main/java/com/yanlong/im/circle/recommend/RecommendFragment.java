@@ -75,6 +75,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     public static final String REFRESH_COUNT = "refresh_count";
     private final int PAGE_SIZE = 8;
     private Long mCurrentPage = 0l;
+    private boolean mIsAddLocation = false;// 是否添加了本地
     private final int MAX_REFRESH_COUNT = 2;// 刷新次数大于2不显示
     private final int MAX_REFRESH_MINUTE = 2;// 超过3分钟不显示
     ViewNewCircleMessageBinding messageBinding;
@@ -122,9 +123,13 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     public void addRecomendEvent(EventFactory.AddRecomendEvent event) {
         MessageInfoBean infoBean = new Gson().fromJson(event.content, MessageInfoBean.class);
         MessageFlowItemBean flowItemBean = new MessageFlowItemBean(event.type, infoBean);
+        if (mIsAddLocation) {
+            mFollowList.remove(0);
+        }
         mFollowList.add(0, flowItemBean);
-        bindingView.recyclerRecommend.smoothScrollToPosition(0);
+        bindingView.recyclerRecommend.scrollToPosition(0);
         mFlowAdapter.notifyDataSetChanged();
+        mIsAddLocation = true;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -195,7 +200,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     case R.id.iv_header:// 头像
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, messageInfoBean.getUid())
-                                .putExtra(UserInfoActivity.SHOW_TRENDS,true));
+                                .putExtra(UserInfoActivity.SHOW_TRENDS, true));
                         break;
                     case R.id.iv_like:// 点赞
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
@@ -353,7 +358,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             }
 
             if (mCurrentPage == 0) {
-                bindingView.recyclerRecommend.smoothScrollToPosition(0);
+                bindingView.recyclerRecommend.scrollToPosition(0);
             }
         }
         bindingView.srlFollow.finishRefresh();
