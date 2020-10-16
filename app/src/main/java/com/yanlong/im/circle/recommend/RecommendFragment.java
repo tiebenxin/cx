@@ -446,6 +446,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     .apply(GlideOptionsUtil.headImageOptions())
                     .into(messageBinding.ivNoticeAvatar);
             messageBinding.tvNotice.setText(unCount + "条新消息");
+            //通知首页显示红点
+            EventFactory.HomePageShowUnreadMsgEvent event = new EventFactory.HomePageShowUnreadMsgEvent();
+            event.num = unCount;
+            EventBus.getDefault().post(event);
         } else {
             mFlowAdapter.removeAllHeaderView();
         }

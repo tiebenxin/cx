@@ -181,6 +181,19 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
+     * 首页显示未读互动消息数
+     */
+    public static class HomePageShowUnreadMsgEvent extends BaseEvent {
+        public int num;
+    }
+
+    /**
+     * 清空广场未读互动消息
+     */
+    public static class ClearHomePageShowUnreadMsgEvent extends BaseEvent {
+    }
+
+    /**
      * 更新关注红点
      */
     public static class UpdateRedEvent extends BaseEvent {

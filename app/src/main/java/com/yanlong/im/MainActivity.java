@@ -470,7 +470,7 @@ public class MainActivity extends BaseTcpActivity {
                 sbmsg = sb;
             }
             if (i == EMainTab.CIRCLE) {// 广场
-                sb.setSktype(1);
+                sb.setSktype(0);
                 //设置值
                 sb.setNum(0, true);
                 sbshop = sb;
@@ -938,6 +938,17 @@ public class MainActivity extends BaseTcpActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void msgSync(EventMsgSync event) {
         getMsgToPC(event.getCode());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.HomePageShowUnreadMsgEvent event){
+        //优先显示未读消息数
+        sbshop.setNum(event.num, true);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void clearUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.ClearHomePageShowUnreadMsgEvent event){
+        sbshop.setNum(0, true);
     }
 
     /**

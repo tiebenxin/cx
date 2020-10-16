@@ -3,6 +3,7 @@ package com.yanlong.im.circle.mycircle;
 import android.os.Bundle;
 import android.view.View;
 
+import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.MyInteractAdapter;
@@ -11,6 +12,8 @@ import com.yanlong.im.databinding.ActivityMyInteractBinding;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.view.YLLinearLayoutManager;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +62,8 @@ public class MyInteractActivity extends BaseBindActivity<ActivityMyInteractBindi
         }
         //点击进来则全部已读
         msgDao.setReadedStatus();
+        //通知清掉首页广场红点
+        EventBus.getDefault().post(new EventFactory.ClearHomePageShowUnreadMsgEvent());
     }
 
 
