@@ -6565,6 +6565,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             } else {
                                 showMsgFailDialog();
                             }
+                        }else {
+                            ToastUtil.showToast(ChatActivity.this, response.body().getMsg(), 1);
                         }
                     }
 
