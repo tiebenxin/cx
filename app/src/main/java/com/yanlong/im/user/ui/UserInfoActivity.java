@@ -31,6 +31,8 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
 import com.yanlong.im.chat.ui.groupmanager.SetupGroupMemberLableActivity;
+import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
+import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
@@ -649,7 +651,19 @@ public class UserInfoActivity extends AppActivity {
                         friendDeactivateStat = userInfo.getFriendDeactivateStat();
                     }
                 });
-
+                layoutTrends.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(id == UserAction.getMyInfo().getUid().longValue()){
+                            Intent intent = new Intent(UserInfoActivity.this, MyTrendsActivity.class);
+                            startActivity(intent);
+                        }else {
+                            Intent intent = new Intent(UserInfoActivity.this, FriendTrendsActivity.class);
+                            intent.putExtra("uid",id);
+                            startActivity(intent);
+                        }
+                    }
+                });
             }else {
                 layoutTrends.setVisibility(View.GONE);
                 userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
