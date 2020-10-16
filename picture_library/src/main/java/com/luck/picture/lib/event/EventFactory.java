@@ -179,4 +179,16 @@ public class EventFactory extends BaseEvent {
      */
     public static class CheckUnreadMsgEvent extends BaseEvent {
     }
+
+    /**
+     * 更新关注红点
+     */
+    public static class UpdateRedEvent extends BaseEvent {
+    }
+
+    /**
+     * 更新新消息
+     */
+    public static class UpdateNewMsgEvent extends BaseEvent {
+    }
 }

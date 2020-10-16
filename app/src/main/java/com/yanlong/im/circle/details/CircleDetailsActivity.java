@@ -433,6 +433,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     }
 
     @Override
+    public void showUnreadMsg(int unCount, String avatar) {
+
+    }
+
+    @Override
     public void onSuccess(List<MessageFlowItemBean> list) {
 
     }
@@ -500,6 +505,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @Override
     public void onVoteSuccess(int parentPostion, String msg) {
         refreshFollowList();
+        mPresenter.queryById(mMessageInfoBean.getId(), mMessageInfoBean.getUid(), parentPostion);
+
     }
 
     @Override

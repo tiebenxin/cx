@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/layout_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view_line"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/shape_16radius_solid_999999"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:visibility="visible">
+
+            <com.hm.cxpay.widget.CircleImageView
+                android:id="@+id/iv_notice_avatar"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@mipmap/ic_info_head" />
+
+            <TextView
+                android:id="@+id/tv_notice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                android:text="0条新消息"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_white_arrow" />
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

@@ -15,6 +15,8 @@
         <com.hm.cxpay.widget.CircleImageView
             android:id="@+id/iv_header"
             style="@style/app_img_head"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@mipmap/default_image" />
 
         <ImageView
@@ -22,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="34dp"
             android:src="@mipmap/ic_circle_follow"
             android:visibility="visible" />
     </FrameLayout>
@@ -31,7 +33,7 @@
         android:id="@+id/ll_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
+        android:layout_marginLeft="15dp"
         android:layout_toRightOf="@+id/layout_head"
         android:orientation="vertical">
 
@@ -48,8 +50,8 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:text="张三丰"
-                android:textColor="@color/gray_767"
-                android:textSize="16sp" />
+                android:textColor="@color/gray_757"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/tv_date"
@@ -87,7 +89,7 @@
                 android:paddingLeft="25dp"
                 android:paddingTop="15dp"
                 android:paddingRight="@dimen/app_margin_circle"
-                android:paddingBottom="15dp"
+                android:paddingBottom="10dp"
                 android:src="@mipmap/ic_circle_more" />
         </RelativeLayout>
 
@@ -101,8 +103,9 @@
             android:lineSpacingExtra="3dp"
             android:maxLines="3"
             android:scrollbars="none"
-            android:textColor="@color/gray_484"
-            android:textSize="15sp" />
+            android:text=""
+            android:textColor="@color/color_2A2"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tv_show_all"

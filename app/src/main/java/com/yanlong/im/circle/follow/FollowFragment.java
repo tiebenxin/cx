@@ -1,6 +1,7 @@
 package com.yanlong.im.circle.follow;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,16 +33,20 @@ import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.databinding.FragmentFollowBinding;
+import com.yanlong.im.databinding.ViewNewCircleMessageBinding;
 import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -66,6 +72,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     public static final String IS_OPEN = "is_open";
     private final int PAGE_SIZE = 20;
     private int mCurrentPage = 1;
+    ViewNewCircleMessageBinding messageBinding;
 
     protected FollowPresenter createPresenter() {
         return new FollowPresenter(getContext());
@@ -88,6 +95,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
         mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
+
+        messageBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.view_new_circle_message, null, false);
+        mPresenter.getUnreadMsg();
     }
 
     @Override
@@ -100,9 +110,19 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Override
     public void initEvent() {
+        messageBinding.layoutNotice.setOnClickListener(v -> {
+            if (ViewUtils.isFastDoubleClick()) {
+                return;
+            }
+            mFlowAdapter.removeAllHeaderView();
+            EventBus.getDefault().post(new EventFactory.UpdateNewMsgEvent());
+            Intent intent = new Intent(getActivity(), MyInteractActivity.class);
+            startActivity(intent);
+        });
         bindingView.srlFollow.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@android.support.annotation.NonNull RefreshLayout refreshLayout) {
+                EventBus.getDefault().post(new EventFactory.UpdateRedEvent());
                 mCurrentPage = 1;
                 mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
             }
@@ -206,6 +226,16 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void checkUnreadMsg(EventFactory.CheckUnreadMsgEvent event) {
+        mPresenter.getUnreadMsg();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateNewMsgEvent(EventFactory.UpdateNewMsgEvent event) {
+        mFlowAdapter.removeAllHeaderView();
+    }
+
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
@@ -269,6 +299,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 serverInfoBean.setAvatar(locationInfoBean.getAvatar());
                 serverInfoBean.setNickname(locationInfoBean.getNickname());
                 mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
+                if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                    position = position + 1;
+                }
                 mFlowAdapter.notifyItemChanged(position);
             }
         } catch (Exception e) {
@@ -311,6 +344,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             messageInfoBean.setLikeCount(1);
         }
         messageInfoBean.setLike(like);
+        if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+            position = position + 1;
+        }
         mFlowAdapter.notifyItemChanged(position);
     }
 
@@ -332,6 +368,24 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Override
     public void onCommentSuccess(boolean isAdd) {
 
+    }
+
+    @Override
+    public void showUnreadMsg(int unCount, String avatar) {
+        //是否有未读互动消息
+        if (unCount > 0) {
+            if (mFlowAdapter.getHeaderLayoutCount() == 0) {
+                mFlowAdapter.addHeaderView(messageBinding.getRoot());
+            }
+            Glide.with(getActivity())
+                    .asBitmap()
+                    .load(avatar)
+                    .apply(GlideOptionsUtil.headImageOptions())
+                    .into(messageBinding.ivNoticeAvatar);
+            messageBinding.tvNotice.setText(unCount + "条新消息");
+        } else {
+            mFlowAdapter.removeAllHeaderView();
+        }
     }
 
     /**

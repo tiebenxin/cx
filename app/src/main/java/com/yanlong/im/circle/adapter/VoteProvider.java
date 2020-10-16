@@ -3,6 +3,7 @@ package com.yanlong.im.circle.adapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
@@ -170,7 +171,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
             ivLike.setText(StringUtil.numberFormart(messageInfoBean.getLikeCount()));
         } else {
-            helper.setText(R.id.iv_like, "");
+            ivLike.setText("");
         }
         if (messageInfoBean.getLike() != null && messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
             Drawable drawable = mContext.getResources().getDrawable(R.mipmap.ic_circle_like);
@@ -375,14 +376,24 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
      */
     private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
                                 MessageInfoBean.VoteAnswerBean answerBean, int voteSum) {
-        rv.setLayoutManager(new LinearLayoutManager(mContext));
+        int columns = 0;
+        if (type == PictureEnum.EVoteType.TXT) {
+            rv.setLayoutManager(new LinearLayoutManager(mContext));
+        } else {
+            if (voteList != null && voteList.size() == 4 || voteList.size() == 2) {
+                columns = 2;
+            } else {
+                columns = 3;
+            }
+            rv.setLayoutManager(new GridLayoutManager(mContext, columns));
+        }
         isVote = -1;// 未投票-1，其他则为itemId:1-4
         List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList = new ArrayList<>();
         if (answerBean != null) {
             isVote = answerBean.getSelfAnswerItem();
             sumDataList.addAll(answerBean.getSumDataList());
         }
-        VoteAdapter taskAdapter = new VoteAdapter(type, isVote, voteSum, sumDataList);
+        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList);
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {

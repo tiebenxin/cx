@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.event.EventFactory;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
@@ -40,6 +41,7 @@ import retrofit2.Response;
 public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
 
     private UserDao userDao = new UserDao();
+    private MsgDao msgDao = new MsgDao();
 
     public FollowPresenter(Context context) {
         super(context);
@@ -433,5 +435,24 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 mView.onShowMessage("删除失败");
             }
         });
+    }
+
+    /**
+     * 顶部未读消息悬浮
+     */
+    public void getUnreadMsg() {
+        //是否有未读互动消息
+        if (msgDao.getUnreadMsgList() != null && msgDao.getUnreadMsgList().size() > 0) {
+            String avatar = "";
+            int size = msgDao.getUnreadMsgList().size();
+            if (msgDao.getUnreadMsgList().get(0) != null) {
+                if (!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())) {
+                    avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
+                }
+            }
+            mView.showUnreadMsg(size, avatar);
+        } else {
+            mView.showUnreadMsg(0, "");
+        }
     }
 }

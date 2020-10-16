@@ -32,5 +32,9 @@ public class CircleModel extends BaseModel implements CircleApi {
         NetUtil.getNet().exec(server.careateNewCircle(params), callback);
     }
 
+    @Override
+    public void latestData(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.latestData(params), callback);
+    }
 
 }

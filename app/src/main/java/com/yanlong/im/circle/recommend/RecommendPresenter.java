@@ -1,8 +1,10 @@
 package com.yanlong.im.circle.recommend;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.luck.picture.lib.PictureEnum;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
@@ -32,6 +34,7 @@ import retrofit2.Response;
 public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendView> {
 
     private UserDao userDao = new UserDao();
+    private MsgDao msgDao = new MsgDao();
 
     RecommendPresenter(Context context) {
         super(context);
@@ -319,6 +322,26 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                 mView.onShowMessage("刷新失败");
             }
         });
+    }
+
+
+    /**
+     * 顶部未读消息悬浮
+     */
+    public void getUnreadMsg() {
+        //是否有未读互动消息
+        if (msgDao.getUnreadMsgList() != null && msgDao.getUnreadMsgList().size() > 0) {
+            String avatar = "";
+            int size = msgDao.getUnreadMsgList().size();
+            if (msgDao.getUnreadMsgList().get(0) != null) {
+                if (!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())) {
+                    avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
+                }
+            }
+            mView.showUnreadMsg(size, avatar);
+        } else {
+            mView.showUnreadMsg(0, "");
+        }
     }
 
 }

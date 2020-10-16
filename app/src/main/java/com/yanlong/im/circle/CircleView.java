@@ -22,4 +22,6 @@ public interface CircleView extends IBaseView {
     void uploadSuccess(String url, int type, boolean isVideo, HashMap<String, String> netFile);
 
     void showMessage(String message);
+
+    void showRedDot(int redPoint);
 }

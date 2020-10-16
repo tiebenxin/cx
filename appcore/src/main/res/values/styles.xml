@@ -662,7 +662,7 @@
         <item name="android:layout_centerVertical">true</item>
         <item name="android:background">@color/transparent</item>
         <item name="android:button">@null</item>
-        <item name="android:textSize">21sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <!--    朋友圈发布 红点style-->

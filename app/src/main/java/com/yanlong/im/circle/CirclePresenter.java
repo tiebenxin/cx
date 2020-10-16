@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -309,6 +310,32 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
 
             @Override
             public void onError(Throwable e) {
+            }
+        });
+    }
+
+    /**
+     * 获取是否有红点
+     */
+    public void latestData() {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        mModel.latestData(params, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (checkSuccess(response.body())) {
+                    try {
+                        LinkedTreeMap<String, Double> hashMap = (LinkedTreeMap<String, Double>) response.body().getData();
+                        mView.showRedDot(hashMap.get("redPoint").intValue());
+                    } catch (Exception e) {
+                        mView.showRedDot(0);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
             }
         });
     }

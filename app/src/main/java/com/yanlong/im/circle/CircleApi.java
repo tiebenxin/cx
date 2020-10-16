@@ -19,4 +19,6 @@ import java.util.WeakHashMap;
 public interface CircleApi {
 
     void createNewCircle(WeakHashMap<String, Object> params, CallBack<ReturnBean<MessageInfoBean>> callback);
+
+    void latestData(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback);
 }
