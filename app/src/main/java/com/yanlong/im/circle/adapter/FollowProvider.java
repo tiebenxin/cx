@@ -16,8 +16,10 @@ import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,6 +45,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -163,29 +166,43 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 helper.setGone(R.id.rl_video, false);
                 helper.setVisible(R.id.layout_voice, true);
             } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
-                List<String> imgs = new ArrayList<>();
-                helper.setGone(R.id.layout_voice, false);
-                helper.setGone(R.id.rl_video, false);
-                recyclerView.setVisibility(View.VISIBLE);
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                    for (AttachmentBean attachmentBean : attachmentBeans) {
-                        imgs.add(attachmentBean.getUrl());
+                    if (attachmentBeans.size() == 1) {
+                        resetSize(ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
+                        Glide.with(mContext)
+                                .asBitmap()
+                                .load(attachmentBeans.get(0).getUrl())
+                                .apply(GlideOptionsUtil.headImageOptions())
+                                .into(ivVideo);
+                        helper.setVisible(R.id.rl_video, true);
+                        recyclerView.setVisibility(View.GONE);
+                        helper.setGone(R.id.layout_voice, false);
+                        helper.setGone(R.id.iv_play, false);
+                    } else {
+                        List<String> imgs = new ArrayList<>();
+                        helper.setGone(R.id.layout_voice, false);
+                        helper.setGone(R.id.rl_video, false);
+                        recyclerView.setVisibility(View.VISIBLE);
+                        for (AttachmentBean attachmentBean : attachmentBeans) {
+                            imgs.add(attachmentBean.getUrl());
+                        }
+                        setRecycleView(recyclerView, imgs, position);
                     }
                 }
-                setRecycleView(recyclerView, imgs, position);
             } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VIDEO) {
-                helper.setVisible(R.id.rl_video, true);
-                recyclerView.setVisibility(View.GONE);
-                helper.setGone(R.id.layout_voice, false);
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
+                    resetSize(ivVideo, attachmentBean.getWidth(), attachmentBean.getHeight());
                     Glide.with(mContext)
                             .asBitmap()
                             .load(attachmentBean.getBgUrl())
                             .apply(GlideOptionsUtil.headImageOptions())
                             .into(ivVideo);
+                    helper.setVisible(R.id.rl_video, true);
+                    recyclerView.setVisibility(View.GONE);
+                    helper.setGone(R.id.layout_voice, false);
+                    helper.setGone(R.id.iv_play, true);
                 }
-
             }
         } else {
             helper.setGone(R.id.layout_voice, false);
@@ -273,6 +290,31 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             content.setMaxLines(Integer.MAX_VALUE);
             btn.setText("收起");
         }
+    }
+
+    private void resetSize(RoundImageView imageView, int imgWidth, int imgHeight) {
+        //w/h = 3/4
+        final int DEFAULT_W = DensityUtil.dip2px(mContext, 120);
+        final int DEFAULT_H = DensityUtil.dip2px(mContext, 180);
+        int width = DEFAULT_W;
+        int height = DEFAULT_H;
+
+        if (imgHeight > 0) {
+            double scale = (imgWidth * 1.00) / imgHeight;
+            if (imgWidth > imgHeight) {
+                width = DEFAULT_W;
+                height = (int) (width / scale);
+            } else if (imgWidth < imgHeight) {
+                height = DEFAULT_H;
+                width = (int) (height * scale);
+            } else {
+                width = height = DEFAULT_W;
+            }
+        }
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        lp.width = width;
+        lp.height = height;
+        imageView.setLayoutParams(lp);
     }
 
     /**

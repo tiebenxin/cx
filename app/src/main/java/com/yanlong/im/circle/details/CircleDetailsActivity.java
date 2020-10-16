@@ -20,10 +20,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.CreateCircleActivity;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.event.EventFactory;
-import com.luck.picture.lib.tools.DoubleUtils;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
@@ -199,9 +200,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-                if (DoubleUtils.isFastDoubleClick()) {
-                    return;
-                }
+//                if (DoubleUtils.isFastDoubleClick()) {
+//                    return;
+//                }
                 switch (view.getId()) {
                     case R.id.iv_comment:// 评论
                         showCommentDialog("", 0l);
@@ -232,13 +233,18 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(mMessageInfoBean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
-
-                        Intent intent = new Intent(getContext(), VideoPlayActivity.class);
-                        if (attachmentBeans.size() > 0) {
-                            intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                        if (mMessageInfoBean.getType() != null && mMessageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
+                            List<String> imgs = new ArrayList<>();
+                            imgs.add(attachmentBeans.get(0).getUrl());
+                            toPictruePreview(0, imgs);
+                        } else {
+                            Intent intent = new Intent(getContext(), VideoPlayActivity.class);
+                            if (attachmentBeans.size() > 0) {
+                                intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                            }
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(intent);
                         }
-                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(intent);
                         break;
                 }
             }
@@ -317,6 +323,26 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             return false;
         }
+    }
+
+    /**
+     * 查看图片
+     *
+     * @param postion 位置
+     * @param imgs    图片集合
+     */
+    private void toPictruePreview(int postion, List<String> imgs) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        for (String s : imgs) {
+            LocalMedia localMedia = new LocalMedia();
+            localMedia.setPath(s);
+            localMedia.setCompressPath(s);
+            selectList.add(localMedia);
+        }
+        PictureSelector.create(this)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview(postion, selectList);
     }
 
     private void cancleFollowDialog(int position) {
