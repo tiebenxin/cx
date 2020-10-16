@@ -164,7 +164,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         break;
                     case R.id.iv_header:// 头像
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
+                                .putExtra(UserInfoActivity.ID, messageInfoBean.getUid())
+                                .putExtra(UserInfoActivity.SHOW_TRENDS,true));
                         break;
                     case R.id.iv_like:// 点赞
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {

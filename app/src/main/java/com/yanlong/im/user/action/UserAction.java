@@ -2,9 +2,7 @@ package com.yanlong.im.user.action;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
@@ -15,7 +13,6 @@ import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.bean.AddressBookMatchingBean;
@@ -283,6 +280,48 @@ public class UserAction {
      */
     public void getUserInfo4Id(Long usrid, final CallBack<ReturnBean<UserInfo>> callBack) {
         NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                super.onResponse(call, response);
+                //写入用户信息到数据库
+                if (response.body() != null) {
+                    UserInfo userInfo = response.body().getData();
+                    if (userInfo != null && userInfo.getUid() != null) {
+                        if (userInfo.getStat() == 0) {
+                            userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                        } else if (userInfo.getStat() == 2) {
+                            userInfo.setuType(ChatEnum.EUserType.BLACK);
+                        } else if (userInfo.getStat() == 1) {
+                            userInfo.setuType(ChatEnum.EUserType.STRANGE);
+                        } else if (userInfo.getStat() == 9) {
+                            userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                        }
+                        userInfo.toTag();
+                        dao.updateUserinfo(userInfo);
+                        boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+                        if (hasChange) {
+                            MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+                        }
+                        if (callBack != null) callBack.onResponse(call, response);
+                    } else {
+                        if (callBack != null) callBack.onFailure(call, new Throwable());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
+                super.onFailure(call, t);
+                if (callBack != null) callBack.onFailure(call, t);
+            }
+        });
+    }
+
+    /**
+     * 获取用户信息(展示朋友圈)
+     */
+    public void getUserInfoByIdShowTrends(Long usrid, final CallBack<ReturnBean<UserInfo>> callBack) {
+        NetUtil.getNet().exec(server.getUserInfoShowTrends(usrid,1), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 super.onResponse(call, response);

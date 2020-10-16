@@ -92,6 +92,7 @@ public class UserInfoActivity extends AppActivity {
     public static final String IS_ADMINS = "isAdmins";// 是否是群主
     public static final String ALIAS = "alias";
     public static final String CONTACT_NAME = "contactName";// 通讯录名称
+    public static final String SHOW_TRENDS = "SHOW_TRENDS";// 是否显示朋友圈动态
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -128,6 +129,7 @@ public class UserInfoActivity extends AppActivity {
     private String inviterName;
     private boolean mIsFromGroup;// 是否是来自群聊
     private boolean mIsAdmin;// 是否是群主或管理员
+    private boolean ifShowTrends;// 是否显示朋友圈动态
     private long inviter;
     private long id;
     private String sayHi, userNote;
@@ -472,6 +474,7 @@ public class UserInfoActivity extends AppActivity {
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         mAlias = intent.getStringExtra(ALIAS);
         contactName = intent.getStringExtra(CONTACT_NAME);
+        ifShowTrends = intent.getBooleanExtra(SHOW_TRENDS,false);
 
         taskFindExist();
         if (!TextUtils.isEmpty(gid)) {
@@ -620,30 +623,61 @@ public class UserInfoActivity extends AppActivity {
             if (userInfoLocal != null && userInfoLocal.getuType() == ChatEnum.EUserType.ASSISTANT) {
                 return;
             }
-            userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
-                @Override
-                public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                    if (response.body() == null || response.body().getData() == null) {
-                        return;
+            if(ifShowTrends){
+                layoutTrends.setVisibility(View.VISIBLE);
+                userAction.getUserInfoByIdShowTrends(id, new CallBack<ReturnBean<UserInfo>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                        if (response.body() == null || response.body().getData() == null) {
+                            return;
+                        }
+                        UserInfo userInfo = response.body().getData();
+                        if (userInfo.getStat() == 0) {
+                            userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                        } else if (userInfo.getStat() == 2) {
+                            userInfo.setuType(ChatEnum.EUserType.BLACK);
+                        } else if (userInfo.getStat() == 1) {
+                            userInfo.setuType(ChatEnum.EUserType.STRANGE);
+                        } else if (userInfo.getStat() == 9) {
+                            userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                        }
+                        if (userInfoLocal == null) {
+                            userInfoLocal = userInfo;
+                        }
+                        userDao.updateUserinfo(userInfo);//刷新用户数据，主要更新注销状态
+                        setData(userInfo);
+                        friendDeactivateStat = userInfo.getFriendDeactivateStat();
                     }
-                    UserInfo userInfo = response.body().getData();
-                    if (userInfo.getStat() == 0) {
-                        userInfo.setuType(ChatEnum.EUserType.FRIEND);
-                    } else if (userInfo.getStat() == 2) {
-                        userInfo.setuType(ChatEnum.EUserType.BLACK);
-                    } else if (userInfo.getStat() == 1) {
-                        userInfo.setuType(ChatEnum.EUserType.STRANGE);
-                    } else if (userInfo.getStat() == 9) {
-                        userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                });
+
+            }else {
+                layoutTrends.setVisibility(View.GONE);
+                userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                        if (response.body() == null || response.body().getData() == null) {
+                            return;
+                        }
+                        UserInfo userInfo = response.body().getData();
+                        if (userInfo.getStat() == 0) {
+                            userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                        } else if (userInfo.getStat() == 2) {
+                            userInfo.setuType(ChatEnum.EUserType.BLACK);
+                        } else if (userInfo.getStat() == 1) {
+                            userInfo.setuType(ChatEnum.EUserType.STRANGE);
+                        } else if (userInfo.getStat() == 9) {
+                            userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                        }
+                        if (userInfoLocal == null) {
+                            userInfoLocal = userInfo;
+                        }
+                        userDao.updateUserinfo(userInfo);//刷新用户数据，主要更新注销状态
+                        setData(userInfo);
+                        friendDeactivateStat = userInfo.getFriendDeactivateStat();
                     }
-                    if (userInfoLocal == null) {
-                        userInfoLocal = userInfo;
-                    }
-                    userDao.updateUserinfo(userInfo);//刷新用户数据，主要更新注销状态
-                    setData(userInfo);
-                    friendDeactivateStat = userInfo.getFriendDeactivateStat();
-                }
-            });
+                });
+
+            }
         }
     }
 
@@ -692,6 +726,51 @@ public class UserInfoActivity extends AppActivity {
 
         if (!TextUtils.isEmpty(info.getDescribe())) {
             tv_introduce.setText(info.getDescribe());
+        }
+        //展示朋友圈
+        if(ifShowTrends){
+            if(info.getMomentList()!=null && info.getMomentList().size()>0){
+                switch (info.getMomentList().size()){
+                    case 1:
+                        ivOne.setVisibility(View.VISIBLE);
+                        Glide.with(this).load(info.getMomentList().get(0))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivOne);
+                        break;
+                    case 2:
+                        ivOne.setVisibility(View.VISIBLE);
+                        ivTwo.setVisibility(View.VISIBLE);
+                        Glide.with(this).load(info.getMomentList().get(0))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivOne);
+                        Glide.with(this).load(info.getMomentList().get(1))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivTwo);
+                        break;
+                    case 3:
+                        ivOne.setVisibility(View.VISIBLE);
+                        ivTwo.setVisibility(View.VISIBLE);
+                        ivThree.setVisibility(View.VISIBLE);
+                        Glide.with(this).load(info.getMomentList().get(0))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivOne);
+                        Glide.with(this).load(info.getMomentList().get(1))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivTwo);
+                        Glide.with(this).load(info.getMomentList().get(2))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivThree);
+                        break;
+                    case 4:
+                        ivOne.setVisibility(View.VISIBLE);
+                        ivTwo.setVisibility(View.VISIBLE);
+                        ivThree.setVisibility(View.VISIBLE);
+                        ivFour.setVisibility(View.VISIBLE);
+                        Glide.with(this).load(info.getMomentList().get(0))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivOne);
+                        Glide.with(this).load(info.getMomentList().get(1))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivTwo);
+                        Glide.with(this).load(info.getMomentList().get(2))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivThree);
+                        Glide.with(this).load(info.getMomentList().get(3))
+                                .apply(GlideOptionsUtil.headImageOptions()).into(ivFour);
+                        break;
+                }
+            }
         }
     }
 

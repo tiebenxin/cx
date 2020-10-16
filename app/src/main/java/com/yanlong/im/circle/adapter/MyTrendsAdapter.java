@@ -274,11 +274,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //位置
                     if(!TextUtils.isEmpty(bean.getPosition())){
                         holder.tvLocation.setText(bean.getPosition());
+                        holder.tvLocation.setVisibility(View.VISIBLE);
                     }else {
                         if(!TextUtils.isEmpty(bean.getCity())){
                             holder.tvLocation.setText(bean.getCity());
+                            holder.tvLocation.setVisibility(View.VISIBLE);
                         }else {
-                            holder.tvLocation.setText("未设置地点");
+                            holder.tvLocation.setVisibility(View.GONE);
                         }
                     }
                     //点赞数 评论数
@@ -600,6 +602,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.tvFriendName.setVisibility(View.GONE);
                     holder.ivMyHeader.setVisibility(View.VISIBLE);
                     holder.tvMyName.setVisibility(View.VISIBLE);
+                    holder.lineOne.setVisibility(View.VISIBLE);
                     //头像 昵称
                     if (!TextUtils.isEmpty(userBean.getHead())) {
                         Glide.with(activity)
@@ -645,6 +648,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.tvFriendName.setVisibility(View.VISIBLE);
                     holder.ivMyHeader.setVisibility(View.GONE);
                     holder.tvMyName.setVisibility(View.GONE);
+                    holder.lineOne.setVisibility(View.GONE);
                     if (!TextUtils.isEmpty(userBean.getHead())) {
                         Glide.with(activity)
                                 .load(userBean.getHead())
@@ -768,6 +772,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutNotice;
         private TextView tvNotice;
         private ImageView ivNoticeAvatar;
+        private View lineOne;
 
         public HeadHolder(View itemView) {
             super(itemView);
@@ -786,6 +791,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             layoutNotice = itemView.findViewById(R.id.layout_notice);
             tvNotice = itemView.findViewById(R.id.tv_notice);
             ivNoticeAvatar = itemView.findViewById(R.id.iv_notice_avatar);
+            lineOne = itemView.findViewById(R.id.line_one);
         }
     }
 

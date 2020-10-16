@@ -13,6 +13,8 @@ import net.cb.cb.library.utils.PinyinUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
+import java.util.List;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -95,7 +97,17 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     private int deactivateStat;//注销状态 0 正常 1 注销中 -1 已注销
     private int friendDeactivateStat;//好友注销状态 0 正常 1 注销中 -1 已注销
 
+    //新增->朋友圈最新动态
+    @Ignore
+    private List<String> momentList;
 
+    public List<String> getMomentList() {
+        return momentList;
+    }
+
+    public void setMomentList(List<String> momentList) {
+        this.momentList = momentList;
+    }
 
     public String getPinyin() {
         return pinyin;

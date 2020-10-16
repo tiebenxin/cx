@@ -62,6 +62,10 @@ public interface UserServer {
 
     @POST("/user/get-user-info-by-uid")
     @FormUrlEncoded
+    Call<ReturnBean<UserInfo>> getUserInfoShowTrends(@Field("uid") Long uid,@Field("hasMoment") int hasMoment);
+
+    @POST("/user/get-user-info-by-uid")
+    @FormUrlEncoded
     Call<ReturnBean<UserBean>> getUserBean(@Field("uid") Long uid);
 
     @POST("/user/logout")

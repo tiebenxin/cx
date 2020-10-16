@@ -184,6 +184,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                                 } else {
                                     Intent intent = new Intent(getContext(), UserInfoActivity.class);
                                     intent.putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid());
+                                    intent.putExtra(UserInfoActivity.SHOW_TRENDS, true);
                                     startActivity(intent);
                                 }
                             }
