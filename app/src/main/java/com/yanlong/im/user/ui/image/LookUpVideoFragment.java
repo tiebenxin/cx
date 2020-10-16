@@ -840,7 +840,7 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                     super.onResponse(call, response);
                     if (response.body() != null && response.body().isOk()) {
-                        if (response.body().getData() != null && response.body().getData().size() != list.size()) {
+                        if (response.body().getData() != null && response.body().getData().size() <= 0) {
                             showMsgFailDialog();
                         } else {
                             if (isCollect) {

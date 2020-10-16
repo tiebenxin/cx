@@ -495,8 +495,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
-                            lastPosition =  - 1;
-                            lastOffset =  - 1;
+                            lastPosition = -1;
+                            lastOffset = -1;
                         }
                     }, delayMillis);
                 } else {//关闭
@@ -530,8 +530,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
-                            lastPosition =  - 1;
-                            lastOffset =  - 1;
+                            lastPosition = -1;
+                            lastOffset = -1;
                         }
                     }, 100);
                 } else {//关闭
@@ -572,8 +572,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
-                            lastPosition =  - 1;
-                            lastOffset =  - 1;
+                            lastPosition = -1;
+                            lastOffset = -1;
                         }
                     }, 100);
                 } else {//关闭
@@ -4378,12 +4378,24 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                         super.onResponse(call, response);
                         if (response.body() != null && response.body().isOk()) {
-                            if (response.body().getData() != null && response.body().getData().size() != list.size()) {
-                                showMsgFailDialog();
+                            if (response.body().getData() != null) {
+                                int size = response.body().getData().size();
+                                if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                                    if (size > 0) {
+                                        onRetransmission(msgbean);
+                                    } else {
+                                        showMsgFailDialog();
+                                    }
+                                } else {
+                                    if (size == list.size()) {
+                                        onRetransmission(msgbean);
+                                    } else {
+                                        showMsgFailDialog();
+                                    }
+                                }
                             } else {
-                                onRetransmission(msgbean);
+                                showMsgFailDialog();
                             }
-
                         } else {
                             showMsgFailDialog();
                         }
@@ -6565,7 +6577,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             } else {
                                 showMsgFailDialog();
                             }
-                        }else {
+                        } else {
                             ToastUtil.showToast(ChatActivity.this, response.body().getMsg(), 1);
                         }
                     }
