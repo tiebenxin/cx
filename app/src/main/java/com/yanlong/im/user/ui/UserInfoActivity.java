@@ -141,6 +141,11 @@ public class UserInfoActivity extends AppActivity {
     private LinearLayout viewIntroduce;
     private TextView tv_introduce;
     private TextView tvJoinGroupName;
+    private LinearLayout layoutTrends;
+    private ImageView ivOne;//朋友圈最近4条动态
+    private ImageView ivTwo;
+    private ImageView ivThree;
+    private ImageView ivFour;
     private String mucNick;
     private int contactIntimately;
     private UserInfo userInfoLocal;
@@ -198,6 +203,11 @@ public class UserInfoActivity extends AppActivity {
         mViewLabel = findViewById(R.id.view_label);
         mViewPower = findViewById(R.id.view_power);
         txtPower = findViewById(R.id.txt_power);
+        layoutTrends = findViewById(R.id.layout_trends);
+        ivOne = findViewById(R.id.iv_one);
+        ivTwo = findViewById(R.id.iv_two);
+        ivThree = findViewById(R.id.iv_three);
+        ivFour = findViewById(R.id.iv_four);
     }
 
     //自动生成的控件事件
