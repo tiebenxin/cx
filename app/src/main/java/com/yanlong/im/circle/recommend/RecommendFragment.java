@@ -123,6 +123,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         MessageInfoBean infoBean = new Gson().fromJson(event.content, MessageInfoBean.class);
         MessageFlowItemBean flowItemBean = new MessageFlowItemBean(event.type, infoBean);
         mFollowList.add(0, flowItemBean);
+        bindingView.recyclerRecommend.smoothScrollToPosition(0);
         mFlowAdapter.notifyDataSetChanged();
     }
 
@@ -282,6 +283,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             if (type == CoreEnum.EClickType.CONTENT_DOWN) {
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
                 messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
+                if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                    postion = postion + 1;
+                }
                 mFlowAdapter.notifyItemChanged(postion);
             } else {
                 if (!DoubleUtils.isFastDoubleClick()) {
@@ -414,6 +418,15 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
                 if (mFlowAdapter.getHeaderLayoutCount() > 0) {
                     position = position + 1;
+                }
+                // 判断缓存是否有，有则更新
+                SpUtil spUtil = SpUtil.getSpUtil();
+                String value = spUtil.getSPValue(REFRESH_COUNT, "");
+                if (!TextUtils.isEmpty(value)) {
+                    MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
+                    if (infoBean.getId().longValue() == serverInfoBean.getId().longValue()) {
+                        spUtil.putSPValue(REFRESH_COUNT, new Gson().toJson(serverInfoBean));
+                    }
                 }
                 mFlowAdapter.notifyItemChanged(position);
             }

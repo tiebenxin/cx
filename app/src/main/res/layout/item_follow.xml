@@ -177,8 +177,8 @@
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:text="长沙市"
-                android:textColor="@color/gray_b2b"
-                android:textSize="15sp" />
+                android:textColor="@color/c_b1b1b1"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/iv_comment"
@@ -188,7 +188,7 @@
                 android:layout_centerVertical="true"
                 android:drawableLeft="@mipmap/ic_circle_common"
                 android:gravity="center_vertical"
-                android:minWidth="50dp"
+                android:minWidth="60dp"
                 android:textColor="@color/gray_b2b" />
 
             <TextView
@@ -199,7 +199,7 @@
                 android:layout_toLeftOf="@+id/iv_comment"
                 android:drawableLeft="@mipmap/ic_circle_give"
                 android:gravity="center_vertical"
-                android:minWidth="50dp"
+                android:minWidth="60dp"
                 android:textColor="@color/gray_b2b" />
 
         </RelativeLayout>

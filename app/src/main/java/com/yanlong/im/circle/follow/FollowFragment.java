@@ -402,6 +402,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             if (type == CoreEnum.EClickType.CONTENT_DOWN) {
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
                 messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
+                if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                    postion = postion + 1;
+                }
                 mFlowAdapter.notifyItemChanged(postion);
             } else {
                 if (!DoubleUtils.isFastDoubleClick()) {
