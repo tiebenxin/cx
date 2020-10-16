@@ -4379,10 +4379,25 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         super.onResponse(call, response);
                         if (response.body() != null && response.body().isOk()) {
                             if (response.body().getData() != null) {
-                                int size = response.body().getData().size();
+                                List<String> data = response.body().getData();
+                                int size = data.size();
                                 if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
-                                    if (size > 0) {
+                                    if (size == list.size()) {
                                         onRetransmission(msgbean);
+                                    } else if (size == 1) {
+                                        String md5 = data.get(0);
+                                        String url = "";
+                                        for (int i = 0; i < list.size(); i++) {
+                                            FileBean bean = list.get(i);
+                                            if (bean.getMd5().equals(md5)) {
+                                                url = bean.getUrl();
+                                            }
+                                        }
+                                        if (!TextUtils.isEmpty(url) && PictureMimeType.isVideoType(url)) {
+                                            onRetransmission(msgbean);
+                                        } else {
+                                            showMsgFailDialog();
+                                        }
                                     } else {
                                         showMsgFailDialog();
                                     }

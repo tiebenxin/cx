@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
@@ -840,19 +841,45 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                     super.onResponse(call, response);
                     if (response.body() != null && response.body().isOk()) {
-                        if (response.body().getData() != null && response.body().getData().size() <= 0) {
-                            showMsgFailDialog();
-                        } else {
-                            if (isCollect) {
-                                //收藏
-                                EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-                                eventCollectImgOrVideo.setMsgId(media.getMsg_id());
-                                EventBus.getDefault().post(eventCollectImgOrVideo);
+                        if (response.body().getData() != null) {
+                            List<String> data = response.body().getData();
+                            int size = data.size();
+                            if (size == list.size()) {
+                                if (isCollect) {
+                                    //收藏
+                                    EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                                    eventCollectImgOrVideo.setMsgId(media.getMsg_id());
+                                    EventBus.getDefault().post(eventCollectImgOrVideo);
+                                } else {
+                                    onRetransmission(finalMsgBean, collectJson);
+                                }
+                            } else if (size == 1) {
+                                String md5 = data.get(0);
+                                String url = "";
+                                for (int i = 0; i < list.size(); i++) {
+                                    FileBean bean = list.get(i);
+                                    if (bean.getMd5().equals(md5)) {
+                                        url = bean.getUrl();
+                                    }
+                                }
+                                if (!TextUtils.isEmpty(url) && PictureMimeType.isVideoType(url)) {
+                                    if (isCollect) {
+                                        //收藏
+                                        EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                                        eventCollectImgOrVideo.setMsgId(media.getMsg_id());
+                                        EventBus.getDefault().post(eventCollectImgOrVideo);
+                                    } else {
+                                        onRetransmission(finalMsgBean, collectJson);
+                                    }
+                                } else {
+                                    showMsgFailDialog();
+                                }
                             } else {
-                                onRetransmission(finalMsgBean, collectJson);
+                                showMsgFailDialog();
                             }
+                        } else {
+                            showMsgFailDialog();
                         }
-
                     } else {
                         showMsgFailDialog();
                     }
