@@ -70,10 +70,10 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
                 tvTitle.setText(item.getItem());
                 Drawable drawable = mContext.getResources().getDrawable(R.mipmap.img_vote_yes);
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
-                tvTitle.setCompoundDrawablePadding(ScreenUtil.dip2px(mContext, 15));
+                tvTitle.setCompoundDrawablePadding(ScreenUtil.dip2px(mContext, 10));
                 tvTitle.setCompoundDrawables(drawable, null, null, null);
             } else {
-                tvTitle.setText(positionConvert(helper.getAdapterPosition()) + "  " + item.getItem());
+                tvTitle.setText(positionConvert(helper.getAdapterPosition()) + "     " + item.getItem());
                 progressBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.pb_vote_txt_gray));
                 tvPercentage.setTextColor(mContext.getResources().getColor(R.color.c_474747));
             }

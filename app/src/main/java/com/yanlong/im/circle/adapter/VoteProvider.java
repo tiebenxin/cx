@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -14,9 +15,11 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,7 +29,12 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.provider.BaseItemProvider;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
@@ -35,6 +43,7 @@ import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -87,9 +96,13 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
 
     @Override
     public void convert(BaseViewHolder helper, MessageFlowItemBean<MessageInfoBean> data, int position) {
+        RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
+        RoundImageView ivVideo = helper.getView(R.id.iv_video);
+        ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
+        ProgressBar pbProgress = helper.getView(R.id.pb_progress);
         Glide.with(mContext)
                 .asBitmap()
                 .load(messageInfoBean.getAvatar())
@@ -109,6 +122,66 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             helper.setVisible(R.id.tv_location, true);
             helper.setText(R.id.tv_location, messageInfoBean.getPosition());
         }
+        AudioPlayUtil.stopAudioPlay();
+        // 附件
+        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+            List<AttachmentBean> attachmentBeans = null;
+            try {
+                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                        new TypeToken<List<AttachmentBean>>() {
+                        }.getType());
+            } catch (Exception e) {
+                attachmentBeans = new ArrayList<>();
+            }
+            if (messageInfoBean.getType() != null &&
+                    (messageInfoBean.getType() == PictureEnum.EContentType.VOICE ||
+                            messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
+                if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                    AttachmentBean attachmentBean = attachmentBeans.get(0);
+                    helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
+                    pbProgress.setProgress(0);
+                    ivVoicePlay.setOnClickListener(o -> {
+                        if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
+                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), ivVoicePlay, pbProgress);
+                        }
+                    });
+                }
+                recyclerView.setVisibility(View.GONE);
+                helper.setGone(R.id.rl_video, false);
+                helper.setVisible(R.id.layout_voice, true);
+            } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE ||
+                    messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE_AND_VOTE)) {
+                List<String> imgs = new ArrayList<>();
+                helper.setGone(R.id.layout_voice, false);
+                helper.setGone(R.id.rl_video, false);
+                recyclerView.setVisibility(View.VISIBLE);
+                if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                    for (AttachmentBean attachmentBean : attachmentBeans) {
+                        imgs.add(attachmentBean.getUrl());
+                    }
+                }
+                setRecycleView(recyclerView, imgs, position);
+            } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.VIDEO ||
+                    messageInfoBean.getType() == PictureEnum.EContentType.VIDEO_AND_VOTE)) {
+                helper.setVisible(R.id.rl_video, true);
+                recyclerView.setVisibility(View.GONE);
+                helper.setGone(R.id.layout_voice, false);
+                if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                    AttachmentBean attachmentBean = attachmentBeans.get(0);
+                    Glide.with(mContext)
+                            .asBitmap()
+                            .load(attachmentBean.getBgUrl())
+                            .apply(GlideOptionsUtil.headImageOptions())
+                            .into(ivVideo);
+                }
+
+            }
+        } else {
+            helper.setGone(R.id.layout_voice, false);
+            recyclerView.setVisibility(View.GONE);
+            helper.setGone(R.id.rl_video, false);
+        }
+        helper.setGone(R.id.iv_delete_voice, false);
         TextView tvContent = helper.getView(R.id.tv_content);
         tvContent.setText(getSpan(messageInfoBean.getContent()));
         if (isDetails) {
@@ -362,6 +435,78 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             spannableString = ExpressionUtil.getExpressionString(mContext, ExpressionUtil.DEFAULT_SIZE, msg);
         }
         return spannableString;
+    }
+
+    // 记录点下去X坐标
+    private float downX;
+    // 记录点下去Y坐标
+    private float downY;
+    // 获取该组件在屏幕的x坐标
+    private float deltaX;
+    // 获取该组件在屏幕的y坐标
+    private float deltaY;
+
+    /**
+     * 图片列表
+     *
+     * @param rv
+     * @param imgs
+     */
+    private void setRecycleView(RecyclerView rv, List<String> imgs, int postion) {
+        rv.setLayoutManager(new GridLayoutManager(mContext, 3));
+        ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
+        rv.setAdapter(taskAdapter);
+        taskAdapter.setNewData(imgs);
+        taskAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                AudioPlayUtil.stopAudioPlay();
+                toPictruePreview(position, imgs);
+            }
+        });
+        rv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // 获取该组件在屏幕的x坐标
+                deltaX = event.getRawX();
+                // 获取该组件在屏幕的y坐标
+                deltaY = event.getRawY();
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // 获取x坐标
+                        downX = event.getRawX();
+                        // 获取y坐标
+                        downY = event.getRawY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // 判断是否触发点击事件
+                        if (Math.abs(downX - deltaX) < 10 && Math.abs(downY - deltaY) < 10 && null != clickListener) {
+                            clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DETAILS, v);
+                        }
+                }
+                return true;
+            }
+        });
+    }
+
+    /**
+     * 查看图片
+     *
+     * @param postion 位置
+     * @param imgs    图片集合
+     */
+    private void toPictruePreview(int postion, List<String> imgs) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        for (String s : imgs) {
+            LocalMedia localMedia = new LocalMedia();
+            localMedia.setPath(s);
+            localMedia.setCompressPath(s);
+            selectList.add(localMedia);
+        }
+        PictureSelector.create((Activity) mContext)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview(postion, selectList);
     }
 
     /**

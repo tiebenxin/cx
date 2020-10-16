@@ -43,7 +43,6 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -99,8 +98,6 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
         ProgressBar pbProgress = helper.getView(R.id.pb_progress);
-        LogUtil.getLog().i("1212", "isDetails:" + isDetails + " postion:" +
-                position + " Content：" + messageInfoBean.getContent() + " likeCount:" + messageInfoBean.getLikeCount());
         if (isFollow || messageInfoBean.isFollow()) {
             helper.setVisible(R.id.iv_follow, true);
         } else {

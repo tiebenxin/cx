@@ -103,15 +103,15 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             if (mList != null && mList.size() > 0) {
                 switch (mCircleBean.getType()) {
                     case PictureEnum.EContentType.VOICE:
+                    case PictureEnum.EContentType.VOICE_AND_VOTE:
                         mPresenter.uploadFile(mList.get(0).getUrl(), PictureEnum.EContentType.VOICE, false, UpFileAction.PATH.VOICE);
                         break;
                     case PictureEnum.EContentType.VIDEO:
+                    case PictureEnum.EContentType.VIDEO_AND_VOTE:
                         mPresenter.uploadFile(mList.get(0).getBgUrl(), PictureEnum.EContentType.VIDEO, false, UpFileAction.PATH.VIDEO);
                         break;
                     case PictureEnum.EContentType.PICTRUE:
-                    case PictureEnum.EContentType.VOICE_AND_VOTE:
                     case PictureEnum.EContentType.PICTRUE_AND_VOTE:
-                    case PictureEnum.EContentType.VIDEO_AND_VOTE:
                         // 移除加号
                         List<LocalMedia> list = event.getList();
                         for (int i = list.size() - 1; i >= 0; i--) {
@@ -203,12 +203,14 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     private void setTitleBold(int position) {
         if (position == 0) {
             bindingView.rbRecommend.setChecked(true);
+            bindingView.rbFollow.setChecked(false);
             bindingView.rbRecommend.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             bindingView.rbFollow.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
             bindingView.rbRecommend.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             bindingView.rbFollow.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         } else {
             bindingView.rbFollow.setChecked(true);
+            bindingView.rbRecommend.setChecked(false);
             bindingView.rbRecommend.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
             bindingView.rbFollow.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             bindingView.rbRecommend.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
