@@ -3,9 +3,7 @@
     android:id="@+id/layout_vote_txt"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="11dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginRight="11dp">
+    android:layout_marginTop="8dp">
 
     <ProgressBar
         android:id="@+id/pb_progress"

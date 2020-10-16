@@ -1,6 +1,7 @@
 package com.yanlong.im.circle.recommend;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -31,10 +33,13 @@ import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.databinding.FragmentRecommendBinding;
+import com.yanlong.im.databinding.ViewNewCircleMessageBinding;
 import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
@@ -42,6 +47,7 @@ import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -71,6 +77,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     private Long mCurrentPage = 0l;
     private final int MAX_REFRESH_COUNT = 2;// 刷新次数大于2不显示
     private final int MAX_REFRESH_MINUTE = 2;// 超过3分钟不显示
+    ViewNewCircleMessageBinding messageBinding;
 
     protected RecommendPresenter createPresenter() {
         return new RecommendPresenter(getContext());
@@ -93,6 +100,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
         mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 0);
+
+        messageBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.view_new_circle_message, null, false);
+        mPresenter.getUnreadMsg();
     }
 
     @Override
@@ -127,8 +137,27 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 0);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void checkUnreadMsg(EventFactory.CheckUnreadMsgEvent event) {
+        mPresenter.getUnreadMsg();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateNewMsgEvent(EventFactory.UpdateNewMsgEvent event) {
+        mFlowAdapter.removeAllHeaderView();
+    }
+
     @Override
     public void initEvent() {
+        messageBinding.layoutNotice.setOnClickListener(v -> {
+            if (ViewUtils.isFastDoubleClick()) {
+                return;
+            }
+            mFlowAdapter.removeAllHeaderView();
+            EventBus.getDefault().post(new EventFactory.UpdateNewMsgEvent());
+            Intent intent = new Intent(getActivity(), MyInteractActivity.class);
+            startActivity(intent);
+        });
         bindingView.srlFollow.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@android.support.annotation.NonNull RefreshLayout refreshLayout) {
@@ -355,6 +384,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             messageInfoBean.setLikeCount(1);
         }
         messageInfoBean.setLike(like);
+        if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+            position = position + 1;
+        }
         mFlowAdapter.notifyItemChanged(position);
     }
 
@@ -380,6 +412,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 serverInfoBean.setAvatar(locationInfoBean.getAvatar());
                 serverInfoBean.setNickname(locationInfoBean.getNickname());
                 mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
+                if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                    position = position + 1;
+                }
                 mFlowAdapter.notifyItemChanged(position);
             }
         } catch (Exception e) {
@@ -395,6 +430,24 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             }
         } catch (Exception e) {
 
+        }
+    }
+
+    @Override
+    public void showUnreadMsg(int unCount, String avatar) {
+        //是否有未读互动消息
+        if (unCount > 0) {
+            if (mFlowAdapter.getHeaderLayoutCount() == 0) {
+                mFlowAdapter.addHeaderView(messageBinding.getRoot());
+            }
+            Glide.with(getActivity())
+                    .asBitmap()
+                    .load(avatar)
+                    .apply(GlideOptionsUtil.headImageOptions())
+                    .into(messageBinding.ivNoticeAvatar);
+            messageBinding.tvNotice.setText(unCount + "条新消息");
+        } else {
+            mFlowAdapter.removeAllHeaderView();
         }
     }
 }

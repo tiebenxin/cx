@@ -33,4 +33,6 @@ public interface FollowView extends IBaseView {
     void onShowMessage(String msg);
 
     void onCommentSuccess(boolean isAdd);
+
+    void showUnreadMsg(int unCount,String avatar);
 }

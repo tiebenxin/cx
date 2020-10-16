@@ -15,6 +15,8 @@
         <com.hm.cxpay.widget.CircleImageView
             android:id="@+id/iv_header"
             style="@style/app_img_head"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@mipmap/default_image" />
 
         <ImageView
@@ -22,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="34dp"
             android:src="@mipmap/ic_circle_follow"
             android:visibility="gone" />
     </FrameLayout>
@@ -48,8 +50,8 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:text="张三丰"
-                android:textColor="@color/gray_767"
-                android:textSize="16sp" />
+                android:textColor="@color/gray_757"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/tv_date"
@@ -87,7 +89,7 @@
                 android:paddingLeft="25dp"
                 android:paddingTop="15dp"
                 android:paddingRight="@dimen/app_margin_circle"
-                android:paddingBottom="15dp"
+                android:paddingBottom="10dp"
                 android:src="@mipmap/ic_circle_more" />
         </RelativeLayout>
 
@@ -101,8 +103,8 @@
             android:lineSpacingExtra="3dp"
             android:maxLines="3"
             android:scrollbars="none"
-            android:textColor="@color/gray_484"
-            android:textSize="15sp" />
+            android:textColor="@color/color_2A2"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tv_show_all"
@@ -118,24 +120,21 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginRight="15dp"
-            android:background="@drawable/circle_shape_pb_bg"
-            android:orientation="vertical"
-            android:paddingBottom="10dp">
+            android:orientation="vertical">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_vote"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/tv_vote_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="11dp"
                 android:layout_marginTop="10dp"
-                android:text="100人参与了投票"
+                android:text="0人参与了投票"
                 android:textColor="@color/color_527"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -143,7 +142,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_marginRight="@dimen/app_margin_circle"
             android:layout_marginBottom="5dp">
 
@@ -166,7 +164,7 @@
             <TextView
                 android:id="@+id/iv_comment"
                 android:layout_width="wrap_content"
-                android:layout_height="50dp"
+                android:layout_height="45dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:drawableLeft="@mipmap/ic_circle_common"
@@ -177,7 +175,7 @@
             <TextView
                 android:id="@+id/iv_like"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="45dp"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/iv_comment"
                 android:drawableLeft="@mipmap/ic_circle_give"

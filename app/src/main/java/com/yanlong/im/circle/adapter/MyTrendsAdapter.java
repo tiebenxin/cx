@@ -116,8 +116,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private int type;//1 我的朋友圈 2 别人的朋友圈
     private long friendUid;//朋友的uid
-    private List<String> listOne = Arrays.asList("置顶","取消置顶");
-    private List<String> listTwo = Arrays.asList("广场可见","仅好友可见","仅陌生人可见","自己可见");
+    private List<String> listOne = Arrays.asList("置顶", "取消置顶");
+    private List<String> listTwo = Arrays.asList("广场可见", "仅好友可见", "仅陌生人可见", "自己可见");
 
     private LayoutInflater inflater;
     private Activity activity;
@@ -138,13 +138,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private final int MAX_ROW_NUMBER = 3;
     private final String END_MSG = " 收起";
 
-    public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type,long friendUid) {
+    public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid) {
         inflater = LayoutInflater.from(activity);
         this.activity = activity;
         this.type = type;
         this.friendUid = friendUid;
         this.dataList = new ArrayList<>();
-        if(dataList!=null && dataList.size()>0){
+        if (dataList != null && dataList.size() > 0) {
             this.dataList.addAll(dataList);
         }
         init();
@@ -156,8 +156,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     //初始化相关设置
     private void init() {
-        dislike = activity.getResources().getDrawable(R.mipmap.ic_circle_give,null);
-        like = activity.getResources().getDrawable(R.mipmap.ic_circle_like,null);
+        dislike = activity.getResources().getDrawable(R.mipmap.ic_circle_give, null);
+        like = activity.getResources().getDrawable(R.mipmap.ic_circle_like, null);
         dislike.setBounds(0, 0, dislike.getMinimumWidth(), dislike.getMinimumHeight());
         like.setBounds(0, 0, like.getMinimumWidth(), like.getMinimumHeight());
         action = new TempAction();
@@ -173,9 +173,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .skipMemoryCache(false)
                 .error(com.yanlong.im.R.mipmap.ic_trend_default_bg)
                 .centerCrop();
-        if(type==1){
+        if (type == 1) {
             userBean = (UserBean) new UserAction().getMyInfo();
-        }else {
+        } else {
             userBean = new UserBean();
             httpGetUserInfo(friendUid);
         }
@@ -195,18 +195,18 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //设置头部数据
-    public void setTopData(CircleTrendsBean topData){
+    public void setTopData(CircleTrendsBean topData) {
         this.topData = topData;
     }
 
     //更新背景图
-    public void notifyBackground(String localPath){
+    public void notifyBackground(String localPath) {
         topData.setBgImage(localPath);
         notifyItemChanged(0);//第一项是头部
     }
 
     //展示顶部通知
-    public void showNotice(boolean haveNewMsg,String avatar,int size){
+    public void showNotice(boolean haveNewMsg, String avatar, int size) {
         this.haveNewMsg = haveNewMsg;
         this.noticeAvatar = avatar;
         this.noticeSize = size;
@@ -214,7 +214,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //是否关注
-    public void ifFollow(boolean isFollow){
+    public void ifFollow(boolean isFollow) {
         this.isFollow = isFollow;
     }
 
@@ -224,10 +224,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //更新某一条投票数据
-    public void updateOneData(int position,MessageInfoBean messageInfoBean){
-        if(messageInfoBean.getVoteAnswer()!=null){
+    public void updateOneData(int position, MessageInfoBean messageInfoBean) {
+        if (messageInfoBean.getVoteAnswer() != null) {
             dataList.get(position).setVoteAnswer(messageInfoBean.getVoteAnswer());
-            notifyItemChanged(position+1);//考虑到头部，第一条数据的位置是1
+            notifyItemChanged(position + 1);//考虑到头部，第一条数据的位置是1
         }
     }
 
@@ -258,44 +258,44 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (viewHolder instanceof MyTrendsAdapter.ContentHolder) {
             ContentHolder holder = (ContentHolder) viewHolder;
             if (dataList != null && dataList.size() > 0) {
-                if (dataList.get(position-1) != null) {
-                    MessageInfoBean bean = dataList.get(position-1);
+                if (dataList.get(position - 1) != null) {
+                    MessageInfoBean bean = dataList.get(position - 1);
                     //时间
                     holder.tvCreateTime.setText(TimeToString.YYYY_MM_DD_HH_MM(bean.getCreateTime()));
                     //内容
-                    if(!TextUtils.isEmpty(bean.getContent())){
+                    if (!TextUtils.isEmpty(bean.getContent())) {
                         holder.tvText.setText(getSpan(bean.getContent()));
-                    }else {
+                    } else {
                         holder.tvText.setText("");
                     }
                     //TODO 这个展开收起好像有点问题，"收起项"时有时无，且加载更多时全屏抖动
 //                    toggleEllipsize(activity, holder.tvText, MAX_ROW_NUMBER, bean.getContent(),
 //                            "展开", R.color.blue_500, bean.isShowAll(), position, bean);
                     //位置
-                    if(!TextUtils.isEmpty(bean.getPosition())){
+                    if (!TextUtils.isEmpty(bean.getPosition())) {
                         holder.tvLocation.setText(bean.getPosition());
                         holder.tvLocation.setVisibility(View.VISIBLE);
-                    }else {
-                        if(!TextUtils.isEmpty(bean.getCity())){
+                    } else {
+                        if (!TextUtils.isEmpty(bean.getCity())) {
                             holder.tvLocation.setText(bean.getCity());
                             holder.tvLocation.setVisibility(View.VISIBLE);
-                        }else {
+                        } else {
                             holder.tvLocation.setVisibility(View.GONE);
                         }
                     }
                     //点赞数 评论数
-                    holder.tvLike.setText(bean.getLikeCount()+"");
-                    holder.tvComment.setText(bean.getCommentCount()+"");
+                    holder.tvLike.setText(bean.getLikeCount() + "");
+                    holder.tvComment.setText(bean.getCommentCount() + "");
                     //说说可见度
-                    if(type==1){
+                    if (type == 1) {
                         holder.tvCanSee.setVisibility(View.VISIBLE);
-                        if(bean.getVisibility()==0){
+                        if (bean.getVisibility() == 0) {
                             holder.tvCanSee.setText("广场可见");
-                        }else if(bean.getVisibility()==1){
+                        } else if (bean.getVisibility() == 1) {
                             holder.tvCanSee.setText("好友可见");
-                        }else if(bean.getVisibility()==2){
+                        } else if (bean.getVisibility() == 2) {
                             holder.tvCanSee.setText("陌生人可见");
-                        }else {
+                        } else {
                             holder.tvCanSee.setText("自己可见");
                         }
                         holder.ivSetup.setVisibility(View.VISIBLE);
@@ -308,13 +308,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         @Override
                                         public void selectOne() {
                                             //置顶
-                                            httpIsTop(bean.getId(),1);
+                                            httpIsTop(bean.getId(), 1);
                                         }
 
                                         @Override
                                         public void selectTwo() {
                                             //取消置顶
-                                            httpIsTop(bean.getId(),0);
+                                            httpIsTop(bean.getId(), 0);
                                         }
 
                                         @Override
@@ -341,25 +341,25 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         @Override
                                         public void selectOne() {
                                             //广场可见
-                                            httpSetVisibility(bean.getId(),0,holder.tvCanSee,position-1);
+                                            httpSetVisibility(bean.getId(), 0, holder.tvCanSee, position - 1);
                                         }
 
                                         @Override
                                         public void selectTwo() {
                                             //好友可见
-                                            httpSetVisibility(bean.getId(),1,holder.tvCanSee,position-1);
+                                            httpSetVisibility(bean.getId(), 1, holder.tvCanSee, position - 1);
                                         }
 
                                         @Override
                                         public void selectThree() {
                                             //陌生人可见
-                                            httpSetVisibility(bean.getId(),2,holder.tvCanSee,position-1);
+                                            httpSetVisibility(bean.getId(), 2, holder.tvCanSee, position - 1);
                                         }
 
                                         @Override
                                         public void selectFour() {
                                             //自己可见
-                                            httpSetVisibility(bean.getId(),3,holder.tvCanSee,position-1);
+                                            httpSetVisibility(bean.getId(), 3, holder.tvCanSee, position - 1);
                                         }
 
                                         @Override
@@ -372,7 +372,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 @Override
                                 public void clickDelete() {
                                     //删除动态
-                                    httpDeleteTrend(bean.getId(),position);
+                                    httpDeleteTrend(bean.getId(), position);
                                 }
 
                                 @Override
@@ -381,13 +381,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 }
                             });
                         });
-                    }else {
+                    } else {
                         holder.tvCanSee.setVisibility(View.GONE);
                         holder.ivSetup.setVisibility(View.GONE);
                     }
                     //跳详情(拼凑一下昵称和头像)
                     holder.layoutItem.setOnClickListener(v -> {
-                                if(userBean!=null){
+                                if (userBean != null) {
                                     if (!TextUtils.isEmpty(userBean.getHead())) {
                                         bean.setAvatar(userBean.getHead());
                                     }
@@ -399,24 +399,24 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                     );
                     //是否置顶
-                    if(bean.getIsTop()==0){
+                    if (bean.getIsTop() == 0) {
                         holder.ivIstop.setVisibility(View.GONE);
                         holder.tvIstop.setVisibility(View.GONE);
-                    }else {
+                    } else {
                         holder.ivIstop.setVisibility(View.VISIBLE);
                         holder.tvIstop.setVisibility(View.VISIBLE);
                     }
                     //是否点赞
-                    if(bean.getLike()==0){
-                        holder.tvLike.setCompoundDrawables(dislike,null,null,null);
-                    }else {
-                        holder.tvLike.setCompoundDrawables(like,null,null,null);
+                    if (bean.getLike() == 0) {
+                        holder.tvLike.setCompoundDrawables(dislike, null, null, null);
+                    } else {
+                        holder.tvLike.setCompoundDrawables(like, null, null, null);
                     }
                     holder.tvLike.setOnClickListener(v -> {
-                        if(bean.getLike()==0){
-                            httpLike(bean.getId(),bean.getUid(),holder.tvLike,position-1,bean.getLikeCount());
-                        }else {
-                            httpCancleLike(bean.getId(),bean.getUid(),holder.tvLike,position-1,bean.getLikeCount());
+                        if (bean.getLike() == 0) {
+                            httpLike(bean.getId(), bean.getUid(), holder.tvLike, position - 1, bean.getLikeCount());
+                        } else {
+                            httpCancleLike(bean.getId(), bean.getUid(), holder.tvLike, position - 1, bean.getLikeCount());
                         }
                     });
                     //根据附件显示不同类型语音、图片、视频
@@ -475,7 +475,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 });
                             }
                         }
-                    }else {
+                    } else {
                         holder.recyclerView.setVisibility(View.GONE);
                         holder.layoutVideo.setVisibility(View.GONE);
                         holder.layoutVoice.setVisibility(View.GONE);
@@ -485,19 +485,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.layoutVote.setVisibility(View.VISIBLE);
                         VoteBean voteBean = new Gson().fromJson(bean.getVote(), VoteBean.class);
                         //若我点击是postion是1，由于有头部，取数据则是从0开始起，故需要-1
-                        setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position-1,
+                        setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position - 1,
                                 bean.getVoteAnswer().getSelfAnswerItem(),
                                 getVoteSum(bean.getVoteAnswer().getSumDataList())
                                 , bean.getVoteAnswer().getSumDataList());
-                    }else {
+                    } else {
                         holder.layoutVote.setVisibility(View.GONE);
                     }
-                    if(bean.getVoteAnswer()!=null && bean.getVoteAnswer().getSumDataList()!=null && bean.getVoteAnswer().getSumDataList().size()>0){
+                    if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
                         holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer().getSumDataList()) + "人参与了投票");
                     }
                 }
             }
-        } else if(viewHolder instanceof MyTrendsAdapter.FootHolder){
+        } else if (viewHolder instanceof MyTrendsAdapter.FootHolder) {
             //加载更多-尾部
             FootHolder holder = (FootHolder) viewHolder;
             switch (loadState) {
@@ -525,11 +525,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 default:
                     break;
             }
-        }else {
+        } else {
             //头部
             HeadHolder holder = (HeadHolder) viewHolder;
             //展示头部数据
-            if(topData!=null){
+            if (topData != null) {
                 //第一页拿部分数据，我关注的，关注我的，看过我的总数
                 holder.tvMyFollowNum.setText(topData.getMyFollowCount() + "");
                 holder.tvFollowMeNum.setText(topData.getFollowMyCount() + "");
@@ -538,16 +538,16 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (!TextUtils.isEmpty(topData.getBgImage())) {
                     Glide.with(activity).load(topData.getBgImage())
                             .apply(bgRequestOptions).into(holder.ivBackground);
-                }else {
+                } else {
                     Glide.with(activity).load(R.mipmap.ic_trend_default_bg)
                             .apply(bgRequestOptions).into(holder.ivBackground);
                 }
-            }else {
+            } else {
                 Glide.with(activity).load(R.mipmap.ic_trend_default_bg)
                         .apply(bgRequestOptions).into(holder.ivBackground);
             }
             //新消息提醒
-            if(haveNewMsg){
+            if (haveNewMsg) {
                 holder.layoutNotice.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(noticeAvatar)) {
                     Glide.with(activity)
@@ -559,10 +559,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             .load(R.drawable.ic_info_head)
                             .into(holder.ivNoticeAvatar);
                 }
-                if(noticeSize!=0){
-                    holder.tvNotice.setText(noticeSize+"条新消息");
+                if (noticeSize != 0) {
+                    holder.tvNotice.setText(noticeSize + "条新消息");
                 }
-            }else {
+            } else {
                 holder.layoutNotice.setVisibility(View.GONE);
             }
             holder.layoutNotice.setOnClickListener(v -> {
@@ -595,8 +595,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 activity.startActivity(intent);
             });
             //我的动态顶部样式
-            if(userBean!=null){
-                if(type==1){
+            if (userBean != null) {
+                if (type == 1) {
                     holder.layoutCenter.setVisibility(View.VISIBLE);
                     holder.ivFriendHeader.setVisibility(View.GONE);
                     holder.tvFriendName.setVisibility(View.GONE);
@@ -641,7 +641,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             ToastUtil.show("请允许访问权限");
                         }
                     }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
-                }else {
+                } else {
                     //好友的动态顶部样式
                     holder.layoutCenter.setVisibility(View.GONE);
                     holder.ivFriendHeader.setVisibility(View.VISIBLE);
@@ -677,10 +677,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (position == TYPE_CONTENT) {
             View itemView = inflater.inflate(R.layout.item_trend, parent, false);
             return new MyTrendsAdapter.ContentHolder(itemView);
-        } else if (position == TYPE_FOOTER){
+        } else if (position == TYPE_FOOTER) {
             View itemView = inflater.inflate(R.layout.main_footer_layout, parent, false);
             return new MyTrendsAdapter.FootHolder(itemView);
-        }else {
+        } else {
             View itemView = inflater.inflate(R.layout.trend_head, parent, false);
             return new MyTrendsAdapter.HeadHolder(itemView);
         }
@@ -805,14 +805,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    private void gotoCircleDetailsActivity(boolean isOpen,MessageInfoBean messageInfoBean) {
+    private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
-        if(!TextUtils.isEmpty(messageInfoBean.getVote())){//是否含有投票
+        if (!TextUtils.isEmpty(messageInfoBean.getVote())) {//是否含有投票
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_VOTE);
-        }else {
+        } else {
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_DEFAULT);
         }
         postcard.navigation();
@@ -821,19 +821,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->点赞
      */
-    private void httpLike(long id,long uid, TextView tvLike,int position,int oldCount) {
-        action.httpLike(id,uid, new CallBack<ReturnBean>() {
+    private void httpLike(long id, long uid, TextView tvLike, int position, int oldCount) {
+        action.httpLike(id, uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("点赞成功");
                     dataList.get(position).setLike(1);
-                    dataList.get(position).setLikeCount(oldCount+1);
-                    notifyItemChanged(position+1,tvLike);
+                    dataList.get(position).setLikeCount(oldCount + 1);
+                    notifyItemChanged(position + 1, tvLike);
                 }
             }
 
@@ -848,19 +848,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->取消点赞
      */
-    private void httpCancleLike(long id,long uid, TextView tvLike,int position,int oldCount) {
-        action.httpCancleLike(id,uid, new CallBack<ReturnBean>() {
+    private void httpCancleLike(long id, long uid, TextView tvLike, int position, int oldCount) {
+        action.httpCancleLike(id, uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("已取消点赞");
                     dataList.get(position).setLike(0);
-                    dataList.get(position).setLikeCount(oldCount-1);
-                    notifyItemChanged(position+1,tvLike);
+                    dataList.get(position).setLikeCount(oldCount - 1);
+                    notifyItemChanged(position + 1, tvLike);
                 }
             }
 
@@ -875,18 +875,18 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->置顶
      */
-    private void httpIsTop(long id,int isTop) {
-        action.httpIsTop(id,isTop, new CallBack<ReturnBean>() {
+    private void httpIsTop(long id, int isTop) {
+        action.httpIsTop(id, isTop, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
-                    if(isTop==1){
+                if (response.body().isOk()) {
+                    if (isTop == 1) {
                         ToastUtil.show("置顶成功");
-                    }else {
+                    } else {
                         ToastUtil.show("取消置顶成功");
                     }
                     refreshListenr.onRefresh();
@@ -896,9 +896,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                if(isTop==1){
+                if (isTop == 1) {
                     ToastUtil.show("置顶失败");
-                }else {
+                } else {
                     ToastUtil.show("取消置顶失败");
                 }
             }
@@ -908,18 +908,18 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->修改可见度
      */
-    private void httpSetVisibility(long id,int visibility, TextView tvCanSee,int position) {
-        action.httpSetVisibility(id,visibility, new CallBack<ReturnBean>() {
+    private void httpSetVisibility(long id, int visibility, TextView tvCanSee, int position) {
+        action.httpSetVisibility(id, visibility, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("设置成功");
                     dataList.get(position).setVisibility(visibility);
-                    notifyItemChanged(position+1,tvCanSee);
+                    notifyItemChanged(position + 1, tvCanSee);
                 }
             }
 
@@ -935,7 +935,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->删除动态
      */
-    private void httpDeleteTrend(long id,int position) {
+    private void httpDeleteTrend(long id, int position) {
         action.httpDeleteTrend(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -943,11 +943,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("删除成功");
-                    dataList.remove(position-1);//删除数据源,移除集合中当前下标的数据
+                    dataList.remove(position - 1);//删除数据源,移除集合中当前下标的数据
                     notifyItemRemoved(position);//刷新被删除的地方
-                    notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
+                    notifyItemRangeChanged(position, getItemCount()); //刷新被删除数据，以及其后面的数据
                 }
             }
 
@@ -969,10 +969,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
                 UserInfo mUserInfo = response.body().getData();
                 //只要拿用户最新昵称和头像
-                if(!TextUtils.isEmpty(mUserInfo.getHead())){
+                if (!TextUtils.isEmpty(mUserInfo.getHead())) {
                     userBean.setHead(mUserInfo.getHead());
                 }
-                if(!TextUtils.isEmpty(mUserInfo.getName())){
+                if (!TextUtils.isEmpty(mUserInfo.getName())) {
                     userBean.setName(mUserInfo.getName());
                 }
                 notifyItemChanged(0);
@@ -1051,7 +1051,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
                                 int isVote, int voteSum, List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
         rv.setLayoutManager(new LinearLayoutManager(activity));
-        VoteAdapter taskAdapter = new VoteAdapter(type, isVote, voteSum, sumDataList);
+        VoteAdapter taskAdapter = new VoteAdapter(0, type, isVote, voteSum, sumDataList);
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -1088,7 +1088,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 super.onResponse(call, response);
                 if (response.code() == 200) {
                     ToastUtil.show("投票成功");
-                    queryById(vid,vUid,parentPostion);
+                    queryById(vid, vUid, parentPostion);
                 } else {
                     ToastUtil.show(response.message());
                 }
@@ -1127,7 +1127,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 MessageInfoBean locationInfoBean = dataList.get(position);
                                 serverInfoBean.setAvatar(locationInfoBean.getAvatar());
                                 serverInfoBean.setNickname(locationInfoBean.getNickname());
-                                updateOneData(position,serverInfoBean);
+                                updateOneData(position, serverInfoBean);
                             }
                         } catch (Exception e) {
                         }
@@ -1227,7 +1227,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             @Override
             public void onClick(@NonNull View widget) {
-                MessageInfoBean messageInfoBean = dataList.get(postion-1);
+                MessageInfoBean messageInfoBean = dataList.get(postion - 1);
                 messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
                 notifyItemChanged(postion);
             }

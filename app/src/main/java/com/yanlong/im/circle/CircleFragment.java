@@ -1,6 +1,5 @@
 package com.yanlong.im.circle;
 
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,13 +7,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
@@ -27,9 +24,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.rxbus2.RxBus;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.bean.CircleTitleBean;
-import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendFragment;
@@ -41,7 +36,6 @@ import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
-import net.cb.cb.library.utils.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -66,8 +60,6 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     private List<AttachmentBean> mList;
     private List<CircleTitleBean> mVotePictrueList;
     private DialogLoadingProgress mLoadingProgress;
-    private MsgDao msgDao;
-    private RequestOptions mRequestOptions;
 
     @Override
     protected CirclePresenter createPresenter() {
@@ -95,13 +87,8 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         bindingView.viewPager.setAdapter(mViewPagerAdapter);
         bindingView.viewPager.setOffscreenPageLimit(mPresenter.getListFragment().size());
         bindingView.viewPager.setCurrentItem(0);
-        //图片相关设置
-        mRequestOptions = RequestOptions.centerInsideTransform()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .skipMemoryCache(false)
-                .placeholder(com.yanlong.im.R.drawable.ic_info_head)
-                .error(com.yanlong.im.R.drawable.ic_info_head)
-                .centerCrop();
+
+        mPresenter.latestData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -149,6 +136,11 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         } else {
             mPresenter.setParams(mCircleBean);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateRedEvent(EventFactory.UpdateRedEvent event) {
+        bindingView.ivFollow.setVisibility(View.GONE);
     }
 
     @Override
@@ -206,15 +198,6 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                     .selectArtworkMaster(true)
                     .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
         });
-        getUnreadMsg();
-        bindingView.layoutNotice.setOnClickListener(v -> {
-            if (ViewUtils.isFastDoubleClick()) {
-                return;
-            }
-            bindingView.layoutNotice.setVisibility(View.GONE);
-            Intent intent = new Intent(getActivity(), MyInteractActivity.class);
-            startActivity(intent);
-        });
     }
 
     private void setTitleBold(int position) {
@@ -222,10 +205,14 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             bindingView.rbRecommend.setChecked(true);
             bindingView.rbRecommend.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             bindingView.rbFollow.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+            bindingView.rbRecommend.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            bindingView.rbFollow.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         } else {
             bindingView.rbFollow.setChecked(true);
             bindingView.rbRecommend.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
             bindingView.rbFollow.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+            bindingView.rbRecommend.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            bindingView.rbFollow.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         }
     }
 
@@ -301,6 +288,15 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         dismiss();
     }
 
+    @Override
+    public void showRedDot(int redPoint) {
+        if (redPoint == 1) {
+            bindingView.ivFollow.setVisibility(View.VISIBLE);
+        } else {
+            bindingView.ivFollow.setVisibility(View.GONE);
+        }
+    }
+
     public class ViewPagerAdapter extends FragmentPagerAdapter {
         private List<Fragment> mFragments;
 
@@ -319,41 +315,5 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         public Fragment getItem(int position) {
             return mFragments.get(position);
         }
-    }
-
-    //顶部未读消息悬浮
-    private void getUnreadMsg() {
-        msgDao = new MsgDao();
-        //是否有未读互动消息
-        if(msgDao.getUnreadMsgList()!=null && msgDao.getUnreadMsgList().size()>0){
-            String avatar = "";
-            int size = msgDao.getUnreadMsgList().size();
-            if(msgDao.getUnreadMsgList().get(0)!=null){
-                if(!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())){
-                    avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
-                }
-            }
-            bindingView.layoutNotice.setVisibility(View.VISIBLE);
-            if (!TextUtils.isEmpty(avatar)) {
-                Glide.with(getActivity())
-                        .load(avatar)
-                        .apply(mRequestOptions)
-                        .into(bindingView.ivNoticeAvatar);
-            } else {
-                Glide.with(getActivity())
-                        .load(R.drawable.ic_info_head)
-                        .into(bindingView.ivNoticeAvatar);
-            }
-            if(size!=0){
-                bindingView.tvNotice.setText(size+"条新消息");
-            }
-        }else {
-            bindingView.layoutNotice.setVisibility(View.GONE);
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void checkUnreadMsg(EventFactory.CheckUnreadMsgEvent event) {
-        getUnreadMsg();
     }
 }

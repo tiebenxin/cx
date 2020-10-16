@@ -2,74 +2,81 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_vote_pictrue"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="11dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginRight="11dp">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/layout_vote_bg"
-        android:layout_width="match_parent"
-        android:layout_height="57dp"
-        android:background="@drawable/shape_vote_pictrue_gray"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+    <RelativeLayout
+        android:id="@+id/relative_layout"
+        android:layout_width="101dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginRight="6dp">
 
-        <com.yanlong.im.wight.avatar.RoundImageView
-            android:id="@+id/iv_picture"
-            style="@style/app_img_head"
-            android:layout_width="54dp"
-            android:scaleType="fitXY"
-            android:layout_height="54dp"
-            android:layout_marginLeft="1dp"
-            android:layout_marginRight="10dp"
-            app:radius="3dp" />
+        <com.yanlong.im.view.RadiusCardView
+            android:id="@+id/card_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:rcv_bottomLeftRadiu="0dp"
+            app:rcv_bottomRightRadiu="0dp"
+            app:rcv_topLeftRadiu="4dp"
+            app:rcv_topRightRadiu="4dp">
+
+            <ImageView
+                android:id="@+id/iv_picture"
+                style="@style/app_img_head"
+                android:layout_width="match_parent"
+                android:layout_height="101dp" />
+        </com.yanlong.im.view.RadiusCardView>
 
         <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:id="@+id/layout_vote_bg"
+            android:layout_width="match_parent"
+            android:layout_height="37dp"
+            android:layout_below="@+id/card_view"
+            android:background="@drawable/shape_vote_pictrue_gray"
             android:gravity="center_vertical">
+
+            <ProgressBar
+                android:id="@+id/pb_progress"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/pb_vote_progress_gray" />
+
+            <RadioButton
+                android:id="@+id/rb_buttom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:button="@mipmap/img_vote_default"
+                android:text="  选项A"
+                android:textColor="@color/c_474747"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="A"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="12dp"
                 android:textColor="@color/c_474747"
                 android:textSize="15sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_percentage"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tv_title"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal">
-
-                <ProgressBar
-                    android:id="@+id/pb_progress"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="9dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:max="100"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/pb_voice_pictrue_gray" />
-
-                <TextView
-                    android:id="@+id/tv_percentage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:text="0.0%"
-                    android:textColor="@color/c_474747"
-                    android:textSize="15sp" />
-            </LinearLayout>
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp"
+                android:text="0.0%"
+                android:textColor="@color/c_474747"
+                android:textSize="15sp"
+                android:visibility="gone" />
         </RelativeLayout>
-    </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>

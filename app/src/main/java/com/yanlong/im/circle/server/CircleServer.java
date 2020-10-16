@@ -67,4 +67,7 @@ public interface CircleServer {
 
     @POST("square/moment/update-visibility")
     Call<ReturnBean> updateVisibility(@Body WeakHashMap<String, Object> params);
+
+    @POST("square/user/latest-data")
+    Call<ReturnBean> latestData(@Body WeakHashMap<String, Object> params);
 }
