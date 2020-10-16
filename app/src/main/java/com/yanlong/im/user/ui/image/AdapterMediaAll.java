@@ -183,6 +183,7 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                     }
                 }).into(ivImage);
             } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                tvGif.setVisibility(View.GONE);
                 tvDuration.setVisibility(View.VISIBLE);
                 VideoMessage videoMessage = bean.getVideoMessage();
                 Glide.with(getContext()).load(videoMessage.getBg_url()).into(ivImage);
