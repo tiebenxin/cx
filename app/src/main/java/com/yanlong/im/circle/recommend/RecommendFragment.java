@@ -17,8 +17,10 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.scwang.smartrefresh.header.MaterialHeader;
@@ -75,6 +77,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     public static final String REFRESH_COUNT = "refresh_count";
     private final int PAGE_SIZE = 8;
     private Long mCurrentPage = 0l;
+    private boolean mIsAddLocation = false;// 是否添加了本地
     private final int MAX_REFRESH_COUNT = 2;// 刷新次数大于2不显示
     private final int MAX_REFRESH_MINUTE = 2;// 超过3分钟不显示
     ViewNewCircleMessageBinding messageBinding;
@@ -122,9 +125,13 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     public void addRecomendEvent(EventFactory.AddRecomendEvent event) {
         MessageInfoBean infoBean = new Gson().fromJson(event.content, MessageInfoBean.class);
         MessageFlowItemBean flowItemBean = new MessageFlowItemBean(event.type, infoBean);
+        if (mIsAddLocation) {
+            mFollowList.remove(0);
+        }
         mFollowList.add(0, flowItemBean);
-        bindingView.recyclerRecommend.smoothScrollToPosition(0);
+        bindingView.recyclerRecommend.scrollToPosition(0);
         mFlowAdapter.notifyDataSetChanged();
+        mIsAddLocation = true;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -184,9 +191,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-                if (DoubleUtils.isFastDoubleClick()) {
-                    return;
-                }
+//                if (DoubleUtils.isFastDoubleClick()) {
+//                    return;
+//                }
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 switch (view.getId()) {
                     case R.id.iv_comment:// 评论
@@ -195,7 +202,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     case R.id.iv_header:// 头像
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, messageInfoBean.getUid())
-                                .putExtra(UserInfoActivity.SHOW_TRENDS,true));
+                                .putExtra(UserInfoActivity.SHOW_TRENDS, true));
                         break;
                     case R.id.iv_like:// 点赞
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
@@ -246,13 +253,18 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
-
-                        Intent intent = new Intent(getContext(), VideoPlayActivity.class);
-                        if (attachmentBeans.size() > 0) {
-                            intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                        if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
+                            List<String> imgs = new ArrayList<>();
+                            imgs.add(attachmentBeans.get(0).getUrl());
+                            toPictruePreview(0, imgs);
+                        } else {
+                            Intent intent = new Intent(getContext(), VideoPlayActivity.class);
+                            if (attachmentBeans.size() > 0) {
+                                intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                            }
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(intent);
                         }
-                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(intent);
                         break;
                 }
             }
@@ -268,6 +280,26 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, mFlowAdapter.getData().get(position).getItemType());
         postcard.navigation();
+    }
+
+    /**
+     * 查看图片
+     *
+     * @param postion 位置
+     * @param imgs    图片集合
+     */
+    private void toPictruePreview(int postion, List<String> imgs) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        for (String s : imgs) {
+            LocalMedia localMedia = new LocalMedia();
+            localMedia.setPath(s);
+            localMedia.setCompressPath(s);
+            selectList.add(localMedia);
+        }
+        PictureSelector.create(getActivity())
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview(postion, selectList);
     }
 
     /**
@@ -353,7 +385,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             }
 
             if (mCurrentPage == 0) {
-                bindingView.recyclerRecommend.smoothScrollToPosition(0);
+                bindingView.recyclerRecommend.scrollToPosition(0);
             }
         }
         bindingView.srlFollow.finishRefresh();

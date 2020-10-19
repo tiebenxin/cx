@@ -131,6 +131,7 @@ public class TimeToString {
 
     /**
      * 收藏时间显示规则
+     *
      * @param timeStamp
      * @return
      */
@@ -142,20 +143,20 @@ public class TimeToString {
         int todaySeconds = curDate.getSeconds();
         int todayMillis = (todayHoursSeconds + todayMinutesSeconds + todaySeconds) * 1000;
         long todayStartMillis = curTimeMillis - todayMillis;
-        if(timeStamp >= todayStartMillis) {
+        if (timeStamp >= todayStartMillis) {
             return "今天";
         }
         int oneDayMillis = 24 * 60 * 60 * 1000;
         long yesterdayStartMilis = todayStartMillis - oneDayMillis;
-        if(timeStamp >= yesterdayStartMilis) {
+        if (timeStamp >= yesterdayStartMilis) {
             return "昨天";
         }
         long yesterdayBeforeStartMilis = yesterdayStartMilis - oneDayMillis;
-        if(timeStamp >= yesterdayBeforeStartMilis) {
+        if (timeStamp >= yesterdayBeforeStartMilis) {
             return "前天";
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return  sdf.format(new Date(timeStamp));
+        return sdf.format(new Date(timeStamp));
     }
 
 
@@ -246,5 +247,45 @@ public class TimeToString {
             }
         }
         return result;
+    }
+
+    /**
+     * 广场动态时间转换
+     *
+     * @param timestamp
+     * @return
+     */
+    public static String formatCircleDate(Long timestamp) {
+        long nd = 1000 * 24 * 60 * 60;
+        long nh = 1000 * 60 * 60;
+        long nm = 1000 * 60;
+//        long ns = 1000;
+        // 获得两个时间的秒时间差异
+        long diff = System.currentTimeMillis() - timestamp;
+        // 计算差多少天
+        long day = diff / nd;
+        // 计算差多少小时
+        long hour = diff % nd / nh;
+        // 计算差多少分钟
+        long min = diff % nd % nh / nm;
+        // 计算差多少秒//输出结果
+//        long sec = diff % nd % nh % nm / ns;
+        String res = "";
+        if (day > 7) {// 1个星期以前：显示年-月-日（2019-2-24 ）
+            res = getTime(timestamp, "yyyy-MM-dd");
+        } else if (day > 2) {// 前天到1个星期内：多少天前（3天前）
+            res = day + "天前";
+        } else if (day == 2) {// 前天 时:分 （前天17:10）
+            res = "前天" + getTime(timestamp, "HH:mm");
+        } else if (day == 1) {// 前天 时:分 （前天17:10）
+            res = "昨天" + getTime(timestamp, "HH:mm");
+        } else if (hour > 1) {// 1小时以上，当日以内：多少小时前（2小时前）
+            res = hour + "小时前";
+        } else if (min > 2) {// 2~60分钟：多少分钟前（10分钟前）
+            res = min + "分钟前";
+        } else {
+            res = "刚刚";
+        }
+        return res;
     }
 }

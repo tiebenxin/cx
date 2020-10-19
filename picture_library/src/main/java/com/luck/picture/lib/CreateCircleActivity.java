@@ -756,13 +756,14 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             for (LocalMedia localMedia : mList) {
                 if (!localMedia.isShowAdd()) {
                     AttachmentBean attachment = new AttachmentBean();
+                    attachment.setUrl(localMedia.getPath());
+                    attachment.setWidth(localMedia.getWidth());
+                    attachment.setHeight(localMedia.getHeight());
                     if (PictureMimeType.isPictureType(localMedia.getPictureType()) == PictureMimeType.ofImage()) {
-                        attachment.setUrl(localMedia.getPath());
                         attachment.setType(PictureEnum.EContentType.PICTRUE);
                         circleBean.setType(PictureEnum.EContentType.PICTRUE);
                     } else {
                         attachment.setBgUrl((getVideoAttBitmap(localMedia.getPath())));
-                        attachment.setUrl(localMedia.getPath());
                         attachment.setType(PictureEnum.EContentType.VIDEO);
                         circleBean.setType(PictureEnum.EContentType.VIDEO);
                     }

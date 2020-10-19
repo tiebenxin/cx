@@ -17,8 +17,9 @@ public class AttachmentBean {
     private int type;//
     private String url;// 文件地址
     private String bgUrl;// 视频的第一帧图片
-    private int isOrigin;// 是否原图
     private long duration;// 时长
+    private int width;// 文件宽
+    private int height;// 文件高
 
     public int getType() {
         return type;
@@ -44,19 +45,27 @@ public class AttachmentBean {
         this.bgUrl = bgUrl;
     }
 
-    public int getIsOrigin() {
-        return isOrigin;
-    }
-
-    public void setIsOrigin(int isOrigin) {
-        this.isOrigin = isOrigin;
-    }
-
     public long getDuration() {
         return duration;
     }
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 }
