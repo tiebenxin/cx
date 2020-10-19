@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.text.SpannableString;
@@ -35,11 +36,11 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.gson.Gson;
 import com.hm.cxpay.utils.DateUtils;
@@ -53,8 +54,6 @@ import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.AtMessage;
-import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.CollectAtMessage;
 import com.yanlong.im.chat.bean.CollectChatMessage;
 import com.yanlong.im.chat.bean.CollectImageMessage;
@@ -63,16 +62,8 @@ import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
 import com.yanlong.im.chat.bean.CollectVideoMessage;
 import com.yanlong.im.chat.bean.CollectVoiceMessage;
-import com.yanlong.im.chat.bean.ImageMessage;
-import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.SendFileMessage;
-import com.yanlong.im.chat.bean.ShippedExpressionMessage;
-import com.yanlong.im.chat.bean.VideoMessage;
-import com.yanlong.im.chat.bean.VoiceMessage;
-import com.yanlong.im.chat.ui.FileDownloadActivity;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
@@ -88,6 +79,7 @@ import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.view.face.FaceView;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.FileConfig;
@@ -103,8 +95,6 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.PopupSelectView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -307,6 +297,16 @@ public class CollectDetailsActivity extends AppActivity {
                                                 .listener(new RequestListener<Drawable>() {
                                                     @Override
                                                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                        if (e.getMessage().contains("FileNotFoundException")) {
+                                                            ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                        } else {
+                                                            ivPic.postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                }
+                                                            }, 100);
+                                                        }
                                                         return false;
                                                     }
 
@@ -326,6 +326,16 @@ public class CollectDetailsActivity extends AppActivity {
                                                     .listener(new RequestListener<Drawable>() {
                                                         @Override
                                                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                            if (e.getMessage().contains("FileNotFoundException")) {
+                                                                ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                            } else {
+                                                                ivPic.postDelayed(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                    }
+                                                                }, 100);
+                                                            }
                                                             return false;
                                                         }
 
@@ -347,9 +357,36 @@ public class CollectDetailsActivity extends AppActivity {
                                     //有网情况走网络请求->显示预览图，无网情况显示Glide自带缓存缩略图
                                     if (NetUtil.isNetworkConnected()) {
                                         Glide.with(this)
+                                                .asBitmap()
                                                 .load(gif)
+                                                .listener(new RequestListener<Bitmap>() {
+                                                    @Override
+                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                                        if (e.getMessage().contains("FileNotFoundException")) {
+                                                            ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                        } else {
+                                                            ivPic.postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                }
+                                                            }, 100);
+                                                        }
+                                                        return false;
+                                                    }
+
+                                                    @Override
+                                                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                                        return false;
+                                                    }
+                                                })
                                                 .apply(GlideOptionsUtil.notDefImageOptions())
-                                                .into(ivPic);
+                                                .into(new SimpleTarget<Bitmap>() {
+                                                    @Override
+                                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                        ivPic.setImageBitmap(resource);
+                                                    }
+                                                });
                                     } else {
                                         //TODO 无需再取缓存多余处理，既然点击大图可以正常显示，说明Glide已经缓存好了，直接复用即可
                                         Glide.with(this)
@@ -386,6 +423,16 @@ public class CollectDetailsActivity extends AppActivity {
                                                 .listener(new RequestListener<Drawable>() {
                                                     @Override
                                                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                        if (e.getMessage().contains("FileNotFoundException")) {
+                                                            ivExpress.setImageResource(R.mipmap.ic_img_past);
+                                                        } else {
+                                                            ivExpress.postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                }
+                                                            }, 100);
+                                                        }
                                                         return false;
                                                     }
 
@@ -420,6 +467,27 @@ public class CollectDetailsActivity extends AppActivity {
                                 if (NetUtil.isNetworkConnected()) {
                                     if (!TextUtils.isEmpty(bgUrl)) {
                                         Glide.with(CollectDetailsActivity.this).load(bgUrl)
+                                                .listener(new RequestListener<Drawable>() {
+                                                    @Override
+                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                        if (e.getMessage().contains("FileNotFoundException")) {
+                                                            ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                        } else {
+                                                            ivPic.postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                }
+                                                            }, 100);
+                                                        }
+                                                        return false;
+                                                    }
+
+                                                    @Override
+                                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                        return false;
+                                                    }
+                                                })
                                                 .apply(GlideOptionsUtil.defaultImageOptions()).into(ivPic);
                                     }
                                 } else {
@@ -428,6 +496,27 @@ public class CollectDetailsActivity extends AppActivity {
                                         Glide.with(CollectDetailsActivity.this)
                                                 .asBitmap()
                                                 .load(bgUrl)
+                                                .listener(new RequestListener<Bitmap>() {
+                                                    @Override
+                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                                        if (e.getMessage().contains("FileNotFoundException")) {
+                                                            ivPic.setImageResource(R.mipmap.ic_img_past);
+                                                        }else {
+                                                            ivPic.postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                                                }
+                                                            }, 100);
+                                                        }
+                                                        return false;
+                                                    }
+
+                                                    @Override
+                                                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                                        return false;
+                                                    }
+                                                })
                                                 .apply(GlideOptionsUtil.defaultImageOptions())
                                                 .into(ivPic);
                                     } else {

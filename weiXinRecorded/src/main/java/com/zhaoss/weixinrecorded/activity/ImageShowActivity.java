@@ -207,9 +207,11 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private Bitmap loadBitmapFromView(View v) {
         int w = v.getWidth();
         int h = v.getHeight();
+        if (w <= 0 || h <= 0) {
+            return null;
+        }
         Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
-
         c.drawColor(Color.BLACK);
         //  如果不设置canvas画布为白色，则生成透明
         v.layout(0, 0, w, h);
@@ -334,6 +336,9 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         } else if (v.getId() == R.id.tv_finish_video) {// 完成
             Intent intent = new Intent();
             Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
+            if (bitmap == null) {
+                return;
+            }
             String savePath = saveImage(bitmap, 100);
             intent.putExtra("showResult", true);
             intent.putExtra("showPath", savePath);

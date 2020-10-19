@@ -174,4 +174,16 @@ public class ChatViewModel extends ViewModel {
             repository.onDestory();
         }
     }
+
+    public void dealBurnMessage() {
+        repository.dealToBurnMsgs(toGid, toUId);
+    }
+
+    //是否有阅后即焚消息
+    public boolean hasBurnMsg() {
+        if (toAddBurnForDBMsgs != null && toAddBurnForDBMsgs.size() > 0) {
+            return true;
+        }
+        return false;
+    }
 }

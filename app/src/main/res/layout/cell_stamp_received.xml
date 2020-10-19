@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
     android:paddingRight="@dimen/app_margin_main"
@@ -65,7 +66,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginRight="10dp"
-            app:radius="3dp" />
+            app:radius="@dimen/head_portrait_fillet" />
 
         <LinearLayout
             android:id="@+id/ll_content"

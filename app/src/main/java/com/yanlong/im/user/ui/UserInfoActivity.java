@@ -40,7 +40,9 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
@@ -507,74 +509,78 @@ public class UserInfoActivity extends AppActivity {
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void setItemShow(int type) {
-        System.out.println(UserInfoActivity.class.getSimpleName() + "--stat=" + type);
-        viewComplaint.setVisibility(View.VISIBLE);
-        if (type == 0) {
-            mLayoutMsg.setVisibility(View.VISIBLE);
-            btnMsg.setVisibility(View.VISIBLE);
-            mBtnAdd.setVisibility(View.GONE);
-            mViewSettingName.setVisibility(View.VISIBLE);
-            tvBlack.setText("加入黑名单");
-            viewIntroduce.setVisibility(View.GONE);
-            checkPower();
-        } else if (type == 1) {
-            mLayoutMsg.setVisibility(View.GONE);
-            btnMsg.setVisibility(View.GONE);
-            if (!TextUtils.isEmpty(gid)) {
-                if (group != null && group.getContactIntimately() != null) {
-                    if (group.getContactIntimately() == 1 && !group.getMaster().equals("" + UserAction.getMyId())) {
-                        mBtnAdd.setVisibility(View.GONE);
-                    }
-                }
-            } else {
-                mBtnAdd.setVisibility(View.VISIBLE);
-            }
-            mViewSettingName.setVisibility(View.GONE);
-            String nameNote = mkName;
-            if (TextUtils.isEmpty(nameNote)) {
-                nameNote = name;
-                userNote = nameNote;
-            }
-            if (TextUtils.isEmpty(sayHi)) {
-                mTvRemark.setVisibility(View.GONE);
-                if (TextUtils.isEmpty(contactName)) {
-                    mEtNote.setHint(nameNote);
-                } else {
-                    mEtNote.setHint(contactName);
-                }
-            } else {
-                mTvRemark.setVisibility(View.VISIBLE);
-                mTvRemark.setTextColor(getColor(R.color.gray_300));
-                mTvRemark.setText(sayHi);
-                if (TextUtils.isEmpty(contactName)) {
-                    if (sayHi.startsWith("我是") && !sayHi.startsWith("我是群聊")) {
-                        mEtNote.setHint(sayHi.substring(2));
-                        userNote = sayHi.substring(2);
-                    } else {
-                        mEtNote.setHint(nameNote);
-                    }
-                } else {
-                    mEtNote.setHint(contactName);
-                }
-            }
-            mEtNote.setSelection(mEtNote.getText().toString().length());
-            viewIntroduce.setVisibility(View.GONE);
-            checkPower();
-        } else if (type == 2) {
-            mLayoutMsg.setVisibility(View.VISIBLE);
-            btnMsg.setVisibility(View.VISIBLE);
-            mBtnAdd.setVisibility(View.GONE);
-            mViewSettingName.setVisibility(View.VISIBLE);
-            tvBlack.setText("解除黑名单");
-            viewIntroduce.setVisibility(View.GONE);
-        }
-
-        if (joinTypeShow != 0) {
-            taskGroupInfo(gid);
-        } else {
-            if (contactIntimately == 1) {
+        try {
+            System.out.println(UserInfoActivity.class.getSimpleName() + "--stat=" + type);
+            viewComplaint.setVisibility(View.VISIBLE);
+            if (type == 0) {
+                mLayoutMsg.setVisibility(View.VISIBLE);
+                btnMsg.setVisibility(View.VISIBLE);
                 mBtnAdd.setVisibility(View.GONE);
+                mViewSettingName.setVisibility(View.VISIBLE);
+                tvBlack.setText("加入黑名单");
+                viewIntroduce.setVisibility(View.GONE);
+                checkPower();
+            } else if (type == 1) {
+                mLayoutMsg.setVisibility(View.GONE);
+                btnMsg.setVisibility(View.GONE);
+                if (!TextUtils.isEmpty(gid)) {
+                    if (group != null && group.getContactIntimately() != null) {
+                        if (group.getContactIntimately() == 1 && !group.getMaster().equals("" + UserAction.getMyId())) {
+                            mBtnAdd.setVisibility(View.GONE);
+                        }
+                    }
+                } else {
+                    mBtnAdd.setVisibility(View.VISIBLE);
+                }
+                mViewSettingName.setVisibility(View.GONE);
+                String nameNote = mkName;
+                if (TextUtils.isEmpty(nameNote)) {
+                    nameNote = name;
+                    userNote = nameNote;
+                }
+                if (TextUtils.isEmpty(sayHi)) {
+                    mTvRemark.setVisibility(View.GONE);
+                    if (TextUtils.isEmpty(contactName)) {
+                        mEtNote.setHint(nameNote);
+                    } else {
+                        mEtNote.setHint(contactName);
+                    }
+                } else {
+                    mTvRemark.setVisibility(View.VISIBLE);
+                    mTvRemark.setTextColor(AppConfig.getColor(R.color.gray_300));
+                    mTvRemark.setText(sayHi);
+                    if (TextUtils.isEmpty(contactName)) {
+                        if (sayHi.startsWith("我是") && !sayHi.startsWith("我是群聊")) {
+                            mEtNote.setHint(sayHi.substring(2));
+                            userNote = sayHi.substring(2);
+                        } else {
+                            mEtNote.setHint(nameNote);
+                        }
+                    } else {
+                        mEtNote.setHint(contactName);
+                    }
+                }
+                mEtNote.setSelection(mEtNote.getText().toString().length());
+                viewIntroduce.setVisibility(View.GONE);
+                checkPower();
+            } else if (type == 2) {
+                mLayoutMsg.setVisibility(View.VISIBLE);
+                btnMsg.setVisibility(View.VISIBLE);
+                mBtnAdd.setVisibility(View.GONE);
+                mViewSettingName.setVisibility(View.VISIBLE);
+                tvBlack.setText("解除黑名单");
+                viewIntroduce.setVisibility(View.GONE);
             }
+
+            if (joinTypeShow != 0) {
+                taskGroupInfo(gid);
+            } else {
+                if (contactIntimately == 1) {
+                    mBtnAdd.setVisibility(View.GONE);
+                }
+            }
+        } catch (Exception e) {
+
         }
     }
 
@@ -955,7 +961,7 @@ public class UserInfoActivity extends AppActivity {
                 type = 0;
                 tvBlack.setText("加入黑名单");
                 userDao.updateUserUtype(id, 2);
-                new MsgDao().sessionCreate("", id);
+                new MsgDao().sessionCreate("", id, SocketData.getCurrentTime());
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid, CoreEnum.ERosterAction.BLACK);
             }

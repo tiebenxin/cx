@@ -9,6 +9,7 @@ import net.cb.cb.library.event.BaseEvent;
  */
 public class EventGroupChange extends BaseEvent {
     private boolean isNeedLoad = false;//是否需要加载新的群数据
+    private boolean isNeedRefresh = false;//是否刷新聊天界面
 
     public boolean isNeedLoad() {
         return isNeedLoad;
@@ -16,5 +17,13 @@ public class EventGroupChange extends BaseEvent {
 
     public void setNeedLoad(boolean needLoad) {
         isNeedLoad = needLoad;
+    }
+
+    public boolean isNeedRefresh() {
+        return isNeedRefresh;
+    }
+
+    public void setNeedRefresh(boolean needRefresh) {
+        isNeedRefresh = needRefresh;
     }
 }

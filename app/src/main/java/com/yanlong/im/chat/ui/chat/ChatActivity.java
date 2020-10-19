@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.chat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -135,7 +136,9 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
+import com.yanlong.im.chat.eventbus.EventCancelInvite;
 import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
+import com.yanlong.im.chat.eventbus.EventShowDialog;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -147,7 +150,6 @@ import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.SearchMsgActivity;
-import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.cell.ChatCellBase;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
@@ -168,9 +170,11 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.FriendVerifyActivity;
+import com.yanlong.im.user.ui.InviteRemoveActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.user.ui.image.PreviewMediaActivity;
 import com.yanlong.im.utils.ApkUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
@@ -208,7 +212,6 @@ import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -336,6 +339,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private List<MsgAllBean> downloadList = new ArrayList<>();//下载列表
     private Map<String, MsgAllBean> uploadMap = new HashMap<>();//上传列表
     private List<MsgAllBean> uploadList = new ArrayList<>();//上传列表
+    private List<MsgAllBean> deleteList = new ArrayList<>();//已经删除列表。阅后即焚
 
     //红包和转账
     public static final int REQ_RP = 9653;
@@ -438,7 +442,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private CommonSelectDialog dialogTwo;//批量收藏提示弹框
     private CommonSelectDialog dialogThree;//批量转发提示弹框
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
-    private boolean ifCollectFromVideoOrImg = false;//是否有来自图片和视频播放的底部弹框收藏操作
+    private CommonSelectDialog dialogFive;//是否撤销提示弹框
+    private CommonSelectDialog dialogSix;//成员已经离开群聊提示弹框
+    private CommonSelectDialog dialogSeven;//你没有权限提示弹框
+    private Activity activity;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -448,8 +455,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         setContentView(R.layout.activity_chat);
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        //标题栏
-        window.setStatusBarColor(getResources().getColor(R.color.blue_title));
         initIntent();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -458,7 +463,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         initEvent();
         initObserver();
         getOftenUseFace();
-        builder = new CommonSelectDialog.Builder(ChatActivity.this);
+        activity = this;
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
 
@@ -489,6 +495,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
+                            lastPosition = -1;
+                            lastOffset = -1;
                         }
                     }, delayMillis);
                 } else {//关闭
@@ -522,6 +530,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
+                            lastPosition = -1;
+                            lastOffset = -1;
                         }
                     }, 100);
                 } else {//关闭
@@ -562,6 +572,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         @Override
                         public void run() {
                             mtListView.scrollToEnd();
+                            lastPosition = -1;
+                            lastOffset = -1;
                         }
                     }, 100);
                 } else {//关闭
@@ -609,6 +621,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void onChanged(@Nullable Boolean value) {
                 if (value) {
                     viewReplyMessage.setVisible(true);
+                    mViewModel.isInputText.setValue(true);
                 } else {
                     viewReplyMessage.setVisible(false);
                 }
@@ -840,6 +853,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     @Override
     protected void onStart() {
         super.onStart();
+        mViewModel.dealBurnMessage();
         initActionBarLoading();
         SocketUtil.getSocketUtil().addEvent(msgEvent);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
@@ -998,7 +1012,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 //如果bottom小于oldBottom,说明键盘是弹起。
                 if (bottom < oldBottom && oldBottom - bottom == mKeyboardHeight) {
-//                    mViewModel.isInputText.setValue(true);
                     //滑动到底部
                     mtListView.scrollToEnd();
                 } else if (bottom > oldBottom && bottom - oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
@@ -1031,22 +1044,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     if (bean.getMsgIdList() != null && bean.getMsgIdList().size() > 0) {
                         fixSendTime(bean.getMsgId(0));
                     }
-                    //群聊自己发送的消息直接加入阅后即焚队列
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
-//                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
-//                            for (String msgid : bean.getMsgIdList()) {
-//                                //撤回消息不做刷新
-//                                if (ChatServer.getCancelList().containsKey(msgid)) {
-//                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
-//                                    return;
-//                                }
-//                            }
-//                        }
                         taskRefreshMessage(false);
-
                     }
                     if (isSendingHypertext) {
                         if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
@@ -1086,7 +1087,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 needRefresh = msg.getRemoveGroupMember().getGid().equals(toGid);
                             }
                         }
-                        onMsgbranch(msg);
                     }
                     initUnreadCount();
                 }
@@ -1131,8 +1131,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 @Override
                 public void run() {
                     //离线就禁止发送之类的
-                    // ToastUtil.show(getContext(), "离线就禁止发送之类的");
-                    //  btnSend.setEnabled(state);
                     if (state) {
                         actionbar.getGroupLoadBar().setVisibility(GONE);
                         //联网后，显示单聊标题底部在线状态
@@ -1174,20 +1172,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     if (bean.getMsgIdList() != null && bean.getMsgIdList().size() > 0) {
                         fixSendTime(bean.getMsgId(0));
                     }
-                    //群聊自己发送的消息直接加入阅后即焚队列
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
-//                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
-//                            for (String msgid : bean.getMsgIdList()) {
-//                                //撤回消息不做刷新
-//                                if (ChatServer.getCancelList().containsKey(msgid)) {
-//                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
-//                                    return;
-//                                }
-//                            }
-//                        }
                         taskRefreshMessage(false);
                     }
                 }
@@ -1200,34 +1187,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             }
         }
     }
-
-
-    //消息的分发
-    public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
-
-        if (!isGroup()) {
-            return;
-        }
-        if (!msg.getGid().equals(toGid)) {
-            return;
-        }
-        switch (msg.getMsgType()) {
-            case DESTROY_GROUP:
-//                refreshUI();
-                break;
-            case REMOVE_GROUP_MEMBER://退出群
-//                refreshUI();
-                break;
-            case ACCEPT_BE_GROUP://邀请进群刷新
-//                refreshUI();
-                break;
-            case CHANGE_GROUP_META:// 修改群信息
-//                refreshUI();
-                break;
-        }
-
-    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1521,7 +1480,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     }
                 }
                 isFirst++;
-
                 mtListView.scrollToEnd();
             }
 
@@ -1679,24 +1637,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
             }
         });
-//        mtListView.setEvent(new MultiListView.Event() {
-//
-//
-//            @Override
-//            public void onRefresh() {
-//                taskMoreMessage();
-//            }
-//
-//            @Override
-//            public void onLoadMore() {
-//
-//            }
-//
-//            @Override
-//            public void onLoadFail() {
-//
-//            }
-//        });
 
         mtListView.getListView().setOnTouchListener(new View.OnTouchListener() {
             int isRun = 0;
@@ -1734,12 +1674,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == SCROLL_STATE_IDLE) {
                     LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//                    LinearLayoutManager layoutManager = mtListView.getLayoutManager();
                     if (layoutManager != null) {
                         //获取可视的第一个view
                         lastPosition = layoutManager.findLastVisibleItemPosition();
-//                        int first = layoutManager.findFirstCompletelyVisibleItemPosition();
-//                        checkScrollFirst(first);
                         View topView = layoutManager.getChildAt(lastPosition);
                         if (topView != null) {
                             //获取与该view的底部的偏移量
@@ -1836,13 +1773,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             int position = mAdapter.getItemCount() - unreadCount;
             if (position >= 0) {
                 scrollChatToPosition(position);
-//                mtListView.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        lastPosition = mtListView.getLayoutManager().findLastVisibleItemPosition();
-//                        lastOffset = mtListView.getLayoutManager().
-//                    }
-//                }, 300);
             } else {
                 scrollChatToPosition(0);
             }
@@ -1877,7 +1807,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 } else {
                     int size = mAdapter.getSelectedMsg().size();
                     if (size > 0) {
-//                        filterMsgForward(mAdapter.getSelectedMsg());
                         if (size > 30) {
                             showMoreMsgDialog();
                         } else {
@@ -1902,7 +1831,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 } else {
                     if (mAdapter.getSelectedMsg().size() > 0) {
-//                        filterMsgCollection(mAdapter.getSelectedMsg());
                         filterMessageValid(mAdapter.getSelectedMsg(), 2);
                     }
                 }
@@ -1966,7 +1894,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     private void checkScrollFirst(int first) {
         if (unreadCount > 0 && mAdapter != null && mAdapter.getItemCount() > 0) {
             int size = mAdapter.getItemCount();
-//            LogUtil.getLog().d("a=", TAG + "checkScrollFirst：size = " + size + "--unreadCount=" + unreadCount + "--firstPosition=" + first);
             if (first <= size - unreadCount + 1) {
                 mtListView.postDelayed(new Runnable() {
                     @Override
@@ -2144,8 +2071,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-//                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-//                    startActivityForResult(intent, VIDEO_RP);
                     Intent intent = new Intent(ChatActivity.this, CameraActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
                 }
@@ -2322,10 +2247,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     private void scrollChatToPosition(int position) {
         LogUtil.getLog().i(TAG, "scrollChatToPosition--" + position);
-//        mtListView.getLayoutManager().scrollToPosition(position);
         mtListView.getListView().smoothScrollToPosition(position);
         currentScrollPosition = position;
-//        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -2572,6 +2495,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 ToastUtil.show(getResources().getString(R.string.to_disable_message));
                                 return;
                             }
+                            if (userInfo.getuType() == ChatEnum.EUserType.BLACK) {
+                                ToastUtil.show(getResources().getString(R.string.is_black_can_not_call));
+                                return;
+                            }
                             // 对方被注销
                             if (userInfo.getFriendDeactivateStat() != 0) {
                                 int status = userInfo.getFriendDeactivateStat();
@@ -2702,10 +2629,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //图片测试逻辑
     private void taskTestImage(int count) {
-//        ToastUtil.show(getContext(), "内部指令，请重新输入");
-//        editChat.setText("");
-//        return;
-
         String file = "/storage/emulated/0/changXin/zgd123.jpg";
         File f = new File(file);
         if (!f.exists()) {
@@ -2819,13 +2742,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             if (isMustBottom || lastPosition == -1) {
                 mtListView.scrollToEnd();
                 lastPosition = length - 1;
-//                initLastPosition();
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         mtListView.scrollToEnd();
                     } else {
-//                        scrollChatToPosition(lastPosition);
                         if (lastOffset == -1) {
                             scrollChatToPosition(lastPosition);
                         } else {
@@ -2862,7 +2783,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (currentScrollPosition > 0) {
                             scrollChatToPosition(currentScrollPosition);
                         } else {
-                            scrollChatToPosition(length);
+                            mtListView.scrollToEnd();
                         }
                     }
                 }
@@ -3409,8 +3330,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     public void eventRefreshInfo(EventGroupChange event) {
         if (event.isNeedLoad()) {
             taskGroupInfo();
-        } else {
-//            refreshUI();
         }
     }
 
@@ -3434,21 +3353,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         taskRefreshMessage(false);
                     }
                 }, 100);
-//                MsgAllBean bean = (MsgAllBean) event.getObject();
-//                if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
-//                    addMsg(bean);
-//                    sendRead(bean);
-//                }
-            } /*else if (event.getList() != null) {
-                addMsg(event.getList());
-            }*/
+            }
             initUnreadCount();
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventSwitchDisturb(EventSwitchDisturb event) {
-//        refreshUI();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -3484,7 +3391,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         } else if (event.getState() == 1) {
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             LogUtil.getLog().d("tag", "taskUpImgEvevt 1: ===============>" + msgAllbean.getImage());
-//            SocketData.sendAndSaveMessage(msgAllbean);
             replaceListDataAndNotify(msgAllbean);
         } else {
         }
@@ -3492,8 +3398,32 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     //刷新某一条消息
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void refreshOneMsg(EventFactory.UpdateOneMsgEvent event){
-        taskRefreshImage(event.getMsgId());
+    public void refreshOneMsg(EventFactory.UpdateOneMsgEvent event) {
+        taskRefreshMessage(false);
+    }
+
+    //撤销入群邀请
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void cancelInvite(EventCancelInvite event) {
+        cancelInviteDialog(event.getUserInfoList());
+    }
+
+    //我是普通成员，没有权限撤销
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventShowDialog(EventShowDialog event) {
+        if (event.getType() == 1) {
+            if (activity == null || activity.isFinishing()) {
+                return;
+            }
+            dialogSeven = builder.setTitle("没有操作权限")
+                    .setShowLeftText(false)
+                    .setRightText("确定")
+                    .setRightOnClickListener(v -> {
+                        dialogSeven.dismiss();
+                    })
+                    .build();
+            dialogSeven.show();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -3630,31 +3560,47 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 显示大图
      *
-     * @param msgid
-     * @param uri
+     * @param msgId
      */
-    private void showBigPic(String msgid, String uri) {
-        List<LocalMedia> selectList = new ArrayList<>();
+    private void scanImageAndVideo(String msgId) {
+        ArrayList<LocalMedia> selectList = new ArrayList<>();
         List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
         for (int i = 0; i < listdata.size(); i++) {
             MsgAllBean msgl = listdata.get(i);
-            if (msgid.equals(msgl.getMsg_id())) {
+            if (msgId.equals(msgl.getMsg_id())) {
                 pos = i;
             }
-
             LocalMedia lc = new LocalMedia();
-            lc.setCutPath(msgl.getImage().getThumbnailShow());
-            lc.setCompressPath(msgl.getImage().getPreviewShow());
-            lc.setPath(msgl.getImage().getOriginShow());
-            lc.setSize(msgl.getImage().getSize());
-            lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
-            lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-            lc.setMsg_id(msgl.getMsg_id());
             //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
-            if (msgl.getSend_state() != ChatEnum.ESendStatus.ERROR) {
+            if (msgl.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                 lc.setCanCollect(true);
+            }
+            lc.setMsg_id(msgl.getMsg_id());
+            if (msgl.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                lc.setMimeType(PictureConfig.TYPE_VIDEO);
+                String localUrl = msgl.getVideoMessage().getLocalUrl();
+                if (StringUtil.isNotNull(localUrl)) {
+                    File file = new File(localUrl);
+                    if (file.exists()) {
+                        lc.setVideoLocalUrl(localUrl);
+                    }
+                }
+                lc.setVideoUrl(msgl.getVideoMessage().getUrl());
+                lc.setVideoBgUrl(msgl.getVideoMessage().getBg_url());
+                lc.setWidth((int) msgl.getVideoMessage().getWidth());
+                lc.setHeight((int) msgl.getVideoMessage().getHeight());
+                lc.setDuration(msgl.getVideoMessage().getDuration());
+            } else {
+                lc.setMimeType(PictureConfig.TYPE_IMAGE);
+                lc.setCutPath(msgl.getImage().getThumbnailShow());
+                lc.setCompressPath(msgl.getImage().getPreviewShow());
+                lc.setPath(msgl.getImage().getOriginShow());
+                lc.setSize(msgl.getImage().getSize());
+                lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
+                lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+                lc.setHasRead(msgl.getImage().isReadOrigin());
             }
             temp.add(lc);
         }
@@ -3674,15 +3620,23 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
         pos = 0;
         for (int i = 0; i < selectList.size(); i++) {
-            if (msgid.equals(selectList.get(i).getMsg_id())) {
+            if (msgId.equals(selectList.get(i).getMsg_id())) {
                 pos = i;
                 break;
             }
         }
-        PictureSelector.create(ChatActivity.this)
-                .themeStyle(R.style.picture_default_style)
-                .isGif(true)
-                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT, "");
+        Intent intent = new Intent(this, PreviewMediaActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("data", selectList);
+        bundle.putInt("position", pos);
+        intent.putExtra(PictureConfig.GID, toGid);
+        intent.putExtra(PictureConfig.TO_UID, toUId);
+        intent.putExtras(bundle);
+        startActivity(intent);
+//        PictureSelector.create(ChatActivity.this)
+//                .themeStyle(R.style.picture_default_style)
+//                .isGif(true)
+//                .openExternalPreview1(pos, selectList, toGid, toUId, PictureConfig.FROM_DEFAULT, "");
 
     }
 
@@ -3712,9 +3666,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * @param msgBean
      */
     private void resendMessage(MsgAllBean msgBean) {
-//        if (!NetUtil.isNetworkConnected()) {
-//            return;
-//        }
         //从数据拉出来,然后再发送
         MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgBean.getMsg_id());
         try {
@@ -3960,7 +3911,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
         int length = mAdapter.getItemCount();
         int index = mAdapter.getPosition(b);
         if (index < 0) {
@@ -4186,13 +4136,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
                     return false;
                     // 这里如果返回true的话，touch事件将被拦截
-                    // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
+                    // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss`
                 }
             });
 
             popupWindowDismiss(listener);
             // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
-            if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < location[1]) {
+            if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < (location[1])) {
                 // 内容展示完，向上弹出
                 if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < mtListView.getMeasuredHeight())) {
                     mRlUp.setVisibility(VISIBLE);
@@ -4205,7 +4155,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     mRlUp.setVisibility(GONE);
                     mImgTriangleUp.setVisibility(GONE);
                     mRlDown.setVisibility(VISIBLE);
-                    setArrowLocation(v, 1, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
+                    setArrowLocation(v, 2, msgbean.isMe(), menus.size(), msgbean.getMsg_type());
                     showPopupWindowUp(v, 1);
                 }
             } else if (locationView[1] < (location[1] + spacing)) {
@@ -4428,13 +4378,40 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
                         super.onResponse(call, response);
                         if (response.body() != null && response.body().isOk()) {
-                            if(response.body().getData()!=null&&response.body().getData().size()!=list.size()){
+                            if (response.body().getData() != null) {
+                                List<String> data = response.body().getData();
+                                int size = data.size();
+                                if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                                    if (size == list.size()) {
+                                        onRetransmission(msgbean);
+                                    } else if (size == 1) {
+                                        String md5 = data.get(0);
+                                        String url = "";
+                                        for (int i = 0; i < list.size(); i++) {
+                                            FileBean bean = list.get(i);
+                                            if (bean.getMd5().equals(md5)) {
+                                                url = bean.getUrl();
+                                            }
+                                        }
+                                        if (!TextUtils.isEmpty(url) && PictureMimeType.isVideoType(url)) {
+                                            onRetransmission(msgbean);
+                                        } else {
+                                            showMsgFailDialog();
+                                        }
+                                    } else {
+                                        showMsgFailDialog();
+                                    }
+                                } else {
+                                    if (size == list.size()) {
+                                        onRetransmission(msgbean);
+                                    } else {
+                                        showMsgFailDialog();
+                                    }
+                                }
+                            } else {
                                 showMsgFailDialog();
-                            }else{
-                                onRetransmission(msgbean);
                             }
-
-                        }else {
+                        } else {
                             showMsgFailDialog();
                         }
                     }
@@ -4828,8 +4805,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void notifyData() {
-        LogUtil.getLog().i(TAG, "刷新数据");
-//        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null && mAdapter.getItemCount() > 0) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
             mAdapter.notifyItemRangeChanged(0, mAdapter.getItemCount());
@@ -4883,6 +4858,21 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--time=" + bean.getTimestamp());
                         ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
                         sendMessage(read, ChatEnum.EMessageType.READ);
+                    } else {
+                        LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
+                        LogUtil.writeLog(TAG + "--发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
+                    }
+                }
+            }
+        } else if (!TextUtils.isEmpty(toGid)) {
+            MsgAllBean bean = msgDao.msgGetLast4Gid(toGid);
+            if (bean != null) {
+                if (bean.getRead() == 0) {
+                    if (MessageManager.getInstance().isReadTimeValid(toGid, bean.getTimestamp())) {
+                        MessageManager.getInstance().addReadTime(toGid, bean.getTimestamp());
+                        LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--time=" + bean.getTimestamp());
+                        ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                        sendMessage(read, ChatEnum.EMessageType.READ);
                     }
                 }
             }
@@ -4933,6 +4923,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 list = msgAction.getMsg4User(toGid, toUId, null, 80);
                             }
                         }
+                        sendRead();
                         taskMkName(list);
                         return list;
                     }
@@ -4946,18 +4937,19 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             fixLastPosition(mAdapter.getMsgList(), list);
                         }
                         int len = list.size();
-//                        if (mAdapter != null) {
-//                            list = isRetainAll(mAdapter.getMsgList(), list);
-//                        }
-//                        int len2 = list.size();
-//                        if (len2 < len) {
-//                            addMsg(list);
-//                        } else {
-//                            mAdapter.bindData(list, false);
-//                            mAdapter.setReadStatus(checkIsRead());
-//                            notifyData2Bottom(isScrollBottom);
-//                        }
-
+                        if (len < 10) {
+                            mtListView.setStackFromEnd(false);
+                        } else {
+                            mtListView.setStackFromEnd(true);
+                        }
+                        try {
+                            if (deleteList.size() > 0 && (list.contains(deleteList.get(0)) || list.contains(deleteList.get(deleteList.size() - 1)))) {
+                                list.removeAll(deleteList);
+                            }
+                            deleteList.clear();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         mAdapter.bindData(list, false);
                         mAdapter.setReadStatus(checkIsRead());
                         notifyData2Bottom(isScrollBottom);
@@ -4966,11 +4958,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        //单聊发送已读消息
-                        sendRead();
                     }
                 });
-
     }
 
     private void fixLastPosition(List<MsgAllBean> msgList, List<MsgAllBean> list) {
@@ -4983,7 +4972,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     currentScrollPosition += diff;
                 }
             }
-
             if (lastPosition >= msgList.size() - 3) {
                 lastPosition = len2 - 1;
             }
@@ -4999,23 +4987,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             mPopupWindow.dismiss();
         }
     }
-
-
-    /***
-     * 查询历史
-     * @param history
-     */
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void taskFinadHistoryMessage(EventFindHistory history) {
-//        isLoadHistory = true;
-//        List<MsgAllBean> listTemp = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
-//        taskMkName(listTemp);
-//        mAdapter.bindData(listTemp, false);
-//        notifyData();
-//        mtListView.getListView().smoothScrollToPosition(0);
-//
-//    }
-
 
     /***
      * 加载更多
@@ -5068,10 +5039,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             } else {
                 if (isGroup()) {
                     String gname = msgDao.getGroupMemberName(toGid, msg.getFrom_uid(), null, null);//获取对方最新的群昵称
-//                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
-//                    if (gmsg != null) {
-//                        gname = gmsg.getFrom_group_nickname();
-//                    }
                     if (StringUtil.isNotNull(gname)) {
                         userInfo.setName(gname);
                     }
@@ -5158,11 +5125,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         String df = editChat.getText().toString().trim();
         boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
-//            if (TextUtils.isEmpty(df) || !draft.equals(df)) {
             hasChange = true;
             dao.sessionDraft(toGid, toUId, df);
             draft = df;
-//            }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 hasChange = true;
@@ -5362,7 +5327,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         userInfoList.addAll(response.body().getData());
                         if (userInfoList.get(0) != null) {
                             UserInfo userInfo = userInfoList.get(0);
-                            userInfo.setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友
+                            userInfo.setuType(UserUtil.getUserType(userInfo.getStat()));
                             userInfo.toTag();
                             userDao.updateUserinfo(userInfo);//本地更新对方数据
                         }
@@ -6021,11 +5986,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
-    //选择文件(限制最大5个，与网络请求并发数一致)
+    //选择文件(最大可选改为9个)
     private void toSelectFile() {
         FilePickerManager.INSTANCE
                 .from(this)
-                .maxSelectable(5)
+                .maxSelectable(9)
                 .forResult(FilePickerManager.REQUEST_CODE);
     }
 
@@ -6067,12 +6032,16 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (mAdapter == null || mAdapter.getItemCount() <= 0 || list == null) {
             return;
         }
+        deleteList.addAll(list);
         mAdapter.removeMsgList(list);
         removeUnreadCount(list.size());
         notifyData();
+//        mAdapter.notifyDataSetChanged();
         //有面板，则滑到底部
         if (mViewModel.isInputText.getValue() || mViewModel.isOpenEmoj.getValue() || mViewModel.isOpenFuction.getValue()) {
             mtListView.scrollToEnd();
+        } else {
+            scrollListView(false);
         }
     }
 
@@ -6221,7 +6190,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 case ChatEnum.ECellEventType.IMAGE_CLICK:
                     if (args[0] != null && args[0] instanceof ImageMessage) {
                         ImageMessage image = (ImageMessage) args[0];
-                        showBigPic(message.getMsg_id(), image.getThumbnailShow());
+                        scanImageAndVideo(message.getMsg_id());
                     }
                     break;
                 case ChatEnum.ECellEventType.VOICE_CLICK:
@@ -6450,32 +6419,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
             }
         } else if (clickAble) {
-            clickAble = false;
-            String localUrl = msg.getVideoMessage().getLocalUrl();
-            if (StringUtil.isNotNull(localUrl)) {
-                File file = new File(localUrl);
-                if (!file.exists()) {
-                    localUrl = msg.getVideoMessage().getUrl();
-                }
-            } else {
-                localUrl = msg.getVideoMessage().getUrl();
-            }
-            //发送状态正常，则允许收藏 (阅后即焚改为允许收藏)
-            boolean canCollect = false;
-            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR) {
-                canCollect = true;
-            }
-            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-            intent.putExtra("videopath", localUrl);
-            intent.putExtra("videomsg", new Gson().toJson(msg));
-            intent.putExtra("msg_id", msg.getMsg_id());
-            intent.putExtra("bg_url", msg.getVideoMessage().getBg_url());
-            intent.putExtra("from", PictureConfig.FROM_DEFAULT);//2 来自收藏详情
-            intent.putExtra("can_collect", canCollect);
-            intent.putExtra(PictureConfig.COLLECT_JSON, "");
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
-
+            scanImageAndVideo(msg.getMsg_id());
         }
     }
 
@@ -6646,14 +6590,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
                                 msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
                             } else {
-                                if(ifCollectFromVideoOrImg){
-                                    EventFactory.EventShowDisallowedMsgNotice eventShowDisallowedMsgNotice = new EventFactory.EventShowDisallowedMsgNotice();
-                                    EventBus.getDefault().post(eventShowDisallowedMsgNotice);
-                                    ifCollectFromVideoOrImg = false;
-                                }else {
-                                    showMsgFailDialog();
-                                }
+                                showMsgFailDialog();
                             }
+                        } else {
+                            ToastUtil.showToast(ChatActivity.this, response.body().getMsg(), 1);
                         }
                     }
 
@@ -6661,7 +6601,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         super.onFailure(call, t);
                         ToastUtil.showToast(ChatActivity.this, "收藏失败", 1);
-                        ifCollectFromVideoOrImg = false;
                     }
                 });
     }
@@ -6804,6 +6743,13 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     public void accept(List<MsgAllBean> list) throws Exception {
                         searchTime = 0;
                         if (mAdapter != null) {
+                            if (list != null) {
+                                if (list.size() < 10) {
+                                    mtListView.setStackFromEnd(false);
+                                } else {
+                                    mtListView.setStackFromEnd(true);
+                                }
+                            }
                             mAdapter.bindData(list, false);
                             mAdapter.setReadStatus(checkIsRead());
 //                            notifyData();
@@ -6895,7 +6841,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (!TextUtils.isEmpty(event.getMsgId())) {
             MsgAllBean msgAllBean = msgDao.getMsgById(event.getMsgId());
             if (msgAllBean != null) {
-                ifCollectFromVideoOrImg = true;
                 onCollect(msgAllBean);
             }
         }
@@ -7024,6 +6969,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void showDeleteDialog(List<MsgAllBean> msgList) {
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
         DialogCommon dialogDelete = new DialogCommon(this);
         dialogDelete.setTitleAndSure(false, true)
                 .setContent("确定删除？", true)
@@ -7051,6 +6999,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 注销提示弹框
      */
     private void showLogOutDialog(int type) {
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
         String content = "";
         if (type == 1) {
             content = "该账号正在注销中，为了保障你的资金安全，\n暂时无法交易";
@@ -7066,16 +7017,19 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     /**
-     *
      * 批量收藏提示弹框
+     *
      * @param type 0 默认提示  1 包含收藏成功文案
      */
     private void showCollectListDialog(int type) {
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
         String content;
-        if (type==1) {
-            content= "收藏成功\n\n你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
-        }else {
-            content= "你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
+        if (type == 1) {
+            content = "收藏成功\n\n你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
+        } else {
+            content = "你所选的消息包含了不支持收藏的类型\n或已失效，系统已自动过滤此类型消息。";
         }
         dialogTwo = builder.setTitle(content)
                 .setShowLeftText(false)
@@ -7091,7 +7045,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 批量转发提示弹框
      */
     private void showForwardListDialog(List<MsgAllBean> list) {
-        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型或\n或已失效，系统已自动过滤此类型消息。")
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        dialogThree = builder.setTitle("你所选的消息包含了不支持转发的类型\n或已失效，系统已自动过滤此类型消息。")
                 .setShowLeftText(true)
                 .setRightText("继续发送")
                 .setLeftText("取消")
@@ -7110,6 +7067,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
+        if (activity == null || activity.isFinishing()) { //TODO #284439
+            return;
+        }
         dialogFour = builder.setTitle("你所选的消息已失效")
                 .setShowLeftText(false)
                 .setRightText("确定")
@@ -7118,6 +7078,131 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 })
                 .build();
         dialogFour.show();
+    }
+
+    /**
+     * 是否撤销提示弹框
+     */
+    private void cancelInviteDialog(List<UserInfo> list) {
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        int oldNum;//邀请了几个人
+        oldNum = list.size();
+        List<UserInfo> filterList = new ArrayList<>();
+        //1 先过滤掉已经被移除的群员
+        //查找出该群所有成员
+        Group group = new MsgDao().groupNumberGet(toGid);
+        if (group.getUsers() != null && group.getUsers().size() > 0) {
+            //查找邀请入群的成员是否仍在群中
+            for (UserInfo userInfo : list) {
+                //如果邀请入群的成员仍在群中，获取其头像，下个界面需要显示
+                if (new MsgDao().inThisGroup(toGid, userInfo.getUid().longValue())) {
+                    for (MemberUser user : group.getUsers()) {
+                        if (userInfo.getUid().longValue() == user.getUid()) {
+                            //找到并更新头像
+                            if (!TextUtils.isEmpty(user.getHead())) {
+                                userInfo.setHead(user.getHead());
+                            } else {
+                                userInfo.setHead("");
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    //如果这个成员已经不在群中，需要过滤
+                    filterList.add(userInfo);
+                }
+            }
+            //循环查找完后，过滤掉已经被移除的群员，此时list为最新值
+            if (filterList.size() > 0) {
+                list.removeAll(filterList);
+            }
+        }
+        //"该成员已离开群聊"
+        if (list.size() == 0) {
+            String notice;
+            if (oldNum == 1) {
+                notice = "该成员已离开群聊";
+            } else {
+                notice = "成员已离开群聊";
+            }
+            dialogSix = builder.setTitle(notice)
+                    .setShowLeftText(false)
+                    .setRightText("确定")
+                    .setRightOnClickListener(v -> {
+                        dialogSix.dismiss();
+                    })
+                    .build();
+            dialogSix.show();
+        } else if (list.size() == 1) {
+            if (oldNum > 1) {
+                Intent intent = new Intent(ChatActivity.this, InviteRemoveActivity.class);
+                intent.putExtra(InviteRemoveActivity.USER_LIST, new Gson().toJson(list));
+                intent.putExtra("gid", toGid);
+                startActivity(intent);
+            } else {
+                dialogFive = builder.setTitle("将" + list.get(0).getName() + "移出群聊？")
+                        .setShowLeftText(true)
+                        .setLeftText("取消")
+                        .setRightText("移出群聊")
+                        .setLeftOnClickListener(v -> {
+                            dialogFive.dismiss();
+                        })
+                        .setRightOnClickListener(v -> {
+                            String name = "";
+                            String rname = "";
+                            if (list.get(0) != null) {
+                                if (!TextUtils.isEmpty(list.get(0).getName())) {
+                                    name = list.get(0).getName();
+                                }
+                            }
+                            //撤销邀请
+                            for (UserInfo userInfo : list) {
+                                rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
+                            }
+                            String finalName = rname;//被删除人的昵称
+                            msgAction.httpCancelInvite(toGid, name, list.get(0).getUid(), new CallBack<ReturnBean>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                    if (response.body() == null) {
+                                        return;
+                                    } else {
+                                        if (response.body().isOk()) {
+                                            String mid = SocketData.getUUID();
+                                            MsgNotice note = new MsgNotice();
+                                            note.setMsgid(mid);
+                                            note.setMsgType(3);
+                                            note.setNote("你将\"" + finalName + "\"移出群聊");
+                                            dao.noteMsgAddRb(mid, UserAction.getMyId(), toGid, note);
+                                            taskGroupInfo();
+                                            taskRefreshMessage(false);
+                                        } else {
+                                            if (!TextUtils.isEmpty(response.body().getMsg())) {
+                                                ToastUtil.show(response.body().getMsg());
+                                            }
+                                        }
+                                        dialogFive.dismiss();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                    ToastUtil.show(t.getMessage());
+                                }
+                            });
+                        })
+                        .build();
+                dialogFive.show();
+            }
+
+        } else {
+            Intent intent = new Intent(ChatActivity.this, InviteRemoveActivity.class);
+            intent.putExtra(InviteRemoveActivity.USER_LIST, new Gson().toJson(list));
+            intent.putExtra("gid", toGid);
+            startActivity(intent);
+        }
+
     }
 
     private void toSendVerifyActivity(Long uid) {
@@ -7160,7 +7245,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     /**
      * 批量收藏  (流程有变化，过滤掉不支持类型后，先调接口，再弹框，目前需求只显示一次)
-     * @param list 已过滤后的数据
+     *
+     * @param list     已过滤后的数据
      * @param isNormal 正常类型true 含有不支持类型false
      */
     public void toCollectList(List<MsgAllBean> list, boolean isNormal) {
@@ -7177,20 +7263,20 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 return;
                             }
                             if (response.body().isOk()) {
-                                if(isNormal){
+                                if (isNormal) {
                                     // data!=null代表有"源文件不存在"情况，提示弹框
                                     if (response.body().getData() != null) {
                                         showCollectListDialog(1);
-                                    }else {
+                                    } else {
                                         ToastUtil.show("收藏成功");
                                     }
                                 } else {
                                     //用户选过不支持的类型，因此无论如何都要提示弹框
                                     showCollectListDialog(1);
                                 }
-                            }else {
-                                if(!TextUtils.isEmpty(response.body().getMsg())){
-                                    ToastUtil.show(response.body().getMsg()+"");
+                            } else {
+                                if (!TextUtils.isEmpty(response.body().getMsg())) {
+                                    ToastUtil.show(response.body().getMsg() + "");
                                 }
                             }
                         }
@@ -7214,9 +7300,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         }
                     }
                     //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
-                    if(isNormal){
+                    if (isNormal) {
                         ToastUtil.show("收藏成功");//离线提示
-                    }else {
+                    } else {
                         //用户选过不支持的类型，因此无论如何都要提示弹框
                         showCollectListDialog(1);
                     }
@@ -7231,7 +7317,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 过滤多选转发消息
      *
-     * @param sourList 源数据
+     * @param sourList  源数据
      * @param isOverdue 是否已经过滤掉了过期文件(是否含有不存在文件)
      */
     @SuppressLint("CheckResult")
@@ -7249,7 +7335,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 msgIds[i] = msgAllBean.getMsg_id();
                             }
                             return msgDao.filterMsgForForward(msgIds);
-                        }else {
+                        } else {
                             return new ArrayList<MsgAllBean>();
                         }
                     }
@@ -7264,9 +7350,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (len > 0) {
                                 //只要含有一个正常类型消息
                                 if (len == totalSize) {
-                                    if(isOverdue){
+                                    if (isOverdue) {
                                         showForwardListDialog(list);//存在不支持类型或失效的转发
-                                    }else {
+                                    } else {
                                         toForward(list);//正常类型转发
                                     }
                                 } else if (len < totalSize) {
@@ -7276,7 +7362,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 //全为不支持类型或失效消息
                                 showValidMsgDialog(false);
                             }
-                        }else {
+                        } else {
                             showValidMsgDialog(false);
                         }
                     }
@@ -7286,7 +7372,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     /**
      * 过滤多选收藏消息
      *
-     * @param sourList 源数据
+     * @param sourList  源数据
      * @param isOverdue 是否已经过滤掉了过期文件(是否含有不存在文件)
      */
     @SuppressLint("CheckResult")
@@ -7304,7 +7390,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                 msgIds[i] = msgAllBean.getMsg_id();
                             }
                             return msgDao.filterMsgForCollection(msgIds);
-                        }else {
+                        } else {
                             return new ArrayList<MsgAllBean>();
                         }
 
@@ -7320,19 +7406,19 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             if (len > 0) {
                                 //只要含有一个正常类型消息
                                 if (len == totalSize) {
-                                    if(isOverdue){
-                                        toCollectList(list,false);//存在不支持类型或失效的收藏
-                                    }else {
-                                        toCollectList(list,true);//正常类型收藏
+                                    if (isOverdue) {
+                                        toCollectList(list, false);//存在不支持类型或失效的收藏
+                                    } else {
+                                        toCollectList(list, true);//正常类型收藏
                                     }
                                 } else if (len < totalSize) {
-                                    toCollectList(list,false);//存在不支持类型或失效的收藏
+                                    toCollectList(list, false);//存在不支持类型或失效的收藏
                                 }
                             } else {
                                 //全为不支持类型或失效消息
                                 showValidMsgDialog(true);
                             }
-                        }else {
+                        } else {
                             showValidMsgDialog(true);
                         }
                     }
@@ -7348,7 +7434,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     @Override
                     public void onClick() {
                         dialogValid.dismiss();
-                        if(clear){
+                        if (clear) {
                             mAdapter.clearSelectedMsg();
                             hideMultiSelect(ivCollection);
                         }
@@ -7418,9 +7504,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                         if (size == fileBeans.size()) {
                                                             //都未过期
                                                             if (action == 1) {
-                                                                filterMsgForward(sourList,false);
+                                                                filterMsgForward(sourList, false);
                                                             } else if (action == 2) {
-                                                                filterMsgCollection(sourList,false);
+                                                                filterMsgCollection(sourList, false);
                                                             }
                                                         } else {
                                                             for (int i = 0; i < size; i++) {
@@ -7435,9 +7521,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                                 }
                                                             }
                                                             if (action == 1) {
-                                                                filterMsgForward(sourList,true);
+                                                                filterMsgForward(sourList, true);//是否过滤掉了过期文件
                                                             } else if (action == 2) {
-                                                                filterMsgCollection(sourList,true);
+                                                                filterMsgCollection(sourList, true);
                                                             }
                                                         }
                                                     } else {//都是过期的
@@ -7449,9 +7535,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                             }
                                                         }
                                                         if (action == 1) {
-                                                            filterMsgForward(sourList,true);
+                                                            filterMsgForward(sourList, true);
                                                         } else if (action == 2) {
-                                                            filterMsgCollection(sourList,true);
+                                                            filterMsgCollection(sourList, true);
                                                         }
                                                     }
                                                 } else {
@@ -7477,25 +7563,25 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                                                 }
                                             }
                                         });
-                                    }else {
+                                    } else {
                                         if (action == 1) {
-                                            filterMsgForward(sourList,false);
+                                            filterMsgForward(sourList, false);
                                         } else if (action == 2) {
-                                            filterMsgCollection(sourList,false);
+                                            filterMsgCollection(sourList, false);
                                         }
                                     }
                                 } else {
                                     if (action == 1) {
-                                        filterMsgForward(sourList,false);
+                                        filterMsgForward(sourList, false);
                                     } else if (action == 2) {
-                                        filterMsgCollection(sourList,false);
+                                        filterMsgCollection(sourList, false);
                                     }
                                 }
                             } else {
                                 if (action == 1) {
-                                    filterMsgForward(sourList,false);
+                                    filterMsgForward(sourList, false);
                                 } else if (action == 2) {
-                                    filterMsgCollection(sourList,false);
+                                    filterMsgCollection(sourList, false);
                                 }
                             }
                         }
@@ -7524,6 +7610,5 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     }
                 }).show();
     }
-
 
 }

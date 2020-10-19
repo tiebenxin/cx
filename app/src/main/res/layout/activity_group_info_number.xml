@@ -22,7 +22,7 @@
                 android:background="@drawable/shape_search_bg"
                 android:paddingRight="0dp">
 
-                <ImageView
+                <net.cb.cb.library.view.CircleImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="12dp"

@@ -5,6 +5,9 @@
     <color name="black_a_20">#40000000</color>
     <color name="transparent">#00000000</color>
 
+    <color name="white_b3">#BFffffff</color>
+
+
     <!-- 透明度 -->
     <color name="transparent_33">#33000000</color>
     <color name="transparent_80">#80000000</color>
@@ -134,6 +137,7 @@
     <color name="c_e95f52">#e95f52</color>
     <color name="c_A7051A">#A7051A</color>
     <color name="c_E75E58">#E75E58</color>
+    <color name="c_9E9D9D">#9E9D9D</color>
 
     <!--截屏通知-->
     <color name="c_3972a1">#3972a1</color>
@@ -147,6 +151,7 @@
     <!--v1.5.15-->
     <color name="c_666666">#666666</color>
     <color name="c_169BD5">#169BD5</color>
+    <color name="c_4886c5">#4886c5</color>
 
     <!--朋友圈模块-->
     <color name="c_333333">#333333</color>

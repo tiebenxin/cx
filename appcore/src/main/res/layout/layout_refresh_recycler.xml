@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <net.cb.cb.library.view.LoadView
         android:id="@+id/load_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <net.cb.cb.library.view.NewPullRefreshLayout
@@ -19,8 +19,11 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true" />
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
     </net.cb.cb.library.view.NewPullRefreshLayout>
 
 </LinearLayout>

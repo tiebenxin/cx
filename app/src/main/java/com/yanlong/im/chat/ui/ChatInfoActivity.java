@@ -138,8 +138,13 @@ public class ChatInfoActivity extends AppActivity {
             tvTwoWayClearChat.setVisibility(View.VISIBLE);
             tvTwoWayClearChatHint.setVisibility(View.VISIBLE);
         } else {
-            tvTwoWayClearChat.setVisibility(View.GONE);
-            tvTwoWayClearChatHint.setVisibility(View.GONE);
+            if (userInfo != null && userInfo.getHistoryClear() == 1) {
+                tvTwoWayClearChat.setVisibility(View.VISIBLE);
+                tvTwoWayClearChatHint.setVisibility(View.VISIBLE);
+            } else {
+                tvTwoWayClearChat.setVisibility(View.GONE);
+                tvTwoWayClearChatHint.setVisibility(View.GONE);
+            }
         }
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
         taskGetInfo();
@@ -368,7 +373,7 @@ public class ChatInfoActivity extends AppActivity {
                     holder.imgHead.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if(canAdd==false){
+                            if (canAdd == false) {
                                 showAddDialog();
                                 return;
                             }
@@ -428,7 +433,7 @@ public class ChatInfoActivity extends AppActivity {
 
         }
         //已注销的用户不允许点击+号
-        if(fUserInfo.getFriendDeactivateStat()==-1){
+        if (fUserInfo != null && fUserInfo.getFriendDeactivateStat() == -1) {
             canAdd = false;
         }
     }
@@ -491,7 +496,7 @@ public class ChatInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateReadDestroy(fuid, survivalTime);
-                    if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                    if (fUserInfo != null && fUserInfo.getFriendDeactivateStat() != -1) {//若该账号已注销，不显示本地通知消息
                         msgDao.noteMsgAddSurvivaltime(fuid, null);
                     }
                 }
@@ -554,7 +559,7 @@ public class ChatInfoActivity extends AppActivity {
                     return;
                 } else {
                     if (response.body().isOk()) {
-                        if (fUserInfo.getFriendDeactivateStat()!=-1){//若该账号已注销，不显示本地通知消息
+                        if (fUserInfo != null && fUserInfo.getFriendDeactivateStat() != -1) {//若该账号已注销，不显示本地通知消息
                             MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screenshot);
                             MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
                             if (bean != null) {
@@ -576,7 +581,7 @@ public class ChatInfoActivity extends AppActivity {
     /**
      * 确认是否退出弹框
      */
-    private void showAddDialog(){
+    private void showAddDialog() {
         dialogOne = builder.setTitle("该账号已注销，无法加入群聊。")
                 .setShowLeftText(false)
                 .setRightText("知道了")

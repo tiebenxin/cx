@@ -67,8 +67,8 @@ import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.repository.ApplicationRepository;
-import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.DailyReportBean;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -98,7 +98,6 @@ import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
@@ -114,7 +113,6 @@ import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -180,7 +178,7 @@ public class MainActivity extends BaseTcpActivity {
     private MsgDao msgDao = new MsgDao();
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
-    private ShopFragemnt mShowFragment;
+    //    private ShopFragemnt mShowFragment;
     @EMainTab
     private int currentTab = EMainTab.MSG;
     private long firstPressTime = 0;//第一次双击时间
@@ -280,6 +278,9 @@ public class MainActivity extends BaseTcpActivity {
             FileManager.getInstance().clearLogDir();
         }
         uploadApp();
+        if (mMsgMainFragment != null && !SocketUtil.getSocketUtil().getOnlineState()) {
+            mMsgMainFragment.doOnlineChange(false);
+        }
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
@@ -359,7 +360,6 @@ public class MainActivity extends BaseTcpActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        mShowFragment = ShopFragemnt.newInstance();
         fragments = new Fragment[]{mMsgMainFragment, CircleFragment.newInstance(),
                 FriendMainFragment.newInstance(), MyFragment.newInstance()};
         tabs = new String[]{"消息", "广场", "通讯录", "我"};
@@ -488,7 +488,7 @@ public class MainActivity extends BaseTcpActivity {
             SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
         }
         // 启动聊天服务
-        startChatServer();
+        startTCP();
 
         mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
             @Override
@@ -606,7 +606,7 @@ public class MainActivity extends BaseTcpActivity {
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         LogUtil.getLog().i("MainActivity--跟踪--Main", "onDestroy--" + SocketUtil.getSocketUtil().isKeepConnect());
         if (!SocketUtil.getSocketUtil().isKeepConnect()) {
-            stopChatService();
+            stopTCP();
         }
         SocketUtil.getSocketUtil().setMainLive(false);
         if (mMsgMainFragment != null) {
@@ -647,17 +647,22 @@ public class MainActivity extends BaseTcpActivity {
     protected void onResume() {
         super.onResume();
         //清除聊天界面的bitmap
-        ChatBitmapCache.getInstance().clearCache();
-        isActivityStop = false;
-        //显示消息未读数
-        taskGetMsgNum();
-        //显示通讯录未读数
-        taskGetFriendNum();
-        checkNotificationOK();
-        checkPayEnvironmentInit();
-        if (AppConfig.isOnline()) {
-            checkHasEnvelopeSendFailed();
+        try {
+            ChatBitmapCache.getInstance().clearCache();
+            isActivityStop = false;
+            //显示消息未读数
+            taskGetMsgNum();
+            //显示通讯录未读数
+            taskGetFriendNum();
+            checkNotificationOK();
+            checkPayEnvironmentInit();
+            if (AppConfig.isOnline()) {
+                checkHasEnvelopeSendFailed();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     //检测支付环境的初始化
@@ -687,26 +692,16 @@ public class MainActivity extends BaseTcpActivity {
             if (token != null) {
                 TokenManager.initToken(token.getAccessToken());
                 PayEnvironment.getInstance().setToken(token.getAccessToken());
-//                CommonInterceptor.headers = Headers.of(TokenManager.TOKEN_KEY, token.getAccessToken());
             }
         }
     }
 
 
-    private void startChatServer() {
-        // 启动聊天服务
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            startForegroundService(new Intent(getContext(), ChatServer.class));
-//        } else {
-//            startService(new Intent(getContext(), ChatServer.class));
-//        }
-//        startService(new Intent(getContext(), ChatServer.class));
+    private void startTCP() {
         TcpConnection.getInstance(AppConfig.getContext()).startConnect();
-
     }
 
-    private void stopChatService() {
-//        stopService(new Intent(getContext(), ChatServer.class));
+    private void stopTCP() {
         TcpConnection.getInstance(AppConfig.getContext()).destroyConnect();
     }
 
@@ -786,37 +781,17 @@ public class MainActivity extends BaseTcpActivity {
     public void tcpConnect(boolean isRun) {
         super.tcpConnect(isRun);
         if (isRun) {
-            startChatServer();
+            startTCP();
         } else {
-            stopChatService();
+            stopTCP();
         }
     }
 
-    //    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void eventRunState(EventRunState event) {
-//        LogUtil.getLog().i("TAG", "连接LOG->>>>应用切换前后台:" + event.getRun() + "--time=" + System.currentTimeMillis());
-//        LogUtil.writeLog("EventRunState" + "--连接LOG--" + "应用切换前后台--" + event.getRun() + "--time=" + System.currentTimeMillis());
-//        if (event.getRun()) {
-//            if (mMsgMainFragment != null) {
-//                SocketUtil.getSocketUtil().addEvent(mMsgMainFragment.getSocketEvent());
-//            }
-//            startChatServer();
-//        } else {
-//            if (mMsgMainFragment != null) {
-//                SocketUtil.getSocketUtil().removeEvent(mMsgMainFragment.getSocketEvent());
-//            }
-//            stopChatService();
-//        }
-//
-//    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventOnlineStatus(EventOnlineStatus event) {
-//        if (!event.isOn()) {
-//            Glide.with(this).pauseRequests();
-//        } else {
-//            Glide.with(this).resumeRequests();
-//        }
+        if (event.isOn()) {
+            reportDaily();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -942,7 +917,7 @@ public class MainActivity extends BaseTcpActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void showUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.HomePageShowUnreadMsgEvent event){
+    public void showUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.HomePageShowUnreadMsgEvent event) {
         //显示广场未读消息数
         if(event.num!=0){
             sbshop.setSktype(0);
@@ -963,9 +938,8 @@ public class MainActivity extends BaseTcpActivity {
         }
     }
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void clearUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.ClearHomePageShowUnreadMsgEvent event){
+    public void clearUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.ClearHomePageShowUnreadMsgEvent event) {
         sbshop.setSktype(0);
         sbshop.setNum(0, true);
     }
@@ -1083,35 +1057,25 @@ public class MainActivity extends BaseTcpActivity {
                     if (updateManage == null) {
                         updateManage = new UpdateManage(context, MainActivity.this);
                         if (!TextUtils.isEmpty(bean.getVersion())) {
-                            //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
-                            if (bean.getForceUpdate() != 0) {
-                                //有最低不需要强制升级版本
-                                if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                                } else {
-                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                                }
+                            //缓存最新版本
+                            SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                            VersionBean versionBean = new VersionBean();
+                            versionBean.setVersion(bean.getVersion());
+                            preferencesUtil.save2Json(versionBean);
+                            if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                             } else {
-                                //缓存最新版本
-                                SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                                VersionBean versionBean = new VersionBean();
-                                versionBean.setVersion(bean.getVersion());
-                                preferencesUtil.save2Json(versionBean);
-                                //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                                if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                                } else {
-                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                                    //如有新版本，首页底部提示红点
-                                    if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
-                                        if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                            sbme.setNum(1, true);
-                                        } else {
-                                            sbme.setNum(0, true);
-                                        }
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                //如有新版本，首页底部提示红点
+                                if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                                    if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
+                                        sbme.setNum(1, true);
+                                    } else {
+                                        sbme.setNum(0, true);
                                     }
                                 }
                             }
+
                         }
                     }
                 }
@@ -1210,25 +1174,6 @@ public class MainActivity extends BaseTcpActivity {
         return isActivityStop;
     }
 
-
-//    private void getSurvivalTimeData() {
-//        //延时操作，等待数据库初始化
-//        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    //子线程延时 等待myapplication初始化完成
-//                    //查询所有阅后即焚消息加入定时器
-//                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-//                    if (list != null && list.size() > 0) {
-////                        BurnManager.getInstance().addMsgAllBeans(list);
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
 
     /**
      * 检查是否开启悬浮窗权限
@@ -1417,7 +1362,7 @@ public class MainActivity extends BaseTcpActivity {
 
     @SuppressLint("CheckResult")
     private void getMsgToPC(String code) {
-        ThreadUtil.getInstance().execute(new Runnable() {
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void run() {
@@ -1450,6 +1395,7 @@ public class MainActivity extends BaseTcpActivity {
                 }
             }
         });
+        ExecutorManager.INSTANCE.getNormalThread().shutdown();
     }
 
     private void uploadMsgFile(File file, String fileName) {
@@ -1475,42 +1421,6 @@ public class MainActivity extends BaseTcpActivity {
         }, file.getAbsolutePath());
     }
 
-    private void showLoginDialog() {
-        if (isFinishing()) {
-            return;
-        }
-        DialogCommon dialogLogin = new DialogCommon(this);
-        dialogLogin.setContent("请退出重登后使用此功能", true)
-                .setTitleAndSure(false, true)
-                .setRight("开启")
-                .setLeft("拒绝")
-                .setListener(new DialogCommon.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        if (!isFinishing()) {
-                            loginoutComment();
-                            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-                            startActivity(loginIntent);
-                            finish();
-                        }
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        viewPage.setCurrentItem(EMainTab.MSG, false);
-                    }
-                }).show();
-
-    }
-
-    public final boolean check() {
-        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
-            return false;
-        }
-        return true;
-    }
-
 
     public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
@@ -1534,32 +1444,12 @@ public class MainActivity extends BaseTcpActivity {
                 }
             }
         });
-
-    }
-
-    //检测是否需要更新token
-    private void checkTokenValid() {
-        if (!isFromLogin) {
-            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-            if (token != null) {
-                Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-                if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-                    LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
-                    userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
-                        @Override
-                        public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                            super.onResponse(call, response);
-                        }
-                    });
-                }
-            }
-        }
     }
 
     private void getIP() {
         long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
         if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
-            ThreadUtil.getInstance().execute(new Runnable() {
+            ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
                 @Override
                 public void run() {
                     NetUtil.getNet().requestIP(new IRequestListener() {
@@ -1577,7 +1467,22 @@ public class MainActivity extends BaseTcpActivity {
                     });
                 }
             });
+            ExecutorManager.INSTANCE.getNormalThread().shutdown();
         }
+    }
 
+    private void reportDaily() {
+        long time = SpUtil.getSpUtil().getSPValue("reportDaily", 0L);
+        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 24)) {
+            userAction.dailyReport(new CallBack<ReturnBean<DailyReportBean>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<DailyReportBean>> call, Response<ReturnBean<DailyReportBean>> response) {
+                    super.onResponse(call, response);
+                    if (response.isSuccessful()) {
+                        SpUtil.getSpUtil().putSPValue("reportDaily", System.currentTimeMillis());
+                    }
+                }
+            });
+        }
     }
 }

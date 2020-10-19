@@ -1,6 +1,5 @@
 package com.yanlong.im.utils.socket;
 
-import android.accounts.NetworkErrorException;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnvironment;
@@ -17,6 +16,9 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
+import net.cb.cb.library.bean.CXSSLException;
+import net.cb.cb.library.bean.CXConnectException;
+import net.cb.cb.library.bean.CXConnectTimeoutException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.constant.BuglyTag;
@@ -30,7 +32,12 @@ import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -38,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SocketUtil {
     private static final String TAG = "SocketUtil";
@@ -54,6 +62,17 @@ public class SocketUtil {
     private long heartbeatStep = 30 * 1000;
     private boolean keepConnect = false;//是否保持连接
     private boolean isMainLive = false;//是否主界面存活
+    private ScheduledFuture<?> heardSchedule;
+    private long startTime;//开始连接时间
+    private int sslCount = 0;
+    private boolean isFirst = true;//是否第一次链接
+    //正在运行
+    private int isRun = 0;//0:没运行1:启动中:2运行中
+    //线程版本
+    private long threadVer = 0;
+    private final AtomicReference<Integer> connStatus = new AtomicReference<>(EConnectionStatus.DEFAULT);
+    private boolean isDestroyConnect = false;
+
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
     //事件分发
@@ -65,7 +84,7 @@ public class SocketUtil {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
-            SocketData.setPreServerAckTime(bean.getTimestamp());
+//            SocketData.initTime(bean.getTimestamp());
             boolean isAccepted = false;
             MsgAllBean msgAllBean = null;
             LogUtil.getLog().d(TAG, ">>>>>接受回执--size=" + bean.getMsgIdCount());
@@ -200,10 +219,6 @@ public class SocketUtil {
 
         }
     };
-    //正在运行
-    private int isRun = 0;//0:没运行1:启动中:2运行中
-    //线程版本
-    private long threadVer = 0;
 
 
     private Runnable heartRunnable = new Runnable() {
@@ -227,8 +242,8 @@ public class SocketUtil {
             }
         }
     };
-    private ScheduledFuture<?> heardSchedule;
-    private long startTime;
+    private String host;
+
 
     public boolean isRun() {
         return isRun > 0;
@@ -239,11 +254,10 @@ public class SocketUtil {
      * @param state
      */
     private void setRunState(int state) {
-//        if (isRun == state) {
-//            return;
-//        }
+        LogUtil.getLog().i(TAG, "连接LOG--setRunState--status=" + state + "--time=" + System.currentTimeMillis());
         isRun = state;
-        if (isRun == 0) {
+        if (isRun == 0 || isRun == 1) {
+            updateConnectStatus(EConnectionStatus.DEFAULT);
             event.onLine(false);
         }
         if (isRun == 2) {
@@ -314,24 +328,38 @@ public class SocketUtil {
      * 启动
      */
     private void run() {
-        if (isRun()) {
+        if (isDestroyConnect || getOnlineState()) {
+            LogUtil.writeLog(TAG + "--连接LOG--run-return" + "isDestroyConnect--" + isDestroyConnect + "--onlineState=" + getOnlineState());
             return;
         }
         //无网络，不连接
-        if (!NetUtil.isNetworkConnected()) {
-            setRunState(0);
-            return;
-        }
+//        if (!NetUtil.isNetworkConnected()) {
+//            setRunState(0);
+//            LogUtil.writeLog(TAG + "--连接LOG--run-return--无网络--isNetworkConnected");
+//            return;
+//        }
         setRunState(1);
         try {
+            //!getOnlineState() 考虑连接OK,SSL鉴权失败的情况
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
+            } else if (socketChannel != null && socketChannel.isConnected()) {
+                if (!getOnlineState()) {
+                    LogUtil.getLog().i(TAG, "--连接LOG--" + "run--已连接直接SSL");
+                    sslConnect();
+                }
             }
         } catch (Exception e) {
-            LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-            setRunState(0);
-            e.printStackTrace();
-            stop(true);
+            if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException || e instanceof CXSSLException) {
+                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                run();
+            } else {
+                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+                e.printStackTrace();
+                stop(true);
+            }
         }
     }
 
@@ -403,7 +431,6 @@ public class SocketUtil {
      * 发送队列线程
      */
     private void sendListThread() {
-        LogUtil.getLog().d(TAG, ">>>发送队列线程启动---------------");
         ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
@@ -411,8 +438,6 @@ public class SocketUtil {
                     while (isRun() /*&& indexVer == threadVer*/) {
                         SendList.loopList();
                         Thread.sleep(sendListStep);
-//                        LogUtil.getLog().i(TAG, ">>>>>sleep--sendListStep=" + sendListStep);
-
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -429,15 +454,19 @@ public class SocketUtil {
      * 启动，纳入线程池管理,偶尔有延时，所以暂不纳入线程池管理
      */
     public void startSocket() {
+        isDestroyConnect = false;
         if (isStart && isRun()) {
             LogUtil.getLog().i(TAG, "连接LOG>>>>> 当前正在运行");
             return;
         }
+        LogUtil.getLog().i(TAG, "连接LOG--startSocket: status=0 ");
         setRunState(0);
         isStart = true;
+        isDestroyConnect = false;
         new Thread(new Runnable() {
             @Override
             public void run() {
+                parseDNS();
                 LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
                 if (socketChannel != null) {
                     LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
@@ -465,12 +494,6 @@ public class SocketUtil {
                 }
             }
         }).start();
-//        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        });
     }
 
     /***
@@ -478,11 +501,15 @@ public class SocketUtil {
      * */
     public void stopSocket() {
         isStart = false;
+        isDestroyConnect = true;
+        isFirst = true;
+        startTime = 0;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 stop2();
                 clearThread();
+                SocketData.clearTime();
             }
         }).start();
     }
@@ -492,14 +519,9 @@ public class SocketUtil {
      */
     public void endSocket() {
         isStart = false;
-//        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                stop2();
-//                clearThread();
-//            }
-//        });
+        isDestroyConnect = true;
+        isFirst = true;
+        startTime = 0;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -534,7 +556,12 @@ public class SocketUtil {
      * @param msg
      */
     public void sendData4Msg(MsgBean.UniversalMessage.Builder msg) {
-//        LogUtil.getLog().e("=sendData4Msg=msg=="+msg);
+        try {
+            LogUtil.writeLog("sendData4Msg--" + "msgId=" + msg.getWrapMsg(0).getMsgId() + "--msgType=" + msg.getWrapMsg(0).getMsgType()
+                    + "--gid=" + msg.getWrapMsg(0).getGid() + "--toUid=" + msg.getWrapMsg(0).getToUid());
+        } catch (Exception e) {
+
+        }
         //添加到消息队中监听
         SendList.addSendList(msg.getRequestId(), msg);
         sendData(SocketPacket.getPackage(SocketPacket.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg, msg.getRequestId());
@@ -550,68 +577,104 @@ public class SocketUtil {
      * 链接
      */
     private void connect() throws Exception {
+        if (getConnectStatus() == EConnectionStatus.CONNECTED) {
+            LogUtil.getLog().i(TAG, "连接LOG--已经连接了，return");
+            return;
+        }
         socketChannel = new SSLSocketChannel2(SocketChannel.open());
         socketChannel.socket().setTcpNoDelay(true);//关闭Nagle算法,及关闭延迟
         //socketChannel =  SocketChannel.open();
         writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
-        startTime = System.currentTimeMillis();
-        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
-        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        if (isFirst) {
+            startTime = System.currentTimeMillis();
+            isFirst = false;
+        }
+        LogUtil.getLog().d(TAG, "连接LOG " + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
         if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
-            long ttime = System.currentTimeMillis();
-            try {
-                while (!socketChannel.finishConnect()) {
-                    //在等待连接的时间里,为什么睡眠200ms？？？？？
-                    //TODO：取消线程睡眠。2020.5.12
-//                Thread.sleep(200);
-                    long connTime = System.currentTimeMillis() - ttime;
-                    if (connTime > 2 * 1000) {
-                        LogUtil.getLog().d(TAG, ">>>链接中超时");
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:finishConnect出错");
-                Thread.sleep(100);
-                stop2();
-                connect();
-                return;
-            }
-
-            LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime) + "--time=" + System.currentTimeMillis());
-            if (!socketChannel.isConnected()) {
-                LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
-                LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:链接不上");
-                throw new NetworkErrorException();
-            }
-
-            //3.
-            long ctime = System.currentTimeMillis();
-            if (socketChannel.tryTLS(1) == 0) {
-                if (socketChannel != null) {
-                    socketChannel.socket().close();
-                    socketChannel.close();
-                    socketChannel = null;
-                }
-                LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
-                LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
-                //证书问题
-                throw new NetworkErrorException();
-            } else {
-                long endTime = System.currentTimeMillis();
-                LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>鉴权成功,总耗时=" + (endTime - ctime));
-                showConnectTime(endTime);
-                receive();
-                //发送认证请求
-                TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
-                sendData(SocketData.msg4Auth(), null, "");
+            if (finishConnect()) return;
+            boolean connected = checkConnect();
+            if (connected) {
+                updateConnectStatus(EConnectionStatus.CONNECTED);
+                LogUtil.getLog().d(TAG + "--连接LOG", ">>>链接成功，总耗时=" + (System.currentTimeMillis() - startTime) + "--time=" + System.currentTimeMillis());
+                sslConnect();
             }
         }
+    }
 
+    private void sslConnect() throws IOException, CXSSLException, InterruptedException {
+        if (socketChannel == null || !socketChannel.isConnected()) {
+            LogUtil.writeLog(TAG + "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
+            LogUtil.getLog().e(TAG, "--连接LOG--" + "无效SSL鉴权--channel为空或未连接");
+            return;
+        }
+        long time = System.currentTimeMillis();
+        if (socketChannel.tryTLS(1) == 0) {
+            if (socketChannel != null) {
+                setRunState(0);
+                socketChannel.close();
+                socketChannel = null;
+            }
+            LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
+            LogUtil.writeLog(TAG + "--连接LOG--" + "鉴权失败");
+            //证书问题
+            throw new CXSSLException();
+        } else {
+            updateConnectStatus(EConnectionStatus.SSL);
+            long endTime = System.currentTimeMillis();
+            LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>SSL握手成功,总耗时=" + (endTime - time));
+            showConnectTime(endTime);
+            receive();
+            //发送认证请求
+            TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
+            LogUtil.getLog().d(TAG + "--连接LOG", "发送token--time=" + System.currentTimeMillis());
+            sendData(SocketData.msg4Auth(), null, "");
+        }
+    }
+
+    private synchronized boolean checkConnect() throws CXConnectTimeoutException, InterruptedException {
+        if (socketChannel == null) {
+            LogUtil.getLog().e(TAG, "--连接LOG--" + "无效checkConnect--channel为空");
+            return false;
+        }
+        long time = System.currentTimeMillis();
+        while (!socketChannel.isConnected()) {
+            LogUtil.getLog().e(TAG, "--连接LOG--未连接上，睡眠200ms");
+            long connTime = System.currentTimeMillis() - time;
+            if (connTime > 3 * 1000) {
+                LogUtil.getLog().d(TAG, "连接LOG-->链接中3s超时" + "--time=" + System.currentTimeMillis());
+                throw new CXConnectTimeoutException();
+            }
+            Thread.sleep(200);
+        }
+        return true;
+    }
+
+    private boolean finishConnect() throws Exception {
+        if (socketChannel == null) {
+            LogUtil.getLog().e(TAG, "--连接LOG--" + "无效finishConnect--channel为空");
+            return false;
+        }
+        long time = System.currentTimeMillis();
+        try {
+            Thread.sleep(200);//给Socket200ms的pending时间,减少finish抛异常几率
+            while (!socketChannel.finishConnect()) {
+                long connTime = System.currentTimeMillis() - time;
+                if (connTime > 3 * 1000) {
+                    LogUtil.getLog().d(TAG, "连接LOG-->>>链接中3s超时" + "--time=" + System.currentTimeMillis());
+                    throw new CXConnectTimeoutException();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.writeLog(TAG + "--连接LOG--" + "链接失败:finishConnect出错");
+            Thread.sleep(100);
+            throw new CXConnectTimeoutException();
+        }
+        return false;
     }
 
     private void showConnectTime(long endTime) {
@@ -761,7 +824,7 @@ public class SocketUtil {
                         //6.20 鉴权失败退出登录
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {
-                        SocketData.setPreServerAckTime(ruthmsg.getTimestamp());
+                        SocketData.initTime(ruthmsg.getTimestamp());
                         setRunState(2);
                         //开始心跳
                         heartbeatTime = System.currentTimeMillis();
@@ -835,4 +898,40 @@ public class SocketUtil {
         ExecutorManager.INSTANCE.getReadThread().shutdown();
         ExecutorManager.INSTANCE.getSocketThread().shutdown();
     }
+
+    //暂不解析DNS,有异常，且连接速度无明显提升
+    public String parseDNS() {
+        host = AppHostUtil.getTcpHost();
+//        try {
+//            InetAddress inetAddress = InetAddress.getByName(AppHostUtil.getTcpHost());
+//            if (!TextUtils.isEmpty(inetAddress.getHostAddress())) {
+//                host = inetAddress.getHostAddress();
+//                LogUtil.getLog().i(TAG, "连接LOG--DNS-IP=" + host);
+//            }
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        }
+        return host;
+    }
+
+    private void updateConnectStatus(@EConnectionStatus int status) {
+        LogUtil.getLog().i(TAG, "连接LOG--更新连接状态--status=" + status + "--time=" + System.currentTimeMillis());
+        connStatus.set(status);
+    }
+
+    public int getConnectStatus() {
+        return connStatus.get();
+    }
+
+    //链接状态
+    @androidx.annotation.IntDef({EConnectionStatus.DEFAULT, EConnectionStatus.CONNECTING, EConnectionStatus.CONNECTED, EConnectionStatus.SSL, EConnectionStatus.AUTH})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EConnectionStatus {
+        int DEFAULT = 0;//默认，未连接
+        int CONNECTING = 1;//连接中
+        int CONNECTED = 2;//已连接
+        int SSL = 3;//SSL握手成功
+        int AUTH = 4;//已鉴权，token
+    }
+
 }

@@ -66,6 +66,8 @@ public class SocketData {
     private static MsgDao msgDao = new MsgDao();
     public static long CLL_ASSITANCE_ID = 1L;//常信小助手id
     private static String fileLocalUrl = "";//文件消息本地路径
+    private static long serviceTime;//服务器时间
+    private static long localTime;
 
 
     /***
@@ -231,7 +233,7 @@ public class SocketData {
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
 
-            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid(), bean.getTimestamp());
             MessageManager.getInstance().setMessageChange(true);
 
         }
@@ -276,8 +278,7 @@ public class SocketData {
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
-
-            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid(), msgAllBean.getTimestamp());
             MessageManager.getInstance().setMessageChange(true);
         }
     }
@@ -315,7 +316,7 @@ public class SocketData {
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
 
-            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid(), bean.getTimestamp());
             MessageManager.getInstance().setMessageChange(true);
         }
     }
@@ -399,6 +400,16 @@ public class SocketData {
         //是否是发送给文件传输助手
         if (toId != null && toId.longValue() == -userInfo.getUid()) {
             toId = userInfo.getUid().longValue();
+        }
+        //检测消息接收方是否有效
+        boolean isToUserValid = false;
+        if (!TextUtils.isEmpty(toGid)) {
+            isToUserValid = true;
+        } else if (TextUtils.isEmpty(toGid) && toId != null && toId.longValue() > 0) {
+            isToUserValid = true;
+        }
+        if (!isToUserValid) {
+            return null;
         }
         initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, 0, type, value, wrap);
         if (wrap == null) {
@@ -585,52 +596,6 @@ public class SocketData {
      */
     private static String videoLocalUrl = null;
 
-
-    //预发送需文件（图片，语音）上传消息,保存消息及更新session
-    public static <T> MsgAllBean sendFileUploadMessagePre(String msgId, Long toId, String toGid, long time, T t, @ChatEnum.EMessageType int type) {
-        //前保存
-        MsgAllBean msgAllBean = new MsgAllBean();
-        msgAllBean.setMsg_id(msgId);
-        IUser mInfo = UserAction.getMyInfo();
-        msgAllBean.setFrom_uid(mInfo.getUid());
-        msgAllBean.setFrom_avatar(mInfo.getHead());
-        msgAllBean.setFrom_nickname(mInfo.getName());
-        msgAllBean.setRequest_id(getSysTime() + "");
-        msgAllBean.setTimestamp(time);
-        msgAllBean.setMsg_type(type);
-
-        int survivalTime = new UserDao().getReadDestroy(toId, toGid);
-        msgAllBean.setSurvival_time(survivalTime);
-
-        msgAllBean.setRead(true);//自己发送时已读的
-        switch (type) {
-            case ChatEnum.EMessageType.IMAGE:
-                ImageMessage image = (ImageMessage) t;
-                msgAllBean.setImage(image);
-                break;
-            case ChatEnum.EMessageType.VOICE:
-                VoiceMessage voice = (VoiceMessage) t;
-                msgAllBean.setVoiceMessage(voice);
-                break;
-            case ChatEnum.EMessageType.MSG_VIDEO:
-                VideoMessage video = (VideoMessage) t;
-                msgAllBean.setVideoMessage(video);
-                break;
-            case ChatEnum.EMessageType.FILE:
-                SendFileMessage file = (SendFileMessage) t;
-                msgAllBean.setSendFileMessage(file);
-                break;
-        }
-
-        msgAllBean.setTo_uid(toId);
-        msgAllBean.setGid(toGid == null ? "" : toGid);
-        msgAllBean.setSend_state(ChatEnum.ESendStatus.PRE_SEND);
-        DaoUtil.update(msgAllBean);
-        msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
-        MessageManager.getInstance().setMessageChange(true);
-        return msgAllBean;
-    }
-
     public static VoiceMessage createVoiceMessage(String msgId, String url, int duration) {
         VoiceMessage message = new VoiceMessage();
         message.setPlayStatus(ChatEnum.EPlayStatus.NO_PLAY);
@@ -694,7 +659,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static ImageMessage createImageMessage(String msgId, String local, String originUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size) {
+    public static ImageMessage createImageMessage(String msgId, String local, String originUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size, String thumbUrl) {
         ImageMessage image = new ImageMessage();
         String extTh = "/below-20k";
         String extPv = "/below-200k";
@@ -707,8 +672,16 @@ public class SocketData {
                 image.setThumbnail(originUrl);
             } else {
                 //TODO: 未发原图时，预览图使用原图url，避免像素下降
-                image.setPreview(originUrl);
-                image.setThumbnail(originUrl + extTh);
+                if (isOriginal) {
+                    image.setPreview(originUrl + extPv);
+                } else {
+                    image.setPreview(originUrl);
+                }
+                if (!TextUtils.isEmpty(thumbUrl)) {
+                    image.setThumbnail(thumbUrl);
+                } else {
+                    image.setThumbnail(originUrl + extTh);
+                }
             }
             if (isOriginal) {
                 image.setOrigin(originUrl);
@@ -833,6 +806,7 @@ public class SocketData {
                 SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
                 MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
                 SocketUtil.getSocketUtil().sendData4Msg(msg);
+                LogUtil.getLog().i("消息LOG", "发送消息--requestId=" + bean.getRequest_id() + "--type=" + bean.getMsg_type() + "--chat=" + (bean.getChat() != null ? bean.getChat().getMsg() : ""));
             }
         } else {
             if (needSave) {
@@ -1014,29 +988,24 @@ public class SocketData {
         return note;
     }
 
-    public static long getPreServerAckTime() {
-        return preServerAckTime;
+    //以鉴权成功作为起始时间
+    public static void initTime(long serTime) {
+        serviceTime = serTime;
+        localTime = System.currentTimeMillis();
     }
 
-    public static void setPreServerAckTime(long preServerAckTime) {
-        SocketData.preServerAckTime = preServerAckTime;
-    }
-
-    public static long getPreSendLocalTime() {
-        return preSendLocalTime;
-    }
-
-    public static void setPreSendLocalTime(long preSendLocalTime) {
-        SocketData.preSendLocalTime = preSendLocalTime;
+    public static void clearTime() {
+        serviceTime = 0;
+        localTime = 0;
     }
 
     //获取修正时间
     public static long getFixTime() {
         long currentTime = System.currentTimeMillis();
-        if (preServerAckTime > preSendLocalTime && preServerAckTime > currentTime) {//服务器回执时间最新
-            currentTime = preServerAckTime + 1;
-            preServerAckTime = currentTime;
-        } else if (preSendLocalTime > preServerAckTime && preSendLocalTime > currentTime) {//本地发送时间最新
+        if (serviceTime > preSendLocalTime && serviceTime > currentTime) {//服务器回执时间最新
+            currentTime = serviceTime + 1;
+            serviceTime = currentTime;
+        } else if (preSendLocalTime > serviceTime && preSendLocalTime > currentTime) {//本地发送时间最新
             currentTime = preSendLocalTime + 1;
             preSendLocalTime = currentTime;
         } else {//本地系统时间最新
@@ -1044,6 +1013,19 @@ public class SocketData {
         }
         return currentTime;
     }
+
+    //获取当前服务器时间
+    public static long getCurrentTime() {
+        long result = 0;
+        if (serviceTime > 0 && localTime > 0) {
+            result = serviceTime + (System.currentTimeMillis() - localTime);
+        }
+        if (result <= 0) {
+            result = System.currentTimeMillis();
+        }
+        return result;
+    }
+
 
     public static long getSysTime() {
         return System.currentTimeMillis();
@@ -1456,7 +1438,7 @@ public class SocketData {
         if (msgDao == null) {
             msgDao = new MsgDao();
         }
-        msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
+        msgDao.sessionCreate(bean.getGid(), bean.getTo_uid(), bean.getTimestamp());
         MessageManager.getInstance().setMessageChange(true);
     }
 
@@ -2441,7 +2423,6 @@ public class SocketData {
         msg.setIsLocal(1);
         DaoUtil.save(msg);
     }
-
 
 
 }

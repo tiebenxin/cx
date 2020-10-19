@@ -18,7 +18,7 @@
             android:padding="5dp"
             android:visibility="visible">
 
-            <com.hm.cxpay.widget.CircleImageView
+            <net.cb.cb.library.view.CircleImageView
                 android:id="@+id/iv_notice_avatar"
                 android:layout_width="26dp"
                 android:layout_height="26dp"

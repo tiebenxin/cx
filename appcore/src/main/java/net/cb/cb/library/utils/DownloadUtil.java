@@ -52,11 +52,11 @@ public class DownloadUtil {
 
         OkHttpClient client = new OkHttpClient();
 
-        try {
-            Response response = client.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Response response = client.newCall(request).execute();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         //异步请求
         call = okHttpClient.newCall(request);
 
@@ -318,5 +318,70 @@ public class DownloadUtil {
             }
         };
 
+    }
+
+    /**
+     * @param url          下载连接
+     * @param destFile  下载的文件路劲
+     * @param listener     下载监听
+     */
+    public Call download(final String url, final File destFile, final OnDownloadListener listener) {
+        Call call;
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        //异步请求
+        call = okHttpClient.newCall(request);
+
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // 下载失败监听回调
+                listener.onDownloadFailed(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                InputStream is = null;
+                byte[] buf = new byte[2048];
+                int len = 0;
+                FileOutputStream fos = null;
+                try {
+
+                    is = response.body().byteStream();
+                    long total = response.body().contentLength();
+                    fos = new FileOutputStream(destFile);
+                    long sum = 0;
+                    while ((len = is.read(buf)) != -1) {
+                        fos.write(buf, 0, len);
+                        sum += len;
+                        int progress = new Double(sum * 1.0d / total * 100d).intValue();
+                        //下载中更新进度条
+                        listener.onDownloading(progress);
+                    }
+                    fos.flush();
+                    //下载完成
+                    listener.onDownloadSuccess(destFile);
+                    Log.v(TAG, destFile.getAbsolutePath() + "--下载完成");
+
+                } catch (Exception e) {
+                    listener.onDownloadFailed(e);
+                } finally {
+
+                    try {
+                        if (is != null) {
+                            is.close();
+                        }
+                        if (fos != null) {
+                            fos.close();
+                        }
+                    } catch (IOException e) {
+
+                    }
+
+                }
+            }
+        });
+        return call;
     }
 }

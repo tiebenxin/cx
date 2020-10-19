@@ -161,13 +161,6 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
-     * 点击大图/视频播放界面不支持类型收藏提示弹框
-     */
-    public static class EventShowDisallowedMsgNotice extends BaseEvent {
-
-    }
-
-    /**
      * 网络监听
      */
     public static class EventNetStatus {
@@ -188,17 +181,9 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
-     * 刷新聊天界面的某一条消息
+     * 刷新聊天界面
      */
     public static class UpdateOneMsgEvent extends BaseEvent{
-        private String msgId;
 
-        public String getMsgId() {
-            return msgId;
-        }
-
-        public void setMsgId(String msgId) {
-            this.msgId = msgId;
-        }
     }
 }

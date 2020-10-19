@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.bean;
 
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -17,6 +18,8 @@ public class MsgNotice extends RealmObject implements IMsgContent {
     private String note;
     private Integer msgType = MSG_TYPE_DEFAULT;
     private String remark;//申请入群备注
+    private int joinGroupType;//申请入群方式  0 扫码 1 正常邀请
+    private RealmList<String> ids;//申请入群aid，方便查询入群申请记录
 
     public Integer getMsgType() {
         return msgType;
@@ -58,5 +61,21 @@ public class MsgNotice extends RealmObject implements IMsgContent {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public int getJoinGroupType() {
+        return joinGroupType;
+    }
+
+    public void setJoinGroupType(int joinGroupType) {
+        this.joinGroupType = joinGroupType;
+    }
+
+    public RealmList<String> getIds() {
+        return ids;
+    }
+
+    public void setIds(RealmList<String> ids) {
+        this.ids = ids;
     }
 }

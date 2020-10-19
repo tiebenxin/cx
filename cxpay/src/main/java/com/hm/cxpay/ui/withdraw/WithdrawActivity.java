@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
@@ -56,7 +57,7 @@ import static com.hm.cxpay.ui.recharege.RechargeActivity.SELECT_BANKCARD;
  * @by zjy
  * @备注：
  */
-public class WithdrawActivity extends AppActivity {
+public class WithdrawActivity extends BasePayActivity {
     private HeadView headView;
     private ActionbarView actionbar;
     private RelativeLayout layoutChangeBankcard;//切换或新增银行卡

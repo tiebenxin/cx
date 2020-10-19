@@ -331,6 +331,7 @@ public class MsgConversionBean {
                 MsgNotice gNotice = new MsgNotice();
                 gNotice.setMsgid(msgAllBean.getMsg_id());
                 String names = "";
+                boolean isMe;//邀请者是否为我，是则显示撤销
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
                     if (UserAction.getMyId() != null && bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
@@ -358,7 +359,9 @@ public class MsgConversionBean {
                 String inviterName = bean.getAcceptBeGroup().getInviterName();//邀请者名字
                 if (UserAction.getMyId() != null && bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
                     inviterName = "<font value ='3'>你</font>";
+                    isMe = true;
                 } else {
+                    isMe = false;
                     MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
                     if (gmsg != null) {
                         inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : inviterName;
@@ -375,17 +378,25 @@ public class MsgConversionBean {
                 }
                 //A邀请B加入群聊
                 //B通过扫码A分享的二维码加入群聊
-                String node = "";
+                String node;
                 //最后一个名字，不显示、号
                 if (names.endsWith("、")) names = names.substring(0, names.length() - 2);
+                String ifCancel = "<font color='#276baa' id='" + "-98" + "'><a href=''>" + "撤销" + "</a></font>";//"撤销"模拟成一个超链接对象id为-98
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
                     gNotice.setMsgType(1);
-                    node = names + "通过扫" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
+                    if(isMe){
+                        node = names + "通过扫描" + inviterName + "分享的二维码加入了群聊，" + ifCancel + "<div id='" + bean.getGid() + "'></div>";
+                    }else {
+                        node = names + "通过扫描" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
+                    }
                 } else {//被邀请
                     gNotice.setMsgType(2);
-                    node = inviterName + "邀请" + names + "加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
+                    if(isMe){
+                        node = inviterName + "邀请" + names + "加入了群聊，" + ifCancel + "<div id='" + bean.getGid() + "'></div>";
+                    }else {
+                        node = inviterName + "邀请" + names + "加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
+                    }
                 }
-
                 // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
                 gNotice.setNote(node);
                 msgAllBean.setMsgNotice(gNotice);
@@ -413,15 +424,32 @@ public class MsgConversionBean {
                 }
                 MsgBean.RequestGroupMessage requestGroupMessage = bean.getRequestGroup();
                 if (requestGroupMessage.getNoticeMessageList() != null && requestGroupMessage.getNoticeMessageList().size() > 0) {
-                    StringBuffer stringBuffer = new StringBuffer();
-                    for (MsgBean.GroupNoticeMessage inviteNoticeMsg : requestGroupMessage.getNoticeMessageList()) {
-                        stringBuffer.append("\"<font color='#276baa' id='" + inviteNoticeMsg.getUid() + "'><a href=''>" + inviteNoticeMsg.getNickname() + "</a></font>\"、");
-                    }
-
-                    String inviteNames = stringBuffer.substring(0, stringBuffer.length() - 1);
-                    String fromUser = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";
+                    RealmList<String> ids = new RealmList<>();
+                    String fromUserOne = "\"<font color='#276baa' id='" + fromUid + "'><a href=''>" + name + "</a></font>\"";//普通邀请入群发起者
+                    String fromUserTwo;//扫码入群发起者
                     String toSure = "<font color='#276baa' id='" + "-99" + "'><a href=''>" + "去确认" + "</a></font>";//"去确认"模拟成一个超链接对象id为-99
-                    inviteNotice.setNote(fromUser+"邀请"+inviteNames +"加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
+                    //扫码入群
+                    if(bean.getRequestGroup().getJoinTypeValue()==0){
+                        MsgBean.GroupNoticeMessage inviteNoticeMsg = requestGroupMessage.getNoticeMessageList().get(0);//扫码只有一个入群申请
+                        String inviteName = "\"<font color='#276baa' id='" + inviteNoticeMsg.getUid() + "'><a href=''>" + inviteNoticeMsg.getNickname() + "</a></font>\"";
+                        if(UserAction.getMyId()!=null && bean.getRequestGroup().getInviter()==UserAction.getMyId().longValue()){
+                            fromUserTwo = "你";
+                        }else {
+                            fromUserTwo = "\"<font color='#276baa' id='" + requestGroupMessage.getInviter() + "'><a href=''>" + requestGroupMessage.getInviterName() + "</a></font>\"";
+                        }
+                        inviteNotice.setNote(inviteName + "通过扫描" + fromUserTwo + "分享的二维码申请加入本群，" + toSure + "<div id='" + bean.getGid() + "'></div>");
+                        ids.add(msgAllBean.getGid()+inviteNoticeMsg.getUid()+"");//保存所有的aid，方便后续查询入群申请
+                        inviteNotice.setIds(ids);
+                        inviteNotice.setJoinGroupType(0);
+                    }else {
+                        //普通邀请入群
+                        for (MsgBean.GroupNoticeMessage inviteNoticeMsg : requestGroupMessage.getNoticeMessageList()) {
+                            ids.add(msgAllBean.getGid()+inviteNoticeMsg.getUid()+"");//保存所有的aid，方便后续查询入群申请
+                        }
+                        inviteNotice.setNote(fromUserOne+"想邀请"+requestGroupMessage.getNoticeMessageList().size()+"位朋友加入本群，" +toSure+ "<div id='" + bean.getGid() + "'></div>");
+                        inviteNotice.setIds(ids);
+                        inviteNotice.setJoinGroupType(1);
+                    }
                     inviteNotice.setMsgType(ENoticeType.REQUEST_GROUP);
                     //保存入群申请验证备注
                     if(!TextUtils.isEmpty(bean.getRequestGroup().getAdditional())){
@@ -429,8 +457,6 @@ public class MsgConversionBean {
                     }
                     msgAllBean.setMsgNotice(inviteNotice);
                 }
-
-
                 break;
             case DESTROY_GROUP://群解散
                 msgAllBean.setGid(bean.getGid());

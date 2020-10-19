@@ -62,7 +62,7 @@ public class ChatCellImage extends ChatCellFileBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         imageMessage = message.getImage();
-        if (imageMessage == null) {
+        if (imageMessage == null || !isActivityValid()) {
             return;
         }
         loadImage(message);
@@ -165,7 +165,7 @@ public class ChatCellImage extends ChatCellFileBase {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
 //                        if (e.getMessage().contains("FileNotFoundException")) {
-                            imageView.setImageResource(R.mipmap.ic_img_past);
+                        imageView.setImageResource(R.mipmap.ic_img_past);
 //                        }
                         return false;
                     }

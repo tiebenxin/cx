@@ -34,7 +34,7 @@ import retrofit2.Response;
  */
 public class UpFileAction {
     public static enum PATH {
-        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE, VIDEO, FILE, PC_MSG
+        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE, VIDEO, FILE, PC_MSG, IMG_PERSIST, VIDEO_FRAME
     }
 
     private UpFileServer server;
@@ -109,6 +109,12 @@ public class UpFileAction {
                 break;
             case PC_MSG:
                 pt = AppConfig.getUpPath() + "/file/msg/" + id + "/" + simpleDateFormat.format(data);
+                break;
+            case IMG_PERSIST:
+                pt = "thumb";
+                break;
+            case VIDEO_FRAME:
+                pt = "frame/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());
@@ -235,7 +241,7 @@ public class UpFileAction {
 //                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
-                                            configBean.getBucket(), callback, filePath, fileByte,false);
+                                            configBean.getBucket(), callback, filePath, fileByte, false);
 
                                     UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
                                 }
@@ -295,7 +301,7 @@ public class UpFileAction {
 //                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id, fileName), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
-                                            configBean.getBucket(), callback, filePath, fileByte,false);
+                                            configBean.getBucket(), callback, filePath, fileByte, false);
 
                                     UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
                                 }
@@ -329,15 +335,15 @@ public class UpFileAction {
 
     CountDownLatch signal;
 
-    public void upFileSyn(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, String filePath) {
+
+    //图片上传
+    public void upFileSyn(final PATH type, final Context context, final UpFileUtil.OssImageUpCallback callback, String filePath) {
 
         if (filePath.startsWith("file://")) {
             filePath = filePath.replace("file://", "");
         }
         final String filep = filePath;
         signal = new CountDownLatch(1);
-
-
         NetUtil.getNet().exec(
                 server.aliObs()
                 , new CallBack<ReturnBean<AliObsConfigBean>>() {
@@ -365,10 +371,24 @@ public class UpFileAction {
                                             configBean.getBucket(), new UpFileUtil.OssUpCallback() {
 
                                                 @Override
-                                                public void success(String url) {
-                                                    Log.d("cc", "upFileSyn: success");
+                                                public void success(final String url) {
                                                     signal.countDown();
-                                                    callback.success(url);
+                                                    //持久化缩略图
+                                                    persistImage(PATH.IMG_PERSIST, context, url, new UpFileUtil.OssUpCallback() {
+                                                        @Override
+                                                        public void success(String thumb) {
+                                                            callback.success(url, thumb);
+                                                        }
+
+                                                        @Override
+                                                        public void fail() {
+                                                            callback.fail();
+                                                        }
+
+                                                        @Override
+                                                        public void inProgress(long progress, long zong) {
+                                                        }
+                                                    });
                                                 }
 
                                                 @Override
@@ -381,7 +401,7 @@ public class UpFileAction {
                                                 public void inProgress(long progress, long zong) {
                                                     callback.inProgress(progress, zong);
                                                 }
-                                            }, filep, null,false);
+                                            }, filep, null, false);
                                 }
                             }).start();
 
@@ -464,6 +484,138 @@ public class UpFileAction {
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(fileUploadObserver);
+    }
+
+
+    //持久化图片
+    public void persistImage(final PATH type, final Context context, final String url, final UpFileUtil.OssUpCallback callback) {
+        startTime = SystemClock.currentThreadTimeMillis();
+        NetUtil.getNet().exec(
+                server.aliObs()
+                , new CallBack<ReturnBean<AliObsConfigBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
+                        if (response.body() == null) {
+                            LogUtil.writeLog("上传失败--response = null");
+                            callback.fail();
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            final AliObsConfigBean configBean = response.body().getData();
+                            if (!StringUtil.isNotNull(configBean.getSecurityToken())) {
+
+                                callback.fail();
+                                return;
+                            }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
+                                    String endpoint;
+                                    endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
+                                    String fileName = UpFileUtil.getInstance().getFileName(url);
+                                    UpFileUtil.getInstance().saveAsFile(getPath(type, ""), context, configBean.getAccessKeyId(),
+                                            configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint, configBean.getBucket(), callback, url, fileName);
+
+//                                    UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
+                                }
+                            }).start();
+                        } else {
+                            ToastUtil.show(context, "上传失败");
+                            if (call != null) {
+                                LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                            }
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        callback.fail();
+                        long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
+                        UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                        if (call != null) {
+                            LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                        }
+
+                    }
+                });
+
+
+    }
+
+    //图片上传
+    public void downloadFile(final String url, final Context context, final UpFileUtil.OssUpCallback callback, final File targetFile) {
+        signal = new CountDownLatch(1);
+        NetUtil.getNet().exec(
+                server.aliObs()
+                , new CallBack<ReturnBean<AliObsConfigBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, final Response<ReturnBean<AliObsConfigBean>> response) {
+                        Log.d("cc", "upFileSyn: onResponse");
+                        if (response.body() == null) {
+                            callback.fail();
+                            signal.countDown();
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            final AliObsConfigBean configBean = response.body().getData();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    String endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
+                                    UpFileUtil.getInstance().downloadFile(context, configBean.getAccessKeyId(),
+                                            configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
+                                            configBean.getBucket(), new UpFileUtil.OssUpCallback() {
+
+                                                @Override
+                                                public void success(final String url) {
+                                                    signal.countDown();
+                                                    callback.success(url);
+                                                }
+
+                                                @Override
+                                                public void fail() {
+                                                    signal.countDown();
+                                                    callback.fail();
+                                                }
+
+                                                @Override
+                                                public void inProgress(long progress, long zong) {
+                                                    callback.inProgress(progress, zong);
+                                                }
+                                            }, url, targetFile);
+                                }
+                            }).start();
+
+
+                        } else {
+                            signal.countDown();
+                            callback.fail();
+                            ToastUtil.show(context, "上传失败");
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
+                        signal.countDown();
+                        callback.fail();
+                        super.onFailure(call, t);
+                    }
+                });
+
+
+        try {
+            signal.await();
+            Log.d("", "upFileSyn: await");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 

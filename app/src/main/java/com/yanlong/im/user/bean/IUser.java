@@ -89,4 +89,6 @@ public interface IUser {
     boolean isSystemUser();
 
     String getJoinTime();
+
+    int getHistoryClear();
 }

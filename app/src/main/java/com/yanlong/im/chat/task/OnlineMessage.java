@@ -83,6 +83,7 @@ public class OnlineMessage extends DispatchMessage {
                 for (int i = 0; i < size; i++) {
                     MsgBean.UniversalMessage.WrapMessage msg = msgList.get(i);
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
+                    LogUtil.writeLog("dispatch--在线消息--" + "msgId=" + msg.getMsgId() + "--msgType=" + msg.getMsgType() + "--gid=" + msg.getGid() + "--fromUid=" + msg.getFromUid());
                     //开始处理消息
                     boolean toDOResult = handlerMessage(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
                             i == msgList.size() - 1);
@@ -94,7 +95,8 @@ public class OnlineMessage extends DispatchMessage {
                         result = false;
                     }
                 }
-                if (size == 1 && bean.getWrapMsg(0) != null && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+                //不需要发送回执
+                if (size == 1 && !bean.getRequestId().contains("NONE_ACK")) {
                     LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
                     SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
                 }
@@ -109,7 +111,7 @@ public class OnlineMessage extends DispatchMessage {
     }
 
     private void doRefreshPreviewImage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        if (wrapMessage.getMsgType() == MsgBean.MessageType.IMAGE) {
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.IMAGE|| wrapMessage.getMsgType() == MsgBean.MessageType.SHORT_VIDEO) {
             long toUid;
             if (!TextUtils.isEmpty(wrapMessage.getGid())) {
                 toUid = 0;

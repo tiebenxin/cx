@@ -27,6 +27,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ChatBitmapCache;
 
@@ -241,7 +242,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                     mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
                 }
             } else if (ckSelect != null && id == ckSelect.getId()) {
-                if (ckSelect == null){
+                if (ckSelect == null) {
                     return;
                 }
                 if (ckSelect.isChecked()) {
@@ -598,6 +599,13 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             }
         });
 
+    }
+
+    public boolean isActivityValid() {
+        if (mContext == null || ((mContext instanceof ChatActivity) && !((ChatActivity) mContext).isActivityValid())) {
+            return false;
+        }
+        return true;
     }
 
 }

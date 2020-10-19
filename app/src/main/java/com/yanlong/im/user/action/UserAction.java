@@ -16,6 +16,7 @@ import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.bean.AddressBookMatchingBean;
+import com.yanlong.im.user.bean.DailyReportBean;
 import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
@@ -321,7 +322,7 @@ public class UserAction {
      * 获取用户信息(展示朋友圈)
      */
     public void getUserInfoByIdShowTrends(Long usrid, final CallBack<ReturnBean<UserInfo>> callBack) {
-        NetUtil.getNet().exec(server.getUserInfoShowTrends(usrid,1), new CallBack<ReturnBean<UserInfo>>() {
+        NetUtil.getNet().exec(server.getUserInfoShowTrends(usrid, 1), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 super.onResponse(call, response);
@@ -392,48 +393,7 @@ public class UserAction {
                     }
                 }
             }
-
-            @Override
-            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
-                super.onFailure(call, t);
-                if (callBack != null) callBack.onFailure(call, t);
-            }
         });
-    }
-
-    /***
-     * 获取单个用户信息并且缓存到数据库
-     * @param usrid
-     */
-    public void getUserInfoAndSave(Long usrid, @ChatEnum.EUserType final int type, final CallBack<ReturnBean<UserInfo>> cb) {
-        NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                if (response.body() != null && response.body().isOk()) {
-                    UserInfo userInfo = response.body().getData();
-                    userInfo.toTag();
-                    if (userInfo.getStat() != 0) {//优先设置为好友
-                        userInfo.setuType(type);
-                    } else {
-                        userInfo.setuType(ChatEnum.EUserType.FRIEND);
-                    }
-                    dao.updateUserinfo(userInfo);
-                    MessageManager.getInstance().updateSessionTopAndDisturb("", usrid, userInfo.getIstop(), userInfo.getDisturb());
-                    cb.onResponse(call, response);
-                } else {
-                    cb.onFailure(call, new Throwable());
-                    MessageManager.getInstance().removeLoadUids(usrid);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
-                super.onFailure(call, t);
-                cb.onFailure(call, new Throwable());
-                MessageManager.getInstance().removeLoadUids(usrid);
-            }
-        });
-
     }
 
     /***
@@ -540,7 +500,7 @@ public class UserAction {
         }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
-        LogUtil.writeLog("设置token" + "--uid=" + token.getUid() + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
+        LogUtil.writeLog("设置token" + "--uid=" + token.getUid() + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate + "--appVersion=" + AppConfig.getVersionName());
     }
 
 
@@ -569,8 +529,8 @@ public class UserAction {
     /***
      * 好友同意
      */
-    public void friendAgree(Long uid, String contactName,String alias, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.acceptFriend(uid, contactName,alias), callback);
+    public void friendAgree(Long uid, String contactName, String alias, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.acceptFriend(uid, contactName, alias), callback);
     }
 
     /***
@@ -1302,6 +1262,36 @@ public class UserAction {
 
             @Override
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
+            }
+        });
+
+
+    }
+
+    /**
+     * 临时登录
+     */
+    public void dailyReport(CallBack<ReturnBean<DailyReportBean>> callback) {
+        NetUtil.getNet().exec(server.dailyReport(), new CallBack<ReturnBean<DailyReportBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<DailyReportBean>> call, Response<ReturnBean<DailyReportBean>> response) {
+                if (response.body() != null && response.body().isOk()) {//保存token
+                    DailyReportBean bean = response.body().getData();
+                    if (bean != null && bean.getHistoryClean() == 1) {
+                        UserBean user = (UserBean) UserAction.getMyInfo();
+                        if (user != null) {
+                            user.setHistoryClear(bean.getHistoryClean());
+                            dao.updateUserBean(user);
+                        }
+                    }
+                }
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<DailyReportBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
             }

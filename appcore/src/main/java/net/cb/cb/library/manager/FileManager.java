@@ -3,6 +3,7 @@ package net.cb.cb.library.manager;
 import android.os.Environment;
 
 
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.FileConfig;
 import net.cb.cb.library.utils.ThreadUtil;
 
@@ -162,10 +163,13 @@ public class FileManager {
         return getImageCachePath() + "/" + System.currentTimeMillis() + ".jpg";
     }
 
+    public String createImagePath(String fileName) {
+        return getImageCachePath() + "/" + fileName;
+    }
 
     //清除日志文件夹中多余日志，仅保存最近10天
     public void clearLogDir() {
-        ThreadUtil.getInstance().execute(new Runnable() {
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -214,6 +218,7 @@ public class FileManager {
                 }
             }
         });
+        ExecutorManager.INSTANCE.getNormalThread().shutdown();
     }
 
 }

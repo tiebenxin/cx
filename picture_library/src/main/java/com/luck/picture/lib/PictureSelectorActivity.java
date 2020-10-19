@@ -145,6 +145,10 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     }
                 }
                 break;
+            case PictureConfig.SELECT_ORIGINAL:
+                isArtworkMaster = !isArtworkMaster;
+                cb_original.setChecked(isArtworkMaster);
+                break;
         }
     }
 
@@ -513,11 +517,17 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
 
         if (id == R.id.picture_id_preview) {
-            List<LocalMedia> previewList=new ArrayList<>();
-            for(LocalMedia media:adapter.getSelectedImages()){
-                previewList.add(media);
+//            List<LocalMedia> previewList = new ArrayList<>();
+//            for (LocalMedia media : adapter.getSelectedImages()) {
+//                previewList.add(media);
+//            }
+//            previewImage(previewList, adapter.getSelectedImages(), 0);
+            int index = 0;
+            if (adapter.getSelectedImages() != null && adapter.getSelectedImages().size() > 0) {
+                LocalMedia media = adapter.getSelectedImages().get(0);
+                index = images.indexOf(media);
             }
-            previewImage(previewList,adapter.getSelectedImages(), 0);
+            previewImage(images, adapter.getSelectedImages(), index);
             overridePendingTransition(R.anim.a5, 0);
         }
 
@@ -561,13 +571,14 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
     }
 
-    private void previewImage(List<LocalMedia> previewImages,List<LocalMedia> selectedImages, int position) {
+    private void previewImage(List<LocalMedia> previewImages, List<LocalMedia> selectedImages, int position) {
         Bundle bundle = new Bundle();
         bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) previewImages);
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
-        bundle.putInt(PictureConfig.EXTRA_POSITION,position);
-        bundle.putInt(PictureConfig.FROM_WHERE,PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
+        bundle.putInt(PictureConfig.EXTRA_POSITION, position);
+        bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
+        bundle.putBoolean(PictureConfig.IS_ARTWORK_MASTER, isArtworkMaster);
         startActivity(PicturePreviewActivity.class, bundle,
                 config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
     }
@@ -830,24 +841,22 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
 
     @Override
     public void onPictureClick(LocalMedia media, int position) {
-//        List<LocalMedia> images = adapter.getImages();
-//        startPreview(images, position);
-
-        List<LocalMedia> previewList=new ArrayList<>();
-        int index=-1;
-        previewList.addAll(adapter.getSelectedImages());
-        for(int i=0;i<adapter.getSelectedImages().size();i++){
-            LocalMedia localMedia=adapter.getSelectedImages().get(i);
-            if(localMedia.getPath()==media.getPath()){//是否在被选中数组中
-                index=adapter.getSelectedImages().indexOf(media);
-                break;
-            }
-        }
-        if(index==-1){//没有找到，没有被选中
-            previewList.add(media);
-            index=previewList.size()-1;
-        }
-        previewImage(previewList,adapter.getSelectedImages(), index);
+//        List<LocalMedia> previewList = new ArrayList<>();
+//        int index = -1;
+//        previewList.addAll(adapter.getSelectedImages());
+//        for (int i = 0; i < adapter.getSelectedImages().size(); i++) {
+//            LocalMedia localMedia = adapter.getSelectedImages().get(i);
+//            if (localMedia.getPath().equals(media.getPath())) {//是否在被选中数组中
+//                index = i;
+//                break;
+//            }
+//        }
+//        if (index == -1) {//没有找到，没有被选中
+//            previewList.add(media);
+//            index = previewList.size() - 1;
+//        }
+        int index = images.indexOf(media);
+        previewImage(images, adapter.getSelectedImages(), index);
 
     }
 
@@ -870,7 +879,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 ImagesObservable.getInstance().saveLocalMedia(previewImages);
                 bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
                 bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-                bundle.putInt(PictureConfig.FROM_WHERE,PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
+                bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
                 startActivity(PicturePreviewActivity.class, bundle,
                         config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
                 overridePendingTransition(R.anim.a5, 0);

@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.LocaleList;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 import net.cb.cb.library.utils.SpUtil;
@@ -207,5 +208,9 @@ public class AppConfig {
 
         }
         return "";
+    }
+
+    public static int getColor(int rid) {
+        return ContextCompat.getColor(getContext(), rid);
     }
 }

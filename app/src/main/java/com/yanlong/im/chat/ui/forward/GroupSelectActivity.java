@@ -105,6 +105,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
     //自动寻找控件
     private void findViews() {
         actionbar = ui.headView.getActionbar();
+        ui.headView.setTitle("选择转发的群聊");
     }
 
 

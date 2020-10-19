@@ -128,39 +128,32 @@ public class MessageRepository {
      * @param wrapMessage
      */
     public boolean handlerRequestGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
-        // TODO　自己邀请的，不会收到通知
-//        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
-//                wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
-//            return;
-//        }
-        // 先检查是否存在申请，不存在则显示红点
-//        List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
-//        if (list != null) {
-//            for (MsgBean.GroupNoticeMessage ntm : list) {
-//                ApplyBean applyBean = new ApplyBean();
-//                applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
-//                applyBean.setChatType(CoreEnum.EChatType.GROUP);
-//                applyBean.setGid(wrapMessage.getGid());
-//                applyBean.setGroupName(localDataSource.getGroupName(realm, wrapMessage.getGid()));
-//                applyBean.setJoinType(wrapMessage.getRequestGroup().getJoinType().getNumber());
-//                applyBean.setInviter(wrapMessage.getRequestGroup().getInviter());
-//                applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
-//                applyBean.setUid(ntm.getUid());
-//                applyBean.setNickname(ntm.getNickname());
-//                applyBean.setAvatar(ntm.getAvatar());
-//                applyBean.setStat(1);
-//                localDataSource.saveApplyBean(realm, applyBean);
-//
-//                int redNumber = localDataSource.getRemindCount(realm, Preferences.FRIEND_APPLY, ntm.getUid());
-//                if (redNumber <= 0) {
-//                    localDataSource.addRemindCount(realm, Preferences.FRIEND_APPLY, ntm.getUid());
-//                }
-//            }
-//            MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
-//        }
-//        localDataSource.addRemindCount(realm, "friend_apply");
-//        MessageManager.getInstance().notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);//刷新首页 通讯录底部小红点
-
+        // 如果不是扫码，仅为自己邀请的别人入群，提示等待，不会收到通知
+        if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
+                wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
+            if(wrapMessage.getRequestGroup().getJoinType().getNumber()==1){
+                return true;
+            }
+        }
+        // 去掉红点通知逻辑，保存入群申请记录到本地列表
+        List<MsgBean.GroupNoticeMessage> list = wrapMessage.getRequestGroup().getNoticeMessageList();
+        if (list != null) {
+            for (MsgBean.GroupNoticeMessage ntm : list) {
+                ApplyBean applyBean = new ApplyBean();
+                applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
+                applyBean.setChatType(CoreEnum.EChatType.GROUP);
+                applyBean.setGid(wrapMessage.getGid());
+                applyBean.setGroupName(localDataSource.getGroupName(realm, wrapMessage.getGid()));
+                applyBean.setJoinType(wrapMessage.getRequestGroup().getJoinType().getNumber());
+                applyBean.setInviter(wrapMessage.getRequestGroup().getInviter());
+                applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
+                applyBean.setUid(ntm.getUid());
+                applyBean.setNickname(ntm.getNickname());
+                applyBean.setAvatar(ntm.getAvatar());
+                applyBean.setStat(1);
+                localDataSource.saveApplyBean(realm, applyBean);
+            }
+        }
         if (localDataSource != null && !TextUtils.isEmpty(wrapMessage.getGid()) &&
                 !MessageManager.getInstance().isMsgFromCurrentChat(wrapMessage.getGid(), wrapMessage.getFromUid())) {
             localDataSource.addRemindCount(realm, Preferences.GROUP_FRIEND_APPLY, wrapMessage.getGid());
@@ -169,6 +162,21 @@ public class MessageRepository {
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         boolean result = saveMessageNew(bean, realm);
         return result;
+    }
+
+    /**
+     * 其他管理员已经通过入群申请
+     *
+     * @param wrapMessage
+     */
+    public boolean handlerOthersHadAgree(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+        //有人已经通过，直接刷新该条通知消息，改为"已确认"
+        if(!TextUtils.isEmpty(wrapMessage.getMessageProcessedSync().getMsgId())){
+            new MsgDao().updateInviteNoticeMsg(wrapMessage.getMessageProcessedSync().getMsgId());//数据库先更新，入群通知消息改为"已确认"
+            EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
+            EventBus.getDefault().post(event);
+        }
+        return true;
     }
 
 
@@ -254,7 +262,7 @@ public class MessageRepository {
             LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + wrapMessage.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
             fetchTimeDiff(message.getTimestamp());
             if (message.getActiveTypeValue() == 1) {
-                SocketData.setPreServerAckTime(message.getTimestamp());
+//                SocketData.initTime(message.getTimestamp());
             }
             //更新数据库
             localDataSource.updateUserOnlineStatus(realm, fromUid, message.getActiveTypeValue(), message.getTimestamp());
@@ -289,8 +297,7 @@ public class MessageRepository {
      * @param wrapMessage
      * @param isOfflineMsg 是否为离线消息
      */
-    public void handlerRead(MsgBean.UniversalMessage.WrapMessage wrapMessage,
-                            boolean isOfflineMsg, Realm realm) {
+    public void handlerRead(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         if (!isFromSelf) {
@@ -841,6 +848,12 @@ public class MessageRepository {
     public boolean handlerRemoveGroupMember2(MsgBean.UniversalMessage.WrapMessage
                                                      wrapMessage, Realm realm) {
         boolean result = true;
+        //邀请入群撤销，仅邀请人和被撤人会收到被移除的通知
+        if(wrapMessage.getRemoveGroupMember2()!=null){
+            if(wrapMessage.getRemoveGroupMember2().getHideNotice()==true){
+                return true;
+            }
+        }
         // 判断是否是管理员 群主 是就显示被剔的消息
         if (localDataSource.isGroupMasterOrManager(realm, wrapMessage.getGid(), UserAction.getMyId())) {
             // 保存被剔消息

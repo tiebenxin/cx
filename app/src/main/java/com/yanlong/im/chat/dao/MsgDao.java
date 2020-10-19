@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
+import com.yanlong.im.chat.bean.GroupPreviewBean;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MessageDBTemp;
@@ -50,7 +51,6 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
@@ -76,40 +76,6 @@ public class MsgDao {
         return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
-    /***
-     * 保存群
-     * @param group
-     */
-    public void groupSave(Group group) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-            if (null != g) {//已经存在
-                try {
-                    List<MemberUser> objects = g.getUsers();
-                    if (null != objects && objects.size() > 0) {
-                        g.setName(group.getName());
-                        g.setAvatar(group.getAvatar());
-                        if (group.getUsers() != null)
-                            g.setUsers(group.getUsers());
-                        realm.insertOrUpdate(group);
-                    }
-                } catch (Exception e) {
-                    return;
-                }
-            } else {//不存在
-                realm.insertOrUpdate(group);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.reportException(e);
-            DaoUtil.close(realm);
-        }
-    }
-
 
     /***
      * 保存群
@@ -127,7 +93,9 @@ public class MsgDao {
                 int size = memberUsers.size();
                 for (int j = 0; j < size; j++) {
                     MemberUser memberUser = memberUsers.get(j);
-                    memberUser.init(group.getGid());
+                    if (memberUser != null) {
+                        memberUser.init(group.getGid());
+                    }
                 }
             }
         }
@@ -220,14 +188,48 @@ public class MsgDao {
 
     public List<MsgAllBean> getMsg4UserImg(Long userid) {
         List<MsgAllBean> beans = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         Realm realm = DaoUtil.open();
         try {
             beans = new ArrayList<>();
 
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
                     .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
-                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+            beans = realm.copyFromRealm(list);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        //翻转列表
+        if (beans != null) {
+            Collections.reverse(beans);
+        }
+        return beans;
+    }
+
+    public List<MsgAllBean> getMsg4UserImgNew(Long userId, long time) {
+        List<MsgAllBean> beans = null;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
+        Realm realm = DaoUtil.open();
+        try {
+            beans = new ArrayList<>();
+
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", userId).or().equalTo("to_uid", userId).endGroup()
+                    .and()
+                    .beginGroup().in("msg_type", supportType).endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
             beans = realm.copyFromRealm(list);
@@ -317,11 +319,13 @@ public class MsgDao {
     public List<MsgAllBean> getMsg4GroupImg(String gid) {
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         try {
             beans = new ArrayList<>();
             RealmResults list = realm.where(MsgAllBean.class)
                     .equalTo("gid", gid)
-                    .equalTo("msg_type", 4)
+                    .and()
+                    .in("msg_type", supportType)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
 
@@ -342,12 +346,13 @@ public class MsgDao {
     public List<MsgAllBean> getMsg4GroupImgNew(String gid, long time) {
         List<MsgAllBean> beans = null;
         Realm realm = DaoUtil.open();
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO};
         try {
             beans = new ArrayList<>();
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
-                    .beginGroup().equalTo("msg_type", 4).endGroup()
+                    .beginGroup().in("msg_type", supportType).endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
@@ -423,17 +428,21 @@ public class MsgDao {
      * 保存群成员到数据库
      * @param
      */
-    public void groupNumberSave(Group ginfo) {
-        if (ginfo == null) {
+    public void groupNumberSave(Group group) {
+        if (group == null) {
             return;
         }
-        for (MemberUser sv : ginfo.getUsers()) {
-            sv.init(ginfo.getGid());
+        for (MemberUser sv : group.getUsers()) {
+            if (sv != null && !TextUtils.isEmpty(group.getGid())) {
+                sv.init(group.getGid());
+            } else {
+                System.out.println("为空了" + sv);
+            }
         }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            realm.insertOrUpdate(ginfo);
+            realm.insertOrUpdate(group);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -464,6 +473,34 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return groupInfoBean;
+    }
+
+    /***
+     * 群成员是否存在于该群中
+     * @param gid
+     * @param uid
+     * @return
+     */
+    public boolean inThisGroup(String gid, long uid) {
+        Realm realm = DaoUtil.open();
+        try {
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                if (group.getUsers() != null && group.getUsers().size() > 0) {
+                    for (MemberUser user : group.getUsers()) {
+                        if (uid == user.getUid()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return false;
     }
 
     /***双向删除
@@ -540,8 +577,6 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             RealmResults<MsgAllBean> list = null;
-
-
             list = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findAll();
             //删除前先把子表数据干掉!!切记
             if (list != null) {
@@ -852,7 +887,7 @@ public class MsgDao {
      * @param gid
      * @param toUid
      */
-    public Session sessionCreate(String gid, Long toUid) {
+    public Session sessionCreate(String gid, Long toUid, long time) {
         Session session;
 
         if (StringUtil.isNotNull(gid)) {//群消息
@@ -885,7 +920,8 @@ public class MsgDao {
         }
 
         session.setUnread_count(0);
-        session.setUp_time(System.currentTimeMillis());
+//        session.setUp_time(System.currentTimeMillis());
+        session.setUp_time(time);
         DaoUtil.update(session);
         return session;
     }
@@ -921,7 +957,8 @@ public class MsgDao {
             }
             if (session != null) {//已存在的session，只更新时间
                 realm.beginTransaction();
-                session.setUp_time(System.currentTimeMillis());
+//                session.setUp_time(System.currentTimeMillis());
+                session.setUp_time(bean.getTimestamp());
                 realm.commitTransaction();
             } else {//新session
                 if (StringUtil.isNotNull(bean.getGid())) {//群消息
@@ -950,218 +987,14 @@ public class MsgDao {
                     }
                 }
                 session.setUnread_count(0);
-                session.setUp_time(System.currentTimeMillis());
-
+//                session.setUp_time(System.currentTimeMillis());
+                session.setUp_time(bean.getTimestamp());
                 realm.insertOrUpdate(session);
                 realm.commitTransaction();
             }
         } finally {
             DaoUtil.close(realm);
         }
-    }
-
-    /*
-     * 更新或者创建session
-     *
-     * */
-    public boolean sessionReadUpdate(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
-        //是否是 撤回
-        String cancelId = null;
-        if (bean != null) {
-            boolean isCancel = bean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
-            if (isCancel && bean.getMsgCancel() != null) {
-                cancelId = bean.getMsgCancel().getMsgidCancel();
-            }
-        }
-
-
-        //isCancel 是否是撤回消息  ，  canChangeUnread 不在聊天页面 注意true表示不在聊天页面
-        Session session;
-        if (StringUtil.isNotNull(gid)) {//群消息
-            session = DaoUtil.findOne(Session.class, "gid", gid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setGid(gid);
-                session.setType(1);
-                Group group = DaoUtil.findOne(Group.class, "gid", gid);
-                if (group != null) {
-                    session.setIsTop(group.getIsTop());
-                    session.setIsMute(group.getNotNotify());
-                }
-                if (canChangeUnread) {
-                    if (session.getIsMute() == 1) {//免打扰
-                        session.setUnread_count(0);
-                    } else {
-                        if (StringUtil.isNotNull(cancelId)) {
-                            session.setUnread_count(0);
-                        } else {
-                            session.setUnread_count(1);
-                        }
-                    }
-                }
-            } else {
-                if (canChangeUnread) {
-                    if (session.getIsMute() != 1) {//非免打扰
-                        int num = 0;
-                        if (StringUtil.isNotNull(cancelId)) {//撤销消息
-                            MsgAllBean cancel = getMsgById(cancelId);
-//                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1;
-                            } else {
-                                num = session.getUnread_count();
-                            }
-
-                        } else {
-                            num = session.getUnread_count() + 1;
-                        }
-                        num = num < 0 ? 0 : num;
-                        session.setUnread_count(num);
-                    } else {
-                        session.setUnread_count(0);
-                    }
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-
-        } else {//个人消息
-            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setFrom_uid(from_uid);
-                session.setType(0);
-                UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", from_uid);
-                if (user != null) {
-                    session.setIsTop(user.getIstop());
-                    session.setIsMute(user.getDisturb());
-                }
-                if (canChangeUnread) {
-                    if (session.getIsMute() == 1) {//免打扰
-                        session.setUnread_count(0);
-                    } else {
-                        if (StringUtil.isNotNull(cancelId)) {
-                            session.setUnread_count(0);
-                        } else {
-                            session.setUnread_count(1);
-                        }
-                    }
-                }
-            } else {
-                if (canChangeUnread) {
-                    if (session.getIsMute() != 1) {//非免打扰
-                        //没有撤回消息的id，要判断撤回的消息是已读还是未读
-                        int num = 0;
-                        if (StringUtil.isNotNull(cancelId)) {
-                            MsgAllBean cancel = getMsgById(cancelId);
-//                            LogUtil.getLog().e("==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1;
-                            } else {
-                                num = session.getUnread_count();
-                            }
-                        } else {
-                            num = session.getUnread_count() + 1;
-                        }
-                        num = num < 0 ? 0 : num;
-                        session.setUnread_count(num);
-                    } else {
-                        session.setUnread_count(0);
-                    }
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-        }
-
-        if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
-            if (StringUtil.isNotNull(gid)) {//群聊
-//                if (!checkUnReadAtMsg(session, cancelId)) {//检查是否还有未读的@我的消息
-                session.setMessageType(1000);
-//                }
-            } else {
-                session.setMessageType(1000);
-            }
-        } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
-            //对at消息处理 而且不是撤回消息
-            int messageType = bean.getAtMessage().getAt_type();
-            String atMessage = bean.getAtMessage().getMsg();
-            session.setMessageType(messageType);
-            session.setAtMessage(atMessage);
-        }
-        LogUtil.getLog().e("更新session未读数", "msgDao");
-        return DaoUtil.update(session);
-    }
-
-
-    /*
-     * 批量更新或者创建session
-     *
-     * */
-    public void sessionReadUpdate(String gid, Long from_uid, int count) {
-        Session session;
-        if (StringUtil.isNotNull(gid)) {//群消息
-            session = DaoUtil.findOne(Session.class, "gid", gid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setGid(gid);
-                session.setType(1);
-                Group group = DaoUtil.findOne(Group.class, "gid", gid);
-                if (group != null) {
-                    session.setIsTop(group.getIsTop());
-                    session.setIsMute(group.getNotNotify());
-                }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(count < 0 ? 0 : count);
-                }
-            } else {
-                if (session.getIsMute() != 1) {//免打扰
-                    int num = session.getUnread_count() + count;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-
-        } else {//个人消息
-            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
-            if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setFrom_uid(from_uid);
-                session.setType(0);
-                UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", from_uid);
-                if (user != null) {
-                    session.setIsTop(user.getIstop());
-                    session.setIsMute(user.getDisturb());
-                }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(count < 0 ? 0 : count);
-                }
-
-            } else {
-                if (session.getIsMute() != 1) {//非免打扰
-                    int num = session.getUnread_count() + count;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
-                }
-            }
-            session.setUp_time(System.currentTimeMillis());
-        }
-//        if (isCancel) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
-//            session.setMessageType(1000);
-//        }
-
-        DaoUtil.update(session);
     }
 
     /*
@@ -1325,7 +1158,7 @@ public class MsgDao {
             if (session != null) {
                 session.setDraft(draft);
                 session.setMessageType(2);
-                session.setUp_time(SocketData.getSysTime());
+                session.setUp_time(SocketData.getCurrentTime());
                 realm.insertOrUpdate(session);
                 //通知刷新某个session by sid-草稿
                 MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, session.getSid(), CoreEnum.ESessionRefreshTag.SINGLE);
@@ -1940,17 +1773,48 @@ public class MsgDao {
 
     /**
      * 根据uid批量查询入群申请列表的用户信息
+     *
      * @param uidList
-     * @param stat  1 申请中 2 已同意
+     * @param stat    0 全部状态 1 申请中 2 已同意
      * @return
      */
-    public List<ApplyBean> getApplysByUid(List<String> uidList,int stat) {
+    public List<ApplyBean> getApplysByUid(List<String> uidList, int stat) {
         Realm realm = DaoUtil.open();
         List<ApplyBean> list = new ArrayList<>();
-        if(uidList!=null && uidList.size()>0){
-            for(int i=0; i<uidList.size(); i++){
+        if (uidList != null && uidList.size() > 0) {
+            for (int i = 0; i < uidList.size(); i++) {
                 ApplyBean bean;
-                ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat",stat).findFirst();
+                ApplyBean applyBean;
+                if (stat == 0) {
+                    applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).findFirst();
+                } else {
+                    applyBean = realm.where(ApplyBean.class).equalTo("uid", Long.valueOf(uidList.get(i))).equalTo("stat", stat).findFirst();
+                }
+                if (applyBean != null) {
+                    bean = realm.copyFromRealm(applyBean);
+                    list.add(bean);
+                }
+
+            }
+        }
+        realm.close();
+        return list;
+    }
+
+    /**
+     * 根据aid批量查询入群申请列表的用户信息
+     *
+     * @param aidList
+     * @return
+     */
+    public List<ApplyBean> getApplysByAid(List<String> aidList) {
+        Realm realm = DaoUtil.open();
+        List<ApplyBean> list = new ArrayList<>();
+        if (aidList != null && aidList.size() > 0) {
+            for (int i = 0; i < aidList.size(); i++) {
+                ApplyBean bean;
+                ApplyBean applyBean;
+                applyBean = realm.where(ApplyBean.class).equalTo("aid", aidList.get(i)).findFirst();
                 if (applyBean != null) {
                     bean = realm.copyFromRealm(applyBean);
                     list.add(bean);
@@ -2224,7 +2088,6 @@ public class MsgDao {
         if (originUrl.startsWith("file:")) {
             return true;
         }
-
         ImageMessage img = DaoUtil.findOne(ImageMessage.class, "origin", originUrl);
         if (img != null) {
             return img.isReadOrigin();
@@ -2234,13 +2097,12 @@ public class MsgDao {
 
     /***
      * 图片已读写入
-     * @param originUrl
      * @param isread
      */
-    public void ImgReadStatSet(String originUrl, boolean isread) {
+    public void ImgReadStatSet(String msgId, boolean isread) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        ImageMessage img = realm.where(ImageMessage.class).equalTo("origin", originUrl).findFirst();
+        ImageMessage img = realm.where(ImageMessage.class).equalTo("msgid", msgId).findFirst();
         if (img != null) {
             img.setReadOrigin(isread);
             realm.insertOrUpdate(img);
@@ -2397,12 +2259,12 @@ public class MsgDao {
         msgAllBean.setSurvival_time(survivaltime);
         String survivaNotice = "";
         if (survivaltime == -1) {
-            survivaNotice = "你设置了退出即焚.";
+            survivaNotice = "你设置了退出即焚";
         } else if (survivaltime == 0) {
-            survivaNotice = "你取消了阅后即焚.";
+            survivaNotice = "你取消了阅后即焚";
         } else {
             survivaNotice = "你设置了消息" +
-                    new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失.";
+                    new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失";
         }
         MsgCancel survivaMsgCel = new MsgCancel();
         survivaMsgCel.setMsgid(msgid);
@@ -2965,7 +2827,7 @@ public class MsgDao {
             if (session != null) {
                 session.setDraft("");
                 session.setMessageType(2);
-                session.setUp_time(SocketData.getSysTime());
+                session.setUp_time(SocketData.getCurrentTime());
                 realm.insertOrUpdate(session);
             }
 
@@ -3950,6 +3812,7 @@ public class MsgDao {
 
     /**
      * 修改邀请入群通知消息 (将"去确认"改为"已确认")
+     *
      * @param msgId
      * @return
      */
@@ -3959,11 +3822,11 @@ public class MsgDao {
         realm.beginTransaction();
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
         if (msgAllBean != null) {
-            if(msgAllBean.getMsgNotice()!=null){
-                if(!TextUtils.isEmpty(msgAllBean.getMsgNotice().getNote()) && msgAllBean.getMsgNotice().getNote().contains("去确认")){
+            if (msgAllBean.getMsgNotice() != null) {
+                if (!TextUtils.isEmpty(msgAllBean.getMsgNotice().getNote()) && msgAllBean.getMsgNotice().getNote().contains("去确认")) {
                     //从后到前找到"去确认"
                     int startIndex = msgAllBean.getMsgNotice().getNote().lastIndexOf("去");
-                    msgAllBean.getMsgNotice().setNote(new StringBuilder(msgAllBean.getMsgNotice().getNote()).replace(startIndex,startIndex+1,"已").toString());
+                    msgAllBean.getMsgNotice().setNote(new StringBuilder(msgAllBean.getMsgNotice().getNote()).replace(startIndex, startIndex + 1, "已").toString());
                 }
             }
             realm.insertOrUpdate(msgAllBean);
@@ -3971,11 +3834,10 @@ public class MsgDao {
         }
         realm.commitTransaction();
         realm.close();
-
         return ret;
     }
 
-    /**
+ /**
      * 查询全部互动消息
      */
     public List<InteractMessage> getAllInteractMsg() {
@@ -3995,8 +3857,7 @@ public class MsgDao {
         }
         return list;
     }
-
-    /**
+ /**
      * 查出所有的未读的互动消息
      */
     public List<InteractMessage> getUnreadMsgList() {
@@ -4060,5 +3921,342 @@ public class MsgDao {
         realm.close();
         return ret;
     }
+    //获取群聊中所有图片，视频，文件消息
+    public List<GroupPreviewBean> getMediaMsgInGroup(String gid, long time) {
+        List<GroupPreviewBean> groupBeanList = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        try {
+            int maxSize = 160;
+            RealmResults<MsgAllBean> totalResult = getGreaterTimeMsgInGroup(gid, time, realm, maxSize);
+            RealmResults<MsgAllBean> lessList = null;
+            if (totalResult != null) {
+                int gSize = totalResult.size();
+                if (gSize < maxSize && gSize > 0) {
+                    //降序的
+                    lessList = getLessTimeMsgInGroup(gid, time, realm, maxSize - gSize);
+                }
+            }
+            if (totalResult != null) {
+                int size = totalResult.size();
+                if (size > 0) {
+                    MsgAllBean firstMsg;
+                    if (lessList != null && lessList.size() > 0) {
+                        firstMsg = lessList.get(lessList.size() - 1);
+                    } else {
+                        firstMsg = totalResult.get(0);
+                    }
+                    MsgAllBean lastMsg = totalResult.get(size - 1);
+                    List<Long[]> list = com.hm.cxpay.utils.DateUtils.getSplitTime(firstMsg.getTimestamp(), lastMsg.getTimestamp());
+                    if (list != null) {
+                        int timeSize = list.size();
+                        for (int i = 0; i < timeSize; i++) {
+                            Long[] zone = list.get(i);
+                            GroupPreviewBean bean = getBetweenMsgInGroup(gid, realm, zone);
+                            if (bean != null) {
+                                groupBeanList.add(0, bean);
+                            }
+                        }
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return groupBeanList;
+    }
 
+
+    //获取群聊中所有图片，视频，文件消息
+    public List<GroupPreviewBean> getMediaMsgInUser(Long uid, long time) {
+        List<GroupPreviewBean> groupBeanList = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        try {
+            int maxSize = 160;
+            RealmResults<MsgAllBean> totalResult = getGreaterTimeMsgInUser(uid, time, realm, maxSize);
+            RealmResults<MsgAllBean> lessList = null;
+            if (totalResult != null) {
+                int gSize = totalResult.size();
+                if (gSize < maxSize && gSize > 0) {
+                    lessList = getLessTimeMsgInUser(uid, time, realm, maxSize - gSize);
+
+                } else {
+                    totalResult = getLessTimeMsgInUser(uid, time, realm, maxSize - gSize);
+                }
+            } else {
+                totalResult = getLessTimeMsgInUser(uid, time, realm, maxSize);
+            }
+            if (totalResult != null) {
+                int size = totalResult.size();
+                if (size > 0) {
+                    MsgAllBean firstMsg;
+                    if (lessList != null && lessList.size() > 0) {
+                        firstMsg = lessList.get(0);
+                    } else {
+                        firstMsg = totalResult.get(0);
+                    }
+                    MsgAllBean lastMsg = totalResult.get(size - 1);
+                    List<Long[]> list = com.hm.cxpay.utils.DateUtils.getSplitTime(firstMsg.getTimestamp(), lastMsg.getTimestamp());
+                    if (list != null) {
+                        int timeSize = list.size();
+                        for (int i = 0; i < timeSize; i++) {
+                            Long[] zone = list.get(i);
+                            GroupPreviewBean bean = getBetweenMsgInUser(uid, realm, zone);
+                            if (bean != null) {
+                                groupBeanList.add(0, bean);
+                            }
+                        }
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return groupBeanList;
+    }
+
+    //  获取 >= time的消息
+    private RealmResults<MsgAllBean> getGreaterTimeMsgInGroup(String gid, long time, Realm realm, int size) {
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .beginGroup().greaterThanOrEqualTo("timestamp", time).endGroup()
+                .sort("timestamp", Sort.ASCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
+    //  获取 > time的消息
+    private RealmResults<MsgAllBean> getGreaterTimeMsgInGroup2(String gid, long time, Realm realm, int size) {
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .greaterThan("timestamp", time)
+                .sort("timestamp", Sort.ASCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
+    //获取小于time 的消息
+    private RealmResults<MsgAllBean> getLessTimeMsgInGroup(String gid, long time, Realm realm, int size) {
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .lessThan("timestamp", time)
+                .sort("timestamp", Sort.DESCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
+    private GroupPreviewBean getBetweenMsgInGroup(String gid, Realm realm, Long[] timeZone) {
+        List<MsgAllBean> beans;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults results = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .between("timestamp", timeZone[0], timeZone[1])
+                .sort("timestamp", Sort.ASCENDING)
+                .findAll();
+        if (results != null && results.size() > 0) {
+            beans = realm.copyFromRealm(results);
+            GroupPreviewBean bean = new GroupPreviewBean();
+            bean.setTime(com.hm.cxpay.utils.DateUtils.getTimeTitle(timeZone[0]));
+            bean.setMsgAllBeans(beans);
+            bean.setStartTime(beans.get(0).getTimestamp());
+            bean.setEndTime(beans.get(beans.size() - 1).getTimestamp());
+            return bean;
+        }
+        return null;
+    }
+
+    private GroupPreviewBean getBetweenMsgInUser(Long uid, Realm realm, Long[] timeZone) {
+        List<MsgAllBean> beans;
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults results = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .between("timestamp", timeZone[0], timeZone[1])
+                .distinct("timestamp")
+                .sort("timestamp", Sort.ASCENDING)
+                .findAll();
+        if (results != null && results.size() > 0) {
+            beans = realm.copyFromRealm(results);
+            GroupPreviewBean bean = new GroupPreviewBean();
+            bean.setTime(com.hm.cxpay.utils.DateUtils.getTimeTitle(timeZone[0]));
+            bean.setMsgAllBeans(beans);
+            bean.setStartTime(beans.get(0).getTimestamp());
+            bean.setEndTime(beans.get(beans.size() - 1).getTimestamp());
+            return bean;
+        }
+        return null;
+    }
+
+    //  获取 >= time的消息
+    private RealmResults<MsgAllBean> getGreaterTimeMsgInUser(Long uid, long time, Realm realm, int size) {
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .beginGroup().greaterThanOrEqualTo("timestamp", time).endGroup()
+                .sort("timestamp", Sort.ASCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
+    //获取 > time 的消息
+    private RealmResults<MsgAllBean> getGreaterTimeMsgInUser2(Long uid, long time, Realm realm, int size) {
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .greaterThan("timestamp", time)
+                .sort("timestamp", Sort.ASCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
+    //获取小于time 的消息
+    private RealmResults<MsgAllBean> getLessTimeMsgInUser(Long uid, long time, Realm realm, int size) {
+        Integer[] supportType = new Integer[]{ChatEnum.EMessageType.IMAGE, ChatEnum.EMessageType.MSG_VIDEO/*, ChatEnum.EMessageType.FILE*/};
+        RealmResults<MsgAllBean> results = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                .and()
+                .in("msg_type", supportType)
+                .and()
+                .lessThan("timestamp", time)
+                .sort("timestamp", Sort.ASCENDING)
+                .limit(size)
+                .findAll();
+        return results;
+    }
+
+    //获取群聊中所有图片，视频，文件消息,获取下拉刷新,上拉加载数据，refreshType 0 下拉，1 加载更多
+    public List<GroupPreviewBean> getMoreMediaMsgInGroup(String gid, long time, int refreshType) {
+        List<GroupPreviewBean> groupBeanList = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        try {
+            int maxSize = 160;
+            RealmResults<MsgAllBean> totalResult;
+            if (refreshType == 0) {
+                //倒序的
+                totalResult = getLessTimeMsgInGroup(gid, time, realm, maxSize);
+            } else {
+                totalResult = getGreaterTimeMsgInGroup2(gid, time, realm, maxSize);
+            }
+            if (totalResult != null) {
+                int size = totalResult.size();
+                if (size > 0) {
+                    MsgAllBean firstMsg, lastMsg;
+                    if (refreshType == 0) {
+                        firstMsg = totalResult.get(size - 1);
+                        lastMsg = totalResult.get(0);
+                    } else {
+                        firstMsg = totalResult.get(0);
+                        lastMsg = totalResult.get(size - 1);
+                    }
+                    if (firstMsg != null && lastMsg != null) {
+                        List<Long[]> list = com.hm.cxpay.utils.DateUtils.getSplitTime(firstMsg.getTimestamp(), lastMsg.getTimestamp());
+                        if (list != null) {
+                            int timeSize = list.size();
+                            for (int i = 0; i < timeSize; i++) {
+                                Long[] zone = list.get(i);
+                                GroupPreviewBean bean = getBetweenMsgInGroup(gid, realm, zone);
+                                if (bean != null) {
+                                    if (refreshType == 0) {
+                                        groupBeanList.add(0, bean);
+                                    } else {
+                                        groupBeanList.add(bean);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return groupBeanList;
+    }
+
+    //获取群聊中所有图片，视频，文件消息,获取下拉刷新,上拉加载数据，refreshType 0 下拉，1 加载更多
+    public List<GroupPreviewBean> getMoreMediaMsgInUser(Long uid, long time, int refreshType) {
+        List<GroupPreviewBean> groupBeanList = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        try {
+            int maxSize = 160;
+            RealmResults<MsgAllBean> totalResult;
+            if (refreshType == 0) {
+                totalResult = getLessTimeMsgInUser(uid, time, realm, maxSize);
+            } else {
+                totalResult = getGreaterTimeMsgInUser2(uid, time, realm, maxSize);
+            }
+            if (totalResult != null) {
+                int size = totalResult.size();
+                if (size > 0) {
+                    MsgAllBean firstMsg = totalResult.get(0);
+                    MsgAllBean lastMsg = totalResult.get(size - 1);
+                    List<Long[]> list = com.hm.cxpay.utils.DateUtils.getSplitTime(firstMsg.getTimestamp(), lastMsg.getTimestamp());
+                    if (list != null) {
+                        int timeSize = list.size();
+                        for (int i = 0; i < timeSize; i++) {
+                            Long[] zone = list.get(i);
+                            GroupPreviewBean bean = getBetweenMsgInUser(uid, realm, zone);
+                            if (bean != null) {
+                                if (refreshType == 0) {
+                                    groupBeanList.add(0, bean);
+                                } else {
+                                    groupBeanList.add(bean);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return groupBeanList;
+    }
 }

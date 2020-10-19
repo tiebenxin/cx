@@ -11,6 +11,7 @@ public class EventUpImgLoadEvent extends BaseEvent {
     private int state;//0:上传中,1成功-1:失败
     private Boolean isOriginal;
     private Object msgAllBean;
+    private String thumb;//缩略图
 
     public Boolean getOriginal() {
         return isOriginal;
@@ -52,4 +53,11 @@ public class EventUpImgLoadEvent extends BaseEvent {
         this.url = url;
     }
 
+    public String getThumb() {
+        return thumb;
+    }
+
+    public void setThumb(String thumb) {
+        this.thumb = thumb;
+    }
 }

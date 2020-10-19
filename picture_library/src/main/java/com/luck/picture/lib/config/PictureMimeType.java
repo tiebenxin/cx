@@ -108,6 +108,22 @@ public final class PictureMimeType {
     }
 
     /**
+     * 是否是gif
+     *
+     * @param path
+     * @return
+     */
+    public static boolean isVideoType(String url) {
+        if (!TextUtils.isEmpty(url)) {
+            int lastIndex = url.lastIndexOf(".");
+            String pictureType = url.substring(lastIndex).toLowerCase();
+            return pictureType.startsWith(".mp4") || pictureType.startsWith(".avi")|| pictureType.startsWith(".3gp");
+        }
+        return false;
+    }
+
+
+    /**
      * 是否是视频
      *
      * @param pictureType

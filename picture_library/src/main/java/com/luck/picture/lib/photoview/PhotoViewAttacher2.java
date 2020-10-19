@@ -76,6 +76,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     private boolean isGif = false;
     private int downY;
     private boolean isMultiPoint = false;//是否是多点触控
+    private int downX;
 
     private static void checkZoomLevels(float minZoom, float midZoom,
                                         float maxZoom) {
@@ -351,8 +352,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
         // If we don't have an ImageView, call cleanup()
         if (null == imageView) {
             cleanup();
-            LogManager.getLogger().i(LOG_TAG,
-                    "ImageView no longer exists. You should not use this PhotoViewAttacher2 any more.");
+            LogManager.getLogger().i(LOG_TAG, "ImageView no longer exists. You should not use this PhotoViewAttacher2 any more.");
         }
 
         return imageView;
@@ -516,6 +516,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                         isMultiPoint = ev.getPointerCount() > 1;
                     }
                     downY = (int) ev.getY();
+                    downX = (int) ev.getX();
                     // If we're flinging, and the user presses down, cancel
                     // fling
                     cancelFling();
@@ -539,10 +540,14 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                         }
                     }
                     if (!isMultiPoint) {
+                        int upX = (int) ev.getX();
                         int upY = (int) ev.getY();
-                        if (upY - downY > FLIP_DISTANCE) {
-                            if (mViewTapListener != null) {
-                                mViewTapListener.onViewTap(v, ev.getX(), ev.getY());
+                        //禁止横向滑动退出
+                        if (upX - downX < upY - downY ){
+                            if (upY - downY > FLIP_DISTANCE) {
+                                if (mViewTapListener != null) {
+                                    mViewTapListener.onViewTap(v, ev.getX(), ev.getY());
+                                }
                             }
                         }
                     }
@@ -644,31 +649,23 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
         ImageView imageView = getImageView();
 
         if (null != imageView) {
-            setScale(scale,
-                    (imageView.getRight()) / 2,
-                    (imageView.getBottom()) / 2,
-                    animate);
+            setScale(scale, (imageView.getRight()) / 2, (imageView.getBottom()) / 2, animate);
         }
     }
 
     @Override
-    public void setScale(float scale, float focalX, float focalY,
-                         boolean animate) {
+    public void setScale(float scale, float focalX, float focalY, boolean animate) {
         ImageView imageView = getImageView();
 
         if (null != imageView) {
             // Check to see if the scale is within bounds
             if (scale < mMinScale || scale > mMaxScale) {
-                LogManager
-                        .getLogger()
-                        .i(LOG_TAG,
-                                "Scale must be within the range of minScale and maxScale");
+                LogManager.getLogger().i(LOG_TAG, "Scale must be within the range of minScale and maxScale");
                 return;
             }
 
             if (animate) {
-                imageView.post(new AnimatedZoomRunnable(getScale(), scale,
-                        focalX, focalY));
+                imageView.post(new AnimatedZoomRunnable(getScale(), scale, focalX, focalY));
             } else {
                 mSuppMatrix.setScale(scale, scale, focalX, focalY);
                 checkAndDisplayMatrix();
@@ -689,7 +686,6 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
     public void setScaleType(ScaleType scaleType) {
         if (isSupportedScaleType(scaleType) && scaleType != mScaleType) {
             mScaleType = scaleType;
-
             // Finally update
             update();
         }

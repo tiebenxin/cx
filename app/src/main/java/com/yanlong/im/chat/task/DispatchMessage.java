@@ -73,7 +73,6 @@ public abstract class DispatchMessage {
             CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1,
                     "requestId:" + requestId + ";MsgType:" + wrapMessage.getMsgType());
         }
-        MessageManager.getInstance().checkServerTimeInit(wrapMessage);
         //消息震动
         if (!isFromSelf && isLastMessage) {
             MessageManager.getInstance().checkNotifyVoice(wrapMessage, batchMsgCount > 0, true);
@@ -159,6 +158,9 @@ public abstract class DispatchMessage {
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 result = repository.handlerRequestGroup(wrapMessage, realm);
+                break;
+            case MESSAGE_PROCESSED_SYNC:// 消息已处理通知（各类需处理消息通用）
+                result = repository.handlerOthersHadAgree(wrapMessage, realm);
                 break;
             case CHANGE_GROUP_META://修改群属性
                 result = repository.handlerChangeGroupMeta(wrapMessage, realm);

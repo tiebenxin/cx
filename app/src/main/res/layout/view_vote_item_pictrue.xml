@@ -33,6 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="37dp"
             android:layout_below="@+id/card_view"
+            android:clickable="true"
             android:background="@drawable/shape_vote_pictrue_gray"
             android:gravity="center_vertical">
 
@@ -53,6 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:button="@mipmap/img_vote_default"
+                android:clickable="false"
                 android:text="  选项A"
                 android:textColor="@color/c_474747"
                 android:textSize="15sp" />

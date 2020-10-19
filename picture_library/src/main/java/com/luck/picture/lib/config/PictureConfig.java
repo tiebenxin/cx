@@ -33,6 +33,7 @@ public final class PictureConfig {
     public final static int CLOSE_PREVIEW_FLAG = 2770;// 关闭预览界面 标识
     public final static int PREVIEW_DATA_FLAG = 2771;// 预览界面图片 标识
     public final static int GUESS_YOU_LIKE = 2772;// 预览猜你想要发送图片
+    public final static int SELECT_ORIGINAL = 2773;// 选择原图
     public final static int TYPE_ALL = 0;
     public final static int TYPE_IMAGE = 1;
     public final static int TYPE_VIDEO = 2;

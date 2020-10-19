@@ -39,6 +39,7 @@ import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
+import com.yanlong.im.view.WebActivity;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -241,7 +242,10 @@ public class MsgMainFragment extends Fragment {
         viewPopHelp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), HelpActivity.class));
+                Intent intent = new Intent(getActivity(), WebActivity.class);
+                intent.putExtra(WebActivity.AGM_URL, AppConfig.HELP_URL);
+                intent.putExtra(WebActivity.AGM_TITLE, "帮助与反馈");
+                startActivity(intent);
                 popView.dismiss();
             }
         });
@@ -386,7 +390,7 @@ public class MsgMainFragment extends Fragment {
                 for (int i = 0; i < viewModel.sessionMores.size(); i++) {
                     viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
                 }
-                if (viewModel.isShowLoadAnim.getValue() && sessionDetails.size() >= Math.min(50, viewModel.getSessionSize())) {
+                if (viewModel.isShowLoadAnim.getValue() && sessionDetails.size() >= 0/*Math.min(50, viewModel.getSessionSize())*/) {
                     //只有第一次加载才会出现，有50条（可调整）数据，短时间内应该是看不到白板情况，可关闭进度条了
                     viewModel.isShowLoadAnim.setValue(false);
                 }
@@ -592,14 +596,17 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
-    private void doOnlineChange(boolean state) {
-        if (getActivityMe() == null){
+    public void doOnlineChange(boolean state) {
+//        if (getActivityMe() == null){
+//            return;
+//        }
+        if (actionBar == null) {
             return;
         }
-        getActivityMe().runOnUiThread(new Runnable() {
+        actionBar.postDelayed(new Runnable() {
             @Override
             public void run() {
-                LogUtil.getLog().d("tyad", "run: state=" + state);
+                LogUtil.getLog().d("连接LOG--更新连接进度", "run: state=" + state);
                 AppConfig.setOnline(state);
                 actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                 if (!state && getActivityMe().isActivityStop()) {
@@ -608,7 +615,7 @@ public class MsgMainFragment extends Fragment {
                 resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
                 viewModel.onlineState.setValue(state);
             }
-        });
+        }, 10);
         //检测在线状态，一旦联网，调用批量收藏/删除接口，通知后端处理用户离线操作，保持数据一致
         //1 若网络恢复正常
         if (state) {

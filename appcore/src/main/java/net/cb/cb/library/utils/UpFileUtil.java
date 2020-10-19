@@ -2,6 +2,7 @@ package net.cb.cb.library.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -12,8 +13,13 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
+import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -24,12 +30,16 @@ import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -380,6 +390,83 @@ public class UpFileUtil {
         }
     }
 
+
+    /**
+     * 获取文件名 例如 ：md5.jpg
+     *
+     * @param path
+     * @return
+     */
+    public String getFileName(String path) {
+        try {
+            String url;
+            if (TextUtils.isEmpty(path)) {
+                return "";
+            }
+            if (path.contains("/below-20k")) {
+                path = path.replace("/below-20k", "");
+            } else if (path.contains("/below-200k")) {
+                path = path.replace("/below-200k", "");
+            }
+            url = path.substring(path.lastIndexOf("/"));
+
+//            String tempPath = path.substring(0, path.lastIndexOf("/"));
+//            url = tempPath.substring(tempPath.lastIndexOf("/") + 1) + url;
+            return url;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /**
+     * 获取缩略图
+     *
+     * @param path
+     * @return
+     */
+    public String getThumbUrl(String path, String fileName) {
+        try {
+            String url;
+            if (TextUtils.isEmpty(path) || TextUtils.isEmpty(fileName)) {
+                return "";
+            }
+            if (path.contains("/below-20k")) {
+                path = path.replace("/below-20k", "");
+            } else if (path.contains("/below-200k")) {
+                path = path.replace("/below-200k", "");
+            }
+            url = path.substring(0, path.indexOf(".com") + 5);
+            return url + fileName;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /**
+     * 获取缩略图
+     *
+     * @param path
+     * @return
+     */
+    public String getThumbUrl(String path) {
+        try {
+            String url;
+            if (TextUtils.isEmpty(path)) {
+                return "";
+            }
+            if (path.contains("/below-20k")) {
+                path = path.replace("/below-20k", "");
+            } else if (path.contains("/below-200k")) {
+                path = path.replace("/below-200k", "");
+            }
+            url = path.replace("image", "thumb");
+            return url;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+
     /**
      * 需要保存文件MD5值并上传文件
      *
@@ -497,8 +584,13 @@ public class UpFileUtil {
 
         void fail();
 
-        void inProgress(long progress, long zong);
+        void inProgress(long progress, long total);
 
+    }
+
+    //图片上传回调
+    public interface OssImageUpCallback extends OssUpCallback {
+        void success(String url, String thumb);
     }
 
     //是否是pc同步消息
@@ -510,6 +602,92 @@ public class UpFileUtil {
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * 重新处理图片，转存，以便延长缩略图生命周期
+     *
+     * @param context    application上下文对象
+     * @param path       文件存储空间，例如图片为 /image
+     * @param bucketName bucketName
+     * @param fileName   文件名称 例如md5.jpg
+     */
+    public void saveAsFile(final String path, final Context context, final String keyId, final String secret, final String token, final String endpoint, final String bucketName, final UpFileUtil.OssUpCallback ossUpCallback, final String url, final String fileName) {
+        getOSs(context, keyId, secret, token, endpoint);
+        String fromBucket = bucketName;
+        String fromObjectKey = getFileUrl(url, 0);
+        String toBucket = bucketName;
+        final String toObjectKey = path + fileName;
+        String action = "image/resize,m_lfit,w_500/quality,Q_20";
+
+        //图片持久化请求
+        ImagePersistRequest imagePersistRequest = new ImagePersistRequest(fromBucket, fromObjectKey, toBucket, toObjectKey, action);
+        //6.11 图片上传引起界面刷新
+        oss.asyncImagePersist(imagePersistRequest, new OSSCompletedCallback<ImagePersistRequest, ImagePersistResult>() {
+            @Override
+            public void onSuccess(ImagePersistRequest request, ImagePersistResult result) {
+                LogUtil.getLog().i(TAG, "asyncImagePersist--success");
+                ossUpCallback.success(getThumbUrl(url));
+            }
+
+            @Override
+            public void onFailure(ImagePersistRequest request, ClientException clientException, ServiceException serviceException) {
+                LogUtil.getLog().i(TAG, "asyncImagePersist--fail");
+                ossUpCallback.fail();
+            }
+        });
+    }
+
+
+    /**
+     * 下载文件
+     *
+     * @param context    application上下文对象
+     * @param path       文件存储空间，例如图片为 /image
+     * @param bucketName bucketName
+     * @param fileName   文件名称 例如md5.jpg
+     */
+    public void downloadFile(final Context context, final String keyId, final String secret, final String token, final String endpoint, final String bucketName, final UpFileUtil.OssUpCallback ossUpCallback, final String url, final File fileSave) {
+        getOSs(context, keyId, secret, token, endpoint);
+        String fromBucket = bucketName;
+        String fromObjectKey = getFileUrl(url, 0);
+
+        //图片持久化请求
+        GetObjectRequest getObjectRequest = new GetObjectRequest(fromBucket, fromObjectKey);
+        //6.11 图片上传引起界面刷新
+        oss.asyncGetObject(getObjectRequest, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
+
+            @Override
+            public void onSuccess(GetObjectRequest request, GetObjectResult result) {
+                //开始读取数据。
+                long length = result.getContentLength();
+                byte[] buffer = new byte[(int) length];
+                int readCount = 0;
+                while (readCount < length) {
+                    try {
+                        readCount += result.getObjectContent().read(buffer, readCount, (int) length - readCount);
+                    } catch (Exception e) {
+                        OSSLog.logInfo(e.toString());
+                    }
+                }
+                //将下载后的文件存放在指定的本地路径。
+                try {
+                    FileOutputStream fout = new FileOutputStream(fileSave.getAbsoluteFile());
+                    fout.write(buffer);
+                    fout.close();
+                    ossUpCallback.success(fileSave.getAbsolutePath());
+                } catch (Exception e) {
+                    OSSLog.logInfo(e.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(GetObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                ossUpCallback.fail();
+
+            }
+        });
     }
 
 }

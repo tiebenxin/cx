@@ -9,17 +9,26 @@
         android:id="@+id/view_it"
         style="@style/app_layout_list1">
 
-        <LinearLayout style="@style/app_layout_list1_item" android:layout_height="wrap_content" android:paddingBottom="8dp" android:paddingTop="8dp">
+        <LinearLayout
+            style="@style/app_layout_list1_item"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/app_margin_item">
 
-                <ImageView
+                <!--                    <android.support.v7.widget.CardView-->
+                <!--                        style="@style/head_portrait_style"-->
+                <!--                        app:cardCornerRadius="@dimen/head_portrait_fillet">-->
+
+                <net.cb.cb.library.view.CircleImageView
                     android:id="@+id/img_head"
                     style="@style/app_img_head"
                     android:layout_gravity="center|left" />
+                <!--                    </android.support.v7.widget.CardView>-->
 
             </FrameLayout>
 
@@ -33,8 +42,9 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
+
                     <TextView
                         android:id="@+id/txt_name"
                         style="@style/app_txt_title_2"
@@ -51,8 +61,8 @@
                 <TextView
                     android:id="@+id/txt_context"
                     style="@style/app_txt_content_1"
-                    android:singleLine="true"
                     android:ellipsize="end"
+                    android:singleLine="true"
                     android:text="xxxx3333333333333333333333333333333333333333333333333333333333333333333333333333333333333666666666666666666" />
 
 

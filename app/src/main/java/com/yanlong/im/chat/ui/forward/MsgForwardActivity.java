@@ -33,6 +33,7 @@ import com.yanlong.im.chat.bean.CollectLocationMessage;
 import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
 import com.yanlong.im.chat.bean.CollectVideoMessage;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -41,6 +42,7 @@ import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.WebMessage;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.tcp.TcpConnection;
@@ -519,7 +521,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 if (imgSize == null) {
                     return;
                 }
-                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), filePath, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize());
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), filePath, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize(), "");
                 msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
             } else if (mediaType == CxMediaMessage.EMediaType.FILE) {
                 double fileSize = FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
@@ -548,7 +550,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 }
             } else if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
                 if (!TextUtils.isEmpty(shareImageUrl)) {
-                    ImageMessage imageMsg = SocketData.createImageMessage(SocketData.getUUID(), "", shareImageUrl, 0, 0, true, false, 0);
+                    ImageMessage imageMsg = SocketData.createImageMessage(SocketData.getUUID(), "", shareImageUrl, 0, 0, true, false, 0, "");
                     msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), imageMsg);
                 }
 
@@ -571,7 +573,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (imgSize == null) {
                 return;
             }
-            ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), editPicPath, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize());
+            ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), editPicPath, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize(), "");
             msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
         }
 
@@ -684,6 +686,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (msgList == null) {
                 return;
             }
+        } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
+            imageUrl = editPicPath;
         }
 
         alertForward.init(MsgForwardActivity.this, type, mIcon, mName, txt, imageUrl, btm, toGid, isVertical, new AlertForward.Event() {
@@ -1049,7 +1053,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (requestCode == 0) {
                 String gid = data.getStringExtra("gid");
                 if (!TextUtils.isEmpty(gid)) {
-                    onForward(-1L, gid, "", "");//仅仅是唤起弹窗
+                    MsgDao msgDao = new MsgDao();
+                    Group group = msgDao.getGroup4Id(gid);
+                    if (group != null) {
+                        onForward(-1L, gid, group.getAvatar(), msgDao.getGroupName(group));//仅仅是唤起弹窗
+                    }
                 }
             }
         }
@@ -1150,14 +1158,28 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             return;
         }
         LogUtil.getLog().i("分享", file);
-        uploadFile(file, msg, type, new UpLoadService.UpLoadCallback() {
+        uploadFile(file, msg, type, new UpLoadService.UploadImageCallback() {
+            @Override
+            public void success(String url, String thumb) {
+                if (!TextUtils.isEmpty(url)) {
+                    switch (type) {
+                        case IMG:
+                            ImageMessage image = msg.getImage();
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),thumb);
+                            msg.setImage(imageMessage);
+                            sendMessage(msg);
+                            break;
+                    }
+                }
+            }
+
             @Override
             public void success(String url) {
                 if (!TextUtils.isEmpty(url)) {
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize());
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),"");
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;
@@ -1181,13 +1203,32 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
 
     //上传文件，图片文件等
-    public void uploadFile(String file, MsgAllBean msgAllBean, UpFileAction.PATH type, UpLoadService.UpLoadCallback upLoadCallback) {
+    public void uploadFile(String file, MsgAllBean msgAllBean, UpFileAction.PATH type, UpLoadService.UploadImageCallback upLoadCallback) {
 //        LogUtil.getLog().i("分享uploadFile", file);
         UpFileAction upFileAction = new UpFileAction();
         upFileAction.upFile(type, this, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
-                upLoadCallback.success(url);
+                if (type == UpFileAction.PATH.IMG) {
+                    upFileAction.persistImage(UpFileAction.PATH.IMG_PERSIST, MsgForwardActivity.this, url, new UpFileUtil.OssUpCallback() {
+                        @Override
+                        public void success(String thumb) {
+                            upLoadCallback.success(url, thumb);
+                        }
+
+                        @Override
+                        public void fail() {
+                            upLoadCallback.fail();
+                        }
+
+                        @Override
+                        public void inProgress(long progress, long zong) {
+                        }
+                    });
+
+                } else {
+                    upLoadCallback.success(url);
+                }
             }
 
             @Override
@@ -1304,7 +1345,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 if (imgSize == null) {
                     continue;
                 }
-                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), url, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize());
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), url, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize(),"");
                 MsgAllBean msgAllBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
                 if (msgAllBean != null) {
                     list.add(msgAllBean);
@@ -1320,14 +1361,36 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             return;
         }
 //        LogUtil.getLog().i("分享", file);
-        uploadFile(file, msg, type, new UpLoadService.UpLoadCallback() {
+        uploadFile(file, msg, type, new UpLoadService.UploadImageCallback() {
+            @Override
+            public void success(String url, String thumb) {
+                if (!TextUtils.isEmpty(url)) {
+                    switch (type) {
+                        case IMG:
+                            ImageMessage image = msg.getImage();
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),thumb);
+                            msg.setImage(imageMessage);
+                            sendMessage(msg);
+                            break;
+                    }
+                    if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+                        if (msgList != null && position < msgList.size() - 1) {
+                            int newP = position + 1;
+                            MsgAllBean msgAllBean = msgList.get(newP);
+                            updateSendProgress(msgAllBean, 0);
+                            upload(msgAllBean.getImage().getLocalimg(), type, msgAllBean, newP);
+                        }
+                    }
+                }
+            }
+
             @Override
             public void success(String url) {
                 if (!TextUtils.isEmpty(url)) {
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize());
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),"");
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;

@@ -1461,6 +1461,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onPause() {
+        returnVideoActivity = false;
         super.onPause();
         if (proximitySensor != null && sensorManager != null) {
             sensorManager.unregisterListener(sensorEventListener);

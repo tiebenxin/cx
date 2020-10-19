@@ -7,7 +7,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        app:headview_title="可见范围">
+        app:headview_title="权限设置">
+
+        <View style="@style/app_line" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"

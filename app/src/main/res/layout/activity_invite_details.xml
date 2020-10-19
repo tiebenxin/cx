@@ -4,81 +4,132 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="邀请详情">
+    app:headview_title="群聊邀请">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+        <!--        <android.support.v7.widget.CardView-->
+        <!--            style="@style/head_portrait_style"-->
+        <!--            android:id="@+id/card_temp_icon"-->
+        <!--            android:layout_marginTop="30dp"-->
+        <!--            android:layout_centerHorizontal="true"-->
+        <!--            app:cardCornerRadius="@dimen/head_portrait_fillet">-->
+        <net.cb.cb.library.view.CircleImageView
+            android:id="@+id/iv_temp_icon"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="30dp"
+            android:layout_centerHorizontal="true"
+            android:visibility="visible" />
+        <!--        </android.support.v7.widget.CardView>-->
+
+        <TextView
+            android:id="@+id/tv_temp_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_temp_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text=""
+            android:visibility="visible" />
 
         <LinearLayout
             android:id="@+id/layout_one"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/tv_temp_name"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="25dp"
             android:orientation="horizontal">
-            <TextView
-                android:id="@+id/tv_invite_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/c_32b053"
-                android:padding="5dp"
-                android:text="“老李”"/>
 
             <TextView
                 android:id="@+id/tv_temp_one"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingRight="5dp"
-                android:paddingBottom="5dp"
-                android:paddingTop="5dp"
                 android:layout_toRightOf="@+id/tv_invite_name"
-                android:text="邀请"/>
+                android:text=""
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_invite_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:text=""
+                android:textColor="@color/c_3972a1"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_temp_two"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/tv_invite_name"
+                android:text=""
+                android:textSize="12sp" />
         </LinearLayout>
 
-        <net.cb.cb.library.view.MultiListView
-            android:id="@+id/mt_listview"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rc_view"
             android:layout_width="wrap_content"
+            android:layout_height="95dp"
             android:layout_below="@+id/layout_one"
-            android:layout_marginTop="30dp"
             android:layout_centerInParent="true"
-            android:background="@color/white"
-            android:layout_height="130dp"/>
+            android:visibility="visible" />
 
         <TextView
-            android:id="@+id/tv_temp_two"
+            android:id="@+id/tv_temp_three"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/mt_listview"
+            android:layout_below="@+id/rc_view"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="50dp"
-            android:text="介绍信息："/>
+            android:text=""
+            android:textColor="@color/c_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_temp_four"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_temp_three"
+            android:layout_marginLeft="17dp"
+            android:layout_marginTop="33dp"
+            android:text="介绍信息："
+            android:textColor="@color/c_000000"
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:layout_below="@+id/tv_temp_two"/>
+            android:layout_below="@+id/tv_temp_four"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/shape_5radius_white"
+            android:minHeight="100dp"
+            android:padding="13dp"
+            android:text=""
+            android:textColor="@color/c_9E9D9D"
+            android:textSize="13sp" />
 
         <TextView
             android:id="@+id/tv_submit"
-            android:layout_width="200dp"
+            android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-            android:text="确认通过"
-            android:layout_marginTop="22dp"
-            android:layout_marginBottom="25dp"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center"
-            android:textSize="18sp"
             android:layout_below="@+id/tv_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="45dp"
+            android:layout_marginRight="26dp"
             android:background="@drawable/shape_5radius_solid_32b053"
-            android:textColor="@color/white"/>
-
-
+            android:gravity="center"
+            android:text="确认通过"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
     </RelativeLayout>
 </net.cb.cb.library.view.HeadView>

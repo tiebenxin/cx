@@ -30,7 +30,7 @@
                     android:scaleType="fitXY"
                     android:src="@mipmap/bg_red_packet" />
 
-                <com.hm.cxpay.widget.CircleImageView
+                <net.cb.cb.library.view.CircleImageView
                     android:id="@+id/iv_avatar"
                     android:layout_width="76dp"
                     android:layout_height="76dp"

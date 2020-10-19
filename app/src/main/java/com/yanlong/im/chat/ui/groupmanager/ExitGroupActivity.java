@@ -22,6 +22,7 @@ import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -98,10 +99,11 @@ public class ExitGroupActivity extends BaseBindActivity<ActivityExitGroupBinding
                 if (response.body() != null && response.body().isOk()) {
                     mList.clear();
                     List<ExitGroupUser> list = response.body().getData();
+                    Collections.sort(list);
                     mList.addAll(list);
-                    if(list.size()>0){
+                    if (list.size() > 0) {
                         setVisibleData(true);
-                    }else{
+                    } else {
                         setVisibleData(false);
                     }
                     mViewAdapter.notifyDataSetChanged();
@@ -119,11 +121,11 @@ public class ExitGroupActivity extends BaseBindActivity<ActivityExitGroupBinding
         });
     }
 
-    private void setVisibleData(boolean value){
-        if(value){
+    private void setVisibleData(boolean value) {
+        if (value) {
             bindingView.recyclerView.setVisibility(View.VISIBLE);
             bindingView.viewNoData.setVisibility(View.GONE);
-        }else{
+        } else {
             bindingView.recyclerView.setVisibility(View.GONE);
             bindingView.viewNoData.setVisibility(View.VISIBLE);
         }

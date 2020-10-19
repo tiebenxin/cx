@@ -34,7 +34,6 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -415,7 +414,7 @@ public class GroupNumbersActivity extends AppActivity {
                     }
                     if (type == TYPE_ADD && response.body().getData() != null) {
                         if (response.body().getData().isPending()) {
-                            ToastUtil.show("邀请成功,请等待群主验证");
+                            ToastUtil.show("邀请发送成功,请等待群主验证");
                             SocketData.inviteBeConfirmedNotice(gid);
                         } else {
                             SocketData.createMsgGroupOfNotice(gid, listDataTop);
@@ -474,7 +473,6 @@ public class GroupNumbersActivity extends AppActivity {
                         @Override
                         public void onClick(View v) {
                             dialogOne.dismiss();
-                            finish();
                         }
                     })
                     .setRightOnClickListener(new View.OnClickListener() {

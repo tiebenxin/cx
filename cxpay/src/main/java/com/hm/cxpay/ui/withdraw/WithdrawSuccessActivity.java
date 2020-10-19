@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.ui.LooseChangeActivity;
 
 import net.cb.cb.library.view.ActionbarView;
@@ -18,7 +19,7 @@ import net.cb.cb.library.view.HeadView;
  * @by zjy
  * @备注：
  */
-public class WithdrawSuccessActivity extends AppActivity {
+public class WithdrawSuccessActivity extends BasePayActivity {
 
     private HeadView headView;
     private ActionbarView actionbar;

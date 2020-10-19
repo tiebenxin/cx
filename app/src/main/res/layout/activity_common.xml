@@ -79,13 +79,14 @@
                 android:src="@mipmap/ic_btn_goto" />
         </LinearLayout>
 
-        <View
-            style="@style/app_line"
-            android:layout_marginTop="@dimen/app_margin_item_top" />
+<!--        <View-->
+<!--            style="@style/app_line"-->
+<!--            android:layout_marginTop="@dimen/app_margin_item_top" />-->
 
         <LinearLayout
             android:id="@+id/view_privacy"
-            style="@style/app_layout_list2_item">
+            style="@style/app_layout_list2_item"
+            android:visibility="gone">
 
             <TextView
                 style="@style/app_txt_title_2"

@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-        <com.hm.cxpay.widget.CircleImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_friend_header"
             style="@style/app_img_head"
             android:layout_width="80dp"
@@ -41,7 +41,7 @@
             android:textColor="@color/white"
             android:textSize="18sp" />
 
-        <com.hm.cxpay.widget.CircleImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_my_header"
             style="@style/app_img_head"
             android:layout_width="80dp"
@@ -184,7 +184,7 @@
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
-        <com.hm.cxpay.widget.CircleImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_notice_avatar"
             android:layout_width="26dp"
             android:layout_height="26dp"

@@ -381,7 +381,7 @@ public class GroupCreateActivity extends AppActivity {
 
     private void taskCreate() {
         if (listDataTop.size() < 2) {
-            ToastUtil.show(getContext(), "人数必须大于3人");
+            ToastUtil.show(getContext(), "群成员过少");
             actionbar.getViewRight().setEnabled(true);
             alert.dismiss();
             return;

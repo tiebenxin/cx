@@ -116,12 +116,12 @@ public class ActionbarView extends LinearLayout {
     }
 
     /***
-     * 设置左边文字
-     *
+     * 设置左边文字，其他界面都是黑色     *
      * @param txt
      */
     public void setTxtLeft(String txt) {
         txtLeft.setBackgroundColor(getContext().getResources().getColor(R.color.transparent));
+        txtLeft.setTextColor(getContext().getResources().getColor(R.color.black));
         if (!TextUtils.isEmpty(txt)) {
             txtLeft.setText(txt);
             txtLeft.setVisibility(View.VISIBLE);
@@ -131,12 +131,13 @@ public class ActionbarView extends LinearLayout {
     }
 
     /***
-     * 设置左边文字
+     * 设置左边文字,聊天界面继续白色
      *
      * @param txt
      */
     public void setTxtLeft(String txt, int drawableId, int size) {
         txtLeft.setBackgroundResource(drawableId);
+        txtLeft.setTextColor(getContext().getResources().getColor(R.color.white));
         if (size > 0) {
             txtLeft.setTextSize(size);
             LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -451,6 +452,12 @@ public class ActionbarView extends LinearLayout {
     public void setChangeStyleBg() {
         rootView.findViewById(R.id.ll_main).setBackgroundColor(Color.parseColor("#c85749"));
 
+    }
+
+    public void setViewLeftShow(boolean b) {
+        if (ViewLeft != null) {
+            ViewLeft.setVisibility(b ? VISIBLE : GONE);
+        }
     }
 
 }

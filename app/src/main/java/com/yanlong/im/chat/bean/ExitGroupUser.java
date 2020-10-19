@@ -11,7 +11,7 @@ import net.cb.cb.library.base.BaseBean;
  * @description
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class ExitGroupUser extends BaseBean {
+public class ExitGroupUser extends BaseBean implements Comparable<ExitGroupUser> {
 
     private long uid;
     private String avatar;
@@ -48,5 +48,13 @@ public class ExitGroupUser extends BaseBean {
 
     public void setLeaveTime(long leaveTime) {
         this.leaveTime = leaveTime;
+    }
+
+    @Override
+    public int compareTo(ExitGroupUser o) {
+        if (o == null || this == null) {
+            return -1;
+        }
+        return (int) (o.leaveTime - this.leaveTime);
     }
 }

@@ -558,26 +558,15 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                     NewVersionBean bean = response.body().getData();
                     if (updateManage == null) {
                         updateManage = new UpdateManage(context, LoginActivity.this);
-                        //TODO 原强制更新字段(已被废弃)，根据最低版本判断是否强制
-                        if (bean.getForceUpdate() != 0) {
-                            //有最低不需要强制升级版本
-                            if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
-                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                            } else {
-                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                            }
+                        //缓存最新版本
+                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                        VersionBean versionBean = new VersionBean();
+                        versionBean.setVersion(bean.getVersion());
+                        preferencesUtil.save2Json(versionBean);
+                        if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                         } else {
-                            //缓存最新版本
-                            SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
-                            VersionBean versionBean = new VersionBean();
-                            versionBean.setVersion(bean.getVersion());
-                            preferencesUtil.save2Json(versionBean);
-                            //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                            if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
-                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                            } else {
-                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                            }
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         }
                     }
                 }

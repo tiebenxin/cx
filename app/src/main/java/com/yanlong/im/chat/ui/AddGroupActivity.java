@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,8 +19,9 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -41,6 +43,7 @@ public class AddGroupActivity extends AppActivity {
     private TextView mTvGroupName;
     private TextView mTvGroupNum;
     private Button mBtnAddGroup;
+    private EditText etContent;
     private MsgAction msgAction;
     private String gid;
     private String inviter;
@@ -64,6 +67,7 @@ public class AddGroupActivity extends AppActivity {
         mTvGroupName = findViewById(R.id.tv_group_name);
         mTvGroupNum = findViewById(R.id.tv_group_num);
         mBtnAddGroup = findViewById(R.id.btn_add_group);
+        etContent = findViewById(R.id.et_content);
     }
 
 
@@ -95,6 +99,29 @@ public class AddGroupActivity extends AppActivity {
         inviter = getIntent().getStringExtra(INVITER);
         inviterName = getIntent().getStringExtra(INVITER_NAME);
         taskGroupInfo(gid);
+        etContent.setHint("我是"+UserAction.getMyInfo().getName());
+        etContent.setCursorVisible(false);
+        etContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (TextUtils.isEmpty(etContent.getText().toString())) {
+                    etContent.setText("我是" + UserAction.getMyInfo().getName());
+                    etContent.setSelection(etContent.getText().toString().length());
+                    etContent.setCursorVisible(true);
+                }
+            }
+        });
+//        etContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if (hasFocus && TextUtils.isEmpty(etContent.getText().toString())) {
+//                    etContent.setText("我是" + UserAction.getMyInfo().getName());
+//                    etContent.setSelection(etContent.getText().toString().length());
+//                    etContent.setFocusable(true);
+//                }
+//            }
+//        });
+
     }
 
 
@@ -104,10 +131,18 @@ public class AddGroupActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     Group bean = response.body().getData();
+                    String url = "";
                     if (!TextUtils.isEmpty(bean.getAvatar())) {
-                        Glide.with(context).load(bean.getAvatar())
-                                .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
+                        url = bean.getAvatar();
+                    }else {
+                        //群头像未设置时会有一个默认生成的拼接头像，考虑到成·员数会变动，每次最好根据最新成员数直接重新生成头像
+                        if(bean!=null && bean.getUsers()!=null && bean.getUsers().size()>0){
+                            GroupHeadImageUtil.creatAndSaveImgByList(context, bean);
+                            url = msgDao.groupHeadImgGet(gid);
+                        }
                     }
+                    Glide.with(context).load(url)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
                     mTvGroupName.setText(/*bean.getName()*/msgDao.getGroupName(bean));
                     mTvGroupNum.setText(bean.getUsers().size() + "人");
                 } else {
@@ -123,7 +158,8 @@ public class AddGroupActivity extends AppActivity {
         Long uid = userInfo.getUid();
         String path = userInfo.getHead();
         String name = userInfo.getName();
-        new MsgAction().joinGroup(gid, uid, name, path, inviter, inviterName, new CallBack<ReturnBean<GroupJoinBean>>() {
+        String additional = etContent.getText().toString();
+        new MsgAction().joinGroup(gid, uid, name, path, inviter, inviterName,additional, new CallBack<ReturnBean<GroupJoinBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 if (response.body() == null) {
@@ -137,7 +173,7 @@ public class AddGroupActivity extends AppActivity {
                         Intent intent = new Intent(AddGroupActivity.this, ChatActivity.class);
                         intent.putExtra(ChatActivity.AGM_TOGID, gid);
                         startActivity(intent);
-                        new MsgDao().sessionCreate(gid, null);
+                        new MsgDao().sessionCreate(gid, null, SocketData.getCurrentTime());
                         MessageManager.getInstance().setMessageChange(true);
                     } else {
                         ToastUtil.show(AddGroupActivity.this, "申请成功,请等待群主验证");

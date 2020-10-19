@@ -219,15 +219,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void showDisallowedCollectDialog(EventFactory.EventShowDisallowedMsgNotice event) {
-        if (dialogFour!=null){
-            dialogFour.show();
-        }else {
-            showMsgFailDialog();
-        }
-    }
-
     private void showDialog(String name) {
         AlertYesNo alertYesNo = new AlertYesNo();
         alertYesNo.init(VideoPlayActivity.this, null, "\"" + name + "\"" + "撤回了一条消息",
@@ -323,7 +314,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 double result = 0;
                 if (mCurrentTime > 0) { //TODO 抖动是因为MediaPlayer.getDuration()方法有时候会获取长度为0，属于官方bug
                     result = (double) mCurrentTime / mMediaPlayer.getDuration();
-                    LogUtil.getLog().i("TAG", "mCurrentTime:" + mCurrentTime + "  mMediaPlayer.getDuration():" + mMediaPlayer.getDuration());
+//                    LogUtil.getLog().i("TAG", "mCurrentTime:" + mCurrentTime + "  mMediaPlayer.getDuration():" + mMediaPlayer.getDuration());
                 }
                 if (isPlayFinished) {
                     activity_video_seek.setProgress(100);
@@ -379,7 +370,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     }
                 }
             }
-        }, 0, 1000);
+        }, 0, 300);
     }
 
     private void initView() {
@@ -611,16 +602,12 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 if (canCollect) {
                     if (postsion == 0) {
                         if (from == PictureConfig.FROM_COLLECT_DETAIL) {
-                            checkFileIsExist(msgAllBean, collectJson);
+                            checkFileIsExist(msgAllBean, collectJson,false);
                         } else {
-                            checkFileIsExist(msgAllBean, "");
+                            checkFileIsExist(msgAllBean, "",false);
                         }
                     } else if (postsion == 1) {
-                        //互相发eventbus
-                        EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
-                        MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
-                        eventCollectImgOrVideo.setMsgId(msgAllBeanForm.getMsg_id());
-                        EventBus.getDefault().post(eventCollectImgOrVideo);
+                        checkFileIsExist(msgAllBean, "",true);
                     } else if (postsion == 2) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
                         //点击保存视频，若已经下载完成则提示"成功"；若没有下载完成，则无操作，等待下载完成后提示"成功"
@@ -635,9 +622,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 } else {
                     if (postsion == 0) {
                         if (from == PictureConfig.FROM_COLLECT_DETAIL) {
-                            checkFileIsExist(msgAllBean, collectJson);
+                            checkFileIsExist(msgAllBean, collectJson,false);
                         } else {
-                            checkFileIsExist(msgAllBean, "");
+                            checkFileIsExist(msgAllBean, "",false);
                         }
                     } else if (postsion == 1) {
                         insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
@@ -659,7 +646,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     }
 
-    private void checkFileIsExist(String msgBean, String collectJson) {
+    //isCollect 转发还是收藏
+    private void checkFileIsExist(String msgBean, String collectJson, boolean isCollect) {
 
         if (TextUtils.isEmpty(msgBean)) {
             ToastUtil.show("消息已被删除或者被焚毁，不能转发");
@@ -697,7 +685,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         if (response.body().getData() != null && response.body().getData().size() != list.size()) {
                             showMsgFailDialog();
                         } else {
-                            onRetransmission(msgBean, collectJson);
+                            if(isCollect){
+                                //收藏
+                                EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                                MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
+                                eventCollectImgOrVideo.setMsgId(msgAllBeanForm.getMsg_id());
+                                EventBus.getDefault().post(eventCollectImgOrVideo);
+                            }else {
+                                onRetransmission(msgBean, collectJson);
+                            }
                         }
 
                     } else {
@@ -712,7 +708,14 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 }
             });
         } else {
-            onRetransmission(msgBean, collectJson);
+            if(isCollect){
+                EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
+                eventCollectImgOrVideo.setMsgId(msgAllBeanForm.getMsg_id());
+                EventBus.getDefault().post(eventCollectImgOrVideo);
+            }else {
+                onRetransmission(msgBean, collectJson);
+            }
         }
     }
 

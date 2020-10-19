@@ -2,6 +2,7 @@ package com.yanlong.im.user.ui.image;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,11 +41,12 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
 import com.yanlong.im.chat.eventbus.EventReceiveImage;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.QRCodeManage;
+import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
 import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
@@ -96,6 +98,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private AdapterPreviewImage mAdapter;
     String indexPath;
     private String collectJson = "";//收藏详情点击大图转发需要的数据
+    private Activity activity;
 
 
     @Override
@@ -120,8 +123,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         left_back.setOnClickListener(this);
         MessageManager.getInstance().initPreviewID(gid, toUid);
         initAndPermissions();
-
-        builder = new CommonSelectDialog.Builder(this);
+        activity = this;
+        builder = new CommonSelectDialog.Builder(activity);
     }
 
     @Override
@@ -359,6 +362,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
+        if(activity==null || activity.isFinishing()){
+            return;
+        }
         dialogFour = builder.setTitle("你所选的消息已失效")
                 .setShowLeftText(false)
                 .setRightText("确定")
@@ -374,9 +380,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      *
      * @param msgId
      * @param fromWhere
+     * @param type  1 转发 2 收藏 3 图片编辑
      */
     @Override
-    public void onClick(String msgId, int fromWhere) {
+    public void onClick(String msgId, int fromWhere, int type , LocalMedia media) {
 
         MsgAllBean msgbean = null;
 
@@ -415,7 +422,22 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (response.body().getData() != null && response.body().getData().size() != list.size()) {
                             showMsgFailDialog();
                         } else {
-                            sendToFriend(msgId, fromWhere);
+                            if(type==1){
+                                sendToFriend(msgId, fromWhere);
+                            }else if(type==2){
+                                EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                                eventCollectImgOrVideo.setMsgId(msgId);
+                                EventBus.getDefault().post(eventCollectImgOrVideo);
+                            }else {
+                                Intent intent = new Intent(PictureExternalPreviewActivity.this, ImageShowActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("imgpath", media.getCompressPath());
+                                bundle.putString("msg_id", msgId);
+                                bundle.putInt("img_width", media.getWidth());
+                                bundle.putInt("img_height", media.getHeight());
+                                intent.putExtras(bundle);
+                                startActivityForResult(intent, IMG_EDIT);
+                            }
                         }
 
                     } else {

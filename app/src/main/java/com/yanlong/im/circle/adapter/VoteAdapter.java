@@ -152,7 +152,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
             progressBar.setProgress(0);
             tvPercentage.setText("");
         }
-        helper.addOnClickListener(R.id.layout_vote_pictrue, R.id.layout_vote_txt);
+        helper.addOnClickListener(R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.layout_vote_bg);
     }
 
     private String positionConvert(int postion) {

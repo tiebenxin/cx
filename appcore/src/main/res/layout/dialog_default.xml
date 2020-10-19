@@ -20,13 +20,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="25dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginRight="10dp"
         android:layout_marginBottom="30dp"
         android:text="根据国家法律法规要求，你需要进行身份认证后，才能继续使用该功能。"
         android:textColor="@color/c_000000"
-        android:textSize="15sp" />
+        android:textSize="14sp" />
 
     <View
         android:id="@+id/line_one"

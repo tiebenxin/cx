@@ -180,7 +180,8 @@ public class TimeToString {
     public static Spanned getTimeOnline(Long timestamp, @CoreEnum.ESureType int activeType, boolean isChat) {
         String color = "#276baa";
         if (isChat) {
-            color = "#A1CCF0";
+//            color = "#A1CCF0";
+            color = "#4886c5";
         }
         if (activeType == CoreEnum.ESureType.YES) {
             String timestr = String.format("<font color='%s'>在线</font>", color);

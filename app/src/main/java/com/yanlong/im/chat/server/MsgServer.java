@@ -18,7 +18,6 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
@@ -87,7 +86,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid,
                                               @Field("nickname") String nickname, @Field("avatar") String avatar,
-                                              @Field("inviter") String inviter, @Field("inviterName") String inviterName);
+                                              @Field("inviter") String inviter, @Field("inviterName") String inviterName,@Field("additional") String additional);
 
     @POST("/group/change-group-name")
     @FormUrlEncoded
@@ -186,5 +185,12 @@ public interface MsgServer {
     @POST("/collect/del-batch")
     Call<ReturnBean> offlineDeleteCollections(@Body RequestBody json);
 
+    @POST("/group/batch-accept-request")
+    @FormUrlEncoded
+    Call<ReturnBean> httpAgreeJoinGroup(@Field("gid") String gid, @Field("inviter") long inviter, @Field("inviterName") String inviterName,@Field("joinType") int joinType,@Field("msgId") String msgId,@Field("@members") String members);
+
+    @POST("/group/cancel-invite")
+    @FormUrlEncoded
+    Call<ReturnBean> httpCancelInvite(@Field("gid") String gid, @Field("name") String name, @Field("uid") Long uid);
 
 }

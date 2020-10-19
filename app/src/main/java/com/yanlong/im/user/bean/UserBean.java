@@ -16,7 +16,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
-public class UserBean extends RealmObject implements Comparable<UserBean>,IUser {
+public class UserBean extends RealmObject implements Comparable<UserBean>, IUser {
     @PrimaryKey
     private Long uid;
     @SerializedName("nickname")
@@ -76,6 +76,7 @@ public class UserBean extends RealmObject implements Comparable<UserBean>,IUser 
 
     private int deactivateStat;//注销状态 0 正常 1 注销中 -1 已注销
     private int friendDeactivateStat;//好友注销状态 0 正常 1 注销中 -1 已注销
+    private int historyClear;//能否双向清除，1 可以， 其他，否
 
 
     public int getMasterRead() {
@@ -556,6 +557,14 @@ public class UserBean extends RealmObject implements Comparable<UserBean>,IUser 
 
     public void setFriendDeactivateStat(int friendDeactivateStat) {
         this.friendDeactivateStat = friendDeactivateStat;
+    }
+
+    public int getHistoryClear() {
+        return historyClear;
+    }
+
+    public void setHistoryClear(int historyClear) {
+        this.historyClear = historyClear;
     }
 
     @Override

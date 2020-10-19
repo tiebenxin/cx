@@ -113,6 +113,18 @@ public class CoreEnum {
         int YES = 1;
     }
 
+    /*
+     * 查看大图或视频，长按操作类型
+     * */
+    @IntDef({EActionType.FORWARD, EActionType.SAVE, EActionType.COLLECTION, EActionType.EDIT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EActionType {
+        int FORWARD = 0; // 转发
+        int SAVE = 1; // 保存
+        int COLLECTION = 2; // 收藏
+        int EDIT = 3; // b编辑
+    }
+
     /**
      * 0：展开、收起 1：详情 2文字投票 3图片投票 4评论回复 5点击头像 6 长按
      */

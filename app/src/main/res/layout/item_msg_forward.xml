@@ -18,11 +18,17 @@
                 android:layout_width="56dp"
                 android:layout_height="match_parent"
                 android:layout_marginRight="6dp">
-                <com.yanlong.im.wight.avatar.MultiImageView
-                    android:id="@+id/img_head"
-                    style="@style/app_img_head"
-                    android:background="@drawable/bg_head_gray_shape"
-                    android:layout_gravity="center|left"/>
+
+                    <android.support.v7.widget.CardView
+                        style="@style/head_portrait_style"
+                        android:layout_gravity="center|left"
+                        app:cardElevation="0dp"
+                        app:cardCornerRadius="24dp">
+                            <com.yanlong.im.wight.avatar.MultiImageView
+                                android:id="@+id/img_head"
+                                style="@style/app_img_head"
+                                android:background="@drawable/bg_head_gray_shape"/>
+                    </android.support.v7.widget.CardView>
 
             </FrameLayout>
 

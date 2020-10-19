@@ -84,7 +84,7 @@ public class UpLoadService extends Service {
                 while (queue.size() > 0) {
                     UpProgress upProgress = queue.poll();
                     LogUtil.getLog().d("ChatActivityTemp--上传", "上传: " + upProgress.getId());
-                    upFileAction.upFileSyn(UpFileAction.PATH.IMG, getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
+                    upFileAction.upFileSyn(UpFileAction.PATH.IMG, getApplicationContext(), (UpFileUtil.OssImageUpCallback) upProgress.getCallback(), upProgress.getFile());
                 }
                 stopSelf();
                 LogUtil.getLog().d("ChatActivityTemp-上传", "上传结束");
@@ -103,23 +103,29 @@ public class UpLoadService extends Service {
         upProgress.setFile(file);
         updateProgress(msg.getMsg_id(), new Random().nextInt(5) + 1);//发送图片后默认给个进度，显示阴影表示正在上传
         final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(file);
-        upProgress.setCallback(new UpFileUtil.OssUpCallback() {
+        upProgress.setCallback(new UpFileUtil.OssImageUpCallback() {
 
             @Override
-            public void success(final String url) {
+            public void success(final String url, String thumb) {
                 EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
                 updateProgress(msg.getMsg_id(), 100);
                 eventUpImgLoadEvent.setMsgid(msg.getMsg_id());
                 eventUpImgLoadEvent.setState(1);
                 eventUpImgLoadEvent.setUrl(url);
+                eventUpImgLoadEvent.setThumb(thumb);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
                 ImageMessage image = msg.getImage();
-                ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize());
+                ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize(),thumb);
                 msg.setImage(imageMessage);
                 eventUpImgLoadEvent.setMsgAllBean(msg);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
                 sendMessage(msg);
                 removeMsg(msg);
+
+            }
+
+            @Override
+            public void success(String url) {
 
             }
 
@@ -371,7 +377,7 @@ public class UpLoadService extends Service {
      */
     private static void uploadImageOfVideo(Context mContext, String file, final UpLoadCallback upLoadCallback, boolean isLocalTake) {
         UpFileAction upFileAction = new UpFileAction();
-        upFileAction.upFile(UpFileAction.PATH.VIDEO, mContext, new UpFileUtil.OssUpCallback() {
+        upFileAction.upFile(UpFileAction.PATH.VIDEO_FRAME, mContext, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
                 upLoadCallback.success(url);
@@ -432,6 +438,11 @@ public class UpLoadService extends Service {
 
         void fail();
 
+    }
+
+    //图片上传回调
+    public interface UploadImageCallback extends UpLoadCallback {
+        void success(String url, String thumb);
     }
 
     public static class UpProgress {
