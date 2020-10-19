@@ -171,8 +171,8 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                         resetSize(ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
                         Glide.with(mContext)
                                 .asBitmap()
-                                .load(attachmentBeans.get(0).getUrl())
-                                .apply(GlideOptionsUtil.defaultImageOptions())
+                                .load(StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl()))
+                                .apply(GlideOptionsUtil.circleImageOptions())
                                 .into(ivVideo);
                         helper.setVisible(R.id.rl_video, true);
                         recyclerView.setVisibility(View.GONE);
@@ -195,8 +195,8 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                     resetSize(ivVideo, attachmentBean.getWidth(), attachmentBean.getHeight());
                     Glide.with(mContext)
                             .asBitmap()
-                            .load(attachmentBean.getBgUrl())
-                            .apply(GlideOptionsUtil.defaultImageOptions())
+                            .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
+                            .apply(GlideOptionsUtil.circleImageOptions())
                             .into(ivVideo);
                     helper.setVisible(R.id.rl_video, true);
                     recyclerView.setVisibility(View.GONE);

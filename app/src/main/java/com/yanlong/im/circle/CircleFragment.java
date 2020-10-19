@@ -119,7 +119,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                         break;
                     case PictureEnum.EContentType.VIDEO:
                     case PictureEnum.EContentType.VIDEO_AND_VOTE:
-                        mPresenter.uploadFile(mList.get(0).getBgUrl(), PictureEnum.EContentType.VIDEO, false, UpFileAction.PATH.VIDEO);
+                        mPresenter.uploadFile(mList.get(0).getBgUrl(), PictureEnum.EContentType.VIDEO, false, UpFileAction.PATH.COMENT_IMG);
                         break;
                     case PictureEnum.EContentType.PICTRUE:
                     case PictureEnum.EContentType.PICTRUE_AND_VOTE:
@@ -131,7 +131,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                                 break;
                             }
                         }
-                        mPresenter.batchFileCheck(list);
+                        mPresenter.batchUploadFile(PictureEnum.EContentType.PICTRUE, list);
                         break;
                 }
             }
@@ -140,7 +140,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                 mVotePictrueList = new Gson().fromJson(mCircleBean.getVote(),
                         new TypeToken<List<CircleTitleBean>>() {
                         }.getType());
-                mPresenter.batchFileCheck(event.getList());
+                mPresenter.batchUploadFile(PictureEnum.EContentType.PICTRUE, event.getList());
             } else {
                 mPresenter.setParams(mCircleBean);
             }
@@ -273,7 +273,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                             attachmentBean.setUrl(url);
                         } else {
                             attachmentBean.setBgUrl(url);
-                            mPresenter.uploadFile(attachmentBean.getUrl(), PictureEnum.EContentType.VIDEO, true, UpFileAction.PATH.VIDEO);
+                            mPresenter.uploadFile(attachmentBean.getUrl(), PictureEnum.EContentType.VIDEO, true, UpFileAction.PATH.COMENT_VIDEO);
                             return;
                         }
                         break;

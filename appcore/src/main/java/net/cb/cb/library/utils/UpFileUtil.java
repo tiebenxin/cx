@@ -2,7 +2,6 @@ package net.cb.cb.library.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -31,15 +30,12 @@ import net.cb.cb.library.bean.ReturnBean;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -68,15 +64,6 @@ public class UpFileUtil {
     private UpFileServer server;
     private PutObjectRequest putObjectRequest;
     private String endEx = "";
-    public static boolean isCheck = true;// 是否需要调整Check接口
-
-    public boolean isCheck() {
-        return isCheck;
-    }
-
-    public void setCheck(boolean check) {
-        isCheck = check;
-    }
 
     public UpFileUtil() {
         server = NetUtil.getNet().create(UpFileServer.class);
@@ -136,6 +123,7 @@ public class UpFileUtil {
                        final String secret, final String token, final String endpoint, final String btName,
                        final UpFileUtil.OssUpCallback ossUpCallback, final String imgPath, final byte[] imgbyte,
                        final boolean isLocalTakeVideo) {
+        LogUtil.getLog().i("1212", "path:" + path);
         getOSs(context, keyid, secret, token, endpoint);
         // 获取文件的md5值，用于判断文件是否上传过
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
@@ -172,7 +160,7 @@ public class UpFileUtil {
                 } else {
                     putObjectRequest = new PutObjectRequest(btName, objkey, imgbyte);
                 }
-                if (isCheck && FileUtils.isNeedsMd5(path) && !TextUtils.isEmpty(imgPath)) {// 聊天消息文件需要极速秒传
+                if (FileUtils.isNeedsMd5(path) && !TextUtils.isEmpty(imgPath)) {// 聊天消息文件需要极速秒传
                     if (FileUtils.isLocalTake(imgPath) || isLocalTakeVideo) {// 本地拍照、录视频不需要调用fileCheck接口，因为每次拍摄的不一样
                         setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
                     } else {
@@ -202,7 +190,6 @@ public class UpFileUtil {
                                 });
                     }
                 } else {
-                    isCheck = true;
                     if (FileUtils.isNeedsMd5(path)) {// 保存文件MD5值并上传文件
                         setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
                     } else {// 不保存文件MD5值，只上传文件
@@ -643,10 +630,15 @@ public class UpFileUtil {
     /**
      * 下载文件
      *
-     * @param context    application上下文对象
-     * @param path       文件存储空间，例如图片为 /image
-     * @param bucketName bucketName
-     * @param fileName   文件名称 例如md5.jpg
+     * @param context
+     * @param keyId
+     * @param secret
+     * @param token
+     * @param endpoint
+     * @param bucketName
+     * @param ossUpCallback
+     * @param url
+     * @param fileSave
      */
     public void downloadFile(final Context context, final String keyId, final String secret, final String token, final String endpoint, final String bucketName, final UpFileUtil.OssUpCallback ossUpCallback, final String url, final File fileSave) {
         getOSs(context, keyId, secret, token, endpoint);

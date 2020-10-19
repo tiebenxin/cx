@@ -8,6 +8,8 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.utils.StringUtil;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -26,7 +28,7 @@ public class ShowImagesAdapter extends BaseQuickAdapter<String, BaseViewHolder> 
     @Override
     protected void convert(BaseViewHolder helper, String url) {
         ImageView ivImg = helper.getView(R.id.iv_img);
-        Glide.with(mContext).load(url)
-                .apply(GlideOptionsUtil.defaultImageOptions()).into(ivImg);
+        Glide.with(mContext).load(StringUtil.loadThumbnail(url))
+                .apply(GlideOptionsUtil.circleImageOptions()).into(ivImg);
     }
 }
