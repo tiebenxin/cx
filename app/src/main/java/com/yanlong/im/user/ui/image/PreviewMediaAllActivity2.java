@@ -333,6 +333,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                         if (size > 0) {
                             hasMoreData = true;
                         }
+                        int totalSize = 0;
                         List<GroupPreviewBean> removeList = new ArrayList<>();
                         for (int i = 0; i < size; i++) {
                             GroupPreviewBean bean = list.get(i);
@@ -364,12 +365,10 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                                     listData.addAll(bean.getMsgAllBeans());
                                 }
                             }
-                            count += bean.getMsgAllBeans().size();
-                            if (bean.isBetween(time)) {
-                                currentPosition = i;
-                            }
+                            totalSize += bean.getMsgAllBeans().size();
+                            count += totalSize;
                         }
-
+                        currentPosition = totalSize;
                         if (removeList.size() > 0) {
                             list.removeAll(removeList);
                         }
@@ -386,7 +385,7 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                         if (list == null || list.size() <= 0) {
                             needRefresh = false;
                         }
-                        bindingView.headView.setTitle("图片及视频（" + count + ")");
+                        bindingView.headView.setTitle("图片及视频" /*+ count + ")"*/);
 //                        if (refreshType == 0) {
 //                            if (needRefresh) {
 //                                listData.addAll(0, list);
