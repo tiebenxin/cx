@@ -925,6 +925,7 @@ public class MainActivity extends BaseTcpActivity {
             hadUnreadTrendNum = true;
         }
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showNewTrendRedDot(com.luck.picture.lib.event.EventFactory.HomePageRedDotEvent event){
         //优先显示未读消息数，若为0，则显示小红点，代表关注的人是否有发了新动态
