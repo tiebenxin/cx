@@ -103,9 +103,6 @@ public class UpLoadFileUtil {
     }
 
     private void uploadFile(final String file) {
-        if (mPath == UpFileAction.PATH.IMG) {
-            UpFileUtil.getInstance().setCheck(false);
-        }
         new UpFileAction().upFile(mPath, context, new UpFileUtil.OssUpCallback() {
 
             @Override

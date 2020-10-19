@@ -94,4 +94,16 @@ public class GlideOptionsUtil {
         return mRequestOptions;
     }
 
+    //普通图片占位图
+    public static RequestOptions circleImageOptions() {
+        RoundedCorners roundedCorners = new RoundedCorners(4);
+        RequestOptions mRequestOptions = RequestOptions.bitmapTransform(roundedCorners)
+                .error(R.mipmap.ic_image_bg)
+                .placeholder(R.mipmap.ic_image_bg)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .dontAnimate()
+                .skipMemoryCache(false);
+        return mRequestOptions;
+    }
+
 }

@@ -159,8 +159,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                         resetSize(ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
                         Glide.with(mContext)
                                 .asBitmap()
-                                .load(attachmentBeans.get(0).getUrl())
-                                .apply(GlideOptionsUtil.defaultImageOptions())
+                                .load(StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl()))
+                                .apply(GlideOptionsUtil.circleImageOptions())
                                 .into(ivVideo);
                         helper.setVisible(R.id.rl_video, true);
                         recyclerView.setVisibility(View.GONE);
@@ -184,8 +184,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     resetSize(ivVideo, attachmentBean.getWidth(), attachmentBean.getHeight());
                     Glide.with(mContext)
                             .asBitmap()
-                            .load(attachmentBean.getBgUrl())
-                            .apply(GlideOptionsUtil.defaultImageOptions())
+                            .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
+                            .apply(GlideOptionsUtil.circleImageOptions())
                             .into(ivVideo);
                     helper.setVisible(R.id.rl_video, true);
                     recyclerView.setVisibility(View.GONE);
@@ -600,7 +600,12 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                             break;
                     }
                 } else {
-                    clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
+                    AudioPlayUtil.stopAudioPlay();
+                    List<String> imgs = new ArrayList<>();
+                    for (VoteBean.Item item : voteList) {
+                        imgs.add(item.getItem());
+                    }
+                    toPictruePreview(position, imgs);
                 }
             }
         });

@@ -20,6 +20,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.RadiusCardView;
 
 import net.cb.cb.library.utils.ScreenUtil;
+import net.cb.cb.library.utils.StringUtil;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -99,7 +100,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
             ImageView ivPictrue = helper.getView(R.id.iv_picture);
             Glide.with(mContext)
                     .asBitmap()
-                    .load(item.getItem())
+                    .load(StringUtil.loadThumbnail(item.getItem()))
                     .apply(GlideOptionsUtil.imageOptions())
                     .into(ivPictrue);
             if (mAnswer == (helper.getAdapterPosition() + 1)) {

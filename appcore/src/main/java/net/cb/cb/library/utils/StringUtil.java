@@ -336,4 +336,18 @@ public class StringUtil {
         }
         return visibility;
     }
+
+    /**
+     * 加载缩略图
+     *
+     * @param path
+     * @return
+     */
+    public static String loadThumbnail(String path) {
+        String value = path;
+        if (!TextUtils.isEmpty(path) && !path.contains("/below-200k")) {
+            value += "/below-200k";
+        }
+        return value;
+    }
 }

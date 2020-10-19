@@ -19,17 +19,12 @@ import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.recommend.RecommendFragment;
 
 import net.cb.cb.library.base.bind.BasePresenter;
-import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.Md5Util;
-import net.cb.cb.library.utils.RxJavaUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.UpLoadFileUtil;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -213,7 +208,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
      */
     public void batchUploadFile(int type, List<LocalMedia> mediaList) {
         UpLoadFileUtil.getInstance().upLoadFile(mContext, mediaList, true,
-                UpFileAction.PATH.IMG, new UpLoadFileUtil.OnUploadFileListener() {
+                UpFileAction.PATH.COMENT_IMG, new UpLoadFileUtil.OnUploadFileListener() {
                     @Override
                     public void onUploadFile(HashMap<String, String> netFile) {
                         if (mNetFile.size() > 0) {
@@ -235,84 +230,84 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
      *
      * @param mediaList 图片集合
      */
-    public void batchFileCheck(List<LocalMedia> mediaList) {
-        mNetFile.clear();
-        // 获取文件的md5值，用于判断文件是否上传过
-        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<ArrayList<FileBean>>() {
-
-            @Override
-            public ArrayList<FileBean> doInBackground() throws Throwable {
-                ArrayList<FileBean> fileBeans = new ArrayList<>();
-                for (LocalMedia localMedia : mediaList) {
-                    FileBean fileBean = new FileBean();
-                    String md5 = Md5Util.getFileMD5(new File(localMedia.getPath()));
-                    fileBean.setMd5(md5);
-                    if (localMedia.getPath().endsWith(FILE_NAME_GIF)) {
-                        fileBean.setUrl(FILE_DIRECTORY + md5 + FILE_NAME_GIF);
-                    } else {
-                        fileBean.setUrl(FILE_DIRECTORY + md5 + FILE_NAME);
-                    }
-
-                    fileBean.setLocationPath(localMedia.getPath());
-                    fileBeans.add(fileBean);
-                }
-
-                return fileBeans;// 获取文件MD5唯一值
-            }
-
-            @Override
-            public void onFinish(final ArrayList<FileBean> fileBeans) {
-                UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<List<String>>>() {
-                    @Override
-                    public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
-                        super.onResponse(call, response);
-                        if (response.body() != null && response.body().isOk()) {
-                            if (response.body().getData() != null && response.body().getData().size() > 0) {
-                                List<String> list = response.body().getData();
-                                for (String md5 : list) {
-                                    for (FileBean fileBean : fileBeans) {
-                                        if (md5.equals(fileBean.getMd5()) && mediaList.size() > 0) {
-                                            for (int i = mediaList.size() - 1; i >= 0; i--) {
-                                                LocalMedia localMedia = mediaList.get(i);
-                                                if (fileBean.getLocationPath().equals(localMedia.getPath())) {
-                                                    // 自己拼接图片地址，已经上传过
-                                                    mNetFile.put(localMedia.getPath(), Constants.OSS_REALM_NAME + fileBean.getUrl());
-                                                    mediaList.remove(i);
-                                                    break;
-                                                }
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                                // 继续上传没有上传过的文件
-                                if (mediaList.size() > 0) {
-                                    batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
-                                } else if (mNetFile.size() > 0) {
-                                    mView.uploadSuccess("", PictureEnum.EContentType.PICTRUE, false, mNetFile);
-                                }
-
-                            } else {
-                                batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
-                            }
-                        } else {
-                            batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
-                        super.onFailure(call, t);
-                        batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Throwable e) {
-            }
-        });
-    }
+//    public void batchFileCheck(List<LocalMedia> mediaList) {
+//        mNetFile.clear();
+//        // 获取文件的md5值，用于判断文件是否上传过
+//        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<ArrayList<FileBean>>() {
+//
+//            @Override
+//            public ArrayList<FileBean> doInBackground() throws Throwable {
+//                ArrayList<FileBean> fileBeans = new ArrayList<>();
+//                for (LocalMedia localMedia : mediaList) {
+//                    FileBean fileBean = new FileBean();
+//                    String md5 = Md5Util.getFileMD5(new File(localMedia.getPath()));
+//                    fileBean.setMd5(md5);
+//                    if (localMedia.getPath().endsWith(FILE_NAME_GIF)) {
+//                        fileBean.setUrl(FILE_DIRECTORY + md5 + FILE_NAME_GIF);
+//                    } else {
+//                        fileBean.setUrl(FILE_DIRECTORY + md5 + FILE_NAME);
+//                    }
+//
+//                    fileBean.setLocationPath(localMedia.getPath());
+//                    fileBeans.add(fileBean);
+//                }
+//
+//                return fileBeans;// 获取文件MD5唯一值
+//            }
+//
+//            @Override
+//            public void onFinish(final ArrayList<FileBean> fileBeans) {
+//                UpFileUtil.getInstance().batchFileCheck(fileBeans, new CallBack<ReturnBean<List<String>>>() {
+//                    @Override
+//                    public void onResponse(Call<ReturnBean<List<String>>> call, Response<ReturnBean<List<String>>> response) {
+//                        super.onResponse(call, response);
+//                        if (response.body() != null && response.body().isOk()) {
+//                            if (response.body().getData() != null && response.body().getData().size() > 0) {
+//                                List<String> list = response.body().getData();
+//                                for (String md5 : list) {
+//                                    for (FileBean fileBean : fileBeans) {
+//                                        if (md5.equals(fileBean.getMd5()) && mediaList.size() > 0) {
+//                                            for (int i = mediaList.size() - 1; i >= 0; i--) {
+//                                                LocalMedia localMedia = mediaList.get(i);
+//                                                if (fileBean.getLocationPath().equals(localMedia.getPath())) {
+//                                                    // 自己拼接图片地址，已经上传过
+//                                                    mNetFile.put(localMedia.getPath(), Constants.OSS_REALM_NAME + fileBean.getUrl());
+//                                                    mediaList.remove(i);
+//                                                    break;
+//                                                }
+//                                            }
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                                // 继续上传没有上传过的文件
+//                                if (mediaList.size() > 0) {
+//                                    batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
+//                                } else if (mNetFile.size() > 0) {
+//                                    mView.uploadSuccess("", PictureEnum.EContentType.PICTRUE, false, mNetFile);
+//                                }
+//
+//                            } else {
+//                                batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
+//                            }
+//                        } else {
+//                            batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<ReturnBean<List<String>>> call, Throwable t) {
+//                        super.onFailure(call, t);
+//                        batchUploadFile(PictureEnum.EContentType.PICTRUE, mediaList);
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//            }
+//        });
+//    }
 
     /**
      * 获取是否有红点
