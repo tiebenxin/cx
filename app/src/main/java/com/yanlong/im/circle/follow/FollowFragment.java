@@ -313,7 +313,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             }
 
             if (mCurrentPage == 1) {
-                bindingView.recyclerFollow.smoothScrollToPosition(0);
+                bindingView.recyclerFollow.scrollToPosition(0);
             }
         }
         bindingView.srlFollow.finishRefresh();

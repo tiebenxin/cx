@@ -23,6 +23,7 @@ import com.yanlong.im.circle.bean.CircleTitleBean;
 import com.yanlong.im.databinding.ActivityVotePictrueBinding;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
@@ -86,7 +87,10 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
                     if (mList.get(i).isShowAdd()) {
                         mList.remove(i);
                     } else {
-                        list.add(new CircleTitleBean(mList.get(i).getPath()));
+                        ImgSizeUtil.ImageSize imageSize = ImgSizeUtil.getAttribute(mList.get(i).getPath());
+                        if (imageSize != null) {
+                            list.add(new CircleTitleBean(mList.get(i).getPath(), imageSize.getSize()));
+                        }
                     }
                 }
                 intent.putExtra(CreateCircleActivity.VOTE_LOCATION_IMG, new Gson().toJson(mList));

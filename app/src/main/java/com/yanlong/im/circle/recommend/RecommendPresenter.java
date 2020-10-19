@@ -100,7 +100,7 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                             flowList.add(createFlowItemBean(messageInfoBean));
                         }
                     }
-                    mView.onSuccess(flowList);
+                    mView.onSuccess(flowList, serviceType);
                 } else {
                     if (response.body() != null) {
                         mView.onShowMessage(response.body().getMsg());

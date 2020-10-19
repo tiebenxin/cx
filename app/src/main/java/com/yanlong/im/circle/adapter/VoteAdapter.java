@@ -100,7 +100,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
             Glide.with(mContext)
                     .asBitmap()
                     .load(item.getItem())
-                    .apply(GlideOptionsUtil.headImageOptions())
+                    .apply(GlideOptionsUtil.imageOptions())
                     .into(ivPictrue);
             if (mAnswer == (helper.getAdapterPosition() + 1)) {
                 layoutVoteBg.setBackground(mContext.getResources().getDrawable(R.drawable.shape_vote_pictrue_green));

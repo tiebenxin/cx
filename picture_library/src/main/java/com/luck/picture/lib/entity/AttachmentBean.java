@@ -20,6 +20,7 @@ public class AttachmentBean {
     private long duration;// 时长
     private int width;// 文件宽
     private int height;// 文件高
+    private long size;// 文件大小
 
     public int getType() {
         return type;
@@ -67,5 +68,13 @@ public class AttachmentBean {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }

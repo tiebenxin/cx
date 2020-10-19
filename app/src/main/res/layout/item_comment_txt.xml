@@ -6,7 +6,7 @@
     android:background="@drawable/item_default_trans"
     android:paddingTop="15dp">
 
-    <com.hm.cxpay.widget.CircleImageView
+    <net.cb.cb.library.view.CircleImageView
         android:id="@+id/iv_header"
         style="@style/app_img_head"
         android:layout_marginLeft="15dp"

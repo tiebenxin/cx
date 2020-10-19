@@ -160,7 +160,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                         Glide.with(mContext)
                                 .asBitmap()
                                 .load(attachmentBeans.get(0).getUrl())
-                                .apply(GlideOptionsUtil.headImageOptions())
+                                .apply(GlideOptionsUtil.defaultImageOptions())
                                 .into(ivVideo);
                         helper.setVisible(R.id.rl_video, true);
                         recyclerView.setVisibility(View.GONE);
@@ -185,7 +185,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     Glide.with(mContext)
                             .asBitmap()
                             .load(attachmentBean.getBgUrl())
-                            .apply(GlideOptionsUtil.headImageOptions())
+                            .apply(GlideOptionsUtil.defaultImageOptions())
                             .into(ivVideo);
                     helper.setVisible(R.id.rl_video, true);
                     recyclerView.setVisibility(View.GONE);

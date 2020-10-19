@@ -16,7 +16,7 @@ import java.util.List;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public interface RecommendView extends IBaseView {
-    void onSuccess(List<MessageFlowItemBean> list);
+    void onSuccess(List<MessageFlowItemBean> list,int serviceType);
 
     void onShowMessage(String msg);
 

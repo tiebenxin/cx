@@ -33,6 +33,7 @@ import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -101,6 +102,16 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                     new TypeToken<List<AttachmentBean>>() {
                     }.getType());
             if (mList != null && mList.size() > 0) {
+                // 设置文件大小
+                for (AttachmentBean bean : mList) {
+                    ImgSizeUtil.ImageSize imageSize = ImgSizeUtil.getAttribute(bean.getUrl());
+                    bean.setSize(imageSize.getSize());
+                    if (bean.getType() == PictureEnum.EContentType.VIDEO) {
+                        imageSize = ImgSizeUtil.getAttribute(bean.getBgUrl());
+                        bean.setWidth(imageSize.getWidth());
+                        bean.setHeight(imageSize.getHeight());
+                    }
+                }
                 switch (mCircleBean.getType()) {
                     case PictureEnum.EContentType.VOICE:
                     case PictureEnum.EContentType.VOICE_AND_VOTE:

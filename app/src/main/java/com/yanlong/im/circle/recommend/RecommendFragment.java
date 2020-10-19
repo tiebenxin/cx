@@ -176,6 +176,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         bindingView.srlFollow.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+                if (mFollowList != null && mFollowList.size() == PAGE_SIZE) {
+                    mCurrentPage = 0l;
+                }
                 mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 1);
             }
         });
@@ -331,8 +334,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     }
 
     @Override
-    public void onSuccess(List<MessageFlowItemBean> list) {
-        if (mCurrentPage == 0) {
+    public void onSuccess(List<MessageFlowItemBean> list, int serviceType) {
+        if (serviceType == 0) {
             mFollowList.clear();
             // 判断缓存是否有数据
             SpUtil spUtil = SpUtil.getSpUtil();
@@ -353,7 +356,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 }
             }
         }
-        if (mCurrentPage == 0 && list.size() == 0) {
+        if (serviceType == 0 && list.size() == 0) {
             View view = View.inflate(getActivity(), R.layout.view_follow_no_data, null);
             TextView tvMessage = view.findViewById(R.id.tv_message);
             tvMessage.setText("暂无推荐消息");
@@ -384,7 +387,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 bindingView.srlFollow.finishLoadMore();
             }
 
-            if (mCurrentPage == 0) {
+            if (serviceType == 0) {
                 bindingView.recyclerRecommend.scrollToPosition(0);
             }
         }

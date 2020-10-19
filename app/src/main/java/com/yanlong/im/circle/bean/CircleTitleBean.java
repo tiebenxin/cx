@@ -14,6 +14,7 @@ import net.cb.cb.library.base.bind.BaseModel;
 public class CircleTitleBean extends BaseModel {
     private String title;
     private String content;
+    private long size;
     private boolean isCheck;
 
     public CircleTitleBean(String title, boolean check) {
@@ -23,6 +24,11 @@ public class CircleTitleBean extends BaseModel {
 
     public CircleTitleBean(String content) {
         this.content = content;
+    }
+
+    public CircleTitleBean(String content, long size) {
+        this.content = content;
+        this.size = size;
     }
 
     public String getTitle() {
@@ -47,5 +53,13 @@ public class CircleTitleBean extends BaseModel {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }

@@ -35,9 +35,11 @@ public class VoteBean extends BaseBean {
 
     public static class Item {
         private String item;
+        private long size;
 
-        public Item(String v){
+        public Item(String v, long size) {
             this.item = v;
+            this.size = size;
         }
 
         public String getItem() {
@@ -46,6 +48,14 @@ public class VoteBean extends BaseBean {
 
         public void setItem(String item) {
             this.item = item;
+        }
+
+        public long getSize() {
+            return size;
+        }
+
+        public void setSize(long size) {
+            this.size = size;
         }
     }
 }

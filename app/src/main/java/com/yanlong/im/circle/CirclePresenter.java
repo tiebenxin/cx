@@ -114,7 +114,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 voteBean.setType(1);
             }
             for (CircleTitleBean circleTitleBean : list) {
-                votes.add(new VoteBean.Item(circleTitleBean.getContent()));
+                votes.add(new VoteBean.Item(circleTitleBean.getContent(), circleTitleBean.getSize()));
             }
             voteBean.setItems(votes);
             params.put("vote", new Gson().toJson(voteBean));

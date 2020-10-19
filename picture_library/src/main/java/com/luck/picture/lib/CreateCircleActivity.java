@@ -59,6 +59,7 @@ import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.face.FaceView;
 import com.luck.picture.lib.face.FaceViewPager;
 import com.luck.picture.lib.face.bean.FaceBean;
+import com.luck.picture.lib.immersive.ImmersiveManage;
 import com.luck.picture.lib.model.LocalMediaLoader;
 import com.luck.picture.lib.observable.ImagesObservable;
 import com.luck.picture.lib.permissions.RxPermissions;
@@ -112,6 +113,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private static final int REQUEST_CODE_POWER = 200;
     private static final int REQUEST_CODE_VOTE_TXT = 300;
     private static final int REQUEST_CODE_VOTE_PICTRUE = 400;
+    private final int MAX_COUNT = 500;// 最大字数
     public static final String INTENT_LOCATION_NAME = "intent_location_name";
     public static final String CITY_NAME = "city_name";
     public static final String LATITUDE = "latitude";
@@ -237,6 +239,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         if (!RxBus.getDefault().isRegistered(this)) {
             RxBus.getDefault().register(this);
         }
+        ImmersiveManage.immersiveAboveAPI23(this
+                , getResources().getColor(R.color.white)
+                , colorPrimary
+                , true);
         rxPermissions = new RxPermissions(this);
         if (config.camera) {
             if (savedInstanceState == null) {
@@ -308,7 +314,11 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
             @Override
             public void OnItemClick(FaceBean bean) {
-                etContent.addEmojSpan(CreateCircleActivity.this, bean.getName());
+                if ((etContent.getText().toString() + bean.getName()).length() > MAX_COUNT) {
+                    showTaost("最多可以输入" + MAX_COUNT + "字符");
+                } else {
+                    etContent.addEmojSpan(CreateCircleActivity.this, bean.getName());
+                }
             }
         });
         // 删除表情按钮
@@ -340,12 +350,15 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tv_max_number.setText(s.length() + "/500");
+//                tv_max_number.setText(s.length() + "/" + MAX_COUNT);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
+//                if (s.length() > MAX_COUNT) {
+//                    etContent.setSelection(MAX_COUNT);
+//                    showTaost("最多可以输入" + MAX_COUNT + "字符");
+//                }
             }
         });
     }
@@ -706,11 +719,15 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         return imageUri;
     }
 
+    private void showTaost(String content) {
+        Toast.makeText(this, content, Toast.LENGTH_LONG).show();
+    }
+
     private void createNewCircle() {
         String content = etContent.getText().toString().trim();
         if (TextUtils.isEmpty(content)) {
             etContent.requestFocus();
-            Toast.makeText(this, "请输入动态内容", Toast.LENGTH_LONG).show();
+            showTaost("请输入动态内容");
             return;
         }
         int visibility = 0;// 可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
@@ -835,7 +852,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         return path;
     }
 
-
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -894,7 +910,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             resetAudio(true);
         } else if (id == R.id.iv_confirm) {// 录音完成
             if (time < 1000) {
-                Toast.makeText(this, "录制时间不能小于1秒", Toast.LENGTH_LONG).show();
+                showTaost("录制时间不能小于1秒");
                 return;
             }
             etContent.requestFocus();
@@ -917,7 +933,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             }
         } else if (id == R.id.iv_voice) {// 语音
             if (layout_voice.getVisibility() == View.VISIBLE || mList.size() > 0 || mVoteList.size() > 0) {
-                Toast.makeText(this, getResources().getString(R.string.voice_message_wrong), Toast.LENGTH_LONG).show();
+                showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
             if (isOpenSoft) {
@@ -935,7 +951,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             delayMillis();
         } else if (id == R.id.iv_picture) {// 图片
             if (isExistVoice || mVoteList.size() > 0) {
-                Toast.makeText(this, getResources().getString(R.string.voice_message_wrong), Toast.LENGTH_LONG).show();
+                showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
             if (isOpenSoft) {
@@ -977,7 +993,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         } else if (id == R.id.tv_picture_vote) {// 图片投票
             if (!DoubleUtils.isFastDoubleClick()) {
                 if (isExistVoice || mList.size() > 0) {
-                    Toast.makeText(this, getResources().getString(R.string.voice_message_wrong), Toast.LENGTH_LONG).show();
+                    showTaost(getResources().getString(R.string.voice_message_wrong));
                     return;
                 }
                 Postcard postcard = ARouter.getInstance().build("/circle/VotePictrueActivity");
