@@ -3517,19 +3517,25 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * @param msgAllbean
      */
     private void replaceListDataAndNotify(MsgAllBean msgAllbean) {
-        if (mAdapter == null && mAdapter.getItemCount() <= 0) {
-            return;
+        try {
+            if (mAdapter == null && mAdapter.getItemCount() <= 0) {
+                return;
+            }
+            int position = mAdapter.updateMessage(msgAllbean);
+            if (position >= 0) {
+                mAdapter.notifyItemChanged(position, position);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        int position = mAdapter.updateMessage(msgAllbean);
-        if (position >= 0) {
-            mAdapter.notifyItemChanged(position, position);
-        }
+
 
     }
 
     /***
      * 替换listData中的某条消息并且刷新
      * @param msgAllbean
+     * @param loose 是否刷新
      */
     private void replaceListDataAndNotify(MsgAllBean msgAllbean, boolean loose) {
         if (mAdapter == null || mAdapter.getItemCount() <= 0) {
@@ -3537,7 +3543,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mAdapter.notifyItemChanged(position, position);
+            if (loose) {
+                mAdapter.notifyItemChanged(position, position);
+            }
         }
     }
 
@@ -3981,6 +3989,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
+            try {
+                if (AudioPlayManager.getInstance().getCurrentMsg() != null) {
+                    AudioPlayManager.getInstance().stopPlay();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             if (bean.getVoiceMessage().getPlayStatus() == ChatEnum.EPlayStatus.NO_DOWNLOADED && !bean.isMe()) {
                 int len = downloadList.size();
                 if (len > 0) {//有下载
@@ -3988,7 +4004,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     updatePlayStatus(msg, 0, ChatEnum.EPlayStatus.NO_PLAY);
                 }
                 downloadList.add(bean);
-
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.DOWNLOADING);
                 AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.IDownloadVoiceListener() {
                     @Override
@@ -4004,6 +4019,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
                     @Override
                     public void onDownloadFailed(Exception e) {
+                        ThreadUtil.getInstance().runMainThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ToastUtil.show("语音下载失败");
+                            }
+                        });
                         updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_DOWNLOADED);
                     }
                 });
@@ -4018,7 +4039,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
-    private void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
+    private synchronized void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
+//        LogUtil.getLog().i("语音LOG", "updatePlayStatus--msgId=" + bean.getMsg_id() + "--status=" + status);
         bean = amendMsgALlBean(position, bean);
         if (bean == null || bean.getVoiceMessage() == null) {
             return;
@@ -4058,7 +4080,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             }
         }
         downloadList.remove(bean);
-
         AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
             @Override
             public void onStart(MsgAllBean bean) {

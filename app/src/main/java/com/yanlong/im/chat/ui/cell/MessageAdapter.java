@@ -104,7 +104,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             } else {
                 mList = list;
             }
-            LogUtil.getLog().i("阅后LOG","bindData--size="+mList.size());
+            LogUtil.getLog().i("阅后LOG", "bindData--size=" + mList.size());
             refreshPositions();
             this.notifyDataSetChanged();
         } catch (Exception e) {
@@ -236,6 +236,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 }
                 voiceCell.setSendStatus(false);
                 String url = msg.isMe() ? msg.getVoiceMessage().getLocalUrl() : msg.getVoiceMessage().getUrl();
+                LogUtil.getLog().i("语音LOG", "notify-" + AudioPlayManager.getInstance().isPlay(Uri.parse(url)) + "--url=" + url);
                 voiceCell.updateVoice(AudioPlayManager.getInstance().isPlay(Uri.parse(url)));
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 ChatCellVideo videoCell = (ChatCellVideo) viewHolder;
@@ -297,13 +298,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.add(msg);
-        LogUtil.getLog().i("阅后LOG","addMessage--size="+mList.size());
+        LogUtil.getLog().i("阅后LOG", "addMessage--size=" + mList.size());
         refreshPositions();
     }
 
     public void setMessageList(List<MsgAllBean> msg) {
         mList = msg;
-        LogUtil.getLog().i("阅后LOG","setMessageList--size="+mList.size());
+        LogUtil.getLog().i("阅后LOG", "setMessageList--size=" + mList.size());
         refreshPositions();
     }
 
@@ -312,7 +313,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.addAll(position, msg);
-        LogUtil.getLog().i("阅后LOG","addMessageList--size="+mList.size());
+        LogUtil.getLog().i("阅后LOG", "addMessageList--size=" + mList.size());
         refreshPositions();
     }
 
@@ -354,7 +355,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (!result) {
                 LogUtil.getLog().i("阅后LOG", "移出单个失败");
             }
-            LogUtil.getLog().i("阅后LOG","removeItem--后--size="+mList.size());
+            LogUtil.getLog().i("阅后LOG", "removeItem--后--size=" + mList.size());
         }
         refreshPositions();
     }
