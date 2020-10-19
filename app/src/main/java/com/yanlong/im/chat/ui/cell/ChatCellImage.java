@@ -153,12 +153,13 @@ public class ChatCellImage extends ChatCellFileBase {
         }
         currentUrl = url;
         LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
+        rOptions = new RequestOptions().centerCrop();
         rOptions.skipMemoryCache(false);
         rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
         //TODO:设置options后gif图片不动
         Glide.with(getContext())
                 .load(url)
-//                .apply(rOptions)
+                .apply(rOptions)
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
