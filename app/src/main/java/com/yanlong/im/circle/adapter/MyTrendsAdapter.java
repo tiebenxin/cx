@@ -448,7 +448,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 });
                                 holder.ivDeleteVoice.setVisibility(View.GONE);
                             }
-
+                            if (!TextUtils.isEmpty(bean.getVote())) {
+                                holder.layoutVote.setVisibility(View.VISIBLE);
+                            }else {
+                                holder.layoutVote.setVisibility(View.GONE);
+                            }
                         } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.PICTRUE || bean.getType() == PictureEnum.EContentType.PICTRUE_AND_VOTE) {
                             holder.layoutVoice.setVisibility(View.GONE);
                             if (attachmentBeans.size() == 1) {
@@ -473,7 +477,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 }
                                 setRecycleView(holder.recyclerView, imgs);
                             }
-
+                            if (!TextUtils.isEmpty(bean.getVote())) {
+                                holder.layoutVote.setVisibility(View.VISIBLE);
+                            }else {
+                                holder.layoutVote.setVisibility(View.GONE);
+                            }
                         } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VIDEO || bean.getType() == PictureEnum.EContentType.VIDEO_AND_VOTE) {
                             holder.recyclerView.setVisibility(View.GONE);
                             holder.layoutVideo.setVisibility(View.VISIBLE);
@@ -497,6 +505,21 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     }
                                 });
                             }
+                            if (!TextUtils.isEmpty(bean.getVote())) {
+                                holder.layoutVote.setVisibility(View.VISIBLE);
+                            }else {
+                                holder.layoutVote.setVisibility(View.GONE);
+                            }
+                        }else if(bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOTE){
+                            holder.recyclerView.setVisibility(View.GONE);
+                            holder.layoutVideo.setVisibility(View.GONE);
+                            holder.layoutVoice.setVisibility(View.GONE);
+                            holder.layoutVote.setVisibility(View.VISIBLE);
+                        }else {
+                            holder.recyclerView.setVisibility(View.GONE);
+                            holder.layoutVideo.setVisibility(View.GONE);
+                            holder.layoutVoice.setVisibility(View.GONE);
+                            holder.layoutVote.setVisibility(View.GONE);
                         }
                     } else {
                         holder.recyclerView.setVisibility(View.GONE);
@@ -506,7 +529,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                     //投票
                     if (!TextUtils.isEmpty(bean.getVote())) {
-                        holder.layoutVote.setVisibility(View.VISIBLE);
                         VoteBean voteBean = new Gson().fromJson(bean.getVote(), VoteBean.class);
                         //若我点击是postion是1，由于有头部，取数据则是从0开始起，故需要-1
                         setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position - 1,
@@ -514,10 +536,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
                             holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer()) + "人参与了投票");
                         }
-                    } else {
-                        holder.layoutVote.setVisibility(View.GONE);
                     }
-
                 }
             }
         } else if (viewHolder instanceof MyTrendsAdapter.FootHolder) {
