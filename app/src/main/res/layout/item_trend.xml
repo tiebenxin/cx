@@ -133,24 +133,21 @@
                 android:id="@+id/layout_vote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/circle_shape_pb_bg"
-                android:orientation="vertical"
+                android:layout_marginLeft="15dp"
                 android:visibility="gone"
-                android:paddingBottom="10dp">
+                android:orientation="vertical">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_vote"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tv_vote_number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="11dp"
                     android:layout_marginTop="10dp"
                     android:text="0人参与了投票"
                     android:textColor="@color/color_527"

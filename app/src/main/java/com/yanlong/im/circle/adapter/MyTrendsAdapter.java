@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -62,12 +63,14 @@ import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICommonSelectClickListner;
 import net.cb.cb.library.inter.ITrendClickListner;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -137,6 +140,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private int noticeSize;//新消息数量
     private final int MAX_ROW_NUMBER = 3;
     private final String END_MSG = " 收起";
+    private int isVote;
 
     public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid) {
         inflater = LayoutInflater.from(activity);
@@ -421,10 +425,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     });
                     //根据附件显示不同类型语音、图片、视频
                     if (!TextUtils.isEmpty(bean.getAttachment())) {
-                        List<AttachmentBean> attachmentBeans = new Gson().fromJson(bean.getAttachment(),
-                                new TypeToken<List<AttachmentBean>>() {
-                                }.getType());
-                        if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOICE) {
+                        List<AttachmentBean> attachmentBeans = null;
+                        try {
+                            attachmentBeans = new Gson().fromJson(bean.getAttachment(),
+                                    new TypeToken<List<AttachmentBean>>() {
+                                    }.getType());
+                        } catch (Exception e) {
+                            attachmentBeans = new ArrayList<>();
+                        }
+                        if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOICE || bean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE) {
                             holder.recyclerView.setVisibility(View.GONE);
                             holder.layoutVideo.setVisibility(View.GONE);
                             holder.layoutVoice.setVisibility(View.VISIBLE);
@@ -440,23 +449,39 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.ivDeleteVoice.setVisibility(View.GONE);
                             }
 
-                        } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.PICTRUE) {
-                            holder.recyclerView.setVisibility(View.VISIBLE);
-                            holder.layoutVideo.setVisibility(View.GONE);
+                        } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.PICTRUE || bean.getType() == PictureEnum.EContentType.PICTRUE_AND_VOTE) {
                             holder.layoutVoice.setVisibility(View.GONE);
-                            List<String> imgs = new ArrayList<>();
-                            if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                                for (AttachmentBean attachmentBean : attachmentBeans) {
-                                    imgs.add(attachmentBean.getUrl());
+                            if (attachmentBeans.size() == 1) {
+                                holder.layoutVideo.setVisibility(View.VISIBLE);
+                                holder.ivPlay.setVisibility(View.GONE);
+                                holder.recyclerView.setVisibility(View.GONE);
+                                resetSize(holder.ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
+                                Glide.with(activity)
+                                        .asBitmap()
+                                        .load(attachmentBeans.get(0).getUrl())
+                                        .apply(GlideOptionsUtil.headImageOptions())
+                                        .into(holder.ivVideo);
+                            }else {
+                                holder.layoutVideo.setVisibility(View.GONE);
+                                holder.ivPlay.setVisibility(View.GONE);
+                                holder.recyclerView.setVisibility(View.VISIBLE);
+                                List<String> imgs = new ArrayList<>();
+                                if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                                    for (AttachmentBean attachmentBean : attachmentBeans) {
+                                        imgs.add(attachmentBean.getUrl());
+                                    }
                                 }
+                                setRecycleView(holder.recyclerView, imgs);
                             }
-                            setRecycleView(holder.recyclerView, imgs);
-                        } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VIDEO) {
+
+                        } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VIDEO || bean.getType() == PictureEnum.EContentType.VIDEO_AND_VOTE) {
                             holder.recyclerView.setVisibility(View.GONE);
                             holder.layoutVideo.setVisibility(View.VISIBLE);
+                            holder.ivPlay.setVisibility(View.VISIBLE);
                             holder.layoutVoice.setVisibility(View.GONE);
                             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                                 AttachmentBean attachmentBean = attachmentBeans.get(0);
+                                resetSize(holder.ivVideo, attachmentBean.getWidth(), attachmentBean.getHeight());
                                 Glide.with(activity)
                                         .asBitmap()
                                         .load(attachmentBean.getBgUrl())
@@ -466,9 +491,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     @Override
                                     public void onClick(View v) {
                                         Intent intent = new Intent(activity, VideoPlayActivity.class);
-                                        if (attachmentBeans.size() > 0) {
-                                            intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
-                                        }
+                                        intent.putExtra("videopath", attachmentBean.getUrl());
                                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                         activity.startActivity(intent);
                                     }
@@ -479,6 +502,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.recyclerView.setVisibility(View.GONE);
                         holder.layoutVideo.setVisibility(View.GONE);
                         holder.layoutVoice.setVisibility(View.GONE);
+                        holder.layoutVote.setVisibility(View.GONE);
                     }
                     //投票
                     if (!TextUtils.isEmpty(bean.getVote())) {
@@ -486,15 +510,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         VoteBean voteBean = new Gson().fromJson(bean.getVote(), VoteBean.class);
                         //若我点击是postion是1，由于有头部，取数据则是从0开始起，故需要-1
                         setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position - 1,
-                                bean.getVoteAnswer().getSelfAnswerItem(),
-                                getVoteSum(bean.getVoteAnswer().getSumDataList())
-                                , bean.getVoteAnswer().getSumDataList());
+                                bean.getVoteAnswer(), getVoteSum(bean.getVoteAnswer()));
+                        if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
+                            holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer()) + "人参与了投票");
+                        }
                     } else {
                         holder.layoutVote.setVisibility(View.GONE);
                     }
-                    if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
-                        holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer().getSumDataList()) + "人参与了投票");
-                    }
+
                 }
             }
         } else if (viewHolder instanceof MyTrendsAdapter.FootHolder) {
@@ -701,7 +724,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutContent;
         private RecyclerView recyclerView;
         private RelativeLayout layoutVideo;
-        private ImageView ivVideo;
+        private RoundImageView ivVideo;
         private LinearLayout layoutVoice;
         private TextView tvTime;
         private ProgressBar pbProgress;
@@ -710,6 +733,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private RecyclerView recyclerVote;
         private LinearLayout layoutVote;
         private TextView tvVoteNumber;
+        private ImageView ivPlay;
 
 
         public ContentHolder(View itemView) {
@@ -736,6 +760,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             recyclerVote = itemView.findViewById(R.id.recycler_vote);
             layoutVote = itemView.findViewById(R.id.layout_vote);
             tvVoteNumber = itemView.findViewById(R.id.tv_vote_number);
+            ivPlay = itemView.findViewById(R.id.iv_play);
         }
     }
 
@@ -1027,11 +1052,20 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .openExternalPreview(postion, selectList);
     }
 
-    private int getVoteSum(List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
+    /**
+     * 投票总数
+     *
+     * @param voteAnswerBean
+     * @return
+     */
+    private int getVoteSum(MessageInfoBean.VoteAnswerBean voteAnswerBean) {
         int sum = 0;
-        if (sumDataList != null && sumDataList.size() > 0) {
-            for (MessageInfoBean.VoteAnswerBean.SumDataListBean bean : sumDataList) {
-                sum += bean.getCnt();
+        if (voteAnswerBean != null) {
+            List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList = voteAnswerBean.getSumDataList();
+            if (sumDataList != null && sumDataList.size() > 0) {
+                for (MessageInfoBean.VoteAnswerBean.SumDataListBean bean : sumDataList) {
+                    sum += bean.getCnt();
+                }
             }
         }
         return sum;
@@ -1044,31 +1078,42 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param voteList
      * @param type          类型 1文字 2 图片
      * @param parentPostion 父类位置
-     * @param isVote        未投票-1，其他则为itemId:1-4
+     * @param answerBean    答案列表
      * @param voteSum       投票总数
-     * @param sumDataList   答案列表
      */
     private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
-                                int isVote, int voteSum, List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList) {
-        rv.setLayoutManager(new LinearLayoutManager(activity));
-        VoteAdapter taskAdapter = new VoteAdapter(0, type, isVote, voteSum, sumDataList);
+                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum) {
+        int columns = 0;
+        if (type == PictureEnum.EVoteType.TXT) {
+            rv.setLayoutManager(new LinearLayoutManager(activity));
+        } else {
+            if (voteList != null && voteList.size() == 4 || voteList.size() == 2) {
+                columns = 2;
+            } else {
+                columns = 3;
+            }
+            rv.setLayoutManager(new GridLayoutManager(activity, columns));
+        }
+        isVote = -1;// 未投票-1，其他则为itemId:1-4
+        List<MessageInfoBean.VoteAnswerBean.SumDataListBean> sumDataList = new ArrayList<>();
+        if (answerBean != null) {
+            isVote = answerBean.getSelfAnswerItem();
+            sumDataList.addAll(answerBean.getSumDataList());
+        }
+        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList);
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
                 MessageInfoBean messageInfoBean = dataList.get(parentPostion);
-                if (isVote == -1) {
-                    switch (view.getId()) {
-                        case R.id.layout_vote_pictrue:// 图片投票
-                        case R.id.layout_vote_txt:// 文字投票
-                            voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
-                            break;
-                    }
+                if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
+                    voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
                 }
             }
         });
     }
+
 
     /**
      * 投票接口
@@ -1259,6 +1304,33 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         textView.setText(getSpan(ssb));
         textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
+
+
+    private void resetSize(RoundImageView imageView, int imgWidth, int imgHeight) {
+        //w/h = 3/4
+        final int DEFAULT_W = DensityUtil.dip2px(activity, 120);
+        final int DEFAULT_H = DensityUtil.dip2px(activity, 180);
+        int width = DEFAULT_W;
+        int height = DEFAULT_H;
+
+        if (imgHeight > 0) {
+            double scale = (imgWidth * 1.00) / imgHeight;
+            if (imgWidth > imgHeight) {
+                width = DEFAULT_W;
+                height = (int) (width / scale);
+            } else if (imgWidth < imgHeight) {
+                height = DEFAULT_H;
+                width = (int) (height * scale);
+            } else {
+                width = height = DEFAULT_W;
+            }
+        }
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        lp.width = width;
+        lp.height = height;
+        imageView.setLayoutParams(lp);
+    }
+
 
 
 }
