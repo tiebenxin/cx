@@ -632,7 +632,6 @@ public class UserInfoActivity extends AppActivity {
                 return;
             }
             if(ifShowTrends){
-                layoutTrends.setVisibility(View.VISIBLE);
                 userAction.getUserInfoByIdShowTrends(id, new CallBack<ReturnBean<UserInfo>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -750,15 +749,21 @@ public class UserInfoActivity extends AppActivity {
         //展示朋友圈
         if(ifShowTrends){
             if(info.getMomentList()!=null && info.getMomentList().size()>0){
+                layoutTrends.setVisibility(View.VISIBLE);
                 switch (info.getMomentList().size()){
                     case 1:
                         ivOne.setVisibility(View.VISIBLE);
+                        ivTwo.setVisibility(View.GONE);
+                        ivThree.setVisibility(View.GONE);
+                        ivFour.setVisibility(View.GONE);
                         Glide.with(this).load(info.getMomentList().get(0))
                                 .apply(GlideOptionsUtil.headImageOptions()).into(ivOne);
                         break;
                     case 2:
                         ivOne.setVisibility(View.VISIBLE);
                         ivTwo.setVisibility(View.VISIBLE);
+                        ivThree.setVisibility(View.GONE);
+                        ivFour.setVisibility(View.GONE);
                         Glide.with(this).load(info.getMomentList().get(0))
                                 .apply(GlideOptionsUtil.headImageOptions()).into(ivOne);
                         Glide.with(this).load(info.getMomentList().get(1))
@@ -768,6 +773,7 @@ public class UserInfoActivity extends AppActivity {
                         ivOne.setVisibility(View.VISIBLE);
                         ivTwo.setVisibility(View.VISIBLE);
                         ivThree.setVisibility(View.VISIBLE);
+                        ivFour.setVisibility(View.GONE);
                         Glide.with(this).load(info.getMomentList().get(0))
                                 .apply(GlideOptionsUtil.headImageOptions()).into(ivOne);
                         Glide.with(this).load(info.getMomentList().get(1))
@@ -790,6 +796,8 @@ public class UserInfoActivity extends AppActivity {
                                 .apply(GlideOptionsUtil.headImageOptions()).into(ivFour);
                         break;
                 }
+            }else {
+                layoutTrends.setVisibility(View.GONE);
             }
         }
     }
