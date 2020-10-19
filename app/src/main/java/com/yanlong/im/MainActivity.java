@@ -186,6 +186,7 @@ public class MainActivity extends BaseTcpActivity {
     private long firstPressTime = 0;//第一次双击时间
     private boolean isFromLogin;
     private UpdateManage updateManage;
+    private boolean hadUnreadTrendNum = false;//是否已展示未读消息
 
 
     @Override
@@ -942,12 +943,30 @@ public class MainActivity extends BaseTcpActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.HomePageShowUnreadMsgEvent event){
-        //优先显示未读消息数
-        sbshop.setNum(event.num, true);
+        //显示广场未读消息数
+        if(event.num!=0){
+            sbshop.setSktype(0);
+            sbshop.setNum(event.num, true);
+            hadUnreadTrendNum = true;
+        }
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showNewTrendRedDot(com.luck.picture.lib.event.EventFactory.HomePageRedDotEvent event){
+        //优先显示未读消息数，若为0，则显示小红点，代表关注的人是否有发了新动态
+        if(!hadUnreadTrendNum){
+            sbshop.setSktype(1);
+            if(event.ifShow){
+                sbshop.setNum(1, true);
+            }else {
+                sbshop.setNum(0, true);
+            }
+        }
+    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void clearUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.ClearHomePageShowUnreadMsgEvent event){
+        sbshop.setSktype(0);
         sbshop.setNum(0, true);
     }
 

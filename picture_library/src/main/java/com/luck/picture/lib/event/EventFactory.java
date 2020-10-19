@@ -188,6 +188,13 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
+     * 首页显示我关注的人有新动态
+     */
+    public static class HomePageRedDotEvent extends BaseEvent {
+        public boolean ifShow;//是否显示小红点
+    }
+
+    /**
      * 清空广场未读互动消息
      */
     public static class ClearHomePageShowUnreadMsgEvent extends BaseEvent {

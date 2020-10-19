@@ -123,6 +123,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             @Override
             public void onRefresh(@android.support.annotation.NonNull RefreshLayout refreshLayout) {
                 EventBus.getDefault().post(new EventFactory.UpdateRedEvent());
+                EventFactory.HomePageRedDotEvent homePageRedDotEvent = new EventFactory.HomePageRedDotEvent();
+                homePageRedDotEvent.ifShow = false;
+                EventBus.getDefault().post(homePageRedDotEvent);
                 mCurrentPage = 1;
                 mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
             }

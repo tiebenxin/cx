@@ -294,6 +294,10 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     public void showRedDot(int redPoint) {
         if (redPoint == 1) {
             bindingView.ivFollow.setVisibility(View.VISIBLE);
+            //通知首页显示红点
+            EventFactory.HomePageRedDotEvent event = new EventFactory.HomePageRedDotEvent();
+            event.ifShow = true;
+            EventBus.getDefault().post(event);
         } else {
             bindingView.ivFollow.setVisibility(View.GONE);
         }
