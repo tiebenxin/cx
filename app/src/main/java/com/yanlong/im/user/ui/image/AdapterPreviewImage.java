@@ -101,7 +101,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     private String[] collectStrings = {"发送给朋友", "保存图片", "取消"};
     private View parentView;
     private int preProgress;
-    private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情
+    private int fromWhere;//跳转来源 0 默认 1 猜你想要 2 收藏详情  3朋友圈
     private String collectJson = "";//收藏详情点击大图转发需要的数据
     private LocalMedia currentMedia;
     private IPreviewImage mIPreviewImage;
@@ -799,7 +799,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             return;
         }
         //收藏详情需求又改为只显示3项
-        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
+        if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL || fromWhere == PictureConfig.FROM_CIRCLE) {
             popupSelectView = new PopupSelectView(context, collectStrings);
         } else {
             if (media.isCanCollect()) {
@@ -825,7 +825,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                             ToastUtil.show(context.getString(R.string.user_disable_message));
                             return;
                         }
-                        checkFile(msgId, PictureConfig.FROM_COLLECT_DETAIL,1,null);
+                        checkFile(msgId, PictureConfig.FROM_COLLECT_DETAIL, 1, null);
                     } else if (postsion == 1) {//保存
                         saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                     }
@@ -837,7 +837,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            checkFile(msgId, PictureConfig.FROM_DEFAULT,1,null);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT, 1, null);
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                         } else if (postsion == 2) {//收藏
@@ -845,7 +845,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            checkFile(msgId, PictureConfig.FROM_DEFAULT,2,null);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT, 2, null);
                         } else if (postsion == 3) {//识别二维码
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
@@ -858,7 +858,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            checkFile(msgId, PictureConfig.FROM_DEFAULT,3,media);
+                            checkFile(msgId, PictureConfig.FROM_DEFAULT, 3, media);
                         }
 
                     } else {
@@ -868,7 +868,11 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 ToastUtil.show(context.getString(R.string.user_disable_message));
                                 return;
                             }
-                            checkFile(msgId, PictureConfig.FROM_DEFAULT,1,null);
+                            if (fromWhere == PictureConfig.FROM_CIRCLE) {
+                                checkFile(msgId, PictureConfig.FROM_CIRCLE, 1, null);
+                            } else {
+                                checkFile(msgId, PictureConfig.FROM_DEFAULT, 1, null);
+                            }
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                         } else if (postsion == 2) {//识别二维码
@@ -1081,10 +1085,11 @@ public class AdapterPreviewImage extends PagerAdapter {
 
     /**
      * 转发还是收藏
+     *
      * @param msgId
      */
-    private void checkFile(String msgId, int fromWhere, int type,LocalMedia media) {
-        mIPreviewImage.onClick(msgId, fromWhere, type,media);
+    private void checkFile(String msgId, int fromWhere, int type, LocalMedia media) {
+        mIPreviewImage.onClick(msgId, fromWhere, type, media);
     }
 
 }

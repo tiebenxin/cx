@@ -810,7 +810,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         } else if (msgAllBean.getImage() != null) {
             if (isSingleSelected && (moreSessionBeanList == null || moreSessionBeanList.size() <= 0)) {
                 ImageMessage imagesrc = msgAllBean.getImage();
-                if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
+                if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                     imagesrc.setReadOrigin(true);
                 }
                 ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
@@ -1165,7 +1165,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),thumb);
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(), thumb);
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;
@@ -1179,7 +1179,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),"");
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(), "");
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;
@@ -1345,7 +1345,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 if (imgSize == null) {
                     continue;
                 }
-                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), url, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize(),"");
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), url, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize(), "");
                 MsgAllBean msgAllBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
                 if (msgAllBean != null) {
                     list.add(msgAllBean);
@@ -1368,7 +1368,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),thumb);
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(), thumb);
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;
@@ -1390,7 +1390,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),"");
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(), "");
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;

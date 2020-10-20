@@ -101,7 +101,7 @@
             android:layout_marginRight="@dimen/app_margin_circle"
             android:ellipsize="end"
             android:lineSpacingExtra="3dp"
-            android:maxLines="3"
+            android:maxLines="4"
             android:scrollbars="none"
             android:text=""
             android:textColor="@color/color_2A2"
@@ -188,7 +188,9 @@
                 android:layout_centerVertical="true"
                 android:drawableLeft="@mipmap/ic_circle_common"
                 android:gravity="center_vertical"
+                android:text="评论"
                 android:minWidth="60dp"
+                android:textSize="15sp"
                 android:textColor="@color/gray_b2b" />
 
             <TextView

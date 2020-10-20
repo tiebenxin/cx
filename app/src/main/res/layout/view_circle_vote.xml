@@ -211,7 +211,9 @@
                 android:layout_centerVertical="true"
                 android:drawableLeft="@mipmap/ic_circle_common"
                 android:gravity="center_vertical"
-                android:minWidth="47dp"
+                android:minWidth="60dp"
+                android:text="评论"
+                android:textSize="15sp"
                 android:textColor="@color/gray_b2b" />
 
             <TextView
@@ -222,7 +224,8 @@
                 android:layout_toLeftOf="@+id/iv_comment"
                 android:drawableLeft="@mipmap/ic_circle_give"
                 android:gravity="center_vertical"
-                android:minWidth="50dp"
+                android:minWidth="60dp"
+                android:textSize="15sp"
                 android:textColor="@color/gray_b2b" />
 
         </RelativeLayout>

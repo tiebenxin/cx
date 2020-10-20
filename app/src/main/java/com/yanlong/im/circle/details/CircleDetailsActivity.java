@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.luck.picture.lib.CreateCircleActivity;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.event.EventFactory;
@@ -127,6 +129,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         // 评论列表
         bindingView.recyclerComment.setLayoutManager(new LinearLayoutManager(this));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(this));
+        ((DefaultItemAnimator) bindingView.recyclerComment.getItemAnimator()).setSupportsChangeAnimations(false);
         mCommentTxtAdapter = new CommentAdapter(true);
         bindingView.recyclerComment.setAdapter(mCommentTxtAdapter);
         mCommentList = new ArrayList<>();
@@ -234,9 +237,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
                         if (mMessageInfoBean.getType() != null && mMessageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
-                            List<String> imgs = new ArrayList<>();
-                            imgs.add(attachmentBeans.get(0).getUrl());
-                            toPictruePreview(0, imgs);
+                            toPictruePreview(0, attachmentBeans);
                         } else {
                             Intent intent = new Intent(getContext(), VideoPlayActivity.class);
                             if (attachmentBeans.size() > 0) {
@@ -298,6 +299,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.view_circle_details, null, false);
         binding.recyclerView.setAdapter(mFlowAdapter);
         binding.recyclerView.setLayoutManager(new YLLinearLayoutManager(getContext()));
+        ((DefaultItemAnimator) binding.recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         mCommentTxtAdapter.addHeaderView(binding.getRoot());
 
         if (mMessageInfoBean.getCommentCount() != null && mMessageInfoBean.getCommentCount() > 0) {
@@ -328,21 +330,24 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     /**
      * 查看图片
      *
-     * @param postion 位置
-     * @param imgs    图片集合
+     * @param postion         位置
+     * @param attachmentBeans 图片集合
      */
-    private void toPictruePreview(int postion, List<String> imgs) {
+    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
         List<LocalMedia> selectList = new ArrayList<>();
-        for (String s : imgs) {
+        for (AttachmentBean bean : attachmentBeans) {
             LocalMedia localMedia = new LocalMedia();
-            localMedia.setPath(s);
-            localMedia.setCompressPath(s);
+            localMedia.setCutPath(bean.getUrl());
+            localMedia.setCompressPath(bean.getUrl());
+            localMedia.setSize(bean.getSize());
+            localMedia.setWidth(bean.getWidth());
+            localMedia.setHeight(bean.getHeight());
             selectList.add(localMedia);
         }
         PictureSelector.create(this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview(postion, selectList);
+                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 
     private void cancleFollowDialog(int position) {

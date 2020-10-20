@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
+import android.text.SpannableString;
 import android.text.TextUtils;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
@@ -21,9 +22,11 @@ import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.CircleTitleBean;
 import com.yanlong.im.databinding.ActivityVotePictrueBinding;
+import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.utils.ImgSizeUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
@@ -89,7 +92,8 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
                     } else {
                         ImgSizeUtil.ImageSize imageSize = ImgSizeUtil.getAttribute(mList.get(i).getPath());
                         if (imageSize != null) {
-                            list.add(new CircleTitleBean(mList.get(i).getPath(), imageSize.getSize()));
+                            list.add(new CircleTitleBean(mList.get(i).getPath(),
+                                    imageSize.getSize(), imageSize.getWidth(), imageSize.getHeight()));
                         }
                     }
                 }
@@ -106,7 +110,9 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
     protected void loadData() {
         String title = getIntent().getStringExtra(CreateCircleActivity.VOTE_TXT_TITLE);
         String txtJson = getIntent().getStringExtra(CreateCircleActivity.VOTE_LOCATION_IMG);
-        bindingView.etTitle.setText(title);
+        bindingView.etTitle.setText(getSpan(title));
+        bindingView.etTitle.setSelection(bindingView.etTitle.getText().toString().length());
+        bindingView.etTitle.requestFocus();
         if (!TextUtils.isEmpty(txtJson)) {
             List<LocalMedia> list = new Gson().fromJson(txtJson,
                     new TypeToken<List<LocalMedia>>() {
@@ -131,6 +137,23 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
             }
             mPictureAdapter.notifyDataSetChanged();
         }
+    }
+
+    /**
+     * 富文本
+     *
+     * @param msg
+     * @return
+     */
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(this, fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
     }
 
     @Override

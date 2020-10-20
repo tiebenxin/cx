@@ -58,4 +58,5 @@ public final class PictureConfig {
     public final static int FROM_DEFAULT = 0;
     public final static int FROM_GUESS_YOU_LIKE = 1;
     public final static int FROM_COLLECT_DETAIL = 2;
+    public final static int FROM_CIRCLE = 3;// 朋友圈
 }

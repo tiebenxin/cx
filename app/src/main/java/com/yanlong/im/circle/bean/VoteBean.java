@@ -36,10 +36,30 @@ public class VoteBean extends BaseBean {
     public static class Item {
         private String item;
         private long size;
+        private int width;
+        private int height;
 
-        public Item(String v, long size) {
+        public Item(String v, long size, int width, int height) {
             this.item = v;
             this.size = size;
+            this.width = width;
+            this.height = height;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
         }
 
         public String getItem() {

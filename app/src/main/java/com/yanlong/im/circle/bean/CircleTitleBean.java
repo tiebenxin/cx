@@ -15,6 +15,8 @@ public class CircleTitleBean extends BaseModel {
     private String title;
     private String content;
     private long size;
+    private int width;
+    private int height;
     private boolean isCheck;
 
     public CircleTitleBean(String title, boolean check) {
@@ -26,9 +28,27 @@ public class CircleTitleBean extends BaseModel {
         this.content = content;
     }
 
-    public CircleTitleBean(String content, long size) {
+    public CircleTitleBean(String content, long size, int width, int height) {
         this.content = content;
         this.size = size;
+        this.width = width;
+        this.height = height;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     public String getTitle() {

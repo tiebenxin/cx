@@ -18,6 +18,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -74,6 +75,7 @@ import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastManage;
 import com.luck.picture.lib.utils.CheckPermission2Util;
 import com.luck.picture.lib.utils.DateUtil;
+import com.luck.picture.lib.utils.ExpressionUtil;
 import com.luck.picture.lib.utils.GroupHeadImageUtil;
 import com.luck.picture.lib.utils.InputUtil;
 import com.luck.picture.lib.utils.PatternUtil;
@@ -125,7 +127,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private final String ADDRESS_NOT_SHOW = "不显示位置";
     private String mCityName = "", mTxtJson = "", mImgJson = "";
     private ImageView picture_left_back, iv_face, iv_picture, iv_vote, iv_voice, iv_delete_voice,
-            iv_voice_play, iv_delete_location;
+            iv_voice_play, iv_delete_location, iv_delete_vote;
     private TextView picture_title, picture_right, picture_tv_ok, tv_empty,
             picture_tv_img_num, picture_id_preview, tv_PlayPause, tv_Stop, tv_Quit,
             tv_musicStatus, tv_musicTotal, tv_musicTime, tv_location, tv_power,
@@ -134,7 +136,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private ProgressBar pb_progress;
     private CustomerEditText etContent;
     private RelativeLayout rl_picture_title, layout_audio;
-    private LinearLayout id_ll_ok, layout_vote, layoutFunc, layout_voice;
+    private LinearLayout id_ll_ok, layout_vote, layoutFunc, layout_voice, layout_vote_content;
     private FrameLayout frame_content;
     private RecyclerView picture_recycler, recycler_picture_prview;
     private PictureImageGridAdapter adapter;
@@ -385,6 +387,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         picture_tv_img_num = (TextView) findViewById(R.id.picture_tv_img_num);
         picture_recycler = (RecyclerView) findViewById(R.id.picture_recycler);
         recycler_picture_prview = findViewById(R.id.recycler_picture_prview);
+        layout_vote_content = findViewById(R.id.layout_vote_content);
         id_ll_ok = (LinearLayout) findViewById(R.id.id_ll_ok);
         layoutFunc = findViewById(R.id.view_func);
         tv_empty = (TextView) findViewById(R.id.tv_empty);
@@ -403,6 +406,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         tv_picture_vote = findViewById(R.id.tv_picture_vote);
         circle_view_faceview = findViewById(R.id.circle_view_faceview);
 
+        iv_delete_vote = findViewById(R.id.iv_delete_vote);
         layout_voice = findViewById(R.id.layout_voice);
         iv_delete_voice = findViewById(R.id.iv_delete_voice);
         pb_progress = findViewById(R.id.pb_progress);
@@ -454,6 +458,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         picture_id_preview.setOnClickListener(this);
         iv_voice_play.setOnClickListener(this);
         iv_delete_location.setOnClickListener(this);
+        iv_delete_vote.setOnClickListener(this);
 
         if (config.mimeType == PictureMimeType.ofAudio()) {
             picture_id_preview.setVisibility(View.GONE);
@@ -983,6 +988,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             iv_vote.setImageLevel(1);
             iv_voice.setImageLevel(0);
             delayMillis();
+        } else if (id == R.id.iv_delete_vote) {// 删除投票
+            mTxtJson = "";
+            mImgJson = "";
+            mVoteList.clear();
+            etContent.setText("");
+            layout_vote_content.setVisibility(View.GONE);
         } else if (id == R.id.tv_content_vote) {// 文字投票
             if (!DoubleUtils.isFastDoubleClick()) {
                 Postcard postcard = ARouter.getInstance().build("/circle/VoteTextActivity");
@@ -1901,7 +1912,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 case REQUEST_CODE_VOTE_TXT:// 文字投票
                     String title = data.getStringExtra(VOTE_TXT_TITLE);
                     mTxtJson = data.getStringExtra(VOTE_TXT);
-                    etContent.setText(title);
+                    etContent.setText(getSpan(title));
+                    etContent.setSelection(etContent.getText().toString().length());
+                    etContent.requestFocus();
+                    layout_vote_content.setVisibility(View.VISIBLE);
                     break;
                 case REQUEST_CODE_VOTE_PICTRUE:// 图片投票
                     title = data.getStringExtra(VOTE_TXT_TITLE);
@@ -1912,7 +1926,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                                 new TypeToken<List<LocalMedia>>() {
                                 }.getType());
                     }
-                    etContent.setText(title);
+                    etContent.setText(getSpan(title));
+                    etContent.setSelection(etContent.getText().toString().length());
+                    etContent.requestFocus();
+                    layout_vote_content.setVisibility(View.VISIBLE);
                     break;
                 case PictureConfig.CHOOSE_REQUEST:// 图片回调
                     List<LocalMedia> selectImages = (List<LocalMedia>) data.getSerializableExtra(PictureConfig.EXTRA_RESULT_SELECTION);
@@ -1943,6 +1960,17 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             Throwable throwable = (Throwable) data.getSerializableExtra(UCrop.EXTRA_ERROR);
             ToastManage.s(mContext, throwable.getMessage());
         }
+    }
+
+    /**
+     * 富文本
+     *
+     * @param msg
+     * @return
+     */
+    private SpannableString getSpan(String msg) {
+        SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, msg);
+        return spannableString;
     }
 
     /**

@@ -35,6 +35,7 @@ import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
@@ -69,7 +70,7 @@ import java.util.Map;
  */
 public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageInfoBean>, BaseViewHolder> {
 
-    private final int MAX_ROW_NUMBER = 3;
+    private final int MAX_ROW_NUMBER = 4;
     private final String END_MSG = " 收起";
     private ICircleClickListener clickListener;
     private boolean isFollow, isDetails;
@@ -119,13 +120,16 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         } else {
             helper.setGone(R.id.iv_follow, false);
         }
-        if (TextUtils.isEmpty(messageInfoBean.getPosition())) {
+        if (TextUtils.isEmpty(messageInfoBean.getPosition()) && TextUtils.isEmpty(messageInfoBean.getCity())) {
             helper.setGone(R.id.tv_location, false);
         } else {
             helper.setVisible(R.id.tv_location, true);
-            helper.setText(R.id.tv_location, messageInfoBean.getPosition());
+            if (!TextUtils.isEmpty(messageInfoBean.getPosition())) {
+                helper.setText(R.id.tv_location, messageInfoBean.getPosition());
+            } else {
+                helper.setText(R.id.tv_location, messageInfoBean.getCity());
+            }
         }
-        AudioPlayUtil.stopAudioPlay();
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
@@ -167,14 +171,10 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                         helper.setGone(R.id.layout_voice, false);
                         helper.setGone(R.id.iv_play, false);
                     } else {
-                        List<String> imgs = new ArrayList<>();
                         helper.setGone(R.id.layout_voice, false);
                         helper.setGone(R.id.rl_video, false);
                         recyclerView.setVisibility(View.VISIBLE);
-                        for (AttachmentBean attachmentBean : attachmentBeans) {
-                            imgs.add(attachmentBean.getUrl());
-                        }
-                        setRecycleView(recyclerView, imgs, position);
+                        setRecycleView(recyclerView, attachmentBeans, position);
                     }
                 }
             } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.VIDEO ||
@@ -245,7 +245,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                         ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
                     }
                     int line = tvContent.getLineCount();
-                    if (ellipsisCount > 0 || line > 3) {
+                    if (ellipsisCount > 0 || line > MAX_ROW_NUMBER) {
                         helper.setGone(R.id.tv_show_all, true);
                         TextView tvMore = helper.getView(R.id.tv_show_all);
                         // 内容高度小1000时不滚动
@@ -261,7 +261,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
             ivLike.setText(StringUtil.numberFormart(messageInfoBean.getLikeCount()));
         } else {
-            ivLike.setText("");
+            ivLike.setText("点赞");
         }
         if (messageInfoBean.getLike() != null && messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
             Drawable drawable = mContext.getResources().getDrawable(R.mipmap.ic_circle_like);
@@ -276,7 +276,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         if (messageInfoBean.getCommentCount() != null && messageInfoBean.getCommentCount() > 0) {
             helper.setText(R.id.iv_comment, StringUtil.numberFormart(messageInfoBean.getCommentCount()));
         } else {
-            helper.setText(R.id.iv_comment, "");
+            helper.setText(R.id.iv_comment, "评论");
         }
 
         helper.getView(R.id.tv_show_all).setOnClickListener(new View.OnClickListener() {
@@ -492,18 +492,19 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
      * 图片列表
      *
      * @param rv
-     * @param imgs
+     * @param attachmentBeans
+     * @param postion
      */
-    private void setRecycleView(RecyclerView rv, List<String> imgs, int postion) {
+    private void setRecycleView(RecyclerView rv, List<AttachmentBean> attachmentBeans, int postion) {
         rv.setLayoutManager(new GridLayoutManager(mContext, 3));
         ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
         rv.setAdapter(taskAdapter);
-        taskAdapter.setNewData(imgs);
+        taskAdapter.setNewData(attachmentBeans);
         taskAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 AudioPlayUtil.stopAudioPlay();
-                toPictruePreview(position, imgs);
+                toPictruePreview(position, attachmentBeans);
             }
         });
         rv.setOnTouchListener(new View.OnTouchListener() {
@@ -534,21 +535,24 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     /**
      * 查看图片
      *
-     * @param postion 位置
-     * @param imgs    图片集合
+     * @param postion         位置
+     * @param attachmentBeans 图片集合
      */
-    private void toPictruePreview(int postion, List<String> imgs) {
+    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
         List<LocalMedia> selectList = new ArrayList<>();
-        for (String s : imgs) {
+        for (AttachmentBean bean : attachmentBeans) {
             LocalMedia localMedia = new LocalMedia();
-            localMedia.setPath(s);
-            localMedia.setCompressPath(s);
+            localMedia.setCutPath(bean.getUrl());
+            localMedia.setCompressPath(bean.getUrl());
+            localMedia.setSize(bean.getSize());
+            localMedia.setWidth(bean.getWidth());
+            localMedia.setHeight(bean.getHeight());
             selectList.add(localMedia);
         }
         PictureSelector.create((Activity) mContext)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview(postion, selectList);
+                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 
     /**
@@ -600,12 +604,21 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                             break;
                     }
                 } else {
-                    AudioPlayUtil.stopAudioPlay();
-                    List<String> imgs = new ArrayList<>();
-                    for (VoteBean.Item item : voteList) {
-                        imgs.add(item.getItem());
+                    if (type == PictureEnum.EVoteType.TXT) {
+                        clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
+                    } else {
+                        AudioPlayUtil.stopAudioPlay();
+                        List<AttachmentBean> attachmentBeans = new ArrayList<>();
+                        for (VoteBean.Item item : voteList) {
+                            AttachmentBean bean = new AttachmentBean();
+                            bean.setHeight(item.getHeight());
+                            bean.setWidth(item.getWidth());
+                            bean.setUrl(item.getItem());
+                            bean.setSize(item.getSize());
+                            attachmentBeans.add(bean);
+                        }
+                        toPictruePreview(position, attachmentBeans);
                     }
-                    toPictruePreview(position, imgs);
                 }
             }
         });

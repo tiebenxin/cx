@@ -450,7 +450,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                             if (!TextUtils.isEmpty(bean.getVote())) {
                                 holder.layoutVote.setVisibility(View.VISIBLE);
-                            }else {
+                            } else {
                                 holder.layoutVote.setVisibility(View.GONE);
                             }
                         } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.PICTRUE || bean.getType() == PictureEnum.EContentType.PICTRUE_AND_VOTE) {
@@ -465,21 +465,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         .load(attachmentBeans.get(0).getUrl())
                                         .apply(GlideOptionsUtil.headImageOptions())
                                         .into(holder.ivVideo);
-                            }else {
+                            } else {
                                 holder.layoutVideo.setVisibility(View.GONE);
                                 holder.ivPlay.setVisibility(View.GONE);
                                 holder.recyclerView.setVisibility(View.VISIBLE);
-                                List<String> imgs = new ArrayList<>();
-                                if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                                    for (AttachmentBean attachmentBean : attachmentBeans) {
-                                        imgs.add(attachmentBean.getUrl());
-                                    }
-                                }
-                                setRecycleView(holder.recyclerView, imgs);
+                                setRecycleView(holder.recyclerView, attachmentBeans);
                             }
                             if (!TextUtils.isEmpty(bean.getVote())) {
                                 holder.layoutVote.setVisibility(View.VISIBLE);
-                            }else {
+                            } else {
                                 holder.layoutVote.setVisibility(View.GONE);
                             }
                         } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VIDEO || bean.getType() == PictureEnum.EContentType.VIDEO_AND_VOTE) {
@@ -507,19 +501,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                             if (!TextUtils.isEmpty(bean.getVote())) {
                                 holder.layoutVote.setVisibility(View.VISIBLE);
-                            }else {
+                            } else {
                                 holder.layoutVote.setVisibility(View.GONE);
                             }
-                        }else {
+                        } else {
                             holder.recyclerView.setVisibility(View.GONE);
                             holder.layoutVideo.setVisibility(View.GONE);
                             holder.layoutVoice.setVisibility(View.GONE);
                             holder.layoutVote.setVisibility(View.GONE);
                         }
                     } else {
-                        if(bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOTE){
+                        if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOTE) {
                             holder.layoutVote.setVisibility(View.VISIBLE);
-                        }else {
+                        } else {
                             holder.layoutVote.setVisibility(View.GONE);
                         }
                         holder.recyclerView.setVisibility(View.GONE);
@@ -534,7 +528,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 bean.getVoteAnswer(), getVoteSum(bean.getVoteAnswer()));
                         if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
                             holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer()) + "人参与了投票");
-                        }else {
+                        } else {
                             holder.tvVoteNumber.setText("0人参与了投票");
                         }
                     }
@@ -1045,31 +1039,40 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    private void setRecycleView(RecyclerView rv, List<String> imgs) {
+    private void setRecycleView(RecyclerView rv, List<AttachmentBean> attachmentBeans) {
         rv.setLayoutManager(new GridLayoutManager(activity, 3));
         ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
         rv.setAdapter(taskAdapter);
-        taskAdapter.setNewData(imgs);
+        taskAdapter.setNewData(attachmentBeans);
         taskAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                toPictruePreview(position, imgs);
+                toPictruePreview(position, attachmentBeans);
             }
         });
     }
 
-    private void toPictruePreview(int postion, List<String> imgs) {
+    /**
+     * 查看图片
+     *
+     * @param postion         位置
+     * @param attachmentBeans 图片集合
+     */
+    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
         List<LocalMedia> selectList = new ArrayList<>();
-        for (String s : imgs) {
+        for (AttachmentBean bean : attachmentBeans) {
             LocalMedia localMedia = new LocalMedia();
-            localMedia.setPath(s);
-            localMedia.setCompressPath(s);
+            localMedia.setCutPath(bean.getUrl());
+            localMedia.setCompressPath(bean.getUrl());
+            localMedia.setSize(bean.getSize());
+            localMedia.setWidth(bean.getWidth());
+            localMedia.setHeight(bean.getHeight());
             selectList.add(localMedia);
         }
         PictureSelector.create(activity)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview(postion, selectList);
+                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 
     /**
@@ -1350,7 +1353,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         lp.height = height;
         imageView.setLayoutParams(lp);
     }
-
 
 
 }

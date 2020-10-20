@@ -49,7 +49,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
     private final String FILE_NAME = ".jpg";
     private final String FILE_NAME_GIF = ".gif";
     private final String FILE_DIRECTORY = "image/";
-    private HashMap<String, String> mNetFile = new HashMap<>();
+//    private HashMap<String, String> mNetFile = new HashMap<>();
 
     CirclePresenter(Context context) {
         super(context);
@@ -109,7 +109,8 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 voteBean.setType(1);
             }
             for (CircleTitleBean circleTitleBean : list) {
-                votes.add(new VoteBean.Item(circleTitleBean.getContent(), circleTitleBean.getSize()));
+                votes.add(new VoteBean.Item(circleTitleBean.getContent(),
+                        circleTitleBean.getSize(), circleTitleBean.getWidth(), circleTitleBean.getHeight()));
             }
             voteBean.setItems(votes);
             params.put("vote", new Gson().toJson(voteBean));
@@ -211,9 +212,9 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 UpFileAction.PATH.COMENT_IMG, new UpLoadFileUtil.OnUploadFileListener() {
                     @Override
                     public void onUploadFile(HashMap<String, String> netFile) {
-                        if (mNetFile.size() > 0) {
-                            netFile.putAll(mNetFile);
-                        }
+//                        if (mNetFile.size() > 0) {
+//                            netFile.putAll(mNetFile);
+//                        }
                         mView.uploadSuccess("", type, false, netFile);
 
                     }

@@ -2,6 +2,7 @@ package com.yanlong.im.circle.recommend;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.event.EventFactory;
@@ -102,6 +104,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         bindingView.recyclerRecommend.setLayoutManager(new YLLinearLayoutManager(getContext()));
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
+        ((DefaultItemAnimator) bindingView.recyclerRecommend.getItemAnimator()).setSupportsChangeAnimations(false);
         mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 0);
 
         messageBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.view_new_circle_message, null, false);
@@ -257,9 +260,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
                         if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
-                            List<String> imgs = new ArrayList<>();
-                            imgs.add(attachmentBeans.get(0).getUrl());
-                            toPictruePreview(0, imgs);
+                            toPictruePreview(0, attachmentBeans);
                         } else {
                             Intent intent = new Intent(getContext(), VideoPlayActivity.class);
                             if (attachmentBeans.size() > 0) {
@@ -288,21 +289,24 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     /**
      * 查看图片
      *
-     * @param postion 位置
-     * @param imgs    图片集合
+     * @param postion         位置
+     * @param attachmentBeans 图片集合
      */
-    private void toPictruePreview(int postion, List<String> imgs) {
+    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
         List<LocalMedia> selectList = new ArrayList<>();
-        for (String s : imgs) {
+        for (AttachmentBean bean : attachmentBeans) {
             LocalMedia localMedia = new LocalMedia();
-            localMedia.setPath(s);
-            localMedia.setCompressPath(s);
+            localMedia.setCutPath(bean.getUrl());
+            localMedia.setCompressPath(bean.getUrl());
+            localMedia.setSize(bean.getSize());
+            localMedia.setWidth(bean.getWidth());
+            localMedia.setHeight(bean.getHeight());
             selectList.add(localMedia);
         }
         PictureSelector.create(getActivity())
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview(postion, selectList);
+                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 
     /**

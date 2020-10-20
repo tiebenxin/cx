@@ -39,6 +39,7 @@ import com.luck.picture.lib.widget.PreviewViewPager;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
@@ -362,7 +363,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      * 单选转发/收藏失效消息提示弹框
      */
     private void showMsgFailDialog() {
-        if(activity==null || activity.isFinishing()){
+        if (activity == null || activity.isFinishing()) {
             return;
         }
         dialogFour = builder.setTitle("你所选的消息已失效")
@@ -380,23 +381,23 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      *
      * @param msgId
      * @param fromWhere
-     * @param type  1 转发 2 收藏 3 图片编辑
+     * @param type      1 转发 2 收藏 3 图片编辑
      */
     @Override
-    public void onClick(String msgId, int fromWhere, int type , LocalMedia media) {
+    public void onClick(String msgId, int fromWhere, int type, LocalMedia media) {
 
         MsgAllBean msgbean = null;
 
         if (!TextUtils.isEmpty(msgId)) {
             msgbean = msgDao.getMsgById(msgId);
         }
-        if (msgbean == null) {
+        if (msgbean == null && fromWhere != PictureConfig.FROM_CIRCLE) {
             ToastUtil.show("消息已被删除或者被焚毁，不能转发");
             return;
         }
 
-        if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-                || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+        if (msgbean != null && (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE || msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+                || msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) && fromWhere != PictureConfig.FROM_CIRCLE) {
             ArrayList<FileBean> list = new ArrayList<>();
             FileBean fileBean = new FileBean();
             if (msgbean.getImage() != null) {
@@ -422,13 +423,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (response.body().getData() != null && response.body().getData().size() != list.size()) {
                             showMsgFailDialog();
                         } else {
-                            if(type==1){
+                            if (type == 1) {
                                 sendToFriend(msgId, fromWhere);
-                            }else if(type==2){
+                            } else if (type == 2) {
                                 EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                                 eventCollectImgOrVideo.setMsgId(msgId);
                                 EventBus.getDefault().post(eventCollectImgOrVideo);
-                            }else {
+                            } else {
                                 Intent intent = new Intent(PictureExternalPreviewActivity.this, ImageShowActivity.class);
                                 Bundle bundle = new Bundle();
                                 bundle.putString("imgpath", media.getCompressPath());
@@ -457,6 +458,20 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     }
 
     /**
+     * 加载缩略图
+     *
+     * @param path
+     * @return
+     */
+    public static String loadThumbnail(String path) {
+        String value = path;
+        if (!TextUtils.isEmpty(path) && !path.contains("/below-200k")) {
+            value += "/below-200k";
+        }
+        return value;
+    }
+
+    /**
      * 转发
      *
      * @param msgId
@@ -469,6 +484,23 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             } else {
                 ToastUtil.show("请检查网络连接是否正常");
             }
+        } else if (fromWhere == PictureConfig.FROM_CIRCLE) {
+            MsgAllBean msgAllBean = new MsgAllBean();
+            msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
+            ImageMessage imageMessage = new ImageMessage();
+            LocalMedia localMedia = images.get(position);
+            if (localMedia != null) {
+                imageMessage.setHeight(localMedia.getHeight());
+                imageMessage.setWidth(localMedia.getWidth());
+                imageMessage.setSize(localMedia.getSize());
+                imageMessage.setLocalimg(localMedia.getCompressPath());
+                imageMessage.setOrigin(localMedia.getCompressPath());
+                imageMessage.setPreview(loadThumbnail(localMedia.getCompressPath()));
+                imageMessage.setThumbnail(loadThumbnail(localMedia.getCompressPath()));
+            }
+            msgAllBean.setImage(imageMessage);
+            startActivity(new Intent(this, MsgForwardActivity.class)
+                    .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
         } else {
             if (!TextUtils.isEmpty(msgId)) {
                 MsgAllBean msgAllBean = msgDao.getMsgById(msgId);

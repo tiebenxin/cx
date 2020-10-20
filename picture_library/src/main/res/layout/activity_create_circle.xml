@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fitsSystemWindows="true"
+    android:orientation="vertical"
     tools:context="com.luck.picture.lib.PictureSelectorActivity">
 
     <RelativeLayout
@@ -123,8 +124,8 @@
     <com.luck.picture.lib.widget.CustomerEditText
         android:id="@+id/et_content"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_below="@+id/rl_picture_title"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@color/transparent"
         android:gravity="top"
         android:hint="记录你此刻生活，分享给大家"
@@ -136,6 +137,58 @@
         android:scrollbars="vertical"
         android:textColor="@color/black"
         android:textSize="16sp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_picture_prview"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_above="@id/layout_bottom"
+        android:layout_below="@id/tv_max_number"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/white"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/layout_voice"
+        layout="@layout/view_audio_play"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/layout_bottom"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/layout_vote_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="81dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/circle_shape_vote_bg"
+            android:gravity="center"
+            android:text="投票"
+            android:textColor="@color/color_343"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/iv_delete_vote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:padding="10dp"
+            android:src="@mipmap/ic_circle_location_delete" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/layout_bottom"
@@ -328,32 +381,6 @@
         android:textSize="15sp"
         android:visibility="gone" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_picture_prview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/layout_bottom"
-        android:layout_below="@id/tv_max_number"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="10dp"
-        android:background="@color/white"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:visibility="gone" />
-
-    <include
-        android:id="@+id/layout_voice"
-        layout="@layout/view_audio_play"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/layout_bottom"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="10dp"
-        android:visibility="gone" />
-
     <TextView
         android:id="@+id/tv_empty"
         android:layout_width="match_parent"
@@ -368,4 +395,4 @@
         android:textSize="18sp"
         android:visibility="gone" />
 
-</RelativeLayout>
+</LinearLayout>

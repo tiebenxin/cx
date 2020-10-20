@@ -280,7 +280,7 @@ public class TimeToString {
             res = "前天" + getTime(timestamp, "HH:mm");
         } else if (day == 1) {// 前天 时:分 （前天17:10）
             res = "昨天" + getTime(timestamp, "HH:mm");
-        } else if (hour > 1) {// 1小时以上，当日以内：多少小时前（2小时前）
+        } else if (hour >= 1) {// 1小时以上，当日以内：多少小时前（2小时前）
             res = hour + "小时前";
         } else if (min > 2) {// 2~60分钟：多少分钟前（10分钟前）
             res = min + "分钟前";

@@ -97,6 +97,9 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         mLoadingProgress = new DialogLoadingProgress(event.context);
         mLoadingProgress.show();
         mCircleBean = event.circleBean;
+        if (mList != null) {
+            mList.clear();
+        }
         if (!TextUtils.isEmpty(mCircleBean.getAttachment())) {
             mList = new Gson().fromJson(mCircleBean.getAttachment(),
                     new TypeToken<List<AttachmentBean>>() {
