@@ -589,7 +589,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 if (clickListener == null) {
                     return;
                 }
-                if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
+                if (answerBean == null || answerBean.getSelfAnswerItem() == -1) {
                     switch (view.getId()) {
                         case R.id.layout_vote_pictrue:// 图片投票
                         case R.id.layout_vote_bg:

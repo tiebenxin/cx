@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tv_user_name"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:lineSpacingExtra="5dp"
                 android:maxLines="3"
@@ -105,7 +105,7 @@
             android:scrollbars="none"
             android:text=""
             android:textColor="@color/color_2A2"
-            android:textSize="16sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/tv_show_all"
