@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -268,6 +269,18 @@ public class MessageAdapter extends RecyclerView.Adapter {
             return mList.get(position).getChatCellLayoutId().ordinal();
         }
         return super.getItemViewType(position);
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder instanceof ChatCellImage){
+            ChatCellImage cell = (ChatCellImage) holder;
+            cell.recycler();
+        }else if (holder instanceof ChatCellVideo){
+            ChatCellVideo cell = (ChatCellVideo) holder;
+            cell.recycler();
+        }
     }
 
     //获取某位置消息

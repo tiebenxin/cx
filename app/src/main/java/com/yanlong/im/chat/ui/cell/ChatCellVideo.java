@@ -2,21 +2,14 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -25,6 +18,7 @@ import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.util.Locale;
 
@@ -37,12 +31,11 @@ public class ChatCellVideo extends ChatCellImage {
     int height = DEFAULT_H;
 
     private ImageView ivBg;
-    //    private LinearLayout ll_progress;
-//    private ProgressBar progressBar;
-//    private TextView tv_progress;
     private ImageView ivPlay;
     private TextView tv_video_time;//视频时长
     private VideoMessage videoMessage;
+    private RequestOptions rOptions;
+    private Bitmap localBitmap;
 
     protected ChatCellVideo(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -52,9 +45,6 @@ public class ChatCellVideo extends ChatCellImage {
     protected void initView() {
         super.initView();
         ivBg = getView().findViewById(R.id.iv_img);
-//        ll_progress = getView().findViewById(R.id.ll_progress);
-//        progressBar = getView().findViewById(R.id.progress_bar);
-//        tv_progress = getView().findViewById(R.id.tv_progress);
         ivPlay = getView().findViewById(R.id.iv_play);
         tv_video_time = getView().findViewById(R.id.tv_video_time);
     }
@@ -109,7 +99,7 @@ public class ChatCellVideo extends ChatCellImage {
         }
         resetSize();
         String url = video.getBg_url();
-        RequestOptions rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
+        rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
         rOptions.override(width, height);
         rOptions.dontAnimate();
         String tag = (String) ivBg.getTag(R.id.tag_img);
@@ -173,7 +163,7 @@ public class ChatCellVideo extends ChatCellImage {
 
     @Override
     public void glide(RequestOptions rOptions, String url) {
-        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
+        localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
             Glide.with(getContext())
                     .asBitmap()
@@ -184,6 +174,21 @@ public class ChatCellVideo extends ChatCellImage {
             ivBg.setImageBitmap(localBitmap);
         }
         ivBg.setVisibility(VISIBLE);
+
+    }
+
+    @Override
+    public void recycler() {
+        LogUtil.getLog().i("图片", "recycler");
+        try {
+//            Glide.with(getContext()).clear(ivBg);
+            if (localBitmap != null) {
+                localBitmap.recycle();
+                localBitmap = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }

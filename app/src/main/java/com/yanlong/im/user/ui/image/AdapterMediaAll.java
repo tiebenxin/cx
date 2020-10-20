@@ -162,9 +162,17 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                 String tag = (String) ivImage.getTag(R.id.tag_img);
                 RequestOptions options = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE).dontAnimate();
                 if (TextUtils.equals(tag, url)) {
-                    glideImage(tag, options);
+                    if (PictureMimeType.isImageGif(url)) {
+                        glideGif(tag);
+                    } else {
+                        glideImage(tag, options);
+                    }
                 } else {
-                    glideImage(url, options);
+                    if (PictureMimeType.isImageGif(url)) {
+                        glideGif(tag);
+                    } else {
+                        glideImage(tag, options);
+                    }
                 }
 
             } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
@@ -217,8 +225,8 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
             });
         }
 
-        private void glideVideo(String url) {
-            Glide.with(getContext()).load(url).listener(new RequestListener<Drawable>() {
+        private void glideImage(String url, RequestOptions options) {
+            Glide.with(getContext()).asDrawable().load(url).apply(options).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                     if (e.getMessage().contains("FileNotFoundException")) {
@@ -235,7 +243,6 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                     return false;
                 }
 
-
                 @Override
                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                     ivImage.setTag(R.id.tag_img, url);
@@ -244,8 +251,9 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
             }).into(ivImage);
         }
 
-        private void glideImage(String url, RequestOptions options) {
-            Glide.with(getContext()).asDrawable().load(url).apply(options).listener(new RequestListener<Drawable>() {
+        private void glideGif(String url) {
+            RequestOptions rOptions = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+            Glide.with(getContext()).load(url).apply(rOptions).thumbnail(0.3f).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                     if (e.getMessage().contains("FileNotFoundException")) {

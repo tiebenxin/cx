@@ -3,7 +3,6 @@ package com.yanlong.im.chat.ui.cell;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
@@ -26,7 +26,6 @@ import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
 import java.io.File;
 
@@ -42,9 +41,13 @@ public class ChatCellImage extends ChatCellFileBase {
     int width = DEFAULT_W;
     int height = DEFAULT_H;
 
-    private ImageView imageView;
+    public ImageView imageView;
     private ImageMessage imageMessage;
     String currentUrl = "";
+    private RequestOptions rOptions;
+    private Bitmap localBitmap;
+    private String tag;
+    private File localFile;
 
     protected ChatCellImage(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -73,49 +76,51 @@ public class ChatCellImage extends ChatCellFileBase {
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
         checkSendStatus();
-        //获取圆角
-        RequestOptions rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 1))*/;
-        rOptions.dontAnimate();
-        rOptions.override(width, height);
-        String tag = (String) imageView.getTag(R.id.tag_img);
+        tag = (String) imageView.getTag(R.id.tag_img);
         if (isGif(thumbnail)) {
             String gif = message.getImage().getPreview();
-            if (!TextUtils.equals(tag, gif)) {
-                imageView.setTag(R.id.tag_img, gif);
-                rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
-//                rOptions.priority(Priority.LOW);
-//                rOptions.skipMemoryCache(true);
-                imageView.setImageResource(R.mipmap.ic_image_bg);
-                File local = CustomGlideModule.getCacheFile(gif);
-                if (local == null) {
-                    glideGif(rOptions, gif);
+            if (!TextUtils.isEmpty(tag) && TextUtils.equals(tag, gif)) {
+                localFile = CustomGlideModule.getCacheFile(gif);
+                if (localFile == null) {
+                    glideGif(tag);
                 } else {
-                    glideGif(rOptions, local.getAbsolutePath());
+                    glideGif(localFile.getAbsolutePath());
                 }
             } else {
-                glideGif(rOptions, gif);
+                imageView.setTag(R.id.tag_img, gif);
+                imageView.setImageResource(R.mipmap.ic_image_bg);
+                localFile = CustomGlideModule.getCacheFile(gif);
+                if (localFile == null) {
+                    glideGif(gif);
+                } else {
+                    glideGif(localFile.getAbsolutePath());
+                }
             }
         } else {
-            rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-            rOptions.skipMemoryCache(false);
-            if (!TextUtils.equals(tag, thumbnail)) {//第一次加载
+            //获取圆角
+            rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 1))*/;
+            rOptions.dontAnimate();
+            rOptions.override(width, height);
+            rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+//            rOptions.skipMemoryCache(false);
+            if (!TextUtils.isEmpty(tag) && TextUtils.equals(tag, thumbnail)) {//第一次加载
+                glide(rOptions, tag);
+            } else {//复用
                 imageView.setImageResource(R.mipmap.ic_image_bg);
                 imageView.setTag(R.id.tag_img, thumbnail);
                 glide(rOptions, thumbnail);
-            } else {//复用
-                glide(rOptions, tag);
             }
         }
     }
 
     public void glide(RequestOptions rOptions, String url) {
-        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-            return;
-        }
-        currentUrl = url;
-        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
-        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
+//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+//            return;
+//        }
+//        currentUrl = url;
+        localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
+            LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
             Glide.with(getContext())
                     .asBitmap()
                     .load(url)
@@ -123,7 +128,7 @@ public class ChatCellImage extends ChatCellFileBase {
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                            currentUrl= "";
+                            currentUrl = "";
                             if (e.getMessage().contains("FileNotFoundException")) {
 //                                imageView.postDelayed(new Runnable() {
 //                                    @Override
@@ -147,23 +152,26 @@ public class ChatCellImage extends ChatCellFileBase {
 
     }
 
-    private void glideGif(RequestOptions rOptions, String url) {
-        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-            return;
-        }
-        currentUrl = url;
+    //TODO：rOptions 参数中的option设置了dontAnimate,会导致gif不动
+    private void glideGif(String url) {
+//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+//            return;
+//        }
+//        currentUrl = url;
         LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
-        rOptions = new RequestOptions().centerCrop();
-        rOptions.skipMemoryCache(false);
+        rOptions = new RequestOptions()/*.centerCrop()*/;
+//        rOptions .priority(Priority.HIGH);
+//        rOptions.skipMemoryCache(false);
         rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
-        //TODO:设置options后gif图片不动
         Glide.with(getContext())
+                .asGif()
                 .load(url)
                 .apply(rOptions)
-                .listener(new RequestListener<Drawable>() {
+                .thumbnail(0.3f)
+                .listener(new RequestListener<GifDrawable>() {
                     @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        currentUrl= "";
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<GifDrawable> target, boolean isFirstResource) {
+                        currentUrl = "";
 //                        if (e.getMessage().contains("FileNotFoundException")) {
                         imageView.setImageResource(R.mipmap.ic_img_past);
 //                        }
@@ -171,13 +179,29 @@ public class ChatCellImage extends ChatCellFileBase {
                     }
 
                     @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    public boolean onResourceReady(GifDrawable resource, Object model, Target<GifDrawable> target, DataSource dataSource, boolean isFirstResource) {
                         return false;
                     }
                 })
                 .into(imageView);
     }
 
+    //暂时有问题
+//    private void glideGif2(String url) {
+//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+//            return;
+//        }
+//        currentUrl = url;
+//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
+//        rOptions = new RequestOptions()/*.centerCrop()*/;
+//        Glide.with(getContext())
+//                .as(FrameSequenceDrawable.class)
+//                .listener(new GifSoftwareLayerSetter())
+//                .apply(rOptions)
+//                .load(url)
+//                .thumbnail(0.3f)
+//                .into(imageView);
+//    }
 
     public boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
@@ -251,5 +275,25 @@ public class ChatCellImage extends ChatCellFileBase {
                 ll_progress.setVisibility(VISIBLE);
                 break;
         }
+    }
+
+    public void recycler() {
+        LogUtil.getLog().i("图片", "recycler");
+        try {
+//            Glide.with(getContext()).clear(imageView);
+            if (localBitmap != null) {
+                LogUtil.getLog().i("图片", "recycler--localBitmap");
+                localBitmap.recycle();
+                localBitmap = null;
+            }
+            if (localFile != null) {
+                LogUtil.getLog().i("图片", "recycler--localFile");
+                localFile = null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
