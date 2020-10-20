@@ -22,10 +22,10 @@
                 android:background="@color/white"
                 android:visibility="visible" />
             </android.support.v4.widget.SwipeRefreshLayout>
-            <include
-                android:id="@+id/no_data_layout"
-                layout="@layout/layout_no_data"
-                android:visibility="gone" />
+<!--            <include-->
+<!--                android:id="@+id/no_data_layout"-->
+<!--                layout="@layout/layout_no_data"-->
+<!--                android:visibility="gone" />-->
 
             <ImageView
                 android:id="@+id/iv_create_circle"

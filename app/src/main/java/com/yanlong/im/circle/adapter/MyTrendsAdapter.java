@@ -510,11 +510,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }else {
                                 holder.layoutVote.setVisibility(View.GONE);
                             }
-                        }else if(bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOTE){
-                            holder.recyclerView.setVisibility(View.GONE);
-                            holder.layoutVideo.setVisibility(View.GONE);
-                            holder.layoutVoice.setVisibility(View.GONE);
-                            holder.layoutVote.setVisibility(View.VISIBLE);
                         }else {
                             holder.recyclerView.setVisibility(View.GONE);
                             holder.layoutVideo.setVisibility(View.GONE);
@@ -522,10 +517,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             holder.layoutVote.setVisibility(View.GONE);
                         }
                     } else {
+                        if(bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOTE){
+                            holder.layoutVote.setVisibility(View.VISIBLE);
+                        }else {
+                            holder.layoutVote.setVisibility(View.GONE);
+                        }
                         holder.recyclerView.setVisibility(View.GONE);
                         holder.layoutVideo.setVisibility(View.GONE);
                         holder.layoutVoice.setVisibility(View.GONE);
-                        holder.layoutVote.setVisibility(View.GONE);
                     }
                     //投票
                     if (!TextUtils.isEmpty(bean.getVote())) {
@@ -535,6 +534,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 bean.getVoteAnswer(), getVoteSum(bean.getVoteAnswer()));
                         if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
                             holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer()) + "人参与了投票");
+                        }else {
+                            holder.tvVoteNumber.setText("0人参与了投票");
                         }
                     }
                 }

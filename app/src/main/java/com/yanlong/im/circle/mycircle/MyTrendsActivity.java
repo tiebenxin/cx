@@ -158,7 +158,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         if(bean.getMomentList()!=null && bean.getMomentList().size()>0){
                             //1-1 加载更多，则分页数据填充到尾部
                             if (page > 1) {
-                                mList.addAll(bean.getMomentList());
                                 adapter.addMoreList(mList);
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             }else {
@@ -171,18 +170,16 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                     adapter.setLoadState(adapter.LOADING_MORE);
                                 }
                             }
-                            showNoDataLayout(false);
                             page++;
                         }else {
                             //2 无数据
                             //2-1 加载更多，当没有数据的时候，提示已经到底了
                             if (page > 1) {
                                 adapter.setLoadState(adapter.LOADING_END);
-                                showNoDataLayout(false);
                             } else {
                                 //2-2 第一次加载，没有数据则不显示尾部
                                 adapter.setLoadState(adapter.LOADING_GONE);
-                                showNoDataLayout(true);
+                                adapter.setTopData(bean);
                             }
                         }
                     }
@@ -271,19 +268,19 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         });
     }
 
-    /**
-     * 是否显示无数据占位图
-     * @param ifShow
-     */
-    private void showNoDataLayout(boolean ifShow) {
-        if (ifShow) {
-            bindingView.recyclerView.setVisibility(View.GONE);
-            bindingView.noDataLayout.setVisibility(View.VISIBLE);
-        } else {
-            bindingView.recyclerView.setVisibility(View.VISIBLE);
-            bindingView.noDataLayout.setVisibility(View.GONE);
-        }
-    }
+//    /**
+//     * 是否显示无数据占位图
+//     * @param ifShow
+//     */
+//    private void showNoDataLayout(boolean ifShow) {
+//        if (ifShow) {
+//            bindingView.recyclerView.setVisibility(View.GONE);
+//            bindingView.noDataLayout.setVisibility(View.VISIBLE);
+//        } else {
+//            bindingView.recyclerView.setVisibility(View.VISIBLE);
+//            bindingView.noDataLayout.setVisibility(View.GONE);
+//        }
+//    }
 
     //发布新动态后直接刷新
     @Subscribe(threadMode = ThreadMode.MAIN)

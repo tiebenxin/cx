@@ -749,7 +749,6 @@ public class UserInfoActivity extends AppActivity {
         //展示朋友圈
         if(ifShowTrends){
             if(info.getMomentList()!=null && info.getMomentList().size()>0){
-                layoutTrends.setVisibility(View.VISIBLE);
                 switch (info.getMomentList().size()){
                     case 1:
                         ivOne.setVisibility(View.VISIBLE);
@@ -796,8 +795,6 @@ public class UserInfoActivity extends AppActivity {
                                 .apply(GlideOptionsUtil.headImageOptions()).into(ivFour);
                         break;
                 }
-            }else {
-                layoutTrends.setVisibility(View.GONE);
             }
         }
     }

@@ -137,6 +137,7 @@
                     android:layout_width="46dp"
                     android:layout_height="46dp"
                     android:scaleType="centerCrop"
+                    android:visibility="gone"
                     android:src="@mipmap/default_image"/>
                 <ImageView
                     android:id="@+id/iv_two"
@@ -144,6 +145,7 @@
                     android:layout_height="46dp"
                     android:layout_marginLeft="7dp"
                     android:scaleType="centerCrop"
+                    android:visibility="gone"
                     android:src="@mipmap/default_image"/>
                 <ImageView
                     android:id="@+id/iv_three"
@@ -151,6 +153,7 @@
                     android:layout_height="46dp"
                     android:layout_marginLeft="7dp"
                     android:scaleType="centerCrop"
+                    android:visibility="gone"
                     android:src="@mipmap/default_image"/>
                 <ImageView
                     android:id="@+id/iv_four"
@@ -158,6 +161,7 @@
                     android:layout_height="46dp"
                     android:layout_marginLeft="7dp"
                     android:scaleType="centerCrop"
+                    android:visibility="gone"
                     android:src="@mipmap/default_image"/>
             </LinearLayout>
             <ImageView

@@ -435,6 +435,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     private void gotoUserInfoActivity(Long uid) {
         startActivity(new Intent(getContext(), UserInfoActivity.class)
+                .putExtra(UserInfoActivity.SHOW_TRENDS, true)
                 .putExtra(UserInfoActivity.ID, uid));
     }
 
