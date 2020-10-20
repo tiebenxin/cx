@@ -10,10 +10,7 @@ import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
-import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.rxbus2.RxBus;
-import com.luck.picture.lib.rxbus2.Subscribe;
-import com.luck.picture.lib.rxbus2.ThreadMode;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
@@ -82,7 +79,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     @Override
     protected void loadData() {
-        httpGetMyTrends();
         adapter = new MyTrendsAdapter(MyTrendsActivity.this,mList,1,0);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
@@ -282,18 +278,18 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 //        }
 //    }
 
-    //发布新动态后直接刷新
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRefreshChat(EventFactory.CreateSuccessEvent event) {
-        page = 1;
-        httpGetMyTrends();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (RxBus.getDefault().isRegistered(this)) {
             RxBus.getDefault().unregister(this);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        page = 1;
+        httpGetMyTrends();
     }
 }
