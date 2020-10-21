@@ -131,7 +131,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                         //1-1 加载更多，则分页数据填充到尾部
                         if (page > 1) {
                             allData.addAll(response.body().getData());
-                            adapter.addMoreList(mList);
+                            adapter.addMoreList(response.body().getData());
                             adapter.setLoadState(adapter.LOADING_MORE);
                         } else {
                             //1-2 第一次加载，若超过8个显示加载更多
