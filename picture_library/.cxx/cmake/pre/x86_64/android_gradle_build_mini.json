@@ -1,0 +1,16 @@
+{
+  "buildFiles": [
+    "D:\\develop\\project\\cx\\im\\picture_library\\src\\main\\cpp\\CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "D:\\develop\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\develop\\project\\cx\\im\\picture_library\\.cxx\\cmake\\pre\\x86_64 --target clean"
+  ],
+  "libraries": {
+    "giftool-Release-x86_64": {
+      "artifactName": "giftool",
+      "buildCommand": "D:\\develop\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\develop\\project\\cx\\im\\picture_library\\.cxx\\cmake\\pre\\x86_64 --target giftool",
+      "abi": "x86_64",
+      "output": "D:\\develop\\project\\cx\\im\\picture_library\\build\\intermediates\\cmake\\pre\\obj\\x86_64\\libgiftool.so"
+    }
+  }
+}

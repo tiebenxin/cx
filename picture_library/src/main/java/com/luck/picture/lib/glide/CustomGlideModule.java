@@ -19,9 +19,12 @@ import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.signature.EmptySignature;
+import com.luck.picture.lib.gif.FrameSequenceDrawable;
+import com.luck.picture.lib.gif.GifDecoder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @创建人 shenxin
@@ -99,7 +102,7 @@ public class CustomGlideModule extends AppGlideModule {
         super.registerComponents(context, glide, registry);
 //        registry.register(FrameSequence.class, FrameSequenceDrawable.class, new GifDrawableTranscoder())
 //                .append(InputStream.class, FrameSequence.class, new MyGifDecoder());
-//        registry.prepend(Registry.BUCKET_GIF, InputStream.class, FrameSequenceDrawable.class, new GifDecoder(glide.getBitmapPool()));
+        registry.prepend(Registry.BUCKET_GIF, InputStream.class, FrameSequenceDrawable.class, new GifDecoder(glide.getBitmapPool()));
     }
 
 

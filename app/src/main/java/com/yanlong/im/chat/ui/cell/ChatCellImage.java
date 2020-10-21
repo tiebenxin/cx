@@ -3,7 +3,9 @@ package com.yanlong.im.chat.ui.cell;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -17,7 +19,9 @@ import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.luck.picture.lib.gif.FrameSequenceDrawable;
 import com.luck.picture.lib.glide.CustomGlideModule;
+import com.luck.picture.lib.glide.GlideApp;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
@@ -60,6 +64,7 @@ public class ChatCellImage extends ChatCellFileBase {
         imageView = getView().findViewById(R.id.iv_img);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.DONUT)
     @SuppressLint("CheckResult")
     @Override
     protected void showMessage(MsgAllBean message) {
@@ -71,6 +76,7 @@ public class ChatCellImage extends ChatCellFileBase {
         loadImage(message);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.DONUT)
     @SuppressLint("CheckResult")
     private void loadImage(MsgAllBean message) {
         String thumbnail = imageMessage.getThumbnailShow();
@@ -114,10 +120,10 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void glide(RequestOptions rOptions, String url) {
-//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-//            return;
-//        }
-//        currentUrl = url;
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        currentUrl = url;
         localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
             LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
@@ -173,7 +179,7 @@ public class ChatCellImage extends ChatCellFileBase {
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<GifDrawable> target, boolean isFirstResource) {
                         currentUrl = "";
 //                        if (e.getMessage().contains("FileNotFoundException")) {
-                        imageView.setImageResource(R.mipmap.ic_img_past);
+//                        imageView.setImageResource(R.mipmap.ic_img_past);
 //                        }
                         return false;
                     }
@@ -186,22 +192,27 @@ public class ChatCellImage extends ChatCellFileBase {
                 .into(imageView);
     }
 
-    //暂时有问题
-//    private void glideGif2(String url) {
-//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-//            return;
-//        }
-//        currentUrl = url;
-//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
-//        rOptions = new RequestOptions()/*.centerCrop()*/;
-//        Glide.with(getContext())
-//                .as(FrameSequenceDrawable.class)
-//                .listener(new GifSoftwareLayerSetter())
-//                .apply(rOptions)
-//                .load(url)
-//                .thumbnail(0.3f)
-//                .into(imageView);
-//    }
+    //TODO:加载过慢，不能设置RequestOptions(内部已设置，GlideExtensions),
+    private void glideGif2(String url) {
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
+        GlideApp.with(getContext()).asGif2().load(url)
+                .thumbnail(0.3f)
+                .listener(new RequestListener<FrameSequenceDrawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<FrameSequenceDrawable> target, boolean isFirstResource) {
+                        currentUrl = "";
+//                        if (e.getMessage().contains("FileNotFoundException")) {
+//                        imageView.setImageResource(R.mipmap.ic_img_past);
+//                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(FrameSequenceDrawable resource, Object model, Target<FrameSequenceDrawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                }).into(imageView);
+    }
 
     public boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
