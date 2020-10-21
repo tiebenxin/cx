@@ -543,21 +543,31 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.loadingMore.setVisibility(View.GONE);
                     holder.loading.setVisibility(View.VISIBLE);
                     holder.loadingNoMore.setVisibility(View.GONE);
+                    if(type==2){
+                        holder.viewBottom.setVisibility(View.VISIBLE);
+                    }
                     break;
                 case LOADING_MORE:
                     holder.footerLayout.setVisibility(View.VISIBLE);
                     holder.loadingMore.setVisibility(View.VISIBLE);
                     holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.GONE);
+                    if(type==2){
+                        holder.viewBottom.setVisibility(View.VISIBLE);
+                    }
                     break;
                 case LOADING_END:
                     holder.footerLayout.setVisibility(View.VISIBLE);
                     holder.loadingMore.setVisibility(View.GONE);
                     holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.VISIBLE);
+                    if(type==2){
+                        holder.viewBottom.setVisibility(View.VISIBLE);
+                    }
                     break;
                 case LOADING_GONE:
                     holder.footerLayout.setVisibility(View.GONE);
+                    holder.viewBottom.setVisibility(View.GONE);
                     break;
                 default:
                     break;
@@ -784,6 +794,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView loadingMore;
         private TextView loadingNoMore;
         private LinearLayout footerLayout;
+        private View viewBottom;//好友动态主页底部白块(防按钮遮挡加载更多文字)
 
         public FootHolder(View itemView) {
             super(itemView);
@@ -791,6 +802,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             loadingMore = itemView.findViewById(R.id.loading_more);
             loadingNoMore = itemView.findViewById(R.id.loading_no_more);
             footerLayout = itemView.findViewById(R.id.footer_layout);
+            viewBottom = itemView.findViewById(R.id.view_bottom);
         }
     }
 
