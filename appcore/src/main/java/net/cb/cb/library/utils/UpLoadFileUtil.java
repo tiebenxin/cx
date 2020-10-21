@@ -108,7 +108,7 @@ public class UpLoadFileUtil {
             @Override
             public void success(final String url) {
                 netFile.put(file, url);
-                if (--count == 0) {
+                if (--count == 0 || count < 0) {
                     dismissLoadingDialog();
                     listener.onUploadFile(netFile);
                 }

@@ -53,6 +53,15 @@ public class MessageInfoBean extends BaseBean {
     private int visibility;//可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
     private boolean isFollow;// 是否关注
     private int refreshCount;// 刷新次数
+    private boolean isPlay;// 是否在播放
+
+    public boolean isPlay() {
+        return isPlay;
+    }
+
+    public void setPlay(boolean play) {
+        isPlay = play;
+    }
 
     public int getRefreshCount() {
         return refreshCount;
