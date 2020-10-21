@@ -1140,9 +1140,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
                 MessageInfoBean messageInfoBean = dataList.get(parentPostion);
-                if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
-                    voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+                //无法给自己投票
+                if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                    ToastUtil.show("无法给自己投票");
+                }else {
+                    if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
+                        voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+                    }
                 }
+
             }
         });
     }

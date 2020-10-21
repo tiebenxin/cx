@@ -23,7 +23,7 @@ import java.util.List;
  * @类名：我的互动
  * @Date：2020/9/30
  * @by zjy
- * @备注：
+ * @备注：/
  */
 
 public class MyInteractActivity extends BaseBindActivity<ActivityMyInteractBinding> {

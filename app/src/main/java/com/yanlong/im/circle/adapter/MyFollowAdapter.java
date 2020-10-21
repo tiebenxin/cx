@@ -109,6 +109,16 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    //更新某一条关注状态
+    public void updateOneItem(int position,int type){ //有些区别，传过来的type ,0 未关注 1 已关注 ，这里是1 已关注 2 未关注
+        if(type==0){
+            dataList.get(position).setStat(2);
+        }else if(type==1){
+            dataList.get(position).setStat(1);
+        }
+        notifyItemChanged(position);
+    }
+
     //列表内容数量
     public int getContentSize() {
         return dataList.size();
@@ -235,6 +245,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (!TextUtils.isEmpty(userInfo.getNickname()) || !TextUtils.isEmpty(userInfo.getAvatar())) {
                             Intent intent = new Intent(activity, FriendTrendsActivity.class);
                             intent.putExtra("uid",userInfo.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION,position);
                             activity.startActivity(intent);
                         }else {
                             ToastUtil.show("该用户已注销");
