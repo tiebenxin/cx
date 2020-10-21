@@ -25,6 +25,7 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
     public static final int MESSAGE_VIDEO = 2;// 含视频
     private boolean isDetails, isFollow;
     private ICircleClickListener clickListener;
+    private int visiblePosition = 0;
 
     public CircleFlowAdapter(@Nullable List<MessageFlowItemBean> data, boolean isFollow,
                              boolean isDetails, ICircleClickListener listener) {
@@ -45,5 +46,13 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
         mProviderDelegate.registerProvider(new FollowProvider(isDetails, isFollow, clickListener));
         mProviderDelegate.registerProvider(new VoteProvider(isDetails, isFollow, clickListener));
         mProviderDelegate.registerProvider(new VideoProvider(isDetails, isFollow, clickListener));
+    }
+
+    public void setFirstVisiblePosition(int p) {
+        visiblePosition = p;
+    }
+
+    public int getFirstVisiblePosition() {
+        return visiblePosition;
     }
 }

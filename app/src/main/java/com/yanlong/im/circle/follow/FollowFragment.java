@@ -242,6 +242,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     int lastItemPosition = linearManager.findLastVisibleItemPosition();
                     //获取第一个可见view的位置
                     int firstItemPosition = linearManager.findFirstVisibleItemPosition();
+                    if (mFlowAdapter != null){
+                        mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+                    }
                     // 判断当前是否有语音或视频播放
                     if (AudioPlayUtil.isPlay()) {
                         if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||

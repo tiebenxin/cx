@@ -1,24 +1,15 @@
 package com.yanlong.im.circle.adapter;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Environment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -28,8 +19,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
 import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -37,11 +26,7 @@ import com.chad.library.adapter.base.provider.BaseItemProvider;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.audio.AudioPlayUtil;
-import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
-import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
@@ -192,9 +177,7 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
             helper.setVisible(R.id.tv_follow, true);
             helper.setGone(R.id.iv_setup, false);
             helper.setGone(R.id.view_line, false);
-            if (UserAction.getMyId() != null
-                    && messageInfoBean.getUid() != null &&
-                    UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
+            if (!isMe(messageInfoBean.getUid())) {
                 helper.setVisible(R.id.tv_follow, true);
             } else {
                 helper.setVisible(R.id.tv_follow, false);
@@ -279,7 +262,7 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
         if (type == PictureEnum.EContentType.VIDEO_AND_VOTE && !TextUtils.isEmpty(messageInfoBean.getVote())) {
             VoteBean voteBean = new Gson().fromJson(messageInfoBean.getVote(), VoteBean.class);
             setRecycleView(recyclerVote, voteBean.getItems(), voteBean.getType(), position, messageInfoBean.getVoteAnswer(),
-                    getVoteSum(messageInfoBean.getVoteAnswer()));
+                    getVoteSum(messageInfoBean.getVoteAnswer()), messageInfoBean.getUid());
         }
     }
 
@@ -343,112 +326,6 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
     }
 
     /**
-     * 设置textView结尾...后面显示的文字和颜色
-     *
-     * @param context    上下文
-     * @param textView   textview
-     * @param minLines   最少的行数
-     * @param originText 原文本
-     * @param endText    结尾文字
-     * @param endColorID 结尾文字颜色id
-     * @param isExpand   当前是否是展开状态
-     * @param postion    位置
-     */
-    public void toggleEllipsize(final Context context, final TextView textView, final int minLines,
-                                final String originText, final String endText, final int endColorID,
-                                final boolean isExpand, final int postion, MessageInfoBean messageInfoBean) {
-        if (TextUtils.isEmpty(originText)) {
-            return;
-        }
-        try {
-            textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
-                    .OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    if (isExpand) {
-                        if (messageInfoBean.isRowsMore()) {
-                            setSpanClick(context, textView, originText + END_MSG, END_MSG, postion, endColorID);
-                        } else {
-                            textView.setText(getSpan(originText));
-                        }
-                    } else {
-                        int paddingLeft = textView.getPaddingLeft();
-                        int paddingRight = textView.getPaddingRight();
-                        TextPaint paint = textView.getPaint();
-                        float moreText = textView.getTextSize() * endText.length();
-                        float availableTextWidth = (textView.getWidth() - paddingLeft - paddingRight) * minLines - moreText;
-                        availableTextWidth = availableTextWidth - paint.measureText("中");// 减去一个字的宽度
-                        CharSequence ellipsizeStr = TextUtils.ellipsize(originText, paint, availableTextWidth, TextUtils.TruncateAt.END);
-                        if (ellipsizeStr.length() < originText.length()) {
-                            CharSequence temp = ellipsizeStr + endText;
-                            setSpanClick(context, textView, temp, endText, postion, endColorID);
-                            messageInfoBean.setRowsMore(true);
-                        } else {
-                            textView.setText(originText);
-                        }
-                    }
-                    if (Build.VERSION.SDK_INT >= 16) {
-                        textView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    } else {
-                        textView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    }
-                }
-            });
-        } catch (Exception e) {
-            textView.setText(getSpan(originText));
-        }
-    }
-
-    /**
-     * 富文本点击事件
-     *
-     * @param context
-     * @param textView
-     * @param temp
-     * @param endText
-     * @param postion
-     * @param endColorID
-     */
-    private void setSpanClick(Context context, TextView textView, CharSequence temp, String endText, int postion, int endColorID) {
-        SpannableStringBuilder ssb = new SpannableStringBuilder(temp);
-        ClickableSpan clickableSpan = new ClickableSpan() {
-
-            @Override
-            public void onClick(@NonNull View widget) {
-                if (clickListener != null) {
-                    clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DOWN, widget);
-                }
-            }
-
-            @Override
-            public void updateDrawState(@NonNull TextPaint ds) {
-                ds.setUnderlineText(false);
-            }
-        };
-        ClickableSpan contentSpan = new ClickableSpan() {
-
-            @Override
-            public void onClick(@NonNull View widget) {
-                if (clickListener != null) {
-                    clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DETAILS, widget);
-                }
-            }
-
-            @Override
-            public void updateDrawState(@NonNull TextPaint ds) {
-                ds.setUnderlineText(false);
-            }
-        };
-        ssb.setSpan(clickableSpan, temp.length() - endText.length(), temp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ssb.setSpan(contentSpan, 0, temp.length() - endText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ssb.setSpan(new ForegroundColorSpan(context.getResources().getColor(endColorID)),
-                temp.length() - endText.length(), temp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        textView.setText(ssb);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
-    /**
      * 获取富文有表情则显示表情
      *
      * @param msg
@@ -465,50 +342,18 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
         return spannableString;
     }
 
-    // 记录点下去X坐标
-    private float downX;
-    // 记录点下去Y坐标
-    private float downY;
-    // 获取该组件在屏幕的x坐标
-    private float deltaX;
-    // 获取该组件在屏幕的y坐标
-    private float deltaY;
-
-    /**
-     * 查看图片
-     *
-     * @param postion         位置
-     * @param attachmentBeans 图片集合
-     */
-    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
-        List<LocalMedia> selectList = new ArrayList<>();
-        for (AttachmentBean bean : attachmentBeans) {
-            LocalMedia localMedia = new LocalMedia();
-            localMedia.setCutPath(bean.getUrl());
-            localMedia.setCompressPath(bean.getUrl());
-            localMedia.setSize(bean.getSize());
-            localMedia.setWidth(bean.getWidth());
-            localMedia.setHeight(bean.getHeight());
-            selectList.add(localMedia);
-        }
-        PictureSelector.create((Activity) mContext)
-                .themeStyle(R.style.picture_default_style)
-                .isGif(true)
-                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
-    }
-
     /**
      * 投票
      *
      * @param rv
      * @param voteList
-     * @param type          类型 1文字 2 图片
-     * @param parentPostion 父类位置
-     * @param answerBean    答案列表
-     * @param voteSum       投票总数
+     * @param type           类型 1文字 2 图片
+     * @param parentPosition 父类位置
+     * @param answerBean     答案列表
+     * @param voteSum        投票总数
      */
-    private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
-                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum) {
+    private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPosition,
+                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum, long uid) {
         int columns = 0;
         if (type == PictureEnum.EVoteType.TXT) {
             rv.setLayoutManager(new LinearLayoutManager(mContext));
@@ -526,7 +371,7 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
             isVote = answerBean.getSelfAnswerItem();
             sumDataList.addAll(answerBean.getSumDataList());
         }
-        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList);
+        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList, isMe(uid));
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -535,32 +380,24 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
                 if (clickListener == null) {
                     return;
                 }
-                if (answerBean == null || answerBean.getSelfAnswerItem() == -1) {
-                    switch (view.getId()) {
-                        case R.id.layout_vote_pictrue:// 图片投票
-                        case R.id.layout_vote_bg:
-                            clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_PICTRUE, view);
-                            break;
-                        case R.id.layout_vote_txt:// 文字投票
-                            clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_CHAR, view);
-                            break;
+                if (view.getId() == R.id.layout_vote_bg) {
+                    if (!isMe(uid) && (answerBean == null || answerBean.getSelfAnswerItem() == -1)) {
+                        clickListener.onClick(position, parentPosition, CoreEnum.EClickType.VOTE_PICTRUE, view);
+                    } else {
+                        clickListener.onClick(parentPosition, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
+                    }
+                } else if (view.getId() == R.id.layout_vote_txt) {
+                    if (!isMe(uid) && (answerBean == null || answerBean.getSelfAnswerItem() == -1)) {
+                        clickListener.onClick(position, parentPosition, CoreEnum.EClickType.VOTE_CHAR, view);
+                    } else {
+                        clickListener.onClick(parentPosition, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
                     }
                 } else {
                     if (type == PictureEnum.EVoteType.TXT) {
-                        clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
-                    } else {
-                        AudioPlayUtil.stopAudioPlay();
-                        List<AttachmentBean> attachmentBeans = new ArrayList<>();
-                        for (VoteBean.Item item : voteList) {
-                            AttachmentBean bean = new AttachmentBean();
-                            bean.setHeight(item.getHeight());
-                            bean.setWidth(item.getWidth());
-                            bean.setUrl(item.getItem());
-                            bean.setSize(item.getSize());
-                            attachmentBeans.add(bean);
-                        }
-                        toPictruePreview(position, attachmentBeans);
-                    }
+                        clickListener.onClick(parentPosition, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
+                    } /*else {
+                        gotoPictruePreview(position, voteList);
+                    }*/
                 }
             }
         });
@@ -613,7 +450,7 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
 
     }
 
-    private void download(String url){
+    private void download(String url) {
         final File appDir = new File(Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
@@ -651,5 +488,14 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
         }
     }
 
+    private boolean isMe(Long uid) {
+        if (UserAction.getMyId() != null
+                && uid != null &&
+                UserAction.getMyId().longValue() != uid.longValue()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
 }
