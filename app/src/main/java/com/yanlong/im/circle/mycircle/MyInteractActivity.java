@@ -61,7 +61,7 @@ public class MyInteractActivity extends BaseBindActivity<ActivityMyInteractBindi
             showNoDataLayout(true);
         }
         //点击进来则全部已读
-        msgDao.setReadedStatus();
+//        msgDao.setReadedStatus();
         //通知清掉首页广场红点
         EventBus.getDefault().post(new EventFactory.ClearHomePageShowUnreadMsgEvent());
     }
