@@ -22,6 +22,7 @@ public class AudioPlayUtil {
     private static AudioPlayUtil playUtil;//必须 private 防止乱用
 
     private int position;
+    private int recyclerviewPosition = -1;// 语音播放的位置
     private String file;
     private AnimationDrawable ani;
     private Context context;
@@ -30,12 +31,14 @@ public class AudioPlayUtil {
     private Uri uri;
     private IAudioPlayListener mIAudioPlayListener;
 
-    private AudioPlayUtil(Context context, String file, AnimationDrawable ani, ProgressBar progressBar, IAudioPlayListener listener) {
+    private AudioPlayUtil(Context context, String file, AnimationDrawable ani, ProgressBar progressBar,
+                          int recPosition, IAudioPlayListener listener) {
         this.context = context;
         this.file = file;
         this.ani = ani;
         this.mProgressBar = progressBar;
         this.mIAudioPlayListener = listener;
+        this.recyclerviewPosition = recPosition;
     }
 
     private AudioPlayUtil(Context context, String file, IAudioPlayListener listener) {
@@ -45,7 +48,8 @@ public class AudioPlayUtil {
     }
 
     //播放语音
-    public static void startAudioPlay(Context context, String audioUrl, ImageView imageView, ProgressBar progressBar) {
+    public static void startAudioPlay(Context context, String audioUrl, ImageView imageView,
+                                      ProgressBar progressBar, int recPosition) {
         if (TextUtils.isEmpty(audioUrl)) {
             return;
         }
@@ -57,7 +61,8 @@ public class AudioPlayUtil {
         }
 
         if (playUtil == null) {
-            playUtil = new AudioPlayUtil(context, audioUrl, (AnimationDrawable) imageView.getBackground(), progressBar, null);
+            playUtil = new AudioPlayUtil(context, audioUrl,
+                    (AnimationDrawable) imageView.getBackground(), progressBar, recPosition, null);
         }
         playUtil.actAudio();
     }
@@ -77,7 +82,7 @@ public class AudioPlayUtil {
         if (playUtil == null) {
             if (imageView != null) {
                 playUtil = new AudioPlayUtil(context, audioUrl, (AnimationDrawable) imageView.getBackground(),
-                        progressBar, iAudioPlayListener);
+                        progressBar, -1, iAudioPlayListener);
             } else {
                 playUtil = new AudioPlayUtil(context, audioUrl, iAudioPlayListener);
             }
@@ -92,7 +97,6 @@ public class AudioPlayUtil {
             playUtil = null;
         }
     }
-
 
     //当一个界面有多个语音 item时 判断是否同一个语音
     public boolean isSame(String fileStr) {
@@ -196,8 +200,20 @@ public class AudioPlayUtil {
         AudioPlayManager.getInstance().stopPlay();
     }
 
-    public boolean isPlay() {
-        return play;
+    public static boolean isPlay() {
+        if (playUtil != null) {
+            return playUtil.play;
+        } else {
+            return false;
+        }
+    }
+
+    public static int getRecyclerviewPosition() {
+        if (playUtil != null) {
+            return playUtil.recyclerviewPosition;
+        } else {
+            return -1;
+        }
     }
 
     public void setPlayStatus(boolean isPlay) {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -13,11 +14,13 @@ import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendFragment;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.FileCacheUtil;
 import net.cb.cb.library.utils.SpUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -86,6 +89,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                         }
                     }
                     mView.onSuccess(flowList);
+                    if (currentPage == 1) {// 添加缓存
+                        FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getFollowMomentList",
+                                new Gson().toJson(response.body().getData()));
+                    }
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
                 }
@@ -94,6 +101,19 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean<List<MessageInfoBean>>> call, Throwable t) {
                 super.onFailure(call, t);
+                if (currentPage == 1) {
+                    String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getFollowMomentList");
+                    if (!TextUtils.isEmpty(content)) {
+                        List<MessageInfoBean> infoList = new Gson().fromJson(content,
+                                new TypeToken<List<MessageInfoBean>>() {
+                                }.getType());
+                        List<MessageFlowItemBean> flowList = new ArrayList<>();
+                        for (MessageInfoBean messageInfoBean : infoList) {
+                            flowList.add(createFlowItemBean(messageInfoBean));
+                        }
+                        mView.onSuccess(flowList);
+                    }
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -139,8 +159,13 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 case PictureEnum.EContentType.PICTRUE_AND_VOTE:
                 case PictureEnum.EContentType.VOICE_AND_VOTE:
                 case PictureEnum.EContentType.VIDEO_AND_VOTE:
-                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
+//                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
                     flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VOTE, messageInfoBean);
+                    break;
+                case PictureEnum.EContentType.VIDEO:
+                case PictureEnum.EContentType.VIDEO_AND_PICTRUE:
+                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VIDEO, messageInfoBean);
                     break;
                 default:
                     flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_DEFAULT, messageInfoBean);

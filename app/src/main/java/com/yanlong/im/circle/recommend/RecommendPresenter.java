@@ -3,6 +3,8 @@ package com.yanlong.im.circle.recommend;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
@@ -14,6 +16,7 @@ import com.yanlong.im.user.dao.UserDao;
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.FileCacheUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +56,13 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                 case PictureEnum.EContentType.PICTRUE_AND_VOTE:
                 case PictureEnum.EContentType.VOICE_AND_VOTE:
                 case PictureEnum.EContentType.VIDEO_AND_VOTE:
-                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
+//                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
                     flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VOTE, messageInfoBean);
+                    break;
+                case PictureEnum.EContentType.VIDEO:
+                case PictureEnum.EContentType.VIDEO_AND_PICTRUE:
+                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VIDEO, messageInfoBean);
                     break;
                 default:
                     flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_DEFAULT, messageInfoBean);
@@ -101,6 +109,10 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                         }
                     }
                     mView.onSuccess(flowList, serviceType);
+                    if (serviceType == 0) {// 添加缓存
+                        FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getRecommendMomentList",
+                                new Gson().toJson(response.body().getData()));
+                    }
                 } else {
                     if (response.body() != null) {
                         mView.onShowMessage(response.body().getMsg());
@@ -113,6 +125,19 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onFailure(Call<ReturnBean<List<MessageInfoBean>>> call, Throwable t) {
                 super.onFailure(call, t);
+                if (serviceType == 0) {
+                    String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getRecommendMomentList");
+                    if (!TextUtils.isEmpty(content)) {
+                        List<MessageInfoBean> infoList = new Gson().fromJson(content,
+                                new TypeToken<List<MessageInfoBean>>() {
+                                }.getType());
+                        List<MessageFlowItemBean> flowList = new ArrayList<>();
+                        for (MessageInfoBean messageInfoBean : infoList) {
+                            flowList.add(createFlowItemBean(messageInfoBean));
+                        }
+                        mView.onSuccess(flowList, serviceType);
+                    }
+                }
                 mView.onShowMessage("刷新失败");
             }
         });

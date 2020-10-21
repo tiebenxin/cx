@@ -441,7 +441,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.pbProgress.setProgress(0);
                                 holder.ivVoicePlay.setOnClickListener(o -> {
                                     if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                                        AudioPlayUtil.startAudioPlay(activity, attachmentBean.getUrl(), holder.ivVoicePlay, holder.pbProgress);
+                                        AudioPlayUtil.startAudioPlay(activity, attachmentBean.getUrl(),
+                                                holder.ivVoicePlay, holder.pbProgress,position);
                                     }
                                 });
                                 holder.ivDeleteVoice.setVisibility(View.GONE);
@@ -523,7 +524,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         VoteBean voteBean = new Gson().fromJson(bean.getVote(), VoteBean.class);
                         //若我点击是postion是1，由于有头部，取数据则是从0开始起，故需要-1
                         setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position - 1,
-                                bean.getVoteAnswer(), getVoteSum(bean.getVoteAnswer()));
+                                bean.getVoteAnswer(), getVoteSum(bean.getVoteAnswer()),bean.getUid());
                         if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
                             holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer()) + "人参与了投票");
                         } else {
@@ -1115,7 +1116,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param voteSum       投票总数
      */
     private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
-                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum) {
+                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum,Long uid) {
         int columns = 0;
         if (type == PictureEnum.EVoteType.TXT) {
             rv.setLayoutManager(new LinearLayoutManager(activity));
@@ -1133,7 +1134,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             isVote = answerBean.getSelfAnswerItem();
             sumDataList.addAll(answerBean.getSumDataList());
         }
-        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList);
+        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList,isMe(uid));
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -1370,5 +1371,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         imageView.setLayoutParams(lp);
     }
 
-
+    private boolean isMe(Long uid) {
+        if (UserAction.getMyId() != null
+                && uid != null &&
+                UserAction.getMyId().longValue() != uid.longValue()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

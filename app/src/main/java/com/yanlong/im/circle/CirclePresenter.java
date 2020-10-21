@@ -21,6 +21,7 @@ import com.yanlong.im.circle.recommend.RecommendFragment;
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.UpLoadFileUtil;
@@ -125,7 +126,8 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 }.getType());
         boolean isImg = false;
         if (list != null && list.size() > 0) {
-            if (list.get(0).getContent().contains(".jpg")) {
+            String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(list.get(0).getContent());
+            if (FileUtils.isImage(fileFormat)) {
                 isImg = true;
             }
         }

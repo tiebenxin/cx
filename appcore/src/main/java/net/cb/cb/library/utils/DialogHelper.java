@@ -146,8 +146,10 @@ public class DialogHelper {
         Drawable drawableChat;
         if (isFriend) {
             drawableChat = context.getResources().getDrawable(R.mipmap.ic_circle_chat);
+            tvChat.setText("私聊");
         } else {
             drawableChat = context.getResources().getDrawable(R.mipmap.ic_circle_add_friend);
+            tvChat.setText("添加好友");
         }
         drawableChat.setBounds(0, 0, drawableChat.getMinimumWidth(), drawableChat.getMinimumHeight());//必须设置图片大小，否则不显示
         tvChat.setCompoundDrawables(null, drawableChat, null, null);
