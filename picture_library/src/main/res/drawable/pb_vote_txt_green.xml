@@ -3,11 +3,11 @@
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="4dp" />
-            <solid android:color="@color/color_F9F" />
+            <solid android:color="@color/color_fa" />
             <size android:height="12dp" />
             <stroke
                 android:width="0.5dp"
-                android:color="@color/color_EFE" />
+                android:color="@color/color_F6F" />
         </shape>
     </item>
 
@@ -19,9 +19,9 @@
                 <gradient
 
                     android:angle="45"
-                    android:centerColor="@color/color_bae"
-                    android:endColor="@color/color_bae"
-                    android:startColor="@color/color_bae" />
+                    android:centerColor="@color/color_e1f"
+                    android:endColor="@color/color_e1f"
+                    android:startColor="@color/color_e1f" />
                 <size android:height="12dp" />
                 <stroke
                     android:width="0.5dp"

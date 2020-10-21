@@ -42,6 +42,9 @@
     <color name="color_EFE">#EFEFEF</color>
     <color name="color_343">#343434</color>
     <color name="color_E5E">#E5E5E5</color>
+    <color name="color_F1F">#F1F1F1</color>
+    <color name="color_F6F">#F6F6F6</color>
+    <color name="color_e1f">#e1f5d4</color>
     <!--按钮按下颜色-->
     <color name="gray_250">#B5B5B5</color>
 </resources>
