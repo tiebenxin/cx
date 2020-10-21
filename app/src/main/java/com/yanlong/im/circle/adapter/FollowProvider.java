@@ -165,11 +165,16 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
-                    pbProgress.setProgress(0);
-                    AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
-                    animationDrawable.stop();
+                    // 未播放则重置播放进度
+                    if (!messageInfoBean.isPlay()) {
+                        pbProgress.setProgress(0);
+                        AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
+                        animationDrawable.stop();
+                    }
                     ivVoicePlay.setOnClickListener(o -> {
                         if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
+                            // 记录播放状态
+                            messageInfoBean.setPlay(!messageInfoBean.isPlay());
                             AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(),
                                     ivVoicePlay, pbProgress, helper.getAdapterPosition());
                         }

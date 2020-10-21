@@ -211,4 +211,12 @@ public class EventFactory extends BaseEvent {
      */
     public static class UpdateNewMsgEvent extends BaseEvent {
     }
+
+    /**
+     * 更新关注状态
+     */
+    public static class UpdateFollowStateEvent extends BaseEvent {
+        public int type;//0 未关注 1 已关注
+        public int position;//更新哪一项
+    }
 }

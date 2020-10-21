@@ -305,7 +305,11 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }else if(bean.getInteractType()==4){//投票
                         spanBuilder.append(" 投票 ");
                         end = end + 4;
+                        //赞了->语音
+                        holder.ivImg.setVisibility(View.GONE);
+                        holder.ivPlay.setVisibility(View.GONE);
                         holder.tvTxt.setVisibility(View.VISIBLE);
+                        holder.layoutVoice.setVisibility(View.GONE);
                         if (!TextUtils.isEmpty(bean.getResource())) {
                             holder.tvTxt.setText(bean.getResource());
                         } else {

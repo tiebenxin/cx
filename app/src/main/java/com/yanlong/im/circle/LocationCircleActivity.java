@@ -34,7 +34,6 @@ import com.yanlong.im.location.LocationUtils;
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.utils.CheckPermission2Util;
-import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
@@ -133,12 +132,6 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
             @Override
             public void onRight() {
 
-            }
-        });
-        bindingView.recyclerView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                showInput(false);
             }
         });
         listener = new BDAbstractLocationListener() {
@@ -291,7 +284,6 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
         if (!StringUtil.isNotNull(key)) {
             return;
         }
-        InputUtil.hideKeyboard(bindingView.editSearch);
         // 建议搜索
         mSuggestionSearch = SuggestionSearch.newInstance();
         OnGetSuggestionResultListener listener2 = new OnGetSuggestionResultListener() {
@@ -306,9 +298,8 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
                         SuggestionResult.SuggestionInfo sug = list.get(i);
                         if (sug != null && sug.pt != null) {
                             LocationCircleMessage locationMessage = new LocationCircleMessage();
-                            locationMessage.setLatitude((int) (sug.pt.latitude * LocationUtils.beishu));
-                            locationMessage.setLongitude((int) (sug.pt.longitude * LocationUtils.beishu));
-                            locationMessage.setImg(LocationUtils.getLocationUrl2(sug.pt.latitude, sug.pt.longitude));
+                            locationMessage.setLatitude(sug.pt.latitude);
+                            locationMessage.setLongitude(sug.pt.longitude);
                             locationMessage.setAddress(sug.getKey());
                             locationMessage.setAddressDescribe(sug.getCity() + sug.getDistrict() + sug.getAddress());
                             mList.add(locationMessage);

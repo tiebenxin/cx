@@ -101,7 +101,9 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
 
             @Override
             public void OnItemClick(FaceBean bean) {
-                binding.etMessage.addEmojSpan(bean.getName());
+                if ((binding.etMessage.getText().toString().length() + bean.getName().length()) < 150) {
+                    binding.etMessage.addEmojSpan(bean.getName());
+                }
             }
         });
         // 删除表情按钮

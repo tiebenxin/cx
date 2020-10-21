@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.View;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyFollowAdapter;
 import com.yanlong.im.circle.bean.FriendUserBean;
@@ -17,6 +18,10 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +61,9 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
         allData = new ArrayList<>();
         searchData = new ArrayList<>();
         action = new TempAction();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
@@ -195,6 +203,19 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
         } else {
             bindingView.recyclerView.setVisibility(View.VISIBLE);
             bindingView.noDataLayout.setVisibility(View.GONE);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
+        adapter.updateOneItem(event.position,event.type);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
         }
     }
 }

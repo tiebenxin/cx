@@ -96,7 +96,7 @@ public class VoteTextActivity extends BaseBindActivity<ActivityVoteTextBinding> 
                     public void afterTextChanged(Editable s) {
                         //取出ViewHolder中的tag和本条数据的uid进行比较，如果不相等就代表该ViewHolder是复用的，监听里不做处理
                         if (binding.etValue.getTag().toString().equals(data.getTitle())
-                                && binding.etValue.hasFocus() && !TextUtils.isEmpty(s.toString().trim())) {
+                                && binding.etValue.hasFocus()) {
                             data.setContent(s.toString());
                         }
                     }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
@@ -26,6 +27,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +47,7 @@ import static com.yanlong.im.circle.mycircle.MyFollowActivity.DEFAULT_PAGE_SIZE;
 public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> {
 
 
+    public static String POSITION = "position";
     private int page = 1;//默认第一页
 
     private TempAction action;
@@ -51,6 +55,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private List<MessageInfoBean> mList;
     private long friendUid;//别人的uid
     private int isFollow;//是否关注了该用户
+    private int clickPosition;//点击哪一项跳转过来的
+
 
     @Override
     protected int setView() {
@@ -96,6 +102,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     @Override
     protected void loadData() {
         friendUid = getIntent().getLongExtra("uid",0);
+        clickPosition = getIntent().getIntExtra(POSITION,0);
         httpGetFriendTrends();
         adapter = new MyTrendsAdapter(FriendTrendsActivity.this,mList,2,friendUid);
         bindingView.recyclerView.setAdapter(adapter);
@@ -142,7 +149,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         bindingView.layoutChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                context.startActivity(new Intent(context, UserInfoActivity.class)
+                startActivity(new Intent(FriendTrendsActivity.this, UserInfoActivity.class)
                         .putExtra(UserInfoActivity.ID, friendUid));
             }
         });
@@ -237,6 +244,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     ToastUtil.show("关注成功");
                     bindingView.tvFollow.setText("已关注");
                     isFollow = 1;
+                    //操作关注后，回到关注列表需要及时更新
+                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                    event.type = 1;
+                    event.position = clickPosition;
+                    EventBus.getDefault().post(event);
                 }
             }
 
@@ -262,7 +274,12 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 if (response.body().isOk()){
                     ToastUtil.show("取消关注成功");
                     bindingView.tvFollow.setText("关注");
-                    isFollow=0;
+                    isFollow = 0;
+                    //操作关注后，回到关注列表需要及时更新
+                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                    event.type = 0;
+                    event.position = clickPosition;
+                    EventBus.getDefault().post(event);
                 }else {
                     ToastUtil.show("取消关注失败");
                 }

@@ -166,17 +166,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         like.setBounds(0, 0, like.getMinimumWidth(), like.getMinimumHeight());
         action = new TempAction();
         //图片相关设置
-        mRequestOptions = RequestOptions.centerInsideTransform()
+        mRequestOptions = RequestOptions.centerCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .placeholder(com.yanlong.im.R.drawable.ic_info_head)
-                .error(com.yanlong.im.R.drawable.ic_info_head)
-                .centerCrop();
-        bgRequestOptions = RequestOptions.centerInsideTransform()
+                .error(com.yanlong.im.R.drawable.ic_info_head);
+        bgRequestOptions = RequestOptions.centerCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
-                .error(com.yanlong.im.R.mipmap.ic_trend_default_bg)
-                .centerCrop();
+                .error(R.color.c_dcdddd);
         if (type == 1) {
             userBean = (UserBean) new UserAction().getMyInfo();
         } else {
@@ -544,21 +542,31 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.loadingMore.setVisibility(View.GONE);
                     holder.loading.setVisibility(View.VISIBLE);
                     holder.loadingNoMore.setVisibility(View.GONE);
+                    if(type==2){
+                        holder.viewBottom.setVisibility(View.VISIBLE);
+                    }
                     break;
                 case LOADING_MORE:
                     holder.footerLayout.setVisibility(View.VISIBLE);
                     holder.loadingMore.setVisibility(View.VISIBLE);
                     holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.GONE);
+                    if(type==2){
+                        holder.viewBottom.setVisibility(View.VISIBLE);
+                    }
                     break;
                 case LOADING_END:
                     holder.footerLayout.setVisibility(View.VISIBLE);
                     holder.loadingMore.setVisibility(View.GONE);
                     holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.VISIBLE);
+                    if(type==2){
+                        holder.viewBottom.setVisibility(View.VISIBLE);
+                    }
                     break;
                 case LOADING_GONE:
                     holder.footerLayout.setVisibility(View.GONE);
+                    holder.viewBottom.setVisibility(View.GONE);
                     break;
                 default:
                     break;
@@ -785,6 +793,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView loadingMore;
         private TextView loadingNoMore;
         private LinearLayout footerLayout;
+        private View viewBottom;//好友动态主页底部白块(防按钮遮挡加载更多文字)
 
         public FootHolder(View itemView) {
             super(itemView);
@@ -792,6 +801,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             loadingMore = itemView.findViewById(R.id.loading_more);
             loadingNoMore = itemView.findViewById(R.id.loading_no_more);
             footerLayout = itemView.findViewById(R.id.footer_layout);
+            viewBottom = itemView.findViewById(R.id.view_bottom);
         }
     }
 
@@ -1131,9 +1141,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
                 MessageInfoBean messageInfoBean = dataList.get(parentPostion);
-                if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
-                    voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+                //无法给自己投票
+                if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                    ToastUtil.show("无法给自己投票");
+                }else {
+                    if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
+                        voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+                    }
                 }
+
             }
         });
     }
