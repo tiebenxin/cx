@@ -166,17 +166,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         like.setBounds(0, 0, like.getMinimumWidth(), like.getMinimumHeight());
         action = new TempAction();
         //图片相关设置
-        mRequestOptions = RequestOptions.centerInsideTransform()
+        mRequestOptions = RequestOptions.centerCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .placeholder(com.yanlong.im.R.drawable.ic_info_head)
-                .error(com.yanlong.im.R.drawable.ic_info_head)
-                .centerCrop();
-        bgRequestOptions = RequestOptions.centerInsideTransform()
+                .error(com.yanlong.im.R.drawable.ic_info_head);
+        bgRequestOptions = RequestOptions.centerCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
-                .error(com.yanlong.im.R.mipmap.ic_trend_default_bg)
-                .centerCrop();
+                .error(R.color.c_dcdddd);
         if (type == 1) {
             userBean = (UserBean) new UserAction().getMyInfo();
         } else {

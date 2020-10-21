@@ -188,7 +188,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                                 } else {
                                     Intent intent = new Intent(getContext(), UserInfoActivity.class);
                                     intent.putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid());
-                                    intent.putExtra(UserInfoActivity.SHOW_TRENDS, true);
                                     startActivity(intent);
                                 }
                             }
@@ -440,7 +439,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     private void gotoUserInfoActivity(Long uid) {
         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                .putExtra(UserInfoActivity.SHOW_TRENDS, true)
                 .putExtra(UserInfoActivity.ID, uid));
     }
 

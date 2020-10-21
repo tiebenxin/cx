@@ -163,8 +163,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         break;
                     case R.id.iv_header:// 头像
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, messageInfoBean.getUid())
-                                .putExtra(UserInfoActivity.SHOW_TRENDS, true));
+                                .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
                         break;
                     case R.id.iv_like:// 点赞
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
