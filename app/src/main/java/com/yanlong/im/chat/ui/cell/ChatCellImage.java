@@ -114,10 +114,10 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void glide(RequestOptions rOptions, String url) {
-//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-//            return;
-//        }
-//        currentUrl = url;
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        currentUrl = url;
         localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
             LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
@@ -154,10 +154,10 @@ public class ChatCellImage extends ChatCellFileBase {
 
     //TODO：rOptions 参数中的option设置了dontAnimate,会导致gif不动
     private void glideGif(String url) {
-//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-//            return;
-//        }
-//        currentUrl = url;
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        currentUrl = url;
         LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
         rOptions = new RequestOptions()/*.centerCrop()*/;
 //        rOptions .priority(Priority.HIGH);
@@ -173,7 +173,7 @@ public class ChatCellImage extends ChatCellFileBase {
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<GifDrawable> target, boolean isFirstResource) {
                         currentUrl = "";
 //                        if (e.getMessage().contains("FileNotFoundException")) {
-                        imageView.setImageResource(R.mipmap.ic_img_past);
+//                        imageView.setImageResource(R.mipmap.ic_img_past);
 //                        }
                         return false;
                     }
@@ -185,23 +185,6 @@ public class ChatCellImage extends ChatCellFileBase {
                 })
                 .into(imageView);
     }
-
-    //暂时有问题
-//    private void glideGif2(String url) {
-//        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-//            return;
-//        }
-//        currentUrl = url;
-//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
-//        rOptions = new RequestOptions()/*.centerCrop()*/;
-//        Glide.with(getContext())
-//                .as(FrameSequenceDrawable.class)
-//                .listener(new GifSoftwareLayerSetter())
-//                .apply(rOptions)
-//                .load(url)
-//                .thumbnail(0.3f)
-//                .into(imageView);
-//    }
 
     public boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
