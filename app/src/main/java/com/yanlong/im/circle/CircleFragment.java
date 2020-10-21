@@ -94,6 +94,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshChat(EventFactory.CreateCircleEvent event) {
+        AudioPlayUtil.stopAudioPlay();
         mLoadingProgress = new DialogLoadingProgress(event.context);
         mLoadingProgress.show();
         mCircleBean = event.circleBean;

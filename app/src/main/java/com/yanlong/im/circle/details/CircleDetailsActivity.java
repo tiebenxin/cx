@@ -158,7 +158,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     type = (isFollow || mMessageInfoBean.isFollow()) ? "取消关注" : "关注TA";
                 }
                 DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity.this,
-                        type, false, new ICircleSetupClick() {
+                        type, mPresenter.getUserType(mMessageInfoBean.getUid()) == 0 ? true : false,
+                        new ICircleSetupClick() {
                             @Override
                             public void onClickFollow() {
                                 if (isMe()) {
@@ -597,7 +598,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             mMessageInfoBean.setFollow(true);
             mFlowAdapter.notifyItemChanged(position);
-            EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
+            EventBus.getDefault().post(new EventFactory.RefreshSignRecomendEvent());
         }
     }
 
