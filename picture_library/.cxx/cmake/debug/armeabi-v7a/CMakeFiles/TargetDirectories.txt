@@ -1,3 +1,0 @@
-D:/develop/project/cx/im/picture_library/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/giftool.dir
-D:/develop/project/cx/im/picture_library/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
-D:/develop/project/cx/im/picture_library/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir

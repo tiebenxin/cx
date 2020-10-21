@@ -1,3 +1,0 @@
-D:/develop/project/cx/im/picture_library/.cxx/cmake/pre/x86_64/CMakeFiles/giftool.dir
-D:/develop/project/cx/im/picture_library/.cxx/cmake/pre/x86_64/CMakeFiles/edit_cache.dir
-D:/develop/project/cx/im/picture_library/.cxx/cmake/pre/x86_64/CMakeFiles/rebuild_cache.dir
