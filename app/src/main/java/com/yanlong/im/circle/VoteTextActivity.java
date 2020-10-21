@@ -28,7 +28,9 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @version V1.0
@@ -142,6 +144,18 @@ public class VoteTextActivity extends BaseBindActivity<ActivityVoteTextBinding> 
                         return;
                     }
                 }
+                List<String> tempList = new ArrayList<>();
+                for (CircleTitleBean bean : mList) {
+                    tempList.add(bean.getContent());
+                }
+                Set set = new HashSet();
+                set.addAll(tempList);
+                // 判断是否有重复数据
+                if (set.size() != tempList.size()) {
+                    ToastUtil.show("选项内容不能重复");
+                    return;
+                }
+
                 Intent intent = new Intent();
                 intent.putExtra(CreateCircleActivity.VOTE_TXT, new Gson().toJson(mList));
                 intent.putExtra(CreateCircleActivity.VOTE_TXT_TITLE, bindingView.etTitle.getText().toString());

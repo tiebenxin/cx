@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +28,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.provider.BaseItemProvider;
@@ -149,7 +154,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     pbProgress.setProgress(0);
                     ivVoicePlay.setOnClickListener(o -> {
                         if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(), ivVoicePlay, pbProgress);
+                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(),
+                                    ivVoicePlay, pbProgress, helper.getAdapterPosition());
                         }
                     });
                 }
@@ -161,11 +167,26 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     if (attachmentBeans.size() == 1) {
                         resetSize(ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
-                        Glide.with(mContext)
-                                .asBitmap()
-                                .load(StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl()))
-                                .apply(GlideOptionsUtil.circleImageOptions())
-                                .into(ivVideo);
+                        String path = StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl());
+                        if (isGif(path)) {
+                            Glide.with(mContext).load(path).listener(new RequestListener() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                                    return false;
+                                }
+                            }).into(ivVideo);
+                        } else {
+                            Glide.with(mContext)
+                                    .asBitmap()
+                                    .load(path)
+                                    .apply(GlideOptionsUtil.circleImageOptions())
+                                    .into(ivVideo);
+                        }
                         helper.setVisible(R.id.rl_video, true);
                         recyclerView.setVisibility(View.GONE);
                         helper.setGone(R.id.layout_voice, false);
@@ -206,9 +227,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             helper.setVisible(R.id.tv_follow, true);
             helper.setGone(R.id.iv_setup, false);
             helper.setGone(R.id.view_line, false);
-            if (UserAction.getMyId() != null
-                    && messageInfoBean.getUid() != null &&
-                    UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
+            if (!isMe(messageInfoBean.getUid())) {
                 helper.setVisible(R.id.tv_follow, true);
             } else {
                 helper.setVisible(R.id.tv_follow, false);
@@ -296,7 +315,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         if (!TextUtils.isEmpty(messageInfoBean.getVote())) {
             VoteBean voteBean = new Gson().fromJson(messageInfoBean.getVote(), VoteBean.class);
             setRecycleView(recyclerVote, voteBean.getItems(), voteBean.getType(), position, messageInfoBean.getVoteAnswer(),
-                    getVoteSum(messageInfoBean.getVoteAnswer()));
+                    getVoteSum(messageInfoBean.getVoteAnswer()), messageInfoBean.getUid());
         }
     }
 
@@ -564,9 +583,10 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
      * @param parentPostion 父类位置
      * @param answerBean    答案列表
      * @param voteSum       投票总数
+     * @param uid           发布人id
      */
     private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
-                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum) {
+                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum, Long uid) {
         int columns = 0;
         if (type == PictureEnum.EVoteType.TXT) {
             rv.setLayoutManager(new LinearLayoutManager(mContext));
@@ -584,7 +604,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             isVote = answerBean.getSelfAnswerItem();
             sumDataList.addAll(answerBean.getSumDataList());
         }
-        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList);
+        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList, isMe(uid));
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -593,34 +613,61 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 if (clickListener == null) {
                     return;
                 }
-                if (answerBean == null || answerBean.getSelfAnswerItem() == -1) {
-                    switch (view.getId()) {
-                        case R.id.layout_vote_pictrue:// 图片投票
-                        case R.id.layout_vote_bg:
-                            clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_PICTRUE, view);
-                            break;
-                        case R.id.layout_vote_txt:// 文字投票
-                            clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_CHAR, view);
-                            break;
+                if (view.getId() == R.id.iv_picture) {// 查看大图
+                    gotoPictruePreview(position, voteList);
+                } else if (view.getId() == R.id.layout_vote_bg) {
+                    if (!isMe(uid) && (answerBean == null || answerBean.getSelfAnswerItem() == -1)) {
+                        clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_PICTRUE, view);
+                    } else {
+                        clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
+                    }
+                } else if (view.getId() == R.id.layout_vote_txt) {
+                    if (!isMe(uid) && (answerBean == null || answerBean.getSelfAnswerItem() == -1)) {
+                        clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_CHAR, view);
+                    } else {
+                        clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
                     }
                 } else {
                     if (type == PictureEnum.EVoteType.TXT) {
                         clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
                     } else {
-                        AudioPlayUtil.stopAudioPlay();
-                        List<AttachmentBean> attachmentBeans = new ArrayList<>();
-                        for (VoteBean.Item item : voteList) {
-                            AttachmentBean bean = new AttachmentBean();
-                            bean.setHeight(item.getHeight());
-                            bean.setWidth(item.getWidth());
-                            bean.setUrl(item.getItem());
-                            bean.setSize(item.getSize());
-                            attachmentBeans.add(bean);
-                        }
-                        toPictruePreview(position, attachmentBeans);
+                        gotoPictruePreview(position, voteList);
                     }
                 }
             }
         });
+    }
+
+    private boolean isMe(Long uid) {
+        if (UserAction.getMyId() != null
+                && uid != null &&
+                UserAction.getMyId().longValue() != uid.longValue()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void gotoPictruePreview(int position, List<VoteBean.Item> voteList) {
+        AudioPlayUtil.stopAudioPlay();
+        List<AttachmentBean> attachmentBeans = new ArrayList<>();
+        for (VoteBean.Item item : voteList) {
+            AttachmentBean bean = new AttachmentBean();
+            bean.setHeight(item.getHeight());
+            bean.setWidth(item.getWidth());
+            bean.setUrl(item.getItem());
+            bean.setSize(item.getSize());
+            attachmentBeans.add(bean);
+        }
+        toPictruePreview(position, attachmentBeans);
+    }
+
+    public boolean isGif(String path) {
+        if (!TextUtils.isEmpty(path)) {
+            if (path.toLowerCase().contains(".gif")) {
+                return true;
+            }
+        }
+        return false;
     }
 }

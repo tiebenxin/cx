@@ -1,6 +1,8 @@
 package com.yanlong.im.circle.adapter;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,6 +12,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.luck.picture.lib.PictureEnum;
@@ -42,19 +48,22 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
     private int mAnswer;// 未投票-1，其他则为itemId:1-4
     private int mVoteSum;// 投票总数
     private int columnsCount;// 列数
+    private boolean isMe;// 是否是自己
 
     /**
      * @param type    1文字 2图片
      * @param answer  未投票-1，其他则为itemId:1-4
      * @param voteSum 投票总数
      */
-    public VoteAdapter(int columns, int type, int answer, int voteSum, List<MessageInfoBean.VoteAnswerBean.SumDataListBean> voteAnswerList) {
+    public VoteAdapter(int columns, int type, int answer, int voteSum,
+                       List<MessageInfoBean.VoteAnswerBean.SumDataListBean> voteAnswerList, boolean isMe) {
         super(type == PictureEnum.EVoteType.TXT ? R.layout.view_vote_item : R.layout.view_vote_item_pictrue);
         this.columnsCount = columns;
         mType = type;
         mAnswer = answer;
         mVoteSum = voteSum;
         mVoteAnswerList = voteAnswerList;
+        this.isMe = isMe;
     }
 
     @Override
@@ -98,11 +107,26 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
 
             RelativeLayout layoutVoteBg = helper.getView(R.id.layout_vote_bg);
             ImageView ivPictrue = helper.getView(R.id.iv_picture);
-            Glide.with(mContext)
-                    .asBitmap()
-                    .load(StringUtil.loadThumbnail(item.getItem()))
-                    .apply(GlideOptionsUtil.imageOptions())
-                    .into(ivPictrue);
+            String path = StringUtil.loadThumbnail(item.getItem());
+            if (isGif(path)) {
+                Glide.with(mContext).load(path).listener(new RequestListener() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                }).into(ivPictrue);
+            } else {
+                Glide.with(mContext)
+                        .asBitmap()
+                        .load(path)
+                        .apply(GlideOptionsUtil.imageOptions())
+                        .into(ivPictrue);
+            }
             if (mAnswer == (helper.getAdapterPosition() + 1)) {
                 layoutVoteBg.setBackground(mContext.getResources().getDrawable(R.drawable.shape_vote_pictrue_green));
                 progressBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.pb_vote_progress_green));
@@ -118,7 +142,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
                 progressBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.pb_vote_progress_gray));
                 tvPercentage.setTextColor(mContext.getResources().getColor(R.color.c_474747));
             }
-            if (mAnswer == -1) {
+            if (mAnswer == -1 && !isMe) {
                 rbButtom.setText("  选项" + positionConvert(helper.getAdapterPosition()));
                 rbButtom.setVisibility(View.VISIBLE);
                 tvPercentage.setVisibility(View.GONE);
@@ -130,7 +154,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
             }
         }
         try {
-            if (mVoteAnswerList != null && mVoteAnswerList.size() > 0 && mAnswer != -1) {
+            if (mVoteAnswerList != null && mVoteAnswerList.size() > 0 && (mAnswer != -1 || isMe)) {
                 double result = 0.0;
                 for (MessageInfoBean.VoteAnswerBean.SumDataListBean bean : mVoteAnswerList) {
                     if ((helper.getAdapterPosition() + 1) == bean.getId()) {
@@ -143,7 +167,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
                 tvPercentage.setText(bd.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue() + "%");
             } else {
                 progressBar.setProgress(0);
-                if (mAnswer != -1) {
+                if (mAnswer != -1 || isMe) {
                     tvPercentage.setText("0.0%");
                 } else {
                     tvPercentage.setText("");
@@ -151,9 +175,13 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
             }
         } catch (Exception e) {
             progressBar.setProgress(0);
-            tvPercentage.setText("");
+            if (isMe) {
+                tvPercentage.setText("0.0%");
+            } else {
+                tvPercentage.setText("");
+            }
         }
-        helper.addOnClickListener(R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.layout_vote_bg);
+        helper.addOnClickListener(R.id.iv_picture, R.id.layout_vote_txt, R.id.layout_vote_bg);
     }
 
     private String positionConvert(int postion) {
@@ -173,5 +201,14 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
                 break;
         }
         return value;
+    }
+
+    public boolean isGif(String path) {
+        if (!TextUtils.isEmpty(path)) {
+            if (path.toLowerCase().contains(".gif")) {
+                return true;
+            }
+        }
+        return false;
     }
 }

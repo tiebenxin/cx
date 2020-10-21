@@ -63,11 +63,11 @@ public class FileCacheUtil {
      */
     public static void cleanFiles(Context context) {
         deleteFilesByDirectory(context.getExternalFilesDir(""));
-       for(File f:context.getExternalFilesDir("").listFiles()) {
-          if(f.isDirectory()) {
-              deleteFolderFile(f.getPath(),true);
-          }
-       }
+        for (File f : context.getExternalFilesDir("").listFiles()) {
+            if (f.isDirectory()) {
+                deleteFolderFile(f.getPath(), true);
+            }
+        }
 
     }
 
@@ -97,18 +97,18 @@ public class FileCacheUtil {
      * 删除目录和子目录下的所有文件
      * @param file
      */
-    private static void recursionDeleteFile(File file){
-        if(file.isFile()){
+    private static void recursionDeleteFile(File file) {
+        if (file.isFile()) {
             file.delete();
             return;
         }
-        if(file.isDirectory()){
+        if (file.isDirectory()) {
             File[] childFile = file.listFiles();
-            if(childFile == null || childFile.length == 0){
+            if (childFile == null || childFile.length == 0) {
                 file.delete();
                 return;
             }
-            for(File f : childFile){
+            for (File f : childFile) {
                 recursionDeleteFile(f);
             }
             file.delete();
@@ -249,4 +249,27 @@ public class FileCacheUtil {
     public static String getCacheSize(File file) throws Exception {
         return getFormatSize(getFolderSize(file));
     }
+
+    /**
+     * 设置第一页缓存
+     *
+     * @param fileName
+     * @param content
+     */
+    public static void putFirstPageCache(String fileName, String content) {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        spUtil.putSPValue(fileName, content);
+    }
+
+    /**
+     * 获取第一页缓存
+     *
+     * @param fileName
+     * @return
+     */
+    public static String getFirstPageCache(String fileName) {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        return spUtil.getSPValue(fileName, "");
+    }
+
 }

@@ -196,6 +196,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     };
 
+    @Override
+    protected void closeActivity() {
+    }
+
     /**
      * EventBus 3.0 回调
      *
@@ -292,6 +296,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 isOpenSoft = true;
                 isRestHeight = true;
                 frame_content.setVisibility(View.VISIBLE);
+                resetingBtn();
                 setRecyclerViewHeight(h);
             }
 
@@ -857,6 +862,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         return path;
     }
 
+    private void resetingBtn() {
+        iv_picture.setImageLevel(0);
+        iv_vote.setImageLevel(0);
+        iv_voice.setImageLevel(0);
+    }
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -864,7 +875,8 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             if (folderWindow.isShowing()) {
                 folderWindow.dismiss();
             } else {
-                closeActivity();
+                finish();
+                overridePendingTransition(0, R.anim.fade_out);
             }
         } else if (id == R.id.picture_right) {// 发布
             if (!DoubleUtils.isFastDoubleClick()) {
@@ -920,15 +932,11 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             }
             etContent.requestFocus();
             InputUtil.showKeyboard(etContent);
-            iv_picture.setImageLevel(0);
-            iv_vote.setImageLevel(0);
-            iv_voice.setImageLevel(0);
+            resetingBtn();
 
             layout_voice.setVisibility(View.VISIBLE);
             tv_time.setText(getPlayTime(time));
             resetAudio(false);
-
-
         } else if (id == R.id.iv_delete_voice) {// 删除语音
             layout_voice.setVisibility(View.GONE);
             resetAudio(true);
@@ -1153,6 +1161,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     }
 
     private void showOrHideInput() {
+        resetingBtn();
         if (isShowFace) {
             iv_face.setImageLevel(0);
             etContent.requestFocus();

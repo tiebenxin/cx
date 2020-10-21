@@ -48,6 +48,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
+import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -197,9 +198,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-//                if (DoubleUtils.isFastDoubleClick()) {
-//                    return;
-//                }
+                if (!NetWorkUtils.isNetworkConnected()) {
+                    ToastUtil.show(getResources().getString(R.string.network_error_msg));
+                    return;
+                }
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 switch (view.getId()) {
                     case R.id.iv_comment:// 评论
@@ -276,6 +278,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     }
 
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
+        if (!NetWorkUtils.isNetworkConnected()) {
+            ToastUtil.show(getResources().getString(R.string.network_error_msg));
+            return;
+        }
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();

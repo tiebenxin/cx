@@ -37,5 +37,6 @@
     <string name="can_not_receive">发送者限制\n你不可以领取</string>
     <string name="is_black_can_not_call">已加入黑名单，无法通话</string>
 
+    <string name="network_error_msg">网络连接不可用，请稍后重试</string>
 
 </resources>
