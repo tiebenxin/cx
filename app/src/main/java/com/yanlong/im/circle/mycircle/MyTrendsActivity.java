@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.rxbus2.RxBus;
@@ -109,6 +110,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
         //发新动态
         bindingView.ivCreateCircle.setOnClickListener(v -> {
+            AudioPlayUtil.stopAudioPlay();
             PictureSelector.create(MyTrendsActivity.this)
                     .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                     .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
@@ -284,6 +286,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         if (RxBus.getDefault().isRegistered(this)) {
             RxBus.getDefault().unregister(this);
         }
+        AudioPlayUtil.stopAudioPlay();
     }
 
     @Override

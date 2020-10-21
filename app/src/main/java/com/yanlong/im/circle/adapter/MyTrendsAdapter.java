@@ -139,7 +139,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private String noticeAvatar;//新消息通知头像
     private int noticeSize;//新消息数量
     private final int MAX_ROW_NUMBER = 3;
-    private final String END_MSG = " 收起";
+    private final String END_MSG = " 收起";//
     private int isVote;
 
     public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid) {
