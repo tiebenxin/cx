@@ -172,6 +172,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/iv_like"
                 android:clickable="false"
+                android:drawablePadding="5dp"
                 android:drawableLeft="@mipmap/ic_circle_location_gray"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
@@ -190,8 +191,8 @@
                 android:gravity="center_vertical"
                 android:text="评论"
                 android:minWidth="60dp"
-                android:textSize="15sp"
-                android:textColor="@color/gray_b2b" />
+                android:textSize="13sp"
+                android:textColor="@color/c_b1b1b1" />
 
             <TextView
                 android:id="@+id/iv_like"
@@ -201,8 +202,10 @@
                 android:layout_toLeftOf="@+id/iv_comment"
                 android:drawableLeft="@mipmap/ic_circle_give"
                 android:gravity="center_vertical"
+                android:textSize="13sp"
+                android:text="点赞"
                 android:minWidth="60dp"
-                android:textColor="@color/gray_b2b" />
+                android:textColor="@color/c_b1b1b1" />
 
         </RelativeLayout>
     </LinearLayout>

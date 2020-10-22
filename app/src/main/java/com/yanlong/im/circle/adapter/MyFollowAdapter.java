@@ -256,7 +256,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (!TextUtils.isEmpty(userInfo.getNickname()) || !TextUtils.isEmpty(userInfo.getAvatar())) {
                             activity.startActivity(new Intent(activity, UserInfoActivity.class)
                                     .putExtra(UserInfoActivity.ID, userInfo.getUid())
-                                    .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
+                                    .putExtra(UserInfoActivity.JION_TYPE_SHOW, 0));
                         }else {
                             ToastUtil.show("该用户已注销");
                         }
