@@ -350,16 +350,23 @@ public class SocketUtil {
                 }
             }
         } catch (Exception e) {
-            if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException || e instanceof CXSSLException) {
+            if(NetUtil.isNetworkAvailable()){
                 LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                 run();
-            } else {
-                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
-                e.printStackTrace();
+            }else {
+                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-网络不可用，不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
                 stop(true);
             }
+//            if (e instanceof CXConnectException || e instanceof CXConnectTimeoutException || e instanceof CXSSLException) {
+//                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+//                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+//                run();
+//            } else {
+//                LogUtil.writeLog(TAG + "--连接LOG--" + "连接异常-不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+//                LogUtil.getLog().i(TAG, "--连接LOG--" + "连接异常,不可重连--" + e.getClass().getSimpleName() + "--errMsg=" + e.getMessage());
+//                e.printStackTrace();
+//                stop(true);
+//            }
         }
     }
 
