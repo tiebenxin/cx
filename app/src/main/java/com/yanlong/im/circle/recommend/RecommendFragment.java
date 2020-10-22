@@ -137,8 +137,15 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         }
         mFollowList.add(0, flowItemBean);
         bindingView.recyclerRecommend.scrollToPosition(0);
-        mFlowAdapter.notifyDataSetChanged();
+        notifyChangeAll();
         mIsAddLocation = true;
+    }
+
+    private void notifyChangeAll() {
+        if (mFlowAdapter != null) {
+            mFlowAdapter.setFirstVisiblePosition(0);
+            mFlowAdapter.notifyDataSetChanged();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -295,6 +302,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
                         if (mFlowAdapter != null) {
                             mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+                            mFlowAdapter.notifyItemChanged(firstItemPosition);
                         }
                     }
                     // 判断当前是否有语音或视频播放
@@ -417,7 +425,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         } else {
             if (list != null && list.size() > 0) {
                 mFollowList.addAll(list);
-                mFlowAdapter.notifyDataSetChanged();
+                notifyChangeAll();
             }
 
             if (list == null || list.size() == 0) {
@@ -544,5 +552,16 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         EventFactory.HomePageShowUnreadMsgEvent event = new EventFactory.HomePageShowUnreadMsgEvent();
         event.num = unCount;
         EventBus.getDefault().post(event);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+//        if (isVisibleToUser){
+//
+//        }else {
+//
+//        }
+        notifyChangeAll();
     }
 }

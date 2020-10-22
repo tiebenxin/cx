@@ -26,6 +26,7 @@ import com.chad.library.adapter.base.provider.BaseItemProvider;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
@@ -66,7 +67,7 @@ import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageInfoBean>, BaseViewHolder> implements TextureView.SurfaceTextureListener {
-
+    private final String TAG = getClass().getSimpleName();
     private final int MAX_ROW_NUMBER = 4;
     private final String END_MSG = " 收起";
     private ICircleClickListener clickListener;
@@ -78,16 +79,19 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
     private Surface mSurface;
     private MediaPlayer mediaPlayer;
     private String videoUrl;
+    private final CircleFlowAdapter mAdapter;
+    private int currentPosition;
 
     /**
      * @param isDetails            是否是详情
      * @param isFollow             关注还是推荐
      * @param iCircleClickListener
      */
-    public VideoProvider(boolean isDetails, boolean isFollow, ICircleClickListener iCircleClickListener) {
+    public VideoProvider(boolean isDetails, boolean isFollow, ICircleClickListener iCircleClickListener, CircleFlowAdapter adapter) {
         this.isFollow = isFollow;
         this.isDetails = isDetails;
         clickListener = iCircleClickListener;
+        mAdapter = adapter;
     }
 
     @Override
@@ -103,6 +107,7 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
     @Override
     public void convert(BaseViewHolder helper, MessageFlowItemBean<MessageInfoBean> data, int position) {
         viewHolder = helper;
+        currentPosition = position;
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
         RoundImageView ivVideo = helper.getView(R.id.iv_video);
@@ -405,8 +410,9 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        LogUtil.getLog().i(TAG, "onSurfaceTextureAvailable");
         mSurface = new Surface(surface);
-        preparePlayer();
+//        preparePlayer();
 
     }
 
@@ -426,31 +432,52 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
     }
 
     private void preparePlayer() {
-        if (mSurface == null) {
+        if (mSurface == null || mAdapter == null) {
             return;
         }
-        mediaPlayer = new MediaPlayer();
+        LogUtil.getLog().i(TAG, "preparePlayer--current=" + currentPosition + "--visible=" + mAdapter.getFirstVisiblePosition());
+        if (currentPosition == mAdapter.getFirstVisiblePosition()) {
+            mediaPlayer = new MediaPlayer();
+
+            if (PictureMimeType.isHttp(videoUrl)) {
+                download(videoUrl);
+            }
+            updatePlayUI(true);
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    startPlay();
+                }
+            });
+            startPlay();
+        }
     }
 
-    private void startPlay() throws IOException {
+    private void startPlay() {
         if (mediaPlayer == null || mSurface == null || TextUtils.isEmpty(videoUrl)) {
             return;
         }
-        mediaPlayer.reset();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        // 设置需要播放的视频
-        mediaPlayer.setDataSource(videoUrl);
-//        LogUtil.getLog().i(TAG, "setDataSource--path=" + path);
-        // 把视频画面输出到Surface
-        mediaPlayer.setSurface(mSurface);
-        mediaPlayer.setLooping(false);
-        mediaPlayer.prepareAsync();
-        mediaPlayer.seekTo(0);
-        mediaPlayer.start();
-
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            // 设置需要播放的视频
+            mediaPlayer.setDataSource(videoUrl);
+            LogUtil.getLog().i(TAG, "setDataSource--path=" + videoUrl);
+            // 把视频画面输出到Surface
+            mediaPlayer.setSurface(mSurface);
+            mediaPlayer.setLooping(true);
+            mediaPlayer.prepareAsync();
+            mediaPlayer.seekTo(0);
+            mediaPlayer.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void download(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
         final File appDir = new File(Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
@@ -478,13 +505,13 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
 
                 @Override
                 public void onDownloadFailed(Exception e) {
-                    LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
+                    LogUtil.getLog().i(TAG, "Exception下载失败:" + e.getMessage());
 //                    downloadState = 0;
                 }
             });
 
         } catch (Exception e) {
-            LogUtil.getLog().i("DownloadUtil", "Exception:" + e.getMessage());
+            LogUtil.getLog().i(TAG, "Exception:" + e.getMessage());
         }
     }
 
@@ -495,6 +522,14 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
             return false;
         } else {
             return true;
+        }
+    }
+
+    private void updatePlayUI(boolean isPlay) {
+        if (viewHolder != null) {
+            viewHolder.setVisible(R.id.iv_video, !isPlay);
+            viewHolder.setVisible(R.id.iv_play, !isPlay);
+            viewHolder.setVisible(R.id.texture_view, isPlay);
         }
     }
 
