@@ -9,6 +9,7 @@ import net.cb.cb.library.dialog.DialogLoadingProgress;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -53,23 +54,24 @@ public class UpLoadFileUtil {
         if (mediaList == null) {
             mediaList = new ArrayList<>();
         }
-
-        netFile = new HashMap<>();
+        //TODO:需要保证图片按选择顺序排序
+        netFile = new LinkedHashMap<>();
         if (mediaList.size() > 0) {
             if (count == 0) {
                 count = mediaList.size();
             }
-            for (int i = 0; i < mediaList.size(); i++) {
-                String path = getMediaPath(mediaList.get(i));
-                if (TextUtils.isEmpty(path)) {
-                    continue;
-                }
-                if (path.startsWith("http")) {// 网络图片、语音不需要上传
-                    count--;
-                } else {
-                    uploadFile(path);//上传图片
-                }
-            }
+            uploadFile(0);//上传图片
+//            for (int i = 0; i < mediaList.size(); i++) {
+//                String path = getMediaPath(mediaList.get(i));
+//                if (TextUtils.isEmpty(path)) {
+//                    continue;
+//                }
+//                if (path.startsWith("http")) {// 网络图片、语音不需要上传
+//                    count--;
+//                } else {
+//                    uploadFile(path);//上传图片
+//                }
+//            }
         }
     }
 
@@ -125,6 +127,43 @@ public class UpLoadFileUtil {
 
             }
         }, file);
+    }
+
+    private void uploadFile(int position) {
+        if (position >= 0 && position < mediaList.size()) {
+            String file;
+            LocalMedia media = mediaList.get(position);
+            if (media != null) {
+                file = getMediaPath(media);
+                if (!TextUtils.isEmpty(file)) {
+                    new UpFileAction().upFile(mPath, context, new UpFileUtil.OssUpCallback() {
+                        @Override
+                        public void success(final String url) {
+                            netFile.put(file, url);
+                            if (--count == 0 || count < 0) {
+                                dismissLoadingDialog();
+                                listener.onUploadFile(netFile);
+                            } else {
+                                if (position < mediaList.size()) {
+                                    uploadFile(position + 1);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void fail() {
+                            dismissLoadingDialog();
+                            listener.onFail();
+                        }
+
+                        @Override
+                        public void inProgress(long progress, long zong) {
+
+                        }
+                    }, file);
+                }
+            }
+        }
     }
 
     public interface OnUploadFileListener {

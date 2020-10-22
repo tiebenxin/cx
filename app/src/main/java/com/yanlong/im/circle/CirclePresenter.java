@@ -214,11 +214,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 UpFileAction.PATH.COMENT_IMG, new UpLoadFileUtil.OnUploadFileListener() {
                     @Override
                     public void onUploadFile(HashMap<String, String> netFile) {
-//                        if (mNetFile.size() > 0) {
-//                            netFile.putAll(mNetFile);
-//                        }
                         mView.uploadSuccess("", type, false, netFile);
-
                     }
 
                     @Override
@@ -227,6 +223,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                     }
                 });
     }
+
 
     /**
      * 文件批量检查
