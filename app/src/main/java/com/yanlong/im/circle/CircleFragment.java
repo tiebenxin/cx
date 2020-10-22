@@ -61,6 +61,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     private List<AttachmentBean> mList;
     private List<CircleTitleBean> mVotePictrueList;
     private DialogLoadingProgress mLoadingProgress;
+    private int floatModel = 0;//悬浮按钮模式
 
     @Override
     protected CirclePresenter createPresenter() {
@@ -201,17 +202,21 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             bindingView.viewPager.setCurrentItem(0);
         });
         bindingView.ivCreateCircle.setOnClickListener(o -> {
-            AudioPlayUtil.stopAudioPlay();
-            PictureSelector.create(getActivity())
-                    .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                    .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
-                    .previewImage(false)// 是否可预览图片 true or false
-                    .isCamera(true)// 是否显示拍照按钮 ture or false
-                    .maxVideoSelectNum(1)
-                    .compress(true)// 是否压缩 true or false
-                    .isGif(true)
-                    .selectArtworkMaster(true)
-                    .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
+            if (floatModel == 0) {
+                AudioPlayUtil.stopAudioPlay();
+                PictureSelector.create(getActivity())
+                        .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                        .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                        .previewImage(false)// 是否可预览图片 true or false
+                        .isCamera(true)// 是否显示拍照按钮 ture or false
+                        .maxVideoSelectNum(1)
+                        .compress(true)// 是否压缩 true or false
+                        .isGif(true)
+                        .selectArtworkMaster(true)
+                        .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
+            } else if (floatModel == 1) {
+                //置顶模式
+            }
         });
     }
 
@@ -335,6 +340,17 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         @Override
         public Fragment getItem(int position) {
             return mFragments.get(position);
+        }
+    }
+
+    //切换悬浮按钮模式
+    public void switchFloatButton(int model) {
+        floatModel = model;
+        //默认创建
+        if (model == 0) {
+            bindingView.ivCreateCircle.setImageResource(R.mipmap.ic_circle_create);
+        } else if (model == 1) {//返回到顶部模式
+            bindingView.ivCreateCircle.setImageResource(R.mipmap.ic_to_top);
         }
     }
 }
