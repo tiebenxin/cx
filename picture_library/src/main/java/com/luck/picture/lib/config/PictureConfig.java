@@ -48,6 +48,7 @@ public final class PictureConfig {
 
     public final static int CHOOSE_REQUEST = 188;
     public final static int PREVIEW_FROM_CHAT = 199;
+    public final static int CHANGE_BACKGROUND = 200;
     public final static int REQUEST_CAMERA = 909;
     public final static int READ_EXTERNAL_STORAGE = 0x01;
     public final static int CAMERA = 0x02;

@@ -700,7 +700,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     .withAspectRatio(1, 1)
                                     .freeStyleCropEnabled(false)
                                     .rotateEnabled(false)
-                                    .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+                                    .forResult(PictureConfig.CHANGE_BACKGROUND);//结果回调onActivityResult code
                         }
 
                         @Override

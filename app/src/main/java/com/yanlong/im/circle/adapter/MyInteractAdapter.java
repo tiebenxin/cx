@@ -369,7 +369,7 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     start = end;
                     if(bean.getInteractType()==2 || bean.getInteractType()==3 || bean.getInteractType()==5){
                         if(!TextUtils.isEmpty(bean.getContent())){
-                            spanBuilder.append(bean.getContent());
+                            spanBuilder.append(getSpan(bean.getContent()));
                             end = end + bean.getContent().length();
                         }
                     }

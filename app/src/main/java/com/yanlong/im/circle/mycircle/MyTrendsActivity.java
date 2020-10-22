@@ -201,7 +201,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case PictureConfig.CHOOSE_REQUEST:
+                case PictureConfig.CHANGE_BACKGROUND:
                     // 图片选择结果回调
                     final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
                     // 例如 LocalMedia 里面返回两种path
