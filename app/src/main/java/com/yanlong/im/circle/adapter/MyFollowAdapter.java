@@ -3,6 +3,7 @@ package com.yanlong.im.circle.adapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,9 +22,11 @@ import com.yanlong.im.circle.bean.FriendUserBean;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.TempAction;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 
@@ -162,7 +165,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if(type==0){
                         //最新一条说说
                         if (!TextUtils.isEmpty(userInfo.getContent())) {
-                            holder.tvNote.setText(userInfo.getContent());
+                            holder.tvNote.setText(getSpan(userInfo.getContent()));
                         }else {
                             holder.tvNote.setText("暂无最新动态");
                         }
@@ -493,6 +496,17 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 )
                 .build();
         dialog.show();
+    }
+
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(activity, fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(activity, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
     }
 
 }

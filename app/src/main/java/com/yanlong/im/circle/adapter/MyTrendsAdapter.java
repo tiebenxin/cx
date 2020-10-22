@@ -465,6 +465,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         .load(attachmentBeans.get(0).getUrl())
                                         .apply(GlideOptionsUtil.headImageOptions())
                                         .into(holder.ivVideo);
+                                List<AttachmentBean> finalAttachmentBeans = attachmentBeans;
+                                holder.layoutVideo.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        toPictruePreview(0, finalAttachmentBeans);
+                                    }
+                                });
                             } else {
                                 holder.layoutVideo.setVisibility(View.GONE);
                                 holder.ivPlay.setVisibility(View.GONE);
