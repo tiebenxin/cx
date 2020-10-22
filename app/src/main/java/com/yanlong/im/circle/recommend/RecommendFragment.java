@@ -4,11 +4,9 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -40,6 +38,7 @@ import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.databinding.FragmentRecommendBinding;
 import com.yanlong.im.databinding.ViewNewCircleMessageBinding;
@@ -221,6 +220,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         gotoCircleDetailsActivity(true, position);
                         break;
                     case R.id.iv_header:// 头像
+                        if (AudioPlayUtil.isPlay()) {
+                            AudioPlayUtil.stopAudioPlay();
+                        }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
                         break;
@@ -284,47 +286,57 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                             startActivity(intent);
                         }
                         break;
+                    case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
+                        if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {
+                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
+                            intent.putExtra("uid",messageInfoBean.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            startActivity(intent);
+                        }else {
+                            ToastUtil.show("该用户已注销");
+                        }
+                        break;
                 }
             }
         });
-
-        bindingView.recyclerRecommend.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                //判断是当前layoutManager是否为LinearLayoutManager
-                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
-                if (layoutManager instanceof LinearLayoutManager) {
-                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
-                    //获取最后一个可见view的位置
-                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
-                    //获取第一个可见view的位置
-                    firstItemPosition = linearManager.findFirstVisibleItemPosition();
-                    //停止滑动状态
-                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-                        firstItemPosition = linearManager.findFirstVisibleItemPosition();
-                        View topView = layoutManager.getChildAt(firstItemPosition);
-                        if (topView != null) {
-                            //获取与该view的底部的偏移量
-                            firstOffset = topView.getTop();
-                        }
-                        if (mFlowAdapter != null) {
-                            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
-                            mFlowAdapter.notifyItemChanged(firstItemPosition);
-                        }
-                    }
-                    // 判断当前是否有语音或视频播放
-                    if (AudioPlayUtil.isPlay()) {
-                        if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||
-                                AudioPlayUtil.getRecyclerviewPosition() < firstItemPosition ||
-                                AudioPlayUtil.getRecyclerviewPosition() > lastItemPosition) {
-                            AudioPlayUtil.stopAudioPlay();
-                        }
-                    }
-                }
-            }
-        });
+        //TODO 需求改为只要不在本界面才暂停，随意滑动不暂停
+//        bindingView.recyclerRecommend.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+//                //判断是当前layoutManager是否为LinearLayoutManager
+//                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
+//                if (layoutManager instanceof LinearLayoutManager) {
+//                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
+//                    //获取最后一个可见view的位置
+//                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
+//                    //获取第一个可见view的位置
+//                    firstItemPosition = linearManager.findFirstVisibleItemPosition();
+//                    //停止滑动状态
+//                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+//                        firstItemPosition = linearManager.findFirstVisibleItemPosition();
+//                        View topView = layoutManager.getChildAt(firstItemPosition);
+//                        if (topView != null) {
+//                            //获取与该view的底部的偏移量
+//                            firstOffset = topView.getTop();
+//                        }
+//                        if (mFlowAdapter != null) {
+//                            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+//                            mFlowAdapter.notifyItemChanged(firstItemPosition);
+//                        }
+//                    }
+//                    // 判断当前是否有语音或视频播放
+//                    if (AudioPlayUtil.isPlay()) {
+//                        if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||
+//                                AudioPlayUtil.getRecyclerviewPosition() < firstItemPosition ||
+//                                AudioPlayUtil.getRecyclerviewPosition() > lastItemPosition) {
+//                            AudioPlayUtil.stopAudioPlay();
+//                        }
+//                    }
+//                }
+//            }
+//        });
     }
 
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
@@ -572,11 +584,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-//        if (isVisibleToUser){
-//
-//        }else {
-//
-//        }
         notifyChangeAll();
     }
 }
