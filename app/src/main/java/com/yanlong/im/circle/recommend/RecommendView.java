@@ -31,4 +31,6 @@ public interface RecommendView extends IBaseView {
     void onVoteSuccess(int parentPostion, String msg);
 
     void showUnreadMsg(int unCount,String avatar);
+
+    void onDeleteItem(int position);
 }

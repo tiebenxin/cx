@@ -168,6 +168,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                     mView.onLikeSuccess(postion, response.message());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
+                    if(response.body().getCode()==100104){
+                        mView.onDeleteItem(postion);
+                    }
                 }
             }
 

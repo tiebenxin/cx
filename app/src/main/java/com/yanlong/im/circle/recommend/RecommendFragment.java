@@ -172,6 +172,11 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         mFlowAdapter.removeAllHeaderView();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void deleteItem(EventFactory.DeleteItemTrend event) {
+        onDeleteItem(event.position);
+    }
+
     @Override
     public void initEvent() {
         messageBinding.layoutNotice.setOnClickListener(v -> {
@@ -489,6 +494,13 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         }
         bindingView.srlFollow.finishLoadMore();
         bindingView.srlFollow.finishRefresh();
+
+    }
+
+    @Override
+    public void onDeleteItem(int position) {
+        mFollowList.remove(position);
+        mFlowAdapter.notifyDataSetChanged();
     }
 
     @Override

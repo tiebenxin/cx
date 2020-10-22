@@ -304,7 +304,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
                 mPresenter.circleCommentList(++mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                        UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0);
+                        UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0,mPostion);
             }
         });
     }
@@ -327,7 +327,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
 
         mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 1);
+                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 1,mPostion);
     }
 
     @Override
@@ -475,7 +475,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (mMessageInfoBean != null) {
             mCurrentPage = 1;
             mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0);
+                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0,mPostion);
         }
         binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
         mFlowAdapter.notifyDataSetChanged();
@@ -624,6 +624,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @Override
     public void onShowMessage(String msg) {
         ToastUtil.show(msg);
+        if(msg.equals("动态被藏起来了")){
+            if(mCommentDialog!=null || mCommentDialog.isShowing()){
+                mCommentDialog.dismiss();
+                mCommentDialog = null;
+            }
+            finish();
+        }
     }
 
     @Override

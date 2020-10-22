@@ -364,8 +364,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
      * @param momentUid   说说发布者
      * @param myLikeStat  该条说说是我发布的，是否获取我对该条说说的点赞状态(0或不传不返回,1返回)
      * @param addBrowse   第一页时，是否需要添加浏览量(0:否,1:是)
+     * @param position    点击广场哪一项哪项跳进的详情
      */
-    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat, int addBrowse) {
+    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat, int addBrowse, int position) {
         WeakHashMap<String, Object> params = new WeakHashMap<>();
         params.put("currentPage", currentPage);
         params.put("pageSize", pageSize);
@@ -381,6 +382,11 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onCommentSuccess(response.body().getData());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
+                    if(response.body().getCode()==100104){
+                        EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
+                        event.position = position;
+                        EventBus.getDefault().post(event);
+                    }
                 }
             }
 

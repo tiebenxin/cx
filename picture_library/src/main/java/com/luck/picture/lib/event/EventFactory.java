@@ -219,4 +219,11 @@ public class EventFactory extends BaseEvent {
         public int type;//0 未关注 1 已关注
         public int position;//更新哪一项
     }
+
+    /**
+     * 删除某一条动态
+     */
+    public static class DeleteItemTrend extends BaseEvent {
+        public int position;//位置
+    }
 }
