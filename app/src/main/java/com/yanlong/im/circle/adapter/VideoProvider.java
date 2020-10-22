@@ -49,7 +49,6 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -262,7 +261,7 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
             }
         });
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
-                R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup, R.id.rl_video);
+                R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup, R.id.rl_video,R.id.tv_user_name);
         recyclerVote.setLayoutManager(new LinearLayoutManager(mContext));
         if (type == PictureEnum.EContentType.VIDEO_AND_VOTE && !TextUtils.isEmpty(messageInfoBean.getVote())) {
             VoteBean voteBean = new Gson().fromJson(messageInfoBean.getVote(), VoteBean.class);

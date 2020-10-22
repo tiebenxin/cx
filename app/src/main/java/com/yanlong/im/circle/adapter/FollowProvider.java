@@ -311,7 +311,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             }
         });
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
-                R.id.iv_like, R.id.iv_setup, R.id.rl_video);
+                R.id.iv_like, R.id.iv_setup, R.id.rl_video,R.id.tv_user_name);
     }
 
     private void setTextViewLines(TextView content, TextView btn, boolean isShowAll, BaseViewHolder helper) {

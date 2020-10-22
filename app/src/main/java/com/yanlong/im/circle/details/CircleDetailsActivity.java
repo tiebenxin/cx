@@ -43,6 +43,8 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
+import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
+import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
@@ -211,7 +213,14 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         showCommentDialog("", 0l);
                         break;
                     case R.id.iv_header:// 头像
-                        gotoUserInfoActivity(mMessageInfoBean.getUid());
+                        AudioPlayUtil.stopAudioPlay();
+                        //如果是我自己，则跳朋友圈，其他人跳详细资料
+                        if (mMessageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                            Intent intent = new Intent(CircleDetailsActivity.this, MyTrendsActivity.class);
+                            startActivity(intent);
+                        }else {
+                            gotoUserInfoActivity(mMessageInfoBean.getUid());
+                        }
                         break;
                     case R.id.iv_like:// 点赞
                         if (mMessageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
@@ -245,6 +254,16 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             }
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(intent);
+                        }
+                        break;
+                    case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
+                        if (!TextUtils.isEmpty(mMessageInfoBean.getNickname()) || !TextUtils.isEmpty(mMessageInfoBean.getAvatar())) {
+                            Intent intent = new Intent(CircleDetailsActivity.this, FriendTrendsActivity.class);
+                            intent.putExtra("uid",mMessageInfoBean.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            startActivity(intent);
+                        }else {
+                            ToastUtil.show("该用户已注销");
                         }
                         break;
                 }

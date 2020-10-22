@@ -313,7 +313,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         });
 
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
-                R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup, R.id.rl_video);
+                R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup, R.id.rl_video,R.id.tv_user_name);
 
         RecyclerView recyclerVote = helper.getView(R.id.recycler_vote);
 //        recyclerVote.setLayoutManager(new LinearLayoutManager(mContext));

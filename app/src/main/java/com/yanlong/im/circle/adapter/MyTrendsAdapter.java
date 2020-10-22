@@ -61,7 +61,6 @@ import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.wight.avatar.RoundImageView;
@@ -289,6 +288,20 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //点赞数 评论数
                     holder.tvLike.setText(bean.getLikeCount() + "");
                     holder.tvComment.setText(bean.getCommentCount() + "");
+                    holder.tvComment.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (userBean != null) {
+                                if (!TextUtils.isEmpty(userBean.getHead())) {
+                                    bean.setAvatar(userBean.getHead());
+                                }
+                                if (!TextUtils.isEmpty(userBean.getName())) {
+                                    bean.setNickname(userBean.getName());
+                                }
+                            }
+                            gotoCircleDetailsActivity(true,bean);
+                        }
+                    });
                     //说说可见度
                     if (type == 1) {
                         holder.tvCanSee.setVisibility(View.VISIBLE);
@@ -695,8 +708,22 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             ToastUtil.show("请允许访问权限");
                         }
                     }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}));
-                    //点击我的头像暂无操作
+                    //点击查看别人的头像
                     holder.ivMyHeader.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            List<LocalMedia> selectList = new ArrayList<>();
+                            LocalMedia lc = new LocalMedia();
+                            lc.setPath(userBean.getHead());
+                            selectList.add(lc);
+                            PictureSelector.create(activity)
+                                    .themeStyle(R.style.picture_default_style)
+                                    .isGif(false)
+                                    .openExternalPreviewImage(0, selectList);
+                        }
+                    });
+                    //点击我的昵称暂无操作
+                    holder.tvMyName.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                         }
@@ -738,18 +765,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     .openExternalPreviewImage(0, selectList);
                         }
                     });
-                    //点击别人的名称跳到详细资料
+                    //点击别人的昵称暂无操作
                     holder.tvFriendName.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            //没注销的用户才允许点头像看详细资料
-                            if (!TextUtils.isEmpty(userBean.getName()) || !TextUtils.isEmpty(userBean.getHead())) {
-                                activity.startActivity(new Intent(activity, UserInfoActivity.class)
-                                        .putExtra(UserInfoActivity.ID, userBean.getUid())
-                                        .putExtra(UserInfoActivity.JION_TYPE_SHOW, 0));
-                            }else {
-                                ToastUtil.show("该用户已注销");
-                            }
                         }
                     });
                 }

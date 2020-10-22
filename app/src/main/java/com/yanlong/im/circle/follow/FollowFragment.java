@@ -3,8 +3,6 @@ package com.yanlong.im.circle.follow;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,10 +37,12 @@ import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.databinding.FragmentFollowBinding;
 import com.yanlong.im.databinding.ViewNewCircleMessageBinding;
 import com.yanlong.im.interf.ICircleClickListener;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -166,8 +166,19 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         gotoCircleDetailsActivity(true, position);
                         break;
                     case R.id.iv_header:// 头像
-                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
+                        if (AudioPlayUtil.isPlay()) {
+                            AudioPlayUtil.stopAudioPlay();
+                        }
+                        //如果是我自己，则跳朋友圈，其他人跳详细资料
+                        if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
+                            intent.putExtra("uid",messageInfoBean.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            startActivity(intent);
+                        }else {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
+                        }
                         break;
                     case R.id.iv_like:// 点赞
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
@@ -225,36 +236,47 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                             startActivity(intent);
                         }
                         break;
-                }
-            }
-        });
-        bindingView.recyclerFollow.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                //判断是当前layoutManager是否为LinearLayoutManager
-                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
-                if (layoutManager instanceof LinearLayoutManager) {
-                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
-                    //获取最后一个可见view的位置
-                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
-                    //获取第一个可见view的位置
-                    int firstItemPosition = linearManager.findFirstVisibleItemPosition();
-                    if (mFlowAdapter != null){
-                        mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
-                    }
-                    // 判断当前是否有语音或视频播放
-                    if (AudioPlayUtil.isPlay()) {
-                        if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||
-                                AudioPlayUtil.getRecyclerviewPosition() < firstItemPosition ||
-                                AudioPlayUtil.getRecyclerviewPosition() > lastItemPosition) {
-                            AudioPlayUtil.stopAudioPlay();
+                    case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
+                        if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {
+                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
+                            intent.putExtra("uid",messageInfoBean.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            startActivity(intent);
+                        }else {
+                            ToastUtil.show("该用户已注销");
                         }
-                    }
+                        break;
                 }
             }
         });
+        //TODO 需求改为只要不在本界面才暂停，随意滑动不暂停
+//        bindingView.recyclerFollow.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+//                //判断是当前layoutManager是否为LinearLayoutManager
+//                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
+//                if (layoutManager instanceof LinearLayoutManager) {
+//                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
+//                    //获取最后一个可见view的位置
+//                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
+//                    //获取第一个可见view的位置
+//                    int firstItemPosition = linearManager.findFirstVisibleItemPosition();
+//                    if (mFlowAdapter != null){
+//                        mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+//                    }
+//                    // 判断当前是否有语音或视频播放
+//                    if (AudioPlayUtil.isPlay()) {
+//                        if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||
+//                                AudioPlayUtil.getRecyclerviewPosition() < firstItemPosition ||
+//                                AudioPlayUtil.getRecyclerviewPosition() > lastItemPosition) {
+//                            AudioPlayUtil.stopAudioPlay();
+//                        }
+//                    }
+//                }
+//            }
+//        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
