@@ -86,7 +86,18 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
                 }
                 Intent intent = new Intent();
                 List<CircleTitleBean> list = new ArrayList<>();
-                for (int i = mList.size() - 1; i >= 0; i--) {
+//                for (int i = mList.size() - 1; i >= 0; i--) {
+//                    if (mList.get(i).isShowAdd()) {
+//                        mList.remove(i);
+//                    } else {
+//                        ImgSizeUtil.ImageSize imageSize = ImgSizeUtil.getAttribute(mList.get(i).getPath());
+//                        if (imageSize != null) {
+//                            list.add(new CircleTitleBean(mList.get(i).getPath(),
+//                                    imageSize.getSize(), imageSize.getWidth(), imageSize.getHeight()));
+//                        }
+//                    }
+//                }
+                for (int i = 0; i < mList.size(); i++) {
                     if (mList.get(i).isShowAdd()) {
                         mList.remove(i);
                     } else {
@@ -181,7 +192,7 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
     public void onPicturePrviewClick(LocalMedia media, int position) {
         if (media.isShowAdd()) {
             PictureSelector.create(this)
-                    .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                    .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                     .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                     .previewImage(false)// 是否可预览图片 true or false
                     .isCamera(true)// 是否显示拍照按钮 ture or false

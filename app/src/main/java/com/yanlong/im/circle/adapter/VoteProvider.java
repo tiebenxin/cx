@@ -316,7 +316,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup, R.id.rl_video,R.id.tv_user_name);
 
         RecyclerView recyclerVote = helper.getView(R.id.recycler_vote);
-        recyclerVote.setLayoutManager(new LinearLayoutManager(mContext));
+//        recyclerVote.setLayoutManager(new LinearLayoutManager(mContext));
         if (!TextUtils.isEmpty(messageInfoBean.getVote())) {
             VoteBean voteBean = new Gson().fromJson(messageInfoBean.getVote(), VoteBean.class);
             setRecycleView(recyclerVote, voteBean.getItems(), voteBean.getType(), position, messageInfoBean.getVoteAnswer(),
