@@ -103,7 +103,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     protected FollowPresenter createPresenter() {
-        return new FollowPresenter(getContext());
+        return new FollowPresenter(this);
     }
 
     @Override
@@ -168,7 +168,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                                     postcard.withLong(MOMENT_ID, mMessageInfoBean.getId());
                                     postcard.navigation(CircleDetailsActivity.this, REQUEST_CODE_POWER);
                                 } else {
-                                    if (isFollow) {
+                                    if (isFollow || mMessageInfoBean.isFollow()) {
                                         mPresenter.followCancle(mMessageInfoBean.getUid(), 0);
                                     } else {
                                         mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
@@ -598,7 +598,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             mMessageInfoBean.setFollow(true);
             mFlowAdapter.notifyItemChanged(position);
-            EventBus.getDefault().post(new EventFactory.RefreshSignRecomendEvent());
+            EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.recommend;
 
+import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.server.CircleServer;
 
@@ -21,6 +22,8 @@ import java.util.WeakHashMap;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 public class RecommendModel extends BaseModel implements RecommendApi {
+    private List<MessageFlowItemBean> mFollowList;
+
 
     private CircleServer server;
 
@@ -67,4 +70,14 @@ public class RecommendModel extends BaseModel implements RecommendApi {
     public void voteAnswer(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.voteAnswer(params), callback);
     }
+
+    public void setData(List<MessageFlowItemBean> l) {
+        mFollowList = l;
+    }
+
+
+    public List<MessageFlowItemBean> getData() {
+        return mFollowList;
+    }
+
 }

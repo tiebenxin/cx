@@ -87,6 +87,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     private final int MAX_REFRESH_COUNT = 2;// 刷新次数大于2不显示
     private final int MAX_REFRESH_MINUTE = 2;// 超过3分钟不显示
     ViewNewCircleMessageBinding messageBinding;
+    private int firstItemPosition;
+    private int firstOffset;
 
     protected RecommendPresenter createPresenter() {
         return new RecommendPresenter(getContext());
@@ -136,9 +138,17 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             mFollowList.remove(0);
         }
         mFollowList.add(0, flowItemBean);
+        mPresenter.mModel.setData(mFollowList);
         bindingView.recyclerRecommend.scrollToPosition(0);
-        mFlowAdapter.notifyDataSetChanged();
+        notifyChangeAll();
         mIsAddLocation = true;
+    }
+
+    private void notifyChangeAll() {
+        if (mFlowAdapter != null) {
+            mFlowAdapter.setFirstVisiblePosition(0);
+            mFlowAdapter.notifyDataSetChanged();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -290,11 +300,18 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     //获取最后一个可见view的位置
                     int lastItemPosition = linearManager.findLastVisibleItemPosition();
                     //获取第一个可见view的位置
-                    int firstItemPosition = linearManager.findFirstVisibleItemPosition();
+                    firstItemPosition = linearManager.findFirstVisibleItemPosition();
                     //停止滑动状态
                     if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                        firstItemPosition = linearManager.findFirstVisibleItemPosition();
+                        View topView = layoutManager.getChildAt(firstItemPosition);
+                        if (topView != null) {
+                            //获取与该view的底部的偏移量
+                            firstOffset = topView.getTop();
+                        }
                         if (mFlowAdapter != null) {
                             mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+                            mFlowAdapter.notifyItemChanged(firstItemPosition);
                         }
                     }
                     // 判断当前是否有语音或视频播放
@@ -417,7 +434,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         } else {
             if (list != null && list.size() > 0) {
                 mFollowList.addAll(list);
-                mFlowAdapter.notifyDataSetChanged();
+                notifyChangeAll();
             }
 
             if (list == null || list.size() == 0) {
@@ -431,9 +448,15 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             }
 
             if (serviceType == 0) {
-                bindingView.recyclerRecommend.scrollToPosition(0);
+                if (firstItemPosition >= 0) {
+                    ((LinearLayoutManager) bindingView.recyclerRecommend.getLayoutManager()).scrollToPositionWithOffset(firstItemPosition, firstOffset);
+                } else {
+                    bindingView.recyclerRecommend.scrollToPosition(0);
+
+                }
             }
         }
+        mPresenter.mModel.setData(mFollowList);
         bindingView.srlFollow.finishRefresh();
 
     }
@@ -544,5 +567,16 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         EventFactory.HomePageShowUnreadMsgEvent event = new EventFactory.HomePageShowUnreadMsgEvent();
         event.num = unCount;
         EventBus.getDefault().post(event);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+//        if (isVisibleToUser){
+//
+//        }else {
+//
+//        }
+        notifyChangeAll();
     }
 }

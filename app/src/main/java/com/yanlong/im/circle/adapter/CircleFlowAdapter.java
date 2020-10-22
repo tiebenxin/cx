@@ -45,7 +45,7 @@ public class CircleFlowAdapter extends MultipleItemRvAdapter<MessageFlowItemBean
     public void registerItemProvider() {
         mProviderDelegate.registerProvider(new FollowProvider(isDetails, isFollow, clickListener));
         mProviderDelegate.registerProvider(new VoteProvider(isDetails, isFollow, clickListener));
-        mProviderDelegate.registerProvider(new VideoProvider(isDetails, isFollow, clickListener));
+        mProviderDelegate.registerProvider(new VideoProvider(isDetails, isFollow, clickListener,this));
     }
 
     public void setFirstVisiblePosition(int p) {
