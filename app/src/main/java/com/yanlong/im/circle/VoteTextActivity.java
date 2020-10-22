@@ -143,6 +143,10 @@ public class VoteTextActivity extends BaseBindActivity<ActivityVoteTextBinding> 
                         ToastUtil.show(getItemTitle(i));
                         return;
                     }
+                    if (TextUtils.isEmpty(mList.get(i).getContent().trim())){
+                        ToastUtil.show("投票内容不能为纯空格");
+                        return;
+                    }
                 }
                 List<String> tempList = new ArrayList<>();
                 for (CircleTitleBean bean : mList) {

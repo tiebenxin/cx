@@ -34,6 +34,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
+import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
@@ -87,6 +88,7 @@ public class MyFragment extends Fragment {
     private LinearLayout layoutMyFollow;//我关注的人
     private LinearLayout layoutFollowMe;//关注我的人
     private LinearLayout layoutWhoSeeMe;//谁看过我
+    private LinearLayout layoutMyInteract;//我的互动
     private TextView mTvInfo;
     private LinearLayout mViewScanQrcode;
     private LinearLayout mViewHelp;
@@ -115,6 +117,7 @@ public class MyFragment extends Fragment {
         layoutMyFollow = rootView.findViewById(R.id.layout_my_follow);
         layoutFollowMe = rootView.findViewById(R.id.layout_follow_me);
         layoutWhoSeeMe = rootView.findViewById(R.id.layout_who_see_me);
+        layoutMyInteract = rootView.findViewById(R.id.layout_my_interact);
 
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
@@ -258,6 +261,13 @@ public class MyFragment extends Fragment {
                 return;
             }
             Intent intent = new Intent(getActivity(), MyMeetingActivity.class);
+            startActivity(intent);
+        });
+        layoutMyInteract.setOnClickListener(o -> {
+            if (ViewUtils.isFastDoubleClick()) {
+                return;
+            }
+            Intent intent = new Intent(getActivity(), MyInteractActivity.class);
             startActivity(intent);
         });
     }

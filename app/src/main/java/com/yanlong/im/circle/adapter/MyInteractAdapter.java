@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -33,9 +34,11 @@ import com.yanlong.im.circle.follow.FollowModel;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
+import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
@@ -170,7 +173,7 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             holder.layoutVoice.setVisibility(View.GONE);
                             if (!TextUtils.isEmpty(bean.getResource())) {
                                 holder.tvTxt.setVisibility(View.VISIBLE);
-                                holder.tvTxt.setText(bean.getResource());
+                                holder.tvTxt.setText(getSpan(bean.getResource()));
                             } else {
                                 holder.tvTxt.setVisibility(View.GONE);
                             }
@@ -245,7 +248,7 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             holder.layoutVoice.setVisibility(View.GONE);
                             if (!TextUtils.isEmpty(bean.getResource())) {
                                 holder.tvTxt.setVisibility(View.VISIBLE);
-                                holder.tvTxt.setText(bean.getResource());
+                                holder.tvTxt.setText(getSpan(bean.getResource()));
                             } else {
                                 holder.tvTxt.setVisibility(View.GONE);
                             }
@@ -305,13 +308,13 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }else if(bean.getInteractType()==4){//投票
                         spanBuilder.append(" 投票 ");
                         end = end + 4;
-                        //赞了->语音
+                        //投票->文字
                         holder.ivImg.setVisibility(View.GONE);
                         holder.ivPlay.setVisibility(View.GONE);
                         holder.tvTxt.setVisibility(View.VISIBLE);
                         holder.layoutVoice.setVisibility(View.GONE);
                         if (!TextUtils.isEmpty(bean.getResource())) {
-                            holder.tvTxt.setText(bean.getResource());
+                            holder.tvTxt.setText(getSpan(bean.getResource()));
                         } else {
                             holder.tvTxt.setText("暂无投票内容");
                         }
@@ -479,6 +482,18 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 ToastUtil.show("投票失败");
             }
         });
+    }
+
+
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(activity, fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(activity, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
     }
 
 }
