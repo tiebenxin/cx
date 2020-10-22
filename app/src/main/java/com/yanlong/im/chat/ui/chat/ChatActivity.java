@@ -4937,7 +4937,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             fixLastPosition(mAdapter.getMsgList(), list);
                         }
                         int len = list.size();
-                        if (len < 10) {
+                        if (len <= 15) {
                             mtListView.setStackFromEnd(false);
                         } else {
                             mtListView.setStackFromEnd(true);

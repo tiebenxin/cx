@@ -1,5 +1,6 @@
 package com.yanlong.im.circle.recommend;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -22,6 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -272,7 +278,8 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
-                    mView.addSeeSuccess(response.message());
+//                    mView.addSeeSuccess(response.message());
+                    filterData(forbidUid);
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
                 }
@@ -367,6 +374,36 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
         } else {
             mView.showUnreadMsg(0, "");
         }
+    }
+
+    //过滤不看TA用户的数据
+    @SuppressLint("CheckResult")
+    private void filterData(long uid) {
+        Observable.just(0)
+                .map(new Function<Integer, List<MessageFlowItemBean>>() {
+                    @Override
+                    public List<MessageFlowItemBean> apply(Integer integer) throws Exception {
+                        List<MessageFlowItemBean> data = mModel.getData();
+                        List<MessageFlowItemBean> temp = new ArrayList<>();
+                        if (data != null) {
+                            for (MessageFlowItemBean bean : data) {
+                                MessageInfoBean infoBean = (MessageInfoBean) bean.getData();
+                                if (infoBean.getUid() != null && infoBean.getUid().longValue() != uid) {
+                                    temp.add(bean);
+                                }
+                            }
+                        }
+                        return temp;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MessageFlowItemBean>>empty())
+                .subscribe(new Consumer<List<MessageFlowItemBean>>() {
+                    @Override
+                    public void accept(List<MessageFlowItemBean> list) throws Exception {
+                        mView.onSuccess(list, 0);
+                    }
+                });
     }
 
 }

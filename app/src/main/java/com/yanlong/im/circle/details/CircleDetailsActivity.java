@@ -103,7 +103,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     protected FollowPresenter createPresenter() {
-        return new FollowPresenter(getContext());
+        return new FollowPresenter(this);
     }
 
     @Override
