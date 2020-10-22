@@ -44,6 +44,7 @@ import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
+import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
@@ -212,7 +213,14 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         showCommentDialog("", 0l);
                         break;
                     case R.id.iv_header:// 头像
-                        gotoUserInfoActivity(mMessageInfoBean.getUid());
+                        AudioPlayUtil.stopAudioPlay();
+                        //如果是我自己，则跳朋友圈，其他人跳详细资料
+                        if (mMessageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                            Intent intent = new Intent(CircleDetailsActivity.this, MyTrendsActivity.class);
+                            startActivity(intent);
+                        }else {
+                            gotoUserInfoActivity(mMessageInfoBean.getUid());
+                        }
                         break;
                     case R.id.iv_like:// 点赞
                         if (mMessageInfoBean.getLike() == PictureEnum.ELikeType.YES) {

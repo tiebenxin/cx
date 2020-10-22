@@ -43,6 +43,7 @@ import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.databinding.FragmentRecommendBinding;
 import com.yanlong.im.databinding.ViewNewCircleMessageBinding;
 import com.yanlong.im.interf.ICircleClickListener;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -223,8 +224,16 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         if (AudioPlayUtil.isPlay()) {
                             AudioPlayUtil.stopAudioPlay();
                         }
-                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
+                        //如果是我自己，则跳朋友圈，其他人跳详细资料
+                        if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
+                            intent.putExtra("uid",messageInfoBean.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            startActivity(intent);
+                        }else {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
+                        }
                         break;
                     case R.id.iv_like:// 点赞
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {

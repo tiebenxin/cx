@@ -288,6 +288,20 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //点赞数 评论数
                     holder.tvLike.setText(bean.getLikeCount() + "");
                     holder.tvComment.setText(bean.getCommentCount() + "");
+                    holder.tvComment.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (userBean != null) {
+                                if (!TextUtils.isEmpty(userBean.getHead())) {
+                                    bean.setAvatar(userBean.getHead());
+                                }
+                                if (!TextUtils.isEmpty(userBean.getName())) {
+                                    bean.setNickname(userBean.getName());
+                                }
+                            }
+                            gotoCircleDetailsActivity(true,bean);
+                        }
+                    });
                     //说说可见度
                     if (type == 1) {
                         holder.tvCanSee.setVisibility(View.VISIBLE);
