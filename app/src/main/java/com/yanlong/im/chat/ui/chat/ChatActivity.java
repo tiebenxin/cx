@@ -3895,6 +3895,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
+        if (AudioPlayManager.getInstance().isPlayingVoice()){
+            AudioPlayManager.getInstance().stopPlay();
+        }
         currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
@@ -4040,7 +4043,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private synchronized void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
-//        LogUtil.getLog().i("语音LOG", "updatePlayStatus--msgId=" + bean.getMsg_id() + "--status=" + status);
         bean = amendMsgALlBean(position, bean);
         if (bean == null || bean.getVoiceMessage() == null) {
             return;
@@ -4056,12 +4058,19 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         msgDao.updatePlayStatus(voiceMessage.getMsgId(), status, isRead);
         voiceMessage.setPlayStatus(status);
         final MsgAllBean finalBean = bean;
-        runOnUiThread(new Runnable() {
+        mtListView.postDelayed(new Runnable() {
             @Override
             public void run() {
+                LogUtil.getLog().i("语音LOG", "updatePlayStatus--msgId=" + finalBean.getMsg_id() + "--status=" + status);
                 replaceListDataAndNotify(finalBean);
+
             }
-        });
+        },10);
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//            }
+//        });
 
         if (ChatEnum.EPlayStatus.PLAYING == status) {
             MessageManager.getInstance().setCanStamp(false);

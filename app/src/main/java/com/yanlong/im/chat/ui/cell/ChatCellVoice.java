@@ -70,13 +70,18 @@ public class ChatCellVoice extends ChatCellBase {
         if (voiceMessage != null) {
             int playStatus = voiceMessage.getPlayStatus();
             if (isPlay && playStatus == ChatEnum.EPlayStatus.PLAYING) {
-//                LogUtil.getLog().i("语音LOG", "updateVoice--start--status=" + voiceMessage.getPlayStatus());
+                LogUtil.getLog().i("语音LOG", "updateVoice--start--status=" + voiceMessage.getPlayStatus() + "--msgId=" + voiceMessage.getMsgId());
                 ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(2);
                 ((AnimationDrawable) ivVoice.getDrawable()).start();
             } else {
-//                LogUtil.getLog().i("语音LOG", "updateVoice--stop--status=" + voiceMessage.getPlayStatus());
-                ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(0);
-                ((AnimationDrawable) ivVoice.getDrawable()).stop();
+                LogUtil.getLog().i("语音LOG", "updateVoice--stop--status=" + voiceMessage.getPlayStatus() + "--msgId=" + voiceMessage.getMsgId());
+                ivVoice.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((AnimationDrawable) ivVoice.getDrawable()).stop();
+                        ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(0);
+                    }
+                });
             }
             if (!isMe) {
                 setDownloadStatus(playStatus);

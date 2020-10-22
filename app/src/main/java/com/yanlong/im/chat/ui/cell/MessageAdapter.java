@@ -237,7 +237,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 }
                 voiceCell.setSendStatus(false);
                 String url = msg.isMe() ? msg.getVoiceMessage().getLocalUrl() : msg.getVoiceMessage().getUrl();
-                LogUtil.getLog().i("语音LOG", "notify-" + AudioPlayManager.getInstance().isPlay(Uri.parse(url)) + "--url=" + url);
+//                LogUtil.getLog().i("语音LOG", "notify-" + AudioPlayManager.getInstance().isPlay(Uri.parse(url)) + "--msgId=" + msg.getMsg_id());
                 voiceCell.updateVoice(AudioPlayManager.getInstance().isPlay(Uri.parse(url)));
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 ChatCellVideo videoCell = (ChatCellVideo) viewHolder;
