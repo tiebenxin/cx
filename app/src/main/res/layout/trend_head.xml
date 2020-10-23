@@ -14,6 +14,7 @@
         <ImageView
             android:id="@+id/iv_background"
             android:layout_width="match_parent"
+            android:background="@color/wheel_black"
             android:layout_height="match_parent"/>
 
         <RelativeLayout
@@ -63,7 +64,7 @@
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:visibility="gone"
-            android:layout_marginTop="50dp" />
+            android:layout_marginTop="80dp" />
 
         <TextView
             android:id="@+id/tv_friend_name"
