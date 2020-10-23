@@ -274,13 +274,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
     @Override
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
-        if (holder instanceof ChatCellImage){
-            ChatCellImage cell = (ChatCellImage) holder;
-            cell.recycler();
-        }else if (holder instanceof ChatCellVideo){
-            ChatCellVideo cell = (ChatCellVideo) holder;
-            cell.recycler();
-        }
+        ChatCellBase cell = (ChatCellBase) holder;
+        cell.recycler();
+//        if (holder instanceof ChatCellImage){
+//            ChatCellImage cell = (ChatCellImage) holder;
+//            cell.recycler();
+//        }else if (holder instanceof ChatCellVideo){
+//            ChatCellVideo cell = (ChatCellVideo) holder;
+//            cell.recycler();
+//        }
     }
 
     //获取某位置消息

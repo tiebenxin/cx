@@ -261,12 +261,13 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void recycler() {
+        super.recycler();
         LogUtil.getLog().i("图片", "recycler");
         try {
 //            Glide.with(getContext()).clear(imageView);
             if (localBitmap != null) {
                 LogUtil.getLog().i("图片", "recycler--localBitmap");
-                localBitmap.recycle();
+//                localBitmap.recycle();
                 localBitmap = null;
             }
             if (localFile != null) {
