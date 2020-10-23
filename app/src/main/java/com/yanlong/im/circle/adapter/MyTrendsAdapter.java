@@ -44,6 +44,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
@@ -57,6 +58,7 @@ import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
 import com.yanlong.im.circle.mycircle.TempAction;
+import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
@@ -73,9 +75,12 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1099,6 +1104,17 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     dataList.remove(position - 1);//删除数据源,移除集合中当前下标的数据
                     notifyItemRemoved(position);//刷新被删除的地方
                     notifyItemRangeChanged(position, getItemCount()); //刷新被删除数据，以及其后面的数据
+                    //判断缓存是否有数据，如果正好是我刚发布的动态，及时清空缓存，避免刷新又把这条数据展示出来
+                    SpUtil spUtil = SpUtil.getSpUtil();
+                    String value = spUtil.getSPValue(RecommendFragment.REFRESH_COUNT, "");
+                    if (!TextUtils.isEmpty(value)) {
+                        MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
+                        if(infoBean.getId()==id){
+                            spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
+                            //然后及时通知广场推荐刷新
+                            EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
+                        }
+                    }
                 }
             }
 
