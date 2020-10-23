@@ -34,7 +34,6 @@ import com.yanlong.im.utils.PhoneListUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.CoreEnum.ERosterAction;
 import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
@@ -265,38 +264,36 @@ public class FriendMainFragment extends Fragment {
     public void eventRefreshFriend(EventRefreshFriend event) {
         if (event.isLocal()) {
             long uid = event.getUid();
-            @ERosterAction int action = event.getRosterAction();
+            @CoreEnum.ERosterAction int action = event.getRosterAction();
             switch (action) {
-                case ERosterAction.REMOVE_FRIEND:
+                case CoreEnum.ERosterAction.REMOVE_FRIEND:
                     viewModel.setToStranger(uid);
                     break;
-                case ERosterAction.BLACK://添加或者解除黑名单
+                case CoreEnum.ERosterAction.BLACK://添加或者解除黑名单
                     break;
-                case ERosterAction.REQUEST_FRIEND://请求添加为好友
+                case CoreEnum.ERosterAction.REQUEST_FRIEND://请求添加为好友
                     mtListView.getListView().getAdapter().notifyItemChanged(0, 0);
                     break;
-                case ERosterAction.PHONE_MATCH:// 手机通讯录匹配
-                case ERosterAction.LOAD_ALL_SUCCESS:// 成功加载所有数据
+                case CoreEnum.ERosterAction.PHONE_MATCH:// 手机通讯录匹配
+                case CoreEnum.ERosterAction.LOAD_ALL_SUCCESS:// 成功加载所有数据
                     mtListView.getListView().getAdapter().notifyDataSetChanged();
                     break;
                 default:
                     if (uid > 0) {
                         mtListView.getListView().getAdapter().notifyDataSetChanged();
-//           TODO             refreshPosition(uid);
                     } else if (event.getUser() != null && event.getUser() instanceof UserInfo) {
                         mtListView.getListView().getAdapter().notifyDataSetChanged();
-//         TODO                refreshUser((UserInfo) event.getUser());
                     }
                     break;
             }
         } else {
             long uid = event.getUid();
             if (uid > 0) {
-                @ERosterAction int action = event.getRosterAction();
+                @CoreEnum.ERosterAction int action = event.getRosterAction();
                 switch (action) {
-                    case ERosterAction.REQUEST_FRIEND:
-                    case ERosterAction.ACCEPT_BE_FRIENDS:
-                        viewModel.requestUserInfoAndSave(uid, action == ERosterAction.ACCEPT_BE_FRIENDS ? ChatEnum.EUserType.FRIEND : ChatEnum.EUserType.STRANGE);
+                    case CoreEnum.ERosterAction.REQUEST_FRIEND:
+                    case CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS:
+                        viewModel.requestUserInfoAndSave(uid, action == CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS ? ChatEnum.EUserType.FRIEND : ChatEnum.EUserType.STRANGE);
                         break;
                 }
             }
@@ -373,7 +370,7 @@ public class FriendMainFragment extends Fragment {
                             if (tempList.size() > 0) {
                                 // 手机通讯录匹配红点加1
                                 msgDao.remidCount(Preferences.RECENT_FRIENDS_NEW, tempList.size(), true);
-                                MessageManager.getInstance().notifyRefreshFriend(true, -1l, ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
+                                MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
 
                                 for (String phone : tempList) {
                                     CommonUtils.saveFriendInfo(-1l, phone);
@@ -405,7 +402,7 @@ public class FriendMainFragment extends Fragment {
                                 if (subIndex > 0) {
                                     int newRedCount = redCount - subIndex;
                                     msgDao.remidCount(Preferences.RECENT_FRIENDS_NEW, newRedCount > 0 ? newRedCount : 0, false);
-                                    MessageManager.getInstance().notifyRefreshFriend(true, -1l, ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
+                                    MessageManager.getInstance().notifyRefreshFriend(true, -1l, CoreEnum.ERosterAction.PHONE_MATCH);//刷新首页 通讯录底部小红点
                                 }
                             }
                         }
