@@ -3895,7 +3895,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
-        if (AudioPlayManager.getInstance().isPlayingVoice()){
+        if (AudioPlayManager.getInstance().isPlayingVoice()) {
             AudioPlayManager.getInstance().stopPlay();
         }
         currentPlayBean = msgBean;
@@ -4065,7 +4065,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 replaceListDataAndNotify(finalBean);
 
             }
-        },10);
+        }, 10);
 //        runOnUiThread(new Runnable() {
 //            @Override
 //            public void run() {
@@ -6038,6 +6038,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             AudioPlayManager.getInstance().stopPlay();
         }
         mAdapter.removeItem(bean);
+        if (mAdapter.getItemCount() - 1 <= 15) {
+            mtListView.setStackFromEnd(false);
+        }
         mAdapter.notifyItemRemoved(position);//删除刷新
         removeUnreadCount(1);
         fixLastPosition(-1);
@@ -6064,6 +6067,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         deleteList.addAll(list);
         mAdapter.removeMsgList(list);
+        if (mAdapter.getItemCount() - list.size() <= 15) {
+            mtListView.setStackFromEnd(false);
+        }
         removeUnreadCount(list.size());
         notifyData();
 //        mAdapter.notifyDataSetChanged();
