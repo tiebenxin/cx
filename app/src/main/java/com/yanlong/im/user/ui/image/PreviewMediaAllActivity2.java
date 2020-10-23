@@ -1217,81 +1217,84 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
     }
 
     public void download(List<MsgAllBean> list, int position) {
-        MsgAllBean bean = list.get(position);
-        String downUrl = "";
-        File targetFile = null;
-        if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
-            if (!TextUtils.isEmpty(bean.getImage().getOrigin())) {
-                downUrl = bean.getImage().getOrigin();
-            } else {
-                downUrl = bean.getImage().getPreview();
+        if (list != null && position >= 0 && position < list.size()) {
+            MsgAllBean bean = list.get(position);
+            String downUrl = "";
+            File targetFile = null;
+            if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+                if (!TextUtils.isEmpty(bean.getImage().getOrigin())) {
+                    downUrl = bean.getImage().getOrigin();
+                } else {
+                    downUrl = bean.getImage().getPreview();
+                }
+                targetFile = getImageFile(downUrl);
+            } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                downUrl = bean.getVideoMessage().getUrl();
+                targetFile = getVideoFile(downUrl);
             }
-            targetFile = getImageFile(downUrl);
-        } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
-            downUrl = bean.getVideoMessage().getUrl();
-            targetFile = getVideoFile(downUrl);
-        }
-        if (TextUtils.isEmpty(downUrl) || targetFile == null) {
-            return;
-        }
-        File finalTargetFile = targetFile;
-        String finalDownUrl = downUrl;
-        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
-            @Override
-            public void run() {
-                DownloadUtil.get().download(finalDownUrl, finalTargetFile, new DownloadUtil.OnDownloadListener() {
-                    @Override
-                    public void onDownloadSuccess(File file) {
-                        if (file == null) {
-                            LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + null);
-                            return;
-                        }
-                        LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + file.getAbsolutePath());
-                        if (position != list.size() - 1) {
-                            download(list, position + 1);
-                        } else {
-                            //下载完成
-                            bindingView.recyclerView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dismissLoadingDialog();
-                                    ToastUtil.show("下载完成");
-                                    switchSelectMode(false);
-                                }
-                            }, 100);
-                        }
-                        msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
-                        if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
-                            PicSaveUtils.sendBroadcast(finalTargetFile, getApplicationContext());
-                        } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
-                            scanFile(getContext(), finalTargetFile.getAbsolutePath());
-                        }
-                    }
-
-                    @Override
-                    public void onDownloading(int progress) {
-                    }
-
-                    @Override
-                    public void onDownloadFailed(Exception e) {
-                        LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
-                        if (position != list.size() - 1) {
-                            download(list, position + 1);
-                        } else {
-                            //下载完成
-                            bindingView.recyclerView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dismissLoadingDialog();
-                                    ToastUtil.show("下载失败");
-                                    switchSelectMode(false);
-                                }
-                            }, 100);
-                        }
-                    }
-                });
+            if (TextUtils.isEmpty(downUrl) || targetFile == null) {
+                return;
             }
-        });
+            File finalTargetFile = targetFile;
+            String finalDownUrl = downUrl;
+            ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    DownloadUtil.get().download(finalDownUrl, finalTargetFile, new DownloadUtil.OnDownloadListener() {
+                        @Override
+                        public void onDownloadSuccess(File file) {
+                            if (file == null) {
+                                LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + null);
+                                return;
+                            }
+                            LogUtil.getLog().i("DownloadUtil", "下载成功--file=:" + file.getAbsolutePath());
+                            if (position != list.size() - 1) {
+                                download(list, position + 1);
+                            } else {
+                                //下载完成
+                                bindingView.recyclerView.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dismissLoadingDialog();
+                                        ToastUtil.show("下载完成");
+                                        switchSelectMode(false);
+                                    }
+                                }, 100);
+                            }
+                            msgDao.fixVideoLocalUrl(bean.getMsg_id(), finalTargetFile.getAbsolutePath());
+                            if (bean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+                                PicSaveUtils.sendBroadcast(finalTargetFile, getApplicationContext());
+                            } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                                scanFile(getContext(), finalTargetFile.getAbsolutePath());
+                            }
+                        }
+
+                        @Override
+                        public void onDownloading(int progress) {
+                        }
+
+                        @Override
+                        public void onDownloadFailed(Exception e) {
+                            LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
+                            if (position != list.size() - 1) {
+                                download(list, position + 1);
+                            } else {
+                                //下载完成
+                                bindingView.recyclerView.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dismissLoadingDialog();
+                                        ToastUtil.show("下载失败");
+                                        switchSelectMode(false);
+                                    }
+                                }, 100);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
     }
 
     private File getVideoFile(String url) {
