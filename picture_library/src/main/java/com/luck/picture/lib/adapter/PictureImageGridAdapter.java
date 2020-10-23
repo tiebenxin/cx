@@ -195,11 +195,13 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             } else {
                 RequestOptions options = new RequestOptions();
                 if (overrideWidth <= 0 && overrideHeight <= 0) {
-                    options.sizeMultiplier(sizeMultiplier);
+//                    options.sizeMultiplier(sizeMultiplier);
+                    options.override(120, 120);
                 } else {
                     options.override(overrideWidth, overrideHeight);
                 }
-                options.diskCacheStrategy(DiskCacheStrategy.ALL);
+                options.skipMemoryCache(false);
+                options.diskCacheStrategy(DiskCacheStrategy.NONE);
                 options.centerCrop();
                 options.placeholder(R.drawable.image_placeholder);
                 Glide.with(context)
@@ -217,8 +219,8 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                             ToastManage.s(context, PictureMimeType.s(context, mediaMimeType));
                             return;
                         }
-                        if(mediaMimeType == PictureConfig.TYPE_VIDEO){
-                            if(!TextUtils.isEmpty(path)){
+                        if (mediaMimeType == PictureConfig.TYPE_VIDEO) {
+                            if (!TextUtils.isEmpty(path)) {
                                 long length = PicImgSizeUtil.getVideoSize(path);
                                 long duration = Long.parseLong(getVideoAtt(path));
                                 // 大于50M、5分钟不发送
