@@ -178,6 +178,21 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         onDeleteItem(event.position);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
+        if(!TextUtils.isEmpty(event.from)){
+            if(event.from.equals("RecommendFragment")){
+                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(event.position).getData();
+                if(event.type==1){
+                    messageInfoBean.setFollow(true);
+                }else {
+                    messageInfoBean.setFollow(false);
+                }
+                mFlowAdapter.notifyItemChanged(event.position);
+            }
+        }
+    }
+
     @Override
     public void initEvent() {
         messageBinding.layoutNotice.setOnClickListener(v -> {
@@ -236,6 +251,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                             startActivity(intent);
                         }else {
                             startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.FROM, "RecommendFragment")
+                                    .putExtra(FriendTrendsActivity.POSITION, position)
                                     .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
                         }
                         break;

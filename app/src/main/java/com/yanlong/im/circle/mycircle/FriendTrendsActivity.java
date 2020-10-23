@@ -56,6 +56,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private long friendUid;//别人的uid
     private int isFollow;//是否关注了该用户
     private int clickPosition;//点击哪一项跳转过来的
+    private String from;//来自哪个界面
 
 
     @Override
@@ -103,6 +104,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     protected void loadData() {
         friendUid = getIntent().getLongExtra("uid",0);
         clickPosition = getIntent().getIntExtra(POSITION,0);
+        from = getIntent().getStringExtra(UserInfoActivity.FROM);
         httpGetFriendTrends();
         adapter = new MyTrendsAdapter(FriendTrendsActivity.this,mList,2,friendUid);
         bindingView.recyclerView.setAdapter(adapter);
@@ -249,6 +251,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     event.type = 1;
                     event.position = clickPosition;
                     event.uid = uid;
+                    event.from = from;
                     EventBus.getDefault().post(event);
                 }
             }
@@ -281,6 +284,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     event.type = 0;
                     event.position = clickPosition;
                     event.uid = uid;
+                    event.from = from;
                     EventBus.getDefault().post(event);
                 }else {
                     ToastUtil.show("取消关注失败");

@@ -177,6 +177,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                             startActivity(intent);
                         }else {
                             startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.FROM, "FollowFragment")
+                                    .putExtra(FriendTrendsActivity.POSITION, position)
                                     .putExtra(UserInfoActivity.ID, messageInfoBean.getUid()));
                         }
                         break;
@@ -298,6 +300,21 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateNewMsgEvent(EventFactory.UpdateNewMsgEvent event) {
         mFlowAdapter.removeAllHeaderView();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
+        if(!TextUtils.isEmpty(event.from)){
+            if(event.from.equals("FollowFragment")){
+                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(event.position).getData();
+                if(event.type==1){
+                    messageInfoBean.setFollow(true);
+                }else {
+                    messageInfoBean.setFollow(false);
+                }
+                mFlowAdapter.notifyItemChanged(event.position);
+            }
+        }
     }
 
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {

@@ -157,8 +157,7 @@ public class UserInfoActivity extends AppActivity {
     private Group group;
     private SingleMeberInfoBean singleMeberInfoBean;// 单个群成员信息
 
-    @ChatEnum.EFromType
-    private int from;
+    private String fromWhere;
     private AlertYesNo alertYesNo = null;
 
     private int friendDeactivateStat = 0;//该用户的注销状态
@@ -442,7 +441,7 @@ public class UserInfoActivity extends AppActivity {
         joinTypeShow = intent.getIntExtra(JION_TYPE_SHOW, 0);
         contactIntimately = intent.getIntExtra(IS_BUSINESS_CARD, 0);
         gid = intent.getStringExtra(GID);
-        from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFAULT);
+        fromWhere = intent.getStringExtra(FROM);
         mIsFromGroup = intent.getBooleanExtra(IS_GROUP, false);
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         mAlias = intent.getStringExtra(ALIAS);
@@ -632,7 +631,9 @@ public class UserInfoActivity extends AppActivity {
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent(UserInfoActivity.this, FriendTrendsActivity.class);
+                        intent.putExtra("uid", id);
                         intent.putExtra(FriendTrendsActivity.POSITION, fromPosition);
+                        intent.putExtra(FROM, fromWhere);
                         startActivity(intent);
                     }
                 }
