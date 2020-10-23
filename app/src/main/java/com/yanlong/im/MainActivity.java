@@ -1263,6 +1263,9 @@ public class MainActivity extends BaseTcpActivity {
      * 百度地图获取定位信息
      */
     private void getLocation() {
+        if (!isActivityValid()){
+            return;
+        }
         if (!LocationPersimmions.checkPermissions(this)) {
             return;
         }

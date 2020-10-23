@@ -576,15 +576,34 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     }
 
     private void previewImage(List<LocalMedia> previewImages, List<LocalMedia> selectedImages, int position) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) previewImages);
-        bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
-        bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
-        bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-        bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
-        bundle.putBoolean(PictureConfig.IS_ARTWORK_MASTER, isArtworkMaster);
-        startActivity(PicturePreviewActivity.class, bundle,
-                config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
+        //TODO:bundle 不能传太多数据
+        try {
+            int size = previewImages.size();
+            List<LocalMedia> totalImages = new ArrayList<>();
+            if (size <= 100) {
+                totalImages.addAll(previewImages);
+            } else {
+                if (position - 50 <= 0) {//取前面
+                    totalImages.addAll(previewImages.subList(0, 100));
+                } else if (position + 50 >= size) {//取后面
+                    totalImages.addAll(previewImages.subList(size - 100, size));
+                } else {//取中间
+                    totalImages.addAll(previewImages.subList(position - 50, position + 50));
+                }
+            }
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) totalImages);
+            bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
+            bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
+            bundle.putInt(PictureConfig.EXTRA_POSITION, position);
+            bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
+            bundle.putBoolean(PictureConfig.IS_ARTWORK_MASTER, isArtworkMaster);
+            startActivity(PicturePreviewActivity.class, bundle,
+                    config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -799,7 +818,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         camera = config.isCamera ? camera : false;
         adapter.setShowCamera(camera);
         picture_title.setText(folderName);
-        this.images= images;
+        this.images = images;
         adapter.bindImagesData(images);
         folderWindow.dismiss();
     }

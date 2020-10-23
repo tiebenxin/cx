@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+
 import java.util.ArrayList;
 
 /**
@@ -26,7 +27,10 @@ public class LocationPersimmions {
 
     //检测某个权限组
     public static boolean checkPermissions(Activity activity) {
-        ArrayList<String> permissions=getPersimmions();
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return false;
+        }
+        ArrayList<String> permissions = getPersimmions();
         Boolean hasPermissions = true;
         for (int i = 0; i < permissions.size(); i++) {
             Boolean hasPermission = checkPermission(activity, permissions.get(i));
@@ -54,7 +58,7 @@ public class LocationPersimmions {
             if (permissions.size() > 0) {
                 activity.requestPermissions(permissions.toArray(new String[permissions.size()]), SDK_PERMISSION_REQUEST);
             }
-        }else {
+        } else {
             //23以下 默认给了定位权限
         }
     }
