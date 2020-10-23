@@ -174,7 +174,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         bgRequestOptions = RequestOptions.centerCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
-                .error(R.color.c_dcdddd);
+                .error(R.color.c_169BD5);
         if (type == 1) {
             userBean = (UserBean) new UserAction().getMyInfo();
         } else {
@@ -599,6 +599,34 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             //头部
             HeadHolder holder = (HeadHolder) viewHolder;
+            //顶部标题栏
+            if(type==1){
+                holder.ivBack.setVisibility(View.VISIBLE);
+                holder.ivBack.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        refreshListenr.onLeftClick();
+                    }
+                });
+                holder.tvTitle.setVisibility(View.VISIBLE);
+                holder.ivMore.setVisibility(View.GONE);
+            }else {
+                holder.ivBack.setVisibility(View.VISIBLE);
+                holder.ivBack.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        refreshListenr.onLeftClick();
+                    }
+                });
+                holder.tvTitle.setVisibility(View.GONE);
+                holder.ivMore.setVisibility(View.VISIBLE);
+                holder.ivMore.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        refreshListenr.onRightClick();
+                    }
+                });
+            }
             //展示头部数据
             if (topData != null) {
                 //第一页拿部分数据，我关注的，关注我的，看过我的总数
@@ -781,7 +809,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     });
                 }
             }
-
         }
     }
 
@@ -826,7 +853,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutVote;
         private TextView tvVoteNumber;
         private ImageView ivPlay;
-
 
         public ContentHolder(View itemView) {
             super(itemView);
@@ -892,6 +918,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView tvNotice;
         private ImageView ivNoticeAvatar;
         private View lineOne;
+        private ImageView ivBack;
+        private ImageView ivMore;
+        private TextView tvTitle;
 
         public HeadHolder(View itemView) {
             super(itemView);
@@ -911,6 +940,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             tvNotice = itemView.findViewById(R.id.tv_notice);
             ivNoticeAvatar = itemView.findViewById(R.id.iv_notice_avatar);
             lineOne = itemView.findViewById(R.id.line_one);
+            ivBack = itemView.findViewById(R.id.iv_back);
+            ivMore = itemView.findViewById(R.id.iv_more);
+            tvTitle = itemView.findViewById(R.id.tv_title);
         }
     }
 

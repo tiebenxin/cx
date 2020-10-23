@@ -450,8 +450,9 @@ public class FileUtils {
      * @return
      */
     public static boolean isImage(String fileFormat) {
-        if (fileFormat.equals("bmp") || fileFormat.equals("gif") || fileFormat.equals("jpeg") || fileFormat.equals("JPEG")
-                || fileFormat.equals("jpg") || fileFormat.equals("png") || fileFormat.equals("webp") || fileFormat.equals("psd")) {
+        fileFormat = fileFormat.toLowerCase();//有些是类似WEBP的大写后缀，这里统一转小写再比较
+        if (fileFormat.equals("bmp") || fileFormat.equals("gif") || fileFormat.equals("jpeg") || fileFormat.equals("jpg")
+                || fileFormat.equals("png") || fileFormat.equals("webp") || fileFormat.equals("psd")) {
             return true;
         } else {
             return false;
@@ -459,6 +460,7 @@ public class FileUtils {
     }
 
     public static boolean isVideo(String fileFormat) {
+        fileFormat = fileFormat.toLowerCase();
         if (fileFormat.equals("3gp") || fileFormat.equals("asf") || fileFormat.equals("avi") || fileFormat.equals("m4u")
                 || fileFormat.equals("m4v") || fileFormat.equals("mov") || fileFormat.equals("mp4") || fileFormat.equals("mpe")
                 || fileFormat.equals("mpeg") || fileFormat.equals("mpg") || fileFormat.equals("mpg4") || fileFormat.equals("wmv")

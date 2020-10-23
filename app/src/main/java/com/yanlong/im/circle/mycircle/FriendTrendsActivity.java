@@ -1,10 +1,13 @@
 package com.yanlong.im.circle.mycircle;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.event.EventFactory;
@@ -22,9 +25,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.IFriendTrendClickListner;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DialogHelper;
-import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -70,34 +71,46 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         mList = new ArrayList<>();
         bindingView.layoutFollow.setVisibility(View.VISIBLE);
         bindingView.layoutChat.setVisibility(View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //5.0 全透明实现
+            //getWindow.setStatusBarColor(Color.TRANSPARENT)
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            //4.4 全透明状态栏
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
     }
 
     @Override
     protected void initEvent() {
-        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
-        ivRight.setImageResource(R.mipmap.ic_circle_more);
-        ivRight.setVisibility(View.VISIBLE);
-        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
-                ScreenUtil.dip2px(this, 10), 0);
-        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
-            @Override
-            public void onBack() {
-                onBackPressed();
-            }
-
-            @Override
-            public void onRight() {
-                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
-                    @Override
-                    public void clickReport() {
-                        //举报
-                        Intent intent = new Intent(FriendTrendsActivity.this, ComplaintActivity.class);
-                        intent.putExtra(ComplaintActivity.UID, friendUid + "");
-                        startActivity(intent);
-                    }
-                });
-            }
-        });
+//        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
+//        ivRight.setImageResource(R.mipmap.ic_circle_more);
+//        ivRight.setVisibility(View.VISIBLE);
+//        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
+//                ScreenUtil.dip2px(this, 10), 0);
+//        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+//            @Override
+//            public void onBack() {
+//                onBackPressed();
+//            }
+//
+//            @Override
+//            public void onRight() {
+//                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+//                    @Override
+//                    public void clickReport() {
+//                        //举报
+//                        Intent intent = new Intent(FriendTrendsActivity.this, ComplaintActivity.class);
+//                        intent.putExtra(ComplaintActivity.UID, friendUid + "");
+//                        startActivity(intent);
+//                    }
+//                });
+//            }
+//        });
     }
 
     @Override
@@ -132,6 +145,24 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             public void onRefresh() {
                 page = 1;
                 httpGetFriendTrends();
+            }
+
+            @Override
+            public void onLeftClick() {
+                finish();
+            }
+
+            @Override
+            public void onRightClick() {
+                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+                    @Override
+                    public void clickReport() {
+                        //举报
+                        Intent intent = new Intent(FriendTrendsActivity.this, ComplaintActivity.class);
+                        intent.putExtra(ComplaintActivity.UID, friendUid + "");
+                        startActivity(intent);
+                    }
+                });
             }
         });
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);

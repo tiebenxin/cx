@@ -231,6 +231,7 @@
                 android:drawableLeft="@mipmap/ic_circle_give"
                 android:gravity="center_vertical"
                 android:minWidth="60dp"
+                android:layout_marginRight="6dp"
                 android:textColor="@color/gray_b2b"
                 android:textSize="15sp" />
 

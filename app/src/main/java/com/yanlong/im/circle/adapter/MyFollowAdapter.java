@@ -174,7 +174,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvNote.setVisibility(View.GONE);
                     } else {
                         if (userInfo.getLastTime()!=0) {
-                            holder.tvNote.setText("最近访问："+TimeToString.getTimeForCollect(userInfo.getLastTime()));
+                            holder.tvNote.setText("最近访问："+TimeToString.formatCircleDate(userInfo.getLastTime()));
                         }else {
                             holder.tvNote.setText("最近没有访问");
                         }

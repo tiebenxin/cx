@@ -1,6 +1,7 @@
 package com.yanlong.im.circle.adapter;
 
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -67,16 +68,17 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         TextView tvName = helper.getView(R.id.tv_user_name);
         TextView tvContent = helper.getView(R.id.tv_content);
         helper.setText(R.id.tv_date, TimeToString.getTimeWx(commentBean.getCreateTime()));
-        tvContent.setText(getSpan(commentBean.getContent()));
         tvName.setText(commentBean.getNickname());
 
         if (commentBean.getReplyUid() != null && commentBean.getReplyUid() != 0) {
             tvName.setTextColor(mContext.getResources().getColor(R.color.color_488));
-            CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
-                    commentBean.getReplyNickname(), R.color.color_488, 2, tvContent, mContext);
+            SpannableStringBuilder span = CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
+                    commentBean.getReplyNickname(), R.color.color_488, 2, mContext);
+            tvContent.setText(getSpan(span.toString()));
         } else {
             tvName.setTextColor(mContext.getResources().getColor(R.color.gray_757));
             tvContent.setTextColor(mContext.getResources().getColor(R.color.gray_484));
+            tvContent.setText(getSpan(commentBean.getContent()));
         }
         helper.addOnClickListener(R.id.layout_item, R.id.iv_header);
         helper.addOnLongClickListener(R.id.layout_item);
