@@ -113,6 +113,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             }
         }
     };
+    private boolean hasSwitchFolder = false;//是否切换过文件夹
 
     /**
      * EventBus 3.0 回调
@@ -349,6 +350,9 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         mediaLoader.loadAllMedia(new LocalMediaLoader.LocalMediaLoadListener() {
             @Override
             public void loadComplete(List<LocalMediaFolder> folders) {
+                if (hasSwitchFolder) {
+                    return;
+                }
                 if (folders.size() > 0) {
                     foldersList = folders;
                     LocalMediaFolder folder = folders.get(0);
@@ -791,9 +795,11 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     @Override
     public void onItemClick(String folderName, List<LocalMedia> images) {
         boolean camera = StringUtils.isCamera(folderName);
+        hasSwitchFolder = !camera;
         camera = config.isCamera ? camera : false;
         adapter.setShowCamera(camera);
         picture_title.setText(folderName);
+        this.images= images;
         adapter.bindImagesData(images);
         folderWindow.dismiss();
     }
