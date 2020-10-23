@@ -40,6 +40,7 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
+import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.databinding.FragmentRecommendBinding;
 import com.yanlong.im.databinding.ViewNewCircleMessageBinding;
 import com.yanlong.im.interf.ICircleClickListener;
@@ -231,9 +232,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         }
                         //如果是我自己，则跳朋友圈，其他人跳详细资料
                         if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
-                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
-                            intent.putExtra("uid",messageInfoBean.getUid());
-                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            Intent intent = new Intent(getContext(), MyTrendsActivity.class);
                             startActivity(intent);
                         }else {
                             startActivity(new Intent(getContext(), UserInfoActivity.class)
@@ -301,13 +300,22 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         }
                         break;
                     case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
-                        if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {
-                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
-                            intent.putExtra("uid",messageInfoBean.getUid());
-                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                        if (AudioPlayUtil.isPlay()) {
+                            AudioPlayUtil.stopAudioPlay();
+                        }
+                        //如果是我自己，则跳我的朋友圈，其他人跳好友朋友圈
+                        if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                            Intent intent = new Intent(getContext(), MyTrendsActivity.class);
                             startActivity(intent);
                         }else {
-                            ToastUtil.show("该用户已注销");
+                            if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {
+                                Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
+                                intent.putExtra("uid",messageInfoBean.getUid());
+                                intent.putExtra(FriendTrendsActivity.POSITION,position);
+                                startActivity(intent);
+                            }else {
+                                ToastUtil.show("该用户已注销");
+                            }
                         }
                         break;
                 }

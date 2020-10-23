@@ -625,7 +625,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     public void onShowMessage(String msg) {
         ToastUtil.show(msg);
         if(msg.equals("动态被藏起来了")){
-            if(mCommentDialog!=null || mCommentDialog.isShowing()){
+            if(mCommentDialog!=null){
                 mCommentDialog.dismiss();
                 mCommentDialog = null;
             }

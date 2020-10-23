@@ -248,6 +248,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 1;
                     event.position = clickPosition;
+                    event.uid = uid;
                     EventBus.getDefault().post(event);
                 }
             }
@@ -279,6 +280,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 0;
                     event.position = clickPosition;
+                    event.uid = uid;
                     EventBus.getDefault().post(event);
                 }else {
                     ToastUtil.show("取消关注失败");

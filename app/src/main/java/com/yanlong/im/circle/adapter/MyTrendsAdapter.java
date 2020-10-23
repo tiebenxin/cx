@@ -299,6 +299,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     bean.setNickname(userBean.getName());
                                 }
                             }
+                            AudioPlayUtil.stopAudioPlay();
                             gotoCircleDetailsActivity(true,bean);
                         }
                     });
@@ -411,6 +412,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         bean.setNickname(userBean.getName());
                                     }
                                 }
+                                AudioPlayUtil.stopAudioPlay();
                                 gotoCircleDetailsActivity(false, bean);
                             }
                     );
@@ -482,6 +484,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.layoutVideo.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        AudioPlayUtil.stopAudioPlay();
                                         toPictruePreview(0, finalAttachmentBeans);
                                     }
                                 });
@@ -512,6 +515,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.layoutVideo.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        AudioPlayUtil.stopAudioPlay();
                                         Intent intent = new Intent(activity, VideoPlayActivity.class);
                                         intent.putExtra("videopath", attachmentBean.getUrl());
                                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -636,6 +640,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+                AudioPlayUtil.stopAudioPlay();
                 holder.layoutNotice.setVisibility(View.GONE);
                 Intent intent = new Intent(activity, MyInteractActivity.class);
                 activity.startActivity(intent);
@@ -644,6 +649,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+                AudioPlayUtil.stopAudioPlay();
                 Intent intent = new Intent(activity, MyFollowActivity.class);
                 activity.startActivity(intent);
             });
@@ -651,6 +657,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+                AudioPlayUtil.stopAudioPlay();
                 Intent intent = new Intent(activity, FollowMeActivity.class);
                 activity.startActivity(intent);
             });
@@ -658,6 +665,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+                AudioPlayUtil.stopAudioPlay();
                 Intent intent = new Intent(activity, MyMeetingActivity.class);
                 activity.startActivity(intent);
             });
@@ -1203,15 +1211,18 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
                 MessageInfoBean messageInfoBean = dataList.get(parentPostion);
-                //无法给自己投票
-                if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
-                    ToastUtil.show("无法给自己投票");
+                if (view.getId() == R.id.iv_picture) {// 查看大图
+                    gotoPictruePreview(position, voteList);
                 }else {
-                    if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
-                        voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+                    //无法给自己投票
+                    if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                        ToastUtil.show("无法给自己投票");
+                    }else {
+                        if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
+                            voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+                        }
                     }
                 }
-
             }
         });
     }
@@ -1441,5 +1452,19 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             return true;
         }
+    }
+
+    private void gotoPictruePreview(int position, List<VoteBean.Item> voteList) {
+        AudioPlayUtil.stopAudioPlay();
+        List<AttachmentBean> attachmentBeans = new ArrayList<>();
+        for (VoteBean.Item item : voteList) {
+            AttachmentBean bean = new AttachmentBean();
+            bean.setHeight(item.getHeight());
+            bean.setWidth(item.getWidth());
+            bean.setUrl(item.getItem());
+            bean.setSize(item.getSize());
+            attachmentBeans.add(bean);
+        }
+        toPictruePreview(position, attachmentBeans);
     }
 }

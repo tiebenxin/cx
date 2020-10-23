@@ -280,9 +280,18 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 //        }
 //    }
 
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        if (RxBus.getDefault().isRegistered(this)) {
+//            RxBus.getDefault().unregister(this);
+//        }
+//        AudioPlayUtil.stopAudioPlay();
+//    }
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         if (RxBus.getDefault().isRegistered(this)) {
             RxBus.getDefault().unregister(this);
         }

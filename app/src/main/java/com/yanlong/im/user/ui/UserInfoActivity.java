@@ -127,6 +127,7 @@ public class UserInfoActivity extends AppActivity {
     private int isApply;//是否是好友申请 0 不是 1.是
     private int joinTypeShow;//0 不显示  1.显示
     private int joinType;
+    private int fromPosition;//从广场哪个位置跳转过来
     private String gid;
     private String mAlias;// 通讯录昵称
     private String inviterName;
@@ -446,6 +447,7 @@ public class UserInfoActivity extends AppActivity {
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         mAlias = intent.getStringExtra(ALIAS);
         contactName = intent.getStringExtra(CONTACT_NAME);
+        fromPosition = intent.getIntExtra(FriendTrendsActivity.POSITION,0);
 
         taskFindExist();
         if (!TextUtils.isEmpty(gid)) {
@@ -630,7 +632,7 @@ public class UserInfoActivity extends AppActivity {
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent(UserInfoActivity.this, FriendTrendsActivity.class);
-                        intent.putExtra("uid", id);
+                        intent.putExtra(FriendTrendsActivity.POSITION, fromPosition);
                         startActivity(intent);
                     }
                 }
