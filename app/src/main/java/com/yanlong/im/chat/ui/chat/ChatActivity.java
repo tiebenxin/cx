@@ -6114,7 +6114,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 获取单个群成员信息
      */
     private void getSingleMemberInfo(MsgAllBean reMsg) {
-        new UserAction().getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
+        userAction.getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
                 super.onResponse(call, response);
@@ -7122,12 +7122,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         List<UserInfo> filterList = new ArrayList<>();
         //1 先过滤掉已经被移除的群员
         //查找出该群所有成员
-        Group group = new MsgDao().groupNumberGet(toGid);
+        Group group = msgDao.groupNumberGet(toGid);
         if (group.getUsers() != null && group.getUsers().size() > 0) {
             //查找邀请入群的成员是否仍在群中
             for (UserInfo userInfo : list) {
                 //如果邀请入群的成员仍在群中，获取其头像，下个界面需要显示
-                if (new MsgDao().inThisGroup(toGid, userInfo.getUid().longValue())) {
+                if (msgDao.inThisGroup(toGid, userInfo.getUid().longValue())) {
                     for (MemberUser user : group.getUsers()) {
                         if (userInfo.getUid().longValue() == user.getUid()) {
                             //找到并更新头像

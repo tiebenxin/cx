@@ -161,7 +161,7 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                 }
                 String tag = (String) ivImage.getTag(R.id.tag_img);
                 RequestOptions options = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE).dontAnimate();
-                if (TextUtils.equals(tag, url)) {
+                if (!TextUtils.isEmpty(tag) && TextUtils.equals(tag, url)) {
                     if (PictureMimeType.isImageGif(url)) {
                         glideGif(tag);
                     } else {
@@ -169,9 +169,9 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                     }
                 } else {
                     if (PictureMimeType.isImageGif(url)) {
-                        glideGif(tag);
+                        glideGif(url);
                     } else {
-                        glideImage(tag, options);
+                        glideImage(url, options);
                     }
                 }
 
@@ -182,7 +182,7 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                 String tag = (String) ivImage.getTag(R.id.tag_img);
                 String url = videoMessage.getBg_url();
                 RequestOptions options = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE).dontAnimate();
-                if (TextUtils.equals(tag, url)) {
+                if (!TextUtils.isEmpty(tag) && TextUtils.equals(tag, url)) {
                     glideImage(tag, options);
                 } else {
                     glideImage(url, options);
