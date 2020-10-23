@@ -261,7 +261,6 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void recycler() {
-        super.recycler();
         LogUtil.getLog().i("图片", "recycler");
         try {
 //            Glide.with(getContext()).clear(imageView);

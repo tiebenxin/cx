@@ -183,7 +183,7 @@ public class ChatCellVideo extends ChatCellImage {
         try {
 //            Glide.with(getContext()).clear(ivBg);
             if (localBitmap != null) {
-                localBitmap.recycle();
+//                localBitmap.recycle();
                 localBitmap = null;
             }
         } catch (Exception e) {
