@@ -427,11 +427,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     @Override
-    public void onVoteSuccess(int parentPostion, String msg) {
+    public void onVoteSuccess(int parentPosition, String msg) {
         try {
-            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
+            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPosition).getData();
             if (messageInfoBean != null) {
-                mPresenter.queryById(messageInfoBean.getId(), messageInfoBean.getUid(), parentPostion);
+                mPresenter.queryById(messageInfoBean.getId(), messageInfoBean.getUid(), parentPosition);
             }
         } catch (Exception e) {
 
@@ -464,7 +464,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     @Override
-    public void onSuccess(int postion, boolean isCancleFollow, String msg) {
+    public void onSuccess(int postion, boolean isCancelFollow, String msg) {
         mCurrentPage = 1;
         mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
     }

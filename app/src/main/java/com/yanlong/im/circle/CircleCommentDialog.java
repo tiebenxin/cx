@@ -46,12 +46,14 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
     private int mFuncHeight = 0;// 功能面板默认高度
     private Window dialogWindow;
     private String mReplyName;// 回复人昵称
+    private boolean isShowSoft;// 是否弹起软键盘
 
-    public CircleCommentDialog(Context context, String replyName, OnMessageListener listener) {
-        super(context, R.style.AppDialog);
+    public CircleCommentDialog(Context context, String replyName, boolean isShow, OnMessageListener listener) {
+        super(context, R.style.AppDialogNoFade);
         mContext = context;
         mListener = listener;
         mReplyName = replyName;
+        isShowSoft = isShow;
     }
 
     @Override
@@ -67,13 +69,16 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
         if (!TextUtils.isEmpty(mReplyName)) {
             binding.etMessage.setHint("回复" + mReplyName + ":");
         }
+        setCanceledOnTouchOutside(false);
         setContentView(binding.getRoot());
         dialogWindow = getWindow();
         WindowManager.LayoutParams lp = dialogWindow.getAttributes();
         dialogWindow.setGravity(Gravity.BOTTOM);
         dialogWindow.setLayout(WindowManager.LayoutParams.MATCH_PARENT, ScreenUtil.dip2px(mContext, 60));
         dialogWindow.setAttributes(lp);
-        setSoftKeyboard();
+        if (isShowSoft) {
+            setSoftKeyboard();
+        }
     }
 
     public void initEvent() {
@@ -187,6 +192,12 @@ public class CircleCommentDialog extends Dialog implements View.OnClickListener 
             setRecyclerViewHeight(60);
             InputUtil.showKeyboard(binding.etMessage);
         }
+    }
+
+    public void clearEdit() {
+        binding.etMessage.setText("");
+        binding.etMessage.clearFocus();
+        InputUtil.hideKeyboard(binding.etMessage);
     }
 
     public interface OnMessageListener {

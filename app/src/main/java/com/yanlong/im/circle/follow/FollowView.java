@@ -24,11 +24,11 @@ public interface FollowView extends IBaseView {
 
     void onCommentSuccess(CircleCommentBean commentBean);
 
-    void onVoteSuccess(int parentPostion, String msg);
+    void onVoteSuccess(int parentPosition, String msg);
 
     void onLikeSuccess(int position, String msg);
 
-    void onSuccess(int position, boolean isCancleFollow, String msg);
+    void onSuccess(int position, boolean isCancelFollow, String msg);
 
     void onShowMessage(String msg);
 
