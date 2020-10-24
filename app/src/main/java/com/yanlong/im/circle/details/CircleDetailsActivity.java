@@ -197,7 +197,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
                             @Override
                             public void onClickReport() {
-                                gotoComplaintActivity();
+                                gotoComplaintActivity(0,0);
                             }
                         });
             }
@@ -433,19 +433,23 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     mPresenter.delComment(mCommentList.get(postion).getId(), mMessageInfoBean.getId(),
                             mMessageInfoBean.getUid(), postion);
                 } else if (type == CoreEnum.ELongType.REPORT) {
-                    gotoComplaintActivity();
+                    gotoComplaintActivity(1,mCommentList.get(postion).getId());
                 }
             }
         }).showViewTop(view);
     }
 
-    private void gotoComplaintActivity() {
+    private void gotoComplaintActivity(int type,long commentId) {
         Intent intent = new Intent(getContext(), ComplaintActivity.class);
         intent.putExtra(ComplaintActivity.UID, mMessageInfoBean.getUid() + "");
-        intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
-        intent.putExtra(ComplaintActivity.COMMENT_ID, 0);
-        intent.putExtra(ComplaintActivity.DEFENDANT_UID, mMessageInfoBean.getUid());
-        intent.putExtra(ComplaintActivity.MOMENT_ID, mMessageInfoBean.getId());
+        if(type==0){ //普通投诉
+            intent.putExtra(ComplaintActivity.FROM_WHERE, 0);
+        }else { //广场投诉(含评论)
+            intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
+            intent.putExtra(ComplaintActivity.COMMENT_ID, commentId);
+            intent.putExtra(ComplaintActivity.DEFENDANT_UID, mMessageInfoBean.getUid());
+            intent.putExtra(ComplaintActivity.MOMENT_ID, mMessageInfoBean.getId());
+        }
         startActivity(intent);
     }
 
