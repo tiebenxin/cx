@@ -16,6 +16,7 @@ import com.bumptech.glide.request.target.Target;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.face.AddFaceActivity;
+import com.yanlong.im.view.face.FaceConstans;
 import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.view.face.bean.FaceBean;
 
@@ -77,7 +78,7 @@ public class FaceAdapter extends BaseAdapter {
         }
 
         FaceBean bean = list_FaceBeans.get(position);
-        if (bean.getGroup().equals(FaceView.face_custom)) {// 自定义表情
+        if (bean.getGroup().equals(FaceConstans.face_custom)) {// 自定义表情
             holder.image_thum.setVisibility(View.GONE);
             holder.image_big.setVisibility(View.VISIBLE);
             if (position == 0) {
@@ -95,7 +96,7 @@ public class FaceAdapter extends BaseAdapter {
                     }
                 }).apply(GlideOptionsUtil.defImageOptions()).into(holder.image_big);
             }
-        } else if (bean.getGroup().equals(FaceView.face_animo)) {
+        } else if (bean.getGroup().equals(FaceConstans.face_animo)) {
             holder.image_thum.setVisibility(View.GONE);
             holder.image_big.setVisibility(View.VISIBLE);
 

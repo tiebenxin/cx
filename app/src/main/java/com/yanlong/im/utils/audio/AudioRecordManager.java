@@ -56,7 +56,7 @@ public class AudioRecordManager implements Handler.Callback {
 
     @TargetApi(21)
     private AudioRecordManager(Context context) {
-        this.mContext = context;
+        this.mContext = context.getApplicationContext();
         this.mHandler = new Handler(this);
         this.RECORD_INTERVAL = 60;
         this.SAVE_PATH = context.getExternalCacheDir().getAbsolutePath();
@@ -614,5 +614,15 @@ public class AudioRecordManager implements Handler.Callback {
             }
         }
         return false;
+    }
+
+    //销毁资源
+    public void destroy() {
+        if (mInstance != null) {
+            mInstance = null;
+        }
+        if (mHandler != null) {
+            mHandler = null;
+        }
     }
 }

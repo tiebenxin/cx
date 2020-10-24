@@ -26,6 +26,7 @@ import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.util.NIMUtil;
+import com.squareup.leakcanary.LeakCanary;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
@@ -108,6 +109,8 @@ public class MyAppLication extends MainApplication {
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
             initBugly();
+        }else {
+//            initLeakCanary();
         }
         initCache();
         // 初始化表情
@@ -515,5 +518,13 @@ public class MyAppLication extends MainApplication {
         super.onTrimMemory(level);
         Glide.with(this).onTrimMemory(level);
         LogUtil.getLog().i("liszt_test", "onTrimMemory--level=" + level);
+    }
+
+    //内存泄露
+    private void initLeakCanary(){
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return;
+        }
+        LeakCanary.install(this);
     }
 }

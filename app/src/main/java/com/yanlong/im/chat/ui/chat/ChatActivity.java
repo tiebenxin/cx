@@ -195,6 +195,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.CustomerEditText;
 import com.yanlong.im.view.HeadView2;
 import com.yanlong.im.view.face.AddFaceActivity;
+import com.yanlong.im.view.face.FaceConstans;
 import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.view.face.FaceViewPager;
 import com.yanlong.im.view.face.ShowBigFaceActivity;
@@ -825,6 +826,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         //释放adapter资源
         mAdapter.onDestroy();
         mViewModel.onDestroy();
+        AudioRecordManager.getInstance(this).destroy();
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
@@ -1223,15 +1225,15 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (!checkNetConnectStatus(0)) {
             return;
         }
-        if (FaceView.face_animo.equals(bean.getGroup())) {
+        if (FaceConstans.face_animo.equals(bean.getGroup())) {
             isSendingHypertext = false;
 
             ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean.getName());
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
-        } else if (FaceView.face_emoji.equals(bean.getGroup()) || FaceView.face_lately_emoji.equals(bean.getGroup())) {
+        } else if (FaceConstans.face_emoji.equals(bean.getGroup()) ||FaceConstans.face_lately_emoji.equals(bean.getGroup())) {
             editChat.addEmojSpan(bean.getName());
-        } else if (FaceView.face_custom.equals(bean.getGroup())) {
+        } else if (FaceConstans.face_custom.equals(bean.getGroup())) {
             if ("add".equals(bean.getName())) {
                 if (!ViewUtils.isFastDoubleClick()) {
                     mViewModel.isOpenEmoj.setValue(false);
