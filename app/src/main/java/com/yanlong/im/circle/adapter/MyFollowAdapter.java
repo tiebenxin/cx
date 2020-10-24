@@ -17,10 +17,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.dailog.CommonSelectDialog;
+import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.FriendUserBean;
-import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.CircleAction;
+import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 
@@ -29,6 +30,8 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -400,6 +403,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ToastUtil.show("取消关注成功");
                     dataList.get(position).setStat(2);
                     notifyItemChanged(position,tvFollow);
+                    EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
                 }else {
                     ToastUtil.show("取消关注失败");
                 }
