@@ -278,6 +278,7 @@ public class UserInfoActivity extends AppActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, ComplaintActivity.class);
                 intent.putExtra(ComplaintActivity.UID, id + "");
+                intent.putExtra(ComplaintActivity.FROM_WHERE, 0);
                 startActivity(intent);
             }
         });

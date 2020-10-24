@@ -25,6 +25,7 @@ import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.circle.mycircle.CircleAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.ImageBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -73,6 +74,11 @@ public class ComplaintUploadActivity extends AppActivity {
     private RecyclerView recyclerView;
     private ComplaintUploadAdatper adatper;
 
+    private int fromWhere; // 0 普通投诉  1 广场投诉
+    private long commentId;
+    private long defendantUid;
+    private long momentId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +103,10 @@ public class ComplaintUploadActivity extends AppActivity {
         complaintType = getIntent().getIntExtra(COMPLATION_TYPE, 0);
         gid = getIntent().getStringExtra(GID);
         uid = getIntent().getStringExtra(UID);
+        fromWhere = getIntent().getIntExtra(ComplaintActivity.FROM_WHERE,0);
+        commentId = getIntent().getLongExtra(ComplaintActivity.COMMENT_ID,0);
+        defendantUid = getIntent().getLongExtra(ComplaintActivity.DEFENDANT_UID,0);
+        momentId = getIntent().getLongExtra(ComplaintActivity.MOMENT_ID,0);
 
     }
 
@@ -154,20 +164,40 @@ public class ComplaintUploadActivity extends AppActivity {
         }
 
         if (!TextUtils.isEmpty(content) || !TextUtils.isEmpty(imageUrl)) {
-            new UserAction().userComplaint(complaintType, content, imageUrl, gid, uid, new CallBack<ReturnBean>() {
-                @Override
-                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                    super.onResponse(call, response);
-                    if (response.body() == null) {
-                        return;
+            //普通投诉
+            if(fromWhere==0){
+                new UserAction().userComplaint(complaintType, content, imageUrl, gid, uid, new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        super.onResponse(call, response);
+                        if (response.body() == null) {
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            ToastUtil.show(context, "投诉成功");
+                            finish();
+                        }
                     }
-                    if (response.body().isOk()) {
-                        ToastUtil.show(context, "投诉成功");
-                        finish();
+                });
+            }else {
+                //广场投诉
+                new CircleAction().httpCircleComplaint(commentId,complaintType, defendantUid,content, imageUrl, momentId, new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        super.onResponse(call, response);
+                        if (response.body() == null) {
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            ToastUtil.show(context, "投诉成功");
+                            finish();
+                        }
                     }
+                });
 
-                }
-            });
+            }
+
+
         } else {
             ToastUtil.show(context, "请上传违规图片或填写违规内容");
         }

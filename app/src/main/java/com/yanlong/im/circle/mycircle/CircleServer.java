@@ -12,7 +12,7 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 
-public interface TempServer {
+public interface CircleServer {
 
     @POST("/follow/my-follow")
     @FormUrlEncoded
@@ -78,6 +78,11 @@ public interface TempServer {
     @POST("/square/forbid-see/cancel")
     @FormUrlEncoded
     Call<ReturnBean> httpDeleteNotSee(@Field("forbidUid") long forbidUid);
+
+    @POST("/square/complaint/add")
+    @FormUrlEncoded
+    Call<ReturnBean> httpCircleComplaint(@Field("commentId") long commentId,@Field("complaintType") Integer complaintType, @Field("defendantUid") long defendantUid,
+                                        @Field("illegalDescription") String illegalDescription, @Field("illegalImage") String illegalImage, @Field("momentId") long momentId);
 
 
 }

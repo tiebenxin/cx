@@ -352,6 +352,7 @@ public class GroupInfoActivity extends AppActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(GroupInfoActivity.this, ComplaintActivity.class);
                 intent.putExtra(ComplaintActivity.GID, gid);
+                intent.putExtra(ComplaintActivity.FROM_WHERE, 0);
                 startActivity(intent);
             }
         });

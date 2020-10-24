@@ -442,6 +442,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private void gotoComplaintActivity() {
         Intent intent = new Intent(getContext(), ComplaintActivity.class);
         intent.putExtra(ComplaintActivity.UID, mMessageInfoBean.getUid() + "");
+        intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
+        intent.putExtra(ComplaintActivity.COMMENT_ID, 0);
+        intent.putExtra(ComplaintActivity.DEFENDANT_UID, mMessageInfoBean.getUid());
+        intent.putExtra(ComplaintActivity.MOMENT_ID, mMessageInfoBean.getId());
         startActivity(intent);
     }
 

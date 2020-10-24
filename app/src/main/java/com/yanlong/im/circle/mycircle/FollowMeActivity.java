@@ -48,7 +48,7 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     private List<FriendUserBean> mList;
     private List<FriendUserBean> allData;//全部数据
     private List<FriendUserBean> searchData;//搜索后的数据
-    private TempAction action;
+    private CircleAction action;
 
     @Override
     protected int setView() {
@@ -60,7 +60,7 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
         mList = new ArrayList<>();
         allData = new ArrayList<>();
         searchData = new ArrayList<>();
-        action = new TempAction();
+        action = new CircleAction();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }

@@ -16,11 +16,11 @@ import java.util.List;
  * @备注：
  */
 
-public class TempAction {
-    private TempServer server;
+public class CircleAction {
+    private CircleServer server;
 
-    public TempAction() {
-        server = NetUtil.getNet().create(TempServer.class);
+    public CircleAction() {
+        server = NetUtil.getNet().create(CircleServer.class);
     }
 
     /**
@@ -143,5 +143,11 @@ public class TempAction {
         NetUtil.getNet().exec(server.httpDeleteNotSee(id), callback);
     }
 
+    /**
+     * 广场投诉
+     */
+    public void httpCircleComplaint(long commentId, int complaintType, long defendantUid, String illegalDescription, String illegalImage, long momentId, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpCircleComplaint(commentId,complaintType,defendantUid,illegalDescription,illegalImage,momentId), callback);
+    }
 
 }

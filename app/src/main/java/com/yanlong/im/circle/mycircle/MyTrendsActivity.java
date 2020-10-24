@@ -53,7 +53,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     private int page = 1;//默认第一页
 
-    private TempAction action;
+    private CircleAction action;
     private UpFileAction upFileAction;
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
@@ -66,7 +66,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     @Override
     protected void init(Bundle savedInstanceState) {
-        action = new TempAction();
+        action = new CircleAction();
         mList = new ArrayList<>();
         msgDao = new MsgDao();
         bindingView.layoutFollow.setVisibility(View.GONE);

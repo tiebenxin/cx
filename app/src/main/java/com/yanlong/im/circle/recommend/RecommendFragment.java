@@ -296,6 +296,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                                     public void onClickReport() {
                                         Intent intent = new Intent(getContext(), ComplaintActivity.class);
                                         intent.putExtra(ComplaintActivity.UID, messageInfoBean.getUid() + "");
+                                        intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
+                                        intent.putExtra(ComplaintActivity.COMMENT_ID, 0);
+                                        intent.putExtra(ComplaintActivity.DEFENDANT_UID, messageInfoBean.getUid());
+                                        intent.putExtra(ComplaintActivity.MOMENT_ID, messageInfoBean.getId());
                                         startActivity(intent);
                                     }
                                 });

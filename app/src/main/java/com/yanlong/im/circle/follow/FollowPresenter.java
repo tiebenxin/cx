@@ -153,7 +153,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
 
     private MessageFlowItemBean createFlowItemBean(MessageInfoBean messageInfoBean) {
         MessageFlowItemBean flowItemBean = null;
-        if (messageInfoBean != null) {
+        if (messageInfoBean != null && messageInfoBean.getType()!=null) {
             switch (messageInfoBean.getType()) {
                 case PictureEnum.EContentType.VOTE:
                 case PictureEnum.EContentType.PICTRUE_AND_VOTE:

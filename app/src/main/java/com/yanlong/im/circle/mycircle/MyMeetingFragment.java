@@ -45,7 +45,7 @@ public class MyMeetingFragment extends Fragment {
     private MyFollowAdapter adapter;
     private List<FriendUserBean> mList;
     private Activity activity;
-    private TempAction action;
+    private CircleAction action;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class MyMeetingFragment extends Fragment {
         noDataLayout = view.findViewById(R.id.no_data_layout);
         mList = new ArrayList<>();
         activity = getActivity();
-        action = new TempAction();
+        action = new CircleAction();
     }
 
     @Override
