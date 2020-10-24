@@ -78,6 +78,7 @@ public class ComplaintUploadActivity extends AppActivity {
     private long commentId;
     private long defendantUid;
     private long momentId;
+    private long momentUid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +108,7 @@ public class ComplaintUploadActivity extends AppActivity {
         commentId = getIntent().getLongExtra(ComplaintActivity.COMMENT_ID,0);
         defendantUid = getIntent().getLongExtra(ComplaintActivity.DEFENDANT_UID,0);
         momentId = getIntent().getLongExtra(ComplaintActivity.MOMENT_ID,0);
+        momentUid = getIntent().getLongExtra(ComplaintActivity.MOMENT_UID,0);
 
     }
 
@@ -181,7 +183,7 @@ public class ComplaintUploadActivity extends AppActivity {
                 });
             }else {
                 //广场投诉
-                new CircleAction().httpCircleComplaint(commentId,complaintType, defendantUid,content, imageUrl, momentId, new CallBack<ReturnBean>() {
+                new CircleAction().httpCircleComplaint(momentUid,commentId,complaintType, defendantUid,content, imageUrl, momentId, new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         super.onResponse(call, response);

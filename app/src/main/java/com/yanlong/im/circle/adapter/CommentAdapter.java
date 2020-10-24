@@ -2,7 +2,6 @@ package com.yanlong.im.circle.adapter;
 
 import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -90,9 +89,9 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
 
         if (commentBean.getReplyUid() != null && commentBean.getReplyUid() != 0) {
             tvName.setTextColor(mContext.getResources().getColor(R.color.color_488));
-            SpannableStringBuilder span = CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
-                    commentBean.getReplyNickname(), R.color.color_488, 2, mContext);
-            tvContent.setText(getSpan(span.toString()));
+            tvContent.setText(getSpan(commentBean.getContent()));
+            CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
+                    commentBean.getReplyNickname(), R.color.color_488, 2,tvContent,mContext);
         } else {
             tvName.setTextColor(mContext.getResources().getColor(R.color.gray_757));
             tvContent.setTextColor(mContext.getResources().getColor(R.color.gray_484));

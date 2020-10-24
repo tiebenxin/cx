@@ -81,7 +81,7 @@ public interface CircleServer {
 
     @POST("/square/complaint/add")
     @FormUrlEncoded
-    Call<ReturnBean> httpCircleComplaint(@Field("commentId") long commentId,@Field("complaintType") Integer complaintType, @Field("defendantUid") long defendantUid,
+    Call<ReturnBean> httpCircleComplaint(@Field("momentUid") long momentUid,@Field("commentId") long commentId,@Field("complaintType") Integer complaintType, @Field("defendantUid") long defendantUid,
                                         @Field("illegalDescription") String illegalDescription, @Field("illegalImage") String illegalImage, @Field("momentId") long momentId);
 
 
