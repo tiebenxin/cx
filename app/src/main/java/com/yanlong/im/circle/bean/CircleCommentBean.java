@@ -60,6 +60,8 @@ public class CircleCommentBean extends BaseBean {
         private String replyNickname;// 回复人昵称
         private String replyAvatar;// 回复人头像
         private Long createTime;// 创建时间
+        private Integer like;// 我是否点了赞(0:否|1:是)
+        private Integer likeCount;// 点赞数量
 
         public Long getId() {
             return id;
@@ -131,6 +133,22 @@ public class CircleCommentBean extends BaseBean {
 
         public void setCreateTime(Long createTime) {
             this.createTime = createTime;
+        }
+
+        public Integer getLike() {
+            return like;
+        }
+
+        public void setLike(Integer like) {
+            this.like = like;
+        }
+
+        public Integer getLikeCount() {
+            return likeCount;
+        }
+
+        public void setLikeCount(Integer likeCount) {
+            this.likeCount = likeCount;
         }
     }
 }
