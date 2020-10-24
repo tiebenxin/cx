@@ -8,6 +8,8 @@
         android:background="#F7F7F7"
         android:orientation="vertical">
 
+        <View style="@style/app_line" />
+
         <LinearLayout
             android:id="@+id/layout_content"
             android:layout_width="match_parent"
