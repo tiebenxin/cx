@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.IntDef;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -94,6 +95,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +111,7 @@ import io.reactivex.disposables.Disposable;
  */
 public class CreateCircleActivity extends PictureBaseActivity implements View.OnClickListener, PictureAlbumDirectoryAdapter.OnItemClickListener,
         OnPhotoSelectChangedListener, OnItemClickListener, IAudioPlayListener, OnPhotoPreviewChangedListener {
-    private final static String TAG = CreateCircleActivity.class.getSimpleName();
+    private final String TAG = CreateCircleActivity.class.getSimpleName();
     private static final int SHOW_DIALOG = 0;
     private static final int DISMISS_DIALOG = 1;
     private static final int REQUEST_CODE_LOCATION = 100;
@@ -195,6 +198,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             }
         }
     };
+    private int trendModel;
 
     @Override
     protected void closeActivity() {
@@ -949,6 +953,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
+            changeTrendModel(ETrendModel.VOICE);
             if (isOpenSoft) {
                 isShowFace = false;
                 InputUtil.hideKeyboard(etContent);
@@ -967,6 +972,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
+            changeTrendModel(ETrendModel.PICTURE);
             if (isOpenSoft) {
                 isShowFace = false;
                 InputUtil.hideKeyboard(etContent);
@@ -982,6 +988,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             iv_voice.setImageLevel(0);
             delayMillis();
         } else if (id == R.id.iv_vote) {// 投票
+            changeTrendModel(ETrendModel.VOTE);
             if (isOpenSoft) {
                 isShowFace = true;
                 InputUtil.hideKeyboard(etContent);
@@ -1021,6 +1028,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 postcard.navigation(this, REQUEST_CODE_VOTE_PICTRUE);
             }
         } else if (id == R.id.iv_face) {// 表情
+            changeTrendModel(ETrendModel.EMOJI);
             if (frame_content.getVisibility() == View.GONE) {
                 frame_content.setVisibility(View.VISIBLE);
             }
@@ -1565,6 +1573,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     @Override
     public void onChange(List<LocalMedia> selectImages) {
+        if (trendModel == ETrendModel.VOTE) {
+            return;
+        }
         changeImageNumber(selectImages);
         if (isArtworkMaster) {
             setOriginImageSize();
@@ -2092,5 +2103,21 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             }
         }
         return size;
+    }
+
+    /*
+     *创建动态模式
+     * */
+    @IntDef({ETrendModel.PICTURE, ETrendModel.VOICE, ETrendModel.VOTE, ETrendModel.EMOJI})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ETrendModel {
+        int PICTURE = 0; // 图片动态
+        int VOICE = 1; // 语音
+        int VOTE = 2; // 投票
+        int EMOJI = 3; // 表情
+    }
+
+    private void changeTrendModel(int m) {
+        trendModel = m;
     }
 }
