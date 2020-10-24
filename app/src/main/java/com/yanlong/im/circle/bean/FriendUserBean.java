@@ -12,7 +12,7 @@ import io.realm.annotations.PrimaryKey;
 public class FriendUserBean extends RealmObject {
 
     @PrimaryKey
-    private Long uid;//id
+    private long uid;//id
     private String nickname;//昵称
     private String avatar;//头像
     private String alias;//备注名
@@ -25,11 +25,11 @@ public class FriendUserBean extends RealmObject {
 
 
 
-    public Long getUid() {
+    public long getUid() {
         return uid;
     }
 
-    public void setUid(Long uid) {
+    public void setUid(long uid) {
         this.uid = uid;
     }
 

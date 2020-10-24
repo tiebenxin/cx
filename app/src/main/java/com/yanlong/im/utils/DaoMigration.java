@@ -947,7 +947,8 @@ public class DaoMigration implements RealmMigration {
                 .addField("stat", int.class)
                 .addField("followStat", int.class)
                 .addField("lastTime", long.class)
-                .addField("imid", String.class);
+                .addField("imid", String.class)
+                .addField("bgImage", String.class);
 
         schema.create("InteractMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
