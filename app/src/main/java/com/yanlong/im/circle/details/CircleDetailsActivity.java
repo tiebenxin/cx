@@ -43,6 +43,7 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
+import com.yanlong.im.circle.mycircle.CircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
@@ -56,7 +57,9 @@ import com.yanlong.im.view.DeletPopWindow;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpActivity;
+import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICircleSetupClick;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -69,6 +72,9 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * @version V1.0
@@ -283,6 +289,39 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                                 break;
                             case R.id.iv_header:
                                 gotoUserInfoActivity(mCommentList.get(position).getUid());
+                                break;
+                            case R.id.iv_like:
+                                CircleCommentBean.CommentListBean bean = mCommentList.get(position);
+                                int like;
+                                if(bean.getLike()==0){
+                                    like = 1;//赞
+                                }else {
+                                    like = 0;//取消赞
+                                }
+                                new CircleAction().httpCommentLike(bean.getId(), like, mMessageInfoBean.getId(), mMessageInfoBean.getUid(), new CallBack<ReturnBean>() {
+                                    @Override
+                                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                        super.onResponse(call, response);
+                                        if(like==1){
+                                            mCommentList.get(position).setLike(1);
+                                            mCommentList.get(position).setLikeCount(mCommentList.get(position).getLikeCount()+1);
+                                        }else {
+                                            mCommentList.get(position).setLike(0);
+                                            mCommentList.get(position).setLikeCount(mCommentList.get(position).getLikeCount()-1);
+                                        }
+                                        mCommentTxtAdapter.notifyItemChanged(position+1);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                        super.onFailure(call, t);
+                                        if(like==1){
+                                            ToastUtil.show("点赞失败");
+                                        }else {
+                                            ToastUtil.show("取消点赞失败");
+                                        }
+                                    }
+                                });
                                 break;
                         }
                     }

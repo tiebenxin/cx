@@ -85,4 +85,8 @@ public interface CircleServer {
                                         @Field("illegalDescription") String illegalDescription, @Field("illegalImage") String illegalImage, @Field("momentId") long momentId);
 
 
+    @POST("/square/moment/comment-like")
+    @FormUrlEncoded
+    Call<ReturnBean> httpCommentLike(@Field("commentId") long commentId,@Field("isLike") int isLike,@Field("momentId") long momentId,@Field("momentUid") long momentUid);
+
 }

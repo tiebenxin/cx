@@ -76,9 +76,46 @@
             android:textSize="15sp" />
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/ll_content"
+        android:layout_marginRight="@dimen/app_margin_circle">
+
+        <TextView
+            android:id="@+id/iv_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:drawableLeft="@mipmap/ic_circle_common"
+            android:gravity="center_vertical"
+            android:text="评论"
+            android:minWidth="60dp"
+            android:textSize="13sp"
+            android:textColor="@color/c_b1b1b1" />
+
+        <TextView
+            android:id="@+id/iv_like"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/iv_comment"
+            android:drawableLeft="@mipmap/ic_circle_give"
+            android:gravity="center_vertical"
+            android:textSize="13sp"
+            android:layout_marginRight="6dp"
+            android:text="点赞"
+            android:minWidth="60dp"
+            android:textColor="@color/c_b1b1b1" />
+
+    </RelativeLayout>
+
+
     <View
         android:id="@+id/view_line"
         style="@style/app_line"
-        android:layout_below="@+id/ll_content"
-        android:layout_marginTop="15dp" />
+        android:layout_below="@+id/layout_bottom" />
 </RelativeLayout>

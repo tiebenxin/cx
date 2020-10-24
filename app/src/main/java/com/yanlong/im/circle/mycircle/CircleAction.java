@@ -150,4 +150,11 @@ public class CircleAction {
         NetUtil.getNet().exec(server.httpCircleComplaint(commentId,complaintType,defendantUid,illegalDescription,illegalImage,momentId), callback);
     }
 
+    /**
+     * 评论点赞/取消赞
+     */
+    public void httpCommentLike(final long commentId,final int isLike,final long momentId,final long momentUid, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpCommentLike(commentId,isLike,momentId,momentUid), callback);
+    }
+
 }
