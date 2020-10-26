@@ -56,8 +56,6 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private List<MessageInfoBean> mList;
     private long friendUid;//别人的uid
     private int isFollow;//是否关注了该用户
-    private int clickPosition;//点击哪一项跳转过来的
-    private String from;//来自哪个界面
 
 
     @Override
@@ -116,8 +114,6 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     @Override
     protected void loadData() {
         friendUid = getIntent().getLongExtra("uid",0);
-        clickPosition = getIntent().getIntExtra(POSITION,0);
-        from = getIntent().getStringExtra(UserInfoActivity.FROM);
         httpGetFriendTrends();
         adapter = new MyTrendsAdapter(FriendTrendsActivity.this,mList,2,friendUid);
         bindingView.recyclerView.setAdapter(adapter);
@@ -278,12 +274,10 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     ToastUtil.show("关注成功");
                     bindingView.tvFollow.setText("已关注");
                     isFollow = 1;
-                    //操作关注后，回到关注列表需要及时更新
+                    //关注单个用户，回到关注列表需要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 1;
-                    event.position = clickPosition;
                     event.uid = uid;
-                    event.from = from;
                     EventBus.getDefault().post(event);
                 }
             }
@@ -311,12 +305,10 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     ToastUtil.show("取消关注成功");
                     bindingView.tvFollow.setText("关注");
                     isFollow = 0;
-                    //操作关注后，回到关注列表需要及时更新
+                    //取消关注单个用户，推荐/关注列表都要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 0;
-                    event.position = clickPosition;
                     event.uid = uid;
-                    event.from = from;
                     EventBus.getDefault().post(event);
                 }else {
                     ToastUtil.show("取消关注失败");

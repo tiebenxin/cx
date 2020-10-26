@@ -80,7 +80,6 @@ public class MyMeetingFragment extends Fragment {
                 httpGetData();
             }
         });
-        httpGetData();
     }
 
     /**
@@ -159,5 +158,13 @@ public class MyMeetingFragment extends Fragment {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mList.clear();
+        page = 1;
+        httpGetData();
     }
 }

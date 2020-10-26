@@ -216,10 +216,8 @@ public class EventFactory extends BaseEvent {
      * 更新关注状态
      */
     public static class UpdateFollowStateEvent extends BaseEvent {
-        public int type;//0 未关注 1 已关注
-        public int position;//更新哪一项
+        public int type;//状态更改为 0 未关注 1 已关注
         public long uid;//目标uid
-        public String from;//从哪个界面跳转过来
     }
 
     /**

@@ -377,6 +377,11 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ToastUtil.show("关注成功");
                     dataList.get(position).setStat(1);
                     notifyItemChanged(position,tvFollow);
+                    //关注单个用户，回到关注列表需要及时更新
+                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                    event.type = 1;
+                    event.uid = uid;
+                    EventBus.getDefault().post(event);
                 }
             }
 
@@ -401,9 +406,17 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
                 if (response.body().isOk()){
                     ToastUtil.show("取消关注成功");
-                    dataList.get(position).setStat(2);
+                    if(type==2){
+                        dataList.get(position).setFollowStat(2);
+                    }else {
+                        dataList.get(position).setStat(2);
+                    }
                     notifyItemChanged(position,tvFollow);
-                    EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
+                    //取消关注单个用户，推荐/关注列表都要及时更新
+                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                    event.type = 0;
+                    event.uid = uid;
+                    EventBus.getDefault().post(event);
                 }else {
                     ToastUtil.show("取消关注失败");
                 }
