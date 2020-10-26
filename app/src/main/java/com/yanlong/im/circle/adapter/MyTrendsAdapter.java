@@ -323,37 +323,16 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.ivSetup.setVisibility(View.VISIBLE);
                         //设置-> 置顶 权限 删除
                         holder.ivSetup.setOnClickListener(v -> {
-                            DialogHelper.getInstance().createTrendDialog(activity, new ITrendClickListner() {
+                            DialogHelper.getInstance().createTrendDialog(bean.getIsTop(),activity, new ITrendClickListner() {
                                 @Override
-                                public void clickIsTop() {
-                                    DialogHelper.getInstance().createCommonSelectListDialog(activity, listOne, new ICommonSelectClickListner() {
-                                        @Override
-                                        public void selectOne() {
-                                            //置顶
-                                            httpIsTop(bean.getId(), 1);
-                                        }
-
-                                        @Override
-                                        public void selectTwo() {
-                                            //取消置顶
-                                            httpIsTop(bean.getId(), 0);
-                                        }
-
-                                        @Override
-                                        public void selectThree() {
-
-                                        }
-
-                                        @Override
-                                        public void selectFour() {
-
-                                        }
-
-                                        @Override
-                                        public void onCancle() {
-
-                                        }
-                                    });
+                                public void clickIsTop(int type) {
+                                    if(type==1){
+                                        //取消置顶
+                                        httpIsTop(bean.getId(), 0);
+                                    }else {
+                                        //置顶
+                                        httpIsTop(bean.getId(), 1);
+                                    }
                                 }
 
                                 @Override

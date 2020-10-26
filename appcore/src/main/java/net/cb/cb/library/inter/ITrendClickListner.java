@@ -7,7 +7,7 @@ package net.cb.cb.library.inter;
  * @备注：
  */
 public interface ITrendClickListner {
-    void clickIsTop();
+    void clickIsTop(int type);
     void clickAuthority();
     void clickDelete();
     void clickCancle();

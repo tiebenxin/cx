@@ -223,10 +223,11 @@ public class DialogHelper {
     /**
      * 我的动态(我的朋友圈) 底部弹框
      *
+     * @param isTop 是否置顶 1是 0否
      * @param context
      * @param clickListner
      */
-    public void createTrendDialog(Context context, final ITrendClickListner clickListner) {
+    public void createTrendDialog(int isTop,Context context, final ITrendClickListner clickListner) {
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
@@ -239,6 +240,12 @@ public class DialogHelper {
         dialogParams.gravity = Gravity.BOTTOM;
         dialogParams.width = width;
         window.setAttributes(dialogParams);
+        TextView tvTop = dialogview.findViewById(R.id.tv_istop);
+        if(isTop==1){
+            tvTop.setText("取消置顶");
+        }else {
+            tvTop.setText("置顶");
+        }
         dialogview.findViewById(R.id.tv_cancle).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -259,7 +266,7 @@ public class DialogHelper {
                     selectDialog.dismiss();
                 }
                 if (!ViewUtils.isFastDoubleClick()) {
-                    clickListner.clickIsTop();
+                    clickListner.clickIsTop(isTop);
                 }
             }
         });
