@@ -1,4 +1,4 @@
-package com.luck.picture.lib;
+package com.luck.picture.lib.circle;
 
 import com.luck.picture.lib.entity.LocalMedia;
 
@@ -23,5 +23,5 @@ public interface OnPhotoPreviewChangedListener {
      * @param media
      * @param position
      */
-    void onPicturePrviewClick(LocalMedia media, int position);
+    void onPicturePreviewClick(LocalMedia media, int position);
 }

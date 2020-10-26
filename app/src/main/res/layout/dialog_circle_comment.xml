@@ -51,6 +51,15 @@
                 android:text="发送"
                 android:textSize="17sp" />
         </LinearLayout>
+
+        <!--        空白占位-->
+        <LinearLayout
+            android:id="@+id/ll_soft"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/circle_details_face_height"
+            android:layout_below="@+id/layout_content"
+            android:orientation="vertical" />
+
         <!-- 表情-->
         <com.luck.picture.lib.face.FaceView
             android:id="@+id/view_faceview"

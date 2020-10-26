@@ -1,4 +1,4 @@
-package com.luck.picture.lib;
+package com.luck.picture.lib.circle;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.IntDef;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -42,6 +43,13 @@ import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.OnPhotoSelectChangedListener;
+import com.luck.picture.lib.PictureBaseActivity;
+import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.PicturePreviewActivity;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.PictureVideoPlayActivity;
+import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
@@ -94,6 +102,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +118,7 @@ import io.reactivex.disposables.Disposable;
  */
 public class CreateCircleActivity extends PictureBaseActivity implements View.OnClickListener, PictureAlbumDirectoryAdapter.OnItemClickListener,
         OnPhotoSelectChangedListener, OnItemClickListener, IAudioPlayListener, OnPhotoPreviewChangedListener {
-    private final static String TAG = CreateCircleActivity.class.getSimpleName();
+    private final String TAG = CreateCircleActivity.class.getSimpleName();
     private static final int SHOW_DIALOG = 0;
     private static final int DISMISS_DIALOG = 1;
     private static final int REQUEST_CODE_LOCATION = 100;
@@ -195,6 +205,8 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             }
         }
     };
+    private int trendModel;
+    private boolean hasChangeModel;
 
     @Override
     protected void closeActivity() {
@@ -949,6 +961,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
+            changeTrendModel(ETrendModel.VOICE);
             if (isOpenSoft) {
                 isShowFace = false;
                 InputUtil.hideKeyboard(etContent);
@@ -967,6 +980,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
+            if (hasChangeModel) {
+                toGallery();
+                changeTrendModel(ETrendModel.PICTURE);
+            } else {
+                changeTrendModel(ETrendModel.PICTURE);
+            }
             if (isOpenSoft) {
                 isShowFace = false;
                 InputUtil.hideKeyboard(etContent);
@@ -982,6 +1001,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             iv_voice.setImageLevel(0);
             delayMillis();
         } else if (id == R.id.iv_vote) {// 投票
+            changeTrendModel(ETrendModel.VOTE);
             if (isOpenSoft) {
                 isShowFace = true;
                 InputUtil.hideKeyboard(etContent);
@@ -1021,6 +1041,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 postcard.navigation(this, REQUEST_CODE_VOTE_PICTRUE);
             }
         } else if (id == R.id.iv_face) {// 表情
+            changeTrendModel(ETrendModel.EMOJI);
             if (frame_content.getVisibility() == View.GONE) {
                 frame_content.setVisibility(View.VISIBLE);
             }
@@ -1565,6 +1586,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     @Override
     public void onChange(List<LocalMedia> selectImages) {
+        if (trendModel == ETrendModel.VOTE) {
+            return;
+        }
         changeImageNumber(selectImages);
         if (isArtworkMaster) {
             setOriginImageSize();
@@ -1621,7 +1645,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     }
 
     @Override
-    public void onPicturePrviewClick(LocalMedia media, int position) {
+    public void onPicturePreviewClick(LocalMedia media, int position) {
         if (media.isShowAdd()) {
             PictureSelector.create(this)
                     .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
@@ -1653,54 +1677,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             previewImage(previewList, adapter.getSelectedImages(), index);
         }
     }
-
-
-    /**
-     * preview image and video
-     *
-     * @param previewImages
-     * @param position
-     */
-    public void startPreview(List<LocalMedia> previewImages, int position) {
-        LocalMedia media = previewImages.get(position);
-        String pictureType = media.getPictureType();
-        Bundle bundle = new Bundle();
-        List<LocalMedia> result = new ArrayList<>();
-        int mediaType = PictureMimeType.isPictureType(pictureType);
-        switch (mediaType) {
-            case PictureConfig.TYPE_IMAGE:
-                // image
-                List<LocalMedia> selectedImages = adapter.getSelectedImages();
-                ImagesObservable.getInstance().saveLocalMedia(previewImages);
-                bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
-                bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-                bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
-                startActivity(PicturePreviewActivity.class, bundle,
-                        config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
-                overridePendingTransition(R.anim.a5, 0);
-                break;
-            case PictureConfig.TYPE_VIDEO:
-                // video
-                if (config.selectionMode == PictureConfig.SINGLE) {
-                    result.add(media);
-                    onResult(result);
-                } else {
-                    bundle.putString("video_path", media.getPath());
-                    startActivity(PictureVideoPlayActivity.class, bundle);
-                }
-                break;
-            case PictureConfig.TYPE_AUDIO:
-                // audio
-                if (config.selectionMode == PictureConfig.SINGLE) {
-                    result.add(media);
-                    onResult(result);
-                } else {
-                    audioDialog(media.getPath());
-                }
-                break;
-        }
-    }
-
 
     /**
      * change image selector state
@@ -2092,5 +2068,38 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             }
         }
         return size;
+    }
+
+    /*
+     *创建动态模式
+     * */
+    @IntDef({ETrendModel.PICTURE, ETrendModel.VOICE, ETrendModel.VOTE, ETrendModel.EMOJI})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ETrendModel {
+        int PICTURE = 0; // 图片动态
+        int VOICE = 1; // 语音
+        int VOTE = 2; // 投票
+        int EMOJI = 3; // 表情
+    }
+
+    private void changeTrendModel(int m) {
+        if (trendModel == m) {
+            return;
+        }
+        trendModel = m;
+        hasChangeModel = true;
+    }
+
+    private void toGallery() {
+        PictureSelector.create(CreateCircleActivity.this)
+                .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                .previewImage(true)// 是否可预览图片 true or false
+                .isCamera(false)// 是否显示拍照按钮 ture or false
+                .maxVideoSelectNum(1)
+                .compress(true)// 是否压缩 true or false
+                .isGif(true)
+                .selectArtworkMaster(true)
+                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
 }

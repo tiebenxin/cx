@@ -133,6 +133,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         tvEdit = findViewById(R.id.tv_edit);
         cbOrigin = findViewById(R.id.cb_original);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
+        if (position < 0) {
+            position = 0;
+        }
         fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);
         isOrigin = getIntent().getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
         cbOrigin.setChecked(isOrigin);
@@ -344,6 +347,12 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 check.setText(media.getNum() + "");
                 notifyCheckChanged(media);
             }
+            boolean isGif = PictureMimeType.isGif(media.getPictureType());
+            if (isGif) {
+                tvEdit.setVisibility(View.INVISIBLE);
+            } else {
+                tvEdit.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -466,7 +475,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     /**
      * 更新图片选择原图
      *
-     * @param isRefresh
      */
     private void updateOrigin() {
         EventEntity obj = new EventEntity(PictureConfig.SELECT_ORIGINAL, selectImages, index);

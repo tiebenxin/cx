@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
-import com.luck.picture.lib.CreateCircleActivity;
+import com.luck.picture.lib.circle.CreateCircleActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.circle.bean.CirclePowerBean;

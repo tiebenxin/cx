@@ -15,6 +15,7 @@ import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.bind.BasePresenter;
@@ -26,7 +27,9 @@ import net.cb.cb.library.utils.SpUtil;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import retrofit2.Call;
@@ -45,6 +48,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
 
     private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
+    /***
+     * 统一处理mkname
+     */
+    private Map<Long, UserInfo> userMap = new HashMap<>();
 
     public FollowPresenter(Context context) {
         super(context);
@@ -85,6 +92,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     List<MessageFlowItemBean> flowList = new ArrayList<>();
                     if (response.body() != null && response.body().getData() != null) {
                         for (MessageInfoBean messageInfoBean : response.body().getData()) {
+                            resetName(messageInfoBean);
                             flowList.add(createFlowItemBean(messageInfoBean));
                         }
                     }
@@ -117,6 +125,25 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 mView.onShowMessage("刷新失败");
             }
         });
+    }
+
+    private void resetName(MessageInfoBean bean) {
+        if (bean.getUid() == null) {
+            return;
+        }
+        UserInfo userInfo;
+        if (userMap.containsKey(bean.getUid())) {
+            userInfo = userMap.get(bean.getUid());
+            if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+            }
+        } else {
+            userInfo = userDao.findUserInfo(bean.getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+                userMap.put(bean.getUid(), userInfo);
+            }
+        }
     }
 
     /**
@@ -153,7 +180,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
 
     private MessageFlowItemBean createFlowItemBean(MessageInfoBean messageInfoBean) {
         MessageFlowItemBean flowItemBean = null;
-        if (messageInfoBean != null && messageInfoBean.getType()!=null) {
+        if (messageInfoBean != null && messageInfoBean.getType() != null) {
             switch (messageInfoBean.getType()) {
                 case PictureEnum.EContentType.VOTE:
                 case PictureEnum.EContentType.PICTRUE_AND_VOTE:
@@ -392,7 +419,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onCommentSuccess(response.body().getData());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
-                    if(response.body().getCode()==100104){
+                    if (response.body().getCode() == 100104) {
                         EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
                         event.position = position;
                         EventBus.getDefault().post(event);

@@ -10,8 +10,8 @@ import android.text.TextUtils;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.luck.picture.lib.CreateCircleActivity;
-import com.luck.picture.lib.OnPhotoPreviewChangedListener;
+import com.luck.picture.lib.circle.CreateCircleActivity;
+import com.luck.picture.lib.circle.OnPhotoPreviewChangedListener;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
 import com.luck.picture.lib.config.PictureConfig;
@@ -189,7 +189,7 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
     }
 
     @Override
-    public void onPicturePrviewClick(LocalMedia media, int position) {
+    public void onPicturePreviewClick(LocalMedia media, int position) {
         if (media.isShowAdd()) {
             PictureSelector.create(this)
                     .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
