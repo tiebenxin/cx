@@ -419,7 +419,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onCommentSuccess(response.body().getData());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
-                    if (response.body().getCode() == 100104) {
+                    if (response.body()!=null && response.body().getCode()!=null && response.body().getCode().longValue()== 100104) {
                         EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
                         event.position = position;
                         EventBus.getDefault().post(event);
