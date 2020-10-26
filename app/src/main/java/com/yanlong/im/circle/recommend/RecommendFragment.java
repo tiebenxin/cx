@@ -461,8 +461,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
     @Override
     public void onSuccess(List<MessageFlowItemBean> list, int serviceType) {
+        //serviceType 0 下拉刷新  1 加载更多   -1 源数据过滤
         isRefreshing = false;
-        if (serviceType == 0) {
+        if (serviceType == 0 || serviceType == -1) {
             mFollowList.clear();
             // 判断缓存是否有数据
             SpUtil spUtil = SpUtil.getSpUtil();
@@ -518,7 +519,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 bindingView.srlFollow.finishLoadMore();
             }
 
-            if (serviceType == 0) {
+            if (serviceType == 0 || serviceType == -1) {
                 if (firstItemPosition >= 0) {
                     scrollListView(firstItemPosition, firstOffset);
                 } else {

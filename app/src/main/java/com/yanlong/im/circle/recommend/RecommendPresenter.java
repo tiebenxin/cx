@@ -409,7 +409,7 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                 .subscribe(new Consumer<List<MessageFlowItemBean>>() {
                     @Override
                     public void accept(List<MessageFlowItemBean> list) throws Exception {
-                        mView.onSuccess(list, 0);
+                        mView.onSuccess(list, -1);
                     }
                 });
     }
