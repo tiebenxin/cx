@@ -158,7 +158,7 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     if(bean.isGreyColor()){//是否已点击并置灰，默认false，点击后true，本地记录属性
                         spanBuilder.setSpan(new ForegroundColorSpan(activity.getResources().getColor(R.color.c_9A9A9A)), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                     }else {
-                        spanBuilder.setSpan(new ForegroundColorSpan(activity.getResources().getColor(R.color.c_4886C5)), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        spanBuilder.setSpan(new ForegroundColorSpan(activity.getResources().getColor(R.color.c_484848)), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                     }
                     //操作->加粗
                     start = end;

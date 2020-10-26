@@ -819,7 +819,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             public void onItem(String string, int postsion) {
                 String msgId = media.getMsg_id();
                 //收藏详情需求又改为只显示3项
-                if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
+                if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL || fromWhere == PictureConfig.FROM_CIRCLE) {
                     if (postsion == 0) {//收藏详情转发单独处理
                         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                             ToastUtil.show(context.getString(R.string.user_disable_message));
