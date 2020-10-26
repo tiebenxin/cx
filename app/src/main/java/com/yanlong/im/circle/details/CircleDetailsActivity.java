@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -16,14 +15,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.annotation.Route;
@@ -265,7 +259,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
                             @Override
                             public void onClickReport() {
-                                gotoComplaintActivity(0, 0,0);
+                                gotoComplaintActivity(0, 0, 0);
                             }
                         });
             }
@@ -581,7 +575,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         this.replyUid = replyUid;
         //初始化输入框
         if (!TextUtils.isEmpty(replyName)) {
-            bindingView.etMessage.setText("回复" + replyName + ":");
+            bindingView.etMessage.setHint("回复" + replyName + ":");
         }
         if (showSoftKey) {
             setSoftKeyboard();
@@ -622,7 +616,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     mPresenter.delComment(mCommentList.get(position).getId(), mMessageInfoBean.getId(),
                             mMessageInfoBean.getUid(), position);
                 } else if (type == CoreEnum.ELongType.REPORT) {
-                    gotoComplaintActivity(1, mCommentList.get(position).getId(),mCommentList.get(position).getUid());
+                    gotoComplaintActivity(1, mCommentList.get(position).getId(), mCommentList.get(position).getUid());
                 }
             }
         }).showViewTop(view);
@@ -638,7 +632,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             intent.putExtra(ComplaintActivity.COMMENT_ID, commentId);
             intent.putExtra(ComplaintActivity.DEFENDANT_UID, mMessageInfoBean.getUid());
             intent.putExtra(ComplaintActivity.MOMENT_ID, mMessageInfoBean.getId());
-            if(momentUid==0){
+            if (momentUid == 0) {
                 momentUid = mMessageInfoBean.getUid();
             }
             intent.putExtra(ComplaintActivity.MOMENT_UID, momentUid);
@@ -686,6 +680,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         mFlowAdapter.notifyDataSetChanged();
         mFlowAdapter.finishInitialize();
         refreshFollowList();
+        bindingView.tvSend.setEnabled(true);
     }
 
     private void showFooterView(boolean isShow) {
@@ -826,6 +821,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     public void onShowMessage(String msg) {
+        bindingView.tvSend.setEnabled(true);
         ToastUtil.show(msg);
         if (msg.equals("动态被藏起来了")) {
             finish();
@@ -877,6 +873,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             case R.id.tv_send:
                 String msg = bindingView.etMessage.getText().toString().trim();
                 if (!TextUtils.isEmpty(msg)) {
+                    bindingView.tvSend.setEnabled(false);
                     mPresenter.circleComment(msg, mMessageInfoBean.getId(), mMessageInfoBean.getUid(), replyUid);
                 } else {
                     ToastUtil.show("请输入评论");

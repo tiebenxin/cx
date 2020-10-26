@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -90,6 +92,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     ViewNewCircleMessageBinding messageBinding;
     private int firstItemPosition;
     private int firstOffset;
+    private boolean isRefreshing;
 
     protected RecommendPresenter createPresenter() {
         return new RecommendPresenter(getContext());
@@ -140,14 +143,14 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         }
         mFollowList.add(0, flowItemBean);
         mPresenter.mModel.setData(mFollowList);
-        bindingView.recyclerRecommend.scrollToPosition(0);
+        scrollToPosition(0);
         notifyChangeAll();
         mIsAddLocation = true;
     }
 
     private void notifyChangeAll() {
         if (mFlowAdapter != null) {
-            mFlowAdapter.setFirstVisiblePosition(0);
+            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
             mFlowAdapter.notifyDataSetChanged();
         }
     }
@@ -181,9 +184,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
         //更改目标用户全部关注状态
-        for(MessageFlowItemBean bean : mFlowAdapter.getData()){
-            MessageInfoBean msgBean = (MessageInfoBean)bean.getData();
-            if(msgBean.getUid().longValue() == event.uid){
+        for (MessageFlowItemBean bean : mFlowAdapter.getData()) {
+            MessageInfoBean msgBean = (MessageInfoBean) bean.getData();
+            if (msgBean.getUid().longValue() == event.uid) {
                 if (event.type == 1) {
                     msgBean.setFollow(true);
                 } else {
@@ -250,7 +253,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                             Intent intent = new Intent(getContext(), MyTrendsActivity.class);
                             startActivity(intent);
-                        }else {
+                        } else {
                             startActivity(new Intent(getContext(), UserInfoActivity.class)
                                     .putExtra(UserInfoActivity.FROM, "RecommendFragment")
                                     .putExtra(FriendTrendsActivity.POSITION, position)
@@ -311,7 +314,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
                         if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
-                            toPictruePreview(0, attachmentBeans);
+                            toPicturePreview(0, attachmentBeans);
                         } else {
                             Intent intent = new Intent(getContext(), VideoPlayActivity.class);
                             if (attachmentBeans.size() > 0) {
@@ -329,13 +332,13 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                             Intent intent = new Intent(getContext(), MyTrendsActivity.class);
                             startActivity(intent);
-                        }else {
+                        } else {
                             if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {
                                 Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
-                                intent.putExtra("uid",messageInfoBean.getUid());
-                                intent.putExtra(FriendTrendsActivity.POSITION,position);
+                                intent.putExtra("uid", messageInfoBean.getUid());
+                                intent.putExtra(FriendTrendsActivity.POSITION, position);
                                 startActivity(intent);
-                            }else {
+                            } else {
                                 ToastUtil.show("该用户已注销");
                             }
                         }
@@ -344,33 +347,40 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             }
         });
         //TODO 需求改为只要不在本界面才暂停，随意滑动不暂停
-//        bindingView.recyclerRecommend.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-//                //判断是当前layoutManager是否为LinearLayoutManager
-//                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
-//                if (layoutManager instanceof LinearLayoutManager) {
-//                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
-//                    //获取最后一个可见view的位置
-//                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
-//                    //获取第一个可见view的位置
-//                    firstItemPosition = linearManager.findFirstVisibleItemPosition();
-//                    //停止滑动状态
-//                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-//                        firstItemPosition = linearManager.findFirstVisibleItemPosition();
-//                        View topView = layoutManager.getChildAt(firstItemPosition);
-//                        if (topView != null) {
-//                            //获取与该view的底部的偏移量
-//                            firstOffset = topView.getTop();
-//                        }
-//                        if (mFlowAdapter != null) {
-//                            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
-//                            mFlowAdapter.notifyItemChanged(firstItemPosition);
-//                        }
-//                    }
-//                    // 判断当前是否有语音或视频播放
+        bindingView.recyclerRecommend.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                //判断是当前layoutManager是否为LinearLayoutManager
+                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
+                if (layoutManager instanceof LinearLayoutManager) {
+                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
+                    //获取最后一个可见view的位置
+                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
+                    //获取第一个可见view的位置
+                    firstItemPosition = linearManager.findFirstVisibleItemPosition();
+                    //停止滑动状态
+                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                        firstItemPosition = linearManager.findFirstVisibleItemPosition();
+                        View topView = layoutManager.getChildAt(firstItemPosition);
+                        if (topView != null) {
+                            //获取与该view的底部的偏移量
+                            firstOffset = topView.getTop();
+                        }
+                        if (mFlowAdapter != null) {
+                            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+                            mFlowAdapter.notifyItemChanged(firstItemPosition);
+                        }
+                    }
+                    if (!isRefreshing && lastItemPosition >= mFlowAdapter.getItemCount() - 5) {
+                        isRefreshing = true;
+                        if (mFollowList != null && mFollowList.size() == PAGE_SIZE) {
+                            mCurrentPage = 0l;
+                        }
+                        mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 1);
+                    }
+                    // 判断当前是否有语音或视频播放
 //                    if (AudioPlayUtil.isPlay()) {
 //                        if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||
 //                                AudioPlayUtil.getRecyclerviewPosition() < firstItemPosition ||
@@ -378,9 +388,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 //                            AudioPlayUtil.stopAudioPlay();
 //                        }
 //                    }
-//                }
-//            }
-//        });
+                }
+            }
+        });
     }
 
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
@@ -401,10 +411,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     /**
      * 查看图片
      *
-     * @param postion         位置
+     * @param position        位置
      * @param attachmentBeans 图片集合
      */
-    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
+    private void toPicturePreview(int position, List<AttachmentBean> attachmentBeans) {
         List<LocalMedia> selectList = new ArrayList<>();
         for (AttachmentBean bean : attachmentBeans) {
             LocalMedia localMedia = new LocalMedia();
@@ -418,39 +428,40 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         PictureSelector.create(getActivity())
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
+                .openExternalPreview1(position, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 
     /**
      * 内容展开、收起
      *
-     * @param postion
-     * @param parentPostion 父类位置
-     * @param type          0：展开、收起 1：详情 2文字投票 3图片投票
+     * @param position
+     * @param parentPosition 父类位置
+     * @param type           0：展开、收起 1：详情 2文字投票 3图片投票
      */
     @Override
-    public void onClick(int postion, int parentPostion, int type, View view) {
+    public void onClick(int position, int parentPosition, int type, View view) {
         if (type == CoreEnum.EClickType.CONTENT_DETAILS || type == CoreEnum.EClickType.CONTENT_DOWN) {
             if (type == CoreEnum.EClickType.CONTENT_DOWN) {
-                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
+                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
                 if (mFlowAdapter.getHeaderLayoutCount() > 0) {
-                    postion = postion + 1;
+                    position = position + 1;
                 }
-                mFlowAdapter.notifyItemChanged(postion);
+                mFlowAdapter.notifyItemChanged(position);
             } else {
                 if (!DoubleUtils.isFastDoubleClick()) {
-                    gotoCircleDetailsActivity(false, postion);
+                    gotoCircleDetailsActivity(false, position);
                 }
             }
         } else {
-            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
-            mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPosition).getData();
+            mPresenter.voteAnswer(position + 1, parentPosition, messageInfoBean.getId(), messageInfoBean.getUid());
         }
     }
 
     @Override
     public void onSuccess(List<MessageFlowItemBean> list, int serviceType) {
+        isRefreshing = false;
         if (serviceType == 0) {
             mFollowList.clear();
             // 判断缓存是否有数据
@@ -465,8 +476,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     spUtil.putSPValue(REFRESH_COUNT, "");
                 } else {
                     //若第一项已经为我刚发的动态，则无需再次置顶
-                    if(infoBean.getId().longValue()==((MessageInfoBean)list.get(0).getData()).getId()){
-                    }else {
+                    if (infoBean.getId().longValue() == ((MessageInfoBean) list.get(0).getData()).getId()) {
+                    } else {
                         //添加到头部
                         infoBean.setRefreshCount(infoBean.getRefreshCount() + 1);
                         spUtil.putSPValue(REFRESH_COUNT, new Gson().toJson(infoBean));
@@ -509,10 +520,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
             if (serviceType == 0) {
                 if (firstItemPosition >= 0) {
-                    ((LinearLayoutManager) bindingView.recyclerRecommend.getLayoutManager()).scrollToPositionWithOffset(firstItemPosition, firstOffset);
+                    scrollListView(firstItemPosition, firstOffset);
                 } else {
-                    bindingView.recyclerRecommend.scrollToPosition(0);
-
+                    scrollToPosition(0);
                 }
             }
         }
@@ -521,8 +531,13 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
     }
 
+    private void scrollToPosition(int position) {
+        bindingView.recyclerRecommend.scrollToPosition(position);
+    }
+
     @Override
     public void onShowMessage(String msg) {
+        isRefreshing = false;
         if (!TextUtils.isEmpty(msg)) {
             ToastUtil.show(msg);
         }
@@ -535,6 +550,15 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     public void onDeleteItem(int position) {
         mFollowList.remove(position);
         mFlowAdapter.notifyDataSetChanged();
+    }
+
+    public void scrollListView(int position, int offset) {
+        if (position >= 0) {
+            ((LinearLayoutManager) bindingView.recyclerRecommend.getLayoutManager()).scrollToPositionWithOffset(position, offset);
+        } else {
+            scrollToPosition(0);
+
+        }
     }
 
     @Override
@@ -565,9 +589,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         String value = spUtil.getSPValue(REFRESH_COUNT, "");
         if (!TextUtils.isEmpty(value)) {
             MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
-            if(messageInfoBean.getId().longValue() == infoBean.getId().longValue()){
+            if (messageInfoBean.getId().longValue() == infoBean.getId().longValue()) {
                 infoBean.setLike(1);
-                infoBean.setLikeCount(infoBean.getLikeCount()+1);
+                infoBean.setLikeCount(infoBean.getLikeCount() + 1);
                 spUtil.putSPValue(REFRESH_COUNT, new Gson().toJson(infoBean));
             }
         }
@@ -651,5 +675,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         notifyChangeAll();
+
     }
 }
