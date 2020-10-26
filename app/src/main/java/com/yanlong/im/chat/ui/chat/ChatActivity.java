@@ -476,7 +476,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             if (viewFaceView.getVisibility() == VISIBLE)
                 viewFaceView.setVisibility(View.GONE);
             //设置改SoftInput模式为：顶起输入框
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
     };
 
@@ -516,7 +516,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 //                    setPanelHeight(mKeyboardHeight, viewFaceView);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
-                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                        setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     btnEmj.setImageLevel(1);
                     //因为面板有延迟执行，所以必须执行该方法
                     viewExtendFunction.setVisibility(View.GONE);
@@ -540,7 +540,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
                             /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
 //                       //更改SoftInput模式为：不顶起输入框
-                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                            setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
                             handler.postDelayed(mPanelRecoverySoftInputModeRunnable, delayMillis);
@@ -562,7 +562,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 //                    setPanelHeight(mKeyboardHeight, viewExtendFunction);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
-                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                        setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     //因为面板有延迟执行，所以必须执行该方法
                     viewFaceView.setVisibility(View.GONE);
                     viewExtendFunction.setVisibility(View.VISIBLE);
@@ -581,7 +581,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         if (mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
                             /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
 //                       //更改SoftInput模式为：不顶起输入框
-                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                            setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
                             handler.postDelayed(mPanelRecoverySoftInputModeRunnable, delayMillis);
@@ -1443,7 +1443,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                {
+                    setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                }
                 if (!mViewModel.isInputText.getValue())
                     mViewModel.isInputText.setValue(true);
                 return false;
@@ -1847,6 +1849,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 replayMsg = null;
             }
         });
+    }
+
+    private void setWindowSoftMode(int softInputAdjustResize) {
+        getWindow().setSoftInputMode(softInputAdjustResize);
     }
 
     private void initActionBarLoading() {
@@ -2704,7 +2710,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         } else {
             showVoice(false);
             //设置改SoftInput模式为：顶起输入框
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             //弹起输入框
             mViewModel.isInputText.setValue(true);
         }
@@ -3820,7 +3826,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         editChat.setSelection(editChat.getText().length());
         //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
         if (!mViewModel.isOpenValue()) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
         mViewModel.isInputText.setValue(true);
 
@@ -4568,7 +4574,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         //弹出软键盘
         if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         if (!mViewModel.isInputText.getValue())
             mViewModel.isInputText.setValue(true);
         if (!mViewModel.isReplying.getValue())
@@ -6260,7 +6266,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
                         //弹出软键盘
                         if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
-                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                            setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                         if (!mViewModel.isInputText.getValue())
                             mViewModel.isInputText.setValue(true);
                     }

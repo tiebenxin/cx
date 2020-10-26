@@ -14,7 +14,7 @@ import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.luck.picture.lib.OnPhotoPreviewChangedListener;
+import com.luck.picture.lib.circle.OnPhotoPreviewChangedListener;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -98,7 +98,7 @@ public class PicturePreviewAdapter extends RecyclerView.Adapter<PicturePreviewAd
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onPicturePrviewClick(folder, position);
+                    listener.onPicturePreviewClick(folder, position);
                 }
             }
         });

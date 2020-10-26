@@ -17,7 +17,7 @@
             android:name=".PictureSelectorActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".CreateCircleActivity"
+            android:name=".circle.CreateCircleActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"/>
         <activity android:name=".PicturePreviewActivity" />

@@ -12,7 +12,7 @@ import android.view.View;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.luck.picture.lib.CreateCircleActivity;
+import com.luck.picture.lib.circle.CreateCircleActivity;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;

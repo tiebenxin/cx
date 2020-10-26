@@ -1,4 +1,4 @@
-package com.luck.picture.lib;
+package com.luck.picture.lib.circle;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -43,6 +43,13 @@ import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.OnPhotoSelectChangedListener;
+import com.luck.picture.lib.PictureBaseActivity;
+import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.PicturePreviewActivity;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.PictureVideoPlayActivity;
+import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
@@ -199,6 +206,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     };
     private int trendModel;
+    private boolean hasChangeModel;
 
     @Override
     protected void closeActivity() {
@@ -972,7 +980,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
-            changeTrendModel(ETrendModel.PICTURE);
+            if (hasChangeModel) {
+                toGallery();
+                changeTrendModel(ETrendModel.PICTURE);
+            } else {
+                changeTrendModel(ETrendModel.PICTURE);
+            }
             if (isOpenSoft) {
                 isShowFace = false;
                 InputUtil.hideKeyboard(etContent);
@@ -1632,7 +1645,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     }
 
     @Override
-    public void onPicturePrviewClick(LocalMedia media, int position) {
+    public void onPicturePreviewClick(LocalMedia media, int position) {
         if (media.isShowAdd()) {
             PictureSelector.create(this)
                     .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
@@ -2118,6 +2131,23 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     }
 
     private void changeTrendModel(int m) {
+        if (trendModel == m) {
+            return;
+        }
         trendModel = m;
+        hasChangeModel = true;
+    }
+
+    private void toGallery() {
+        PictureSelector.create(CreateCircleActivity.this)
+                .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                .previewImage(true)// 是否可预览图片 true or false
+                .isCamera(false)// 是否显示拍照按钮 ture or false
+                .maxVideoSelectNum(1)
+                .compress(true)// 是否压缩 true or false
+                .isGif(true)
+                .selectArtworkMaster(true)
+                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
 }
