@@ -6,7 +6,7 @@
         android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="false"
+        android:fitsSystemWindows="true"
         app:headview_title="详情">
 
         <LinearLayout

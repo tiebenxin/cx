@@ -1678,54 +1678,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     }
 
-
-    /**
-     * preview image and video
-     *
-     * @param previewImages
-     * @param position
-     */
-    public void startPreview(List<LocalMedia> previewImages, int position) {
-        LocalMedia media = previewImages.get(position);
-        String pictureType = media.getPictureType();
-        Bundle bundle = new Bundle();
-        List<LocalMedia> result = new ArrayList<>();
-        int mediaType = PictureMimeType.isPictureType(pictureType);
-        switch (mediaType) {
-            case PictureConfig.TYPE_IMAGE:
-                // image
-                List<LocalMedia> selectedImages = adapter.getSelectedImages();
-                ImagesObservable.getInstance().saveLocalMedia(previewImages);
-                bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
-                bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-                bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
-                startActivity(PicturePreviewActivity.class, bundle,
-                        config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
-                overridePendingTransition(R.anim.a5, 0);
-                break;
-            case PictureConfig.TYPE_VIDEO:
-                // video
-                if (config.selectionMode == PictureConfig.SINGLE) {
-                    result.add(media);
-                    onResult(result);
-                } else {
-                    bundle.putString("video_path", media.getPath());
-                    startActivity(PictureVideoPlayActivity.class, bundle);
-                }
-                break;
-            case PictureConfig.TYPE_AUDIO:
-                // audio
-                if (config.selectionMode == PictureConfig.SINGLE) {
-                    result.add(media);
-                    onResult(result);
-                } else {
-                    audioDialog(media.getPath());
-                }
-                break;
-        }
-    }
-
-
     /**
      * change image selector state
      *

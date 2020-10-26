@@ -524,7 +524,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
 //            previewImage(previewList, adapter.getSelectedImages(), 0);
             int index = 0;
             if (adapter.getSelectedImages() != null && adapter.getSelectedImages().size() > 0) {
-                LocalMedia media = adapter.getSelectedImages().get(0);
+                LocalMedia media = adapter.getSelectedImages().get(adapter.getSelectedImages().size() - 1);
                 index = images.indexOf(media);
             }
             previewImage(images, adapter.getSelectedImages(), index);
