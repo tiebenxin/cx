@@ -205,7 +205,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/app_margin_item"
-                    android:src="@mipmap/ic_who_see_me" />
+                    android:src="@mipmap/ic_my_iteract" />
 
                 <TextView
                     style="@style/app_txt_title_2"
