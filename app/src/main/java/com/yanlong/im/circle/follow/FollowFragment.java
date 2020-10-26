@@ -308,16 +308,17 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
-        if(!TextUtils.isEmpty(event.from)){
-            if(event.from.equals("FollowFragment")){
-                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(event.position).getData();
-                if(event.type==1){
-                    messageInfoBean.setFollow(true);
-                }else {
-                    messageInfoBean.setFollow(false);
+        //更改目标用户全部关注状态
+        for(MessageFlowItemBean bean : mFlowAdapter.getData()){
+            MessageInfoBean msgBean = (MessageInfoBean)bean.getData();
+            if(msgBean.getUid().longValue() == event.uid){
+                if (event.type == 1) {
+                    msgBean.setFollow(true);
+                } else {
+                    msgBean.setFollow(false);
                 }
-                mFlowAdapter.notifyItemChanged(event.position);
             }
+            mFlowAdapter.notifyDataSetChanged();
         }
     }
 

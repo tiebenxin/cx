@@ -146,8 +146,8 @@ public class CircleAction {
     /**
      * 广场投诉
      */
-    public void httpCircleComplaint(long commentId, int complaintType, long defendantUid, String illegalDescription, String illegalImage, long momentId, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.httpCircleComplaint(commentId,complaintType,defendantUid,illegalDescription,illegalImage,momentId), callback);
+    public void httpCircleComplaint(long momentUid,long commentId, int complaintType, long defendantUid, String illegalDescription, String illegalImage, long momentId, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.httpCircleComplaint(momentUid,commentId,complaintType,defendantUid,illegalDescription,illegalImage,momentId), callback);
     }
 
     /**

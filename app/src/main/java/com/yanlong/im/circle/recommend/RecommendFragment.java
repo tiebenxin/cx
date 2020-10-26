@@ -180,16 +180,17 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
-        if(!TextUtils.isEmpty(event.from)){
-            if(event.from.equals("RecommendFragment")){
-                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(event.position).getData();
-                if(event.type==1){
-                    messageInfoBean.setFollow(true);
-                }else {
-                    messageInfoBean.setFollow(false);
+        //更改目标用户全部关注状态
+        for(MessageFlowItemBean bean : mFlowAdapter.getData()){
+            MessageInfoBean msgBean = (MessageInfoBean)bean.getData();
+            if(msgBean.getUid().longValue() == event.uid){
+                if (event.type == 1) {
+                    msgBean.setFollow(true);
+                } else {
+                    msgBean.setFollow(false);
                 }
-                mFlowAdapter.notifyItemChanged(event.position);
             }
+            mFlowAdapter.notifyDataSetChanged();
         }
     }
 
@@ -463,11 +464,15 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 if (infoBean.getRefreshCount() >= MAX_REFRESH_COUNT || (int) minute > MAX_REFRESH_MINUTE) {
                     spUtil.putSPValue(REFRESH_COUNT, "");
                 } else {
-                    // 添加到头部
-                    infoBean.setRefreshCount(infoBean.getRefreshCount() + 1);
-                    spUtil.putSPValue(REFRESH_COUNT, new Gson().toJson(infoBean));
-                    MessageFlowItemBean flowItemBean = mPresenter.createFlowItemBean(infoBean);
-                    mFollowList.add(flowItemBean);
+                    //若第一项已经为我刚发的动态，则无需再次置顶
+                    if(infoBean.getId().longValue()==((MessageInfoBean)list.get(0).getData()).getId()){
+                    }else {
+                        //添加到头部
+                        infoBean.setRefreshCount(infoBean.getRefreshCount() + 1);
+                        spUtil.putSPValue(REFRESH_COUNT, new Gson().toJson(infoBean));
+                        MessageFlowItemBean flowItemBean = mPresenter.createFlowItemBean(infoBean);
+                        mFollowList.add(flowItemBean);
+                    }
                 }
             }
         }
@@ -555,6 +560,17 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             position = position + 1;
         }
         mFlowAdapter.notifyItemChanged(position);
+        //如果这条点赞的动态为我刚发布的，需要及时更改缓存的数据，避免刷新一下，我是否点赞状态没有被更改
+        SpUtil spUtil = SpUtil.getSpUtil();
+        String value = spUtil.getSPValue(REFRESH_COUNT, "");
+        if (!TextUtils.isEmpty(value)) {
+            MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
+            if(messageInfoBean.getId().longValue() == infoBean.getId().longValue()){
+                infoBean.setLike(1);
+                infoBean.setLikeCount(infoBean.getLikeCount()+1);
+                spUtil.putSPValue(REFRESH_COUNT, new Gson().toJson(infoBean));
+            }
+        }
     }
 
     @Override

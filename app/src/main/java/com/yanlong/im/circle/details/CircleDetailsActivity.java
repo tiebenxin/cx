@@ -265,7 +265,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
                             @Override
                             public void onClickReport() {
-                                gotoComplaintActivity(0, 0);
+                                gotoComplaintActivity(0, 0,0);
                             }
                         });
             }
@@ -622,13 +622,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     mPresenter.delComment(mCommentList.get(position).getId(), mMessageInfoBean.getId(),
                             mMessageInfoBean.getUid(), position);
                 } else if (type == CoreEnum.ELongType.REPORT) {
-                    gotoComplaintActivity(1, mCommentList.get(position).getId());
+                    gotoComplaintActivity(1, mCommentList.get(position).getId(),mCommentList.get(position).getUid());
                 }
             }
         }).showViewTop(view);
     }
 
-    private void gotoComplaintActivity(int type, long commentId) {
+    private void gotoComplaintActivity(int type, long commentId, long momentUid) {
         Intent intent = new Intent(getContext(), ComplaintActivity.class);
         intent.putExtra(ComplaintActivity.UID, mMessageInfoBean.getUid() + "");
         if (type == 0) { //普通投诉
@@ -638,6 +638,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             intent.putExtra(ComplaintActivity.COMMENT_ID, commentId);
             intent.putExtra(ComplaintActivity.DEFENDANT_UID, mMessageInfoBean.getUid());
             intent.putExtra(ComplaintActivity.MOMENT_ID, mMessageInfoBean.getId());
+            if(momentUid==0){
+                momentUid = mMessageInfoBean.getUid();
+            }
+            intent.putExtra(ComplaintActivity.MOMENT_UID, momentUid);
         }
         startActivity(intent);
     }

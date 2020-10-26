@@ -7,7 +7,6 @@ import android.text.TextWatcher;
 import android.view.View;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
-import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyFollowAdapter;
 import com.yanlong.im.circle.bean.FriendUserBean;
@@ -20,8 +19,6 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,7 +113,6 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                 }
             }
         });
-        httpGetFollowMe();
     }
 
     /**
@@ -206,10 +202,6 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
-        adapter.updateOneItem(event.position,event.type);
-    }
 
     @Override
     protected void onDestroy() {
@@ -217,5 +209,14 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        allData.clear();
+        mList.clear();
+        page = 1;
+        httpGetFollowMe();
     }
 }

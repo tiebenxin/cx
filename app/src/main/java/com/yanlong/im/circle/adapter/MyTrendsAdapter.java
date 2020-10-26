@@ -1109,10 +1109,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     String value = spUtil.getSPValue(RecommendFragment.REFRESH_COUNT, "");
                     if (!TextUtils.isEmpty(value)) {
                         MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
-                        if(infoBean.getId()==id){
+                        if(infoBean.getId().longValue()==id){
                             spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
                             //然后及时通知广场推荐刷新
-                            EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
+                            EventBus.getDefault().post(new EventFactory.DeleteItemTrend());
                         }
                     }
                 }
