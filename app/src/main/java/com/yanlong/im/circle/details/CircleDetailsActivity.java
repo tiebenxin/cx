@@ -688,16 +688,18 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (isCancelFollow) {
             if (isFollow) {
                 EventBus.getDefault().post(new EventFactory.RefreshFollowEvent());
+                EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();//通知好友动态改为取消关注
+                event.type = 0;
+                event.from = "CircleDetailsActivity";
+                EventBus.getDefault().post(event);
                 finish();
             } else {
                 mMessageInfoBean.setFollow(false);
                 mFlowAdapter.notifyItemChanged(position);
-                EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
             }
         } else {
             mMessageInfoBean.setFollow(true);
             mFlowAdapter.notifyItemChanged(position);
-            EventBus.getDefault().post(new EventFactory.RefreshRecomendEvent());
         }
     }
 
