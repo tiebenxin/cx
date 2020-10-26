@@ -308,6 +308,11 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
                     mView.onSuccess(postion, false, response.message());
+                    //关注单个用户，推荐列表及时更新
+                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                    event.type = 1;
+                    event.uid = followId.longValue();
+                    EventBus.getDefault().post(event);
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
                 }
@@ -336,6 +341,11 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
                     mView.onSuccess(postion, true, response.message());
+                    //取消关注单个用户，推荐列表及时更新
+                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                    event.type = 0;
+                    event.uid = followId.longValue();
+                    EventBus.getDefault().post(event);
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
                 }

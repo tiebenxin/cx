@@ -29,6 +29,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +82,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             //4.4 全透明状态栏
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
         }
     }
 
@@ -274,6 +279,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     ToastUtil.show("关注成功");
                     bindingView.tvFollow.setText("已关注");
                     isFollow = 1;
+                    adapter.ifFollow(true);
                     //关注单个用户，回到关注列表需要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 1;
@@ -305,6 +311,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     ToastUtil.show("取消关注成功");
                     bindingView.tvFollow.setText("关注");
                     isFollow = 0;
+                    adapter.ifFollow(false);
                     //取消关注单个用户，推荐/关注列表都要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 0;
@@ -321,6 +328,29 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 ToastUtil.show("取消关注失败");
             }
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
+        if(event.from.equals("CircleDetailsActivity")){
+            if(event.type==0){
+                bindingView.tvFollow.setText("关注");
+                isFollow = 0;
+                adapter.ifFollow(false);
+            }else {
+                bindingView.tvFollow.setText("已关注");
+                isFollow = 1;
+                adapter.ifFollow(true);
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
 }

@@ -77,6 +77,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private CommonSelectDialog.Builder builder;
     private CircleAction action;
 
+
     public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList,int type) {
         inflater = LayoutInflater.from(activity);
         this.activity = activity;
@@ -201,12 +202,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvFollow.setVisibility(View.GONE);
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.VISIBLE);
-                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position,1));
+                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position,1,null));
                     }else if (type == 3) {
                         holder.tvFollow.setVisibility(View.GONE);
                         holder.tvDeleteNotSee.setVisibility(View.VISIBLE);
                         holder.tvDeleteRecord.setVisibility(View.GONE);
-                        holder.tvDeleteNotSee.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position,2));
+                        holder.tvDeleteNotSee.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position,2,null));
                     } else {
                         holder.tvFollow.setVisibility(View.VISIBLE);
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
@@ -242,7 +243,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             } else if (holder.tvFollow.getText().equals("关注TA")) {
                                 httpToFollow(userInfo.getUid(), position, holder.tvFollow);
                             } else {
-                                ToastUtil.show("已相互关注");
+                                showDeleteDialog(userInfo.getUid(),position,3,holder.tvFollow);
                             }
                         });
                     }
@@ -493,18 +494,28 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * 提示弹框
      * @param uid
      * @param position
-     * @param type 1是否删除访问记录 2是否取消不看TA
+     * @param type 1是否删除访问记录 2是否取消不看TA 3是否取消关注
      */
-    private void showDeleteDialog(long uid,int position,int type) {
-        dialog = builder.setTitle(type==1 ? "是否确认删除?" : "是否确认移除?")
+    private void showDeleteDialog(long uid,int position,int type,TextView textView) {
+        String notice;
+        if(type==1){
+            notice = "是否确认删除?";
+        }else if(type==2){
+            notice = "是否确认移除?";
+        }else {
+            notice = "是否取消关注?";
+        }
+        dialog = builder.setTitle(notice)
                 .setShowLeftText(true)
                 .setRightText("确认")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
                     if(type==1){
                         httpDeleteVisitRecord(uid,position);
-                    }else {
+                    }else if(type==2){
                         httpDeleteNotSee(uid,position);
+                    }else {
+                        httpCancelFollow(uid, position, textView);
                     }
                     dialog.dismiss();
                 })

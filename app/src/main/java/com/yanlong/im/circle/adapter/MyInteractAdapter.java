@@ -133,8 +133,14 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         activity.startActivity(intent);
                     });
                     holder.layoutItem.setOnClickListener(v -> {
-                       //跳详情
-                        httpQueryById(bean.getMomentId(),bean.getMomentUid(),position,bean.getMsgId());
+                        if(bean.getInteractType()==0){//如果是关注，点击整个子项跳朋友圈
+                            Intent intent = new Intent(activity, FriendTrendsActivity.class);
+                            intent.putExtra("uid",bean.getFromUid());
+                            activity.startActivity(intent);
+                        }else {
+                            //跳详情
+                            httpQueryById(bean.getMomentId(),bean.getMomentUid(),position,bean.getMsgId());
+                        }
                     });
                     //互动内容显示
                     SpannableStringBuilder spanBuilder = new SpannableStringBuilder();
