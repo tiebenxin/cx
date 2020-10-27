@@ -48,7 +48,6 @@ import com.luck.picture.lib.PictureBaseActivity;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.PictureVideoPlayActivity;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
@@ -207,6 +206,8 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     };
     private int trendModel;
     private boolean hasChangeModel;
+    private boolean isVoteTextEditSuccess;//是否文字投票编辑成功
+    private boolean isVoteImageEditSuccess;//是否图片投票编辑成功
 
     @Override
     protected void closeActivity() {
@@ -1017,12 +1018,17 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             iv_voice.setImageLevel(0);
             delayMillis();
         } else if (id == R.id.iv_delete_vote) {// 删除投票
+            isVoteTextEditSuccess = false;
+            isVoteImageEditSuccess = false;
             mTxtJson = "";
             mImgJson = "";
             mVoteList.clear();
             etContent.setText("");
             layout_vote_content.setVisibility(View.GONE);
         } else if (id == R.id.tv_content_vote) {// 文字投票
+            if (isVoteImageEditSuccess){
+                return;
+            }
             if (!DoubleUtils.isFastDoubleClick()) {
                 Postcard postcard = ARouter.getInstance().build("/circle/VoteTextActivity");
                 postcard.withString(VOTE_TXT_TITLE, etContent.getText().toString());
@@ -1030,6 +1036,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 postcard.navigation(this, REQUEST_CODE_VOTE_TXT);
             }
         } else if (id == R.id.tv_picture_vote) {// 图片投票
+            if (isVoteTextEditSuccess){
+                return;
+            }
             if (!DoubleUtils.isFastDoubleClick()) {
                 if (isExistVoice || mList.size() > 0) {
                     showTaost(getResources().getString(R.string.voice_message_wrong));
@@ -1895,6 +1904,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     tv_power.setText(address);
                     break;
                 case REQUEST_CODE_VOTE_TXT:// 文字投票
+                    isVoteTextEditSuccess = true;
                     String title = data.getStringExtra(VOTE_TXT_TITLE);
                     mTxtJson = data.getStringExtra(VOTE_TXT);
                     etContent.setText(getSpan(title));
@@ -1903,6 +1913,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     layout_vote_content.setVisibility(View.VISIBLE);
                     break;
                 case REQUEST_CODE_VOTE_PICTRUE:// 图片投票
+                    isVoteImageEditSuccess = true;
                     title = data.getStringExtra(VOTE_TXT_TITLE);
                     mImgJson = data.getStringExtra(VOTE_TXT);
                     String imgJson = data.getStringExtra(VOTE_LOCATION_IMG);

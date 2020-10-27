@@ -297,6 +297,9 @@
 -dontwarn org.codehaus.mojo.animal_sniffer.*
 #=================PictureSelector 2.0  图片选择器混淆=================
 
+#朋友圈混淆
+-keep class com.yanlong.im.circle.bean.** { *; }
+
 
 
 
