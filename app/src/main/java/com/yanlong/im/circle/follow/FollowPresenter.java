@@ -252,6 +252,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onLikeSuccess(postion, response.message());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
+                    //如果动态已经被删除，则通知刷新
+                    if(response.body().getCode()==100104){
+                        mView.onDeleteItem(postion);
+                    }
                 }
             }
 
@@ -282,6 +286,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onLikeSuccess(postion, response.message());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
+                    //如果动态已经被删除，则通知刷新
+                    if(response.body().getCode()==100104){
+                        mView.onDeleteItem(postion);
+                    }
                 }
             }
 
@@ -402,8 +410,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
      * @param myLikeStat  该条说说是我发布的，是否获取我对该条说说的点赞状态(0或不传不返回,1返回)
      * @param addBrowse   第一页时，是否需要添加浏览量(0:否,1:是)
      * @param position    点击广场哪一项哪项跳进的详情
+     * @param fromWhere   来自哪里跳到详情
      */
-    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat, int addBrowse, int position) {
+    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat, int addBrowse, int position,String fromWhere) {
         WeakHashMap<String, Object> params = new WeakHashMap<>();
         params.put("currentPage", currentPage);
         params.put("pageSize", pageSize);
@@ -422,6 +431,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     if (response.body()!=null && response.body().getCode()!=null && response.body().getCode().longValue()== 100104) {
                         EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
                         event.position = position;
+                        event.fromWhere = fromWhere;
                         EventBus.getDefault().post(event);
                     }
                 }

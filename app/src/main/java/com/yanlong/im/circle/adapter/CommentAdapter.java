@@ -76,7 +76,7 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         if (commentBean.getLikeCount() != null && commentBean.getLikeCount() > 0) {
             ivLike.setText(StringUtil.numberFormart(commentBean.getLikeCount()));
         } else {
-            ivLike.setText("点赞");
+            ivLike.setText("");
         }
         if (commentBean.getLike() != null && commentBean.getLike() == PictureEnum.ELikeType.YES) {
             Drawable drawable = mContext.getResources().getDrawable(R.mipmap.ic_circle_like);

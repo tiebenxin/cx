@@ -322,6 +322,20 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         }
     }
 
+    @Override
+    public void onDeleteItem(int position) {
+        mFollowList.remove(position);
+        mFlowAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void deleteItem(EventFactory.DeleteItemTrend event) {
+        //推荐列表和关注列表只更新自己点击的数据
+        if(event.fromWhere.equals("FollowFragment")){
+            onDeleteItem(event.position);
+        }
+    }
+
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
         if (!NetWorkUtils.isNetworkConnected()) {
             ToastUtil.show(getResources().getString(R.string.network_error_msg));
@@ -334,6 +348,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_POSTION, position);
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, mFlowAdapter.getData().get(position).getItemType());
+        postcard.withString(CircleDetailsActivity.FROM, "FollowFragment");//来自广场关注列表
         postcard.navigation();
     }
 
