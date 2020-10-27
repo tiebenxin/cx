@@ -13,6 +13,7 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.luck.picture.lib.PictureEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.CircleCommentBean;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
@@ -32,6 +33,7 @@ import net.cb.cb.library.utils.TimeToString;
 public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentListBean, BaseViewHolder> {
 
     private boolean isShowAll = false;// 是否全部显示
+    private long landlordUid;//楼主uid
 
     public boolean isShowAll() {
         return isShowAll;
@@ -44,6 +46,10 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
     public CommentAdapter(boolean isShowAll) {
         super(R.layout.item_comment_txt);
         this.isShowAll = isShowAll;
+    }
+
+    public void setLandlordUid(long landlordUid){
+        this.landlordUid = landlordUid;
     }
 
     @Override
@@ -72,7 +78,15 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         TextView tvContent = helper.getView(R.id.tv_content);
         TextView ivLike = helper.getView(R.id.iv_like);
         helper.setText(R.id.tv_date, TimeToString.getTimeWx(commentBean.getCreateTime()));
-        tvName.setText(commentBean.getNickname());
+        if(commentBean.getUid()!=null){
+            if(commentBean.getUid().longValue()== UserAction.getMyInfo().getUid().longValue()){
+                tvName.setText("我");
+            }else if(commentBean.getUid().longValue()==landlordUid){
+                tvName.setText("楼主");
+            }else {
+                tvName.setText(commentBean.getNickname());
+            }
+        }
         if (commentBean.getLikeCount() != null && commentBean.getLikeCount() > 0) {
             ivLike.setText(StringUtil.numberFormart(commentBean.getLikeCount()));
         } else {
@@ -89,7 +103,15 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         }
 
         if (commentBean.getReplyUid() != null && commentBean.getReplyUid() != 0) {
-            tvContent.setText(getSpan(commentBean.getReplyNickname().length(),"回复" + commentBean.getReplyNickname() + ":"+commentBean.getContent()));
+            String replyName;
+            if(commentBean.getReplyUid().longValue()== UserAction.getMyInfo().getUid().longValue()){
+                replyName = "我";
+            }else if(commentBean.getReplyUid().longValue()==landlordUid){
+                replyName = "楼主";
+            }else {
+                replyName = commentBean.getReplyNickname();
+            }
+            tvContent.setText(getSpan(replyName.length(),"回复" + replyName + ":"+commentBean.getContent()));
             //TODO 这个会导致变色和emoji无法同时显示
 //            CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
 //                    commentBean.getReplyNickname(), R.color.color_488, 2,tvContent, mContext);
