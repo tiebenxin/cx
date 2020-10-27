@@ -345,8 +345,8 @@ public class StringUtil {
      */
     public static String loadThumbnail(String path) {
         String value = path;
-        if (!TextUtils.isEmpty(path) && !path.contains("/below-200k")) {
-            value += "/below-200k";
+        if (!TextUtils.isEmpty(path) && !path.contains("/below-20k")) {
+            value += "/below-20k";
         }
         return value;
     }

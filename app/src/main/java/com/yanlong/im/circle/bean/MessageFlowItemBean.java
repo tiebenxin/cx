@@ -1,5 +1,7 @@
 package com.yanlong.im.circle.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -9,7 +11,7 @@ package com.yanlong.im.circle.bean;
  * @description
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class MessageFlowItemBean<T> {
+public class MessageFlowItemBean<T> extends BaseBean {
     private int itemType;
     private T data;
 

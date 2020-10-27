@@ -40,6 +40,7 @@ import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
@@ -311,7 +312,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             }
         });
         helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
-                R.id.iv_like, R.id.iv_setup, R.id.rl_video,R.id.tv_user_name);
+                R.id.iv_like, R.id.iv_setup, R.id.rl_video, R.id.tv_user_name);
     }
 
     private void setTextViewLines(TextView content, TextView btn, boolean isShowAll, BaseViewHolder helper) {
@@ -503,7 +504,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 AudioPlayUtil.stopAudioPlay();
-                toPictruePreview(position, attachmentBeans);
+                toPicturePreview(position, attachmentBeans);
             }
         });
         rv.setOnTouchListener(new View.OnTouchListener() {
@@ -534,14 +535,18 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
     /**
      * 查看图片
      *
-     * @param postion         位置
+     * @param position         位置
      * @param attachmentBeans 图片集合
      */
-    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
+    private void toPicturePreview(int position, List<AttachmentBean> attachmentBeans) {
         List<LocalMedia> selectList = new ArrayList<>();
         for (AttachmentBean bean : attachmentBeans) {
             LocalMedia localMedia = new LocalMedia();
-            localMedia.setCutPath(bean.getUrl());
+            if (PictureMimeType.isHttp(bean.getUrl())) {
+                localMedia.setCutPath(StringUtil.loadThumbnail(bean.getUrl()));
+            } else {
+                localMedia.setCutPath(bean.getUrl());
+            }
             localMedia.setCompressPath(bean.getUrl());
             localMedia.setSize(bean.getSize());
             localMedia.setWidth(bean.getWidth());
@@ -551,7 +556,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         PictureSelector.create((Activity) mContext)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
+                .openExternalPreview1(position, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 
     public boolean isGif(String path) {

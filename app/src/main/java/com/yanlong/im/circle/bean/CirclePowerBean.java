@@ -1,6 +1,6 @@
 package com.yanlong.im.circle.bean;
 
-import net.cb.cb.library.base.bind.BaseModel;
+import net.cb.cb.library.base.BaseBean;
 
 /**
  * @version V1.0
@@ -11,7 +11,7 @@ import net.cb.cb.library.base.bind.BaseModel;
  * @description
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class CirclePowerBean extends BaseModel {
+public class CirclePowerBean extends BaseBean {
     private String title;
     private String note;
     private boolean isCheck;
