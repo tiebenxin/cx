@@ -495,8 +495,16 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
      * @param rv
      * @param attachmentBeans
      */
-    private void setRecycleView(RecyclerView rv, List<AttachmentBean> attachmentBeans, int postion) {
-        rv.setLayoutManager(new GridLayoutManager(mContext, 3));
+    private void setRecycleView(RecyclerView rv, List<AttachmentBean> attachmentBeans, int position) {
+        if (attachmentBeans == null) {
+            return;
+        }
+        int size = attachmentBeans.size();
+        if (size == 2 || size == 4) {
+            rv.setLayoutManager(new GridLayoutManager(mContext, 2));
+        } else {
+            rv.setLayoutManager(new GridLayoutManager(mContext, 3));
+        }
         ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(attachmentBeans);
@@ -524,7 +532,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                     case MotionEvent.ACTION_UP:
                         // 判断是否触发点击事件
                         if (Math.abs(downX - deltaX) < 10 && Math.abs(downY - deltaY) < 10 && null != clickListener) {
-                            clickListener.onClick(postion, 0, CoreEnum.EClickType.CONTENT_DETAILS, v);
+                            clickListener.onClick(position, 0, CoreEnum.EClickType.CONTENT_DETAILS, v);
                         }
                 }
                 return true;
@@ -535,7 +543,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
     /**
      * 查看图片
      *
-     * @param position         位置
+     * @param position        位置
      * @param attachmentBeans 图片集合
      */
     private void toPicturePreview(int position, List<AttachmentBean> attachmentBeans) {
