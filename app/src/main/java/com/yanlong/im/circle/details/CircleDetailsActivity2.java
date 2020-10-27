@@ -17,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.annotation.Route;
@@ -56,7 +55,7 @@ import com.yanlong.im.circle.follow.FollowView;
 import com.yanlong.im.circle.mycircle.CircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
-import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
+import com.yanlong.im.databinding.ActivityCircleDetails2Binding;
 import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewNoCommentsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
@@ -71,12 +70,11 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DialogHelper;
-import net.cb.cb.library.utils.ScreenUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
-import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
@@ -97,10 +95,10 @@ import retrofit2.Response;
  * @description 朋友圈 详情
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-@Route(path = CircleDetailsActivity.path)
-public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, ActivityCircleDetailsBinding>
+@Route(path = CircleDetailsActivity2.path)
+public class CircleDetailsActivity2 extends BaseBindMvpActivity<FollowPresenter, ActivityCircleDetails2Binding>
         implements FollowView, ICircleClickListener, View.OnClickListener {
-    public static final String path = "/circle/details/CircleDetailsActivity";
+    public static final String path = "/circle/details/CircleDetailsActivity2";
 
     private static final int REQUEST_CODE_POWER = 200;
     public static final String SOURCE_TYPE = "source_type";
@@ -122,14 +120,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private final int PAGE_SIZE = 20;
     private int mCurrentPage = 1, mPostion;
     private ViewNoCommentsBinding bindEmpty;
-    private String mReplyName;
-    private boolean isShowSoft;
-    private boolean isKeyboard = false;
+    private boolean isShowSoft = false;
     private int mKeyboardHeight = 0;// 记录软键盘的高度
     private Long replyUid;
     private String fromWhere;//来自哪里
     private NewTrendDetailsBean newTrendDetailsBean;//互动消息进详情新接口，第一页评论已经携带过来了
     private CircleDetailViewModel mViewModel = new CircleDetailViewModel();
+    private boolean isFirst = true;
 
 
     @Override
@@ -139,7 +136,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     protected int setView() {
-        return R.layout.activity_circle_details;
+        return R.layout.activity_circle_details2;
     }
 
     @Override
@@ -202,15 +199,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         mViewModel.isOpenEmoj.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                showOrHideInput(mViewModel.isOpenEmoj.getValue(), value);
-//                if (value) {//打开
-//                    //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
-//                    if (mViewModel.isInputText.getValue())
-//                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-//
-//                } else {//关闭
-//
-//                }
+                showOrHideInput(mViewModel.isInputText.getValue(), value);
             }
         });
     }
@@ -218,68 +207,35 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void initEvent() {
-        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
-        ivRight.setImageResource(R.mipmap.ic_circle_more);
-        ivRight.setVisibility(View.VISIBLE);
-        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
-                ScreenUtil.dip2px(this, 10), 0);
-        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+//        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
+//        ivRight.setImageResource(R.mipmap.ic_circle_more);
+//        ivRight.setVisibility(View.VISIBLE);
+//        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
+//                ScreenUtil.dip2px(this, 10), 0);
+        bindingView.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onBack() {
+            public void onClick(View v) {
                 onBackPressed();
             }
+        });
 
+        bindingView.ivMore.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onRight() {
-                String type;
-                if (isMe()) {
-                    type = "";
-                } else {
-                    type = (isFollow || mMessageInfoBean.isFollow()) ? "取消关注" : "关注TA";
-                }
-                DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity.this,
-                        type, mPresenter.getUserType(mMessageInfoBean.getUid()) == 0 ? true : false,
-                        new ICircleSetupClick() {
-                            @Override
-                            public void onClickFollow() {
-                                if (isMe()) {
-                                    Postcard postcard = ARouter.getInstance().build(CirclePowerSetupActivity.path);
-                                    postcard.withInt(VISIBLE, mMessageInfoBean.getVisibility());
-                                    postcard.withLong(MOMENT_ID, mMessageInfoBean.getId());
-                                    postcard.navigation(CircleDetailsActivity.this, REQUEST_CODE_POWER);
-                                } else {
-                                    if (isFollow || mMessageInfoBean.isFollow()) {
-                                        mPresenter.followCancle(mMessageInfoBean.getUid(), 0);
-                                    } else {
-                                        mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onClickNoLook() {
-                                mPresenter.circleDelete(mMessageInfoBean.getId());
-                            }
-
-                            @Override
-                            public void onClickChat(boolean isFriend) {
-                                if (isFriend) {
-                                    startActivity(new Intent(getContext(), ChatActivity.class)
-                                            .putExtra(ChatActivity.AGM_TOUID, mMessageInfoBean.getUid()));
-                                } else {
-                                    Intent intent = new Intent(getContext(), UserInfoActivity.class);
-                                    intent.putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid());
-                                    startActivity(intent);
-                                }
-                            }
-
-                            @Override
-                            public void onClickReport() {
-                                gotoComplaintActivity(0, 0, 0);
-                            }
-                        });
+            public void onClick(View v) {
+                showFunctionDialog();
             }
         });
+//        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+//            @Override
+//            public void onBack() {
+//                onBackPressed();
+//            }
+//
+//            @Override
+//            public void onRight() {
+//                showFunctionDialog();
+//            }
+//        });
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
@@ -294,7 +250,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         AudioPlayUtil.stopAudioPlay();
                         //如果是我自己，则跳朋友圈，其他人跳详细资料
                         if (mMessageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
-                            Intent intent = new Intent(CircleDetailsActivity.this, MyTrendsActivity.class);
+                            Intent intent = new Intent(CircleDetailsActivity2.this, MyTrendsActivity.class);
                             startActivity(intent);
                         } else {
                             gotoUserInfoActivity(mMessageInfoBean.getUid());
@@ -336,7 +292,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         break;
                     case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
                         if (!TextUtils.isEmpty(mMessageInfoBean.getNickname()) || !TextUtils.isEmpty(mMessageInfoBean.getAvatar())) {
-                            Intent intent = new Intent(CircleDetailsActivity.this, FriendTrendsActivity.class);
+                            Intent intent = new Intent(CircleDetailsActivity2.this, FriendTrendsActivity.class);
                             intent.putExtra("uid", mMessageInfoBean.getUid());
                             intent.putExtra(FriendTrendsActivity.POSITION, position);
                             startActivity(intent);
@@ -419,13 +375,19 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             }
         });
 
+        bindingView.recyclerComment.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mViewModel.isInputText.setValue(false);
+                return false;
+            }
+        });
+
 
         //输入框
         bindingView.etMessage.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-//                if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
-//                    setWindowSoftMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                 if (!mViewModel.isInputText.getValue())
                     mViewModel.isInputText.setValue(true);
                 return false;
@@ -437,17 +399,17 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
+                isFirst = false;
                 isShowSoft = true;
                 mKeyboardHeight = h;
-                updateInputHeight(mKeyboardHeight, true);
+                if (mViewModel.isOpenEmoj != null && mViewModel.isOpenEmoj.getValue()) {
+                    mViewModel.isOpenEmoj.setValue(false);
+                }
             }
 
             @Override
             public void keyBoardHide(int h) {
                 isShowSoft = false;
-                updateInputHeight(h, false);
-                showOrHideInput(false, false);
-
             }
         });
 
@@ -483,17 +445,67 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             }
         });
 
-        bindingView.srlFollow.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                //如果bottom小于oldBottom,说明键盘是弹起。
-                if (bottom < oldBottom && oldBottom - bottom == mKeyboardHeight) {
-                    //滑动到底部
-                } else if (bottom > oldBottom && bottom - oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
-                    mViewModel.isInputText.setValue(false);
-                }
-            }
-        });
+//        bindingView.srlFollow.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+//                //如果bottom小于oldBottom,说明键盘是弹起。
+//                if (bottom < oldBottom && oldBottom - bottom == mKeyboardHeight) {
+//                    //滑动到底部
+//                } else if (bottom > oldBottom && bottom - oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
+//                    mViewModel.isInputText.setValue(false);
+//                }
+//            }
+//        });
+    }
+
+    private void showFunctionDialog() {
+        String type;
+        if (isMe()) {
+            type = "";
+        } else {
+            type = (isFollow || mMessageInfoBean.isFollow()) ? "取消关注" : "关注TA";
+        }
+        DialogHelper.getInstance().createFollowDialog(CircleDetailsActivity2.this,
+                type, mPresenter.getUserType(mMessageInfoBean.getUid()) == 0 ? true : false,
+                new ICircleSetupClick() {
+                    @Override
+                    public void onClickFollow() {
+                        if (isMe()) {
+                            Postcard postcard = ARouter.getInstance().build(CirclePowerSetupActivity.path);
+                            postcard.withInt(VISIBLE, mMessageInfoBean.getVisibility());
+                            postcard.withLong(MOMENT_ID, mMessageInfoBean.getId());
+                            postcard.navigation(CircleDetailsActivity2.this, REQUEST_CODE_POWER);
+                        } else {
+                            if (isFollow || mMessageInfoBean.isFollow()) {
+                                mPresenter.followCancle(mMessageInfoBean.getUid(), 0);
+                            } else {
+                                mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onClickNoLook() {
+                        mPresenter.circleDelete(mMessageInfoBean.getId());
+                    }
+
+                    @Override
+                    public void onClickChat(boolean isFriend) {
+                        if (isFriend) {
+                            startActivity(new Intent(getContext(), ChatActivity.class)
+                                    .putExtra(ChatActivity.AGM_TOUID, mMessageInfoBean.getUid()));
+                        } else {
+                            Intent intent = new Intent(getContext(), UserInfoActivity.class);
+                            intent.putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid());
+                            startActivity(intent);
+                        }
+                    }
+
+                    @Override
+                    public void onClickReport() {
+                        gotoComplaintActivity(0, 0, 0);
+                    }
+                });
     }
 
     @Override
@@ -601,7 +613,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     private void cancelFollowDialog(int position) {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(CircleDetailsActivity.this, "提示", "确定取消关注?", "确定", "取消", new AlertYesNo.Event() {
+        alertYesNo.init(CircleDetailsActivity2.this, "提示", "确定取消关注?", "确定", "取消", new AlertYesNo.Event() {
             @Override
             public void onON() {
             }
@@ -908,7 +920,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         bindingView.etMessage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                InputMethodManager inputMethodManager = (InputMethodManager) CircleDetailsActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager inputMethodManager = (InputMethodManager) CircleDetailsActivity2.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (inputMethodManager != null) {
                     if (inputMethodManager.showSoftInput(bindingView.etMessage, 0)) {
                         bindingView.etMessage.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -934,49 +946,36 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 }
                 break;
             case R.id.iv_emj:
-                isKeyboard = !isKeyboard;
-                mViewModel.isInputText.setValue(isKeyboard);
-                mViewModel.isOpenEmoj.setValue(!isKeyboard);
+                if (isFirst) {
+                    mViewModel.isOpenEmoj.setValue(true);
+                } else {
+                    isShowSoft = !isShowSoft;
+                    mViewModel.isInputText.setValue(isShowSoft);
+                    mViewModel.isOpenEmoj.setValue(!isShowSoft);
+                }
+                isFirst = false;
                 break;
         }
     }
 
-    private void updateInputHeight(int height, boolean isShow) {
-        if (height <= 0) {
-            height = 247;
-        }
-        if (isShow) {
-//            bindingView.llSoft.setVisibility(View.VISIBLE);
-//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-//            params.height = height;
-//            bindingView.llSoft.setLayoutParams(params);
-        } else {
-//            bindingView.llSoft.setVisibility(View.GONE);
-        }
 
-    }
-
-    private void showOrHideInput(boolean isSoftShow, boolean isEmojiOpen) {
+    private synchronized void showOrHideInput(boolean isSoftShow, boolean isEmojiOpen) {
+        LogUtil.getLog().i(getClass().getSimpleName(), "showOrHideInput--isSoftShow=" + isSoftShow + "--isEmojiOpen=" + isEmojiOpen);
         if (isSoftShow || isEmojiOpen) {
-            if (isKeyboard) {
+            if (isEmojiOpen) {
+                InputUtil.hideKeyboard(bindingView.etMessage);
                 bindingView.ivEmj.setImageLevel(1);
                 bindingView.viewFaceview.setVisibility(View.VISIBLE);
-//                bindingView.llSoft.setVisibility(View.GONE);
-                InputUtil.hideKeyboard(bindingView.etMessage);
             } else {
                 bindingView.ivEmj.setImageLevel(0);
+                bindingView.viewFaceview.setVisibility(View.GONE);
                 bindingView.etMessage.requestFocus();
-                updateInputHeight(mKeyboardHeight, true);
                 InputUtil.showKeyboard(bindingView.etMessage);
             }
         } else {
             bindingView.viewFaceview.setVisibility(View.GONE);
-//            bindingView.llSoft.setVisibility(View.GONE);
+            InputUtil.hideKeyboard(bindingView.etMessage);
         }
-    }
-
-    private void setWindowSoftMode(int softInputAdjustResize) {
-        getWindow().setSoftInputMode(softInputAdjustResize);
     }
 
 }

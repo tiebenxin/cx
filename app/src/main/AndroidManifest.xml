@@ -568,7 +568,12 @@
         <activity
             android:name=".circle.details.CircleDetailsActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+        <!-- 朋友圈 详情 -->
+        <activity
+            android:name=".circle.details.CircleDetailsActivity2"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <!-- 我关注的人 -->
         <activity
             android:name=".circle.mycircle.MyFollowActivity"

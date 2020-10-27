@@ -30,12 +30,6 @@
 
             </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
-            <!--            <include-->
-            <!--                android:id="@+id/view_input"-->
-            <!--                layout="@layout/dialog_circle_comment"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_gravity="bottom" />-->
 
             <LinearLayout
                 android:id="@+id/dialog_circle_rl"
@@ -97,19 +91,6 @@
                     android:background="@null"
                     android:paddingTop="10dp"
                     android:visibility="gone" />
-
-                <!--                <LinearLayout-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:orientation="vertical">-->
-                <!--        空白占位-->
-                <!--                    <LinearLayout-->
-                <!--                        android:id="@+id/ll_soft"-->
-                <!--                        android:layout_width="wrap_content"-->
-                <!--                        android:layout_height="@dimen/circle_details_face_height"-->
-                <!--                        android:orientation="vertical"-->
-                <!--                        android:visibility="gone" />-->
-                <!--                </LinearLayout>-->
 
             </LinearLayout>
 
