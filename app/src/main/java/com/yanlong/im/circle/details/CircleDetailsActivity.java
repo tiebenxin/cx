@@ -179,6 +179,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         bindingView.recyclerComment.setAdapter(mCommentTxtAdapter);
         mCommentList = new ArrayList<>();
         mCommentTxtAdapter.setNewData(mCommentList);
+        if(mMessageInfoBean.getUid()!=null){
+            mCommentTxtAdapter.setLandlordUid(mMessageInfoBean.getUid().longValue());
+        }
         mViewModel.init();
     }
 
