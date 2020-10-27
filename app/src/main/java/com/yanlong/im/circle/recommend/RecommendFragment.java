@@ -178,7 +178,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteItemTrend event) {
-        onDeleteItem(event.position);
+        //推荐列表和关注列表只更新自己点击的数据
+        if(event.fromWhere.equals("RecommendFragment")){
+            onDeleteItem(event.position);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -405,6 +408,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_POSTION, position);
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, mFlowAdapter.getData().get(position).getItemType());
+        postcard.withString(CircleDetailsActivity.FROM, "RecommendFragment");//来自广场推荐列表
         postcard.navigation();
     }
 

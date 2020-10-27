@@ -171,7 +171,7 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         holder.ivPlay.setVisibility(View.GONE);
                         holder.tvTxt.setVisibility(View.GONE);
                         holder.layoutVoice.setVisibility(View.GONE);
-                    }else if(bean.getInteractType()==1){//赞
+                    }else if(bean.getInteractType()==1 || bean.getInteractType()==6){//赞 + 赞了我的评论
                         spanBuilder.append(" 赞 ");
                         end = end + 3;
                         //赞了->文字(暂未返回文字内容)
@@ -348,6 +348,9 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }else if(bean.getInteractType()==2){//评论
                         spanBuilder.append("了我的瞬间：");
                         end = end + 6;
+                    }else if(bean.getInteractType()==3){//回复
+                        spanBuilder.append("了我的评论：");
+                        end = end + 6;
                     }else if(bean.getInteractType()==4){//投票
                         spanBuilder.append("给了");
                         if(bean.getInteractId()==1){
@@ -363,9 +366,9 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }else if(bean.getInteractType()==5){//删除评论
                         spanBuilder.append("了一条评论：");
                         end = end + 6;
-                    }else {//回复
-                        spanBuilder.append("了我的评论：");
-                        end = end + 6;
+                    }else {//赞了我的评论
+                        spanBuilder.append("了我的评论");
+                        end = end + 5;
                     }
                     spanBuilder.setSpan(15, 0, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                     if(bean.isGreyColor()){

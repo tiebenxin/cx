@@ -819,7 +819,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             public void onItem(String string, int postsion) {
                 String msgId = media.getMsg_id();
                 //收藏详情需求又改为只显示3项
-                if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL || fromWhere == PictureConfig.FROM_CIRCLE) {
+                if (fromWhere == PictureConfig.FROM_COLLECT_DETAIL) {
                     if (postsion == 0) {//收藏详情转发单独处理
                         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                             ToastUtil.show(context.getString(R.string.user_disable_message));
@@ -876,12 +876,14 @@ public class AdapterPreviewImage extends PagerAdapter {
                         } else if (postsion == 1) {//保存
                             saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook, isCurrent);
                         } else if (postsion == 2) {//识别二维码
-                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
-                                ToastUtil.show(context.getString(R.string.user_disable_message));
-                                return;
+                            if (fromWhere == PictureConfig.FROM_CIRCLE){
+                            }else {
+                                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                    ToastUtil.show(context.getString(R.string.user_disable_message));
+                                    return;
+                                }
+                                scanningQrImage(media.getCompressPath(), ivZoom);
                             }
-                            // scanningImage(media.getPath());
-                            scanningQrImage(media.getCompressPath(), ivZoom);
                         } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
                             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                 ToastUtil.show(context.getString(R.string.user_disable_message));

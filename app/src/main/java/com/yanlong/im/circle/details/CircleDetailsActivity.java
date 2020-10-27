@@ -415,7 +415,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
                 mPresenter.circleCommentList(++mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                        UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0, mPostion);
+                        UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0, mPostion,fromWhere);
             }
         });
 
@@ -549,7 +549,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             mCommentTxtAdapter.notifyDataSetChanged();
         }else {
             mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 1, mPostion);
+                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 1, mPostion,fromWhere);
         }
 
     }
@@ -712,7 +712,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (mMessageInfoBean != null) {
             mCurrentPage = 1;
             mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0, mPostion);
+                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0, mPostion,fromWhere);
         }
         if (count <= 0) {
             binding.tvCommentCount.setText("所有评论");
@@ -740,6 +740,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     public void showUnreadMsg(int unCount, String avatar) {
+
+    }
+
+    @Override
+    public void onDeleteItem(int position) {
 
     }
 
