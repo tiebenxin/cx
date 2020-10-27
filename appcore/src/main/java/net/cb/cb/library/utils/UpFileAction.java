@@ -35,7 +35,7 @@ import retrofit2.Response;
 public class UpFileAction {
     public static enum PATH {
         HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE,
-        VIDEO, FILE, PC_MSG, IMG_PERSIST, VIDEO_FRAME, COMENT_IMG, COMENT_VIDEO
+        VIDEO, FILE, PC_MSG, IMG_PERSIST, VIDEO_FRAME, COMENT_IMG, COMENT_VIDEO,CIRCLE_BACKGROUND
     }
 
     private UpFileServer server;
@@ -122,6 +122,9 @@ public class UpFileAction {
                 break;
             case VIDEO_FRAME:
                 pt = "frame/";
+                break;
+            case CIRCLE_BACKGROUND:
+                pt = AppConfig.getUpPath() + "/bgi/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());

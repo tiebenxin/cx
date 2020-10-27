@@ -2,7 +2,8 @@ package com.yanlong.im.circle.adapter;
 
 import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,7 +13,6 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.luck.picture.lib.PictureEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.CircleCommentBean;
-import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
@@ -89,26 +89,30 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         }
 
         if (commentBean.getReplyUid() != null && commentBean.getReplyUid() != 0) {
-            tvName.setTextColor(mContext.getResources().getColor(R.color.color_488));
-            SpannableStringBuilder span = CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
-                    commentBean.getReplyNickname(), R.color.color_488, 2, mContext);
-            tvContent.setText(getSpan(span.toString()));
+            tvContent.setText(getSpan(commentBean.getReplyNickname().length(),"回复" + commentBean.getReplyNickname() + ":"+commentBean.getContent()));
+            //TODO 这个会导致变色和emoji无法同时显示
+//            CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
+//                    commentBean.getReplyNickname(), R.color.color_488, 2,tvContent, mContext);
         } else {
-            tvName.setTextColor(mContext.getResources().getColor(R.color.gray_757));
             tvContent.setTextColor(mContext.getResources().getColor(R.color.gray_484));
-            tvContent.setText(getSpan(commentBean.getContent()));
+            tvContent.setText(getSpan(0,commentBean.getContent()));
         }
         helper.addOnClickListener(R.id.layout_item, R.id.iv_header,R.id.iv_like);
         helper.addOnLongClickListener(R.id.layout_item);
     }
 
-    private SpannableString getSpan(String msg) {
+    //先转换成emoji，再变色，最后一次性显示
+    private SpannableString getSpan(int length,String msg) {
         Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
         SpannableString spannableString = null;
         if (fontSize != null) {
             spannableString = ExpressionUtil.getExpressionString(mContext, fontSize.intValue(), msg);
         } else {
             spannableString = ExpressionUtil.getExpressionString(mContext, ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        if(length!=0){
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(mContext.getResources().getColor(R.color.color_488));
+            spannableString.setSpan(colorSpan, 2,2+length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         }
         return spannableString;
     }

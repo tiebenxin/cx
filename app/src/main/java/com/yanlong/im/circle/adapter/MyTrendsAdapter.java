@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,7 +18,6 @@ import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,11 +51,11 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.follow.FollowModel;
+import com.yanlong.im.circle.mycircle.CircleAction;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
-import com.yanlong.im.circle.mycircle.CircleAction;
 import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
@@ -124,7 +122,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private int type;//1 我的朋友圈 2 别人的朋友圈
     private long friendUid;//朋友的uid
-    private List<String> listOne = Arrays.asList("置顶", "取消置顶");
     private List<String> listTwo = Arrays.asList("广场可见", "仅好友可见", "仅陌生人可见", "自己可见");
 
     private LayoutInflater inflater;
@@ -143,8 +140,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private boolean isFollow = false;//是否关注
     private String noticeAvatar;//新消息通知头像
     private int noticeSize;//新消息数量
-    private final int MAX_ROW_NUMBER = 3;
-    private final String END_MSG = " 收起";//
     private int isVote;
 
     public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid) {
@@ -718,7 +713,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     .compress(true)// 是否压缩 true or false
                                     .enableCrop(true)
                                     .withAspectRatio(1, 1)
-                                    .freeStyleCropEnabled(false)
+                                    .freeStyleCropEnabled(true)
                                     .rotateEnabled(false)
                                     .forResult(PictureConfig.CHANGE_BACKGROUND);//结果回调onActivityResult code
                         }
@@ -1347,63 +1342,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         }
         return flowItemBean;
-    }
-
-    /**
-     * 设置textView结尾...后面显示的文字和颜色
-     *
-     * @param context    上下文
-     * @param textView   textview
-     * @param minLines   最少的行数
-     * @param originText 原文本
-     * @param endText    结尾文字
-     * @param endColorID 结尾文字颜色id
-     * @param isExpand   当前是否是展开状态
-     * @param postion    位置
-     */
-    public void toggleEllipsize(final Context context, final TextView textView, final int minLines,
-                                final String originText, final String endText, final int endColorID,
-                                final boolean isExpand, final int postion, MessageInfoBean messageInfoBean) {
-        if (TextUtils.isEmpty(originText)) {
-            return;
-        }
-        try {
-            textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
-                    .OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    if (isExpand) {
-                        if (messageInfoBean.isRowsMore()) {
-                            setSpanClick(context, textView, originText + END_MSG, END_MSG, postion, endColorID);
-                        } else {
-                            textView.setText(getSpan((originText)));
-                        }
-                    } else {
-                        int paddingLeft = textView.getPaddingLeft();
-                        int paddingRight = textView.getPaddingRight();
-                        TextPaint paint = textView.getPaint();
-                        float moreText = textView.getTextSize() * endText.length();
-                        float availableTextWidth = (textView.getWidth() - paddingLeft - paddingRight) * minLines - moreText;
-                        availableTextWidth = availableTextWidth - paint.measureText("中");// 减去一个字的宽度
-                        CharSequence ellipsizeStr = TextUtils.ellipsize(originText, paint, availableTextWidth, TextUtils.TruncateAt.END);
-                        if (ellipsizeStr.length() < originText.length()) {
-                            CharSequence temp = ellipsizeStr + endText;
-                            setSpanClick(context, textView, temp, endText, postion, endColorID);
-                            messageInfoBean.setRowsMore(true);
-                        } else {
-                            textView.setText(getSpan((originText)));
-                        }
-                    }
-                    if (Build.VERSION.SDK_INT >= 16) {
-                        textView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    } else {
-                        textView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    }
-                }
-            });
-        } catch (Exception e) {
-            textView.setText(getSpan((originText)));
-        }
     }
 
     private void setSpanClick(Context context, TextView textView, CharSequence temp, String endText, int postion, int endColorID) {

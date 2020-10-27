@@ -234,13 +234,11 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
 //                    Uri uri = Uri.fromFile(new File(file));
                     alert.show();
-                    //显示背景图
-                    adapter.notifyBackground(file);
                     //上传背景图
                     if(upFileAction==null){
                         upFileAction = new UpFileAction();
                     }
-                    upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.IMG, getContext(), new UpFileUtil.OssUpCallback() {
+                    upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.CIRCLE_BACKGROUND, getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(String url) {
                             alert.dismiss();
@@ -278,6 +276,8 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 }
                 if (response.body().isOk()){
                     ToastUtil.show("更新背景图成功");
+                    //显示背景图
+                    adapter.notifyBackground(url);
                 }else {
                     ToastUtil.show("更新背景图失败");
                 }
