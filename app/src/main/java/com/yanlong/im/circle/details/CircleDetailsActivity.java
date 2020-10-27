@@ -49,6 +49,7 @@ import com.yanlong.im.circle.adapter.CommentAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
+import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
@@ -108,6 +109,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     public static final String ITEM_DATA_POSTION = "item_data_postion";
     public static final String MOMENT_ID = "moment_id";
     public static final String VISIBLE = "visible";
+    public static final String FROM = "FROM";
 
     protected ViewCircleDetailsBinding binding;
     private CircleFlowAdapter mFlowAdapter;
@@ -125,6 +127,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private boolean isKeyboard = false;
     private int mKeyboardHeight = 0;// 记录软键盘的高度
     private Long replyUid;
+    private String fromWhere;//来自哪里
+    private NewTrendDetailsBean newTrendDetailsBean;//互动消息进详情新接口，第一页评论已经携带过来了
     private CircleDetailViewModel mViewModel = new CircleDetailViewModel();
 
 
@@ -144,12 +148,24 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         isFollow = getIntent().getBooleanExtra(SOURCE_TYPE, false);
         mPostion = getIntent().getIntExtra(ITEM_DATA_POSTION, 0);
         String dataJson = getIntent().getStringExtra(ITEM_DATA);
+        fromWhere = getIntent().getStringExtra(FROM);
         int itemType = getIntent().getIntExtra(ITEM_DATA_TYPE, 0);
         mKeyboardHeight = getSharedPreferences("keyboard_setting", Context.MODE_PRIVATE).getInt("keyboard_setting", 0);
         initObserver();
         mFollowList = new ArrayList<>();
         if (!TextUtils.isEmpty(dataJson)) {
-            mMessageInfoBean = new Gson().fromJson(dataJson, MessageInfoBean.class);
+            //若来自我的互动，解析成另一个新详情结构数据
+            if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyInteract")){
+                newTrendDetailsBean = new Gson().fromJson(dataJson, NewTrendDetailsBean.class);
+                mMessageInfoBean = newTrendDetailsBean.getOtherMomentVo();
+                //如果查询详情为我自己，需要自行拼凑昵称头像，后端沟通后不返回
+                if (newTrendDetailsBean.getOtherMomentVo().getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                    mMessageInfoBean.setNickname(UserAction.getMyInfo().getName());
+                    mMessageInfoBean.setAvatar(UserAction.getMyInfo().getHead());
+                }
+            }else {
+                mMessageInfoBean = new Gson().fromJson(dataJson, MessageInfoBean.class);
+            }
             MessageFlowItemBean flowItemBean = new MessageFlowItemBean(itemType, mMessageInfoBean);
             mFollowList.add(flowItemBean);
         }
@@ -506,8 +522,35 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             binding.tvCommentCount.setText("所有评论");
             showFooterView(true);
         }
-        mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
-                UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 1, mPostion);
+        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyInteract")){ //若来自我的互动无需再次请求评论列表，已经包含第一页评论的内容
+            if (mCurrentPage == 1) {
+                mCommentList.clear();
+            }
+            List<CircleCommentBean.CommentListBean> list = newTrendDetailsBean.getCommentVoList();
+            if (mCurrentPage == 1 && (list == null || list.size() == 0)) {
+                bindingView.srlFollow.setEnableLoadMore(false);
+                bindingView.srlFollow.finishLoadMore();
+            } else {
+                if (list != null && list.size() > 0) {
+                    mCommentList.addAll(list);
+                }
+                if (list == null || list.size() == 0) {
+                    bindingView.srlFollow.setEnableLoadMore(false);
+                    bindingView.srlFollow.finishLoadMore();
+                } else if (list.size() > 0 && list.size() < PAGE_SIZE) {
+                    bindingView.srlFollow.finishLoadMoreWithNoMoreData();
+                } else {
+                    bindingView.srlFollow.setEnableLoadMore(true);
+                    bindingView.srlFollow.finishLoadMore();
+                }
+                showFooterView(false);
+            }
+            binding.tvCommentCount.setVisibility(View.VISIBLE);
+            mCommentTxtAdapter.notifyDataSetChanged();
+        }else {
+            mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
+                    UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 1, mPostion);
+        }
 
     }
 

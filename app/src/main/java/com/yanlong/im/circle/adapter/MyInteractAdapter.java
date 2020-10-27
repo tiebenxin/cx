@@ -28,9 +28,9 @@ import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.bean.InteractMessage;
-import com.yanlong.im.circle.bean.MessageInfoBean;
+import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
-import com.yanlong.im.circle.follow.FollowModel;
+import com.yanlong.im.circle.mycircle.CircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
@@ -38,12 +38,12 @@ import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -139,7 +139,9 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             activity.startActivity(intent);
                         }else {
                             //跳详情
-                            httpQueryById(bean.getMomentId(),bean.getMomentUid(),position,bean.getMsgId());
+                            httpGetNewDetails(bean.getMomentId(),bean.getMomentUid(),position,bean.getMsgId());
+//                            httpQueryById(bean.getMomentId(),bean.getMomentUid(),position,bean.getMsgId());
+
                         }
                     });
                     //互动内容显示
@@ -427,12 +429,13 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     //跳到动态详情
-    private void gotoCircleDetailsActivity(boolean isOpen,MessageInfoBean messageInfoBean,boolean isFollow) {
+    private void gotoCircleDetailsActivity(NewTrendDetailsBean bean) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
-        postcard.withBoolean(IS_OPEN, isOpen);
-        postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
-        postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
-        if(!TextUtils.isEmpty(messageInfoBean.getVote())){//是否含有投票
+        postcard.withBoolean(IS_OPEN, false);
+        postcard.withString(CircleDetailsActivity.FROM, "MyInteract");//来自我的互动
+        postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, bean.getMyFollow()==1?true:false);//是否关注
+        postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(bean));
+        if(!TextUtils.isEmpty(bean.getOtherMomentVo().getVote())){//是否含有投票
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_VOTE);
         }else {
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_DEFAULT);
@@ -446,26 +449,65 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * @param momentUid 说说发布者
      */
     public void httpQueryById(Long momentId, Long momentUid,int position,String msgId) {
-        WeakHashMap<String, Object> params = new WeakHashMap<>();
-        params.put("momentId", momentId);
-        params.put("momentUid", momentUid);
-        new FollowModel().queryById(params, new CallBack<ReturnBean<MessageInfoBean>>() {
+//        WeakHashMap<String, Object> params = new WeakHashMap<>();
+//        params.put("momentId", momentId);
+//        params.put("momentUid", momentUid);
+//        new FollowModel().queryById(params, new CallBack<ReturnBean<MessageInfoBean>>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
+//                super.onResponse(call, response);
+//                if (response.code() == 200) {
+//                    if (response.body() != null && response.body().getData() != null) {
+//                        MessageInfoBean bean = response.body().getData();
+//                        //全部都是与我的互动，所以直接拼凑头像和昵称
+//                        if(userBean!=null){
+//                            if (!TextUtils.isEmpty(userBean.getHead())) {
+//                                bean.setAvatar(userBean.getHead());
+//                            }
+//                            if (!TextUtils.isEmpty(userBean.getName())) {
+//                                bean.setNickname(userBean.getName());
+//                            }
+//                        }
+//                        gotoCircleDetailsActivity(false,bean,bean.isFollow());
+//                        //如果没点击过，则置灰并保存点击过状态
+//                        if(dataList.get(position).isGreyColor()==false){
+//                            dataList.get(position).setGreyColor(true);
+//                            notifyItemChanged(position);
+//                            msgDao.updateMsgGreyColor(msgId);
+//                        }
+//                        //如果是删除评论，直接提示
+//                        if(dataList.get(position).getInteractType()==5){
+//                            ToastUtil.show("该评论已删除");
+//                        }
+//                    }
+//                } else {
+//                    ToastUtil.show(response.message());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
+//                super.onFailure(call, t);
+//                ToastUtil.show("投票失败");
+//            }
+//        });
+    }
+
+
+    //新的获取动态详情接口(含头像、评论列表)
+    public void httpGetNewDetails(Long momentId, Long momentUid,int position,String msgId){
+        new CircleAction().httpGetNewDetails(momentId, momentUid, new CallBack<ReturnBean<NewTrendDetailsBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
+            public void onResponse(Call<ReturnBean<NewTrendDetailsBean>> call, Response<ReturnBean<NewTrendDetailsBean>> response) {
                 super.onResponse(call, response);
-                if (response.code() == 200) {
-                    if (response.body() != null && response.body().getData() != null) {
-                        MessageInfoBean bean = response.body().getData();
-                        //全部都是与我的互动，所以直接拼凑头像和昵称
-                        if(userBean!=null){
-                            if (!TextUtils.isEmpty(userBean.getHead())) {
-                                bean.setAvatar(userBean.getHead());
-                            }
-                            if (!TextUtils.isEmpty(userBean.getName())) {
-                                bean.setNickname(userBean.getName());
-                            }
-                        }
-                        gotoCircleDetailsActivity(false,bean,bean.isFollow());
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()){
+                    if(response.body().getData()!=null){
+                        NewTrendDetailsBean bean = response.body().getData();
+                        //跳详情
+                        gotoCircleDetailsActivity(bean);
                         //如果没点击过，则置灰并保存点击过状态
                         if(dataList.get(position).isGreyColor()==false){
                             dataList.get(position).setGreyColor(true);
@@ -476,16 +518,18 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         if(dataList.get(position).getInteractType()==5){
                             ToastUtil.show("该评论已删除");
                         }
+
                     }
-                } else {
-                    ToastUtil.show(response.message());
+                }else {
+                    ToastUtil.show("获取动态详情失败");
                 }
             }
 
             @Override
-            public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
+            public void onFailure(Call<ReturnBean<NewTrendDetailsBean>> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show("投票失败");
+                LogUtil.getLog().e(t.getMessage());
+                ToastUtil.show("获取动态详情失败");
             }
         });
     }

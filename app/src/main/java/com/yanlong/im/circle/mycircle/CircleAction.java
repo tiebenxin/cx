@@ -2,6 +2,7 @@ package com.yanlong.im.circle.mycircle;
 
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.FriendUserBean;
+import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -155,6 +156,13 @@ public class CircleAction {
      */
     public void httpCommentLike(final long commentId,final int isLike,final long momentId,final long momentUid, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.httpCommentLike(commentId,isLike,momentId,momentUid), callback);
+    }
+
+    /**
+     * 获取新的动态详情接口(包括头像、评论列表)
+     */
+    public void httpGetNewDetails(final long momentId,final long momentUid, final CallBack<ReturnBean<NewTrendDetailsBean>> callback) {
+        NetUtil.getNet().exec(server.httpGetNewDetails(momentId,momentUid), callback);
     }
 
 }

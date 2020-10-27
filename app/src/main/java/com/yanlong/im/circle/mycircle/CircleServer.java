@@ -2,6 +2,7 @@ package com.yanlong.im.circle.mycircle;
 
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.FriendUserBean;
+import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 
@@ -84,9 +85,12 @@ public interface CircleServer {
     Call<ReturnBean> httpCircleComplaint(@Field("momentUid") long momentUid,@Field("commentId") long commentId,@Field("complaintType") Integer complaintType, @Field("defendantUid") long defendantUid,
                                         @Field("illegalDescription") String illegalDescription, @Field("illegalImage") String illegalImage, @Field("momentId") long momentId);
 
-
     @POST("/square/moment/comment-like")
     @FormUrlEncoded
     Call<ReturnBean> httpCommentLike(@Field("commentId") long commentId,@Field("isLike") int isLike,@Field("momentId") long momentId,@Field("momentUid") long momentUid);
+
+    @POST("/square/moment/query-info")
+    @FormUrlEncoded
+    Call<ReturnBean<NewTrendDetailsBean>> httpGetNewDetails(@Field("momentId") long momentId, @Field("momentUid") long momentUid);
 
 }
