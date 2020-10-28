@@ -101,7 +101,7 @@ public class UpFileAction {
                 pt = AppConfig.getUpPath() + "/misc/feedback/";
                 break;
             case VOICE:
-                pt = "voice/";
+                pt = "moment/voice/";
                 break;
             case HEAD_GROUP_CHANGE:
             case HEAD_GROUP:
