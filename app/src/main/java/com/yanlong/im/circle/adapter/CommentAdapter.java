@@ -95,11 +95,11 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         if (commentBean.getLike() != null && commentBean.getLike() == PictureEnum.ELikeType.YES) {
             Drawable drawable = mContext.getResources().getDrawable(R.mipmap.ic_circle_like);
             drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
-            ivLike.setCompoundDrawables(drawable, null, null, null);
+            ivLike.setCompoundDrawables(null, null, drawable, null);
         } else {
             Drawable drawable = mContext.getResources().getDrawable(R.mipmap.ic_circle_give);
             drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
-            ivLike.setCompoundDrawables(drawable, null, null, null);
+            ivLike.setCompoundDrawables(null, null, drawable, null);
         }
 
         if (commentBean.getReplyUid() != null && commentBean.getReplyUid() != 0) {

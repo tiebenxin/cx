@@ -87,14 +87,14 @@
         android:id="@+id/iv_like"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="15dp"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_toLeftOf="@+id/iv_comment"
         android:drawableRight="@mipmap/ic_circle_give"
         android:gravity="center_vertical"
         android:textSize="13sp"
+        android:drawablePadding="5dp"
         android:text=""
-        android:minWidth="50dp"
         android:textColor="@color/c_b1b1b1" />
 </RelativeLayout>
