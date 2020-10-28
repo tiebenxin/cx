@@ -244,12 +244,10 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 ToastUtil.show(activity.getString(R.string.user_disable_message));
                                 return;
                             }
-                            if (holder.tvFollow.getText().equals("已关注")) {
-                                httpCancelFollow(userInfo.getUid(), position, holder.tvFollow);
-                            } else if (holder.tvFollow.getText().equals("关注TA")) {
+                            if (holder.tvFollow.getText().equals("关注TA")) {
                                 httpToFollow(userInfo.getUid(), position, holder.tvFollow);
                             } else {
-                                showDeleteDialog(userInfo.getUid(),position,3,holder.tvFollow);
+                                showDeleteDialog(userInfo.getUid(), position, 3, holder.tvFollow);
                             }
                         });
                     }
@@ -382,7 +380,11 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
                 if (response.body().isOk()){
                     ToastUtil.show("关注成功");
-                    dataList.get(position).setStat(1);
+                    if(type==2){
+                        dataList.get(position).setFollowStat(3);
+                    }else {
+                        dataList.get(position).setStat(3);
+                    }
                     notifyItemChanged(position,tvFollow);
                     //关注单个用户，回到关注列表需要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
