@@ -262,7 +262,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
                             @Override
                             public void onClickNoLook() {
-                                mPresenter.circleDelete(mMessageInfoBean.getId());
+                                if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("RecommendFragment")) {
+                                    EventFactory.NoSeeEvent event = new EventFactory.NoSeeEvent();
+                                    event.uid = mMessageInfoBean.getUid();
+                                    EventBus.getDefault().post(event);
+                                    finish();
+                                }
                             }
 
                             @Override

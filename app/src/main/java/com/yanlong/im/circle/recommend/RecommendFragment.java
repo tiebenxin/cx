@@ -202,6 +202,15 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void noSee(EventFactory.NoSeeEvent event) {
+        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+            return;
+        }
+        mPresenter.addSee(event.uid);
+    }
+
     @Override
     public void initEvent() {
         messageBinding.layoutNotice.setOnClickListener(v -> {

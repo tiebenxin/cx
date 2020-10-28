@@ -228,4 +228,11 @@ public class EventFactory extends BaseEvent {
         public int position;//位置
         public String fromWhere;//从哪里跳转过来
     }
+
+    /**
+     * 不看他的动态
+     */
+    public static class NoSeeEvent extends BaseEvent {
+        public long uid;
+    }
 }

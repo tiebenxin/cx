@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -135,7 +134,8 @@ public class ToastUtil {
                 toast.cancel();
             }
             try {
-                toast = Toast.makeText(AppConfig.APP_CONTEXT, txt, Toast.LENGTH_SHORT);
+                toast = Toast.makeText(AppConfig.APP_CONTEXT, null, Toast.LENGTH_SHORT);
+                toast.setText(txt);//修复小米会显示项目名问题如: "常信:点赞成功"
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             } catch (Exception e) {

@@ -486,7 +486,7 @@ public class CircleDetailsActivity2 extends BaseBindMvpActivity<FollowPresenter,
 
                     @Override
                     public void onClickNoLook() {
-                        mPresenter.circleDelete(mMessageInfoBean.getId());
+//                        mPresenter.circleDelete(mMessageInfoBean.getId());
                     }
 
                     @Override
