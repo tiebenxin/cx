@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.IntDef;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.luck.picture.lib.R;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * author：luck
@@ -53,6 +57,24 @@ public class PhotoPopupWindow extends PopupWindow implements View.OnClickListene
         picture_tv_cancel.setOnClickListener(this);
         picture_tv_photo.setOnClickListener(this);
         fl_content.setOnClickListener(this);
+    }
+
+    //设置拍摄模式
+    public void setTakeMode(@ETakeModel int model) {
+        switch (model) {
+            case ETakeModel.ALL:
+                picture_tv_photo.setVisibility(View.VISIBLE);
+                picture_tv_video.setVisibility(View.VISIBLE);
+                break;
+            case ETakeModel.PHOTO:
+                picture_tv_photo.setVisibility(View.VISIBLE);
+                picture_tv_video.setVisibility(View.GONE);
+                break;
+            case ETakeModel.VIDEO:
+                picture_tv_photo.setVisibility(View.GONE);
+                picture_tv_video.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
     @Override
@@ -141,6 +163,17 @@ public class PhotoPopupWindow extends PopupWindow implements View.OnClickListene
     }
 
     public interface OnItemClickListener {
-        void onItemClick(int positon);
+        void onItemClick(int position);
+    }
+
+    /*
+     *from
+     * */
+    @IntDef({ETakeModel.ALL, ETakeModel.PHOTO, ETakeModel.VIDEO})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ETakeModel {
+        int ALL = 0; // 都可以
+        int PHOTO = 1; // 只拍照
+        int VIDEO = 2; // 只拍视频
     }
 }

@@ -909,6 +909,7 @@ public class CircleDetailsActivity2 extends BaseBindMvpActivity<FollowPresenter,
 
     private void clearEdit() {
         bindingView.etMessage.setText("");
+        bindingView.etMessage.setHint("发表评论");
         hideKeyboard();
     }
 

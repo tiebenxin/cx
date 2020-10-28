@@ -3,9 +3,12 @@ package com.yanlong.im.circle.follow;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -37,6 +40,7 @@ import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
+import com.yanlong.im.circle.details.CircleDetailsActivity2;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.databinding.FragmentFollowBinding;
@@ -80,6 +84,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     private final int PAGE_SIZE = 20;
     private int mCurrentPage = 1;
     ViewNewCircleMessageBinding messageBinding;
+    private int firstOffset;
+    private boolean isRefreshing;
 
     protected FollowPresenter createPresenter() {
         return new FollowPresenter(getContext());
@@ -172,10 +178,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         //如果是我自己，则跳朋友圈，其他人跳详细资料
                         if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                             Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
-                            intent.putExtra("uid",messageInfoBean.getUid());
-                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            intent.putExtra("uid", messageInfoBean.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION, position);
                             startActivity(intent);
-                        }else {
+                        } else {
                             startActivity(new Intent(getContext(), UserInfoActivity.class)
                                     .putExtra(UserInfoActivity.FROM, "FollowFragment")
                                     .putExtra(FriendTrendsActivity.POSITION, position)
@@ -245,10 +251,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
                         if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {
                             Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
-                            intent.putExtra("uid",messageInfoBean.getUid());
-                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            intent.putExtra("uid", messageInfoBean.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION, position);
                             startActivity(intent);
-                        }else {
+                        } else {
                             ToastUtil.show("该用户已注销");
                         }
                         break;
@@ -256,23 +262,40 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             }
         });
         //TODO 需求改为只要不在本界面才暂停，随意滑动不暂停
-//        bindingView.recyclerFollow.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-//                //判断是当前layoutManager是否为LinearLayoutManager
-//                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
-//                if (layoutManager instanceof LinearLayoutManager) {
-//                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
-//                    //获取最后一个可见view的位置
-//                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
-//                    //获取第一个可见view的位置
-//                    int firstItemPosition = linearManager.findFirstVisibleItemPosition();
-//                    if (mFlowAdapter != null){
-//                        mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
-//                    }
-//                    // 判断当前是否有语音或视频播放
+        bindingView.recyclerFollow.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                //判断是当前layoutManager是否为LinearLayoutManager
+                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
+                if (layoutManager instanceof LinearLayoutManager) {
+                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
+                    //获取最后一个可见view的位置
+                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
+                    //获取第一个可见view的位置
+                    int firstItemPosition = linearManager.findFirstVisibleItemPosition();
+                    if (mFlowAdapter != null) {
+                        mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+                    }
+                    //停止滑动状态
+                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                        firstItemPosition = linearManager.findFirstVisibleItemPosition();
+                        View topView = layoutManager.getChildAt(firstItemPosition);
+                        if (topView != null) {
+                            //获取与该view的底部的偏移量
+                            firstOffset = topView.getTop();
+                        }
+                        if (mFlowAdapter != null) {
+                            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
+                            mFlowAdapter.notifyItemChanged(firstItemPosition);
+                        }
+                    }
+                    if (!isRefreshing && lastItemPosition >= mFlowAdapter.getItemCount() - 5) {
+                        isRefreshing = true;
+                        mPresenter.getFollowMomentList(++mCurrentPage, PAGE_SIZE);
+                    }
+                    // 判断当前是否有语音或视频播放
 //                    if (AudioPlayUtil.isPlay()) {
 //                        if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||
 //                                AudioPlayUtil.getRecyclerviewPosition() < firstItemPosition ||
@@ -280,9 +303,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 //                            AudioPlayUtil.stopAudioPlay();
 //                        }
 //                    }
-//                }
-//            }
-//        });
+                }
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -309,9 +332,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
         //更改目标用户全部关注状态
-        for(MessageFlowItemBean bean : mFlowAdapter.getData()){
-            MessageInfoBean msgBean = (MessageInfoBean)bean.getData();
-            if(msgBean.getUid().longValue() == event.uid){
+        for (MessageFlowItemBean bean : mFlowAdapter.getData()) {
+            MessageInfoBean msgBean = (MessageInfoBean) bean.getData();
+            if (msgBean.getUid().longValue() == event.uid) {
                 if (event.type == 1) {
                     msgBean.setFollow(true);
                 } else {
@@ -331,7 +354,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteItemTrend event) {
         //推荐列表和关注列表只更新自己点击的数据
-        if(event.fromWhere.equals("FollowFragment")){
+        if (event.fromWhere.equals("FollowFragment")) {
             onDeleteItem(event.position);
         }
     }
@@ -341,7 +364,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             ToastUtil.show(getResources().getString(R.string.network_error_msg));
             return;
         }
-        Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
+        Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity2.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, true);
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
@@ -377,6 +400,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Override
     public void onSuccess(List<MessageFlowItemBean> list) {
+        isRefreshing = false;
         if (mCurrentPage == 1) {
             mFollowList.clear();
         }
@@ -487,6 +511,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Override
     public void onShowMessage(String msg) {
+        isRefreshing = false;
         if (!TextUtils.isEmpty(msg)) {
             ToastUtil.show(msg);
         }

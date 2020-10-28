@@ -36,7 +36,7 @@ public final class MsgBean {
      * 图片消息
      * </pre>
      *
-     * <code>IMAGE = 1;</code>
+     * <code>PHOTO = 1;</code>
      */
     IMAGE(1),
     /**
@@ -423,7 +423,7 @@ public final class MsgBean {
      * 图片消息
      * </pre>
      *
-     * <code>IMAGE = 1;</code>
+     * <code>PHOTO = 1;</code>
      */
     public static final int IMAGE_VALUE = 1;
     /**
@@ -49230,7 +49230,7 @@ public final class MsgBean {
        * 图片
        * </pre>
        *
-       * <code>IMAGE = 1;</code>
+       * <code>PHOTO = 1;</code>
        */
       IMAGE(1),
       /**
@@ -49265,7 +49265,7 @@ public final class MsgBean {
        * 图片
        * </pre>
        *
-       * <code>IMAGE = 1;</code>
+       * <code>PHOTO = 1;</code>
        */
       public static final int IMAGE_VALUE = 1;
       /**

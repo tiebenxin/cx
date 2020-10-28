@@ -637,6 +637,16 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                         if (popupWindow.isShowing()) {
                             popupWindow.dismiss();
                         }
+                        if (mList != null && mList.size() > 0) {
+                            LocalMedia media = mList.get(0);
+                            if (PictureMimeType.isVideo(media.getPictureType())) {
+                                popupWindow.setTakeMode(PhotoPopupWindow.ETakeModel.VIDEO);
+                            } else {
+                                popupWindow.setTakeMode(PhotoPopupWindow.ETakeModel.PHOTO);
+                            }
+                        } else {
+                            popupWindow.setTakeMode(PhotoPopupWindow.ETakeModel.ALL);
+                        }
                         popupWindow.showAsDropDown(rl_picture_title);
                     } else {
                         startOpenCamera();
@@ -1026,7 +1036,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             etContent.setText("");
             layout_vote_content.setVisibility(View.GONE);
         } else if (id == R.id.tv_content_vote) {// 文字投票
-            if (isVoteImageEditSuccess){
+            if (isVoteImageEditSuccess) {
                 return;
             }
             if (!DoubleUtils.isFastDoubleClick()) {
@@ -1036,7 +1046,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 postcard.navigation(this, REQUEST_CODE_VOTE_TXT);
             }
         } else if (id == R.id.tv_picture_vote) {// 图片投票
-            if (isVoteTextEditSuccess){
+            if (isVoteTextEditSuccess) {
                 return;
             }
             if (!DoubleUtils.isFastDoubleClick()) {
@@ -1952,6 +1962,13 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             if (config.camera) {
                 closeActivity();
             }
+            if (requestCode == REQUEST_CODE_VOTE_PICTRUE) {
+                if (adapter != null && adapter.getSelectedImages() != null) {
+                    adapter.getSelectedImages().clear();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
         } else if (resultCode == UCrop.RESULT_ERROR) {
             Throwable throwable = (Throwable) data.getSerializableExtra(UCrop.EXTRA_ERROR);
             ToastManage.s(mContext, throwable.getMessage());
