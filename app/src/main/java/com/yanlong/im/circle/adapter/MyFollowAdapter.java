@@ -24,7 +24,9 @@ import com.yanlong.im.circle.mycircle.CircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.ExpressionUtil;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -238,6 +240,10 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         }
                         //关注操作
                         holder.tvFollow.setOnClickListener(v -> {
+                            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                ToastUtil.show(activity.getString(R.string.user_disable_message));
+                                return;
+                            }
                             if (holder.tvFollow.getText().equals("已关注")) {
                                 httpCancelFollow(userInfo.getUid(), position, holder.tvFollow);
                             } else if (holder.tvFollow.getText().equals("关注TA")) {

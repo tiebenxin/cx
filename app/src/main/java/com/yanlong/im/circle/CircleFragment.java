@@ -30,7 +30,9 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.databinding.ActivityCircleBinding;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.utils.ImgSizeUtil;
@@ -203,6 +205,11 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         });
         bindingView.ivCreateCircle.setOnClickListener(o -> {
             if (floatModel == 0) {
+                //被封号处理
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                    return;
+                }
                 AudioPlayUtil.stopAudioPlay();
                 PictureSelector.create(getActivity())
                         .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()

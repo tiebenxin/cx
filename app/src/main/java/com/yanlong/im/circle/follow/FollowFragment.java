@@ -46,6 +46,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
@@ -163,6 +164,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 switch (view.getId()) {
                     case R.id.iv_comment:// 评论
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                            return;
+                        }
                         gotoCircleDetailsActivity(true, position);
                         break;
                     case R.id.iv_header:// 头像
@@ -183,6 +188,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         }
                         break;
                     case R.id.iv_like:// 点赞
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                            return;
+                        }
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
                             mPresenter.comentCancleLike(messageInfoBean.getId(), messageInfoBean.getUid(), position);
                         } else {
@@ -194,6 +203,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                                 mPresenter.getUserType(messageInfoBean.getUid()) == 0 ? true : false, new ICircleSetupClick() {
                                     @Override
                                     public void onClickFollow() {
+                                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                                            return;
+                                        }
                                         mPresenter.followCancle(messageInfoBean.getUid(), position);
                                     }
 
@@ -216,6 +229,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
                                     @Override
                                     public void onClickReport() {
+                                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                                            return;
+                                        }
                                         Intent intent = new Intent(getContext(), ComplaintActivity.class);
                                         intent.putExtra(ComplaintActivity.UID, messageInfoBean.getUid() + "");
                                         intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
@@ -540,6 +557,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 }
             }
         } else {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                return;
+            }
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
             mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
         }

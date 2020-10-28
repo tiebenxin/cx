@@ -24,7 +24,9 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -136,6 +138,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         //发新动态
         bindingView.ivCreateCircle.setOnClickListener(v -> {
             AudioPlayUtil.stopAudioPlay();
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
             PictureSelector.create(MyTrendsActivity.this)
                     .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                     .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE

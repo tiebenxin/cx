@@ -63,8 +63,10 @@ import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.wight.avatar.RoundImageView;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICommonSelectClickListner;
 import net.cb.cb.library.inter.ITrendClickListner;
@@ -321,6 +323,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             DialogHelper.getInstance().createTrendDialog(bean.getIsTop(),activity, new ITrendClickListner() {
                                 @Override
                                 public void clickIsTop(int type) {
+                                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                        ToastUtil.show(activity.getString(R.string.user_disable_message));
+                                        return;
+                                    }
                                     if(type==1){
                                         //取消置顶
                                         httpIsTop(bean.getId(), 0);
@@ -332,6 +338,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                                 @Override
                                 public void clickAuthority() {
+                                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                        ToastUtil.show(activity.getString(R.string.user_disable_message));
+                                        return;
+                                    }
                                     //设置动态可见度
                                     DialogHelper.getInstance().createCommonSelectListDialog(activity, listTwo, new ICommonSelectClickListner() {
                                         @Override
@@ -367,6 +377,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                                 @Override
                                 public void clickDelete() {
+                                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                        ToastUtil.show(activity.getString(R.string.user_disable_message));
+                                        return;
+                                    }
                                     //删除动态
                                     httpDeleteTrend(bean.getId(), position);
                                 }
@@ -410,6 +424,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.tvLike.setCompoundDrawables(like, null, null, null);
                     }
                     holder.tvLike.setOnClickListener(v -> {
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(activity.getString(R.string.user_disable_message));
+                            return;
+                        }
                         if (bean.getLike() == 0) {
                             httpLike(bean.getId(), bean.getUid(), holder.tvLike, position - 1, bean.getLikeCount());
                         } else {
@@ -1238,6 +1256,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (view.getId() == R.id.iv_picture) {// 查看大图
                     gotoPictruePreview(position, voteList);
                 }else {
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                        ToastUtil.show(activity.getString(R.string.user_disable_message));
+                        return;
+                    }
                     //无法给自己投票
                     if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                         ToastUtil.show("无法给自己投票");
