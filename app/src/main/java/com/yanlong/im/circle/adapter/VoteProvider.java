@@ -323,9 +323,12 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         RecyclerView recyclerVote = helper.getView(R.id.recycler_vote);
 //        recyclerVote.setLayoutManager(new LinearLayoutManager(mContext));
         if (!TextUtils.isEmpty(messageInfoBean.getVote())) {
+            recyclerVote.setVisibility(View.VISIBLE);
             VoteBean voteBean = new Gson().fromJson(messageInfoBean.getVote(), VoteBean.class);
             setRecycleView(recyclerVote, voteBean.getItems(), voteBean.getType(), position, messageInfoBean.getVoteAnswer(),
                     getVoteSum(messageInfoBean.getVoteAnswer()), messageInfoBean.getUid());
+        }else {
+            recyclerVote.setVisibility(View.GONE);
         }
     }
 
@@ -564,7 +567,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     /**
      * 查看图片
      *
-     * @param postion         位置
+     * @param position         位置
      * @param attachmentBeans 图片集合
      */
     private void toPicturePreview(int position, List<AttachmentBean> attachmentBeans) {

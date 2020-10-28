@@ -101,7 +101,7 @@ public class UpFileAction {
                 pt = AppConfig.getUpPath() + "/misc/feedback/";
                 break;
             case VOICE:
-                pt = "voice/";
+                pt = "moment/voice/";
                 break;
             case HEAD_GROUP_CHANGE:
             case HEAD_GROUP:
@@ -121,7 +121,7 @@ public class UpFileAction {
                 pt = "thumb";
                 break;
             case VIDEO_FRAME:
-                pt = "frame/";
+                pt = "moment/frame/";
                 break;
             case CIRCLE_BACKGROUND:
                 pt = AppConfig.getUpPath() + "/bgi/";
