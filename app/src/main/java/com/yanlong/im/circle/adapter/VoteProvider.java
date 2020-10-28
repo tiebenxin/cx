@@ -528,7 +528,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         taskAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                AudioPlayUtil.stopAudioPlay();
+//                AudioPlayUtil.stopAudioPlay();
                 toPicturePreview(position, attachmentBeans);
             }
         });
@@ -659,7 +659,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     }
 
     private void gotoPictruePreview(int position, List<VoteBean.Item> voteList) {
-        AudioPlayUtil.stopAudioPlay();
+//        AudioPlayUtil.stopAudioPlay();
         List<AttachmentBean> attachmentBeans = new ArrayList<>();
         for (VoteBean.Item item : voteList) {
             AttachmentBean bean = new AttachmentBean();
