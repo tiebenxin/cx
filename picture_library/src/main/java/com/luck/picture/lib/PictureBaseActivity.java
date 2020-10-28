@@ -124,6 +124,7 @@ public class PictureBaseActivity extends FragmentActivity {
         if (selectionMedias == null) {
             selectionMedias = new ArrayList<>();
         }
+        config.maxSelectNum = 4;
     }
 
     @Override
@@ -378,6 +379,7 @@ public class PictureBaseActivity extends FragmentActivity {
 
     /**
      * 压缩并发送->猜你想要发送的图片特殊处理 ChatActivity
+     *
      * @param result
      */
     protected void compressImageAndSendMsg(final List<LocalMedia> result) {
@@ -418,12 +420,11 @@ public class PictureBaseActivity extends FragmentActivity {
                                     image.setCompressPath(eqTrue ? "" : path);
                                 }
                             }
-                            RxBus.getDefault().post(new EventEntity(PictureConfig.GUESS_YOU_LIKE,result));
+                            RxBus.getDefault().post(new EventEntity(PictureConfig.GUESS_YOU_LIKE, result));
                         }
                     });
         }
     }
-
 
 
     /**

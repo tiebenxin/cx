@@ -289,4 +289,40 @@ public class TimeToString {
         }
         return res;
     }
+
+    //获取朋友圈推荐时间
+    public static String getRecommendTime(long time) {
+        long diff = System.currentTimeMillis() - time;
+//        LogUtil.getLog().i("时间", "diff=" + diff);
+        if (diff <= 0) {
+            return "1秒前推荐";
+        }
+        if (diff > 0 && diff < MILLISECOND * 60) {
+            int s = (int) (diff / MILLISECOND);
+            if (s == 0) {
+                s = 1;
+            }
+            return s + "秒前推荐";
+        } else if (diff >= MINUTE && diff < 60 * MINUTE) {
+            int m = (int) (diff / MINUTE);
+            if (m == 0) {
+                m = 1;
+            }
+            return m + "分钟前推荐";
+        } else if (diff >= HOUR && diff < 24 * HOUR) {
+            int h = (int) (diff / HOUR);
+            if (h == 0) {
+                h = 1;
+            }
+            return h + "小时前推荐";
+        } else if (diff >= DAY) {
+            int d = (int) (diff / DAY);
+            if (d == 0) {
+                d = 1;
+            }
+            return diff + "天前推荐";
+        } else {
+            return "1秒前推荐";
+        }
+    }
 }

@@ -120,7 +120,11 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 .apply(GlideOptionsUtil.headImageOptions())
                 .into(ivHead);
         helper.setText(R.id.tv_user_name, messageInfoBean.getNickname());
-        helper.setText(R.id.tv_date, TimeToString.formatCircleDate(messageInfoBean.getCreateTime()));
+        if (data.getRefreshTime() > 0){
+            helper.setText(R.id.tv_date, TimeToString.getRecommendTime(data.getRefreshTime()));
+        }else {
+            helper.setText(R.id.tv_date, TimeToString.formatCircleDate(messageInfoBean.getCreateTime()));
+        }
         if (TextUtils.isEmpty(messageInfoBean.getPosition()) && TextUtils.isEmpty(messageInfoBean.getCity())) {
             helper.setGone(R.id.tv_location, false);
         } else {

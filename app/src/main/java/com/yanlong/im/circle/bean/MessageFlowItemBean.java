@@ -14,6 +14,7 @@ import net.cb.cb.library.base.BaseBean;
 public class MessageFlowItemBean<T> extends BaseBean {
     private int itemType;
     private T data;
+    private long refreshTime;//本地刷新时间，推荐列表需要
 
     public int getItemType() {
         return itemType;
@@ -31,6 +32,14 @@ public class MessageFlowItemBean<T> extends BaseBean {
         this.data = data;
     }
 
+    public long getRefreshTime() {
+        return refreshTime;
+    }
+
+    public void setRefreshTime(long refreshTime) {
+        this.refreshTime = refreshTime;
+    }
+
     public MessageFlowItemBean() {
     }
 
@@ -41,5 +50,11 @@ public class MessageFlowItemBean<T> extends BaseBean {
     public MessageFlowItemBean(int itemType, T data) {
         this.itemType = itemType;
         this.data = data;
+    }
+
+    public MessageFlowItemBean(int itemType, T data, long time) {
+        this.itemType = itemType;
+        this.data = data;
+        this.refreshTime = time;
     }
 }
