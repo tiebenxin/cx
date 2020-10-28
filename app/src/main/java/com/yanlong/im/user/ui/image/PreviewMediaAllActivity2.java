@@ -472,19 +472,19 @@ public class PreviewMediaAllActivity2 extends BaseBindActivity<ActivityPreviewFi
                                         String url = "";
                                         if (msgAllBean.getImage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getImage().getPreview());
-                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getImage().getPreview(), msgAllBean.getMsg_type());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getImage().getPreview());
                                         } else if (msgAllBean.getVideoMessage() != null) {
                                             //添加第一帧背景图
                                             FileBean fileBean = new FileBean();
                                             fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getBg_url()));
-                                            fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
+                                            fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getBg_url()));
                                             fileBeans.add(fileBean);
                                             //视频源文件
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getVideoMessage().getUrl());
-                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getUrl(), msgAllBean.getMsg_type());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getVideoMessage().getUrl());
                                         } else if (msgAllBean.getSendFileMessage() != null) {
                                             md5 = UpFileUtil.getInstance().getFilePathMd5(msgAllBean.getSendFileMessage().getUrl());
-                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getMsg_type());
+                                            url = UpFileUtil.getInstance().getFileUrl(msgAllBean.getSendFileMessage().getUrl());
                                         }
                                         if (!TextUtils.isEmpty(md5)) {
                                             FileBean fileBean = new FileBean();

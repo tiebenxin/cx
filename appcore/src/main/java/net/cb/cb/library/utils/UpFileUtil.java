@@ -404,8 +404,6 @@ public class UpFileUtil {
     }
 
 
-
-
     /**
      * 获取文件名 例如 ：md5.jpg
      *
@@ -643,7 +641,7 @@ public class UpFileUtil {
             @Override
             public void onSuccess(ImagePersistRequest request, ImagePersistResult result) {
                 LogUtil.getLog().i(TAG, "asyncImagePersist--success");
-                ossUpCallback.success(getThumbUrl(url,toObjectKey));
+                ossUpCallback.success(getThumbUrl(url, toObjectKey));
             }
 
             @Override
@@ -671,7 +669,7 @@ public class UpFileUtil {
     public void downloadFile(final Context context, final String keyId, final String secret, final String token, final String endpoint, final String bucketName, final UpFileUtil.OssUpCallback ossUpCallback, final String url, final File fileSave) {
         getOSs(context, keyId, secret, token, endpoint);
         String fromBucket = bucketName;
-        String fromObjectKey = getFileUrl(url, 0);
+        String fromObjectKey = getFileUrl(url);
 
         //图片持久化请求
         GetObjectRequest getObjectRequest = new GetObjectRequest(fromBucket, fromObjectKey);
