@@ -40,7 +40,6 @@ import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
-import com.yanlong.im.circle.details.CircleDetailsActivity2;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.databinding.FragmentFollowBinding;
@@ -381,7 +380,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             ToastUtil.show(getResources().getString(R.string.network_error_msg));
             return;
         }
-        Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity2.path);
+        Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, true);
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();

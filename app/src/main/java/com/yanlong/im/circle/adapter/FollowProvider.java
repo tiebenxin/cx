@@ -28,8 +28,10 @@ import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -120,9 +122,9 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 .apply(GlideOptionsUtil.headImageOptions())
                 .into(ivHead);
         helper.setText(R.id.tv_user_name, messageInfoBean.getNickname());
-        if (data.getRefreshTime() > 0){
+        if (data.getRefreshTime() > 0) {
             helper.setText(R.id.tv_date, TimeToString.getRecommendTime(data.getRefreshTime()));
-        }else {
+        } else {
             helper.setText(R.id.tv_date, TimeToString.formatCircleDate(messageInfoBean.getCreateTime()));
         }
         if (TextUtils.isEmpty(messageInfoBean.getPosition()) && TextUtils.isEmpty(messageInfoBean.getCity())) {
@@ -194,7 +196,9 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                         resetSize(ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
                         String path = StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl());
                         if (isGif(path)) {
-                            Glide.with(mContext).load(path).listener(new RequestListener() {
+                            RequestOptions options = new RequestOptions();
+                            options.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+                            Glide.with(mContext).load(path).apply(options).listener(new RequestListener() {
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
                                     return false;

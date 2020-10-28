@@ -332,7 +332,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
-        if(event.from.equals("CircleDetailsActivity")){
+        if(event.from.equals("CircleDetailsActivity1")){
             if(event.type==0){
                 bindingView.tvFollow.setText("关注");
                 isFollow = 0;

@@ -40,7 +40,6 @@ import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
-import com.yanlong.im.circle.details.CircleDetailsActivity2;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
@@ -432,8 +431,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             ToastUtil.show(getResources().getString(R.string.network_error_msg));
             return;
         }
-//        Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
-        Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity2.path);
+        Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, messageInfoBean.isFollow());
