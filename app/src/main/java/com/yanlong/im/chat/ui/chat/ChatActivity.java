@@ -3142,7 +3142,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             final String imgMsgId = SocketData.getUUID();
                             ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);//TODO:使用file://路径会使得检测本地路径不存在
                             imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
-//                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+//                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.PHOTO);
                             // 不等于常信小助手，需要上传到服务器
                             if (!isNoSendUser()) {
                                 UpLoadService.onAddImage(imgMsgBean, file, isArtworkMaster);
