@@ -121,7 +121,7 @@ public class UpFileAction {
                 pt = "thumb";
                 break;
             case VIDEO_FRAME:
-                pt = "frame/";
+                pt = "moment/frame/";
                 break;
             case CIRCLE_BACKGROUND:
                 pt = AppConfig.getUpPath() + "/bgi/";

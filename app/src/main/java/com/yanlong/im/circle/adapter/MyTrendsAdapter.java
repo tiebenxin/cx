@@ -526,23 +526,24 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.layoutVote.setVisibility(View.GONE);
                             }
                         } else {
+                            if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOTE) {
+                                holder.layoutVote.setVisibility(View.VISIBLE);
+                            } else {
+                                holder.layoutVote.setVisibility(View.GONE);
+                            }
                             holder.recyclerView.setVisibility(View.GONE);
                             holder.layoutVideo.setVisibility(View.GONE);
                             holder.layoutVoice.setVisibility(View.GONE);
-                            holder.layoutVote.setVisibility(View.GONE);
                         }
                     } else {
-                        if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOTE) {
-                            holder.layoutVote.setVisibility(View.VISIBLE);
-                        } else {
-                            holder.layoutVote.setVisibility(View.GONE);
-                        }
                         holder.recyclerView.setVisibility(View.GONE);
                         holder.layoutVideo.setVisibility(View.GONE);
                         holder.layoutVoice.setVisibility(View.GONE);
+                        holder.layoutVote.setVisibility(View.GONE);
                     }
                     //投票
                     if (!TextUtils.isEmpty(bean.getVote())) {
+                        holder.layoutVote.setVisibility(View.VISIBLE);
                         VoteBean voteBean = new Gson().fromJson(bean.getVote(), VoteBean.class);
                         //若我点击是postion是1，由于有头部，取数据则是从0开始起，故需要-1
                         setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position - 1,
@@ -552,6 +553,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         } else {
                             holder.tvVoteNumber.setText("0人参与了投票");
                         }
+                    }else {
+                        holder.layoutVote.setVisibility(View.GONE);
                     }
                 }
             }
