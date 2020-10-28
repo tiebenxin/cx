@@ -631,7 +631,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     gotoPictruePreview(position, voteList);
                 } else if (view.getId() == R.id.layout_vote_bg) {
                     if (!isMe(uid) && (answerBean == null || answerBean.getSelfAnswerItem() == -1)) {
-                        clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_PICTRUE, view);
+                        clickListener.onClick(position, parentPostion, CoreEnum.EClickType.VOTE_PICTURE, view);
                     } else {
                         clickListener.onClick(parentPostion, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
                     }

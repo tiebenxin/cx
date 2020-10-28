@@ -21,6 +21,7 @@ import net.cb.cb.library.R;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.StatusBarUtils;
 import net.cb.cb.library.utils.ThreadUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -61,7 +62,7 @@ public class AppActivity extends AppCompatActivity {
         context = getApplicationContext();
         inflater = getLayoutInflater();
         alert = new AlertWait(this);
-        getWindow().setStatusBarColor(getResources().getColor(R.color.white));
+        StatusBarUtils.setStatusBarColor(this, getResources().getColor(R.color.white));
         super.onCreate(savedInstanceState);
         //注册关闭其他页面事件
         EventBus.getDefault().register(mExit);

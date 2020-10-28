@@ -37,4 +37,6 @@ public interface FollowView extends IBaseView {
     void showUnreadMsg(int unCount,String avatar);
 
     void onDeleteItem(int position);
+
+    void onAddFriendSuccess(boolean isSuccess);
 }

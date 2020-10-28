@@ -379,6 +379,34 @@ public class UpFileUtil {
 
 
     /**
+     * 获取文件全路径
+     *
+     * @param path
+     * @param msgType
+     * @return
+     */
+    public String getFileUrl(String path) {
+        try {
+            String url;
+            if (TextUtils.isEmpty(path)) {
+                return "";
+            }
+            if (path.contains("/below-20k")) {
+                path = path.replace("/below-20k", "");
+            } else if (path.contains("/below-200k")) {
+                path = path.replace("/below-200k", "");
+            }
+            url = path.substring(path.lastIndexOf(".com/") + 5);
+            return url;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+
+
+
+    /**
      * 获取文件名 例如 ：md5.jpg
      *
      * @param path
@@ -603,7 +631,7 @@ public class UpFileUtil {
     public void saveAsFile(final String path, final Context context, final String keyId, final String secret, final String token, final String endpoint, final String bucketName, final UpFileUtil.OssUpCallback ossUpCallback, final String url, final String fileName) {
         getOSs(context, keyId, secret, token, endpoint);
         String fromBucket = bucketName;
-        String fromObjectKey = getFileUrl(url, 0);
+        String fromObjectKey = getFileUrl(url);
         String toBucket = bucketName;
         final String toObjectKey = path + fileName;
         String action = "image/resize,m_lfit,w_500/quality,Q_20";
@@ -615,7 +643,7 @@ public class UpFileUtil {
             @Override
             public void onSuccess(ImagePersistRequest request, ImagePersistResult result) {
                 LogUtil.getLog().i(TAG, "asyncImagePersist--success");
-                ossUpCallback.success(getThumbUrl(url));
+                ossUpCallback.success(getThumbUrl(url,toObjectKey));
             }
 
             @Override

@@ -55,7 +55,9 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.AlertYesNo;
 
@@ -485,22 +487,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 ToastUtil.show("请检查网络连接是否正常");
             }
         } else if (fromWhere == PictureConfig.FROM_CIRCLE) {
-            MsgAllBean msgAllBean = new MsgAllBean();
-            msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
-            ImageMessage imageMessage = new ImageMessage();
             LocalMedia localMedia = images.get(position);
-            if (localMedia != null) {
-                imageMessage.setHeight(localMedia.getHeight());
-                imageMessage.setWidth(localMedia.getWidth());
-                imageMessage.setSize(localMedia.getSize());
-                imageMessage.setLocalimg(localMedia.getCompressPath());
-                imageMessage.setOrigin(localMedia.getCompressPath());
-                imageMessage.setPreview(loadThumbnail(localMedia.getCompressPath()));
-                imageMessage.setThumbnail(loadThumbnail(localMedia.getCompressPath()));
+            if (localMedia == null) {
+                return;
             }
-            msgAllBean.setImage(imageMessage);
-            startActivity(new Intent(this, MsgForwardActivity.class)
-                    .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+            persistImage(localMedia);
         } else {
             if (!TextUtils.isEmpty(msgId)) {
                 MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
@@ -701,6 +692,45 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
             }
         }
+    }
+
+    //转存朋友群缩略图
+    public void persistImage(LocalMedia media) {
+        new UpFileAction().persistImage(UpFileAction.PATH.IMG_PERSIST, PictureExternalPreviewActivity.this, media.getCompressPath(), new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String thumb) {
+                MsgAllBean msgAllBean = new MsgAllBean();
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
+                ImageMessage imageMessage = new ImageMessage();
+                if (media != null) {
+                    imageMessage.setHeight(media.getHeight());
+                    imageMessage.setWidth(media.getWidth());
+                    imageMessage.setSize(media.getSize());
+//                    imageMessage.setLocalimg(media.getCompressPath());
+                    imageMessage.setOrigin("");
+                    imageMessage.setPreview(media.getCompressPath());
+                    imageMessage.setThumbnail(thumb);
+                }
+                msgAllBean.setImage(imageMessage);
+                startActivity(new Intent(PictureExternalPreviewActivity.this, MsgForwardActivity.class)
+                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+            }
+
+            @Override
+            public void fail() {
+                ThreadUtil.getInstance().runMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.show("图片上传失败");
+                    }
+                });
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+            }
+        });
 
     }
+
 }

@@ -367,6 +367,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         mFlowAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onAddFriendSuccess(boolean isSuccess) {
+
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteItemTrend event) {
         //推荐列表和关注列表只更新自己点击的数据

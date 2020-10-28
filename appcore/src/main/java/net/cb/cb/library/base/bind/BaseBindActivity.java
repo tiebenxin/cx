@@ -10,6 +10,8 @@ import android.view.inputmethod.InputMethodManager;
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 
+import net.cb.cb.library.R;
+import net.cb.cb.library.utils.StatusBarUtils;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;

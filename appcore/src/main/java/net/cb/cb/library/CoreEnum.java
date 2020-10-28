@@ -128,17 +128,21 @@ public class CoreEnum {
     /**
      * 0：展开、收起 1：详情 2文字投票 3图片投票 4评论回复 5点击头像 6 长按
      */
-    @IntDef({EClickType.CONTENT_DOWN, EClickType.CONTENT_DETAILS, EClickType.VOTE_CHAR, EClickType.VOTE_PICTRUE
-            , EClickType.COMMENT_REPLY, EClickType.COMMENT_HEAD, EClickType.COMMENT_LONG})
+    @IntDef({EClickType.CONTENT_DOWN, EClickType.CONTENT_DETAILS, EClickType.VOTE_CHAR, EClickType.VOTE_PICTURE
+            , EClickType.COMMENT_REPLY, EClickType.COMMENT_HEAD, EClickType.COMMENT_LONG, EClickType.FOLLOW, EClickType.ADD_FRIEND,
+            EClickType.CHAT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EClickType {
         int CONTENT_DOWN = 0;// 展开、收起
         int CONTENT_DETAILS = 1;// 详情
         int VOTE_CHAR = 2;// 文字投票
-        int VOTE_PICTRUE = 3;// 图片投票
+        int VOTE_PICTURE = 3;// 图片投票
         int COMMENT_REPLY = 4;// 评论回复
         int COMMENT_HEAD = 5;// 点击头像
         int COMMENT_LONG = 6;// 长按
+        int FOLLOW = 7;// 关注
+        int ADD_FRIEND = 8;// 加好友
+        int CHAT = 9;// 私聊
     }
 
     @IntDef({ELongType.COPY, ELongType.DELETE, ELongType.REPORT})

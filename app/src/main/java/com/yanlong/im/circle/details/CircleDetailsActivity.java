@@ -40,6 +40,7 @@ import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.CirclePowerSetupActivity;
@@ -60,6 +61,8 @@ import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewNoCommentsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.UserUtil;
@@ -163,6 +166,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 }
             } else {
                 mMessageInfoBean = new Gson().fromJson(dataJson, MessageInfoBean.class);
+                if (mMessageInfoBean != null) {
+                    UserInfo userInfo = new UserDao().findUserInfo(mMessageInfoBean.getUid());
+                    if (userInfo != null && userInfo.getuType() != null) {
+                        mMessageInfoBean.setUserType(userInfo.getuType());
+                    }
+                }
             }
             MessageFlowItemBean flowItemBean = new MessageFlowItemBean(itemType, mMessageInfoBean);
             mFollowList.add(flowItemBean);
@@ -272,21 +281,21 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             mPresenter.comentLike(mMessageInfoBean.getId(), mMessageInfoBean.getUid(), position);
                         }
                         break;
-                    case R.id.tv_follow:// 关注TA\取消关注
-                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
-                            ToastUtil.show(getString(R.string.user_disable_message));
-                            return;
-                        }
-                        if (isFollow) {
-                            cancelFollowDialog(position);
-                        } else {
-                            if (mMessageInfoBean.isFollow()) {
-                                cancelFollowDialog(position);
-                            } else {
-                                mPresenter.followAdd(mMessageInfoBean.getUid(), position);
-                            }
-                        }
-                        break;
+//                    case R.id.tv_follow:// 关注TA\取消关注
+//                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+//                            ToastUtil.show(getString(R.string.user_disable_message));
+//                            return;
+//                        }
+//                        if (isFollow) {
+//                            cancelFollowDialog(position);
+//                        } else {
+//                            if (mMessageInfoBean.isFollow()) {
+//                                cancelFollowDialog(position);
+//                            } else {
+//                                mPresenter.followAdd(mMessageInfoBean.getUid(), position);
+//                            }
+//                        }
+//                        break;
                     case R.id.rl_video:// 播放视频
                         AudioPlayUtil.stopAudioPlay();
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(mMessageInfoBean.getAttachment(),
@@ -666,11 +675,31 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
             messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
             mFlowAdapter.notifyItemChanged(position);
-        } else if (type == CoreEnum.EClickType.VOTE_CHAR || type == CoreEnum.EClickType.VOTE_PICTRUE) {
+        } else if (type == CoreEnum.EClickType.VOTE_CHAR || type == CoreEnum.EClickType.VOTE_PICTURE) {
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPosition).getData();
             mPresenter.voteAnswer(position + 1, parentPosition, messageInfoBean.getId(), messageInfoBean.getUid());
         } else if (type == CoreEnum.EClickType.COMMENT_REPLY) {
             inputComment(mCommentList.get(position).getNickname(), mCommentList.get(position).getUid(), true);
+        } else if (type == CoreEnum.EClickType.FOLLOW) {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
+            mPresenter.followAdd(mMessageInfoBean.getUid(), position);
+        } else if (type == CoreEnum.EClickType.ADD_FRIEND) {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
+            mPresenter.addFriend(mMessageInfoBean.getUid(), "我是xxx");
+        } else if (type == CoreEnum.EClickType.CHAT) {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
+            startActivity(new Intent(getContext(), ChatActivity.class)
+                    .putExtra(ChatActivity.AGM_TOUID, mMessageInfoBean.getUid()));
+            finish();
         }
     }
 
@@ -776,6 +805,17 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     public void onDeleteItem(int position) {
+
+    }
+
+    @Override
+    public void onAddFriendSuccess(boolean isSuccess) {
+        if (isSuccess){
+            mMessageInfoBean.setUserType(ChatEnum.EUserType.FRIEND);
+            mFlowAdapter.notifyDataSetChanged();
+        }else {
+            ToastUtil.show("好友申请已发送");
+        }
 
     }
 

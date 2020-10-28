@@ -666,7 +666,7 @@ public class CircleDetailsActivity1 extends BaseBindMvpActivity<FollowPresenter,
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
             messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
             mFlowAdapter.notifyItemChanged(position);
-        } else if (type == CoreEnum.EClickType.VOTE_CHAR || type == CoreEnum.EClickType.VOTE_PICTRUE) {
+        } else if (type == CoreEnum.EClickType.VOTE_CHAR || type == CoreEnum.EClickType.VOTE_PICTURE) {
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                 ToastUtil.show(getString(R.string.user_disable_message));
                 return;
@@ -792,6 +792,11 @@ public class CircleDetailsActivity1 extends BaseBindMvpActivity<FollowPresenter,
 
     @Override
     public void onDeleteItem(int position) {
+
+    }
+
+    @Override
+    public void onAddFriendSuccess(boolean isSuccess) {
 
     }
 

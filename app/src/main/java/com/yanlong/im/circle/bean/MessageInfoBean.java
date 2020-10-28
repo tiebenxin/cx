@@ -1,5 +1,7 @@
 package com.yanlong.im.circle.bean;
 
+import com.yanlong.im.chat.ChatEnum;
+
 import net.cb.cb.library.base.BaseBean;
 
 import java.util.List;
@@ -54,6 +56,7 @@ public class MessageInfoBean extends BaseBean {
     private boolean isFollow;// 是否关注
     private int refreshCount;// 刷新次数
     private boolean isPlay;// 是否在播放
+    private int userType= ChatEnum.EUserType.STRANGE;//好友关系
 
     public boolean isPlay() {
         return isPlay;
@@ -229,6 +232,14 @@ public class MessageInfoBean extends BaseBean {
 
     public void setRowsMore(boolean rowsMore) {
         isRowsMore = rowsMore;
+    }
+
+    public int getUserType() {
+        return userType;
+    }
+
+    public void setUserType(int userType) {
+        this.userType = userType;
     }
 
     public static class VoteAnswerBean extends BaseBean {

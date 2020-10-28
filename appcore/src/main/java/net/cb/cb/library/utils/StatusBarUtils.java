@@ -335,4 +335,25 @@ public class StatusBarUtils {
             }
         }
     }
+
+
+    /**
+     * 添加状态栏占位视图
+     *
+     * @param activity
+     */
+    public static void setStatusBarColor(Activity activity, int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //直接设置状态栏颜色
+            activity.getWindow().setStatusBarColor(color);
+        } else {
+            //增加占位状态栏
+            ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
+            View statusBarView = new View(activity);
+            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    getStatusBarHeight(activity));
+            statusBarView.setBackgroundColor(color);
+            decorView.addView(statusBarView, lp);
+        }
+    }
 }

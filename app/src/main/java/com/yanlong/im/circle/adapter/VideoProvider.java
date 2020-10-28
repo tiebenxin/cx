@@ -390,7 +390,7 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
                 }
                 if (view.getId() == R.id.layout_vote_bg) {
                     if (!isMe(uid) && (answerBean == null || answerBean.getSelfAnswerItem() == -1)) {
-                        clickListener.onClick(position, parentPosition, CoreEnum.EClickType.VOTE_PICTRUE, view);
+                        clickListener.onClick(position, parentPosition, CoreEnum.EClickType.VOTE_PICTURE, view);
                     } else {
                         clickListener.onClick(parentPosition, 0, CoreEnum.EClickType.CONTENT_DETAILS, view);
                     }

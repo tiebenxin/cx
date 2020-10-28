@@ -301,7 +301,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     }
 
     private void initEvent() {
-        mFuncHeight = ScreenUtils.dip2px(CreateCircleActivity.this, 197);
+        mFuncHeight = ScreenUtils.dip2px(CreateCircleActivity.this, 230);
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override

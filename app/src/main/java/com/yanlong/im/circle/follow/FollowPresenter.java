@@ -15,11 +15,13 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileCacheUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -250,7 +252,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
                     //如果动态已经被删除，则通知刷新
-                    if(response.body().getCode()==100104){
+                    if (response.body().getCode() == 100104) {
                         mView.onDeleteItem(postion);
                     }
                 }
@@ -284,7 +286,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
                     //如果动态已经被删除，则通知刷新
-                    if(response.body().getCode()==100104){
+                    if (response.body().getCode() == 100104) {
                         mView.onDeleteItem(postion);
                     }
                 }
@@ -312,6 +314,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
+                    mView.onShowMessage("关注成功");
                     mView.onSuccess(postion, false, response.message());
                     //关注单个用户，推荐列表及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
@@ -409,7 +412,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
      * @param position    点击广场哪一项哪项跳进的详情
      * @param fromWhere   来自哪里跳到详情
      */
-    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat, int addBrowse, int position,String fromWhere) {
+    public void circleCommentList(int currentPage, int pageSize, Long momentId, Long momentUid, int myLikeStat, int addBrowse, int position, String fromWhere) {
         WeakHashMap<String, Object> params = new WeakHashMap<>();
         params.put("currentPage", currentPage);
         params.put("pageSize", pageSize);
@@ -425,7 +428,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onCommentSuccess(response.body().getData());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
-                    if (response.body()!=null && response.body().getCode()!=null && response.body().getCode().longValue()== 100104) {
+                    if (response.body() != null && response.body().getCode() != null && response.body().getCode().longValue() == 100104) {
                         EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
                         event.position = position;
                         event.fromWhere = fromWhere;
@@ -529,5 +532,22 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
         } else {
             mView.showUnreadMsg(0, "");
         }
+    }
+
+    //添加好友
+    public void addFriend(long uid, String sayHi) {
+        new UserAction().friendApply(uid, sayHi, null, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                mView.onShowMessage(response.body().getMsg());
+                //可能开了验证，不能通过接口返回结果来判断是否已经是好友了
+                if (response.body().isOk()) {
+                    mView.onAddFriendSuccess(false);
+                }
+            }
+        });
     }
 }
