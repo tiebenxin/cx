@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -332,7 +333,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
-        if(event.from.equals("CircleDetailsActivity1")){
+        if(!TextUtils.isEmpty(event.from) && event.from.equals("CircleDetailsActivity")){
             if(event.type==0){
                 bindingView.tvFollow.setText("关注");
                 isFollow = 0;

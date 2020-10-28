@@ -330,6 +330,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                                 gotoUserInfoActivity(mCommentList.get(position).getUid());
                                 break;
                             case R.id.iv_like:
+                                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                    ToastUtil.show(getString(R.string.user_disable_message));
+                                    return;
+                                }
                                 CircleCommentBean.CommentListBean bean = mCommentList.get(position);
                                 int like;
                                 if (bean.getLike() == 0) {
@@ -499,7 +503,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
                     @Override
                     public void onClickNoLook() {
-//                        mPresenter.circleDelete(mMessageInfoBean.getId());
+                        if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("RecommendFragment")) {
+                            EventFactory.NoSeeEvent event = new EventFactory.NoSeeEvent();
+                            event.uid = mMessageInfoBean.getUid();
+                            EventBus.getDefault().post(event);
+                            finish();
+                        }
                     }
 
                     @Override
@@ -667,9 +676,17 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
             mFlowAdapter.notifyItemChanged(position);
         } else if (type == CoreEnum.EClickType.VOTE_CHAR || type == CoreEnum.EClickType.VOTE_PICTRUE) {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPosition).getData();
             mPresenter.voteAnswer(position + 1, parentPosition, messageInfoBean.getId(), messageInfoBean.getUid());
         } else if (type == CoreEnum.EClickType.COMMENT_REPLY) {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
             inputComment(mCommentList.get(position).getNickname(), mCommentList.get(position).getUid(), true);
         }
     }
@@ -681,9 +698,17 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 if (type == CoreEnum.ELongType.COPY) {
                     onCopy(mCommentList.get(position).getContent());
                 } else if (type == CoreEnum.ELongType.DELETE) {
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                        ToastUtil.show(getString(R.string.user_disable_message));
+                        return;
+                    }
                     mPresenter.delComment(mCommentList.get(position).getId(), mMessageInfoBean.getId(),
                             mMessageInfoBean.getUid(), position);
                 } else if (type == CoreEnum.ELongType.REPORT) {
+                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                        ToastUtil.show(getString(R.string.user_disable_message));
+                        return;
+                    }
                     gotoComplaintActivity(1, mCommentList.get(position).getId(), mCommentList.get(position).getUid());
                 }
             }
@@ -885,7 +910,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 EventBus.getDefault().post(new EventFactory.RefreshFollowEvent());
                 EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();//通知好友动态改为取消关注
                 event.type = 0;
-                event.from = "CircleDetailsActivity1";
+                event.from = "CircleDetailsActivity";
                 EventBus.getDefault().post(event);
                 finish();
             } else {
@@ -951,6 +976,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
         switch (v.getId()) {
             case R.id.tv_send:
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getString(R.string.user_disable_message));
+                    return;
+                }
                 String msg = bindingView.etMessage.getText().toString().trim();
                 if (!TextUtils.isEmpty(msg)) {
                     bindingView.tvSend.setEnabled(false);
