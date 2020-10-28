@@ -154,7 +154,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         initObserver();
         mFollowList = new ArrayList<>();
         if (!TextUtils.isEmpty(dataJson)) {
-            //若来自我的互动，解析成另一个新详情结构数据
+            //若来自我的互动，解析成另一个新详情结构数据，含有顶部详情头像昵称资料，以及第一页的评论
             if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyInteract")){
                 newTrendDetailsBean = new Gson().fromJson(dataJson, NewTrendDetailsBean.class);
                 mMessageInfoBean = newTrendDetailsBean.getOtherMomentVo();

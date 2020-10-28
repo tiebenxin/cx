@@ -779,7 +779,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         super.onStop();
         LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
-        AudioPlayManager.getInstance().stopPlay();
+//        AudioPlayManager.getInstance().stopPlay();
         stopRecordVoice();
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
@@ -822,6 +822,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     @Override
     protected void onDestroy() {
         LogUtil.getLog().i(TAG, "ChatActivity-onStop");
+        AudioPlayManager.getInstance().stopPlay();
         //释放adapter资源
         mAdapter.onDestroy();
         mViewModel.onDestroy();
@@ -1291,6 +1292,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     return;
                 }
                 onBackPressed();
+                AudioPlayManager.getInstance().stopPlay();
             }
 
             @Override
@@ -1314,6 +1316,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     startActivity(new Intent(getContext(), GroupInfoActivity.class)
                             .putExtra(GroupInfoActivity.AGM_GID, toGid)
                     );
+                    AudioPlayManager.getInstance().stopPlay();
                 } else {
                     if (mViewModel.toUId == 1L || mViewModel.toUId == 3L || (mViewModel.userInfo != null && mViewModel.userInfo.getuType() == ChatEnum.EUserType.ASSISTANT)) { //文件传输助手跳转(与常信小助手一致)
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
@@ -1323,6 +1326,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         startActivity(new Intent(getContext(), ChatInfoActivity.class)
                                 .putExtra(ChatInfoActivity.AGM_FUID, mViewModel.toUId));
                     }
+                    AudioPlayManager.getInstance().stopPlay();
 
                 }
 
@@ -6213,6 +6217,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     break;
                 case ChatEnum.ECellEventType.VIDEO_CLICK:
                     clickVideo(message);
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.CARD_CLICK:
                     if (args[0] != null && args[0] instanceof BusinessCardMessage) {
@@ -6226,9 +6231,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             }
                         }
                     }
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
                     clickEnvelope(message, message.getRed_envelope());
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.LONG_CLICK:
                     List<OptionMenu> menus = (List<OptionMenu>) args[0];
@@ -6250,12 +6257,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         return;
                     }
                     httpGetTransferDetail(transfer.getId(), transfer.getOpType(), message);
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.AVATAR_CLICK:
                     if (isGroup() && !MessageManager.getInstance().isGroupValid(mViewModel.groupInfo)) {
                         return;
                     }
                     toUserInfoActivity(message.getFrom_uid());
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
                     if (isGroup()) {
@@ -6281,6 +6290,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                             gotoVideoActivity(AVChatType.VIDEO.getValue());
                         }
                     }
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.BALANCE_ASSISTANT_CLICK:
                     if (args[0] == null) {
@@ -6293,9 +6303,11 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     } else if (balance.getDetailType() == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE) {//订单详情
                         BillDetailActivity.jumpToBillDetail(ChatActivity.this, balance.getTradeId() + "");
                     }
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.MAP_CLICK:
                     LocationActivity.openActivity(ChatActivity.this, true, message);
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.FILE_CLICK:
                     if (args[0] == null) {
@@ -6303,6 +6315,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     }
                     SendFileMessage fileMessage = (SendFileMessage) args[0];
                     clickFile(message, fileMessage);
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.EXPRESS_CLICK:
                     if (ViewUtils.isFastDoubleClick()) {
@@ -6315,6 +6328,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     Bundle bundle = new Bundle();
                     bundle.putString(Preferences.DATA, uri);
                     IntentUtil.gotoActivity(ChatActivity.this, ShowBigFaceActivity.class, bundle);
+                    AudioPlayManager.getInstance().stopPlay();
                     break;
                 case ChatEnum.ECellEventType.RESEND_CLICK:
                     if (isGroup() && !MessageManager.getInstance().isGroupValid(mViewModel.groupInfo)) {
@@ -6345,6 +6359,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         Intent intent = new Intent(ChatActivity.this, WebPageActivity.class);
                         intent.putExtra(WebPageActivity.AGM_URL, webMessage.getWebUrl());
                         startActivity(intent);
+                        AudioPlayManager.getInstance().stopPlay();
                     }
                     break;
                 case ChatEnum.ECellEventType.AD_CLICK:
@@ -6363,6 +6378,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         } else if (!TextUtils.isEmpty(adMessage.getWebUrl())) {
                             ApkUtils.goBrowsable(ChatActivity.this, adMessage.getWebUrl());
                         }
+                        AudioPlayManager.getInstance().stopPlay();
                     }
                     break;
                 case ChatEnum.ECellEventType.SELECT_CLICK:

@@ -521,10 +521,15 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         if(dataList.get(position).getInteractType()==5){
                             ToastUtil.show("该评论已删除");
                         }
-
                     }
                 }else {
-                    ToastUtil.show("获取动态详情失败");
+                    //如果动态已经被删除或更改权限，直接提示已经被隐藏了
+                    if(response.body().getCode()==100104){
+                        ToastUtil.show(response.body().getMsg());
+                    }else {
+                        ToastUtil.show("获取动态详情失败");
+                    }
+
                 }
             }
 

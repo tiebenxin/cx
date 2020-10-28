@@ -463,7 +463,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.layoutVideo.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        AudioPlayUtil.stopAudioPlay();
+//                                        AudioPlayUtil.stopAudioPlay();
                                         toPictruePreview(0, finalAttachmentBeans);
                                     }
                                 });
@@ -649,6 +649,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
                 AudioPlayUtil.stopAudioPlay();
                 holder.layoutNotice.setVisibility(View.GONE);
+                haveNewMsg = false;
+                noticeSize = 0;
                 Intent intent = new Intent(activity, MyInteractActivity.class);
                 activity.startActivity(intent);
             });
@@ -1420,7 +1422,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void gotoPictruePreview(int position, List<VoteBean.Item> voteList) {
-        AudioPlayUtil.stopAudioPlay();
+//        AudioPlayUtil.stopAudioPlay();
         List<AttachmentBean> attachmentBeans = new ArrayList<>();
         for (VoteBean.Item item : voteList) {
             AttachmentBean bean = new AttachmentBean();
