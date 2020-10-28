@@ -51,6 +51,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
@@ -201,6 +202,15 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void noSee(EventFactory.NoSeeEvent event) {
+        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+            return;
+        }
+        mPresenter.addSee(event.uid);
+    }
+
     @Override
     public void initEvent() {
         messageBinding.layoutNotice.setOnClickListener(v -> {
@@ -247,6 +257,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 switch (view.getId()) {
                     case R.id.iv_comment:// 评论
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                            return;
+                        }
                         gotoCircleDetailsActivity(true, position);
                         break;
                     case R.id.iv_header:// 头像
@@ -265,6 +279,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                         }
                         break;
                     case R.id.iv_like:// 点赞
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                            return;
+                        }
                         if (messageInfoBean.getLike() == PictureEnum.ELikeType.YES) {
                             mPresenter.comentCancleLike(messageInfoBean.getId(), messageInfoBean.getUid(), position);
                         } else {
@@ -276,6 +294,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                                 mPresenter.getUserType(messageInfoBean.getUid()) == 0 ? true : false, new ICircleSetupClick() {
                                     @Override
                                     public void onClickFollow() {
+                                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                                            return;
+                                        }
                                         if (messageInfoBean.isFollow()) {
                                             mPresenter.followCancle(messageInfoBean.getUid(), position);
                                         } else {
@@ -285,6 +307,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
                                     @Override
                                     public void onClickNoLook() {
+                                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                                            return;
+                                        }
                                         mPresenter.addSee(messageInfoBean.getUid());
                                     }
 
@@ -302,6 +328,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
                                     @Override
                                     public void onClickReport() {
+                                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                                            return;
+                                        }
                                         Intent intent = new Intent(getContext(), ComplaintActivity.class);
                                         intent.putExtra(ComplaintActivity.UID, messageInfoBean.getUid() + "");
                                         intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
@@ -460,6 +490,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 }
             }
         } else {
+            if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                return;
+            }
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPosition).getData();
             mPresenter.voteAnswer(position + 1, parentPosition, messageInfoBean.getId(), messageInfoBean.getUid());
         }
