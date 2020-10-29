@@ -2147,4 +2147,12 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 .selectArtworkMaster(true)
                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
+
+    public void updateRecordingUI(){
+        if (isRecording){
+
+        }else {
+
+        }
+    }
 }
