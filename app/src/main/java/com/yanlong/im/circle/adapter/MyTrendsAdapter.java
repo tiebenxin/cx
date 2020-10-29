@@ -198,6 +198,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    //获取数据集合
+    public List<MessageInfoBean> getDataList(){
+        return dataList;
+    }
+
     //设置头部数据
     public void setTopData(CircleTrendsBean topData) {
         this.topData = topData;
@@ -302,7 +307,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 }
                             }
                             AudioPlayUtil.stopAudioPlay();
-                            gotoCircleDetailsActivity(true,bean);
+                            gotoCircleDetailsActivity(true,bean,position);
                         }
                     });
                     //说说可见度
@@ -406,7 +411,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     }
                                 }
                                 AudioPlayUtil.stopAudioPlay();
-                                gotoCircleDetailsActivity(false, bean);
+                                gotoCircleDetailsActivity(false, bean,position);
                             }
                     );
                     //是否置顶
@@ -958,7 +963,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean) {
+    private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean,int position) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
@@ -968,6 +973,12 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_DEFAULT);
         }
+        if(type==1){
+            postcard.withString(CircleDetailsActivity.FROM, "MyTrendsActivity");//来自我的动态
+        }else {
+            postcard.withString(CircleDetailsActivity.FROM, "FriendTrendsActivity");//来自好友动态
+        }
+        postcard.withInt(CircleDetailsActivity.TREND_POSITION, position);//好友动态点击项的位置传过去
         postcard.navigation();
     }
 

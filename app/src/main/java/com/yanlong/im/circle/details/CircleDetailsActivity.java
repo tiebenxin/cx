@@ -112,6 +112,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     public static final String MOMENT_ID = "moment_id";
     public static final String VISIBLE = "visible";
     public static final String FROM = "FROM";
+    public static final String TREND_POSITION = "TREND_POSITION";
 
     protected ViewCircleDetailsBinding binding;
     private CircleFlowAdapter mFlowAdapter;
@@ -131,6 +132,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private NewTrendDetailsBean newTrendDetailsBean;//互动消息进详情新接口，第一页评论已经携带过来了
     private CircleDetailViewModel mViewModel = new CircleDetailViewModel();
     private boolean isFirst = true;
+    private int TrendPosition;//我的动态、好友动态主页位置
 
 
     @Override
@@ -148,6 +150,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         AudioPlayUtil.stopAudioPlay();
         isFollow = getIntent().getBooleanExtra(SOURCE_TYPE, false);
         mPostion = getIntent().getIntExtra(ITEM_DATA_POSTION, 0);
+        TrendPosition = getIntent().getIntExtra(TREND_POSITION, 0);
         String dataJson = getIntent().getStringExtra(ITEM_DATA);
         fromWhere = getIntent().getStringExtra(FROM);
         int itemType = getIntent().getIntExtra(ITEM_DATA_TYPE, 0);
@@ -496,6 +499,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 new ICircleSetupClick() {
                     @Override
                     public void onClickFollow() {
+                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                            ToastUtil.show(getString(R.string.user_disable_message));
+                            return;
+                        }
                         if (isMe()) {
                             Postcard postcard = ARouter.getInstance().build(CirclePowerSetupActivity.path);
                             postcard.withInt(VISIBLE, mMessageInfoBean.getVisibility());
@@ -809,6 +816,15 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 ((LinearLayoutManager) bindingView.recyclerComment.getLayoutManager()).scrollToPositionWithOffset(mCommentTxtAdapter.getItemCount() - 1, Integer.MIN_VALUE);
             }
         }, 100);
+        //通知好友动态主页、我的动态主页刷新
+        EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+        if(fromWhere.equals("FriendTrendsActivity")){
+            event.fromWhere = "FriendTrendsActivity";
+        }else if(fromWhere.equals("MyTrendsActivity")){
+            event.fromWhere = "MyTrendsActivity";
+        }
+        event.position = TrendPosition;
+        EventBus.getDefault().post(event);
     }
 
     private void showFooterView(boolean isShow) {
@@ -922,6 +938,15 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         mFlowAdapter.notifyItemChanged(position);
 
         refreshFollowList();
+        //通知好友动态主页、我的动态主页刷新
+        EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+        if(fromWhere.equals("FriendTrendsActivity")){
+            event.fromWhere = "FriendTrendsActivity";
+        }else if(fromWhere.equals("MyTrendsActivity")){
+            event.fromWhere = "MyTrendsActivity";
+        }
+        event.position = TrendPosition;
+        EventBus.getDefault().post(event);
     }
 
     /**
@@ -948,10 +973,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (isCancelFollow) {
             if (isFollow) {
                 EventBus.getDefault().post(new EventFactory.RefreshFollowEvent());
-                EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();//通知好友动态改为取消关注
-                event.type = 0;
-                event.from = "CircleDetailsActivity";
-                EventBus.getDefault().post(event);
                 finish();
             } else {
                 mMessageInfoBean.setFollow(false);

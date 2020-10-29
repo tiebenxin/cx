@@ -15,12 +15,14 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.rxbus2.RxBus;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
+import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
@@ -35,8 +37,12 @@ import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -334,5 +340,54 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         super.onResume();
         page = 1;
         httpGetMyTrends();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
+        //更新单条动态
+        if(!TextUtils.isEmpty(event.fromWhere) && event.fromWhere.equals("MyTrendsActivity")){
+            MessageInfoBean bean = adapter.getDataList().get(event.position-1);//去掉头部
+            if(bean.getId()!=null && bean.getUid()!=null){
+                queryById(bean.getId().longValue(),bean.getUid().longValue(),event.position-1);
+            }
+        }
+    }
+
+    /**
+     * 获取单条朋友圈
+     *
+     * @param momentId  说说ID
+     * @param momentUid 说说发布者
+     * @param position  位置
+     */
+    public void queryById(Long momentId, Long momentUid, int position) {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("momentId", momentId);
+        params.put("momentUid", momentUid);
+        new RecommendModel().queryById(params, new CallBack<ReturnBean<MessageInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
+                super.onResponse(call, response);
+                if (response.body().isOk()) {
+                    if (response.body() != null && response.body().getData() != null) {
+//                        MessageInfoBean bean = response.body().getData();
+                        MessageInfoBean oldBean = adapter.getDataList().get(position);
+                        MessageInfoBean bean = response.body().getData();
+                        oldBean.setLike(bean.getLike());
+                        oldBean.setLikeCount(bean.getLikeCount());
+                        oldBean.setCommentCount(bean.getCommentCount());
+                        adapter.notifyItemChanged(position+1);
+                    }
+                } else {
+                    ToastUtil.show("获取动态失败");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("获取动态失败");
+            }
+        });
     }
 }

@@ -235,4 +235,12 @@ public class EventFactory extends BaseEvent {
     public static class NoSeeEvent extends BaseEvent {
         public long uid;
     }
+
+    /**
+     * 刷新单条动态
+     */
+    public static class UpdateOneTrendEvent extends BaseEvent {
+        public int position;//位置
+        public String fromWhere;//从哪里跳转过来
+    }
 }

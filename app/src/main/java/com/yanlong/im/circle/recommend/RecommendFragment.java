@@ -190,7 +190,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         //更改目标用户全部关注状态
         for (MessageFlowItemBean bean : mFlowAdapter.getData()) {
             MessageInfoBean msgBean = (MessageInfoBean) bean.getData();
-            if (msgBean.getUid().longValue() == event.uid) {
+            if (msgBean.getUid()!=null && msgBean.getUid().longValue() == event.uid) {
                 if (event.type == 1) {
                     msgBean.setFollow(true);
                 } else {
