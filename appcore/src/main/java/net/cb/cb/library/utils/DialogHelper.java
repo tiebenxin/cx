@@ -465,6 +465,18 @@ public class DialogHelper {
                 }
             }
         });
+        dialogview.findViewById(R.id.tv_cancle).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+                if (!ViewUtils.isFastDoubleClick()) {
+                    clickListner.clickCancle();
+                }
+            }
+        });
         selectDialog.show();
     }
 }

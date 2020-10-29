@@ -375,9 +375,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteItemTrend event) {
         //推荐列表和关注列表只更新自己点击的数据
-        if (event.fromWhere.equals("FollowFragment")) {
-            onDeleteItem(event.position);
-        }
+        onDeleteItem(event.position);
     }
 
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {

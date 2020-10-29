@@ -219,6 +219,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onVoteSuccess(parentPostion, response.message());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
+                    //如果动态已经被删除，则通知刷新
+                    if (response.body().getCode() == 100104) {
+                        mView.onDeleteItem(parentPostion);
+                    }
                 }
             }
 

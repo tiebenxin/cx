@@ -184,9 +184,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteItemTrend event) {
         //推荐列表和关注列表只更新自己点击的数据
-        if (event.fromWhere.equals("RecommendFragment")) {
-            onDeleteItem(event.position);
-        }
+        onDeleteItem(event.position);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

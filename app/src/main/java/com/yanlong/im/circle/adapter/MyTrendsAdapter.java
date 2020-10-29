@@ -708,10 +708,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (userBean != null) {
                 if (type == 1) {
                     holder.layoutCenter.setVisibility(View.VISIBLE);
-                    holder.ivFriendHeader.setVisibility(View.GONE);
-                    holder.tvFriendName.setVisibility(View.GONE);
-                    holder.ivMyHeader.setVisibility(View.VISIBLE);
-                    holder.tvMyName.setVisibility(View.VISIBLE);
                     holder.lineOne.setVisibility(View.VISIBLE);
                     //头像 昵称
                     if (!TextUtils.isEmpty(userBean.getHead())) {
@@ -774,28 +770,24 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 } else {
                     //好友的动态顶部样式
                     holder.layoutCenter.setVisibility(View.GONE);
-                    holder.ivFriendHeader.setVisibility(View.VISIBLE);
-                    holder.tvFriendName.setVisibility(View.VISIBLE);
-                    holder.ivMyHeader.setVisibility(View.GONE);
-                    holder.tvMyName.setVisibility(View.GONE);
                     holder.lineOne.setVisibility(View.GONE);
                     if (!TextUtils.isEmpty(userBean.getHead())) {
                         Glide.with(activity)
                                 .load(userBean.getHead())
                                 .apply(mRequestOptions)
-                                .into(holder.ivFriendHeader);
+                                .into(holder.ivMyHeader);
                     } else {
                         Glide.with(activity)
                                 .load(R.drawable.ic_info_head)
-                                .into(holder.ivFriendHeader);
+                                .into(holder.ivMyHeader);
                     }
                     if (!TextUtils.isEmpty(userBean.getName())) {
-                        holder.tvFriendName.setText(userBean.getName());
+                        holder.tvMyName.setText(userBean.getName());
                     } else {
-                        holder.tvFriendName.setText("未知用户名");
+                        holder.tvMyName.setText("未知用户名");
                     }
                     //点击查看别人的头像
-                    holder.ivFriendHeader.setOnClickListener(new View.OnClickListener() {
+                    holder.ivMyHeader.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             List<LocalMedia> selectList = new ArrayList<>();
@@ -809,7 +801,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         }
                     });
                     //点击别人的昵称暂无操作
-                    holder.tvFriendName.setOnClickListener(new View.OnClickListener() {
+                    holder.tvMyName.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                         }
@@ -909,9 +901,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     // 头部
     class HeadHolder extends RecyclerView.ViewHolder {
-        private ImageView ivFriendHeader;
         private ImageView ivMyHeader;
-        private TextView tvFriendName;
         private TextView tvMyName;
         private TextView tvMyFollowNum;
         private TextView tvFollowMeNum;
@@ -931,9 +921,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public HeadHolder(View itemView) {
             super(itemView);
-            ivFriendHeader = itemView.findViewById(R.id.iv_friend_header);
             ivMyHeader = itemView.findViewById(R.id.iv_my_header);
-            tvFriendName = itemView.findViewById(R.id.tv_friend_name);
             tvMyName = itemView.findViewById(R.id.tv_my_name);
             tvMyFollowNum = itemView.findViewById(R.id.tv_my_follow_num);
             tvFollowMeNum = itemView.findViewById(R.id.tv_follow_me_num);
