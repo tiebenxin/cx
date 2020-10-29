@@ -758,7 +758,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     private void createNewCircle() {
         String content = etContent.getText().toString().trim();
-        if (TextUtils.isEmpty(content)) {
+        if (TextUtils.isEmpty(content) && currentAudioFile == null && (mList == null || mList.size() <= 0)) {
             etContent.requestFocus();
             showTaost("请输入动态内容");
             return;
