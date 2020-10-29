@@ -120,8 +120,9 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
         }
         if (type == PictureEnum.EContentType.VIDEO_AND_VOTE) {
             helper.setVisible(R.id.ll_vote, true);
+            helper.setText(R.id.tv_vote_number, getVoteSum(messageInfoBean.getVoteAnswer()) + "人参与了投票");
         } else {
-            helper.setVisible(R.id.ll_vote, false);
+            helper.setGone(R.id.ll_vote, false);
         }
         Glide.with(mContext)
                 .asBitmap()
@@ -134,7 +135,6 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
         } else {
             helper.setText(R.id.tv_date, TimeToString.formatCircleDate(messageInfoBean.getCreateTime()));
         }
-        helper.setText(R.id.tv_vote_number, getVoteSum(messageInfoBean.getVoteAnswer()) + "人参与了投票");
         if (isFollow || messageInfoBean.isFollow()) {
             helper.setVisible(R.id.iv_follow, true);
         } else {
