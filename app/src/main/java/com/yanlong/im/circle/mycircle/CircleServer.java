@@ -51,7 +51,7 @@ public interface CircleServer {
     @FormUrlEncoded
     Call<ReturnBean> httpSetBackground(@Field("bgImage") String bgImage);
 
-    @POST("/square/moment/like")
+    @POST("square/like/add")
     @FormUrlEncoded
     Call<ReturnBean> httpLike(@Field("momentId") long momentId,@Field("momentUid") long momentUid);
 
