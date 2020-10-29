@@ -24,6 +24,7 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
@@ -133,7 +134,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private CircleDetailViewModel mViewModel = new CircleDetailViewModel();
     private boolean isFirst = true;
     private int TrendPosition;//我的动态、好友动态主页位置
-
+    private CommonSelectDialog dialog;
+    private CommonSelectDialog.Builder builder;
 
     @Override
     protected FollowPresenter createPresenter() {
@@ -190,6 +192,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         mCommentList = new ArrayList<>();
         mCommentTxtAdapter.setNewData(mCommentList);
         mViewModel.init();
+        builder = new CommonSelectDialog.Builder(CircleDetailsActivity.this);
     }
 
     private void initObserver() {
@@ -510,7 +513,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             postcard.navigation(CircleDetailsActivity.this, REQUEST_CODE_POWER);
                         } else {
                             if (isFollow || mMessageInfoBean.isFollow()) {
-                                mPresenter.followCancle(mMessageInfoBean.getUid(), 0);
+                                showCancleFollowDialog(mMessageInfoBean.getUid(), 0);
                             } else {
                                 mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
                             }
@@ -741,10 +744,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     mPresenter.delComment(mCommentList.get(position).getId(), mMessageInfoBean.getId(),
                             mMessageInfoBean.getUid(), position);
                 } else if (type == CoreEnum.ELongType.REPORT) {
-                    if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
-                        ToastUtil.show(getString(R.string.user_disable_message));
-                        return;
-                    }
                     gotoComplaintActivity(1, mCommentList.get(position).getId(), mCommentList.get(position).getUid());
                 }
             }
@@ -1080,6 +1079,27 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             bindingView.viewFaceview.setVisibility(View.GONE);
             InputUtil.hideKeyboard(bindingView.etMessage);
         }
+    }
+
+    /**
+     * 是否取消关注提示弹框
+     * @param uid
+     * @param position
+     */
+    private void showCancleFollowDialog(long uid,int position) {
+        dialog = builder.setTitle("是否取消关注?")
+                .setShowLeftText(true)
+                .setRightText("确认")
+                .setLeftText("取消")
+                .setRightOnClickListener(v -> {
+                    mPresenter.followCancle(uid, position);
+                    dialog.dismiss();
+                })
+                .setLeftOnClickListener(v ->
+                        dialog.dismiss()
+                )
+                .build();
+        dialog.show();
     }
 
 }
