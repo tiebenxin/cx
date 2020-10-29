@@ -822,17 +822,17 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
             FileBean fileBean = new FileBean();
             if (msgBean.getImage() != null) {
                 fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getImage().getPreview()));
-                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getImage().getPreview()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getImage().getPreview(), msgBean.getMsg_type()));
             } else if (msgBean.getVideoMessage() != null) {
                 FileBean itemFileBean = new FileBean();
                 itemFileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getVideoMessage().getBg_url()));
-                itemFileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getVideoMessage().getBg_url()));
+                itemFileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getVideoMessage().getBg_url(), ChatEnum.EMessageType.IMAGE));
                 list.add(itemFileBean);
                 fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getVideoMessage().getUrl()));
-                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getVideoMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getVideoMessage().getUrl(), msgBean.getMsg_type()));
             } else if (msgBean.getSendFileMessage() != null) {
                 fileBean.setMd5(UpFileUtil.getInstance().getFilePathMd5(msgBean.getSendFileMessage().getUrl()));
-                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getSendFileMessage().getUrl()));
+                fileBean.setUrl(UpFileUtil.getInstance().getFileUrl(msgBean.getSendFileMessage().getUrl(), msgBean.getMsg_type()));
             }
             list.add(fileBean);
             MsgAllBean finalMsgBean = msgBean;

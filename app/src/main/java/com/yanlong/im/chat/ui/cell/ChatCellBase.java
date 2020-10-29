@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui.cell;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
@@ -606,6 +607,23 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             return false;
         }
         return true;
+    }
+
+    public void recycler() {
+//        if (iv_avatar != null && iv_avatar.getDrawable() != null) {
+//            try {
+//                BitmapDrawable drawable = (BitmapDrawable) iv_avatar.getDrawable();
+//                iv_avatar.setImageDrawable(null);
+//                if (drawable != null) {
+//                    Bitmap bitmap = drawable.getBitmap();
+//                    if (bitmap != null) {
+//                        bitmap.recycle();
+//                    }
+//                }
+//            } catch (Exception e) {
+//
+//            }
+//        }
     }
 
 }

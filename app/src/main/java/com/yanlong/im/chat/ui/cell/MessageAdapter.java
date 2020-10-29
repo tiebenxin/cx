@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -120,7 +121,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (mMsgIdPositions == null) {
             return;
         }
-        mMsgIdPositions.clear();
         mMsgIdPositions.clear();
         if (mList != null && mList.size() > 0) {
             for (int position = 0; position < mList.size(); position++) {
@@ -236,6 +236,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 }
                 voiceCell.setSendStatus(false);
                 String url = msg.isMe() ? msg.getVoiceMessage().getLocalUrl() : msg.getVoiceMessage().getUrl();
+//                LogUtil.getLog().i("语音LOG", "notify-" + AudioPlayManager.getInstance().isPlay(Uri.parse(url)) + "--msgId=" + msg.getMsg_id());
                 voiceCell.updateVoice(AudioPlayManager.getInstance().isPlay(Uri.parse(url)));
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 ChatCellVideo videoCell = (ChatCellVideo) viewHolder;
@@ -269,6 +270,20 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return super.getItemViewType(position);
     }
 
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        ChatCellBase cell = (ChatCellBase) holder;
+        cell.recycler();
+//        if (holder instanceof ChatCellImage){
+//            ChatCellImage cell = (ChatCellImage) holder;
+//            cell.recycler();
+//        }else if (holder instanceof ChatCellVideo){
+//            ChatCellVideo cell = (ChatCellVideo) holder;
+//            cell.recycler();
+//        }
+    }
+
     //获取某位置消息
     public MsgAllBean getMessage(int position) {
         if (mList != null && mList.size() > position) {
@@ -297,13 +312,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.add(msg);
-        LogUtil.getLog().i("阅后LOG","addMessage--size="+mList.size());
+        LogUtil.getLog().i("阅后LOG", "addMessage--size=" + mList.size());
         refreshPositions();
     }
 
     public void setMessageList(List<MsgAllBean> msg) {
         mList = msg;
-        LogUtil.getLog().i("阅后LOG","setMessageList--size="+mList.size());
+        LogUtil.getLog().i("阅后LOG", "setMessageList--size=" + mList.size());
         refreshPositions();
     }
 
@@ -312,7 +327,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.addAll(position, msg);
-        LogUtil.getLog().i("阅后LOG","addMessageList--size="+mList.size());
+        LogUtil.getLog().i("阅后LOG", "addMessageList--size=" + mList.size());
         refreshPositions();
     }
 
@@ -354,7 +369,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (!result) {
                 LogUtil.getLog().i("阅后LOG", "移出单个失败");
             }
-            LogUtil.getLog().i("阅后LOG","removeItem--后--size="+mList.size());
+            LogUtil.getLog().i("阅后LOG", "removeItem--后--size=" + mList.size());
         }
         refreshPositions();
     }

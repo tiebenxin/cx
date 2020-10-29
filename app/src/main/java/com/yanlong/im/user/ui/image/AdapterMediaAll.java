@@ -159,34 +159,34 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                 } else {
                     tvGif.setVisibility(View.GONE);
                 }
+                String tag = (String) ivImage.getTag(R.id.tag_img);
                 RequestOptions options = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE).dontAnimate();
-                Glide.with(getContext()).asDrawable().load(url).apply(options).listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        if (e.getMessage().contains("FileNotFoundException")) {
-                            ivImage.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ivImage.setImageResource(R.mipmap.ic_img_past);
-                                }
-                            }, 100);
-
-                        } else {
-
-                        }
-                        return false;
+                if (!TextUtils.isEmpty(tag) && TextUtils.equals(tag, url)) {
+                    if (PictureMimeType.isImageGif(url)) {
+                        glideGif(tag);
+                    } else {
+                        glideImage(tag, options);
                     }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        return false;
+                } else {
+                    if (PictureMimeType.isImageGif(url)) {
+                        glideGif(url);
+                    } else {
+                        glideImage(url, options);
                     }
-                }).into(ivImage);
+                }
+
             } else if (bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 tvGif.setVisibility(View.GONE);
                 tvDuration.setVisibility(View.VISIBLE);
                 VideoMessage videoMessage = bean.getVideoMessage();
-                Glide.with(getContext()).load(videoMessage.getBg_url()).into(ivImage);
+                String tag = (String) ivImage.getTag(R.id.tag_img);
+                String url = videoMessage.getBg_url();
+                RequestOptions options = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE).dontAnimate();
+                if (!TextUtils.isEmpty(tag) && TextUtils.equals(tag, url)) {
+                    glideImage(tag, options);
+                } else {
+                    glideImage(url, options);
+                }
                 tvDuration.setText(DateUtils.timeParse(videoMessage.getDuration()));
             }
 
@@ -223,6 +223,59 @@ public class AdapterMediaAll extends AbstractRecyclerAdapter<Object> {
                     }
                 }
             });
+        }
+
+        private void glideImage(String url, RequestOptions options) {
+            Glide.with(getContext()).asDrawable().load(url).apply(options).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    if (e.getMessage().contains("FileNotFoundException")) {
+                        ivImage.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ivImage.setImageResource(R.mipmap.ic_img_past);
+                            }
+                        }, 100);
+
+                    } else {
+
+                    }
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    ivImage.setTag(R.id.tag_img, url);
+                    return false;
+                }
+            }).into(ivImage);
+        }
+
+        private void glideGif(String url) {
+            RequestOptions rOptions = new RequestOptions().centerCrop().skipMemoryCache(false).diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+            Glide.with(getContext()).load(url).apply(rOptions).thumbnail(0.3f).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    if (e.getMessage().contains("FileNotFoundException")) {
+                        ivImage.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ivImage.setImageResource(R.mipmap.ic_img_past);
+                            }
+                        }, 100);
+
+                    } else {
+
+                    }
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    ivImage.setTag(R.id.tag_img, url);
+                    return false;
+                }
+            }).into(ivImage);
         }
 
     }

@@ -66,17 +66,22 @@ public class ChatCellVoice extends ChatCellBase {
     }
 
     void updateVoice(boolean isPlay) {
-        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateVoice--" + model.getSend_state());
         voiceMessage = model.getVoiceMessage();
         if (voiceMessage != null) {
             int playStatus = voiceMessage.getPlayStatus();
-//            updateUnread(playStatus);
             if (isPlay && playStatus == ChatEnum.EPlayStatus.PLAYING) {
+                LogUtil.getLog().i("语音LOG", "updateVoice--start--status=" + voiceMessage.getPlayStatus() + "--msgId=" + voiceMessage.getMsgId());
                 ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(2);
                 ((AnimationDrawable) ivVoice.getDrawable()).start();
             } else {
-                ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(0);
-                ((AnimationDrawable) ivVoice.getDrawable()).stop();
+                LogUtil.getLog().i("语音LOG", "updateVoice--stop--status=" + voiceMessage.getPlayStatus() + "--msgId=" + voiceMessage.getMsgId());
+                ivVoice.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((AnimationDrawable) ivVoice.getDrawable()).stop();
+                        ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(0);
+                    }
+                });
             }
             if (!isMe) {
                 setDownloadStatus(playStatus);
@@ -96,7 +101,7 @@ public class ChatCellVoice extends ChatCellBase {
         if (ivProgress == null) {
             return;
         }
-        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "setDownloadStatus--" + playStatus);
+//        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "setDownloadStatus--" + playStatus);
         switch (playStatus) {
             case ChatEnum.EPlayStatus.DOWNLOADING://正常
                 ivStatus.setVisibility(GONE);
@@ -143,21 +148,5 @@ public class ChatCellVoice extends ChatCellBase {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.widthPixels;
-    }
-
-    private int getOtherWidth() {
-        int width = 0;
-        if (ivVoice != null) {
-            ivVoice.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
-            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) ivVoice.getLayoutParams();
-            width += ivVoice.getMaxWidth() + layoutParams.leftMargin + layoutParams.rightMargin;
-        }
-        if (tvTime != null) {
-            tvTime.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
-            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) tvTime.getLayoutParams();
-            width += tvTime.getMaxWidth() + layoutParams.leftMargin + layoutParams.rightMargin;
-        }
-        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--other-width=" + width);
-        return width;
     }
 }

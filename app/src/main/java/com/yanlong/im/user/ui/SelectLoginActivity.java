@@ -49,7 +49,7 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
 
         setContentView(R.layout.activity_select_login);
 
-        getWindow().setStatusBarColor(getResources().getColor(R.color.blue_title));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.white));
 
         initView();
         initEvent();

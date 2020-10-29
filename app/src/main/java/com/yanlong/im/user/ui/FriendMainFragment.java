@@ -275,15 +275,14 @@ public class FriendMainFragment extends Fragment {
                     mtListView.getListView().getAdapter().notifyItemChanged(0, 0);
                     break;
                 case CoreEnum.ERosterAction.PHONE_MATCH:// 手机通讯录匹配
+                case CoreEnum.ERosterAction.LOAD_ALL_SUCCESS:// 成功加载所有数据
                     mtListView.getListView().getAdapter().notifyDataSetChanged();
                     break;
                 default:
                     if (uid > 0) {
                         mtListView.getListView().getAdapter().notifyDataSetChanged();
-//           TODO             refreshPosition(uid);
                     } else if (event.getUser() != null && event.getUser() instanceof UserInfo) {
                         mtListView.getListView().getAdapter().notifyDataSetChanged();
-//         TODO                refreshUser((UserInfo) event.getUser());
                     }
                     break;
             }

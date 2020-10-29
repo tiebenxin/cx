@@ -45,7 +45,7 @@ public class AppConfig {
     }
 
     public static void setContext(Context context) {
-        APP_CONTEXT = context;
+        APP_CONTEXT = context.getApplicationContext();
     }
 
     public static Context getContext() {

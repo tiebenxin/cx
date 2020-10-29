@@ -195,6 +195,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.CustomerEditText;
 import com.yanlong.im.view.HeadView2;
 import com.yanlong.im.view.face.AddFaceActivity;
+import com.yanlong.im.view.face.FaceConstans;
 import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.view.face.FaceViewPager;
 import com.yanlong.im.view.face.ShowBigFaceActivity;
@@ -826,6 +827,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         //释放adapter资源
         mAdapter.onDestroy();
         mViewModel.onDestroy();
+        AudioRecordManager.getInstance(this).destroy();
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
@@ -1224,15 +1226,15 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (!checkNetConnectStatus(0)) {
             return;
         }
-        if (FaceView.face_animo.equals(bean.getGroup())) {
+        if (FaceConstans.face_animo.equals(bean.getGroup())) {
             isSendingHypertext = false;
 
             ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean.getName());
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
-        } else if (FaceView.face_emoji.equals(bean.getGroup()) || FaceView.face_lately_emoji.equals(bean.getGroup())) {
+        } else if (FaceConstans.face_emoji.equals(bean.getGroup()) ||FaceConstans.face_lately_emoji.equals(bean.getGroup())) {
             editChat.addEmojSpan(bean.getName());
-        } else if (FaceView.face_custom.equals(bean.getGroup())) {
+        } else if (FaceConstans.face_custom.equals(bean.getGroup())) {
             if ("add".equals(bean.getName())) {
                 if (!ViewUtils.isFastDoubleClick()) {
                     mViewModel.isOpenEmoj.setValue(false);
@@ -3527,19 +3529,25 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * @param msgAllbean
      */
     private void replaceListDataAndNotify(MsgAllBean msgAllbean) {
-        if (mAdapter == null && mAdapter.getItemCount() <= 0) {
-            return;
+        try {
+            if (mAdapter == null && mAdapter.getItemCount() <= 0) {
+                return;
+            }
+            int position = mAdapter.updateMessage(msgAllbean);
+            if (position >= 0) {
+                mAdapter.notifyItemChanged(position, position);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        int position = mAdapter.updateMessage(msgAllbean);
-        if (position >= 0) {
-            mAdapter.notifyItemChanged(position, position);
-        }
+
 
     }
 
     /***
      * 替换listData中的某条消息并且刷新
      * @param msgAllbean
+     * @param loose 是否刷新
      */
     private void replaceListDataAndNotify(MsgAllBean msgAllbean, boolean loose) {
         if (mAdapter == null || mAdapter.getItemCount() <= 0) {
@@ -3547,7 +3555,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         int position = mAdapter.updateMessage(msgAllbean);
         if (position >= 0) {
-            mAdapter.notifyItemChanged(position, position);
+            if (loose) {
+                mAdapter.notifyItemChanged(position, position);
+            }
         }
     }
 
@@ -3897,6 +3907,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
+        if (AudioPlayManager.getInstance().isPlayingVoice()) {
+            AudioPlayManager.getInstance().stopPlay();
+        }
         currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
@@ -3991,6 +4004,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
+            try {
+                if (AudioPlayManager.getInstance().getCurrentMsg() != null) {
+                    AudioPlayManager.getInstance().stopPlay();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             if (bean.getVoiceMessage().getPlayStatus() == ChatEnum.EPlayStatus.NO_DOWNLOADED && !bean.isMe()) {
                 int len = downloadList.size();
                 if (len > 0) {//有下载
@@ -3998,7 +4019,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     updatePlayStatus(msg, 0, ChatEnum.EPlayStatus.NO_PLAY);
                 }
                 downloadList.add(bean);
-
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.DOWNLOADING);
                 AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.IDownloadVoiceListener() {
                     @Override
@@ -4014,6 +4034,12 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
                     @Override
                     public void onDownloadFailed(Exception e) {
+                        ThreadUtil.getInstance().runMainThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ToastUtil.show("语音下载失败");
+                            }
+                        });
                         updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_DOWNLOADED);
                     }
                 });
@@ -4028,7 +4054,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
     }
 
-    private void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
+    private synchronized void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
         bean = amendMsgALlBean(position, bean);
         if (bean == null || bean.getVoiceMessage() == null) {
             return;
@@ -4044,12 +4070,14 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         msgDao.updatePlayStatus(voiceMessage.getMsgId(), status, isRead);
         voiceMessage.setPlayStatus(status);
         final MsgAllBean finalBean = bean;
-        runOnUiThread(new Runnable() {
+        mtListView.postDelayed(new Runnable() {
             @Override
             public void run() {
+                LogUtil.getLog().i("语音LOG", "updatePlayStatus--msgId=" + finalBean.getMsg_id() + "--status=" + status);
                 replaceListDataAndNotify(finalBean);
+
             }
-        });
+        }, 10);
 
         if (ChatEnum.EPlayStatus.PLAYING == status) {
             MessageManager.getInstance().setCanStamp(false);
@@ -4068,7 +4096,6 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             }
         }
         downloadList.remove(bean);
-
         AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
             @Override
             public void onStart(MsgAllBean bean) {
@@ -6018,6 +6045,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             AudioPlayManager.getInstance().stopPlay();
         }
         mAdapter.removeItem(bean);
+        if (mAdapter.getItemCount() - 1 <= 15) {
+            mtListView.setStackFromEnd(false);
+        }
         mAdapter.notifyItemRemoved(position);//删除刷新
         removeUnreadCount(1);
         fixLastPosition(-1);
@@ -6044,6 +6074,9 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         }
         deleteList.addAll(list);
         mAdapter.removeMsgList(list);
+        if (mAdapter.getItemCount() - list.size() <= 15) {
+            mtListView.setStackFromEnd(false);
+        }
         removeUnreadCount(list.size());
         notifyData();
 //        mAdapter.notifyDataSetChanged();
@@ -6094,7 +6127,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
      * 获取单个群成员信息
      */
     private void getSingleMemberInfo(MsgAllBean reMsg) {
-        new UserAction().getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
+        userAction.getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
                 super.onResponse(call, response);

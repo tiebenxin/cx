@@ -108,26 +108,26 @@ public class FaceView extends RelativeLayout {
      * 经常使用保留大小
      */
     private final int OFTEN_USE_MAX = 20;
-    /**
-     * emoji表情组
-     */
-    public static String face_emoji = "emoji";
-    /**
-     * 最近使用emoji表情组
-     */
-    public static String face_lately_emoji = "lately_emoji";
-    /**
-     * 动态动漫组
-     */
-    public static String face_animo = "animo";
-    /**
-     * 自定义表情组
-     */
-    public static String face_custom = "custom";
+//    /**
+//     * emoji表情组
+//     */
+//    public static String face_emoji = "emoji";
+//    /**
+//     * 最近使用emoji表情组
+//     */
+//    public static String face_lately_emoji = "lately_emoji";
+//    /**
+//     * 动态动漫组
+//     */
+//    public static String face_animo = "animo";
+//    /**
+//     * 自定义表情组
+//     */
+//    public static String face_custom = "custom";
     /**
      * 当前选中页
      */
-    private static FaceViewPager mCurViewPager;
+    private FaceViewPager mCurViewPager;
 
     /**
      * 表情类型
@@ -296,19 +296,19 @@ public class FaceView extends RelativeLayout {
         collectFaceBeans.clear();
         for (int i = 0; i < face_EmojiIds.length; i++) {
             map_FaceEmoji.put(face_EmojiNames[i], face_EmojiIds[i]);
-            addFace(emojiUseBeans, face_emoji, face_EmojiIds[i], face_EmojiNames[i]);
+            addFace(emojiUseBeans, FaceConstans.face_emoji, face_EmojiIds[i], face_EmojiNames[i]);
         }
         for (int i = 0; i < animo_emojiIds.length; i++) {
             map_FaceEmoji.put(animo_emojiNames[i], animo_emojiIds[i]);
-            addFace(pigFaceBeans, face_animo, animo_emojiIds[i], animo_emojiNames[i]);
+            addFace(pigFaceBeans, FaceConstans.face_animo, animo_emojiIds[i], animo_emojiNames[i]);
         }
         for (int i = 0; i < animo_mammonIds.length; i++) {
             map_FaceEmoji.put(animo_mamonNames[i], animo_mammonIds[i]);
-            addFace(mamonFaceBeans, face_animo, animo_mammonIds[i], animo_mamonNames[i]);
+            addFace(mamonFaceBeans, FaceConstans.face_animo, animo_mammonIds[i], animo_mamonNames[i]);
         }
         for (int i = 0; i < animo_pandaIds.length; i++) {
             map_FaceEmoji.put(animo_pandaNames[i], animo_pandaIds[i]);
-            addFace(pandaFaceBeans, face_animo, animo_pandaIds[i], animo_pandaNames[i]);
+            addFace(pandaFaceBeans, FaceConstans.face_animo, animo_pandaIds[i], animo_pandaNames[i]);
         }
         map_FaceEmoji.put("删除", R.mipmap.ic_emoj_del);
     }
@@ -606,7 +606,7 @@ public class FaceView extends RelativeLayout {
      * @param faceBean
      */
     public void addOftenUseFace(FaceBean faceBean) {
-        if (oftenUseBeans != null && faceBean != null && face_emoji.equals(faceBean.getGroup())) {
+        if (oftenUseBeans != null && faceBean != null && FaceConstans.face_emoji.equals(faceBean.getGroup())) {
             for (FaceBean bean : oftenUseBeans) {
                 if (bean.getName().equals(faceBean.getName())) {
                     oftenUseBeans.remove(bean);
@@ -614,7 +614,7 @@ public class FaceView extends RelativeLayout {
                 }
             }
             FaceBean bean = new FaceBean();
-            bean.setGroup(face_lately_emoji);
+            bean.setGroup(FaceConstans.face_lately_emoji);
             bean.setServerPath(faceBean.getServerPath());
             bean.setPath(faceBean.getPath());
             bean.setCheck(faceBean.isCheck());
@@ -671,7 +671,7 @@ public class FaceView extends RelativeLayout {
      *
      * @param update 是否刷新收藏表情
      */
-    public static void getFaceData(boolean update) {
+    public void getFaceData(boolean update) {
         collectFaceBeans.clear();
         SpUtil spUtil = SpUtil.getSpUtil();
         String value = "";
@@ -681,7 +681,7 @@ public class FaceView extends RelativeLayout {
             Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
             value = spUtil.getSPValue(uid + Preferences.FACE_DATA, "");
         }
-        addFace(collectFaceBeans, face_custom, R.mipmap.img_add_face, "add");
+        addFace(collectFaceBeans, FaceConstans.face_custom, R.mipmap.img_add_face, "add");
         if (!TextUtils.isEmpty(value)) {
             List<FaceBean> list = new Gson().fromJson(value, new TypeToken<List<FaceBean>>() {
             }.getType());

@@ -659,10 +659,9 @@ public class MainActivity extends BaseTcpActivity {
             if (AppConfig.isOnline()) {
                 checkHasEnvelopeSendFailed();
             }
-        } catch (Exception e) {
+        }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     //检测支付环境的初始化
@@ -1301,6 +1300,9 @@ public class MainActivity extends BaseTcpActivity {
      * 百度地图获取定位信息
      */
     private void getLocation() {
+        if (!isActivityValid()){
+            return;
+        }
         if (!LocationPersimmions.checkPermissions(this)) {
             return;
         }
@@ -1479,7 +1481,7 @@ public class MainActivity extends BaseTcpActivity {
                 @Override
                 public void onResponse(Call<ReturnBean<DailyReportBean>> call, Response<ReturnBean<DailyReportBean>> response) {
                     super.onResponse(call, response);
-                    if (response.isSuccessful()) {
+                    if (response.isSuccessful()){
                         SpUtil.getSpUtil().putSPValue("reportDaily", System.currentTimeMillis());
                     }
                 }

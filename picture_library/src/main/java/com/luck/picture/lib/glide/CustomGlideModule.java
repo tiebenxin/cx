@@ -31,37 +31,39 @@ import java.io.IOException;
 @GlideModule
 public class CustomGlideModule extends AppGlideModule {
 
+    private static int memoryCacheSizeBytes = 1024 * 1024 * 100;
+    private static OriginalKey originalKey;
+    private static SafeKeyGenerator safeKeyGenerator;
+    private static String safeKey;
+    private static File storageDirectory = Environment.getExternalStorageDirectory();
+    private static String cachePath = storageDirectory + "/changxin/cache/image/";
+    private static DiskLruCache diskLruCache;
+    private static DiskLruCache.Value value;
+
     public void applyOptions(Context context, GlideBuilder builder) {
-        int memoryCacheSizeBytes = 1024 * 1024 * 100;
         //有外部内存写入权限，将缓存设置在外部存储卡中，否则是应用内缓存
-//        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
-        if (hasPermission(context)) {
-//            LogManager.getLogger().i("a===","Glide缓存位置：/com.yanlong.cll/cache/image");
-            if (Environment.isExternalStorageEmulated()) {
-                File storageDirectory = Environment.getExternalStorageDirectory();
-                String cachePath = storageDirectory + "/changxin/cache/image/";
-                builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
-//            builder.setDiskCache(new DiskLruCacheFactory("/sacard/changxin/cache/image", memoryCacheSizeBytes * 5));
+        try {
+            if (hasPermission(context)) {
+                if (Environment.isExternalStorageEmulated()) {
+                    builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
+                } else {
+                    builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
+                }
             } else {
                 builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
             }
-        } else {
-            builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
 
     public static File getCacheFile(String url) {
-        int memoryCacheSizeBytes = 1024 * 1024 * 100;
-        OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
-        SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
-        String safeKey = safeKeyGenerator.getSafeKey(originalKey);
+        originalKey = new OriginalKey(url, EmptySignature.obtain());
+        safeKeyGenerator = new SafeKeyGenerator();
+        safeKey = safeKeyGenerator.getSafeKey(originalKey);
         try {
-            File storageDirectory = Environment.getExternalStorageDirectory();
-            String cachePath = storageDirectory + "/changxin/cache/image/";
-            DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath),
-                    1, 1, memoryCacheSizeBytes * 5);
-            DiskLruCache.Value value = diskLruCache.get(safeKey);
+            diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, memoryCacheSizeBytes * 5);
+            value = diskLruCache.get(safeKey);
             if (value != null) {
                 return value.getFile(0);
             }
@@ -73,6 +75,7 @@ public class CustomGlideModule extends AppGlideModule {
 
     /**
      * 适用于缩略图
+     *
      * @param url
      * @return
      */
@@ -93,7 +96,10 @@ public class CustomGlideModule extends AppGlideModule {
 
     @Override
     public void registerComponents(@NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
-
+        super.registerComponents(context, glide, registry);
+//        registry.register(FrameSequence.class, FrameSequenceDrawable.class, new GifDrawableTranscoder())
+//                .append(InputStream.class, FrameSequence.class, new MyGifDecoder());
+//        registry.prepend(Registry.BUCKET_GIF, InputStream.class, FrameSequenceDrawable.class, new GifDecoder(glide.getBitmapPool()));
     }
 
 

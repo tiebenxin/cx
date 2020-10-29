@@ -121,7 +121,7 @@ public class ImageMessage extends RealmObject implements IMsgContent {
             if (file.exists()) {
                 img = localimg;
             } else {
-                LogUtil.getLog().i(ImageMessage.class.getSimpleName(), "本地图片不存在");
+//                LogUtil.getLog().i(ImageMessage.class.getSimpleName(), "本地图片不存在");
             }
         }
 
