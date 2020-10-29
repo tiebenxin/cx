@@ -298,35 +298,40 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             helper.setVisible(R.id.view_line, true);
 //            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
 //                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
-            if (!messageInfoBean.isShowAll()) {
-                tvContent.setMaxLines(MAX_ROW_NUMBER);//默认三行
-                tvContent.setTag("" + helper.getAdapterPosition());
-                hashMap.put(helper.getAdapterPosition(), tvContent);
-                tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        // 避免重复监听
-                        for (Integer postion : hashMap.keySet()) {
-                            hashMap.get(postion).getViewTreeObserver().removeOnPreDrawListener(this);
+            if (!TextUtils.isEmpty(messageInfoBean.getContent())) {
+                if (!messageInfoBean.isShowAll()) {
+                    helper.setVisible(R.id.tv_show_all, true);
+                    tvContent.setMaxLines(MAX_ROW_NUMBER);//默认三行
+                    tvContent.setTag("" + helper.getAdapterPosition());
+                    hashMap.put(helper.getAdapterPosition(), tvContent);
+                    tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                        @Override
+                        public boolean onPreDraw() {
+                            // 避免重复监听
+                            for (Integer postion : hashMap.keySet()) {
+                                hashMap.get(postion).getViewTreeObserver().removeOnPreDrawListener(this);
+                            }
+                            int ellipsisCount = 0;
+                            if (tvContent.getLayout() != null) {
+                                ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
+                            }
+                            int line = tvContent.getLineCount();
+                            if (ellipsisCount > 0 || line > MAX_ROW_NUMBER) {
+                                helper.setGone(R.id.tv_show_all, true);
+                                // 内容高度小1000时不滚动
+                                setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
+                            } else {
+                                helper.setGone(R.id.tv_show_all, false);
+                            }
+                            return true;
                         }
-                        int ellipsisCount = 0;
-                        if (tvContent.getLayout() != null) {
-                            ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
-                        }
-                        int line = tvContent.getLineCount();
-                        if (ellipsisCount > 0 || line > MAX_ROW_NUMBER) {
-                            helper.setGone(R.id.tv_show_all, true);
-                            // 内容高度小1000时不滚动
-                            setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
-                        } else {
-                            helper.setGone(R.id.tv_show_all, false);
-                        }
-                        return true;
-                    }
-                });
+                    });
+                } else {
+                    tvContent.setMaxLines(Integer.MAX_VALUE);//默认三行
+                    tvMore.setText("收起");
+                }
             } else {
-                tvContent.setMaxLines(Integer.MAX_VALUE);//默认三行
-                tvMore.setText("收起");
+                helper.setGone(R.id.tv_show_all, false);
             }
         }
 

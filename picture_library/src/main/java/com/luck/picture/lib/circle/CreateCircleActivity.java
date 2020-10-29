@@ -1249,6 +1249,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private void startRecord() {
         // FIXME: 2018/10/10 权限是否有权限，没权限提示错误，并返回
         isRecording = true;
+        updateRecordingUI();
         if (recorder == null) {
             recorder = new AudioRecorder(this);
         }
@@ -1264,6 +1265,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             recorder.stopRecord();
         }
         isRecording = false;
+        updateRecordingUI();
     }
 
     private void previewImage(List<LocalMedia> previewImages, List<LocalMedia> selectedImages, int position) {
@@ -2148,11 +2150,25 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
 
-    public void updateRecordingUI(){
-        if (isRecording){
-
-        }else {
-
+    public void updateRecordingUI() {
+        if (isRecording) {
+            etContent.setEnabled(false);
+            picture_left_back.setEnabled(false);
+            picture_right.setEnabled(false);
+            iv_vote.setEnabled(false);
+            iv_picture.setEnabled(false);
+            iv_face.setEnabled(false);
+            tv_location.setEnabled(false);
+            tv_power.setEnabled(false);
+        } else {
+            etContent.setEnabled(true);
+            picture_left_back.setEnabled(true);
+            picture_right.setEnabled(true);
+            iv_vote.setEnabled(true);
+            iv_picture.setEnabled(true);
+            iv_face.setEnabled(true);
+            tv_location.setEnabled(true);
+            tv_power.setEnabled(true);
         }
     }
 }
