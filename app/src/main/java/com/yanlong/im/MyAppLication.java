@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
@@ -19,12 +20,14 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.kye.net.NetRequestHelper;
+import com.luck.picture.lib.glide.GlideApp;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.util.NIMUtil;
+import com.squareup.leakcanary.LeakCanary;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
@@ -107,6 +110,8 @@ public class MyAppLication extends MainApplication {
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
             initBugly();
+        }else {
+//            initLeakCanary();
         }
         initCache();
         // 初始化表情
@@ -382,6 +387,7 @@ public class MyAppLication extends MainApplication {
         helper.register(this, new AppFrontBackHelper.OnAppStatusListener() {
             @Override
             public void onFront() {
+
                 //应用切到前台处理
                 AppConfig.setAppRuning(true);
                 EventRunState enent = new EventRunState();
@@ -409,10 +415,9 @@ public class MyAppLication extends MainApplication {
             public void onBack() {
                 //应用切到后台处理
                 AppConfig.setAppRuning(false);
-
-                EventRunState enent = new EventRunState();
-                enent.setRun(false);
-                EventBus.getDefault().post(enent);
+                EventRunState eventStatus = new EventRunState();
+                eventStatus.setRun(false);
+                EventBus.getDefault().post(eventStatus);
                 // 隐藏音视频浮动按钮
                 if (AVChatProfile.getInstance().isAVMinimize()) {
                     EventFactory.CloseMinimizeEvent event = new EventFactory.CloseMinimizeEvent();
@@ -509,5 +514,20 @@ public class MyAppLication extends MainApplication {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        Glide.with(this).onTrimMemory(level);
+        LogUtil.getLog().i("liszt_test", "onTrimMemory--level=" + level);
+    }
+
+    //内存泄露
+    private void initLeakCanary(){
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return;
+        }
+        LeakCanary.install(this);
     }
 }

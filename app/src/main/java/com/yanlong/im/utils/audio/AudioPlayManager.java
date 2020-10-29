@@ -677,5 +677,9 @@ public class AudioPlayManager implements SensorEventListener {
         return isPlaying;
     }
 
+    public MsgAllBean getCurrentMsg(){
+        return currentPlayingMsg;
+    }
+
 
 }

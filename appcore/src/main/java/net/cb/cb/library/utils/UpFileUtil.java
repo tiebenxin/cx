@@ -2,6 +2,7 @@ package net.cb.cb.library.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -30,12 +31,16 @@ import net.cb.cb.library.bean.ReturnBean;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 
 import retrofit2.Call;
 import retrofit2.Response;

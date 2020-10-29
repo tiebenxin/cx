@@ -57,6 +57,7 @@ import net.cb.cb.library.utils.TimeToString;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -3921,6 +3922,8 @@ public class MsgDao {
         realm.close();
         return ret;
     }
+
+
     //获取群聊中所有图片，视频，文件消息
     public List<GroupPreviewBean> getMediaMsgInGroup(String gid, long time) {
         List<GroupPreviewBean> groupBeanList = new ArrayList<>();
@@ -4259,4 +4262,6 @@ public class MsgDao {
         }
         return groupBeanList;
     }
+
+
 }

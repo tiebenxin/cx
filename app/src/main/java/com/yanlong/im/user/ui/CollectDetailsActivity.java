@@ -970,8 +970,10 @@ public class CollectDetailsActivity extends AppActivity {
                         //下载成功
                         //1 本地数据库刷新：保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便用户点击打开重名文件
                         CollectSendFileMessage reMsg = DaoUtil.findOne(CollectSendFileMessage.class, "msgId", finalFileMsgId);
-                        reMsg.setCollectRealFileRename(fileNewName);
-                        DaoUtil.update(reMsg);
+                        if (reMsg != null) {
+                            reMsg.setCollectRealFileRename(fileNewName);
+                            DaoUtil.update(reMsg);
+                        }
                         //2 无需再通知ChatActivity刷新该文件消息，场景不符，ChatActivity早不存在了
                         status = 0;
                         tvDownload.setText("打开");

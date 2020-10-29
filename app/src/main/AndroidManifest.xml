@@ -89,7 +89,6 @@
             android:theme="@style/LauncherAppThemeNoTranslucent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -548,10 +547,23 @@
             android:name=".user.ui.InviteRemoveActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".user.ui.InviteRemoveActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".user.ui.UploadLogActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pay.ui.select.EnvelopeReceiverActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".pay.ui.select.ViewAllowMemberActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".user.ui.image.PreviewMediaActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".user.ui.image.PreviewMediaAllActivity2"
             android:screenOrientation="portrait" />
         <activity
             android:name=".pay.ui.select.ViewAllowMemberActivity"

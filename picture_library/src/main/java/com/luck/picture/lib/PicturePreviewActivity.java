@@ -232,7 +232,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 LocalMedia media = images.get(position);
                 String pictureType = media.getPictureType();
                 boolean isGif = PictureMimeType.isGif(pictureType);
-                if (isGif) {
+                boolean isVideo = PictureMimeType.isVideo(pictureType);
+                if (isGif || isVideo) {
                     tvEdit.setVisibility(View.INVISIBLE);
                 } else {
                     tvEdit.setVisibility(View.VISIBLE);
@@ -341,17 +342,20 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         onImageChecked(position);
         if (images.size() > 0) {
             LocalMedia media = images.get(position);
-            index = media.getPosition();
-            if (config.checkNumMode) {
-                tv_img_num.setSelected(true);
-                check.setText(media.getNum() + "");
-                notifyCheckChanged(media);
-            }
-            boolean isGif = PictureMimeType.isGif(media.getPictureType());
-            if (isGif) {
-                tvEdit.setVisibility(View.INVISIBLE);
-            } else {
-                tvEdit.setVisibility(View.VISIBLE);
+            if (media != null) {
+                index = media.getPosition();
+                if (config.checkNumMode) {
+                    tv_img_num.setSelected(true);
+                    check.setText(media.getNum() + "");
+                    notifyCheckChanged(media);
+                }
+                boolean isGif = PictureMimeType.isGif(media.getPictureType());
+                boolean isVideo = PictureMimeType.isVideo(media.getPictureType());
+                if (isGif || isVideo) {
+                    tvEdit.setVisibility(View.INVISIBLE);
+                } else {
+                    tvEdit.setVisibility(View.VISIBLE);
+                }
             }
         }
     }

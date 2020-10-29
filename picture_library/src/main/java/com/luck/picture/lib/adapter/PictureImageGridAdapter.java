@@ -206,11 +206,13 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             } else {
                 RequestOptions options = new RequestOptions();
                 if (overrideWidth <= 0 && overrideHeight <= 0) {
-                    options.sizeMultiplier(sizeMultiplier);
+//                    options.sizeMultiplier(sizeMultiplier);
+                    options.override(120, 120);
                 } else {
                     options.override(overrideWidth, overrideHeight);
                 }
-                options.diskCacheStrategy(DiskCacheStrategy.ALL);
+                options.skipMemoryCache(false);
+                options.diskCacheStrategy(DiskCacheStrategy.NONE);
                 options.centerCrop();
                 options.placeholder(R.drawable.image_placeholder);
                 Glide.with(context)

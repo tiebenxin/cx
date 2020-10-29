@@ -113,6 +113,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             }
         }
     };
+    private boolean hasSwitchFolder = false;//是否切换过文件夹
 
     /**
      * EventBus 3.0 回调
@@ -349,6 +350,9 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         mediaLoader.loadAllMedia(new LocalMediaLoader.LocalMediaLoadListener() {
             @Override
             public void loadComplete(List<LocalMediaFolder> folders) {
+                if (hasSwitchFolder) {
+                    return;
+                }
                 if (folders.size() > 0) {
                     foldersList = folders;
                     LocalMediaFolder folder = folders.get(0);
@@ -524,7 +528,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
 //            previewImage(previewList, adapter.getSelectedImages(), 0);
             int index = 0;
             if (adapter.getSelectedImages() != null && adapter.getSelectedImages().size() > 0) {
-                LocalMedia media = adapter.getSelectedImages().get(adapter.getSelectedImages().size() - 1);
+                LocalMedia media = adapter.getSelectedImages().get(0);
                 index = images.indexOf(media);
             }
             previewImage(images, adapter.getSelectedImages(), index);
@@ -572,15 +576,34 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     }
 
     private void previewImage(List<LocalMedia> previewImages, List<LocalMedia> selectedImages, int position) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) previewImages);
-        bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
-        bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
-        bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-        bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
-        bundle.putBoolean(PictureConfig.IS_ARTWORK_MASTER, isArtworkMaster);
-        startActivity(PicturePreviewActivity.class, bundle,
-                config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
+        //TODO:bundle 不能传太多数据
+        try {
+            int size = previewImages.size();
+            List<LocalMedia> totalImages = new ArrayList<>();
+            if (size <= 100) {
+                totalImages.addAll(previewImages);
+            } else {
+                if (position - 50 <= 0) {//取前面
+                    totalImages.addAll(previewImages.subList(0, 100));
+                } else if (position + 50 >= size) {//取后面
+                    totalImages.addAll(previewImages.subList(size - 100, size));
+                } else {//取中间
+                    totalImages.addAll(previewImages.subList(position - 50, position + 50));
+                }
+            }
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) totalImages);
+            bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
+            bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
+            bundle.putInt(PictureConfig.EXTRA_POSITION, position);
+            bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
+            bundle.putBoolean(PictureConfig.IS_ARTWORK_MASTER, isArtworkMaster);
+            startActivity(PicturePreviewActivity.class, bundle,
+                    config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -791,9 +814,11 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     @Override
     public void onItemClick(String folderName, List<LocalMedia> images) {
         boolean camera = StringUtils.isCamera(folderName);
+        hasSwitchFolder = !camera;
         camera = config.isCamera ? camera : false;
         adapter.setShowCamera(camera);
         picture_title.setText(folderName);
+        this.images = images;
         adapter.bindImagesData(images);
         folderWindow.dismiss();
     }

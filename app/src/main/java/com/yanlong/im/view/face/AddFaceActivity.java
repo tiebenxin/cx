@@ -216,7 +216,7 @@ public class AddFaceActivity extends BaseBindActivity<ActivityAddFaceBinding> {
      */
     private void addFace(int resId, String name, String path,String serverPath) {
         FaceBean bean = new FaceBean();
-        bean.setGroup("custom");
+        bean.setGroup(FaceConstans.face_custom);
         bean.setResId(resId);
         bean.setName(name);
         bean.setPath(path);

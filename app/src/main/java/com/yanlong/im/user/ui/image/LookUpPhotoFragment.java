@@ -150,7 +150,13 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         getSize();
         if (isGif) {
             showLookOrigin(false);
-            loadGif(!TextUtils.isEmpty(originUrl) ? originUrl : previewUrl);
+            String url = !TextUtils.isEmpty(originUrl) ? originUrl : previewUrl;
+            File local = CustomGlideModule.getCacheFile(url);
+            if (local == null) {
+                loadGif(url);
+            } else {
+                loadGif(local.getAbsolutePath());
+            }
         } else {
             if (isHttp) {
                 if (isOriginal && hasRead) {
