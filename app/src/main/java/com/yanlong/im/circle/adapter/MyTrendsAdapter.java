@@ -74,6 +74,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -325,17 +326,17 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.ivSetup.setVisibility(View.VISIBLE);
                         //设置-> 置顶 权限 删除
                         holder.ivSetup.setOnClickListener(v -> {
-                            DialogHelper.getInstance().createTrendDialog(bean.getIsTop(),activity, new ITrendClickListner() {
+                            DialogHelper.getInstance().createTrendDialog(bean.getIsTop(), activity, new ITrendClickListner() {
                                 @Override
                                 public void clickIsTop(int type) {
                                     if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                         ToastUtil.show(activity.getString(R.string.user_disable_message));
                                         return;
                                     }
-                                    if(type==1){
+                                    if (type == 1) {
                                         //取消置顶
                                         httpIsTop(bean.getId(), 0);
-                                    }else {
+                                    } else {
                                         //置顶
                                         httpIsTop(bean.getId(), 1);
                                     }
@@ -460,11 +461,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.ivVoicePlay.setOnClickListener(o -> {
                                     if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
                                         AudioPlayUtil.startAudioPlay(activity, attachmentBean.getUrl(),
-                                                holder.ivVoicePlay, holder.pbProgress,position);
+                                                holder.ivVoicePlay, holder.pbProgress, position);
                                     }
                                 });
-                                holder.ivDeleteVoice.setVisibility(View.GONE);
                             }
+                            holder.ivDeleteVoice.setVisibility(View.GONE);
                             if (!TextUtils.isEmpty(bean.getVote())) {
                                 holder.layoutVote.setVisibility(View.VISIBLE);
                             } else {
@@ -519,7 +520,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     public void onClick(View v) {
                                         AudioPlayUtil.stopAudioPlay();
                                         Intent intent = new Intent(activity, VideoPlayActivity.class);
+                                        intent.putExtra("json", GsonUtils.optObject(attachmentBean));
                                         intent.putExtra("videopath", attachmentBean.getUrl());
+                                        intent.putExtra("bg_url", attachmentBean.getBgUrl());
+                                        intent.putExtra("from", PictureConfig.FROM_CIRCLE);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                         activity.startActivity(intent);
                                     }
@@ -552,13 +556,13 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         VoteBean voteBean = new Gson().fromJson(bean.getVote(), VoteBean.class);
                         //若我点击是postion是1，由于有头部，取数据则是从0开始起，故需要-1
                         setRecycleView(holder.recyclerVote, voteBean.getItems(), voteBean.getType(), position - 1,
-                                bean.getVoteAnswer(), getVoteSum(bean.getVoteAnswer()),bean.getUid());
+                                bean.getVoteAnswer(), getVoteSum(bean.getVoteAnswer()), bean.getUid());
                         if (bean.getVoteAnswer() != null && bean.getVoteAnswer().getSumDataList() != null && bean.getVoteAnswer().getSumDataList().size() > 0) {
                             holder.tvVoteNumber.setText(getVoteSum(bean.getVoteAnswer()) + "人参与了投票");
                         } else {
                             holder.tvVoteNumber.setText("0人参与了投票");
                         }
-                    }else {
+                    } else {
                         holder.layoutVote.setVisibility(View.GONE);
                     }
                 }
@@ -572,7 +576,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.loadingMore.setVisibility(View.GONE);
                     holder.loading.setVisibility(View.VISIBLE);
                     holder.loadingNoMore.setVisibility(View.GONE);
-                    if(type==2){
+                    if (type == 2) {
                         holder.viewBottom.setVisibility(View.VISIBLE);
                     }
                     break;
@@ -581,7 +585,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.loadingMore.setVisibility(View.VISIBLE);
                     holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.GONE);
-                    if(type==2){
+                    if (type == 2) {
                         holder.viewBottom.setVisibility(View.VISIBLE);
                     }
                     break;
@@ -590,7 +594,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.loadingMore.setVisibility(View.GONE);
                     holder.loading.setVisibility(View.GONE);
                     holder.loadingNoMore.setVisibility(View.VISIBLE);
-                    if(type==2){
+                    if (type == 2) {
                         holder.viewBottom.setVisibility(View.VISIBLE);
                     }
                     break;
@@ -605,7 +609,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //头部
             HeadHolder holder = (HeadHolder) viewHolder;
             //顶部标题栏
-            if(type==1){
+            if (type == 1) {
                 holder.ivBack.setVisibility(View.VISIBLE);
                 holder.ivBack.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -615,7 +619,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 });
                 holder.tvTitle.setVisibility(View.VISIBLE);
                 holder.ivMore.setVisibility(View.GONE);
-            }else {
+            } else {
                 holder.ivBack.setVisibility(View.VISIBLE);
                 holder.ivBack.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1105,7 +1109,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     String value = spUtil.getSPValue(RecommendFragment.REFRESH_COUNT, "");
                     if (!TextUtils.isEmpty(value)) {
                         MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
-                        if(infoBean.getId().longValue()==id){
+                        if (infoBean.getId().longValue() == id) {
                             spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
                             //然后及时通知广场推荐刷新
                             EventBus.getDefault().post(new EventFactory.DeleteItemTrend());
@@ -1230,7 +1234,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param voteSum       投票总数
      */
     private void setRecycleView(RecyclerView rv, List<VoteBean.Item> voteList, int type, int parentPostion,
-                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum,Long uid) {
+                                MessageInfoBean.VoteAnswerBean answerBean, int voteSum, Long uid) {
         int columns = 0;
         if (type == PictureEnum.EVoteType.TXT) {
             rv.setLayoutManager(new LinearLayoutManager(activity));
@@ -1248,7 +1252,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             isVote = answerBean.getSelfAnswerItem();
             sumDataList.addAll(answerBean.getSumDataList());
         }
-        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList,isMe(uid));
+        VoteAdapter taskAdapter = new VoteAdapter(columns, type, isVote, voteSum, sumDataList, isMe(uid));
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(voteList);
         taskAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -1257,7 +1261,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 MessageInfoBean messageInfoBean = dataList.get(parentPostion);
                 if (view.getId() == R.id.iv_picture) {// 查看大图
                     gotoPictruePreview(position, voteList);
-                }else {
+                } else {
                     if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                         ToastUtil.show(activity.getString(R.string.user_disable_message));
                         return;
@@ -1265,7 +1269,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //无法给自己投票
                     if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                         ToastUtil.show("无法给自己投票");
-                    }else {
+                    } else {
                         if (answerBean != null && answerBean.getSelfAnswerItem() == -1) {
                             voteAnswer(position + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
                         }

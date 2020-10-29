@@ -179,7 +179,12 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
         }
         helper.setGone(R.id.iv_delete_voice, false);
         TextView tvContent = helper.getView(R.id.tv_content);
-        tvContent.setText(getSpan(messageInfoBean.getContent()));
+        if (TextUtils.isEmpty(messageInfoBean.getContent())) {
+            tvContent.setVisibility(View.GONE);
+        } else {
+            tvContent.setVisibility(View.VISIBLE);
+            tvContent.setText(getSpan(messageInfoBean.getContent()));
+        }
         if (isDetails) {
             tvContent.setMaxLines(Integer.MAX_VALUE);
             helper.setVisible(R.id.tv_follow, true);

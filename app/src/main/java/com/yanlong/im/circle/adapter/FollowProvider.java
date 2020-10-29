@@ -251,7 +251,12 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
         helper.setGone(R.id.iv_delete_voice, false);
         TextView tvContent = helper.getView(R.id.tv_content);
-        tvContent.setText(getSpan(messageInfoBean.getContent()));
+        if (TextUtils.isEmpty(messageInfoBean.getContent())) {
+            tvContent.setVisibility(View.GONE);
+        } else {
+            tvContent.setVisibility(View.VISIBLE);
+            tvContent.setText(getSpan(messageInfoBean.getContent()));
+        }
         TextView tvMore = helper.getView(R.id.tv_show_all);
         if (isDetails) {
             tvContent.setMaxLines(Integer.MAX_VALUE);

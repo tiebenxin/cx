@@ -57,6 +57,7 @@ import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.YLLinearLayoutManager;
@@ -258,8 +259,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         } else {
                             Intent intent = new Intent(getContext(), VideoPlayActivity.class);
                             if (attachmentBeans.size() > 0) {
+                                intent.putExtra("json", GsonUtils.optObject(attachmentBeans.get(0)));
                                 intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                                intent.putExtra("bg_url", attachmentBeans.get(0).getBgUrl());
                             }
+                            intent.putExtra("from", PictureConfig.FROM_CIRCLE);
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(intent);
                         }
@@ -612,5 +616,14 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 )
                 .build();
         dialog.show();
+    }
+
+    @Override
+    public void notifyShow() {
+        if (mFlowAdapter == null || mFlowAdapter.getItemCount() <= 0) {
+            if (mPresenter != null) {
+                mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
+            }
+        }
     }
 }

@@ -38,11 +38,23 @@ public interface CircleServer {
     @POST("square/vote/answer")
     Call<ReturnBean> voteAnswer(@Body WeakHashMap<String, Object> params);
 
-    @POST("square/moment/like")
-    Call<ReturnBean> comentLike(@Body WeakHashMap<String, Object> params);
+    //说说添加点赞
+//    @POST("square/moment/like")
+    @POST("square/like/add")
+    Call<ReturnBean> addLike(@Body WeakHashMap<String, Object> params);
 
-    @POST("square/moment/cancel-like")
-    Call<ReturnBean> comentCancleLike(@Body WeakHashMap<String, Object> params);
+    //评论添加或者取消点赞
+//    @POST("square/moment/cancel-like")
+    @POST("square/like/cancel")
+    Call<ReturnBean> addOrCancelLikeToComment(@Body WeakHashMap<String, Object> params);
+
+
+    //评论取消点赞
+//    @POST("square/moment/cancel-like")
+    @POST("square/like/cancel")
+    Call<ReturnBean> cancelLike(@Body WeakHashMap<String, Object> params);
+
+
 
     @POST("follow/add")
     Call<ReturnBean> followAdd(@Body WeakHashMap<String, Object> params);
@@ -50,13 +62,13 @@ public interface CircleServer {
     @POST("follow/cancel")
     Call<ReturnBean> followCancle(@Body WeakHashMap<String, Object> params);
 
-    @POST("square/moment/comment")
+    @POST("square/comment/add")
     Call<ReturnBean> circleComment(@Body WeakHashMap<String, Object> params);
 
-    @POST("square/moment/comment-list")
+    @POST("square/comment/list")
     Call<ReturnBean<CircleCommentBean>> circleCommentList(@Body WeakHashMap<String, Object> params);
 
-    @POST("square/moment/del-comment")
+    @POST("square/comment/del")
     Call<ReturnBean> delComment(@Body WeakHashMap<String, Object> params);
 
     @POST("square/forbid-see/add")

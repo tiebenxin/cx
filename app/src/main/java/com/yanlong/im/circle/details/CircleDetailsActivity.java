@@ -75,6 +75,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
@@ -90,6 +91,8 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
+
+import static com.luck.picture.lib.config.PictureConfig.FROM_CIRCLE;
 
 /**
  * @version V1.0
@@ -312,8 +315,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                         } else {
                             Intent intent = new Intent(getContext(), VideoPlayActivity.class);
                             if (attachmentBeans.size() > 0) {
+                                intent.putExtra("json", GsonUtils.optObject(attachmentBeans.get(0)));
                                 intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
+                                intent.putExtra("bg_url", attachmentBeans.get(0).getBgUrl());
                             }
+                            intent.putExtra("from", PictureConfig.FROM_CIRCLE);
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(intent);
                         }
@@ -649,7 +655,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         PictureSelector.create(this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(position, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
+                .openExternalPreview1(position, selectList, "", 0L, FROM_CIRCLE, "");
     }
 
     private void cancelFollowDialog(int position) {
@@ -850,10 +856,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     public void onAddFriendSuccess(boolean isSuccess) {
-        if (isSuccess){
+        if (isSuccess) {
             mMessageInfoBean.setUserType(ChatEnum.EUserType.FRIEND);
             mFlowAdapter.notifyDataSetChanged();
-        }else {
+        } else {
             ToastUtil.show("好友申请已发送");
         }
 
