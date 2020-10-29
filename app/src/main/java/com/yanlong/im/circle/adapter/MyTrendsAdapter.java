@@ -459,8 +459,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                                 holder.ivVoicePlay, holder.pbProgress, position);
                                     }
                                 });
-                                holder.ivDeleteVoice.setVisibility(View.GONE);
                             }
+                            holder.ivDeleteVoice.setVisibility(View.GONE);
                             if (!TextUtils.isEmpty(bean.getVote())) {
                                 holder.layoutVote.setVisibility(View.VISIBLE);
                             } else {
