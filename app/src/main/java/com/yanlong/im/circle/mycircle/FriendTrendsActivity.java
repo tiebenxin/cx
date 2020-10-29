@@ -49,7 +49,7 @@ import static com.yanlong.im.circle.mycircle.MyFollowActivity.DEFAULT_PAGE_SIZE;
  * @类名：别人的动态(别人的朋友圈)
  * @Date：2020/9/25
  * @by zjy
- * @备注：/
+ * @备注：
  */
 
 public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> {
