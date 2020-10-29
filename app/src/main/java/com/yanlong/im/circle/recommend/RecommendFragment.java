@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
@@ -95,6 +96,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     private int firstItemPosition;
     private int firstOffset;
     private boolean isRefreshing;
+    private CommonSelectDialog dialog;
+    private CommonSelectDialog.Builder builder;
 
     protected RecommendPresenter createPresenter() {
         return new RecommendPresenter(getContext());
@@ -121,6 +124,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
         messageBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.view_new_circle_message, null, false);
         mPresenter.getUnreadMsg();
+        builder = new CommonSelectDialog.Builder(getActivity());
     }
 
     @Override
@@ -181,9 +185,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteItemTrend event) {
         //推荐列表和关注列表只更新自己点击的数据
-        if (event.fromWhere.equals("RecommendFragment")) {
-            onDeleteItem(event.position);
-        }
+        onDeleteItem(event.position);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -191,7 +193,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         //更改目标用户全部关注状态
         for (MessageFlowItemBean bean : mFlowAdapter.getData()) {
             MessageInfoBean msgBean = (MessageInfoBean) bean.getData();
-            if (msgBean.getUid().longValue() == event.uid) {
+            if (msgBean.getUid()!=null && msgBean.getUid().longValue() == event.uid) {
                 if (event.type == 1) {
                     msgBean.setFollow(true);
                 } else {
@@ -299,7 +301,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                                             return;
                                         }
                                         if (messageInfoBean.isFollow()) {
-                                            mPresenter.followCancle(messageInfoBean.getUid(), position);
+                                            showCancleFollowDialog(messageInfoBean.getUid(), position);
                                         } else {
                                             mPresenter.followAdd(messageInfoBean.getUid(), position);
                                         }
@@ -328,10 +330,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
                                     @Override
                                     public void onClickReport() {
-                                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
-                                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
-                                            return;
-                                        }
                                         Intent intent = new Intent(getContext(), ComplaintActivity.class);
                                         intent.putExtra(ComplaintActivity.UID, messageInfoBean.getUid() + "");
                                         intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
@@ -721,5 +719,26 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 0);
             }
         }
+    }
+
+    /**
+     * 是否取消关注提示弹框
+     * @param uid
+     * @param position
+     */
+    private void showCancleFollowDialog(long uid,int position) {
+        dialog = builder.setTitle("是否取消关注?")
+                .setShowLeftText(true)
+                .setRightText("确认")
+                .setLeftText("取消")
+                .setRightOnClickListener(v -> {
+                    mPresenter.followCancle(uid, position);
+                    dialog.dismiss();
+                })
+                .setLeftOnClickListener(v ->
+                        dialog.dismiss()
+                )
+                .build();
+        dialog.show();
     }
 }

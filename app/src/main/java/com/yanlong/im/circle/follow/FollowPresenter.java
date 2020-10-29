@@ -15,13 +15,11 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileCacheUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -221,6 +219,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                     mView.onVoteSuccess(parentPostion, response.message());
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
+                    //如果动态已经被删除，则通知刷新
+                    if (response.body().getCode() == 100104) {
+                        mView.onDeleteItem(parentPostion);
+                    }
                 }
             }
 
@@ -316,7 +318,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 if (checkSuccess(response.body())) {
                     mView.onShowMessage("关注成功");
                     mView.onSuccess(postion, false, response.message());
-                    //关注单个用户，推荐列表及时更新
+                    //关注单个用户，推荐列表、好友动态主页需要更新状态
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 1;
                     event.uid = followId.longValue();
@@ -349,7 +351,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
                     mView.onSuccess(postion, true, response.message());
-                    //取消关注单个用户，推荐列表及时更新
+                    //取消关注单个用户，推荐列表、好友动态主页需要更新状态
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 0;
                     event.uid = followId.longValue();

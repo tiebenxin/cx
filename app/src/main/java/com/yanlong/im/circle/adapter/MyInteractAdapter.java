@@ -30,7 +30,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
-import com.yanlong.im.circle.mycircle.CircleAction;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
@@ -499,7 +499,7 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     //新的获取动态详情接口(含头像、评论列表)
     public void httpGetNewDetails(Long momentId, Long momentUid,int position,String msgId){
-        new CircleAction().httpGetNewDetails(momentId, momentUid, new CallBack<ReturnBean<NewTrendDetailsBean>>() {
+        new MyCircleAction().httpGetNewDetails(momentId, momentUid, new CallBack<ReturnBean<NewTrendDetailsBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewTrendDetailsBean>> call, Response<ReturnBean<NewTrendDetailsBean>> response) {
                 super.onResponse(call, response);

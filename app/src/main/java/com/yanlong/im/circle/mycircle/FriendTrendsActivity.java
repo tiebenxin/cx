@@ -16,11 +16,14 @@ import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
+import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.IFriendTrendClickListner;
@@ -35,6 +38,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -54,7 +58,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     public static String POSITION = "position";
     private int page = 1;//默认第一页
 
-    private CircleAction action;
+    private MyCircleAction action;
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
     private long friendUid;//别人的uid
@@ -68,7 +72,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Override
     protected void init(Bundle savedInstanceState) {
-        action = new CircleAction();
+        action = new MyCircleAction();
         mList = new ArrayList<>();
         bindingView.layoutFollow.setVisibility(View.VISIBLE);
         bindingView.layoutChat.setVisibility(View.VISIBLE);
@@ -165,6 +169,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                         intent.putExtra(ComplaintActivity.FROM_WHERE, 0);
                         startActivity(intent);
                     }
+
+                    @Override
+                    public void clickCancle() {
+
+                    }
                 });
             }
         });
@@ -174,6 +183,10 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         bindingView.layoutFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
+                    ToastUtil.show(getString(R.string.user_disable_message));
+                    return;
+                }
                 if(isFollow==0){
                     httpToFollow(friendUid);
                 }else {
@@ -333,7 +346,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
-        if(!TextUtils.isEmpty(event.from) && event.from.equals("CircleDetailsActivity")){
+        if(event.uid==friendUid){
             if(event.type==0){
                 bindingView.tvFollow.setText("关注");
                 isFollow = 0;
@@ -352,6 +365,55 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
+        //更新单条动态
+        if(!TextUtils.isEmpty(event.fromWhere) && event.fromWhere.equals("FriendTrendsActivity")){
+            MessageInfoBean bean = adapter.getDataList().get(event.position-1);//去掉头部
+            if(bean.getId()!=null && bean.getUid()!=null){
+                queryById(bean.getId().longValue(),bean.getUid().longValue(),event.position-1);
+            }
+        }
+    }
+
+    /**
+     * 获取单条朋友圈
+     *
+     * @param momentId  说说ID
+     * @param momentUid 说说发布者
+     * @param position  位置
+     */
+    public void queryById(Long momentId, Long momentUid, int position) {
+        WeakHashMap<String, Object> params = new WeakHashMap<>();
+        params.put("momentId", momentId);
+        params.put("momentUid", momentUid);
+        new RecommendModel().queryById(params, new CallBack<ReturnBean<MessageInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
+                super.onResponse(call, response);
+                if (response.body().isOk()) {
+                    if (response.body() != null && response.body().getData() != null) {
+//                        MessageInfoBean bean = response.body().getData();
+                        MessageInfoBean oldBean = adapter.getDataList().get(position);
+                        MessageInfoBean bean = response.body().getData();
+                        oldBean.setLike(bean.getLike());
+                        oldBean.setLikeCount(bean.getLikeCount());
+                        oldBean.setCommentCount(bean.getCommentCount());
+                        adapter.notifyItemChanged(position+1);
+                    }
+                } else {
+                    ToastUtil.show("获取动态失败");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show("获取动态失败");
+            }
+        });
     }
 
 }

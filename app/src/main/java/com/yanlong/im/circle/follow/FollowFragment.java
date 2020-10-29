@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
@@ -87,6 +88,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     ViewNewCircleMessageBinding messageBinding;
     private int firstOffset;
     private boolean isRefreshing;
+    private CommonSelectDialog dialog;
+    private CommonSelectDialog.Builder builder;
 
     protected FollowPresenter createPresenter() {
         return new FollowPresenter(getContext());
@@ -113,6 +116,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
         messageBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.view_new_circle_message, null, false);
         mPresenter.getUnreadMsg();
+        builder = new CommonSelectDialog.Builder(getActivity());
     }
 
     @Override
@@ -213,7 +217,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                                             ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                             return;
                                         }
-                                        mPresenter.followCancle(messageInfoBean.getUid(), position);
+                                        showCancleFollowDialog(messageInfoBean.getUid(), position);
                                     }
 
                                     @Override
@@ -235,10 +239,6 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
                                     @Override
                                     public void onClickReport() {
-                                        if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
-                                            ToastUtil.show(getActivity().getString(R.string.user_disable_message));
-                                            return;
-                                        }
                                         Intent intent = new Intent(getContext(), ComplaintActivity.class);
                                         intent.putExtra(ComplaintActivity.UID, messageInfoBean.getUid() + "");
                                         intent.putExtra(ComplaintActivity.FROM_WHERE, 1);
@@ -379,9 +379,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteItemTrend event) {
         //推荐列表和关注列表只更新自己点击的数据
-        if (event.fromWhere.equals("FollowFragment")) {
-            onDeleteItem(event.position);
-        }
+        onDeleteItem(event.position);
     }
 
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
@@ -597,6 +595,27 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
             mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
         }
+    }
+
+    /**
+     * 是否取消关注提示弹框
+     * @param uid
+     * @param position
+     */
+    private void showCancleFollowDialog(long uid,int position) {
+        dialog = builder.setTitle("是否取消关注?")
+                .setShowLeftText(true)
+                .setRightText("确认")
+                .setLeftText("取消")
+                .setRightOnClickListener(v -> {
+                    mPresenter.followCancle(uid, position);
+                    dialog.dismiss();
+                })
+                .setLeftOnClickListener(v ->
+                        dialog.dismiss()
+                )
+                .build();
+        dialog.show();
     }
 
     @Override

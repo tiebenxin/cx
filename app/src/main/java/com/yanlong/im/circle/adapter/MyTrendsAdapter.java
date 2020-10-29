@@ -51,7 +51,7 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.follow.FollowModel;
-import com.yanlong.im.circle.mycircle.CircleAction;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
@@ -133,7 +133,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<MessageInfoBean> dataList;//动态列表数据
     private Drawable dislike;
     private Drawable like;
-    private CircleAction action;
+    private MyCircleAction action;
     private IRefreshListenr refreshListenr;
     private UserBean userBean;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
@@ -167,7 +167,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         like = activity.getResources().getDrawable(R.mipmap.ic_circle_like, null);
         dislike.setBounds(0, 0, dislike.getMinimumWidth(), dislike.getMinimumHeight());
         like.setBounds(0, 0, like.getMinimumWidth(), like.getMinimumHeight());
-        action = new CircleAction();
+        action = new MyCircleAction();
         //图片相关设置
         mRequestOptions = RequestOptions.centerCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -197,6 +197,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void addMoreList(List list) {
         dataList.addAll(list);
         notifyDataSetChanged();
+    }
+
+    //获取数据集合
+    public List<MessageInfoBean> getDataList(){
+        return dataList;
     }
 
     //设置头部数据
@@ -303,7 +308,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 }
                             }
                             AudioPlayUtil.stopAudioPlay();
-                            gotoCircleDetailsActivity(true, bean);
+                            gotoCircleDetailsActivity(true,bean,position);
                         }
                     });
                     //说说可见度
@@ -407,7 +412,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     }
                                 }
                                 AudioPlayUtil.stopAudioPlay();
-                                gotoCircleDetailsActivity(false, bean);
+                                gotoCircleDetailsActivity(false, bean,position);
                             }
                     );
                     //是否置顶
@@ -707,10 +712,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (userBean != null) {
                 if (type == 1) {
                     holder.layoutCenter.setVisibility(View.VISIBLE);
-                    holder.ivFriendHeader.setVisibility(View.GONE);
-                    holder.tvFriendName.setVisibility(View.GONE);
-                    holder.ivMyHeader.setVisibility(View.VISIBLE);
-                    holder.tvMyName.setVisibility(View.VISIBLE);
                     holder.lineOne.setVisibility(View.VISIBLE);
                     //头像 昵称
                     if (!TextUtils.isEmpty(userBean.getHead())) {
@@ -773,28 +774,24 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 } else {
                     //好友的动态顶部样式
                     holder.layoutCenter.setVisibility(View.GONE);
-                    holder.ivFriendHeader.setVisibility(View.VISIBLE);
-                    holder.tvFriendName.setVisibility(View.VISIBLE);
-                    holder.ivMyHeader.setVisibility(View.GONE);
-                    holder.tvMyName.setVisibility(View.GONE);
                     holder.lineOne.setVisibility(View.GONE);
                     if (!TextUtils.isEmpty(userBean.getHead())) {
                         Glide.with(activity)
                                 .load(userBean.getHead())
                                 .apply(mRequestOptions)
-                                .into(holder.ivFriendHeader);
+                                .into(holder.ivMyHeader);
                     } else {
                         Glide.with(activity)
                                 .load(R.drawable.ic_info_head)
-                                .into(holder.ivFriendHeader);
+                                .into(holder.ivMyHeader);
                     }
                     if (!TextUtils.isEmpty(userBean.getName())) {
-                        holder.tvFriendName.setText(userBean.getName());
+                        holder.tvMyName.setText(userBean.getName());
                     } else {
-                        holder.tvFriendName.setText("未知用户名");
+                        holder.tvMyName.setText("未知用户名");
                     }
                     //点击查看别人的头像
-                    holder.ivFriendHeader.setOnClickListener(new View.OnClickListener() {
+                    holder.ivMyHeader.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             List<LocalMedia> selectList = new ArrayList<>();
@@ -808,7 +805,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         }
                     });
                     //点击别人的昵称暂无操作
-                    holder.tvFriendName.setOnClickListener(new View.OnClickListener() {
+                    holder.tvMyName.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                         }
@@ -908,9 +905,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     // 头部
     class HeadHolder extends RecyclerView.ViewHolder {
-        private ImageView ivFriendHeader;
         private ImageView ivMyHeader;
-        private TextView tvFriendName;
         private TextView tvMyName;
         private TextView tvMyFollowNum;
         private TextView tvFollowMeNum;
@@ -930,9 +925,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public HeadHolder(View itemView) {
             super(itemView);
-            ivFriendHeader = itemView.findViewById(R.id.iv_friend_header);
             ivMyHeader = itemView.findViewById(R.id.iv_my_header);
-            tvFriendName = itemView.findViewById(R.id.tv_friend_name);
             tvMyName = itemView.findViewById(R.id.tv_my_name);
             tvMyFollowNum = itemView.findViewById(R.id.tv_my_follow_num);
             tvFollowMeNum = itemView.findViewById(R.id.tv_follow_me_num);
@@ -962,7 +955,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean) {
+    private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean,int position) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
@@ -972,6 +965,12 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_DEFAULT);
         }
+        if(type==1){
+            postcard.withString(CircleDetailsActivity.FROM, "MyTrendsActivity");//来自我的动态
+        }else {
+            postcard.withString(CircleDetailsActivity.FROM, "FriendTrendsActivity");//来自好友动态
+        }
+        postcard.withInt(CircleDetailsActivity.TREND_POSITION, position);//好友动态点击项的位置传过去
         postcard.navigation();
     }
 

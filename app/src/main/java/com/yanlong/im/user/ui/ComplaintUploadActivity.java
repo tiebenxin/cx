@@ -25,7 +25,7 @@ import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
-import com.yanlong.im.circle.mycircle.CircleAction;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.ImageBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -183,7 +183,7 @@ public class ComplaintUploadActivity extends AppActivity {
                 });
             }else {
                 //广场投诉
-                new CircleAction().httpCircleComplaint(momentUid,commentId,complaintType, defendantUid,content, imageUrl, momentId, new CallBack<ReturnBean>() {
+                new MyCircleAction().httpCircleComplaint(momentUid,commentId,complaintType, defendantUid,content, imageUrl, momentId, new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         super.onResponse(call, response);

@@ -17,11 +17,11 @@ import java.util.List;
  * @备注：
  */
 
-public class CircleAction {
-    private CircleServer server;
+public class MyCircleAction {
+    private MyCircleServer server;
 
-    public CircleAction() {
-        server = NetUtil.getNet().create(CircleServer.class);
+    public MyCircleAction() {
+        server = NetUtil.getNet().create(MyCircleServer.class);
     }
 
     /**
