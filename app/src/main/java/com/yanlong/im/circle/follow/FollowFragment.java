@@ -598,4 +598,13 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
         }
     }
+
+    @Override
+    public void notifyShow() {
+        if (mFlowAdapter == null || mFlowAdapter.getItemCount() <= 0) {
+            if (mPresenter != null) {
+                mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
+            }
+        }
+    }
 }

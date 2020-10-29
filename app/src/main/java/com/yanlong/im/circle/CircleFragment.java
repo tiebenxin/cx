@@ -36,6 +36,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.utils.ImgSizeUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -331,9 +332,9 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     }
 
     public class ViewPagerAdapter extends FragmentPagerAdapter {
-        private List<Fragment> mFragments;
+        private List<BaseBindMvpFragment> mFragments;
 
-        public ViewPagerAdapter(FragmentManager fm, List<Fragment> fagments) {
+        public ViewPagerAdapter(FragmentManager fm, List<BaseBindMvpFragment> fagments) {
             super(fm);
             this.mFragments = fagments;
         }
@@ -360,4 +361,16 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             bindingView.ivCreateCircle.setImageResource(R.mipmap.ic_to_top);
         }
     }
+
+    //通知页面可见
+    public void notifyShow() {
+        LogUtil.getLog().i("Circle", "可见了");
+        if (mPresenter != null && mPresenter.getListFragment() != null) {
+            for (int i = 0; i < mPresenter.getListFragment().size(); i++) {
+                BaseBindMvpFragment fragment = mPresenter.getListFragment().get(i);
+                fragment.notifyShow();
+            }
+        }
+    }
+
 }

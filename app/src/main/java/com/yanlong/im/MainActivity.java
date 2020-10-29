@@ -409,9 +409,7 @@ public class MainActivity extends BaseTcpActivity {
                 if (tab.getPosition() == EMainTab.ME) {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
-                }
-                // 同时点击导航栏跟气泡时，延迟关闭气泡
-                if (tab.getPosition() == EMainTab.CONTACT || tab.getPosition() == EMainTab.ME) {
+                } else if (tab.getPosition() == EMainTab.CONTACT || tab.getPosition() == EMainTab.ME) {  // 同时点击导航栏跟气泡时，延迟关闭气泡
                     if (!isFinishing()) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
@@ -422,6 +420,8 @@ public class MainActivity extends BaseTcpActivity {
                             }
                         }, 100);
                     }
+                } else if (tab.getPosition() == EMainTab.CIRCLE) {
+                    ((CircleFragment) fragments[tab.getPosition()]).notifyShow();
                 }
             }
 
@@ -659,7 +659,7 @@ public class MainActivity extends BaseTcpActivity {
             if (AppConfig.isOnline()) {
                 checkHasEnvelopeSendFailed();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -918,7 +918,7 @@ public class MainActivity extends BaseTcpActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showUnreadIteractMsg(com.luck.picture.lib.event.EventFactory.HomePageShowUnreadMsgEvent event) {
         //显示广场未读消息数
-        if(event.num!=0){
+        if (event.num != 0) {
             sbshop.setSktype(0);
             sbshop.setNum(event.num, true);
             hadUnreadTrendNum = true;
@@ -926,13 +926,13 @@ public class MainActivity extends BaseTcpActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void showNewTrendRedDot(com.luck.picture.lib.event.EventFactory.HomePageRedDotEvent event){
+    public void showNewTrendRedDot(com.luck.picture.lib.event.EventFactory.HomePageRedDotEvent event) {
         //优先显示未读消息数，若为0，则显示小红点，代表关注的人是否有发了新动态
-        if(!hadUnreadTrendNum){
+        if (!hadUnreadTrendNum) {
             sbshop.setSktype(1);
-            if(event.ifShow){
+            if (event.ifShow) {
                 sbshop.setNum(1, true);
-            }else {
+            } else {
                 sbshop.setNum(0, true);
             }
         }
@@ -1300,7 +1300,7 @@ public class MainActivity extends BaseTcpActivity {
      * 百度地图获取定位信息
      */
     private void getLocation() {
-        if (!isActivityValid()){
+        if (!isActivityValid()) {
             return;
         }
         if (!LocationPersimmions.checkPermissions(this)) {
@@ -1481,7 +1481,7 @@ public class MainActivity extends BaseTcpActivity {
                 @Override
                 public void onResponse(Call<ReturnBean<DailyReportBean>> call, Response<ReturnBean<DailyReportBean>> response) {
                     super.onResponse(call, response);
-                    if (response.isSuccessful()){
+                    if (response.isSuccessful()) {
                         SpUtil.getSpUtil().putSPValue("reportDaily", System.currentTimeMillis());
                     }
                 }

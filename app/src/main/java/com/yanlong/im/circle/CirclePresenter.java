@@ -18,6 +18,7 @@ import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.recommend.RecommendFragment;
 
+import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -46,7 +47,7 @@ import retrofit2.Response;
 public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
 
     private List<CircleTitleBean> mListTitle = new ArrayList<>();
-    private List<Fragment> mListFragments = new ArrayList<>();
+    private List<BaseBindMvpFragment> mListFragments = new ArrayList<>();
     private final String FILE_NAME = ".jpg";
     private final String FILE_NAME_GIF = ".gif";
     private final String FILE_DIRECTORY = "image/";
@@ -76,7 +77,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
         mListFragments.add(new FollowFragment());
     }
 
-    public List<Fragment> getListFragment() {
+    public List<BaseBindMvpFragment> getListFragment() {
         if (mListFragments == null) {
             mListFragments = new ArrayList<>();
             init();

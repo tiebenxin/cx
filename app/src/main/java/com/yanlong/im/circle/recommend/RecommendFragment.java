@@ -715,9 +715,11 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        notifyChangeAll();
-
+    public void notifyShow() {
+        if (mFlowAdapter == null || mFlowAdapter.getItemCount() <= 0) {
+            if (mPresenter != null) {
+                mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 0);
+            }
+        }
     }
 }

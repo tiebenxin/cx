@@ -113,4 +113,8 @@ public abstract class BaseBindMvpFragment<P extends BasePresenter, SV extends Vi
     public void toActivityWithCallback(Activity activity, Postcard postcard, int requestCode) {
         postcard.navigation(activity, requestCode);
     }
+
+    public void notifyShow(){
+
+    }
 }
