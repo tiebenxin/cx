@@ -46,7 +46,7 @@ public class FollowModel extends BaseModel implements FollowApi {
 
     @Override
     public void comentLike(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.comentLike(params), callback);
+        NetUtil.getNet().exec(server.addLike(params), callback);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class FollowModel extends BaseModel implements FollowApi {
 
     @Override
     public void comentCancleLike(WeakHashMap<String, Object> params, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.comentCancleLike(params), callback);
+        NetUtil.getNet().exec(server.cancelLike(params), callback);
     }
 
     @Override
