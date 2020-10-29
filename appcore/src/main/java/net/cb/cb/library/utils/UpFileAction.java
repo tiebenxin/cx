@@ -35,7 +35,7 @@ import retrofit2.Response;
 public class UpFileAction {
     public static enum PATH {
         HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE,
-        VIDEO, FILE, PC_MSG, IMG_PERSIST, VIDEO_FRAME, COMENT_IMG, COMENT_VIDEO,CIRCLE_BACKGROUND
+        VIDEO, FILE, PC_MSG, IMG_PERSIST, VIDEO_FRAME, COMMENT_IMG, COMMENT_VIDEO, CIRCLE_BACKGROUND, COMMENT_VIDEO_FRAME
     }
 
     private UpFileServer server;
@@ -88,11 +88,14 @@ public class UpFileAction {
                 data.setTime(System.currentTimeMillis());
                 pt = "image/";
                 break;
-            case COMENT_IMG:
+            case COMMENT_IMG:
                 pt = "moment/image/";
                 break;
-            case COMENT_VIDEO:
+            case COMMENT_VIDEO:
                 pt = "moment/video/";
+                break;
+            case COMMENT_VIDEO_FRAME:
+                pt = "moment/frame/";
                 break;
             case COMPLAINT:
                 pt = AppConfig.getUpPath() + "/misc/complaint/";

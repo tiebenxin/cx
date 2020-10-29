@@ -211,7 +211,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
      */
     public void batchUploadFile(int type, List<LocalMedia> mediaList) {
         UpLoadFileUtil.getInstance().upLoadFile(mContext, mediaList, true,
-                UpFileAction.PATH.COMENT_IMG, new UpLoadFileUtil.OnUploadFileListener() {
+                UpFileAction.PATH.COMMENT_IMG, new UpLoadFileUtil.OnUploadFileListener() {
                     @Override
                     public void onUploadFile(HashMap<String, String> netFile) {
                         mView.uploadSuccess("", type, false, netFile);

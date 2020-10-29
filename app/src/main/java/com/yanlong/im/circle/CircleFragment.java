@@ -126,7 +126,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                         break;
                     case PictureEnum.EContentType.VIDEO:
                     case PictureEnum.EContentType.VIDEO_AND_VOTE:
-                        mPresenter.uploadFile(mList.get(0).getBgUrl(), PictureEnum.EContentType.VIDEO, false, UpFileAction.PATH.COMENT_IMG);
+                        mPresenter.uploadFile(mList.get(0).getBgUrl(), PictureEnum.EContentType.VIDEO, false, UpFileAction.PATH.COMMENT_VIDEO_FRAME);
                         break;
                     case PictureEnum.EContentType.PICTRUE:
                     case PictureEnum.EContentType.PICTRUE_AND_VOTE:
@@ -289,7 +289,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                             attachmentBean.setUrl(url);
                         } else {
                             attachmentBean.setBgUrl(url);
-                            mPresenter.uploadFile(attachmentBean.getUrl(), PictureEnum.EContentType.VIDEO, true, UpFileAction.PATH.COMENT_VIDEO);
+                            mPresenter.uploadFile(attachmentBean.getUrl(), PictureEnum.EContentType.VIDEO, true, UpFileAction.PATH.COMMENT_VIDEO);
                             return;
                         }
                         break;

@@ -52,6 +52,7 @@ import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
+import com.luck.picture.lib.audio.AudioPlayManager;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.AudioRecorder;
 import com.luck.picture.lib.audio.IAudioPlayListener;
@@ -758,7 +759,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     private void createNewCircle() {
         String content = etContent.getText().toString().trim();
-        if (TextUtils.isEmpty(content) && currentAudioFile == null && (mList == null || mList.size() <= 0)) {
+        if (TextUtils.isEmpty(content) && TextUtils.isEmpty(currentAudioFile) && (mList == null || mList.size() <= 0)) {
             etContent.requestFocus();
             showTaost("请输入动态内容");
             return;
@@ -965,6 +966,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             resetAudio(true);
         } else if (id == R.id.iv_voice_play) {// 播放语音
             if (!TextUtils.isEmpty(currentAudioFile)) {
+                isPlaying = true;
                 AudioPlayUtil.startAudioPlay(this, currentAudioFile, pb_progress, iv_voice_play, this);
             }
         } else if (id == R.id.iv_voice) {// 语音
@@ -1223,10 +1225,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     private void resetAudio(boolean isDelete) {
         iv_action.setVisibility(View.GONE);
-
         if (isPlaying) {
+            AudioPlayManager.getInstance().stopPlay();
             AudioPlayUtil.stopAudioPlay();
-            isPlaying = !isPlaying;
+            isPlaying = false;
         }
         dp_action.setDonut_progress("" + 0);
         tv_voice_time.setText("0s");
@@ -1238,6 +1240,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             if (file.exists()) {
                 file.delete();
             }
+            currentAudioFile = "";
             isExistVoice = false;
         }
         mAudioState = 0;
@@ -1434,6 +1437,20 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             playAudio();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isOpenSoft) {
+            etContent.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    etContent.requestFocus();
+                    InputUtil.showKeyboard(etContent);
+                }
+            }, 300);
         }
     }
 
