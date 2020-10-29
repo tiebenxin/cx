@@ -53,7 +53,7 @@ import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
-import com.yanlong.im.circle.mycircle.CircleAction;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
@@ -393,7 +393,7 @@ public class CircleDetailsActivity1 extends BaseBindMvpActivity<FollowPresenter,
                                 } else {
                                     like = 0;//取消赞
                                 }
-                                new CircleAction().httpCommentLike(bean.getId(), like, mMessageInfoBean.getId(), mMessageInfoBean.getUid(), new CallBack<ReturnBean>() {
+                                new MyCircleAction().httpCommentLike(bean.getId(), like, mMessageInfoBean.getId(), mMessageInfoBean.getUid(), new CallBack<ReturnBean>() {
                                     @Override
                                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                                         super.onResponse(call, response);

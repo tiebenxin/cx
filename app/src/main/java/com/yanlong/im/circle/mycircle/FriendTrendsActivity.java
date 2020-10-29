@@ -58,7 +58,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     public static String POSITION = "position";
     private int page = 1;//默认第一页
 
-    private CircleAction action;
+    private MyCircleAction action;
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
     private long friendUid;//别人的uid
@@ -72,7 +72,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Override
     protected void init(Bundle savedInstanceState) {
-        action = new CircleAction();
+        action = new MyCircleAction();
         mList = new ArrayList<>();
         bindingView.layoutFollow.setVisibility(View.VISIBLE);
         bindingView.layoutChat.setVisibility(View.VISIBLE);

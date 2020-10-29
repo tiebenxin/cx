@@ -20,7 +20,7 @@ import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.FriendUserBean;
-import com.yanlong.im.circle.mycircle.CircleAction;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -77,7 +77,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private RequestOptions mRequestOptions;
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
-    private CircleAction action;
+    private MyCircleAction action;
 
 
     public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList,int type) {
@@ -93,7 +93,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     //初始化相关设置
     private void init() {
-        action = new CircleAction();
+        action = new MyCircleAction();
         //图片相关设置
         mRequestOptions = RequestOptions.centerInsideTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

@@ -51,7 +51,7 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.follow.FollowModel;
-import com.yanlong.im.circle.mycircle.CircleAction;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
@@ -133,7 +133,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<MessageInfoBean> dataList;//动态列表数据
     private Drawable dislike;
     private Drawable like;
-    private CircleAction action;
+    private MyCircleAction action;
     private IRefreshListenr refreshListenr;
     private UserBean userBean;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
@@ -167,7 +167,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         like = activity.getResources().getDrawable(R.mipmap.ic_circle_like, null);
         dislike.setBounds(0, 0, dislike.getMinimumWidth(), dislike.getMinimumHeight());
         like.setBounds(0, 0, like.getMinimumWidth(), like.getMinimumHeight());
-        action = new CircleAction();
+        action = new MyCircleAction();
         //图片相关设置
         mRequestOptions = RequestOptions.centerCropTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

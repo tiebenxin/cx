@@ -37,7 +37,7 @@ public class NotSeeActivity extends BaseBindActivity<ActivityMyFollowBinding> {
 
     private MyFollowAdapter adapter;
     private List<FriendUserBean> mList;
-    private CircleAction action;
+    private MyCircleAction action;
 
     @Override
     protected int setView() {
@@ -47,7 +47,7 @@ public class NotSeeActivity extends BaseBindActivity<ActivityMyFollowBinding> {
     @Override
     protected void init(Bundle savedInstanceState) {
         mList = new ArrayList<>();
-        action = new CircleAction();
+        action = new MyCircleAction();
     }
 
     @Override

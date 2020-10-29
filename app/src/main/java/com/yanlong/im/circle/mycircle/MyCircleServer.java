@@ -13,7 +13,7 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 
-public interface CircleServer {
+public interface MyCircleServer {
 
     @POST("/follow/my-follow")
     @FormUrlEncoded
@@ -55,7 +55,7 @@ public interface CircleServer {
     @FormUrlEncoded
     Call<ReturnBean> httpLike(@Field("momentId") long momentId,@Field("momentUid") long momentUid);
 
-    @POST("/square/moment/cancel-like")
+    @POST("/square/like/cancel")
     @FormUrlEncoded
     Call<ReturnBean> httpCancleLike(@Field("momentId") long momentId,@Field("momentUid") long momentUid);
 

@@ -49,7 +49,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     private List<FriendUserBean> mList;
     private List<FriendUserBean> allData;//全部数据
     private List<FriendUserBean> searchData;//搜索后的数据
-    private CircleAction action;
+    private MyCircleAction action;
 
     @Override
     protected int setView() {
@@ -61,7 +61,7 @@ public class MyFollowActivity extends BaseBindActivity<ActivityMyFollowBinding> 
         mList = new ArrayList<>();
         allData = new ArrayList<>();
         searchData = new ArrayList<>();
-        action = new CircleAction();
+        action = new MyCircleAction();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
