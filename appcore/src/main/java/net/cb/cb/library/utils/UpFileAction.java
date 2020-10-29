@@ -35,7 +35,7 @@ import retrofit2.Response;
 public class UpFileAction {
     public static enum PATH {
         HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE,
-        VIDEO, FILE, PC_MSG, IMG_PERSIST, VIDEO_FRAME, COMMENT_IMG, COMMENT_VIDEO, CIRCLE_BACKGROUND, COMMENT_VIDEO_FRAME
+        VIDEO, FILE, PC_MSG, IMG_PERSIST, VIDEO_FRAME, COMMENT_IMG, COMMENT_VIDEO, CIRCLE_BACKGROUND, COMMENT_VIDEO_FRAME, COMMENT_VOICE
     }
 
     private UpFileServer server;
@@ -84,17 +84,17 @@ public class UpFileAction {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
         String pt = "";
         switch (type) {
-            case IMG:
+            case IMG://聊天图片目录
                 data.setTime(System.currentTimeMillis());
                 pt = "image/";
                 break;
-            case COMMENT_IMG:
+            case COMMENT_IMG://朋友圈图片目录
                 pt = "moment/image/";
                 break;
-            case COMMENT_VIDEO:
+            case COMMENT_VIDEO://朋友圈视频目录
                 pt = "moment/video/";
                 break;
-            case COMMENT_VIDEO_FRAME:
+            case COMMENT_VIDEO_FRAME://朋友圈视频第一帧目录
                 pt = "moment/frame/";
                 break;
             case COMPLAINT:
@@ -103,7 +103,10 @@ public class UpFileAction {
             case FEEDBACK:
                 pt = AppConfig.getUpPath() + "/misc/feedback/";
                 break;
-            case VOICE:
+            case VOICE://聊天语音目录
+                pt = "voice/";
+                break;
+            case COMMENT_VOICE://朋友圈语音目录
                 pt = "moment/voice/";
                 break;
             case HEAD_GROUP_CHANGE:
@@ -111,20 +114,20 @@ public class UpFileAction {
             case HEAD:
                 pt = AppConfig.getUpPath() + "/avatar/android/" + id + "/";
                 break;
-            case VIDEO:
+            case VIDEO://聊天视频目录
                 pt = "video/";
                 break;
-            case FILE:
+            case FILE://聊天文件目录
                 pt = "file/";
                 break;
             case PC_MSG:
                 pt = AppConfig.getUpPath() + "/file/msg/" + id + "/" + simpleDateFormat.format(data);
                 break;
-            case IMG_PERSIST:
+            case IMG_PERSIST://聊天转存缩略图目录
                 pt = "thumb";
                 break;
-            case VIDEO_FRAME:
-                pt = "moment/frame/";
+            case VIDEO_FRAME://聊天视频第一帧目录
+                pt = "frame/";
                 break;
             case CIRCLE_BACKGROUND:
                 pt = AppConfig.getUpPath() + "/bgi/";

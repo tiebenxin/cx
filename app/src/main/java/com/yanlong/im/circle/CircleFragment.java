@@ -122,7 +122,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                 switch (mCircleBean.getType()) {
                     case PictureEnum.EContentType.VOICE:
                     case PictureEnum.EContentType.VOICE_AND_VOTE:
-                        mPresenter.uploadFile(mList.get(0).getUrl(), PictureEnum.EContentType.VOICE, false, UpFileAction.PATH.VOICE);
+                        mPresenter.uploadFile(mList.get(0).getUrl(), PictureEnum.EContentType.VOICE, false, UpFileAction.PATH.COMMENT_VOICE);
                         break;
                     case PictureEnum.EContentType.VIDEO:
                     case PictureEnum.EContentType.VIDEO_AND_VOTE:
