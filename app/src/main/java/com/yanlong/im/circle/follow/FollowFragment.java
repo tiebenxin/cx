@@ -38,6 +38,7 @@ import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
@@ -330,7 +331,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFollow(EventFactory.RefreshSignFollowEvent event) {
-        mPresenter.queryById(event.id, event.uid, event.postion);
+        if (isContain(event.id)) {
+            mPresenter.queryById(event.id, event.uid, event.postion);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -342,6 +345,15 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void checkUnreadMsg(EventFactory.CheckUnreadMsgEvent event) {
         mPresenter.getUnreadMsg();
+        if (event.data instanceof InteractMessage) {
+            InteractMessage message = (InteractMessage) event.data;
+            if (message.getInteractType() == 1 || message.getInteractType() == 2 || message.getInteractType() == 4) {//点赞，评论或投票互动
+                int position = 0;
+                if (isContain(message.getMomentId(), position)) {
+                    mPresenter.queryById(message.getMomentId(), message.getFromUid(), position);
+                }
+            }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -599,10 +611,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     /**
      * 是否取消关注提示弹框
+     *
      * @param uid
      * @param position
      */
-    private void showCancleFollowDialog(long uid,int position) {
+    private void showCancleFollowDialog(long uid, int position) {
         dialog = builder.setTitle("是否取消关注?")
                 .setShowLeftText(true)
                 .setRightText("确认")
@@ -626,4 +639,36 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             }
         }
     }
+
+    //列表是否包含該消息
+    private boolean isContain(Long id) {
+        boolean isContain = false;
+        if (mFlowAdapter != null && mFlowAdapter.getData() != null) {
+            for (MessageFlowItemBean<MessageInfoBean> bean : mFlowAdapter.getData()) {
+                if (bean.getData().getId() != null && id != null && bean.getData().getId().equals(id)) {
+                    isContain = true;
+                    break;
+                }
+            }
+        }
+        return isContain;
+    }
+
+    //列表是否包含該消息
+    private boolean isContain(Long id, int position) {
+        boolean isContain = false;
+        if (mFlowAdapter != null && mFlowAdapter.getData() != null) {
+            int size = mFlowAdapter.getData().size();
+            for (int i = 0; i < size; i++) {
+                MessageFlowItemBean<MessageInfoBean> bean = mFlowAdapter.getData().get(i);
+                if (bean.getData().getId() != null && id != null && bean.getData().getId().equals(id)) {
+                    isContain = true;
+                    position = i;
+                    break;
+                }
+            }
+        }
+        return isContain;
+    }
+
 }

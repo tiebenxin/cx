@@ -131,7 +131,7 @@ public class MessageRepository {
         // 如果不是扫码，仅为自己邀请的别人入群，提示等待，不会收到通知
         if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 &&
                 wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
-            if(wrapMessage.getRequestGroup().getJoinType().getNumber()==1){
+            if (wrapMessage.getRequestGroup().getJoinType().getNumber() == 1) {
                 return true;
             }
         }
@@ -171,7 +171,7 @@ public class MessageRepository {
      */
     public boolean handlerOthersHadAgree(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         //有人已经通过，直接刷新该条通知消息，改为"已确认"
-        if(!TextUtils.isEmpty(wrapMessage.getMessageProcessedSync().getMsgId())){
+        if (!TextUtils.isEmpty(wrapMessage.getMessageProcessedSync().getMsgId())) {
             new MsgDao().updateInviteNoticeMsg(wrapMessage.getMessageProcessedSync().getMsgId());//数据库先更新，入群通知消息改为"已确认"
             EventFactory.UpdateOneMsgEvent event = new EventFactory.UpdateOneMsgEvent();//通知刷新聊天界面
             EventBus.getDefault().post(event);
@@ -849,8 +849,8 @@ public class MessageRepository {
                                                      wrapMessage, Realm realm) {
         boolean result = true;
         //邀请入群撤销，仅邀请人和被撤人会收到被移除的通知
-        if(wrapMessage.getRemoveGroupMember2()!=null){
-            if(wrapMessage.getRemoveGroupMember2().getHideNotice()==true){
+        if (wrapMessage.getRemoveGroupMember2() != null) {
+            if (wrapMessage.getRemoveGroupMember2().getHideNotice() == true) {
                 return true;
             }
         }
@@ -1300,6 +1300,7 @@ public class MessageRepository {
 
     /**
      * 保存收到的朋友圈互动消息到本地(默认未读)
+     *
      * @param wrapMessage
      * @param realm
      * @return
@@ -1307,9 +1308,9 @@ public class MessageRepository {
     public void handlerInteractMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         MsgBean.InteractMessage interactMessage = wrapMessage.getInteract();
         //需求->若操作类型是删除评论，直接修改本地消息记录
-        if(interactMessage.getInteractTypeValue()==5){
-            localDataSource.setDeleteCommentStatus(realm,interactMessage.getInteractId());
-        }else {
+        if (interactMessage.getInteractTypeValue() == 5) {
+            localDataSource.setDeleteCommentStatus(realm, interactMessage.getInteractId());
+        } else {
             InteractMessage localMsg = new InteractMessage();
             localMsg.setMsgId(wrapMessage.getMsgId());
             localMsg.setMomentId(interactMessage.getMomentId());
@@ -1323,8 +1324,10 @@ public class MessageRepository {
             localMsg.setNickname(wrapMessage.getNickname());
             localMsg.setFromUid(wrapMessage.getFromUid());
             localMsg.setTimeStamp(wrapMessage.getTimestamp());
-            if(localDataSource.saveInteractMessage(realm,localMsg)){
-                EventBus.getDefault().post(new com.luck.picture.lib.event.EventFactory.CheckUnreadMsgEvent());
+            if (localDataSource.saveInteractMessage(realm, localMsg)) {
+                com.luck.picture.lib.event.EventFactory.CheckUnreadMsgEvent event = new com.luck.picture.lib.event.EventFactory.CheckUnreadMsgEvent();
+                event.data = localMsg;
+                EventBus.getDefault().post(event);
             }
         }
     }
