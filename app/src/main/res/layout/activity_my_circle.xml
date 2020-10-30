@@ -34,51 +34,60 @@
                 android:layout_marginBottom="15dp"
                 android:src="@mipmap/ic_circle_create" />
 
-           <LinearLayout
-               android:id="@+id/layout_follow"
-               android:layout_width="160dp"
-               android:layout_height="37dp"
-               android:layout_marginLeft="15dp"
-               android:layout_alignParentBottom="true"
-               android:gravity="center"
-               android:layout_marginBottom="6dp"
-               android:background="@drawable/shape_5radius_solid_32b053">
-               <ImageView
-                   android:layout_width="25dp"
-                   android:layout_height="25dp"
-                   android:src="@mipmap/ic_follow"/>
-               <TextView
-                   android:id="@+id/tv_follow"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:textSize="17sp"
-                   android:text="关注"
-                   android:layout_marginLeft="10dp"
-                   android:textColor="@color/white"/>
-           </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layout_chat"
-                android:layout_width="160dp"
-                android:layout_height="37dp"
+            <RelativeLayout
+                android:id="@+id/layout_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:gravity="center"
-                android:layout_marginRight="15dp"
-                android:layout_marginBottom="6dp"
-                android:background="@drawable/shape_5radius_solid_32b053">
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@mipmap/ic_chat"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="17sp"
-                    android:text="私聊"
-                    android:layout_marginLeft="10dp"
-                    android:textColor="@color/white"/>
-            </LinearLayout>
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:background="@color/white"
+                android:layout_centerHorizontal="true">
+                <LinearLayout
+                    android:id="@+id/layout_follow"
+                    android:layout_width="120dp"
+                    android:layout_height="37dp"
+                    android:gravity="center"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/shape_5radius_solid_32b053">
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@mipmap/ic_follow"/>
+                    <TextView
+                        android:id="@+id/tv_follow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="17sp"
+                        android:text="关注"
+                        android:layout_marginLeft="10dp"
+                        android:textColor="@color/white"/>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/layout_chat"-->
+<!--                android:layout_width="160dp"-->
+<!--                android:layout_height="37dp"-->
+<!--                android:layout_alignParentBottom="true"-->
+<!--                android:layout_alignParentRight="true"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_marginRight="15dp"-->
+<!--                android:layout_marginBottom="6dp"-->
+<!--                android:background="@drawable/shape_5radius_solid_32b053">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="25dp"-->
+<!--                    android:layout_height="25dp"-->
+<!--                    android:src="@mipmap/ic_chat"/>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:textSize="17sp"-->
+<!--                    android:text="私聊"-->
+<!--                    android:layout_marginLeft="10dp"-->
+<!--                    android:textColor="@color/white"/>-->
+<!--            </LinearLayout>-->
         </RelativeLayout>
 
 </layout>

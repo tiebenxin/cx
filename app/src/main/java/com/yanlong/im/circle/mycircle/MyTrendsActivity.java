@@ -78,7 +78,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         mList = new ArrayList<>();
         msgDao = new MsgDao();
         bindingView.layoutFollow.setVisibility(View.GONE);
-        bindingView.layoutChat.setVisibility(View.GONE);
+        bindingView.layoutBottom.setVisibility(View.GONE);
         if (!RxBus.getDefault().isRegistered(this)) {
             RxBus.getDefault().register(this);
         }

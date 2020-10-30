@@ -20,7 +20,6 @@ import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.ui.ComplaintActivity;
-import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
@@ -77,7 +76,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         action = new MyCircleAction();
         mList = new ArrayList<>();
         bindingView.layoutFollow.setVisibility(View.VISIBLE);
-        bindingView.layoutChat.setVisibility(View.VISIBLE);
+        bindingView.layoutBottom.setVisibility(View.VISIBLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             //5.0 全透明实现
             //getWindow.setStatusBarColor(Color.TRANSPARENT)
@@ -194,18 +193,17 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     httpToFollow(friendUid);
                 }else {
                     showCancleFollowDialog(friendUid);
-//                    httpCancelFollow(friendUid);
                 }
             }
         });
         //私聊
-        bindingView.layoutChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(FriendTrendsActivity.this, UserInfoActivity.class)
-                        .putExtra(UserInfoActivity.ID, friendUid));
-            }
-        });
+//        bindingView.layoutChat.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(FriendTrendsActivity.this, UserInfoActivity.class)
+//                        .putExtra(UserInfoActivity.ID, friendUid));
+//            }
+//        });
     }
 
     /**
