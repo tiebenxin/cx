@@ -410,6 +410,9 @@ public class MainActivity extends BaseTcpActivity {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 } else if (tab.getPosition() == EMainTab.CONTACT || tab.getPosition() == EMainTab.ME) {  // 同时点击导航栏跟气泡时，延迟关闭气泡
+                    if (tab.getPosition() == EMainTab.CONTACT){
+                        ((FriendMainFragment) fragments[tab.getPosition()]).notifyShow();
+                    }
                     if (!isFinishing()) {
                         new Handler().postDelayed(new Runnable() {
                             @Override

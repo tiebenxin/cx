@@ -209,6 +209,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 } else {//关闭
                     //清除焦点
                     bindingView.etMessage.clearFocus();
+                    if (!TextUtils.isEmpty(bindingView.etMessage.getText())) {
+                        bindingView.etMessage.setHint("发表评论");
+                    }
                     // 关闭软键盘
                     net.cb.cb.library.utils.InputUtil.hideKeyboard(bindingView.etMessage);
                 }
@@ -448,6 +451,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             @Override
             public void keyBoardHide(int h) {
                 isShowSoft = false;
+                clearEdit();
             }
         });
 
@@ -724,9 +728,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 ToastUtil.show(getString(R.string.user_disable_message));
                 return;
             }
-            if(!TextUtils.isEmpty(UserAction.getMyInfo().getName())){
-                mPresenter.addFriend(mMessageInfoBean.getUid(), "你好，我是"+UserAction.getMyInfo().getName());
-            }else {
+            if (!TextUtils.isEmpty(UserAction.getMyInfo().getName())) {
+                mPresenter.addFriend(mMessageInfoBean.getUid(), "你好，我是" + UserAction.getMyInfo().getName());
+            } else {
                 mPresenter.addFriend(mMessageInfoBean.getUid(), "交个朋友吧~");
             }
 
@@ -826,7 +830,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             }
         }, 100);
 
-        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
+        if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
             if(fromWhere.equals("FriendTrendsActivity")){
@@ -836,7 +840,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             }
             event.position = TrendPosition;
             EventBus.getDefault().post(event);
-        }else {
+        } else {
             refreshFollowList();
         }
     }
@@ -1126,15 +1130,19 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             bindingView.viewFaceview.setVisibility(View.GONE);
             InputUtil.hideKeyboard(bindingView.etMessage);
+            if (!TextUtils.isEmpty(bindingView.etMessage.getText())) {
+                bindingView.etMessage.setHint("发表评论");
+            }
         }
     }
 
     /**
      * 是否取消关注提示弹框
+     *
      * @param uid
      * @param position
      */
-    private void showCancleFollowDialog(long uid,int position) {
+    private void showCancleFollowDialog(long uid, int position) {
         dialog = builder.setTitle("是否取消关注?")
                 .setShowLeftText(true)
                 .setRightText("确认")

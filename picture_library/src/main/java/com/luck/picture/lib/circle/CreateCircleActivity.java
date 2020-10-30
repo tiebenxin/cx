@@ -1225,6 +1225,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     private void resetAudio(boolean isDelete) {
         iv_action.setVisibility(View.GONE);
+        if (mAudioHandler != null) {
+            mAudioHandler.removeCallbacks(mAudioRunnable);
+        }
         if (isPlaying) {
             AudioPlayManager.getInstance().stopPlay();
             AudioPlayUtil.stopAudioPlay();
@@ -2169,6 +2172,15 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             iv_face.setEnabled(true);
             tv_location.setEnabled(true);
             tv_power.setEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isRecording) {
+            resetAudio(true);
+            stopRecord();
         }
     }
 }

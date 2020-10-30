@@ -476,4 +476,10 @@ public class FriendMainFragment extends Fragment {
             }
         });
     }
+
+    public void notifyShow(){
+        if (viewModel != null && (viewModel.getFriends() == null || viewModel.getFriends().size() <= 0)){
+            MyAppLication.INSTANCE().repository.loadMoreFriends();
+        }
+    }
 }
