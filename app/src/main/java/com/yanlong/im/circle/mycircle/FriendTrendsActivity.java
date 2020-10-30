@@ -5,11 +5,11 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
@@ -63,6 +63,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private List<MessageInfoBean> mList;
     private long friendUid;//别人的uid
     private int isFollow;//是否关注了该用户
+    private CommonSelectDialog dialog;
+    private CommonSelectDialog.Builder builder;
 
 
     @Override
@@ -91,6 +93,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        builder = new CommonSelectDialog.Builder(FriendTrendsActivity.this);
     }
 
     @Override
@@ -190,7 +193,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 if(isFollow==0){
                     httpToFollow(friendUid);
                 }else {
-                    httpCancelFollow(friendUid);
+                    showCancleFollowDialog(friendUid);
+//                    httpCancelFollow(friendUid);
                 }
             }
         });
@@ -369,8 +373,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
-        //更新单条动态
-        if(!TextUtils.isEmpty(event.fromWhere) && event.fromWhere.equals("FriendTrendsActivity")){
+        //更新好友单条动态
+        if(event.action==0){
             MessageInfoBean bean = adapter.getDataList().get(event.position-1);//去掉头部
             if(bean.getId()!=null && bean.getUid()!=null){
                 queryById(bean.getId().longValue(),bean.getUid().longValue(),event.position-1);
@@ -416,4 +420,24 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         });
     }
 
+    /**
+     * 是否取消关注提示弹框
+     *
+     * @param uid
+     */
+    private void showCancleFollowDialog(long uid) {
+        dialog = builder.setTitle("是否取消关注?")
+                .setShowLeftText(true)
+                .setRightText("确认")
+                .setLeftText("取消")
+                .setRightOnClickListener(v -> {
+                    httpCancelFollow(uid);
+                    dialog.dismiss();
+                })
+                .setLeftOnClickListener(v ->
+                        dialog.dismiss()
+                )
+                .build();
+        dialog.show();
+    }
 }

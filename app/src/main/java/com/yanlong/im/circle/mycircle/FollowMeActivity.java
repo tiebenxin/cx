@@ -71,7 +71,7 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
 
     @Override
     protected void loadData() {
-        adapter = new MyFollowAdapter(FollowMeActivity.this,mList,0);
+        adapter = new MyFollowAdapter(FollowMeActivity.this,mList,-1);
         //搜索过滤
         bindingView.editSearch.addTextChangedListener(new TextWatcher() {
             @Override

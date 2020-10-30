@@ -833,10 +833,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-            if (fromWhere.equals("FriendTrendsActivity")) {
-                event.fromWhere = "FriendTrendsActivity";
-            } else if (fromWhere.equals("MyTrendsActivity")) {
-                event.fromWhere = "MyTrendsActivity";
+            if(fromWhere.equals("FriendTrendsActivity")){
+                event.action = 0;
+            }else if(fromWhere.equals("MyTrendsActivity")){
+                event.action = 1;
             }
             event.position = TrendPosition;
             EventBus.getDefault().post(event);
@@ -929,21 +929,31 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(0).getData();
         messageInfoBean.setBrowseCount(commentBean.getBrowseCount());
         mFlowAdapter.notifyItemChanged(0);
+        //通知更新广场推荐/关注列表某一项状态
+        EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
+        event1.id = messageInfoBean.getId();
+        event1.action = 3;
+        EventBus.getDefault().post(event1);
     }
 
     @Override
     public void onVoteSuccess(int parentPosition, String msg) {
-        if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
+        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-            if (fromWhere.equals("FriendTrendsActivity")) {
-                event.fromWhere = "FriendTrendsActivity";
-            } else if (fromWhere.equals("MyTrendsActivity")) {
-                event.fromWhere = "MyTrendsActivity";
+            if(fromWhere.equals("FriendTrendsActivity")){
+                event.action = 0;
+            }else if(fromWhere.equals("MyTrendsActivity")){
+                event.action = 1;
             }
             event.position = TrendPosition;
             EventBus.getDefault().post(event);
-        } else {
+            //通知更新广场推荐/关注列表某一项状态
+            EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
+            event1.id = mMessageInfoBean.getId();
+            event1.action = 3;
+            EventBus.getDefault().post(event1);
+        }else {
             refreshFollowList();
         }
         mPresenter.queryById(mMessageInfoBean.getId(), mMessageInfoBean.getUid(), parentPosition);
@@ -970,17 +980,22 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
         messageInfoBean.setLike(like);
         mFlowAdapter.notifyItemChanged(position);
-        if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
+        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-            if (fromWhere.equals("FriendTrendsActivity")) {
-                event.fromWhere = "FriendTrendsActivity";
-            } else if (fromWhere.equals("MyTrendsActivity")) {
-                event.fromWhere = "MyTrendsActivity";
+            if(fromWhere.equals("FriendTrendsActivity")){
+                event.action = 0;
+            }else if(fromWhere.equals("MyTrendsActivity")){
+                event.action = 1;
             }
             event.position = TrendPosition;
             EventBus.getDefault().post(event);
-        } else {
+            //通知更新广场推荐/关注列表某一项状态
+            EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
+            event1.id = messageInfoBean.getId();
+            event1.action = 3;
+            EventBus.getDefault().post(event1);
+        }else {
             refreshFollowList();
         }
     }

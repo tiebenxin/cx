@@ -401,6 +401,28 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         onDeleteItem(event.position);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
+        //更新关注单条动态
+        if(event.action==3){
+            for(int i=0;i<mFlowAdapter.getData().size();i++){
+                MessageFlowItemBean bean = mFlowAdapter.getData().get(i);
+                MessageInfoBean msgBean = (MessageInfoBean) bean.getData();
+                //如果找到这一条，则刷新点赞状态，点赞数+1
+                if (msgBean.getId() != null && msgBean.getId().longValue() == event.id) {
+                    if (event.isLike == 1) {
+                        msgBean.setLike(1);
+                        msgBean.setLikeCount(msgBean.getLikeCount()+1);
+                    } else {
+                        msgBean.setLike(0);
+                        msgBean.setLikeCount(msgBean.getLikeCount()-1);
+                    }
+                    mFlowAdapter.notifyItemChanged(i);
+                }
+            }
+        }
+    }
+
     private void gotoCircleDetailsActivity(boolean isOpen, int position) {
         if (!NetWorkUtils.isNetworkConnected()) {
             ToastUtil.show(getResources().getString(R.string.network_error_msg));

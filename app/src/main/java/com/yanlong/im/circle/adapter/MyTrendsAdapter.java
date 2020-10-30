@@ -990,6 +990,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     dataList.get(position).setLike(1);
                     dataList.get(position).setLikeCount(oldCount + 1);
                     notifyItemChanged(position + 1, tvLike);
+                    EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+                    event.id = id;
+                    event.action = 3;
+                    EventBus.getDefault().post(event);
                 }
             }
 
@@ -1017,6 +1021,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     dataList.get(position).setLike(0);
                     dataList.get(position).setLikeCount(oldCount - 1);
                     notifyItemChanged(position + 1, tvLike);
+                    EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+                    event.id = id;
+                    event.action = 3;
+                    EventBus.getDefault().post(event);
                 }
             }
 
