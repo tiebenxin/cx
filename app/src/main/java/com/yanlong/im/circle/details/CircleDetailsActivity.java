@@ -818,7 +818,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
         mFlowAdapter.notifyDataSetChanged();
         mFlowAdapter.finishInitialize();
-        refreshFollowList();
         bindingView.tvSend.setEnabled(true);
         bindingView.recyclerComment.postDelayed(new Runnable() {
             @Override
@@ -826,15 +825,20 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 ((LinearLayoutManager) bindingView.recyclerComment.getLayoutManager()).scrollToPositionWithOffset(mCommentTxtAdapter.getItemCount() - 1, Integer.MIN_VALUE);
             }
         }, 100);
-        //通知好友动态主页、我的动态主页刷新
-        EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-        if(fromWhere.equals("FriendTrendsActivity")){
-            event.fromWhere = "FriendTrendsActivity";
-        }else if(fromWhere.equals("MyTrendsActivity")){
-            event.fromWhere = "MyTrendsActivity";
+
+        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
+            //通知好友动态主页、我的动态主页刷新
+            EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+            if(fromWhere.equals("FriendTrendsActivity")){
+                event.fromWhere = "FriendTrendsActivity";
+            }else if(fromWhere.equals("MyTrendsActivity")){
+                event.fromWhere = "MyTrendsActivity";
+            }
+            event.position = TrendPosition;
+            EventBus.getDefault().post(event);
+        }else {
+            refreshFollowList();
         }
-        event.position = TrendPosition;
-        EventBus.getDefault().post(event);
     }
 
     private void showFooterView(boolean isShow) {
@@ -925,7 +929,19 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     public void onVoteSuccess(int parentPosition, String msg) {
-        refreshFollowList();
+        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
+            //通知好友动态主页、我的动态主页刷新
+            EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+            if(fromWhere.equals("FriendTrendsActivity")){
+                event.fromWhere = "FriendTrendsActivity";
+            }else if(fromWhere.equals("MyTrendsActivity")){
+                event.fromWhere = "MyTrendsActivity";
+            }
+            event.position = TrendPosition;
+            EventBus.getDefault().post(event);
+        }else {
+            refreshFollowList();
+        }
         mPresenter.queryById(mMessageInfoBean.getId(), mMessageInfoBean.getUid(), parentPosition);
 
     }
@@ -950,17 +966,19 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
         messageInfoBean.setLike(like);
         mFlowAdapter.notifyItemChanged(position);
-
-        refreshFollowList();
-        //通知好友动态主页、我的动态主页刷新
-        EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-        if(fromWhere.equals("FriendTrendsActivity")){
-            event.fromWhere = "FriendTrendsActivity";
-        }else if(fromWhere.equals("MyTrendsActivity")){
-            event.fromWhere = "MyTrendsActivity";
+        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
+            //通知好友动态主页、我的动态主页刷新
+            EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+            if(fromWhere.equals("FriendTrendsActivity")){
+                event.fromWhere = "FriendTrendsActivity";
+            }else if(fromWhere.equals("MyTrendsActivity")){
+                event.fromWhere = "MyTrendsActivity";
+            }
+            event.position = TrendPosition;
+            EventBus.getDefault().post(event);
+        }else {
+            refreshFollowList();
         }
-        event.position = TrendPosition;
-        EventBus.getDefault().post(event);
     }
 
     /**
