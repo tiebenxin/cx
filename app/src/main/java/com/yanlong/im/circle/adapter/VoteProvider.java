@@ -2,6 +2,7 @@ package com.yanlong.im.circle.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -57,6 +58,7 @@ import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -197,11 +199,25 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
-                    pbProgress.setProgress(0);
+                    pbProgress.setProgress(messageInfoBean.getPlayProgress());
+                    // 未播放则重置播放进度
+                    LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
+                    if (!messageInfoBean.isPlay()) {
+                        pbProgress.setProgress(0);
+                        AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
+                        animationDrawable.stop();
+                        animationDrawable.selectDrawable(0);
+                    } else {
+                        AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
+                        animationDrawable.start();
+                    }
                     ivVoicePlay.setOnClickListener(o -> {
                         if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(),
-                                    ivVoicePlay, pbProgress, helper.getAdapterPosition());
+                            if (clickListener != null) {
+                                clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
+                            }
+//                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(),
+//                                    ivVoicePlay, pbProgress, helper.getAdapterPosition());
                         }
                     });
                 }

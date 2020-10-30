@@ -56,6 +56,7 @@ import com.luck.picture.lib.audio.AudioPlayManager;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.AudioRecorder;
 import com.luck.picture.lib.audio.IAudioPlayListener;
+import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
@@ -117,7 +118,7 @@ import io.reactivex.disposables.Disposable;
  * @描述: Media 选择页面
  */
 public class CreateCircleActivity extends PictureBaseActivity implements View.OnClickListener, PictureAlbumDirectoryAdapter.OnItemClickListener,
-        OnPhotoSelectChangedListener, OnItemClickListener, IAudioPlayListener, OnPhotoPreviewChangedListener {
+        OnPhotoSelectChangedListener, OnItemClickListener, IAudioPlayProgressListener, OnPhotoPreviewChangedListener {
     private final String TAG = CreateCircleActivity.class.getSimpleName();
     private static final int SHOW_DIALOG = 0;
     private static final int DISMISS_DIALOG = 1;
@@ -1478,6 +1479,11 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         iv_reset.setVisibility(View.VISIBLE);
         iv_confirm.setVisibility(View.VISIBLE);
         mAudioState = 2;
+    }
+
+    @Override
+    public void onProgress(int progress) {
+
     }
 
     /**

@@ -2,6 +2,7 @@ package com.yanlong.im.circle.follow;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 
@@ -23,6 +25,8 @@ import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.audio.IAudioPlayListener;
+import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -36,6 +40,7 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.circle.CircleUIHelper;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
 import com.yanlong.im.circle.bean.InteractMessage;
@@ -52,6 +57,7 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
@@ -59,6 +65,7 @@ import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.YLLinearLayoutManager;
@@ -602,32 +609,38 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     /**
      * 内容展开、收起
      *
-     * @param postion
-     * @param parentPostion 父类位置
-     * @param type          0：展开、收起 1：详情 2文字投票 3图片投票
+     * @param position
+     * @param parentPosition 父类位置
+     * @param type           0：展开、收起 1：详情 2文字投票 3图片投票
      */
     @Override
-    public void onClick(int postion, int parentPostion, int type, View view) {
+    public void onClick(int position, int parentPosition, int type, View view) {
         if (type == CoreEnum.EClickType.CONTENT_DETAILS || type == CoreEnum.EClickType.CONTENT_DOWN) {
             if (type == CoreEnum.EClickType.CONTENT_DOWN) {
-                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(postion).getData();
+                MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 messageInfoBean.setShowAll(!messageInfoBean.isShowAll());
                 if (mFlowAdapter.getHeaderLayoutCount() > 0) {
-                    postion = postion + 1;
+                    position = position + 1;
                 }
-                mFlowAdapter.notifyItemChanged(postion);
+                mFlowAdapter.notifyItemChanged(position);
             } else {
                 if (!DoubleUtils.isFastDoubleClick()) {
-                    gotoCircleDetailsActivity(false, postion);
+                    gotoCircleDetailsActivity(false, position);
                 }
             }
+        } else if (type == CoreEnum.EClickType.CLICK_VOICE) {
+            MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
+            if (messageInfoBean != null && messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
+                playVoice(messageInfoBean);
+            }
+
         } else {
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                 return;
             }
-            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPostion).getData();
-            mPresenter.voteAnswer(postion + 1, parentPostion, messageInfoBean.getId(), messageInfoBean.getUid());
+            MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(parentPosition).getData();
+            mPresenter.voteAnswer(position + 1, parentPosition, messageInfoBean.getId(), messageInfoBean.getUid());
         }
     }
 
@@ -693,4 +706,77 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         return isContain;
     }
 
+
+    public void playVoice(MessageInfoBean messageInfoBean) {
+        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+            List<AttachmentBean> attachmentBeans = null;
+            try {
+                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                        new TypeToken<List<AttachmentBean>>() {
+                        }.getType());
+            } catch (Exception e) {
+                attachmentBeans = new ArrayList<>();
+            }
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                if (messageInfoBean.isPlay()) {
+                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayManager.getInstance().stopPlay();
+                    }
+                } else {
+
+                    AudioPlayUtil.startAudioPlay(getActivity(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                        @Override
+                        public void onStart(Uri var1) {
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(0);
+                            updatePosition(messageInfoBean);
+                        }
+
+                        @Override
+                        public void onStop(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onComplete(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            messageInfoBean.setPlayProgress(100);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onProgress(int progress) {
+                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(progress);
+                            updatePosition(messageInfoBean);
+                        }
+                    });
+
+                }
+            }
+        }
+    }
+
+    private void updatePosition(MessageInfoBean messageInfoBean) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
+            return;
+        }
+        bindingView.recyclerFollow.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(messageInfoBean.getType()), messageInfoBean);
+                int position = mFlowAdapter.getData().indexOf(bean);
+                LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
+                if (position >= 0) {
+                    mFlowAdapter.getData().set(position, bean);
+                    mFlowAdapter.notifyItemChanged(position);
+                }
+            }
+        }, 100);
+    }
 }

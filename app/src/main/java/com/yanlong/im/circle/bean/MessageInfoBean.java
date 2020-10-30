@@ -58,6 +58,7 @@ public class MessageInfoBean extends BaseBean {
     private boolean isPlay;// 是否在播放
     private int userType= ChatEnum.EUserType.STRANGE;//好友关系
     private int browseCount;//浏览量
+    private int playProgress;//播放进度
 
     public int getBrowseCount() {
         return browseCount;
@@ -249,6 +250,14 @@ public class MessageInfoBean extends BaseBean {
 
     public void setUserType(int userType) {
         this.userType = userType;
+    }
+
+    public int getPlayProgress() {
+        return playProgress;
+    }
+
+    public void setPlayProgress(int playProgress) {
+        this.playProgress = playProgress;
     }
 
     public static class VoteAnswerBean extends BaseBean {
