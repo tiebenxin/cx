@@ -141,15 +141,54 @@ public class VideoProvider extends BaseItemProvider<MessageFlowItemBean<MessageI
             helper.setGone(R.id.iv_follow, false);
         }
         if (TextUtils.isEmpty(messageInfoBean.getPosition()) && TextUtils.isEmpty(messageInfoBean.getCity())) {
-            helper.setGone(R.id.tv_location, false);
+            //详情我的动态新增浏览量，UI和好友动态location显示有区别，只有我才会显示浏览量
+            if(messageInfoBean.getUid()!=null && messageInfoBean.getUid().longValue()==UserAction.getMyId()){
+                helper.setGone(R.id.tv_location, false);
+                if(isDetails){
+                    helper.setGone(R.id.tv_watch_num, true);
+                }else {
+                    helper.setGone(R.id.tv_watch_num, false);
+                }
+                helper.setGone(R.id.tv_location_new, false);
+            }else {
+                helper.setGone(R.id.tv_location, false);
+                helper.setGone(R.id.tv_watch_num, false);
+                helper.setGone(R.id.tv_location_new, false);
+            }
         } else {
-            helper.setVisible(R.id.tv_location, true);
-            if (!TextUtils.isEmpty(messageInfoBean.getPosition())) {
-                helper.setText(R.id.tv_location, messageInfoBean.getPosition());
-            } else {
-                helper.setText(R.id.tv_location, messageInfoBean.getCity());
+            if(messageInfoBean.getUid()!=null && messageInfoBean.getUid().longValue()==UserAction.getMyId()){
+                if(isDetails){
+                    helper.setGone(R.id.tv_location, false);
+                    helper.setGone(R.id.tv_watch_num, true);
+                    helper.setGone(R.id.tv_location_new, true);
+                    if (!TextUtils.isEmpty(messageInfoBean.getPosition())) {
+                        helper.setText(R.id.tv_location_new, messageInfoBean.getPosition());
+                    } else {
+                        helper.setText(R.id.tv_location_new, messageInfoBean.getCity());
+                    }
+                }else {
+                    helper.setGone(R.id.tv_location, true);
+                    helper.setGone(R.id.tv_watch_num, false);
+                    helper.setGone(R.id.tv_location_new, false);
+                    if (!TextUtils.isEmpty(messageInfoBean.getPosition())) {
+                        helper.setText(R.id.tv_location, messageInfoBean.getPosition());
+                    } else {
+                        helper.setText(R.id.tv_location, messageInfoBean.getCity());
+                    }
+                }
+            }else {
+                helper.setGone(R.id.tv_location, true);
+                helper.setGone(R.id.tv_watch_num, false);
+                helper.setGone(R.id.tv_location_new, false);
+                if (!TextUtils.isEmpty(messageInfoBean.getPosition())) {
+                    helper.setText(R.id.tv_location, messageInfoBean.getPosition());
+                } else {
+                    helper.setText(R.id.tv_location, messageInfoBean.getCity());
+                }
             }
         }
+        //浏览量
+        helper.setText(R.id.tv_watch_num, messageInfoBean.getBrowseCount()+"浏览");
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
