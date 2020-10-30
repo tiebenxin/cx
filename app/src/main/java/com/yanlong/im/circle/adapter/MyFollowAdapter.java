@@ -69,7 +69,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     // 隐藏底部
     public final int LOADING_GONE = 4;
 
-    private int type;//0 我关注的人(关注我的人) 1 我看过谁 2 谁看过我 3 不看TA
+    private int type;//0 我关注的人 -1 关注我的人 1 我看过谁 2 谁看过我 3 不看TA
 
     private LayoutInflater inflater;
     private Activity activity;
@@ -168,7 +168,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }else {
                         holder.tvName.setText("该用户未设置昵称");
                     }
-                    if(type==0){
+                    if(type==0 || type==-1){
                         //最新一条说说
                         if (!TextUtils.isEmpty(userInfo.getContent())) {
                             holder.tvNote.setText(getSpan(userInfo.getContent()));
@@ -382,8 +382,10 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ToastUtil.show("关注成功");
                     if(type==2){
                         dataList.get(position).setFollowStat(3);
-                    }else {
+                    }else if(type==-1){
                         dataList.get(position).setStat(3);
+                    }else {
+                        dataList.get(position).setStat(1);
                     }
                     notifyItemChanged(position,tvFollow);
                     //关注单个用户，回到关注列表需要及时更新
