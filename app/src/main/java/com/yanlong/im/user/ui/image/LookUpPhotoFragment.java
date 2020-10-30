@@ -231,7 +231,7 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         ivDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                downloadOriginImage(media.getPath(), true, isGif);
+                downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), true, isGif);
             }
         });
 
