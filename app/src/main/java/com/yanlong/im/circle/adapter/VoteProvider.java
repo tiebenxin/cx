@@ -45,6 +45,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
@@ -82,6 +83,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
     private boolean isFollow, isDetails;
     private Map<Integer, TextView> hashMap = new HashMap<>();
     private int isVote;
+    private int action;
 
     /**
      * @param isDetails            是否是详情
@@ -274,18 +276,31 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
         if (isDetails) {
             tvContent.setMaxLines(Integer.MAX_VALUE);
-            helper.setVisible(R.id.tv_follow, true);
-            helper.setGone(R.id.iv_setup, false);
-            helper.setGone(R.id.view_line, false);
-            if (!isMe(messageInfoBean.getUid())) {
+            if (UserAction.getMyId() != null
+                    && messageInfoBean.getUid() != null &&
+                    UserAction.getMyId().longValue() != messageInfoBean.getUid().longValue()) {
                 helper.setVisible(R.id.tv_follow, true);
             } else {
                 helper.setVisible(R.id.tv_follow, false);
             }
-            if (isFollow || messageInfoBean.isFollow()) {
-                helper.setText(R.id.tv_follow, "取消关注");
+            helper.setGone(R.id.iv_setup, false);
+            helper.setGone(R.id.view_line, false);
+            //有好友关系
+            action = CoreEnum.EClickType.FOLLOW;
+            if (messageInfoBean.getUserType() == ChatEnum.EUserType.FRIEND || messageInfoBean.getUserType() == ChatEnum.EUserType.BLACK) {
+                if (isFollow || messageInfoBean.isFollow()) {
+                    helper.setText(R.id.tv_follow, "私聊");
+                    action = CoreEnum.EClickType.CHAT;
+                } else {
+                    helper.setText(R.id.tv_follow, "关注TA");
+                }
             } else {
-                helper.setText(R.id.tv_follow, "关注TA");
+                if (isFollow || messageInfoBean.isFollow()) {
+                    helper.setText(R.id.tv_follow, "加好友");
+                    action = CoreEnum.EClickType.ADD_FRIEND;
+                } else {
+                    helper.setText(R.id.tv_follow, "关注TA");
+                }
             }
         } else {
             if (UserAction.getMyId() != null
@@ -360,8 +375,15 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 }
             }
         });
-
-        helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, R.id.tv_follow,
+        helper.getView(R.id.tv_follow).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (clickListener != null) {
+                    clickListener.onClick(position, 0, action, v);
+                }
+            }
+        });
+        helper.addOnClickListener(R.id.iv_comment, R.id.iv_header,
                 R.id.layout_vote_pictrue, R.id.layout_vote_txt, R.id.iv_like, R.id.iv_setup, R.id.rl_video, R.id.tv_user_name);
 
         RecyclerView recyclerVote = helper.getView(R.id.recycler_vote);
