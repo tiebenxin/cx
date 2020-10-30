@@ -2,6 +2,7 @@ package com.yanlong.im.circle.recommend;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,7 @@ import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -37,6 +39,7 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.circle.CircleUIHelper;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
@@ -53,6 +56,7 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
@@ -60,6 +64,7 @@ import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -532,6 +537,12 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     gotoCircleDetailsActivity(false, position);
                 }
             }
+        }else if (type == CoreEnum.EClickType.CLICK_VOICE) {
+            MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
+            if (messageInfoBean != null && messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
+                playVoice(messageInfoBean);
+            }
+
         } else {
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
@@ -784,5 +795,78 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 )
                 .build();
         dialog.show();
+    }
+
+    public void playVoice(MessageInfoBean messageInfoBean) {
+        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+            List<AttachmentBean> attachmentBeans = null;
+            try {
+                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                        new TypeToken<List<AttachmentBean>>() {
+                        }.getType());
+            } catch (Exception e) {
+                attachmentBeans = new ArrayList<>();
+            }
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                if (messageInfoBean.isPlay()) {
+                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayManager.getInstance().stopPlay();
+                    }
+                } else {
+
+                    AudioPlayUtil.startAudioPlay(getActivity(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                        @Override
+                        public void onStart(Uri var1) {
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(0);
+                            updatePosition(messageInfoBean);
+                        }
+
+                        @Override
+                        public void onStop(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onComplete(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            messageInfoBean.setPlayProgress(100);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onProgress(int progress) {
+                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(progress);
+                            updatePosition(messageInfoBean);
+                        }
+                    });
+
+                }
+            }
+        }
+    }
+
+    private void updatePosition(MessageInfoBean messageInfoBean) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
+            return;
+        }
+        bindingView.recyclerRecommend.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(messageInfoBean.getType()), messageInfoBean);
+                int position = mFlowAdapter.getData().indexOf(bean);
+                LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
+                if (position >= 0) {
+                    mFlowAdapter.getData().set(position, bean);
+                    mFlowAdapter.notifyItemChanged(position);
+                }
+            }
+        }, 100);
     }
 }

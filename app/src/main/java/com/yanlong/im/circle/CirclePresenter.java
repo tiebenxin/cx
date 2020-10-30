@@ -168,8 +168,12 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 case PictureEnum.EContentType.PICTRUE_AND_VOTE:
                 case PictureEnum.EContentType.VOICE_AND_VOTE:
                 case PictureEnum.EContentType.VIDEO_AND_VOTE:
-                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
                     flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VOTE, messageInfoBean);
+                    break;
+                case PictureEnum.EContentType.VIDEO:
+                case PictureEnum.EContentType.VIDEO_AND_PICTRUE:
+                case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VIDEO, messageInfoBean);
                     break;
                 default:
                     flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_DEFAULT, messageInfoBean);

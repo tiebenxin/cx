@@ -130,7 +130,7 @@ public class CoreEnum {
      */
     @IntDef({EClickType.CONTENT_DOWN, EClickType.CONTENT_DETAILS, EClickType.VOTE_CHAR, EClickType.VOTE_PICTURE
             , EClickType.COMMENT_REPLY, EClickType.COMMENT_HEAD, EClickType.COMMENT_LONG, EClickType.FOLLOW, EClickType.ADD_FRIEND,
-            EClickType.CHAT})
+            EClickType.CHAT,EClickType.CLICK_VOICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EClickType {
         int CONTENT_DOWN = 0;// 展开、收起
@@ -143,6 +143,7 @@ public class CoreEnum {
         int FOLLOW = 7;// 关注
         int ADD_FRIEND = 8;// 加好友
         int CHAT = 9;// 私聊
+        int CLICK_VOICE = 10;//点击语音
     }
 
     @IntDef({ELongType.COPY, ELongType.DELETE, ELongType.REPORT})

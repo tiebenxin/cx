@@ -57,6 +57,7 @@ import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -131,22 +132,22 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
         if (TextUtils.isEmpty(messageInfoBean.getPosition()) && TextUtils.isEmpty(messageInfoBean.getCity())) {
             //详情我的动态新增浏览量，UI和好友动态location显示有区别，只有我才会显示浏览量
-            if(messageInfoBean.getUid()!=null && messageInfoBean.getUid().longValue()==UserAction.getMyId()){
+            if (messageInfoBean.getUid() != null && messageInfoBean.getUid().longValue() == UserAction.getMyId()) {
                 helper.setGone(R.id.tv_location, false);
-                if(isDetails){
+                if (isDetails) {
                     helper.setGone(R.id.tv_watch_num, true);
-                }else {
+                } else {
                     helper.setGone(R.id.tv_watch_num, false);
                 }
                 helper.setGone(R.id.tv_location_new, false);
-            }else {
+            } else {
                 helper.setGone(R.id.tv_location, false);
                 helper.setGone(R.id.tv_watch_num, false);
                 helper.setGone(R.id.tv_location_new, false);
             }
         } else {
-            if(messageInfoBean.getUid()!=null && messageInfoBean.getUid().longValue()==UserAction.getMyId()){
-                if(isDetails){
+            if (messageInfoBean.getUid() != null && messageInfoBean.getUid().longValue() == UserAction.getMyId()) {
+                if (isDetails) {
                     helper.setGone(R.id.tv_location, false);
                     helper.setGone(R.id.tv_watch_num, true);
                     helper.setGone(R.id.tv_location_new, true);
@@ -155,7 +156,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                     } else {
                         helper.setText(R.id.tv_location_new, messageInfoBean.getCity());
                     }
-                }else {
+                } else {
                     helper.setGone(R.id.tv_location, true);
                     helper.setGone(R.id.tv_watch_num, false);
                     helper.setGone(R.id.tv_location_new, false);
@@ -165,7 +166,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                         helper.setText(R.id.tv_location, messageInfoBean.getCity());
                     }
                 }
-            }else {
+            } else {
                 helper.setGone(R.id.tv_location, true);
                 helper.setGone(R.id.tv_watch_num, false);
                 helper.setGone(R.id.tv_location_new, false);
@@ -177,7 +178,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             }
         }
         //浏览量
-        helper.setText(R.id.tv_watch_num, messageInfoBean.getBrowseCount()+"浏览");
+        helper.setText(R.id.tv_watch_num, messageInfoBean.getBrowseCount() + "浏览");
 
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
             ivLike.setText(StringUtil.numberFormart(messageInfoBean.getLikeCount()));
@@ -213,18 +214,27 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
+                    pbProgress.setProgress(messageInfoBean.getPlayProgress());
                     // 未播放则重置播放进度
+                    LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
                     if (!messageInfoBean.isPlay()) {
                         pbProgress.setProgress(0);
                         AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
                         animationDrawable.stop();
+                        animationDrawable.selectDrawable(0);
+                    } else {
+                        AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
+                        animationDrawable.start();
                     }
                     ivVoicePlay.setOnClickListener(o -> {
                         if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
                             // 记录播放状态
-                            messageInfoBean.setPlay(!messageInfoBean.isPlay());
-                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(),
-                                    ivVoicePlay, pbProgress, helper.getAdapterPosition());
+                            if (clickListener != null) {
+                                clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
+                            }
+                            //                            messageInfoBean.setPlay(!messageInfoBean.isPlay());
+//                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(),
+//                                    ivVoicePlay, pbProgress, helper.getAdapterPosition());
                         }
                     });
                 }
