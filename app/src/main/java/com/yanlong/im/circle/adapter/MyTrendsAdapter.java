@@ -200,7 +200,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //获取数据集合
-    public List<MessageInfoBean> getDataList(){
+    public List<MessageInfoBean> getDataList() {
         return dataList;
     }
 
@@ -308,7 +308,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 }
                             }
                             AudioPlayUtil.stopAudioPlay();
-                            gotoCircleDetailsActivity(true,bean,position);
+                            gotoCircleDetailsActivity(true, bean, position);
                         }
                     });
                     //说说可见度
@@ -412,7 +412,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     }
                                 }
                                 AudioPlayUtil.stopAudioPlay();
-                                gotoCircleDetailsActivity(false, bean,position);
+                                gotoCircleDetailsActivity(false, bean, position);
                             }
                     );
                     //是否置顶
@@ -456,7 +456,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             holder.layoutVoice.setVisibility(View.VISIBLE);
                             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                                 AttachmentBean attachmentBean = attachmentBeans.get(0);
-                                holder.tvTime.setText(attachmentBean.getDuration() + "");
+                                holder.tvTime.setText(TimeToString.MM_SS(attachmentBean.getDuration() * 1000));
                                 holder.pbProgress.setProgress(0);
                                 holder.ivVoicePlay.setOnClickListener(o -> {
                                     if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
@@ -955,7 +955,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean,int position) {
+    private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean, int position) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
@@ -965,9 +965,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, MESSAGE_DEFAULT);
         }
-        if(type==1){
+        if (type == 1) {
             postcard.withString(CircleDetailsActivity.FROM, "MyTrendsActivity");//来自我的动态
-        }else {
+        } else {
             postcard.withString(CircleDetailsActivity.FROM, "FriendTrendsActivity");//来自好友动态
         }
         postcard.withInt(CircleDetailsActivity.TREND_POSITION, position);//好友动态点击项的位置传过去
