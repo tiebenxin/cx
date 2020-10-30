@@ -184,6 +184,24 @@
                 android:textColor="@color/color_527"
                 android:textSize="14sp" />
         </LinearLayout>
+        <!--评论-->
+        <TextView
+            android:id="@+id/tv_location_new"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/iv_like"
+            android:clickable="false"
+            android:layout_marginTop="7dp"
+            android:drawablePadding="5dp"
+            android:drawableLeft="@mipmap/ic_circle_location_gray"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:text="长沙市"
+            android:visibility="gone"
+            android:textColor="@color/green_500"
+            android:textSize="13sp" />
         <!-- 评论-->
         <RelativeLayout
             android:layout_width="match_parent"
@@ -204,8 +222,26 @@
                 android:paddingRight="5dp"
                 android:singleLine="true"
                 android:text="长沙市"
+                android:drawablePadding="5dp"
                 android:textColor="@color/green_500"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_watch_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/iv_like"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:drawablePadding="5dp"
+                android:singleLine="true"
+                android:text="0"
+                android:textSize="13sp"
+                android:visibility="gone"
+                android:textColor="@color/c_b3b3b3"
+                android:drawableLeft="@mipmap/ic_watch_num"/>
 
             <TextView
                 android:id="@+id/iv_comment"
