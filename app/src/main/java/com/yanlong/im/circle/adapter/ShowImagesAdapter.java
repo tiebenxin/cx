@@ -1,8 +1,12 @@
 package com.yanlong.im.circle.adapter;
 
 import android.support.annotation.Nullable;
+import android.support.v7.widget.CardView;
 import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -12,9 +16,11 @@ import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.luck.picture.lib.entity.AttachmentBean;
+import com.luck.picture.lib.widget.SquareRelativeLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 /**
@@ -34,7 +40,10 @@ public class ShowImagesAdapter extends BaseQuickAdapter<AttachmentBean, BaseView
 
     @Override
     protected void convert(BaseViewHolder helper, AttachmentBean attachmentBean) {
+        RelativeLayout rlParent = helper.getView(R.id.rl_parent);
         ImageView ivImg = helper.getView(R.id.iv_img);
+        CardView cardView = helper.getView(R.id.card_view);
+        resize(rlParent, cardView);
         String path = StringUtil.loadThumbnail(attachmentBean.getUrl());
         if (isGif(path)) {
             Glide.with(mContext).load(path).listener(new RequestListener() {
@@ -61,5 +70,15 @@ public class ShowImagesAdapter extends BaseQuickAdapter<AttachmentBean, BaseView
             }
         }
         return false;
+    }
+
+    public void resize(RelativeLayout rlParent, CardView view) {
+        int pictureSize = (int) mContext.getResources().getDimension(R.dimen.dimen_81);
+        SquareRelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(pictureSize, pictureSize);
+        view.setLayoutParams(layoutParams);
+
+        RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(pictureSize, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams2.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+        rlParent.setLayoutParams(layoutParams2);
     }
 }
