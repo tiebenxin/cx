@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
@@ -62,6 +63,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private List<MessageInfoBean> mList;
     private long friendUid;//别人的uid
     private int isFollow;//是否关注了该用户
+    private CommonSelectDialog dialog;
+    private CommonSelectDialog.Builder builder;
 
 
     @Override
@@ -90,6 +93,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        builder = new CommonSelectDialog.Builder(FriendTrendsActivity.this);
     }
 
     @Override
@@ -189,7 +193,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 if(isFollow==0){
                     httpToFollow(friendUid);
                 }else {
-                    httpCancelFollow(friendUid);
+                    showCancleFollowDialog(friendUid);
+//                    httpCancelFollow(friendUid);
                 }
             }
         });
@@ -415,4 +420,24 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         });
     }
 
+    /**
+     * 是否取消关注提示弹框
+     *
+     * @param uid
+     */
+    private void showCancleFollowDialog(long uid) {
+        dialog = builder.setTitle("是否取消关注?")
+                .setShowLeftText(true)
+                .setRightText("确认")
+                .setLeftText("取消")
+                .setRightOnClickListener(v -> {
+                    httpCancelFollow(uid);
+                    dialog.dismiss();
+                })
+                .setLeftOnClickListener(v ->
+                        dialog.dismiss()
+                )
+                .build();
+        dialog.show();
+    }
 }
