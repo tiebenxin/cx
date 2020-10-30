@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -369,8 +368,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
-        //更新单条动态
-        if(!TextUtils.isEmpty(event.fromWhere) && event.fromWhere.equals("FriendTrendsActivity")){
+        //更新好友单条动态
+        if(event.action==0){
             MessageInfoBean bean = adapter.getDataList().get(event.position-1);//去掉头部
             if(bean.getId()!=null && bean.getUid()!=null){
                 queryById(bean.getId().longValue(),bean.getUid().longValue(),event.position-1);

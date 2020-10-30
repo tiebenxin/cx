@@ -344,8 +344,8 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
-        //更新单条动态
-        if(!TextUtils.isEmpty(event.fromWhere) && event.fromWhere.equals("MyTrendsActivity")){
+        //更新我的单条动态
+        if(event.action==1){
             MessageInfoBean bean = adapter.getDataList().get(event.position-1);//去掉头部
             if(bean.getId()!=null && bean.getUid()!=null){
                 queryById(bean.getId().longValue(),bean.getUid().longValue(),event.position-1);

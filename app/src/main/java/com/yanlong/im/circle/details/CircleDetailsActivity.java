@@ -830,9 +830,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
             if(fromWhere.equals("FriendTrendsActivity")){
-                event.fromWhere = "FriendTrendsActivity";
+                event.action = 0;
             }else if(fromWhere.equals("MyTrendsActivity")){
-                event.fromWhere = "MyTrendsActivity";
+                event.action = 1;
             }
             event.position = TrendPosition;
             EventBus.getDefault().post(event);
@@ -925,6 +925,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(0).getData();
         messageInfoBean.setBrowseCount(commentBean.getBrowseCount());
         mFlowAdapter.notifyItemChanged(0);
+        //通知更新广场推荐/关注列表某一项状态
+        EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
+        event1.id = messageInfoBean.getId();
+        event1.action = 3;
+        EventBus.getDefault().post(event1);
     }
 
     @Override
@@ -933,12 +938,17 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
             if(fromWhere.equals("FriendTrendsActivity")){
-                event.fromWhere = "FriendTrendsActivity";
+                event.action = 0;
             }else if(fromWhere.equals("MyTrendsActivity")){
-                event.fromWhere = "MyTrendsActivity";
+                event.action = 1;
             }
             event.position = TrendPosition;
             EventBus.getDefault().post(event);
+            //通知更新广场推荐/关注列表某一项状态
+            EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
+            event1.id = mMessageInfoBean.getId();
+            event1.action = 3;
+            EventBus.getDefault().post(event1);
         }else {
             refreshFollowList();
         }
@@ -970,12 +980,17 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
             if(fromWhere.equals("FriendTrendsActivity")){
-                event.fromWhere = "FriendTrendsActivity";
+                event.action = 0;
             }else if(fromWhere.equals("MyTrendsActivity")){
-                event.fromWhere = "MyTrendsActivity";
+                event.action = 1;
             }
             event.position = TrendPosition;
             EventBus.getDefault().post(event);
+            //通知更新广场推荐/关注列表某一项状态
+            EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
+            event1.id = messageInfoBean.getId();
+            event1.action = 3;
+            EventBus.getDefault().post(event1);
         }else {
             refreshFollowList();
         }

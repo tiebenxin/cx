@@ -256,6 +256,22 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         mPresenter.addSee(event.uid);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
+        //更新推荐单条动态
+        if(event.action==3){
+            for(int i=0;i<mFlowAdapter.getData().size();i++){
+                MessageFlowItemBean bean = mFlowAdapter.getData().get(i);
+                MessageInfoBean msgBean = (MessageInfoBean) bean.getData();
+                //如果找到这一条，则刷新
+                if (msgBean.getId() != null && msgBean.getId().longValue() == event.id) {
+                    mPresenter.queryById(event.id, msgBean.getUid(), i);
+                    break;
+                }
+            }
+        }
+    }
+
     @Override
     public void initEvent() {
         messageBinding.layoutNotice.setOnClickListener(v -> {
