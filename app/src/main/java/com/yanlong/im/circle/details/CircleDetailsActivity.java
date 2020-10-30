@@ -724,7 +724,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 ToastUtil.show(getString(R.string.user_disable_message));
                 return;
             }
-            mPresenter.addFriend(mMessageInfoBean.getUid(), "我是xxx");
+            if(!TextUtils.isEmpty(UserAction.getMyInfo().getName())){
+                mPresenter.addFriend(mMessageInfoBean.getUid(), "你好，我是"+UserAction.getMyInfo().getName());
+            }else {
+                mPresenter.addFriend(mMessageInfoBean.getUid(), "交个朋友吧~");
+            }
+
         } else if (type == CoreEnum.EClickType.CHAT) {
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                 ToastUtil.show(getString(R.string.user_disable_message));
@@ -912,6 +917,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
         binding.tvCommentCount.setVisibility(View.VISIBLE);
         mCommentTxtAdapter.notifyDataSetChanged();
+        //获取浏览量
+        MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(0).getData();
+        messageInfoBean.setBrowseCount(commentBean.getBrowseCount());
+        mFlowAdapter.notifyItemChanged(0);
     }
 
     @Override
