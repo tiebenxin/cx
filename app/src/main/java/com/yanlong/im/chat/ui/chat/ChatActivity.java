@@ -3908,9 +3908,10 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
-        if (AudioPlayManager.getInstance().isPlayingVoice()) {
-            AudioPlayManager.getInstance().stopPlay();
-        }
+        //会导致播放不能暂停
+//        if (AudioPlayManager.getInstance().isPlayingVoice()) {
+//            AudioPlayManager.getInstance().stopPlay();
+//        }
         currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
