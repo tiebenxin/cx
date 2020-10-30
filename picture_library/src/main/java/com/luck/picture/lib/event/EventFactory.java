@@ -177,7 +177,8 @@ public class EventFactory extends BaseEvent {
     /**
      * 检查未读互动消息
      */
-    public static class CheckUnreadMsgEvent extends BaseEvent {
+    public static class CheckUnreadMsgEvent<T> extends BaseEvent {
+        public T data;
     }
 
     /**
