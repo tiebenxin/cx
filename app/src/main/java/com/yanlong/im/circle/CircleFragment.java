@@ -65,6 +65,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     private List<CircleTitleBean> mVotePictrueList;
     private DialogLoadingProgress mLoadingProgress;
     private int floatModel = 0;//悬浮按钮模式
+    private int unreadCount = 0;
 
     @Override
     protected CirclePresenter createPresenter() {
@@ -189,6 +190,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             public void onPageSelected(int position) {
                 setTitleBold(position);
                 AudioPlayUtil.stopAudioPlay();
+                clearUnreadCount(position);
             }
 
             @Override
@@ -199,6 +201,8 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         bindingView.rbFollow.setOnClickListener(o -> {
             setTitleBold(1);
             bindingView.viewPager.setCurrentItem(1);
+            clearUnreadCount(1);
+
         });
         bindingView.rbRecommend.setOnClickListener(o -> {
             setTitleBold(0);
@@ -226,6 +230,12 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                 //置顶模式
             }
         });
+    }
+
+    private void clearUnreadCount(int position) {
+        if (unreadCount > 0 && position == 1) {
+            showRedDot(0);
+        }
     }
 
     private void setTitleBold(int position) {
@@ -320,6 +330,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     @Override
     public void showRedDot(int redPoint) {
+        unreadCount = redPoint;
         if (redPoint == 1) {
             bindingView.ivFollow.setVisibility(View.VISIBLE);
             //通知首页显示红点
@@ -328,6 +339,10 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             EventBus.getDefault().post(event);
         } else {
             bindingView.ivFollow.setVisibility(View.GONE);
+            //通知首页隐藏红点
+            EventFactory.HomePageRedDotEvent event = new EventFactory.HomePageRedDotEvent();
+            event.ifShow = false;
+            EventBus.getDefault().post(event);
         }
     }
 
