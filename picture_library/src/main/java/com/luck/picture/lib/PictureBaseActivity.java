@@ -124,7 +124,7 @@ public class PictureBaseActivity extends FragmentActivity {
         if (selectionMedias == null) {
             selectionMedias = new ArrayList<>();
         }
-        config.maxSelectNum = 4;
+//        config.maxSelectNum = 4;
     }
 
     @Override

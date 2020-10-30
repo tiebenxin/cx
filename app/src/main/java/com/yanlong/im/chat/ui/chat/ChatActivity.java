@@ -2058,6 +2058,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                 .previewImage(false)// 是否可预览图片 true or false
                 .isCamera(false)// 是否显示拍照按钮 ture or false
+                .maxSelectNum(9)
                 .maxVideoSelectNum(1)
                 .compress(true)// 是否压缩 true or false
                 .isGif(true)

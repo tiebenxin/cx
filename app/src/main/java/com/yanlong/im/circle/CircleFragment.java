@@ -221,6 +221,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                         .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
                         .isCamera(true)// 是否显示拍照按钮 ture or false
+                        .maxSelectNum(4)
                         .maxVideoSelectNum(1)
                         .compress(true)// 是否压缩 true or false
                         .isGif(true)

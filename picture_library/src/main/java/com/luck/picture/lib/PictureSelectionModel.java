@@ -518,4 +518,8 @@ public class PictureSelectionModel {
     }
 
 
+    public void setFrom(int from) {
+        selectionConfig.from = from;
+    }
+
 }
