@@ -213,7 +213,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
-                    helper.setText(R.id.tv_time, attachmentBean.getDuration() + "");
+                    helper.setText(R.id.tv_time, TimeToString.MM_SS(attachmentBean.getDuration() * 1000));
                     pbProgress.setProgress(messageInfoBean.getPlayProgress());
                     // 未播放则重置播放进度
                     LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
