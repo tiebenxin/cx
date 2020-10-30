@@ -57,6 +57,15 @@ public class MessageInfoBean extends BaseBean {
     private int refreshCount;// 刷新次数
     private boolean isPlay;// 是否在播放
     private int userType= ChatEnum.EUserType.STRANGE;//好友关系
+    private int browseCount;//浏览量
+
+    public int getBrowseCount() {
+        return browseCount;
+    }
+
+    public void setBrowseCount(int browseCount) {
+        this.browseCount = browseCount;
+    }
 
     public boolean isPlay() {
         return isPlay;
