@@ -467,10 +467,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                             //获取与该view的底部的偏移量
                             firstOffset = topView.getTop();
                         }
-                        if (mFlowAdapter != null) {
-                            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
-                            mFlowAdapter.notifyItemChanged(firstItemPosition);
-                        }
                     }
                     if (!isRefreshing && lastItemPosition >= mFlowAdapter.getItemCount() - 5) {
                         isRefreshing = true;
@@ -880,6 +876,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
                 if (position >= 0) {
                     mFlowAdapter.getData().set(position, bean);
+                    if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                        position = position + 1;
+                    }
                     mFlowAdapter.notifyItemChanged(position);
                 }
             }
