@@ -24,6 +24,56 @@
 <!--                layout="@layout/layout_no_data"-->
 <!--                android:visibility="gone" />-->
 
+            <RelativeLayout
+                android:id="@+id/layout_top"
+                android:layout_width="match_parent"
+                android:background="@color/c_e6e6e6"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/iv_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_back"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="17dp"
+                    android:paddingRight="15dp"
+                    android:paddingTop="50dp"
+                    android:paddingBottom="10dp"
+                    />
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxWidth="150dp"
+                    android:maxLines="1"
+                    android:text="我的动态"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignBottom="@+id/iv_back" />
+                <ImageView
+                    android:id="@+id/iv_more"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="17dp"
+                    android:paddingTop="50dp"
+                    android:paddingBottom="10dp"
+                    android:src="@mipmap/ic_circle_more" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_below="@+id/iv_back"
+                    android:background="@color/c_dcdddd"/>
+            </RelativeLayout>
+
+
             <ImageView
                 android:id="@+id/iv_create_circle"
                 android:layout_width="wrap_content"
@@ -45,7 +95,7 @@
                 android:layout_centerHorizontal="true">
                 <LinearLayout
                     android:id="@+id/layout_follow"
-                    android:layout_width="120dp"
+                    android:layout_width="150dp"
                     android:layout_height="37dp"
                     android:gravity="center"
                     android:layout_centerInParent="true"
