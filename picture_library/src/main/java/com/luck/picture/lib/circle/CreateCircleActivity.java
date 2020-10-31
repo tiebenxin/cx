@@ -2193,8 +2193,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     protected void onStop() {
         super.onStop();
         if (isRecording) {
-            resetAudio(true);
-            stopRecord();
+            toVoice();
+//            resetAudio(true);
+//            stopRecord();
         }
     }
 }

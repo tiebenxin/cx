@@ -583,6 +583,7 @@ public class UserAction {
                     return;
 
                 if (response.body().isOk()) {
+                    LogUtil.writeLog("通讯录LOG--网络请求通讯录数据成功");
                     List<UserInfo> list = response.body().getData();
                     saveRoster(list);
                 }
