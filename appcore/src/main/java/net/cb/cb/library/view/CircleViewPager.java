@@ -2,10 +2,11 @@ package net.cb.cb.library.view;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
+
+import androidx.viewpager.widget.ViewPager;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -3,14 +3,13 @@ package com.gkzxhn.autoespresso.operate;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.screenshot.ScreenCapture;
-import android.support.test.runner.screenshot.Screenshot;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.screenshot.ScreenCapture;
+import androidx.test.runner.screenshot.Screenshot;
 import android.view.View;
 
 import com.gkzxhn.autoespresso.util.TUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import java.io.BufferedOutputStream;

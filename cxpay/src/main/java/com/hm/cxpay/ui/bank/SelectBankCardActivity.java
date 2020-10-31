@@ -1,26 +1,21 @@
 package com.hm.cxpay.ui.bank;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.databinding.ActivitySelectBankcardBinding;
-import com.hm.cxpay.net.FGObserver;
-import com.hm.cxpay.net.PayHttpUtils;
-import com.hm.cxpay.rx.RxSchedulers;
-import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-
-import java.util.List;
 
 import static com.hm.cxpay.ui.recharege.RechargeActivity.SELECT_BANKCARD;
 

@@ -1,12 +1,13 @@
 package net.cb.cb.library.view;
 
 import android.content.Context;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.cb.cb.library.R;
 
@@ -48,7 +49,7 @@ public class AlertMyView {
         alertDialog.dismiss();
     }
 
-    public void init(AppCompatActivity activity,String title, View view) {
+    public void init(AppCompatActivity activity, String title, View view) {
 
 
         this.context = activity;

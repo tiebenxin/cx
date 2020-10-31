@@ -1,11 +1,11 @@
 package com.gkzxhn.autoespresso.operate;
 
-import android.support.test.espresso.web.webdriver.DriverAtoms;
-import android.support.test.espresso.web.webdriver.Locator;
+import androidx.test.espresso.web.webdriver.DriverAtoms;
+import androidx.test.espresso.web.webdriver.Locator;
 
-import static android.support.test.espresso.web.assertion.WebViewAssertions.webMatches;
-import static android.support.test.espresso.web.model.Atoms.getCurrentUrl;
-import static android.support.test.espresso.web.sugar.Web.onWebView;
+import static androidx.test.espresso.web.assertion.WebViewAssertions.webMatches;
+import static androidx.test.espresso.web.model.Atoms.getCurrentUrl;
+import static androidx.test.espresso.web.sugar.Web.onWebView;
 import static org.hamcrest.Matchers.containsString;
 /**
  * Created by Raleigh.Luo on 18/6/4.

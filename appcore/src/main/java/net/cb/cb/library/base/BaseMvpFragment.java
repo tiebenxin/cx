@@ -1,7 +1,8 @@
 package net.cb.cb.library.base;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * @author Liszt

@@ -1,7 +1,8 @@
 package com.hm.cxpay.widget.refresh;
 
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @类名：RecyclerView加载更多监听器

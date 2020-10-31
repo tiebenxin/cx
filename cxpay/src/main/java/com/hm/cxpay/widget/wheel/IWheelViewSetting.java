@@ -1,6 +1,6 @@
 package com.hm.cxpay.widget.wheel;
 
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 
 /**
  * <br>Email:1006368252@qq.com

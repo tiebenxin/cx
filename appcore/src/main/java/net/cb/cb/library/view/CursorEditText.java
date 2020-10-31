@@ -3,9 +3,10 @@ package net.cb.cb.library.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.v7.widget.AppCompatEditText;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+
+import androidx.appcompat.widget.AppCompatEditText;
 
 public class CursorEditText extends AppCompatEditText {
     private CharSequence hint;

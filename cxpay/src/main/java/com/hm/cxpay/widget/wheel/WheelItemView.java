@@ -1,12 +1,13 @@
 package com.hm.cxpay.widget.wheel;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Wheel view with selected mask.

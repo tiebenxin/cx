@@ -60,7 +60,7 @@
 
         <View style="@style/money_change_line" />
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rc_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -2,13 +2,12 @@ package com.hm.cxpay.ui.transfer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
-import com.hm.cxpay.databinding.ActivityTransferDetailBinding;
 import com.hm.cxpay.databinding.ActivityTransferResultBinding;
 import com.hm.cxpay.utils.UIUtils;
 

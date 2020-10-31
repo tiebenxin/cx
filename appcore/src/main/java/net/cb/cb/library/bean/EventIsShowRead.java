@@ -1,6 +1,6 @@
 package net.cb.cb.library.bean;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import net.cb.cb.library.event.BaseEvent;
 

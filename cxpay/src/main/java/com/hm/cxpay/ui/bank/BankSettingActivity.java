@@ -1,13 +1,15 @@
 package com.hm.cxpay.ui.bank;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,14 +30,11 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
-import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-
-import java.util.List;
 
 /**
  * @author Liszt

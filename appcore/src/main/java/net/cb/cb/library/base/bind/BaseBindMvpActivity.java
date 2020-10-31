@@ -1,8 +1,8 @@
 package net.cb.cb.library.base.bind;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
