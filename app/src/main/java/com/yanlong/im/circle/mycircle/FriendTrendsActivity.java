@@ -15,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -458,6 +459,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+        AudioPlayUtil.stopAudioPlay();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

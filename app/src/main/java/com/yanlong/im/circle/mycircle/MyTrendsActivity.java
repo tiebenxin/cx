@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
@@ -368,23 +368,23 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 //        }
 //    }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        if (RxBus.getDefault().isRegistered(this)) {
-//            RxBus.getDefault().unregister(this);
-//        }
-//        AudioPlayUtil.stopAudioPlay();
-//    }
-
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         if (RxBus.getDefault().isRegistered(this)) {
             RxBus.getDefault().unregister(this);
         }
         AudioPlayUtil.stopAudioPlay();
     }
+
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        if (RxBus.getDefault().isRegistered(this)) {
+//            RxBus.getDefault().unregister(this);
+//        }
+//        AudioPlayUtil.stopAudioPlay();
+//    }
 
     @Override
     protected void onResume() {
