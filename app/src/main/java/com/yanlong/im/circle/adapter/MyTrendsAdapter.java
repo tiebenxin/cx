@@ -23,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,8 +31,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -51,8 +56,8 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.details.CircleDetailsActivity;
 import com.yanlong.im.circle.follow.FollowModel;
-import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FollowMeActivity;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
@@ -77,6 +82,7 @@ import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -473,29 +479,48 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             }
                         } else if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.PICTRUE || bean.getType() == PictureEnum.EContentType.PICTRUE_AND_VOTE) {
                             holder.layoutVoice.setVisibility(View.GONE);
-                            if (attachmentBeans.size() == 1) {
-                                holder.layoutVideo.setVisibility(View.VISIBLE);
-                                holder.ivPlay.setVisibility(View.GONE);
-                                holder.recyclerView.setVisibility(View.GONE);
-                                resetSize(holder.ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
-                                Glide.with(activity)
-                                        .asBitmap()
-                                        .load(attachmentBeans.get(0).getUrl())
-                                        .apply(GlideOptionsUtil.headImageOptions())
-                                        .into(holder.ivVideo);
-                                List<AttachmentBean> finalAttachmentBeans = attachmentBeans;
-                                holder.layoutVideo.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-//                                        AudioPlayUtil.stopAudioPlay();
-                                        toPictruePreview(0, finalAttachmentBeans);
+                            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                                if (attachmentBeans.size() == 1) {
+                                    holder.layoutVideo.setVisibility(View.VISIBLE);
+                                    holder.ivPlay.setVisibility(View.GONE);
+                                    holder.recyclerView.setVisibility(View.GONE);
+                                    resetSize(holder.ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
+                                    String path = StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl());
+                                    if (isGif(path)) {
+                                        RequestOptions options = new RequestOptions();
+                                        options.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+                                        Glide.with(activity).load(path).apply(options).listener(new RequestListener() {
+                                            @Override
+                                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                                                return false;
+                                            }
+
+                                            @Override
+                                            public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                                                return false;
+                                            }
+                                        }).into(holder.ivVideo);
+                                    } else {
+                                        Glide.with(activity)
+                                                .asBitmap()
+                                                .load(path)
+                                                .apply(GlideOptionsUtil.circleImageOptions())
+                                                .into(holder.ivVideo);
                                     }
-                                });
-                            } else {
-                                holder.layoutVideo.setVisibility(View.GONE);
-                                holder.ivPlay.setVisibility(View.GONE);
-                                holder.recyclerView.setVisibility(View.VISIBLE);
-                                setRecycleView(holder.recyclerView, attachmentBeans);
+                                    List<AttachmentBean> finalAttachmentBeans = attachmentBeans;
+                                    holder.layoutVideo.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+//                                        AudioPlayUtil.stopAudioPlay();
+                                            toPictruePreview(0, finalAttachmentBeans);
+                                        }
+                                    });
+                                } else {
+                                    holder.layoutVideo.setVisibility(View.GONE);
+                                    holder.ivPlay.setVisibility(View.GONE);
+                                    holder.recyclerView.setVisibility(View.VISIBLE);
+                                    setRecycleView(holder.recyclerView, attachmentBeans);
+                                }
                             }
                             if (!TextUtils.isEmpty(bean.getVote())) {
                                 holder.layoutVote.setVisibility(View.VISIBLE);
@@ -1469,5 +1494,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             attachmentBeans.add(bean);
         }
         toPictruePreview(position, attachmentBeans);
+    }
+
+    public boolean isGif(String path) {
+        if (!TextUtils.isEmpty(path)) {
+            if (path.toLowerCase().contains(".gif")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
