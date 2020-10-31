@@ -28,8 +28,8 @@ public class AudioPlayUtil {
     private Context context;
     private ProgressBar mProgressBar;
     private boolean play, isPause;
-    private Uri uri;
-    private IAudioPlayProgressListener mIAudioPlayListener;
+    private static Uri uri;
+    private static IAudioPlayProgressListener mIAudioPlayListener;
 
     private AudioPlayUtil(Context context, String file, AnimationDrawable ani, ProgressBar progressBar,
                           int recPosition, IAudioPlayProgressListener listener) {
@@ -93,6 +93,10 @@ public class AudioPlayUtil {
     //停止语音播放
     public static void stopAudioPlay() {
         if (playUtil != null) {
+            playUtil.clearProgressBar();
+            if (mIAudioPlayListener != null) {
+                mIAudioPlayListener.onStop(uri);
+            }
             playUtil.release();
             playUtil = null;
         }
@@ -237,6 +241,8 @@ public class AudioPlayUtil {
         ani = null;
         position = 0;
         play = false;
+        uri = null;
+        mIAudioPlayListener = null;
     }
 
     public static int getProgressValue() {
@@ -286,9 +292,10 @@ public class AudioPlayUtil {
         }
         if (playUtil != null && !playUtil.isSame(audioUrl)) {
             //不是同一个语音 停止上一个
-            playUtil.pause();
-            playUtil.clearProgressBar();
-            playUtil = null;
+            stopAudioPlay();
+//            playUtil.pause();
+//            playUtil.clearProgressBar();
+//            playUtil = null;
         }
 
         if (playUtil == null) {

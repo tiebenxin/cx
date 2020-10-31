@@ -819,7 +819,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                 if (messageInfoBean.isPlay()) {
                     if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
-                        AudioPlayManager.getInstance().stopPlay();
+//                        AudioPlayManager.getInstance().stopPlay();
+                        AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
 
