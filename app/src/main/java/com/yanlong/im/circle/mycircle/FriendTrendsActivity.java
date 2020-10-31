@@ -152,7 +152,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
             @Override
             public void onRightClick() {
-                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+                boolean ifShow = isFollow==1? true:false;
+                DialogHelper.getInstance().createFriendTrendDialog(ifShow,FriendTrendsActivity.this, new IFriendTrendClickListner() {
 
                     @Override
                     public void clickFollow() {
@@ -272,7 +273,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         bindingView.ivMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+                boolean ifShow = isFollow==1? true:false;
+                DialogHelper.getInstance().createFriendTrendDialog(ifShow,FriendTrendsActivity.this, new IFriendTrendClickListner() {
                     @Override
                     public void clickReport() {
                         //举报
@@ -289,7 +291,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
                     @Override
                     public void clickFollow() {
-
+                        showCancleFollowDialog(friendUid);
                     }
                 });
 
