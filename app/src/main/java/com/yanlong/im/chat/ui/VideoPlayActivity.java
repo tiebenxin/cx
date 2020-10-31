@@ -32,6 +32,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.hm.cxpay.dailog.CommonSelectDialog;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.tools.DoubleUtils;
@@ -130,7 +131,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
-
+        //停语音
+        AudioPlayUtil.stopAudioPlay();
         mPath = getIntent().getExtras().getString("videopath");
         msgAllBean = (String) getIntent().getExtras().get("videomsg");
         msg_id = getIntent().getExtras().getString("msg_id");
