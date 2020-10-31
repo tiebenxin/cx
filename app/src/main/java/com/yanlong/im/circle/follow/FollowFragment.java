@@ -99,6 +99,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
     private boolean isAudioPlaying = false;//是否语音正在播放
+    private MessageInfoBean currentMessage;
 
     protected FollowPresenter createPresenter() {
         return new FollowPresenter(getContext());
@@ -500,14 +501,29 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             if (flowItemBean != null) {
                 // TODO 服务端没返回头像跟昵称所以取原来的数据
                 MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
-                MessageInfoBean locationInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
-                serverInfoBean.setAvatar(locationInfoBean.getAvatar());
-                serverInfoBean.setNickname(locationInfoBean.getNickname());
-                mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
-                if (mFlowAdapter.getHeaderLayoutCount() > 0) {
-                    position = position + 1;
+                if (currentMessage != null && currentMessage.getId().equals(serverInfoBean.getId())) {
+                    MessageInfoBean tempMessage = currentMessage;//保存本地播放数据
+                    currentMessage = serverInfoBean;
+                    currentMessage.setPlayProgress(tempMessage.getPlayProgress());
+                    currentMessage.setPlay(tempMessage.isPlay());
+                    LogUtil.getLog().i("语音", "更新current" + currentMessage.getId());
+                    currentMessage.setAvatar(tempMessage.getAvatar());
+                    currentMessage.setNickname(tempMessage.getNickname());
+                    mFlowAdapter.getData().get(position).setData(currentMessage);
+                    if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                        position = position + 1;
+                    }
+                    mFlowAdapter.notifyItemChanged(position);
+                } else {
+                    MessageInfoBean locationInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+                    serverInfoBean.setAvatar(locationInfoBean.getAvatar());
+                    serverInfoBean.setNickname(locationInfoBean.getNickname());
+                    mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
+                    if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                        position = position + 1;
+                    }
+                    mFlowAdapter.notifyItemChanged(position);
                 }
-                mFlowAdapter.notifyItemChanged(position);
             }
         } catch (Exception e) {
         }
@@ -618,10 +634,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 }
             }
         } else if (type == CoreEnum.EClickType.CLICK_VOICE) {
-            MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
-            if (messageInfoBean != null && messageInfoBean.getType() != null &&
-                    (messageInfoBean.getType() == PictureEnum.EContentType.VOICE || messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
-                playVoice(messageInfoBean);
+            currentMessage = mFlowAdapter.getData().get(position).getData();
+            if (currentMessage != null && currentMessage.getType() != null &&
+                    (currentMessage.getType() == PictureEnum.EContentType.VOICE || currentMessage.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
+                playVoice();
             }
 
         } else {
@@ -697,11 +713,14 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
 
-    public void playVoice(MessageInfoBean messageInfoBean) {
-        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+    public void playVoice() {
+        if (currentMessage == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(currentMessage.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
             try {
-                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                attachmentBeans = new Gson().fromJson(currentMessage.getAttachment(),
                         new TypeToken<List<AttachmentBean>>() {
                         }.getType());
             } catch (Exception e) {
@@ -709,7 +728,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             }
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
-                if (messageInfoBean.isPlay()) {
+                if (currentMessage.isPlay()) {
                     if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
 //                        AudioPlayManager.getInstance().stopPlay();
                         AudioPlayUtil.stopAudioPlay();
@@ -720,34 +739,34 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         @Override
                         public void onStart(Uri var1) {
                             isAudioPlaying = true;
-                            messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(0);
-                            updatePosition(messageInfoBean);
+                            currentMessage.setPlay(true);
+                            currentMessage.setPlayProgress(0);
+                            updatePosition(currentMessage);
                         }
 
                         @Override
                         public void onStop(Uri var1) {
                             isAudioPlaying = false;
-                            messageInfoBean.setPlay(false);
-                            updatePosition(messageInfoBean);
+                            currentMessage.setPlay(false);
+                            updatePosition(currentMessage);
 
                         }
 
                         @Override
                         public void onComplete(Uri var1) {
                             isAudioPlaying = false;
-                            messageInfoBean.setPlay(false);
-                            messageInfoBean.setPlayProgress(100);
-                            updatePosition(messageInfoBean);
+                            currentMessage.setPlay(false);
+                            currentMessage.setPlayProgress(100);
+                            updatePosition(currentMessage);
 
                         }
 
                         @Override
                         public void onProgress(int progress) {
                             LogUtil.getLog().i("语音", "播放进度--" + progress);
-                            messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(progress);
-                            updatePosition(messageInfoBean);
+                            currentMessage.setPlay(true);
+                            currentMessage.setPlayProgress(progress);
+                            updatePosition(currentMessage);
                         }
                     });
 
