@@ -1,10 +1,11 @@
 package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;

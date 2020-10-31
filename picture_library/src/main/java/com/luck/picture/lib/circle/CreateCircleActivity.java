@@ -13,11 +13,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.support.annotation.IntDef;
-import android.support.v4.content.FileProvider;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -38,6 +33,12 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.IntDef;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
@@ -128,6 +129,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private static final int REQUEST_CODE_VOTE_PICTRUE = 400;
     private final int MAX_COUNT = 500;// 最大字数
     public static final String INTENT_LOCATION_NAME = "intent_location_name";
+    public static final String INTENT_LOCATION_DESC = "intent_location_desc";
     public static final String CITY_NAME = "city_name";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
@@ -136,7 +138,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     public static final String VOTE_LOCATION_IMG = "vote_location_img";
     public static final String VOTE_TXT_TITLE = "vote_txt_title";
     private final String ADDRESS_NOT_SHOW = "不显示位置";
-    private String mCityName = "", mTxtJson = "", mImgJson = "";
+    private String mCityName = "", mLocationDesc = "", mTxtJson = "", mImgJson = "";
     private ImageView picture_left_back, iv_face, iv_picture, iv_vote, iv_voice, iv_delete_voice,
             iv_voice_play, iv_delete_location, iv_delete_vote;
     private TextView picture_title, picture_right, picture_tv_ok, tv_empty,
@@ -932,6 +934,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     city = "";
                 }
                 postcard.withString("address_name", city);
+                postcard.withString("address_desc", mLocationDesc);
+                postcard.withString("city_name", mCityName);
+                postcard.withDouble("latitude", mLatitude);
+                postcard.withDouble("longitude", mLongitude);
                 postcard.navigation(this, REQUEST_CODE_LOCATION);
             }
         } else if (id == R.id.iv_delete_location) {// 删除位置
@@ -1919,6 +1925,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     break;
                 case REQUEST_CODE_LOCATION:// 设置位置
                     String address = data.getStringExtra(INTENT_LOCATION_NAME);
+                    mLocationDesc = data.getStringExtra(INTENT_LOCATION_DESC);
                     mCityName = data.getStringExtra(CITY_NAME);
                     mLatitude = data.getDoubleExtra(LATITUDE, -1);
                     mLongitude = data.getDoubleExtra(LONGITUDE, -1);
