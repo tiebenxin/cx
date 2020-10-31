@@ -837,6 +837,12 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     });
                 }
             }
+            //展示无数据图
+            if(dataList.size()==0){
+                holder.layoutNoData.setVisibility(View.VISIBLE);
+            }else {
+                holder.layoutNoData.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -947,6 +953,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private ImageView ivBack;
         private ImageView ivMore;
         private TextView tvTitle;
+        private LinearLayout layoutNoData;
 
         public HeadHolder(View itemView) {
             super(itemView);
@@ -967,6 +974,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ivBack = itemView.findViewById(R.id.iv_back);
             ivMore = itemView.findViewById(R.id.iv_more);
             tvTitle = itemView.findViewById(R.id.tv_title);
+            layoutNoData = itemView.findViewById(R.id.layout_nodata);
         }
     }
 

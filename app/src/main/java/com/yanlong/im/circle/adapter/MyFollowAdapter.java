@@ -414,7 +414,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ToastUtil.show("关注成功");
                     if(type==2){
                         //若原来是已关注，取消后，点击仍然为已关注
-                        if(oldFollowList.get(position).intValue()==1){
+                        if(oldFollowList.get(position).intValue()==1 || oldFollowList.get(position).intValue()==2){
                             dataList.get(position).setFollowStat(1);
                         }else if(oldFollowList.get(position).intValue()==3){
                             dataList.get(position).setFollowStat(3);
@@ -423,7 +423,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         dataList.get(position).setStat(3);
                     }else {
                         //若原来是已关注，取消后，点击仍然为已关注
-                        if(oldFollowList.get(position).intValue()==1){
+                        if(oldFollowList.get(position).intValue()==1 || oldFollowList.get(position).intValue()==2){
                             dataList.get(position).setStat(1);
                         }else if(oldFollowList.get(position).intValue()==3){
                             dataList.get(position).setStat(3);

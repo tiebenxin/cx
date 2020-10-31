@@ -53,6 +53,7 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.JzvdStdCircle;
@@ -143,22 +144,22 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
         if (TextUtils.isEmpty(messageInfoBean.getPosition()) && TextUtils.isEmpty(messageInfoBean.getCity())) {
             //详情我的动态新增浏览量，UI和好友动态location显示有区别，只有我才会显示浏览量
-            if(messageInfoBean.getUid()!=null && messageInfoBean.getUid().longValue()==UserAction.getMyId()){
+            if (messageInfoBean.getUid() != null && messageInfoBean.getUid().longValue() == UserAction.getMyId()) {
                 helper.setGone(R.id.tv_location, false);
-                if(isDetails){
+                if (isDetails) {
                     helper.setGone(R.id.tv_watch_num, true);
-                }else {
+                } else {
                     helper.setGone(R.id.tv_watch_num, false);
                 }
                 helper.setGone(R.id.tv_location_new, false);
-            }else {
+            } else {
                 helper.setGone(R.id.tv_location, false);
                 helper.setGone(R.id.tv_watch_num, false);
                 helper.setGone(R.id.tv_location_new, false);
             }
         } else {
-            if(messageInfoBean.getUid()!=null && messageInfoBean.getUid().longValue()==UserAction.getMyId()){
-                if(isDetails){
+            if (messageInfoBean.getUid() != null && messageInfoBean.getUid().longValue() == UserAction.getMyId()) {
+                if (isDetails) {
                     helper.setGone(R.id.tv_location, false);
                     helper.setGone(R.id.tv_watch_num, true);
                     helper.setGone(R.id.tv_location_new, true);
@@ -167,7 +168,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     } else {
                         helper.setText(R.id.tv_location_new, messageInfoBean.getCity());
                     }
-                }else {
+                } else {
                     helper.setGone(R.id.tv_location, true);
                     helper.setGone(R.id.tv_watch_num, false);
                     helper.setGone(R.id.tv_location_new, false);
@@ -177,7 +178,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                         helper.setText(R.id.tv_location, messageInfoBean.getCity());
                     }
                 }
-            }else {
+            } else {
                 helper.setGone(R.id.tv_location, true);
                 helper.setGone(R.id.tv_watch_num, false);
                 helper.setGone(R.id.tv_location_new, false);
@@ -204,7 +205,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                             messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
-                    helper.setText(R.id.tv_time, TimeToString.MM_SS(attachmentBean.getDuration()*1000));
+                    helper.setText(R.id.tv_time, TimeToString.MM_SS(attachmentBean.getDuration() * 1000));
                     pbProgress.setProgress(messageInfoBean.getPlayProgress());
                     // 未播放则重置播放进度
                     if (!messageInfoBean.isPlay()) {
@@ -270,16 +271,19 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     resetSize(jzvdStd, attachmentBean.getWidth(), attachmentBean.getHeight());
+                    // 没有正在播放则设置 处理刷新暂停视频问题
+                    if (!AutoPlayUtils.isPlayVideo(jzvdStd)) {
+                        jzvdStd.setUp(attachmentBean.getUrl(), "", Jzvd.SCREEN_NORMAL);
 
-                    jzvdStd.setUp(attachmentBean.getUrl(), "", Jzvd.SCREEN_NORMAL);
+                        Glide.with(jzvdStd.getContext())
+                                .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
+                                .apply(GlideOptionsUtil.circleImageOptions())
+                                .into(jzvdStd.posterImageView);
+                    }
+
                     jzvdStd.setVideoUrl(attachmentBean.getUrl());
                     jzvdStd.setBgUrl(StringUtil.loadThumbnail(attachmentBean.getBgUrl()));
                     jzvdStd.setAttachmentBean(attachmentBean);
-
-                    Glide.with(jzvdStd.getContext())
-                            .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
-                            .apply(GlideOptionsUtil.circleImageOptions())
-                            .into(jzvdStd.posterImageView);
 
                     helper.setVisible(R.id.rl_video, true);
                     recyclerView.setVisibility(View.GONE);

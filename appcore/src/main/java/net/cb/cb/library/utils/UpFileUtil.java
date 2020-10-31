@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
@@ -128,86 +129,100 @@ public class UpFileUtil {
                        final String secret, final String token, final String endpoint, final String btName,
                        final UpFileUtil.OssUpCallback ossUpCallback, final String imgPath, final byte[] imgbyte,
                        final boolean isLocalTakeVideo) {
-        LogUtil.getLog().i("1212", "path:" + path);
+
         getOSs(context, keyid, secret, token, endpoint);
-        // 获取文件的md5值，用于判断文件是否上传过
-        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
+        if (StringUtil.isNotNull(imgPath)) {
+            // 获取文件的md5值，用于判断文件是否上传过
+            RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
 
-            @Override
-            public String doInBackground() throws Throwable {
-                return Md5Util.getFileMD5(new File(imgPath));// 获取文件MD5唯一值
-            }
-
-            @Override
-            public void onFinish(final String md5Rresult) {
-                if (TextUtils.isEmpty(md5Rresult)) {
-                    ossUpCallback.fail();
-                    return;
+                @Override
+                public String doInBackground() throws Throwable {
+                    return Md5Util.getFileMD5(new File(imgPath));// 获取文件MD5唯一值
                 }
-                if (imgPath != null) {
-                    int sEx = imgPath.lastIndexOf(".");
 
-                    if (sEx > 0) {
-                        endEx = imgPath.substring(sEx);
+                @Override
+                public void onFinish(final String md5Rresult) {
+                    if (TextUtils.isEmpty(md5Rresult)) {
+                        ossUpCallback.fail();
+                        return;
                     }
-                }
-                final String img_name;
-                //pc同步消息，只能用固定域名
-                if (isPcMsgPath(path)) {
-                    img_name = endEx;
-                } else {
-                    img_name = md5Rresult + endEx;
-                }
+                    if (imgPath != null) {
+                        int sEx = imgPath.lastIndexOf(".");
 
-                final String objkey = path + img_name;
-                if (StringUtil.isNotNull(imgPath)) {
-                    putObjectRequest = new PutObjectRequest(btName, objkey, imgPath);
-                } else {
-                    putObjectRequest = new PutObjectRequest(btName, objkey, imgbyte);
-                }
-                if (FileUtils.isNeedsMd5(path) && !TextUtils.isEmpty(imgPath)) {// 聊天消息文件需要极速秒传
-                    if (FileUtils.isLocalTake(imgPath) || isLocalTakeVideo) {// 本地拍照、录视频不需要调用fileCheck接口，因为每次拍摄的不一样
-                        setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
+                        if (sEx > 0) {
+                            endEx = imgPath.substring(sEx);
+                        }
+                    }
+                    final String img_name;
+                    //pc同步消息，只能用固定域名
+                    if (isPcMsgPath(path)) {
+                        img_name = endEx;
                     } else {
-                        // 请求接口判断文件是否上传过
-                        WeakHashMap<String, Object> param = new WeakHashMap<>();
-                        param.put("md5", md5Rresult);
-                        param.put("url", objkey);
-                        NetUtil.getNet().exec(
-                                server.fileCheck(param)
-                                , new CallBack<ReturnBean<String>>() {
-                                    @Override
-                                    public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
-                                        if (response.body() != null && response.body().isOk()) {
-                                            // 上传过则直接拿服务器返回的地址
-                                            ossUpCallback.success(oss.presignPublicObjectURL(btName, objkey));
-                                        } else {
-                                            setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
-                                        super.onFailure(call, t);
-                                        ossUpCallback.fail();
-                                        LogUtil.writeLog("上传失败--response=null");
-                                    }
-                                });
+                        img_name = md5Rresult + endEx;
                     }
-                } else {
-                    if (FileUtils.isNeedsMd5(path)) {// 保存文件MD5值并上传文件
-                        setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
-                    } else {// 不保存文件MD5值，只上传文件
-                        setCallback(ossUpCallback, btName, objkey, context);
+
+                    final String objkey = path + img_name;
+                    if (StringUtil.isNotNull(imgPath)) {
+                        putObjectRequest = new PutObjectRequest(btName, objkey, imgPath);
+                    } else {
+                        putObjectRequest = new PutObjectRequest(btName, objkey, imgbyte);
+                    }
+                    if (FileUtils.isNeedsMd5(path) && !TextUtils.isEmpty(imgPath)) {// 聊天消息文件需要极速秒传
+                        if (FileUtils.isLocalTake(imgPath) || isLocalTakeVideo) {// 本地拍照、录视频不需要调用fileCheck接口，因为每次拍摄的不一样
+                            setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
+                        } else {
+                            // 请求接口判断文件是否上传过
+                            WeakHashMap<String, Object> param = new WeakHashMap<>();
+                            param.put("md5", md5Rresult);
+                            param.put("url", objkey);
+                            NetUtil.getNet().exec(
+                                    server.fileCheck(param)
+                                    , new CallBack<ReturnBean<String>>() {
+                                        @Override
+                                        public void onResponse(Call<ReturnBean<String>> call, Response<ReturnBean<String>> response) {
+                                            if (response.body() != null && response.body().isOk()) {
+                                                // 上传过则直接拿服务器返回的地址
+                                                ossUpCallback.success(oss.presignPublicObjectURL(btName, objkey));
+                                            } else {
+                                                setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<ReturnBean<String>> call, Throwable t) {
+                                            super.onFailure(call, t);
+                                            ossUpCallback.fail();
+                                            LogUtil.writeLog("上传失败--response=null");
+                                        }
+                                    });
+                        }
+                    } else {
+                        if (FileUtils.isNeedsMd5(path)) {// 保存文件MD5值并上传文件
+                            setMd5Callback(md5Rresult, ossUpCallback, btName, objkey, context);
+                        } else {// 不保存文件MD5值，只上传文件
+                            setCallback(ossUpCallback, btName, objkey, context);
+                        }
                     }
                 }
+
+                @Override
+                public void onError(Throwable e) {
+                    ossUpCallback.fail();
+                }
+            });
+        } else {
+            final String img_name;
+            //pc同步消息，只能用固定域名
+            if (isPcMsgPath(path)) {
+                img_name = endEx;
+            } else {
+                img_name = UUID.randomUUID().toString() + endEx;
             }
 
-            @Override
-            public void onError(Throwable e) {
-                ossUpCallback.fail();
-            }
-        });
+            final String objkey = path + img_name;
+            putObjectRequest = new PutObjectRequest(btName, objkey, imgbyte);
+            setCallback(ossUpCallback, btName, objkey, context);
+        }
     }
 
     /**
@@ -387,7 +402,6 @@ public class UpFileUtil {
      * 获取文件全路径
      *
      * @param path
-     * @param msgType
      * @return
      */
     public String getFileUrl(String path) {
