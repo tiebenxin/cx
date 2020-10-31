@@ -118,28 +118,6 @@
 
             </RelativeLayout>
 
-<!--            <LinearLayout-->
-<!--                android:id="@+id/layout_chat"-->
-<!--                android:layout_width="160dp"-->
-<!--                android:layout_height="37dp"-->
-<!--                android:layout_alignParentBottom="true"-->
-<!--                android:layout_alignParentRight="true"-->
-<!--                android:gravity="center"-->
-<!--                android:layout_marginRight="15dp"-->
-<!--                android:layout_marginBottom="6dp"-->
-<!--                android:background="@drawable/shape_5radius_solid_32b053">-->
-<!--                <ImageView-->
-<!--                    android:layout_width="25dp"-->
-<!--                    android:layout_height="25dp"-->
-<!--                    android:src="@mipmap/ic_chat"/>-->
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:textSize="17sp"-->
-<!--                    android:text="私聊"-->
-<!--                    android:layout_marginLeft="10dp"-->
-<!--                    android:textColor="@color/white"/>-->
-<!--            </LinearLayout>-->
         </RelativeLayout>
 
 </layout>
