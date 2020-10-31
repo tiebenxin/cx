@@ -1,6 +1,6 @@
 package com.yanlong.im.user.ui.freeze;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -8,7 +8,6 @@ import android.view.View;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityFreezeIdentifyBinding;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.ui.IdentifyingCodeActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;

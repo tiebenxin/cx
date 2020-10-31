@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
+import androidx.appcompat.widget.AppCompatTextView;
+
 import net.cb.cb.library.utils.LogUtil;
 
 import java.lang.reflect.Field;
@@ -22,7 +24,7 @@ import java.lang.reflect.Field;
  * @description 超过一定行数显示固定行数时末尾添加 "..."的TextView(适配图文混排)
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class EllipsizedTextView extends android.support.v7.widget.AppCompatTextView {
+public class EllipsizedTextView extends AppCompatTextView {
 
     private int mMaxLines;
 

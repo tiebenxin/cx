@@ -3,8 +3,9 @@ package com.yanlong.im.share;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
 
 import com.cx.sharelib.message.CxMediaMessage;
 import com.yanlong.im.chat.ChatEnum;

@@ -1,11 +1,11 @@
 package com.gkzxhn.autoespresso.operate;
 
 import android.os.Build;
-import android.support.test.rule.GrantPermissionRule;
-import android.support.test.runner.permission.PermissionRequester;
+import androidx.test.rule.GrantPermissionRule;
+import androidx.test.runner.permission.PermissionRequester;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static android.support.test.InstrumentationRegistry.getTargetContext;
+import static androidx.test.InstrumentationRegistry.getTargetContext;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 /**
  * Created by Raleigh.Luo on 18/3/13.

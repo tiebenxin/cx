@@ -4,8 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -16,6 +14,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
@@ -360,14 +361,14 @@ public class ComplaintUploadActivity extends AppActivity {
         }
 
         @Override
-        public ComplaintUploadAdatper.ComplaintUploadViewHolder onCreateViewHolder(@android.support.annotation.NonNull ViewGroup viewGroup, int i) {
+        public ComplaintUploadAdatper.ComplaintUploadViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             View view = inflater.inflate(R.layout.item_feedback, viewGroup, false);
             return new ComplaintUploadAdatper.ComplaintUploadViewHolder(view);
         }
 
 
         @Override
-        public void onBindViewHolder(@android.support.annotation.NonNull ComplaintUploadAdatper.ComplaintUploadViewHolder viewHolder, final int i) {
+        public void onBindViewHolder(@NonNull ComplaintUploadAdatper.ComplaintUploadViewHolder viewHolder, final int i) {
 
             ImageBean imageBean = list.get(i);
             if (imageBean.getType() == 0) {
@@ -409,7 +410,7 @@ public class ComplaintUploadActivity extends AppActivity {
         class ComplaintUploadViewHolder extends RecyclerView.ViewHolder {
             private ImageView imageView;
 
-            public ComplaintUploadViewHolder(@android.support.annotation.NonNull View itemView) {
+            public ComplaintUploadViewHolder(@NonNull View itemView) {
                 super(itemView);
                 imageView = itemView.findViewById(R.id.image_view);
             }

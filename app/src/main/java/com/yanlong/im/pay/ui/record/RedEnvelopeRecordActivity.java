@@ -1,12 +1,12 @@
 package com.yanlong.im.pay.ui.record;
 
 import android.annotation.SuppressLint;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
+
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -14,6 +14,7 @@ import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.google.android.material.tabs.TabLayout;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.RedDetailsBean;
 import com.hm.cxpay.bean.UserBean;
@@ -24,7 +25,6 @@ import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;

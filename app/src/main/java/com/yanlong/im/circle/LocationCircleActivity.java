@@ -4,14 +4,14 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.baidu.location.BDAbstractLocationListener;
@@ -56,9 +56,15 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
 
     private CommonRecyclerViewAdapter<LocationCircleMessage, ItemCircleLocationBinding> mAdapter;
     private List<LocationCircleMessage> mList;
+    private List<LocationCircleMessage> mFirstList;
     public static final String ADDRESS_NAME = "address_name";
-
-    private String mCity = "", mAddress = "";
+    public static final String ADDRESS_DESC = "address_desc";
+    public static final String CITY_NAME = "city_name";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
+    private double mLatitude, mLongitude;
+    private boolean isCheck = false;
+    private String mCity = "", mAddress = "", mAddressDesc = "";
     private DialogCommon dialogCommon = null;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
 
@@ -75,7 +81,13 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
     @Override
     protected void init(Bundle savedInstanceState) {
         mAddress = getIntent().getExtras().getString(ADDRESS_NAME);
+        mAddressDesc = getIntent().getExtras().getString(ADDRESS_DESC);
+        mCity = getIntent().getExtras().getString(CITY_NAME);
+        mLatitude = getIntent().getExtras().getDouble(LATITUDE);
+        mLongitude = getIntent().getExtras().getDouble(LONGITUDE);
+
         mList = new ArrayList<>();
+        mFirstList = new ArrayList<>();
         mAdapter = new CommonRecyclerViewAdapter<LocationCircleMessage, ItemCircleLocationBinding>(this, R.layout.item_circle_location) {
             @Override
             public void bind(ItemCircleLocationBinding binding, LocationCircleMessage data, int position, RecyclerView.ViewHolder viewHolder) {
@@ -101,7 +113,7 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
                     }
                     data.setCheck(true);
                     notifyDataSetChanged();
-                    setResult(data.getAddress(), data.getLatitude(), data.getLongitude());
+                    setResult(data.getAddress(), data.getAddressDescribe(), data.getLatitude(), data.getLongitude());
                 });
             }
         };
@@ -110,9 +122,10 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
         bindingView.recyclerView.setAdapter(mAdapter);
     }
 
-    private void setResult(String name, double latitude, double longitude) {
+    private void setResult(String name, String desc, double latitude, double longitude) {
         Intent intent = new Intent();
         intent.putExtra(CreateCircleActivity.INTENT_LOCATION_NAME, name);
+        intent.putExtra(CreateCircleActivity.INTENT_LOCATION_DESC, desc);
         intent.putExtra(CreateCircleActivity.CITY_NAME, mCity);
         intent.putExtra(CreateCircleActivity.LATITUDE, latitude);
         intent.putExtra(CreateCircleActivity.LONGITUDE, longitude);
@@ -149,11 +162,22 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
                             locationMessage.setLongitude(bdLocation.getLongitude());
                             if (!TextUtils.isEmpty(mAddress) && bdLocation.getPoiList().get(i).getName().equals(mAddress)) {
                                 locationMessage.setCheck(true);
+                                isCheck = true;
                             }
                             locationMessage.setAddress(bdLocation.getPoiList().get(i).getName());
                             locationMessage.setAddressDescribe(bdLocation.getPoiList().get(i).getAddr());
                             mList.add(locationMessage);
                         }
+                        if (!isCheck && !TextUtils.isEmpty(mAddress)) {
+                            LocationCircleMessage locationMessage = new LocationCircleMessage();
+                            locationMessage.setLatitude(mLatitude);
+                            locationMessage.setLongitude(mLongitude);
+                            locationMessage.setCheck(true);
+                            locationMessage.setAddress(mAddress);
+                            locationMessage.setAddressDescribe(mAddressDesc);
+                            mList.add(1, locationMessage);
+                        }
+                        mFirstList.addAll(mList);
                     }
                     mAdapter.notifyDataSetChanged();
                 } catch (Exception e) {
@@ -282,6 +306,9 @@ public class LocationCircleActivity extends BaseBindActivity<ActivityCircleLocat
     private void onSearch() {
         String key = bindingView.editSearch.getText().toString().trim();
         if (!StringUtil.isNotNull(key)) {
+            mList.clear();
+            mList.addAll(mFirstList);
+            mAdapter.notifyDataSetChanged();
             return;
         }
         // 建议搜索

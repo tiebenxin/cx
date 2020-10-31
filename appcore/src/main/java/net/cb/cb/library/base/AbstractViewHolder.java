@@ -1,7 +1,8 @@
 package net.cb.cb.library.base;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Created by Liszt on 2019/9/18.

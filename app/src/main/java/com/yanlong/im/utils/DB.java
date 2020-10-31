@@ -1,7 +1,8 @@
 package com.yanlong.im.utils;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;

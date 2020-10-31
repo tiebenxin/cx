@@ -1,6 +1,6 @@
 package com.hm.cxpay.ui.identification;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 
 import com.hm.cxpay.R;

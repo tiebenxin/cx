@@ -86,7 +86,7 @@
             android:layout_marginTop="10dp"
             android:orientation="vertical">
             <!-- 图片-->
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -138,7 +138,7 @@
                 android:visibility="gone"
                 android:orientation="vertical">
 
-                <android.support.v7.widget.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_vote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />

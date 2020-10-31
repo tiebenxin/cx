@@ -1,9 +1,10 @@
 package net.cb.cb.library.utils;
 
-import android.support.design.widget.TabLayout;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.google.android.material.tabs.TabLayout;
 
 import java.lang.reflect.Field;
 

@@ -2,13 +2,13 @@ package com.yanlong.im.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.design.widget.AppBarLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.view.ActionbarView;

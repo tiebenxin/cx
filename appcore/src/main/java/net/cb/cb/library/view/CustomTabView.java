@@ -2,8 +2,9 @@ package net.cb.cb.library.view;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.IntDef;
-import android.support.v4.content.ContextCompat;
+
+import androidx.annotation.IntDef;
+import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;

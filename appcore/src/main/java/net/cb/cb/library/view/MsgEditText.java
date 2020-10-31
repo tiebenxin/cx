@@ -1,13 +1,14 @@
 package net.cb.cb.library.view;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatEditText;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.MetricAffectingSpan;
 import android.util.AttributeSet;
+
+import androidx.appcompat.widget.AppCompatEditText;
 
 import java.util.ArrayList;
 import java.util.List;

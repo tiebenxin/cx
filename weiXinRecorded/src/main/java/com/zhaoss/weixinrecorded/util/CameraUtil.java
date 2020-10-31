@@ -2,9 +2,10 @@ package com.zhaoss.weixinrecorded.util;
 
 import android.content.Context;
 import android.hardware.Camera;
-import android.support.annotation.NonNull;
 import android.view.Surface;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 

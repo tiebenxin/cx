@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 
+import androidx.appcompat.widget.AppCompatEditText;
+
 import com.hm.cxpay.R;
 
 
@@ -17,7 +19,7 @@ import com.hm.cxpay.R;
  * @备注：
  */
 
-public class PswView extends android.support.v7.widget.AppCompatEditText {
+public class PswView extends AppCompatEditText {
     private Context mContext;
     private int passwordSize = 6;//密码的个数这里是默认值，也可以通过自定义属性来设置其他数值
     private int borderWidth = 6;//密码输入框的边框宽度px

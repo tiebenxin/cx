@@ -13,7 +13,7 @@
 
         <LinearLayout style="@style/app_layout_list1_item">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 style="@style/head_portrait_style"
                 app:cardElevation="0dp"
                 app:cardCornerRadius="@dimen/head_portrait_fillet">
@@ -21,7 +21,7 @@
                         android:id="@+id/img_head"
                         android:layout_gravity="center|left"
                         style="@style/app_img_head"/>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/tv_content"

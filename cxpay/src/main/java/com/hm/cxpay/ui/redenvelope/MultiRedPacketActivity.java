@@ -2,10 +2,11 @@ package com.hm.cxpay.ui.redenvelope;
 
 import android.content.Context;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
@@ -16,7 +17,6 @@ import android.view.View;
 import androidx.annotation.RequiresApi;
 
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.google.gson.JsonArray;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.FromUserBean;
@@ -42,7 +42,6 @@ import net.cb.cb.library.view.PopupSelectView;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 

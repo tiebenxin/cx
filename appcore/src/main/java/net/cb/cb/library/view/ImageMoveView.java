@@ -166,6 +166,7 @@ public class ImageMoveView extends RelativeLayout {
 
     /**
      * 显示浮动按钮
+     *
      * @param context
      * @param window
      */
@@ -203,7 +204,7 @@ public class ImageMoveView extends RelativeLayout {
         // 设定内部文字对齐方式
         params.gravity = Gravity.RIGHT | Gravity.TOP;
         // 设置背景透明
-        params.format= PixelFormat.RGBA_8888;
+        params.format = PixelFormat.RGBA_8888;
 
         // 以屏幕左上角为原点，设置x、y初始值ֵ
         params.x = (int) x;
@@ -235,6 +236,8 @@ public class ImageMoveView extends RelativeLayout {
                         wm.updateViewLayout(floatingViewObj, params);
                         break;
                     case MotionEvent.ACTION_UP:
+                        x = params.x;
+                        y = params.y;
                         // 判断是否触发点击事件
                         if (Math.abs(lastX - deltaX) < 10 && Math.abs(lastY - deltaY) < 10 && null != moveViewListenner) {
                             moveViewListenner.onClick();
@@ -262,9 +265,9 @@ public class ImageMoveView extends RelativeLayout {
         }
     }
 
-    public boolean isShown(){
-        boolean flg =false;
-        if(view_obj!=null){
+    public boolean isShown() {
+        boolean flg = false;
+        if (view_obj != null) {
             flg = view_obj.isShown();
         }
         return flg;

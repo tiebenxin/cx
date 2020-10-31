@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
+import androidx.appcompat.widget.AppCompatRadioButton;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -15,7 +17,7 @@ import android.view.Gravity;
  * @description
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class CustomRadioButton extends android.support.v7.widget.AppCompatRadioButton {
+public class CustomRadioButton extends AppCompatRadioButton {
 
     private static final String TAG = CustomRadioButton.class.getSimpleName();
 

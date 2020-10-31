@@ -1,15 +1,15 @@
 package com.luck.picture.lib.face;
 
 import android.content.Context;
-import android.support.annotation.IntDef;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.IntDef;
+import androidx.viewpager.widget.ViewPager;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.face.adapter.ViewPagerAdapter;
@@ -311,7 +311,7 @@ public class FaceView extends RelativeLayout {
     private void widgetListener() {
 
         // 列表切换监听事件
-        mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {

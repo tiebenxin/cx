@@ -1,12 +1,11 @@
 package com.example.nim_lib.ui;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.view.inputmethod.InputMethodManager;
 
-import com.example.nim_lib.R;
 import com.example.nim_lib.util.ViewUtils;
 import com.example.nim_lib.util.flyn.Eyes;
 

@@ -10,10 +10,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 
 import com.luck.picture.lib.compress.Luban;
 import com.luck.picture.lib.compress.OnCompressListener;
@@ -124,7 +125,7 @@ public class PictureBaseActivity extends FragmentActivity {
         if (selectionMedias == null) {
             selectionMedias = new ArrayList<>();
         }
-        config.maxSelectNum = 4;
+//        config.maxSelectNum = 4;
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.TypedValue;

@@ -2,12 +2,13 @@ package net.cb.cb.library.view;
 
 import android.app.Activity;
 import android.content.DialogInterface.OnCancelListener;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.R;

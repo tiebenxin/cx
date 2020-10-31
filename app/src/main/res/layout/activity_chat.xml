@@ -82,7 +82,7 @@
                             android:layout_gravity="center_vertical"
                             android:src="@mipmap/ic_chat_vio" />
 
-                        <android.support.constraint.ConstraintLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/app_margin_item"
@@ -133,7 +133,7 @@
                                 app:layout_constraintLeft_toLeftOf="@+id/edit_chat_shape"
                                 app:layout_constraintRight_toRightOf="@+id/edit_chat_shape"
                                 app:layout_constraintTop_toTopOf="@+id/edit_chat_shape" />
-                        </android.support.constraint.ConstraintLayout>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <ImageView
                             android:id="@+id/btn_emj"

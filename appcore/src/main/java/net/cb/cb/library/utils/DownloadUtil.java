@@ -1,8 +1,9 @@
 package net.cb.cb.library.utils;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.download.FileDownLoadListener;

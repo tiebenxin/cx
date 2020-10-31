@@ -1,11 +1,12 @@
 package com.yanlong.im.utils;
 
 import android.app.ActionBar;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.RelativeLayout;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import net.cb.cb.library.view.MultiListView;
 

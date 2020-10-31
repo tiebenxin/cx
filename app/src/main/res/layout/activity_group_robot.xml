@@ -63,7 +63,7 @@
 
             </LinearLayout>
             <View style="@style/app_line" />
-            <android.support.v4.widget.NestedScrollView
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
@@ -100,7 +100,7 @@
                 </LinearLayout>
 
 
-            </android.support.v4.widget.NestedScrollView>
+            </androidx.core.widget.NestedScrollView>
 
             <Button
                 android:id="@+id/btn_config"

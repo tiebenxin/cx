@@ -1,7 +1,6 @@
 package com.yanlong.im.view;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -10,6 +9,8 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+
+import androidx.appcompat.widget.AppCompatEditText;
 
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.edit.IRemovePredicate;

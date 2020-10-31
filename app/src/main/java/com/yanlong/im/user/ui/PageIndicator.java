@@ -1,10 +1,11 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import androidx.viewpager.widget.ViewPager;
 
 import com.yanlong.im.R;
 

@@ -2,7 +2,8 @@ package com.luck.picture.lib.config;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.StyleRes;
+
+import androidx.annotation.StyleRes;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -67,7 +68,6 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean isDragFrame;
     public boolean isArtworkMaster;
 
-
     public List<LocalMedia> selectionMedias;
 
     private void reset() {
@@ -75,9 +75,11 @@ public final class PictureSelectionConfig implements Parcelable {
         camera = false;
         themeStyleId = R.style.picture_default_style;
         selectionMode = PictureConfig.MULTIPLE;
-        maxSelectNum = 9;
+        if (maxSelectNum == 0) {
+            maxSelectNum = 9;
+        }
         minSelectNum = 0;
-        maxVideoSelectNum=1;
+        maxVideoSelectNum = 1;
         videoQuality = 1;
         cropCompressQuality = 90;
         videoMaxSecond = 0;
@@ -236,7 +238,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.previewEggs = in.readByte() != 0;
         this.synOrAsy = in.readByte() != 0;
         this.isDragFrame = in.readByte() != 0;
-        this.isArtworkMaster =  in.readByte() != 0;
+        this.isArtworkMaster = in.readByte() != 0;
         this.selectionMedias = in.createTypedArrayList(LocalMedia.CREATOR);
     }
 

@@ -90,6 +90,12 @@ public class TimeToString {
         return dateFormat.format(new Date(time));
     }
 
+    //分钟：ss
+    public static String MM_SS(Long time) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
+        return dateFormat.format(new Date(time));
+    }
+
     public static String getTime(long time, String timeFormat) {
         SimpleDateFormat format = new SimpleDateFormat(timeFormat);
         return format.format(new Date(time));

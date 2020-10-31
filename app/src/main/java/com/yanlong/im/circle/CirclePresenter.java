@@ -1,8 +1,9 @@
 package com.yanlong.im.circle;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+
+import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -168,12 +169,8 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 case PictureEnum.EContentType.PICTRUE_AND_VOTE:
                 case PictureEnum.EContentType.VOICE_AND_VOTE:
                 case PictureEnum.EContentType.VIDEO_AND_VOTE:
-                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VOTE, messageInfoBean);
-                    break;
-                case PictureEnum.EContentType.VIDEO:
-                case PictureEnum.EContentType.VIDEO_AND_PICTRUE:
                 case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
-                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VIDEO, messageInfoBean);
+                    flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_VOTE, messageInfoBean);
                     break;
                 default:
                     flowItemBean = new MessageFlowItemBean(CircleFlowAdapter.MESSAGE_DEFAULT, messageInfoBean);

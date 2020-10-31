@@ -1,19 +1,17 @@
 package net.cb.cb.library.view;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.net.Uri;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import net.cb.cb.library.R;
 
@@ -26,7 +24,7 @@ import java.util.List;
  */
 public class AlertSelectView {
     private AlertDialog alertDialog;
-    private android.support.v7.widget.RecyclerView alertList;
+    private RecyclerView alertList;
     private Event event;
     private List<String> listData;
     private int selIndex = -1;
@@ -34,7 +32,7 @@ public class AlertSelectView {
 
     //自动寻找控件
     private void findViews(View rootView) {
-        alertList = (android.support.v7.widget.RecyclerView) rootView.findViewById(R.id.alert_list);
+        alertList = (RecyclerView) rootView.findViewById(R.id.alert_list);
     }
 
 

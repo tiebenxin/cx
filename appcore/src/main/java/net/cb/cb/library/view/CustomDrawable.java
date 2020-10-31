@@ -5,10 +5,11 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
+
+import androidx.annotation.NonNull;
 
 import net.cb.cb.library.utils.DensityUtil;
 

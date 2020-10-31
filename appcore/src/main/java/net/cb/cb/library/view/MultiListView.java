@@ -1,18 +1,17 @@
 package net.cb.cb.library.view;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.SimpleItemAnimator;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.LogUtil;
@@ -98,7 +97,7 @@ public class MultiListView extends LinearLayout {
         swipeLayout.setRefreshDrawable(new MaterialDrawable(context, swipeLayout));
 
         swipeLayout.setEnabled(false);
-        layoutManager = new YLLinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
+        layoutManager = new YLLinearLayoutManager(context, LinearLayoutManager.VERTICAL,false);
         listView.setLayoutManager(layoutManager);
         ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
         listView.setItemAnimator(null);
@@ -215,7 +214,7 @@ public class MultiListView extends LinearLayout {
      *
      * @param adapter 适配器
      */
-    public void init(Adapter adapter) {
+    public void init(RecyclerView.Adapter adapter) {
 
         //init(adapter, R.drawable.bg_no_date);
         init(adapter, R.mipmap.ic_nodate);
@@ -228,7 +227,7 @@ public class MultiListView extends LinearLayout {
      * @param adapter 适配器
      * @param noDataBG 空数据背景图
      */
-    public void init(Adapter adapter, int noDataBG) {
+    public void init(RecyclerView.Adapter adapter, int noDataBG) {
         init(adapter, null, noDataBG);
     }
 
@@ -240,20 +239,20 @@ public class MultiListView extends LinearLayout {
      * @param event 列表事件
      *            ,如果不设置则无下拉刷新
      */
-    public void init(Adapter adapter, Event event, int noDataBG) {
+    public void init(RecyclerView.Adapter adapter, Event event, int noDataBG) {
         init(adapter, event, noDataBG, null, null);
     }
 
-    public void init(Adapter adapter, Integer pageSize, Event event) {
+    public void init(RecyclerView.Adapter adapter, Integer pageSize, Event event) {
         init(adapter, event, null, pageSize, null);
     }
 
-    public void init(Adapter adapter, Integer column, Integer pageSize, Event event) {
+    public void init(RecyclerView.Adapter adapter, Integer column, Integer pageSize, Event event) {
         init(adapter, event, null, pageSize, column);
     }
 
 
-    public void init(Adapter adapter, Event event, Integer noDataBG, Integer pageSize, Integer column) {
+    public void init(RecyclerView.Adapter adapter, Event event, Integer noDataBG, Integer pageSize, Integer column) {
         if (column != null) {
             listView.setLayoutManager(new GridLayoutManager(getContext(), column));
         }

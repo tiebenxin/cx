@@ -1,9 +1,6 @@
 package com.yanlong.im.view.face;
 
 import android.content.Context;
-import android.support.annotation.IntDef;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -12,6 +9,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.IntDef;
+import androidx.viewpager.widget.ViewPager;
 
 import com.example.nim_lib.config.Preferences;
 import com.google.gson.Gson;
@@ -458,7 +458,7 @@ public class FaceView extends RelativeLayout {
     private void widgetListener() {
 
         // 列表切换监听事件
-        mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {

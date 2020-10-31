@@ -1,10 +1,6 @@
 package com.yanlong.im.view.user;
 
 import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;

@@ -1,13 +1,13 @@
 package com.gkzxhn.autoespresso.operate;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.contrib.ViewPagerActions.clickBetweenTwoTitles;
-import static android.support.test.espresso.contrib.ViewPagerActions.scrollLeft;
-import static android.support.test.espresso.contrib.ViewPagerActions.scrollRight;
-import static android.support.test.espresso.contrib.ViewPagerActions.scrollToFirst;
-import static android.support.test.espresso.contrib.ViewPagerActions.scrollToLast;
-import static android.support.test.espresso.contrib.ViewPagerActions.scrollToPage;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.contrib.ViewPagerActions.clickBetweenTwoTitles;
+import static androidx.test.espresso.contrib.ViewPagerActions.scrollLeft;
+import static androidx.test.espresso.contrib.ViewPagerActions.scrollRight;
+import static androidx.test.espresso.contrib.ViewPagerActions.scrollToFirst;
+import static androidx.test.espresso.contrib.ViewPagerActions.scrollToLast;
+import static androidx.test.espresso.contrib.ViewPagerActions.scrollToPage;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 /**
  * Created by Raleigh.Luo on 18/3/13.

@@ -21,11 +21,12 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.WindowManager;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 
 public class ZoomImageView extends AppCompatImageView implements IPhotoView {

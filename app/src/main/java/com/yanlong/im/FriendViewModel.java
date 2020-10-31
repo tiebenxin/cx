@@ -1,6 +1,6 @@
 package com.yanlong.im;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.repository.MainRepository;

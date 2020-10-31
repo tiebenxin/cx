@@ -4,9 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +13,10 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -92,7 +93,7 @@ public class GroupInfoActivity extends AppActivity {
     private static final int IMAGE_HEAD = 4000;
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
-    private android.support.v7.widget.RecyclerView topListView;
+    private RecyclerView topListView;
     private LinearLayout viewGroupName, viewGroupImg;
     private LinearLayout viewGroupMore;
     private TextView txtGroupName;

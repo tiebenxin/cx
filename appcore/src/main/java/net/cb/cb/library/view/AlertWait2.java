@@ -2,15 +2,16 @@ package net.cb.cb.library.view;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import net.cb.cb.library.R;
 
@@ -36,7 +37,7 @@ public class AlertWait2 extends DialogFragment {
         this.setCancelable(false);
         txtTitle = (TextView) v.findViewById(R.id.txt_title);
         progressNum = (ProgressBar) v.findViewById(R.id.progress_num);
-        viewNet = (net.cb.cb.library.view.WaitView) v.findViewById(R.id.view_net);
+        viewNet =  v.findViewById(R.id.view_net);
         return v;
     }
 

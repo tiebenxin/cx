@@ -1,11 +1,10 @@
 package com.yanlong.im.circle.follow;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+
+import androidx.databinding.DataBindingUtil;
+
 import android.net.Uri;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.launcher.ARouter;
@@ -55,6 +57,7 @@ import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
@@ -77,6 +80,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.jzvd.Jzvd;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -94,6 +99,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     private final int PAGE_SIZE = 20;
     private int mCurrentPage = 1;
     ViewNewCircleMessageBinding messageBinding;
+    private YLLinearLayoutManager linearLayoutManager;
     private int firstOffset;
     private boolean isRefreshing;
     private CommonSelectDialog dialog;
@@ -116,7 +122,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         mFollowList = new ArrayList<>();
         mFlowAdapter = new CircleFlowAdapter(mFollowList, true, false, this);
         bindingView.recyclerFollow.setAdapter(mFlowAdapter);
-        bindingView.recyclerFollow.setLayoutManager(new YLLinearLayoutManager(getContext()));
+        linearLayoutManager = new YLLinearLayoutManager(getContext());
+        bindingView.recyclerFollow.setLayoutManager(linearLayoutManager);
         bindingView.srlFollow.setRefreshHeader(new MaterialHeader(getActivity()));
         bindingView.srlFollow.setRefreshFooter(new ClassicsFooter(getActivity()));
         ((DefaultItemAnimator) bindingView.recyclerFollow.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -148,7 +155,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         });
         bindingView.srlFollow.setOnRefreshListener(new OnRefreshListener() {
             @Override
-            public void onRefresh(@android.support.annotation.NonNull RefreshLayout refreshLayout) {
+            public void onRefresh(@NonNull RefreshLayout refreshLayout) {
                 EventBus.getDefault().post(new EventFactory.UpdateRedEvent());
                 EventFactory.HomePageRedDotEvent homePageRedDotEvent = new EventFactory.HomePageRedDotEvent();
                 homePageRedDotEvent.ifShow = false;
@@ -179,6 +186,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     ToastUtil.show(getResources().getString(R.string.network_error_msg));
                     return;
                 }
+                Intent intent;
                 MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
                 switch (view.getId()) {
                     case R.id.iv_comment:// 评论
@@ -194,7 +202,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         }
                         //如果是我自己，则跳朋友圈，其他人跳详细资料
                         if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
-                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
+                            intent = new Intent(getContext(), FriendTrendsActivity.class);
                             intent.putExtra("uid", messageInfoBean.getUid());
                             intent.putExtra(FriendTrendsActivity.POSITION, position);
                             startActivity(intent);
@@ -257,28 +265,18 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                                     }
                                 });
                         break;
-                    case R.id.rl_video:// 播放视频
+                    case R.id.iv_sign_picture:// 单张图片
                         AudioPlayUtil.stopAudioPlay();
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
                         if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
                             toPictruePreview(0, attachmentBeans);
-                        } else {
-                            Intent intent = new Intent(getContext(), VideoPlayActivity.class);
-                            if (attachmentBeans.size() > 0) {
-                                intent.putExtra("json", GsonUtils.optObject(attachmentBeans.get(0)));
-                                intent.putExtra("videopath", attachmentBeans.get(0).getUrl());
-                                intent.putExtra("bg_url", attachmentBeans.get(0).getBgUrl());
-                            }
-                            intent.putExtra("from", PictureConfig.FROM_CIRCLE);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivity(intent);
                         }
                         break;
                     case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
                         if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {
-                            Intent intent = new Intent(getContext(), FriendTrendsActivity.class);
+                            intent = new Intent(getContext(), FriendTrendsActivity.class);
                             intent.putExtra("uid", messageInfoBean.getUid());
                             intent.putExtra(FriendTrendsActivity.POSITION, position);
                             startActivity(intent);
@@ -289,48 +287,41 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 }
             }
         });
-        //TODO 需求改为只要不在本界面才暂停，随意滑动不暂停
+        bindingView.recyclerFollow.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                Jzvd jzvd = view.findViewById(R.id.video_player);
+                if (jzvd != null && Jzvd.CURRENT_JZVD != null && jzvd.jzDataSource != null &&
+                        jzvd.jzDataSource.containsTheUrl(Jzvd.CURRENT_JZVD.jzDataSource.getCurrentUrl())) {
+                    if (Jzvd.CURRENT_JZVD != null && Jzvd.CURRENT_JZVD.screen != Jzvd.SCREEN_FULLSCREEN) {
+                        Jzvd.releaseAllVideos();
+                    }
+                }
+            }
+        });
+
         bindingView.recyclerFollow.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(@android.support.annotation.NonNull RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                //判断是当前layoutManager是否为LinearLayoutManager
-                // 只有LinearLayoutManager才有查找第一个和最后一个可见view位置的方法
-                if (layoutManager instanceof LinearLayoutManager) {
-                    LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
-                    //获取最后一个可见view的位置
-                    int lastItemPosition = linearManager.findLastVisibleItemPosition();
-                    //获取第一个可见view的位置
-                    int firstItemPosition = linearManager.findFirstVisibleItemPosition();
-                    if (mFlowAdapter != null) {
-                        mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
-                    }
-                    //停止滑动状态
-                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-                        firstItemPosition = linearManager.findFirstVisibleItemPosition();
-                        View topView = layoutManager.getChildAt(firstItemPosition);
-                        if (topView != null) {
-                            //获取与该view的底部的偏移量
-                            firstOffset = topView.getTop();
-                        }
-                        if (mFlowAdapter != null) {
-                            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
-                            mFlowAdapter.notifyItemChanged(firstItemPosition);
-                        }
-                    }
-                    if (!isRefreshing && lastItemPosition >= mFlowAdapter.getItemCount() - 5) {
-                        isRefreshing = true;
-                        mPresenter.getFollowMomentList(++mCurrentPage, PAGE_SIZE);
-                    }
-                    // 判断当前是否有语音或视频播放
-//                    if (AudioPlayUtil.isPlay()) {
-//                        if (AudioPlayUtil.getRecyclerviewPosition() == -1 ||
-//                                AudioPlayUtil.getRecyclerviewPosition() < firstItemPosition ||
-//                                AudioPlayUtil.getRecyclerviewPosition() > lastItemPosition) {
-//                            AudioPlayUtil.stopAudioPlay();
-//                        }
-//                    }
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    AutoPlayUtils.onScrollPlayVideo(recyclerView, R.id.video_player,
+                            linearLayoutManager.findFirstVisibleItemPosition(),
+                            linearLayoutManager.findLastVisibleItemPosition());
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy != 0) {
+                    AutoPlayUtils.onScrollReleaseAllVideos(linearLayoutManager.findFirstVisibleItemPosition(),
+                            linearLayoutManager.findLastVisibleItemPosition(), 0.2f);
                 }
             }
         });
@@ -404,18 +395,18 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
         //更新关注单条动态
-        if(event.action==3){
-            for(int i=0;i<mFlowAdapter.getData().size();i++){
+        if (event.action == 3) {
+            for (int i = 0; i < mFlowAdapter.getData().size(); i++) {
                 MessageFlowItemBean bean = mFlowAdapter.getData().get(i);
                 MessageInfoBean msgBean = (MessageInfoBean) bean.getData();
                 //如果找到这一条，则刷新点赞状态，点赞数+1
                 if (msgBean.getId() != null && msgBean.getId().longValue() == event.id) {
                     if (event.isLike == 1) {
                         msgBean.setLike(1);
-                        msgBean.setLikeCount(msgBean.getLikeCount()+1);
+                        msgBean.setLikeCount(msgBean.getLikeCount() + 1);
                     } else {
                         msgBean.setLike(0);
-                        msgBean.setLikeCount(msgBean.getLikeCount()-1);
+                        msgBean.setLikeCount(msgBean.getLikeCount() - 1);
                     }
                     mFlowAdapter.notifyItemChanged(i);
                 }
@@ -544,7 +535,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
     @Override
     public void onLikeSuccess(int position, String msg) {
-        MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+        MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
         int like;
         if (messageInfoBean.getLike() != null) {
             like = messageInfoBean.getLike().intValue() == PictureEnum.ELikeType.YES ? 0 : 1;
@@ -774,6 +765,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
                 if (position >= 0) {
                     mFlowAdapter.getData().set(position, bean);
+                    if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                        position = position + 1;
+                    }
                     mFlowAdapter.notifyItemChanged(position);
                 }
             }

@@ -1,8 +1,10 @@
 package net.cb.cb.library;
 
 import android.content.Context;
-import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
+
+import androidx.multidex.MultiDexApplication;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
