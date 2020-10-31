@@ -477,8 +477,10 @@ public class FriendMainFragment extends Fragment {
         });
     }
 
-    public void notifyShow(){
-        if (viewModel != null && (viewModel.getFriends() == null || viewModel.getFriends().size() <= 0)){
+    public void notifyShow() {
+        if (viewModel != null && (viewModel.getFriends() == null || viewModel.getFriends().size() <= 0)) {
+            LogUtil.getLog().i("通讯录LOG", "页面可见时，无数据，获取本地数据");
+            LogUtil.writeLog("通讯录LOG--页面可见时，无数据，获取本地数据");
             MyAppLication.INSTANCE().repository.loadMoreFriends();
         }
     }

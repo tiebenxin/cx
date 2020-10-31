@@ -414,7 +414,7 @@ public class MainActivity extends BaseTcpActivity {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 } else if (tab.getPosition() == EMainTab.CONTACT || tab.getPosition() == EMainTab.ME) {  // 同时点击导航栏跟气泡时，延迟关闭气泡
-                    if (tab.getPosition() == EMainTab.CONTACT){
+                    if (tab.getPosition() == EMainTab.CONTACT) {
                         ((FriendMainFragment) fragments[tab.getPosition()]).notifyShow();
                     }
                     if (!isFinishing()) {
@@ -541,12 +541,16 @@ public class MainActivity extends BaseTcpActivity {
                     Intent intent = getIntent();
                     isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
                     if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
+                        LogUtil.getLog().i("MainActivity-通讯录LOG", "登录进来，获取通讯录数据");
+                        LogUtil.writeLog("通讯录LOG--登录进来，获取通讯录数据");
                         taskLoadFriends();
 //                    taskLoadSavedGroups();
                     } else {
                         UserDao userDao = new UserDao();
                         boolean hasInit = userDao.isRosterInit();
                         if (!hasInit) {//未初始化，初始化本地通讯录
+                            LogUtil.getLog().i("MainActivity-通讯录LOG", "数据未初始化，获取通讯录数据");
+                            LogUtil.writeLog("通讯录LOG--数据未初始化，获取通讯录数据");
                             taskLoadFriends();
                         }
                     }

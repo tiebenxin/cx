@@ -457,7 +457,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             @Override
             public void keyBoardHide(int h) {
                 isShowSoft = false;
-                clearEdit();
+//                if (TextUtils.isEmpty(bindingView.etMessage.getText())) {
+//                    bindingView.etMessage.setText("");
+//                    bindingView.etMessage.setHint("发表评论");
+//                }
+                mViewModel.isInputText.setValue(false);
+//                hideKeyboard();
             }
         });
 
@@ -688,6 +693,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         //初始化输入框
         if (!TextUtils.isEmpty(replyName)) {
             bindingView.etMessage.setHint("回复" + replyName + ":");
+        } else {
+            bindingView.etMessage.setHint("发表评论");
         }
         if (showSoftKey) {
             setSoftKeyboard();
