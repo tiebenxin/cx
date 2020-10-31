@@ -6,6 +6,8 @@ import android.widget.RelativeLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import net.cb.cb.library.utils.LogUtil;
+
 import cn.jzvd.JZUtils;
 import cn.jzvd.Jzvd;
 import cn.jzvd.JzvdStd;
@@ -37,6 +39,10 @@ public class AutoPlayUtils {
                 if (view != null && view instanceof Jzvd) {
                     JzvdStd player = (JzvdStd) view;
                     if (getViewVisiblePercent(player) == 1f) {
+                        // 判断是视频是否正在播放，如果是同一个视频则return;
+                        if (isPlayVideo(player)) {
+                            return;
+                        }
                         if (positionInList != i + firstVisiblePosition) {
                             if (player != null) {
                                 try {
@@ -56,6 +62,16 @@ public class AutoPlayUtils {
                 }
             }
         }
+    }
+
+    public static boolean isPlayVideo(JzvdStd player) {
+        boolean isPlay = false;
+        if ((player != null && Jzvd.CURRENT_JZVD != null && player.jzDataSource != null &&
+                player.jzDataSource.containsTheUrl(Jzvd.CURRENT_JZVD.jzDataSource.getCurrentUrl()))
+                && player.state == player.STATE_PLAYING) {
+            isPlay = true;
+        }
+        return isPlay;
     }
 
     /**

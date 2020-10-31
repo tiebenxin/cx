@@ -73,6 +73,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import cn.jzvd.Jzvd;
@@ -302,9 +304,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         bindingView.srlFollow.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-                if (mFollowList != null && mFollowList.size() == PAGE_SIZE) {
-                    mCurrentPage = 0l;
-                }
                 mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 1);
             }
         });
@@ -616,7 +615,27 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             } else if (list.size() > 0 && list.size() < PAGE_SIZE) {
                 bindingView.srlFollow.finishLoadMoreWithNoMoreData();
             } else {
-                mCurrentPage = ((MessageInfoBean) list.get(list.size() - 1).getData()).getId();
+                if (serviceType == 0) {
+                    List<MessageFlowItemBean> tempList = list;
+                    // 易路 时间排序取最大的id
+                    Collections.sort(tempList, new Comparator<MessageFlowItemBean>() {
+                        @Override
+                        public int compare(MessageFlowItemBean o1, MessageFlowItemBean o2) {
+                            //return o1.para - o2.para;  //升序
+                            long time = o2.getData().getCreateTime() - o1.getData().getCreateTime();
+                            int i = 0;
+                            if (time > 0) {
+                                i = 1;
+                            } else if (time < 0) {
+                                i = -1;
+                            }
+                            return i; //降序
+                        }
+                    });
+                    mCurrentPage = tempList.get(0).getData().getId();
+                } else {
+                    mCurrentPage = ((MessageInfoBean) list.get(list.size() - 1).getData()).getId();
+                }
                 bindingView.srlFollow.setEnableLoadMore(true);
                 bindingView.srlFollow.finishLoadMore();
             }

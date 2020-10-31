@@ -48,6 +48,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.HashMap;
 import java.util.List;
 
+import cn.jzvd.Jzvd;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -161,6 +163,12 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateRedEvent(EventFactory.UpdateRedEvent event) {
         bindingView.ivFollow.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Jzvd.releaseAllVideos();
     }
 
     @Override

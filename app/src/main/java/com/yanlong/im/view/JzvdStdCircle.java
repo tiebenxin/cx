@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.example.nim_lib.controll.AVChatProfile;
 import com.luck.picture.lib.audio.AudioPlayUtil;
@@ -62,7 +64,8 @@ public class JzvdStdCircle extends JzvdStd {
 
     public void onPrepared() {
         super.onPrepared();
-        videoCurrentTime.setVisibility(GONE);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(0, 0);
+        bottomContainer.setLayoutParams(layoutParams);
         mediaInterface.setVolume(0f, 0f);
     }
 

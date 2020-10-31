@@ -53,6 +53,7 @@ import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.JzvdStdCircle;
@@ -292,15 +293,18 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
                     resetSize(jzvdStd, attachmentBean.getWidth(), attachmentBean.getHeight());
-                    jzvdStd.setUp(attachmentBean.getUrl(), "", Jzvd.SCREEN_NORMAL);
+                    // 没有正在播放则设置 处理刷新暂停视频问题
+                    if (!AutoPlayUtils.isPlayVideo(jzvdStd)) {
+                        jzvdStd.setUp(attachmentBean.getUrl(), "", Jzvd.SCREEN_NORMAL);
+
+                        Glide.with(jzvdStd.getContext())
+                                .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
+                                .apply(GlideOptionsUtil.circleImageOptions())
+                                .into(jzvdStd.posterImageView);
+                    }
                     jzvdStd.setVideoUrl(attachmentBean.getUrl());
                     jzvdStd.setBgUrl(StringUtil.loadThumbnail(attachmentBean.getBgUrl()));
                     jzvdStd.setAttachmentBean(attachmentBean);
-
-                    Glide.with(jzvdStd.getContext())
-                            .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
-                            .apply(GlideOptionsUtil.circleImageOptions())
-                            .into(jzvdStd.posterImageView);
 
                     helper.setVisible(R.id.rl_video, true);
                     recyclerView.setVisibility(View.GONE);
