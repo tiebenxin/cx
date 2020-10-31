@@ -78,6 +78,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
     private MyCircleAction action;
+    private List<Integer> oldFollowList;//记录旧的关注状态
 
 
     public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList,int type) {
@@ -102,6 +103,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .error(com.yanlong.im.R.drawable.ic_info_head)
                 .centerCrop();
         builder = new CommonSelectDialog.Builder(activity);
+        oldFollowList = new ArrayList<>();
     }
 
 
@@ -117,6 +119,35 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         dataList.addAll(list);
         notifyDataSetChanged();
     }
+
+    //记录旧的关注状态
+    public void setOldFollowList(List<FriendUserBean> list,boolean whoSeeMe){
+        List<Integer> statusList = new ArrayList<>();
+        for(FriendUserBean bean : list){
+            if(whoSeeMe){
+                statusList.add(bean.getFollowStat());
+            }else {
+                statusList.add(bean.getStat());
+            }
+        }
+        oldFollowList.clear();
+        oldFollowList.addAll(statusList);
+    }
+
+    //加载更多记录旧的关注状态
+    public void addMoreOldFollowList(List<FriendUserBean> list,boolean whoSeeMe){
+        List<Integer> statusList = new ArrayList<>();
+        for(FriendUserBean bean : list){
+            if(whoSeeMe){
+                statusList.add(bean.getFollowStat());
+            }else {
+                statusList.add(bean.getStat());
+            }
+        }
+        oldFollowList.addAll(statusList);
+    }
+
+
 
     //更新某一条关注状态
     public void updateOneItem(int position,int type){ //有些区别，传过来的type ,0 未关注 1 已关注 ，这里是1 已关注 2 未关注
@@ -381,11 +412,21 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body().isOk()){
                     ToastUtil.show("关注成功");
                     if(type==2){
-                        dataList.get(position).setFollowStat(3);
+                        //若原来是已关注，取消后，点击仍然为已关注
+                        if(oldFollowList.get(position).intValue()==1){
+                            dataList.get(position).setFollowStat(1);
+                        }else if(oldFollowList.get(position).intValue()==3){
+                            dataList.get(position).setFollowStat(3);
+                        }
                     }else if(type==-1){
                         dataList.get(position).setStat(3);
                     }else {
-                        dataList.get(position).setStat(1);
+                        //若原来是已关注，取消后，点击仍然为已关注
+                        if(oldFollowList.get(position).intValue()==1){
+                            dataList.get(position).setStat(1);
+                        }else if(oldFollowList.get(position).intValue()==3){
+                            dataList.get(position).setStat(3);
+                        }
                     }
                     notifyItemChanged(position,tvFollow);
                     //关注单个用户，回到关注列表需要及时更新
