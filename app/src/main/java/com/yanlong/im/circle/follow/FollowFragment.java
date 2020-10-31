@@ -8,13 +8,10 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.android.arouter.facade.Postcard;
@@ -27,7 +24,6 @@ import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
-import com.luck.picture.lib.audio.IAudioPlayListener;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -40,7 +36,6 @@ import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.CircleUIHelper;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
@@ -67,7 +62,6 @@ import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
-import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -104,6 +98,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     private boolean isRefreshing;
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
+    private boolean isAudioPlaying = false;//是否语音正在播放
 
     protected FollowPresenter createPresenter() {
         return new FollowPresenter(getContext());
@@ -177,6 +172,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     return;
                 }
                 gotoCircleDetailsActivity(false, position);
+                checkAudioStatus(true);
             }
         });
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
@@ -195,6 +191,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                             return;
                         }
                         gotoCircleDetailsActivity(true, position);
+                        checkAudioStatus(true);
                         break;
                     case R.id.iv_header:// 头像
                         if (AudioPlayUtil.isPlay()) {
@@ -266,12 +263,12 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                                 });
                         break;
                     case R.id.iv_sign_picture:// 单张图片
-                        AudioPlayUtil.stopAudioPlay();
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
                         if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
-                            toPictruePreview(0, attachmentBeans);
+                            toPicturePreview(0, attachmentBeans);
+                            checkAudioStatus(false);
                         }
                         break;
                     case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
@@ -433,10 +430,10 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     /**
      * 查看图片
      *
-     * @param postion         位置
+     * @param position        位置
      * @param attachmentBeans 图片集合
      */
-    private void toPictruePreview(int postion, List<AttachmentBean> attachmentBeans) {
+    private void toPicturePreview(int position, List<AttachmentBean> attachmentBeans) {
         List<LocalMedia> selectList = new ArrayList<>();
         for (AttachmentBean bean : attachmentBeans) {
             LocalMedia localMedia = new LocalMedia();
@@ -450,7 +447,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         PictureSelector.create(getActivity())
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
-                .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
+                .openExternalPreview1(position, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 
     @Override
@@ -617,11 +614,13 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             } else {
                 if (!DoubleUtils.isFastDoubleClick()) {
                     gotoCircleDetailsActivity(false, position);
+                    checkAudioStatus(true);
                 }
             }
         } else if (type == CoreEnum.EClickType.CLICK_VOICE) {
             MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
-            if (messageInfoBean != null && messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
+            if (messageInfoBean != null && messageInfoBean.getType() != null &&
+                    (messageInfoBean.getType() == PictureEnum.EContentType.VOICE || messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
                 playVoice(messageInfoBean);
             }
 
@@ -719,6 +718,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     AudioPlayUtil.startAudioPlay(getActivity(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
                         @Override
                         public void onStart(Uri var1) {
+                            isAudioPlaying = true;
                             messageInfoBean.setPlay(true);
                             messageInfoBean.setPlayProgress(0);
                             updatePosition(messageInfoBean);
@@ -726,6 +726,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
                         @Override
                         public void onStop(Uri var1) {
+                            isAudioPlaying = false;
                             messageInfoBean.setPlay(false);
                             updatePosition(messageInfoBean);
 
@@ -733,6 +734,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 
                         @Override
                         public void onComplete(Uri var1) {
+                            isAudioPlaying = false;
                             messageInfoBean.setPlay(false);
                             messageInfoBean.setPlayProgress(100);
                             updatePosition(messageInfoBean);
@@ -772,5 +774,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 }
             }
         }, 100);
+    }
+
+    private void checkAudioStatus(boolean stop) {
+        if (isAudioPlaying && stop) {
+            AudioPlayUtil.stopAudioPlay();
+        }
     }
 }
