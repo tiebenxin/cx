@@ -9,4 +9,5 @@ package net.cb.cb.library.inter;
 public interface IFriendTrendClickListner {
     void clickReport();
     void clickCancle();
+    void clickFollow();
 }

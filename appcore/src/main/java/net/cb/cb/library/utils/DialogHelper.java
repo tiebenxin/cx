@@ -453,6 +453,18 @@ public class DialogHelper {
         dialogParams.gravity = Gravity.BOTTOM;
         dialogParams.width = width;
         window.setAttributes(dialogParams);
+        dialogview.findViewById(R.id.tv_follow).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (selectDialog != null) {
+                    selectDialog.dismiss();
+                }
+                if (!ViewUtils.isFastDoubleClick()) {
+                    clickListner.clickFollow();
+                }
+            }
+        });
         dialogview.findViewById(R.id.tv_report).setOnClickListener(new View.OnClickListener() {
 
             @Override

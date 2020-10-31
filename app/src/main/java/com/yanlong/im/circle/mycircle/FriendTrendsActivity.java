@@ -152,6 +152,12 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             @Override
             public void onRightClick() {
                 DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+
+                    @Override
+                    public void clickFollow() {
+                        showCancleFollowDialog(friendUid);
+                    }
+
                     @Override
                     public void clickReport() {
                         //举报
@@ -277,6 +283,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
                     @Override
                     public void clickCancle() {
+
+                    }
+
+                    @Override
+                    public void clickFollow() {
 
                     }
                 });
