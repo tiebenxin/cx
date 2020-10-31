@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MotionEvent;
@@ -30,6 +31,7 @@ import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.circle.CreateCircleActivity;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -47,6 +49,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.CirclePowerSetupActivity;
+import com.yanlong.im.circle.CircleUIHelper;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.adapter.CommentAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
@@ -69,6 +72,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.view.DeletPopWindow;
 
 import net.cb.cb.library.CoreEnum;
@@ -744,6 +748,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             startActivity(new Intent(getContext(), ChatActivity.class)
                     .putExtra(ChatActivity.AGM_TOUID, mMessageInfoBean.getUid()));
             finish();
+        } else if (type == CoreEnum.EClickType.CLICK_VOICE) {
+            MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
+            if (messageInfoBean != null && messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
+                playVoice(messageInfoBean);
+            }
+
         }
     }
 
@@ -835,9 +845,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-            if(fromWhere.equals("FriendTrendsActivity")){
+            if (fromWhere.equals("FriendTrendsActivity")) {
                 event.action = 0;
-            }else if(fromWhere.equals("MyTrendsActivity")){
+            } else if (fromWhere.equals("MyTrendsActivity")) {
                 event.action = 1;
             }
             event.position = TrendPosition;
@@ -940,12 +950,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     public void onVoteSuccess(int parentPosition, String msg) {
-        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
+        if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-            if(fromWhere.equals("FriendTrendsActivity")){
+            if (fromWhere.equals("FriendTrendsActivity")) {
                 event.action = 0;
-            }else if(fromWhere.equals("MyTrendsActivity")){
+            } else if (fromWhere.equals("MyTrendsActivity")) {
                 event.action = 1;
             }
             event.position = TrendPosition;
@@ -955,7 +965,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             event1.id = mMessageInfoBean.getId();
             event1.action = 3;
             EventBus.getDefault().post(event1);
-        }else {
+        } else {
             refreshFollowList();
         }
         mPresenter.queryById(mMessageInfoBean.getId(), mMessageInfoBean.getUid(), parentPosition);
@@ -982,12 +992,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
         messageInfoBean.setLike(like);
         mFlowAdapter.notifyItemChanged(position);
-        if(!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")){
+        if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
             //通知好友动态主页、我的动态主页刷新
             EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
-            if(fromWhere.equals("FriendTrendsActivity")){
+            if (fromWhere.equals("FriendTrendsActivity")) {
                 event.action = 0;
-            }else if(fromWhere.equals("MyTrendsActivity")){
+            } else if (fromWhere.equals("MyTrendsActivity")) {
                 event.action = 1;
             }
             event.position = TrendPosition;
@@ -997,7 +1007,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             event1.id = messageInfoBean.getId();
             event1.action = 3;
             EventBus.getDefault().post(event1);
-        }else {
+        } else {
             refreshFollowList();
         }
     }
@@ -1158,6 +1168,82 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 )
                 .build();
         dialog.show();
+    }
+
+    public void playVoice(MessageInfoBean messageInfoBean) {
+        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+            List<AttachmentBean> attachmentBeans = null;
+            try {
+                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                        new TypeToken<List<AttachmentBean>>() {
+                        }.getType());
+            } catch (Exception e) {
+                attachmentBeans = new ArrayList<>();
+            }
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                if (messageInfoBean.isPlay()) {
+                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayManager.getInstance().stopPlay();
+                    }
+                } else {
+
+                    AudioPlayUtil.startAudioPlay(this.getApplicationContext(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                        @Override
+                        public void onStart(Uri var1) {
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(0);
+                            updatePosition(messageInfoBean);
+                        }
+
+                        @Override
+                        public void onStop(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onComplete(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            messageInfoBean.setPlayProgress(100);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onProgress(int progress) {
+                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(progress);
+                            updatePosition(messageInfoBean);
+                        }
+                    });
+
+                }
+            }
+        }
+    }
+
+    private void updatePosition(MessageInfoBean messageInfoBean) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
+            return;
+        }
+        bindingView.recyclerComment.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(messageInfoBean.getType()), messageInfoBean);
+                int position = mFlowAdapter.getData().indexOf(bean);
+                LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
+                if (position >= 0) {
+                    mFlowAdapter.getData().set(position, bean);
+                    if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                        position = position + 1;
+                    }
+                    mFlowAdapter.notifyItemChanged(position);
+                }
+            }
+        }, 100);
     }
 
 }
