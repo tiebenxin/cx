@@ -553,8 +553,8 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
 
         mPictureAdapter = new PicturePreviewAdapter(this, mList, this);
-        recycler_picture_prview.addItemDecoration(new GridSpacingItemDecoration(4,
-                ScreenUtils.dip2px(this, 5), false));
+//        recycler_picture_prview.addItemDecoration(new GridSpacingItemDecoration(4,
+//                ScreenUtils.dip2px(this, 5), false));
         recycler_picture_prview.setLayoutManager(new GridLayoutManager(this, 4));
         recycler_picture_prview.setAdapter(mPictureAdapter);
     }
@@ -1649,7 +1649,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         if (selectImages != null && selectImages.size() > 0) {
             mList.clear();
             mList.addAll(selectImages);
-            if (mList.size() < 9) {
+            if (mList.size() < 4) {
                 addShowAdd();
             }
             mPictureAdapter.notifyDataSetChanged();
