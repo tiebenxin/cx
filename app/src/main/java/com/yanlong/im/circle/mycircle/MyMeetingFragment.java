@@ -101,10 +101,16 @@ public class MyMeetingFragment extends Fragment {
                         if (page > 1) {
                             adapter.addMoreList(response.body().getData());
                             adapter.setLoadState(adapter.LOADING_MORE);
+                            if(type==2){
+                                adapter.addMoreOldFollowList(response.body().getData(),true);
+                            }
                         } else {
                             //1-2 第一次加载，若超过8个显示加载更多
                             mList.addAll(response.body().getData());
                             adapter.updateList(mList);
+                            if(type==2){
+                                adapter.setOldFollowList(mList,true);
+                            }
                             if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_8) {
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             }

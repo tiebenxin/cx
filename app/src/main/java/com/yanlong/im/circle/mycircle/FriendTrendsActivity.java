@@ -4,24 +4,31 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.hm.cxpay.dailog.CommonSelectDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IRefreshListenr;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
-import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
@@ -66,7 +73,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private int isFollow;//是否关注了该用户
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
-
+    private int uType;//好友关系
 
     @Override
     protected int setView() {
@@ -78,7 +85,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         action = new MyCircleAction();
         mList = new ArrayList<>();
         bindingView.layoutFollow.setVisibility(View.VISIBLE);
-        bindingView.layoutChat.setVisibility(View.VISIBLE);
+        bindingView.layoutBottom.setVisibility(View.VISIBLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             //5.0 全透明实现
             //getWindow.setStatusBarColor(Color.TRANSPARENT)
@@ -99,35 +106,16 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Override
     protected void initEvent() {
-//        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
-//        ivRight.setImageResource(R.mipmap.ic_circle_more);
-//        ivRight.setVisibility(View.VISIBLE);
-//        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
-//                ScreenUtil.dip2px(this, 10), 0);
-//        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
-//            @Override
-//            public void onBack() {
-//                onBackPressed();
-//            }
-//
-//            @Override
-//            public void onRight() {
-//                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
-//                    @Override
-//                    public void clickReport() {
-//                        //举报
-//                        Intent intent = new Intent(FriendTrendsActivity.this, ComplaintActivity.class);
-//                        intent.putExtra(ComplaintActivity.UID, friendUid + "");
-//                        startActivity(intent);
-//                    }
-//                });
-//            }
-//        });
+
     }
 
     @Override
     protected void loadData() {
         friendUid = getIntent().getLongExtra("uid",0);
+        UserInfo userInfo = new UserDao().findUserInfo(friendUid);
+        if (userInfo != null && userInfo.getuType() != null) {
+            uType = userInfo.getuType().intValue();
+        }
         httpGetFriendTrends();
         adapter = new MyTrendsAdapter(FriendTrendsActivity.this,mList,2,friendUid);
         bindingView.recyclerView.setAdapter(adapter);
@@ -165,6 +153,12 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             @Override
             public void onRightClick() {
                 DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+
+                    @Override
+                    public void clickFollow() {
+                        showCancleFollowDialog(friendUid);
+                    }
+
                     @Override
                     public void clickReport() {
                         //举报
@@ -183,7 +177,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         });
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
         bindingView.ivCreateCircle.setVisibility(View.GONE);
-        //关注
+        //关注点击事件
         bindingView.layoutFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -191,22 +185,117 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     ToastUtil.show(getString(R.string.user_disable_message));
                     return;
                 }
-                if(isFollow==0){
+                if(bindingView.tvFollow.getText().toString().equals("关注")){
                     httpToFollow(friendUid);
-                }else {
-                    showCancleFollowDialog(friendUid);
-//                    httpCancelFollow(friendUid);
+                }else if(bindingView.tvFollow.getText().toString().equals("私聊")){
+                    startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOUID, friendUid));
+                    finish();
+                }else if(bindingView.tvFollow.getText().toString().equals("加好友")){
+                    String sayHi;
+                    if (!TextUtils.isEmpty(UserAction.getMyInfo().getName())) {
+                        sayHi = "你好，我是" + UserAction.getMyInfo().getName();
+                    } else {
+                        sayHi = "交个朋友吧~";
+                    }
+                    new UserAction().friendApply(friendUid, sayHi, null, new CallBack<ReturnBean>() {
+                        @Override
+                        public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                            if (response.body() == null) {
+                                return;
+                            }
+                            //可能开了验证，不能通过接口返回结果来判断是否已经是好友了
+                            if (response.body().isOk()) {
+                                ToastUtil.show("好友申请已发送");
+                            }else {
+                                ToastUtil.show(response.body().getMsg());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ReturnBean> call, Throwable t) {
+                            super.onFailure(call, t);
+                            ToastUtil.show(t.getMessage());
+                        }
+                    });
+
                 }
             }
         });
-        //私聊
-        bindingView.layoutChat.setOnClickListener(new View.OnClickListener() {
+        // topbar是自定义的标题栏
+        bindingView.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(FriendTrendsActivity.this, UserInfoActivity.class)
-                        .putExtra(UserInfoActivity.ID, friendUid));
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager layoutManager = (LinearLayoutManager) bindingView.recyclerView.getLayoutManager();
+                // 第一个可见Item的位置
+                int position = layoutManager.findFirstVisibleItemPosition();
+                // 是第一项才去渐变
+                if (position == 0) {
+                    // 注意此操作如果第一项划出屏幕外,拿到的是空的，所以必须是position是0的时候才能调用
+                    View firstView = layoutManager.findViewByPosition(position);
+                    // 第一项Item的高度
+                    int firstHeight = firstView.getHeight();
+                    // 距离顶部的距离，是负数，也就是说-top就是它向上滑动的距离
+                    int scrollY = -firstView.getTop();
+                    // 要在它滑到二分之一的时候去渐变
+                    int changeHeight = firstHeight / 2;
+                    // 小于头部高度一半隐藏标题栏
+                    if (scrollY <= changeHeight) {
+                        bindingView.layoutTop.setVisibility(View.GONE);
+                    } else {
+                        bindingView.layoutTop.setVisibility(View.VISIBLE);
+                        // 设置了一条分割线，渐变的时候分割线先GONE掉，要不不好看
+//                        bindingView.layoutTop.getViewGrayLine().setVisibility(View.GONE);
+                        // 从高度的一半开始算透明度，也就是说移动到头部Item的中部，透明度从0开始计算
+                        float alpha = (float)(scrollY - changeHeight) / changeHeight;
+                        bindingView.layoutTop.setAlpha(alpha);
+                    }
+                    // 其他的时候就设置都可见，透明度是1
+                } else {
+                    bindingView.layoutTop.setVisibility(View.VISIBLE);
+//                    bindingView.layoutTop.getViewGrayLine().setVisibility(View.VISIBLE);
+                    bindingView.layoutTop.setAlpha(1);
+                }
             }
         });
+        bindingView.ivBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        bindingView.ivMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+                    @Override
+                    public void clickReport() {
+                        //举报
+                        Intent intent = new Intent(FriendTrendsActivity.this, ComplaintActivity.class);
+                        intent.putExtra(ComplaintActivity.UID, friendUid + "");
+                        intent.putExtra(ComplaintActivity.FROM_WHERE, 0);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void clickCancle() {
+
+                    }
+
+                    @Override
+                    public void clickFollow() {
+
+                    }
+                });
+
+            }
+        });
+        bindingView.tvTitle.setVisibility(View.GONE);
     }
 
     /**
@@ -234,12 +323,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 //1-2 第一次加载，若超过3个显示加载更多
                                 isFollow = bean.getMyFollow();
                                 if(isFollow==0){
-                                    bindingView.tvFollow.setText("关注");
                                     adapter.ifFollow(false);
                                 }else {
-                                    bindingView.tvFollow.setText("已关注");
                                     adapter.ifFollow(true);
                                 }
+                                showBottomView();
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
                                 adapter.setTopData(bean);
@@ -258,12 +346,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 //2-2 第一次加载，没有数据则不显示尾部
                                 isFollow = bean.getMyFollow();
                                 if(isFollow==0){
-                                    bindingView.tvFollow.setText("关注");
                                     adapter.ifFollow(false);
                                 }else {
-                                    bindingView.tvFollow.setText("已关注");
                                     adapter.ifFollow(true);
                                 }
+                                showBottomView();
                                 adapter.setLoadState(adapter.LOADING_GONE);
                             }
                         }
@@ -296,9 +383,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 }
                 if (response.body().isOk()){
                     ToastUtil.show("关注成功");
-                    bindingView.tvFollow.setText("已关注");
                     isFollow = 1;
                     adapter.ifFollow(true);
+                    showBottomView();
                     //关注单个用户，回到关注列表需要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 1;
@@ -328,9 +415,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 }
                 if (response.body().isOk()){
                     ToastUtil.show("取消关注成功");
-                    bindingView.tvFollow.setText("关注");
                     isFollow = 0;
                     adapter.ifFollow(false);
+                    showBottomView();
                     //取消关注单个用户，推荐/关注列表都要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 0;
@@ -353,14 +440,13 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     public void updateFollowState(EventFactory.UpdateFollowStateEvent event) {
         if(event.uid==friendUid){
             if(event.type==0){
-                bindingView.tvFollow.setText("关注");
                 isFollow = 0;
                 adapter.ifFollow(false);
             }else {
-                bindingView.tvFollow.setText("已关注");
                 isFollow = 1;
                 adapter.ifFollow(true);
             }
+            showBottomView();
         }
     }
 
@@ -440,5 +526,22 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 )
                 .build();
         dialog.show();
+    }
+
+    //展示底部按钮文案
+    private void showBottomView(){
+        if (uType == ChatEnum.EUserType.FRIEND || uType == ChatEnum.EUserType.BLACK) {
+            if (isFollow==1) {
+                bindingView.tvFollow.setText("私聊");
+            } else {
+                bindingView.tvFollow.setText("关注");
+            }
+        } else {
+            if (isFollow==1) {
+                bindingView.tvFollow.setText("加好友");
+            } else {
+                bindingView.tvFollow.setText("关注");
+            }
+        }
     }
 }

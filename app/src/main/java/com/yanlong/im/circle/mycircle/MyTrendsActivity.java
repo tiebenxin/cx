@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -79,7 +81,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         mList = new ArrayList<>();
         msgDao = new MsgDao();
         bindingView.layoutFollow.setVisibility(View.GONE);
-        bindingView.layoutChat.setVisibility(View.GONE);
+        bindingView.layoutBottom.setVisibility(View.GONE);
         if (!RxBus.getDefault().isRegistered(this)) {
             RxBus.getDefault().register(this);
         }
@@ -173,6 +175,54 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         }else {
             adapter.showNotice(false,"",0);
         }
+        // topbar是自定义的标题栏
+        bindingView.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager layoutManager = (LinearLayoutManager) bindingView.recyclerView.getLayoutManager();
+                // 第一个可见Item的位置
+                int position = layoutManager.findFirstVisibleItemPosition();
+                // 是第一项才去渐变
+                if (position == 0) {
+                    // 注意此操作如果第一项划出屏幕外,拿到的是空的，所以必须是position是0的时候才能调用
+                    View firstView = layoutManager.findViewByPosition(position);
+                    // 第一项Item的高度
+                    int firstHeight = firstView.getHeight();
+                    // 距离顶部的距离，是负数，也就是说-top就是它向上滑动的距离
+                    int scrollY = -firstView.getTop();
+                    // 要在它滑到二分之一的时候去渐变
+                    int changeHeight = firstHeight / 2;
+                    // 小于头部高度一半隐藏标题栏
+                    if (scrollY <= changeHeight) {
+                        bindingView.layoutTop.setVisibility(View.GONE);
+                    } else {
+                        bindingView.layoutTop.setVisibility(View.VISIBLE);
+                        // 设置了一条分割线，渐变的时候分割线先GONE掉，要不不好看
+//                        bindingView.layoutTop.getViewGrayLine().setVisibility(View.GONE);
+                        // 从高度的一半开始算透明度，也就是说移动到头部Item的中部，透明度从0开始计算
+                        float alpha = (float)(scrollY - changeHeight) / changeHeight;
+                        bindingView.layoutTop.setAlpha(alpha);
+                    }
+                    // 其他的时候就设置都可见，透明度是1
+                } else {
+                    bindingView.layoutTop.setVisibility(View.VISIBLE);
+//                    bindingView.layoutTop.getViewGrayLine().setVisibility(View.VISIBLE);
+                    bindingView.layoutTop.setAlpha(1);
+                }
+            }
+        });
+        bindingView.ivBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        bindingView.ivMore.setVisibility(View.GONE);
     }
 
     /**
