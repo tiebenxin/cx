@@ -440,7 +440,7 @@ public class DialogHelper {
      * @param context
      * @param clickListner
      */
-    public void createFriendTrendDialog(Context context, final IFriendTrendClickListner clickListner) {
+    public void createFriendTrendDialog(boolean showCancleFollow,Context context, final IFriendTrendClickListner clickListner) {
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
@@ -453,7 +453,13 @@ public class DialogHelper {
         dialogParams.gravity = Gravity.BOTTOM;
         dialogParams.width = width;
         window.setAttributes(dialogParams);
-        dialogview.findViewById(R.id.tv_follow).setOnClickListener(new View.OnClickListener() {
+        TextView tvFollow = dialogview.findViewById(R.id.tv_follow);
+        if(showCancleFollow){
+            tvFollow.setVisibility(View.VISIBLE);
+        }else {
+            tvFollow.setVisibility(View.GONE);
+        }
+        tvFollow.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {

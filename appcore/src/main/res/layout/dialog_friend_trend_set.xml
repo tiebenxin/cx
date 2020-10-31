@@ -18,10 +18,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@mipmap/ic_circle_details_follow"
+            android:drawableTop="@mipmap/ic_cancle_follow"
             android:drawablePadding="10dp"
             android:gravity="center"
-            android:text="关注TA"
+            android:text="取消关注"
             android:textColor="@color/color_3A3"
             android:textSize="13sp" />
 

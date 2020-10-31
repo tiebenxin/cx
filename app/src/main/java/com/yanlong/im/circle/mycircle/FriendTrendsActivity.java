@@ -15,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -152,7 +153,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
             @Override
             public void onRightClick() {
-                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+                boolean ifShow = isFollow==1? true:false;
+                DialogHelper.getInstance().createFriendTrendDialog(ifShow,FriendTrendsActivity.this, new IFriendTrendClickListner() {
 
                     @Override
                     public void clickFollow() {
@@ -272,7 +274,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         bindingView.ivMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DialogHelper.getInstance().createFriendTrendDialog(FriendTrendsActivity.this, new IFriendTrendClickListner() {
+                boolean ifShow = isFollow==1? true:false;
+                DialogHelper.getInstance().createFriendTrendDialog(ifShow,FriendTrendsActivity.this, new IFriendTrendClickListner() {
                     @Override
                     public void clickReport() {
                         //举报
@@ -289,7 +292,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
                     @Override
                     public void clickFollow() {
-
+                        showCancleFollowDialog(friendUid);
                     }
                 });
 
@@ -456,6 +459,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+        AudioPlayUtil.stopAudioPlay();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

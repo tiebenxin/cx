@@ -105,7 +105,7 @@ import static com.yanlong.im.circle.follow.FollowFragment.IS_OPEN;
  * @类名：我的动态(我的朋友圈)适配器 (含上拉加载)
  * @Date：2019/12/9
  * @by zjy
- * @备注：
+ * @备注：/
  */
 
 public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
