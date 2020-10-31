@@ -2,13 +2,11 @@ package com.yanlong.im.view.face.adapter;
 
 import java.util.ArrayList;
 
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.view.Gravity;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 
 /**
  * viewpager的适配器

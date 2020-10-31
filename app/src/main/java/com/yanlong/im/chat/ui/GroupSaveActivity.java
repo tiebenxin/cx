@@ -2,10 +2,11 @@ package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;

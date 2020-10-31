@@ -5,9 +5,6 @@ import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -20,12 +17,17 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -53,19 +55,25 @@ import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.view.JzvdStdCircle;
 import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.jzvd.Jzvd;
+import cn.jzvd.JzvdStd;
 
 /**
  * @version V1.0
@@ -110,7 +118,8 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        RoundImageView ivVideo = helper.getView(R.id.iv_video);
+        RoundImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
+        JzvdStdCircle jzvdStd = helper.getView(R.id.video_player);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
         ProgressBar pbProgress = helper.getView(R.id.pb_progress);
@@ -179,7 +188,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
         //浏览量
         helper.setText(R.id.tv_watch_num, messageInfoBean.getBrowseCount() + "浏览");
-
+//
         if (messageInfoBean.getLikeCount() != null && messageInfoBean.getLikeCount() > 0) {
             ivLike.setText(StringUtil.numberFormart(messageInfoBean.getLikeCount()));
         } else {
@@ -200,6 +209,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         } else {
             helper.setText(R.id.iv_comment, "评论");
         }
+        helper.setGone(R.id.iv_sign_picture, false);
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
@@ -244,7 +254,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     if (attachmentBeans.size() == 1) {
-                        resetSize(ivVideo, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
+                        resetSize(ivSignPicture, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
                         String path = StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl());
                         if (isGif(path)) {
                             RequestOptions options = new RequestOptions();
@@ -259,38 +269,43 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                                 public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
                                     return false;
                                 }
-                            }).into(ivVideo);
+                            }).into(ivSignPicture);
                         } else {
                             Glide.with(mContext)
                                     .asBitmap()
                                     .load(path)
                                     .apply(GlideOptionsUtil.circleImageOptions())
-                                    .into(ivVideo);
+                                    .into(ivSignPicture);
                         }
-                        helper.setVisible(R.id.rl_video, true);
+                        helper.setVisible(R.id.iv_sign_picture, true);
                         recyclerView.setVisibility(View.GONE);
                         helper.setGone(R.id.layout_voice, false);
-                        helper.setGone(R.id.iv_play, false);
+//                        helper.setGone(R.id.iv_play, false);
                     } else {
                         helper.setGone(R.id.layout_voice, false);
-                        helper.setGone(R.id.rl_video, false);
                         recyclerView.setVisibility(View.VISIBLE);
                         setRecycleView(recyclerView, attachmentBeans, position);
                     }
+                    helper.setGone(R.id.rl_video, false);
                 }
             } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VIDEO) {
                 if (attachmentBeans != null && attachmentBeans.size() > 0) {
                     AttachmentBean attachmentBean = attachmentBeans.get(0);
-                    resetSize(ivVideo, attachmentBean.getWidth(), attachmentBean.getHeight());
-                    Glide.with(mContext)
-                            .asBitmap()
+                    resetSize(jzvdStd, attachmentBean.getWidth(), attachmentBean.getHeight());
+                    jzvdStd.setUp(attachmentBean.getUrl(), "", Jzvd.SCREEN_NORMAL);
+                    jzvdStd.setVideoUrl(attachmentBean.getUrl());
+                    jzvdStd.setBgUrl(StringUtil.loadThumbnail(attachmentBean.getBgUrl()));
+                    jzvdStd.setAttachmentBean(attachmentBean);
+
+                    Glide.with(jzvdStd.getContext())
                             .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
                             .apply(GlideOptionsUtil.circleImageOptions())
-                            .into(ivVideo);
+                            .into(jzvdStd.posterImageView);
+
                     helper.setVisible(R.id.rl_video, true);
                     recyclerView.setVisibility(View.GONE);
                     helper.setGone(R.id.layout_voice, false);
-                    helper.setGone(R.id.iv_play, true);
+//                    helper.setGone(R.id.iv_play, true);
                 }
             }
         } else {
@@ -307,6 +322,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             tvContent.setText(getSpan(messageInfoBean.getContent()));
         }
         TextView tvMore = helper.getView(R.id.tv_show_all);
+
         if (isDetails) {
             tvContent.setMaxLines(Integer.MAX_VALUE);
             if (UserAction.getMyId() != null
@@ -349,8 +365,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
 //                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
             if (!TextUtils.isEmpty(messageInfoBean.getContent())) {
                 if (!messageInfoBean.isShowAll()) {
-                    helper.setVisible(R.id.tv_show_all, true);
-                    tvContent.setMaxLines(MAX_ROW_NUMBER);//默认三行
+                    tvContent.setMaxLines(MAX_ROW_NUMBER);
                     tvContent.setTag("" + helper.getAdapterPosition());
                     hashMap.put(helper.getAdapterPosition(), tvContent);
                     tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -383,7 +398,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 helper.setGone(R.id.tv_show_all, false);
             }
         }
-
+//
         helper.getView(R.id.tv_show_all).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -400,8 +415,8 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 }
             }
         });
-        helper.addOnClickListener(R.id.iv_comment, R.id.iv_header, /*R.id.tv_follow,*/
-                R.id.iv_like, R.id.iv_setup, R.id.rl_video, R.id.tv_user_name);
+        helper.addOnClickListener(R.id.iv_comment, R.id.iv_header,
+                R.id.iv_like, R.id.iv_setup, R.id.tv_user_name, R.id.iv_sign_picture);
     }
 
     private void setTextViewLines(TextView content, TextView btn, boolean isShowAll, BaseViewHolder helper) {
@@ -416,7 +431,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         }
     }
 
-    private void resetSize(RoundImageView imageView, int imgWidth, int imgHeight) {
+    private void resetSize(View view, int imgWidth, int imgHeight) {
         //w/h = 3/4
         final int DEFAULT_W = DensityUtil.dip2px(mContext, 120);
         final int DEFAULT_H = DensityUtil.dip2px(mContext, 180);
@@ -435,10 +450,18 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 width = height = DEFAULT_W;
             }
         }
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        lp.width = width;
-        lp.height = height;
-        imageView.setLayoutParams(lp);
+        if (view instanceof RoundImageView) {
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            lp.width = width;
+            lp.height = height;
+            lp.setMargins(0, ScreenUtil.dip2px(mContext, 10), 0, 0);
+            view.setLayoutParams(lp);
+        } else {
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            lp.width = width;
+            lp.height = height;
+            view.setLayoutParams(lp);
+        }
     }
 
     /**

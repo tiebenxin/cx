@@ -7,13 +7,13 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
@@ -81,7 +81,7 @@ import io.realm.RealmObject;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
 
 /**

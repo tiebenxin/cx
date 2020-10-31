@@ -1,6 +1,6 @@
 package com.yanlong.im.chat.ui.forward.vm;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel;
 
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.user.bean.UserInfo;

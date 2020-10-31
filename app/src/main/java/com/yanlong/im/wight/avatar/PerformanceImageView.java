@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
+import androidx.appcompat.widget.AppCompatImageView;
 
-public class PerformanceImageView extends android.support.v7.widget.AppCompatImageView {
+
+public class PerformanceImageView extends AppCompatImageView {
 
     private boolean mMeasuredExactly = false;
 

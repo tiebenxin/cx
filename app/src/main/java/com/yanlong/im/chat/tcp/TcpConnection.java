@@ -4,7 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.IntDef;
+
+import androidx.annotation.IntDef;
 
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketUtil;

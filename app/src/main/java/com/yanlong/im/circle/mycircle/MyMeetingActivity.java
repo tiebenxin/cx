@@ -1,9 +1,10 @@
 package com.yanlong.im.circle.mycircle;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
+
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.CommonPagerAdapter;

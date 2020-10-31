@@ -3,7 +3,6 @@ package com.yanlong.im.utils.update;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -13,6 +12,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.yanlong.im.R;
 

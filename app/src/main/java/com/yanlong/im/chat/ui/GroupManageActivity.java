@@ -3,10 +3,11 @@ package com.yanlong.im.chat.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
+
+import androidx.annotation.Nullable;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.ui.BaseBindActivity;

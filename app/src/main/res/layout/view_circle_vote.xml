@@ -91,7 +91,7 @@
                 android:src="@mipmap/ic_circle_more" />
         </RelativeLayout>
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -123,6 +123,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:visibility="gone" />
+        <!-- 单张图片-->
+        <com.yanlong.im.wight.avatar.RoundImageView
+            android:id="@+id/iv_sign_picture"
+            android:layout_width="186dp"
+            android:layout_height="255dp"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"
+            app:radius="4dp" />
         <!-- 视频-->
         <RelativeLayout
             android:id="@+id/rl_video"
@@ -132,23 +140,20 @@
             android:background="@color/white"
             android:visibility="gone">
 
-            <com.yanlong.im.wight.avatar.RoundImageView
-                android:id="@+id/iv_video"
-                android:layout_width="186dp"
-                android:layout_height="255dp"
-                app:radius="5dp" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="0dp"
+                app:cardCornerRadius="4dp">
 
-            <ImageView
-                android:id="@+id/iv_play"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:background="@mipmap/video_msg_play_show"
-                android:elevation="2dp" />
+                <com.yanlong.im.view.JzvdStdCircle
+                    android:id="@+id/video_player"
+                    android:layout_width="186dp"
+                    android:layout_height="255dp" />
+            </androidx.cardview.widget.CardView>
         </RelativeLayout>
         <!-- 图片-->
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -164,7 +169,7 @@
             android:layout_marginRight="15dp"
             android:orientation="vertical">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_vote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -185,18 +190,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginTop="7dp"
             android:layout_toLeftOf="@+id/iv_like"
             android:clickable="false"
-            android:layout_marginTop="7dp"
-            android:drawablePadding="5dp"
             android:drawableLeft="@mipmap/ic_circle_location_gray"
+            android:drawablePadding="5dp"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:singleLine="true"
             android:text="长沙市"
-            android:visibility="gone"
             android:textColor="@color/green_500"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:visibility="gone" />
         <!-- 评论-->
         <RelativeLayout
             android:layout_width="match_parent"
@@ -211,31 +216,32 @@
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/iv_like"
                 android:clickable="false"
-                android:drawablePadding="5dp"
                 android:drawableLeft="@mipmap/ic_circle_location_gray"
+                android:drawablePadding="5dp"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:paddingRight="5dp"
                 android:singleLine="true"
                 android:text="长沙市"
                 android:textColor="@color/green_500"
-                android:textSize="13sp"  />
+                android:textSize="13sp" />
+
             <TextView
                 android:id="@+id/tv_watch_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/iv_like"
+                android:drawableLeft="@mipmap/ic_watch_num"
+                android:drawablePadding="5dp"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
-                android:drawablePadding="5dp"
                 android:singleLine="true"
                 android:text="0"
-                android:visibility="gone"
-                android:textSize="13sp"
                 android:textColor="@color/c_b3b3b3"
-                android:drawableLeft="@mipmap/ic_watch_num"/>
+                android:textSize="13sp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/iv_comment"
@@ -247,22 +253,22 @@
                 android:gravity="center_vertical"
                 android:minWidth="60dp"
                 android:text="评论"
-                android:textSize="13sp"
-                android:textColor="@color/c_b1b1b1" />
+                android:textColor="@color/c_b1b1b1"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/iv_like"
                 android:layout_width="wrap_content"
                 android:layout_height="45dp"
                 android:layout_centerVertical="true"
+                android:layout_marginRight="6dp"
                 android:layout_toLeftOf="@+id/iv_comment"
                 android:drawableLeft="@mipmap/ic_circle_give"
                 android:gravity="center_vertical"
                 android:minWidth="60dp"
                 android:text="点赞"
-                android:layout_marginRight="6dp"
-                android:textSize="13sp"
-                android:textColor="@color/c_b1b1b1" />
+                android:textColor="@color/c_b1b1b1"
+                android:textSize="13sp" />
 
         </RelativeLayout>
 

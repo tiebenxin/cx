@@ -9,11 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -21,7 +16,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.baidu.location.BDAbstractLocationListener;
@@ -31,6 +30,7 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
+import com.google.android.material.tabs.TabLayout;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
@@ -137,6 +137,8 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.jpush.android.api.JPushInterface;
+import cn.jzvd.Jzvd;
+import cn.jzvd.JzvdStd;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -148,7 +150,7 @@ import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 public class MainActivity extends BaseTcpActivity {
     public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;
-    private android.support.design.widget.TabLayout bottomTab;
+    private TabLayout bottomTab;
 
     private Fragment[] fragments;
     private String[] tabs;
@@ -390,6 +392,8 @@ public class MainActivity extends BaseTcpActivity {
 //                    }
 //                }
                 AudioPlayUtil.stopAudioPlay();
+                // 释放广场正在播放的视频资源
+                Jzvd.releaseAllVideos();
                 currentTab = tab.getPosition();
                 viewPage.setCurrentItem(tab.getPosition(), false);
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {

@@ -1,6 +1,6 @@
 package com.yanlong.im.chat.ui;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel;
 
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.repository.GroupSaveRepository;

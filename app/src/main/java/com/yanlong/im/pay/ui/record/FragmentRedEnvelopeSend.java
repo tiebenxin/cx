@@ -2,10 +2,11 @@ package com.yanlong.im.pay.ui.record;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.RedDetailsBean;
@@ -19,7 +20,6 @@ import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.MultiListView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 //发出的红包

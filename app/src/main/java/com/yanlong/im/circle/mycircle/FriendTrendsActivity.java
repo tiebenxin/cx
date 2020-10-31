@@ -4,12 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import com.hm.cxpay.dailog.CommonSelectDialog;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;

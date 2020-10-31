@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         app:headview_title="冻结账号">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="17dp"
@@ -129,7 +129,7 @@
                 app:layout_constraintTop_toBottomOf="@id/view_line" />
 
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.ConstraintLayout>
 
     </net.cb.cb.library.view.HeadView>
 </layout>

@@ -3,7 +3,6 @@ package com.yanlong.im.chat.ui.chat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -17,14 +16,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -47,6 +44,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
@@ -291,9 +292,9 @@ import me.rosuh.filepicker.config.FilePickerManager;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
 public class ChatActivity extends BaseTcpActivity implements IActionTagClickListener, ICellEventListener {

@@ -16,11 +16,8 @@ public class CircleUIHelper {
             case PictureEnum.EContentType.PICTRUE_AND_VOTE:
             case PictureEnum.EContentType.VOICE_AND_VOTE:
             case PictureEnum.EContentType.VIDEO_AND_VOTE:
-                return CircleFlowAdapter.MESSAGE_VOTE;
-            case PictureEnum.EContentType.VIDEO:
-            case PictureEnum.EContentType.VIDEO_AND_PICTRUE:
             case PictureEnum.EContentType.PICTRUE_AND_VIDEO_VOTE:
-                return CircleFlowAdapter.MESSAGE_VIDEO;
+                return CircleFlowAdapter.MESSAGE_VOTE;
             default:
                 return CircleFlowAdapter.MESSAGE_DEFAULT;
         }

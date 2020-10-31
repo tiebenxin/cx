@@ -3,6 +3,9 @@ package com.yanlong.im.chat.ui;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
+
+import androidx.appcompat.widget.AppCompatTextView;
+
 import com.yanlong.im.R;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -17,8 +20,8 @@ public class ChatFontActivity extends AppActivity {
     private ActionbarView actionbar;
     private LinearLayout viewMe;
     private LinearLayout viewMe1;
-    private android.support.v7.widget.AppCompatTextView txtMe1;
-    private android.support.v7.widget.AppCompatTextView txtOt1;
+    private AppCompatTextView txtMe1;
+    private AppCompatTextView txtOt1;
     private FontSizeView seekBar;
 
 

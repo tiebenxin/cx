@@ -2,9 +2,10 @@ package com.yanlong.im.pay.ui.select;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;

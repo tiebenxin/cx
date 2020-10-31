@@ -1,32 +1,25 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 
 import com.yanlong.im.R;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityGroupNoteDetailBinding;
 
 import net.cb.cb.library.bean.EventGroupChange;
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 
 /**

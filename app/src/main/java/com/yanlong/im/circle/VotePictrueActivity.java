@@ -2,10 +2,11 @@ package com.yanlong.im.circle;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
 import android.text.SpannableString;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.google.gson.Gson;

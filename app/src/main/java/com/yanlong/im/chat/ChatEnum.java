@@ -1,6 +1,6 @@
 package com.yanlong.im.chat;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.yanlong.im.R;
 

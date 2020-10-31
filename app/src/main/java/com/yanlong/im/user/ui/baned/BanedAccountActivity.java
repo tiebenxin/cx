@@ -1,6 +1,6 @@
 package com.yanlong.im.user.ui.baned;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
 

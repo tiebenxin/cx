@@ -2,24 +2,23 @@ package com.yanlong.im.user.ui;
 
 import android.Manifest;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v4.view.PagerAdapter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
-import com.yanlong.im.utils.ApkUtils;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CheckPermission2Util;

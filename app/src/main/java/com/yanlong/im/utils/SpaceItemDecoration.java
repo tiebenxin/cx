@@ -2,8 +2,9 @@ package com.yanlong.im.utils;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import net.cb.cb.library.utils.ScreenUtil;
 

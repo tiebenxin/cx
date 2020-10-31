@@ -3,10 +3,12 @@ package com.yanlong.im.pay.ui.record;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;

@@ -1,9 +1,11 @@
 package com.yanlong.im.dialog;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+
 import com.yanlong.im.R;
 import com.yanlong.im.listener.BaseListener;
 import net.cb.cb.library.base.BaseDialogTwo;

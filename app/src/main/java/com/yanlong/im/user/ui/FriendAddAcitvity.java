@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -19,7 +19,6 @@ import com.umeng.socialize.media.UMWeb;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.QRCodeManage;
 
-import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;

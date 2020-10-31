@@ -1,35 +1,26 @@
 package com.yanlong.im.chat.ui.forward;
 
-import android.databinding.DataBindingUtil;
-import android.os.Build;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.RequiresApi;
-
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.databinding.FragmentForwardSessionBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.BaseMvpFragment;
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -37,9 +28,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 /**
  * @author Liszt
