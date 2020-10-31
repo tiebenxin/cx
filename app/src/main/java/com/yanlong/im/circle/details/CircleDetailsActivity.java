@@ -457,10 +457,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             @Override
             public void keyBoardHide(int h) {
                 isShowSoft = false;
-//                if (TextUtils.isEmpty(bindingView.etMessage.getText())) {
+                if (TextUtils.isEmpty(bindingView.etMessage.getText())) {
 //                    bindingView.etMessage.setText("");
-//                    bindingView.etMessage.setHint("发表评论");
-//                }
+                    bindingView.etMessage.setHint("发表评论");
+                }
                 mViewModel.isInputText.setValue(false);
 //                hideKeyboard();
             }
