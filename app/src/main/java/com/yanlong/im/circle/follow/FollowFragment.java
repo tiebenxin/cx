@@ -1,9 +1,6 @@
 package com.yanlong.im.circle.follow;
 
 import android.content.Intent;
-
-import androidx.databinding.DataBindingUtil;
-
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -12,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -337,6 +335,12 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     public void eventRefreshFollow(EventFactory.RefreshFollowEvent event) {
         mCurrentPage = 1;
         mPresenter.getFollowMomentList(mCurrentPage, PAGE_SIZE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void deleteItem(EventFactory.DeleteItemTrend event) {
+        //推荐列表和关注列表只更新自己点击的数据
+        onDeleteItem(event.position);
     }
 
     Handler mHandler = new Handler();

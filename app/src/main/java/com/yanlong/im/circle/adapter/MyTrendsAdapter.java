@@ -836,6 +836,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
                             userBean.setMkName(userInfo.getMkName());
                             holder.tvMyName.setText(userInfo.getMkName());
+                        }else {
+//                            userBean.setMkName(userBean.getName());
+                            holder.tvMyName.setText(userBean.getName());
                         }
                     } else {
                         holder.tvMyName.setText("未知用户名");
