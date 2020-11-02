@@ -19,7 +19,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.baidu.mapapi.utils.DistanceUtil;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -42,7 +40,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -66,7 +63,6 @@ import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +70,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.jzvd.Jzvd;
-import cn.jzvd.JzvdStd;
 
 /**
  * @version V1.0
@@ -119,7 +114,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        RoundImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
+        ImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
         JzvdStdCircle jzvdStd = helper.getView(R.id.video_player);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
@@ -306,34 +301,20 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
      */
     private void setContent(BaseViewHolder helper, MessageInfoBean messageInfoBean, TextView tvContent, TextView tvMore) {
         if (!messageInfoBean.isShowAll()) {
-            tvContent.setMaxLines(MAX_ROW_NUMBER);
-            tvContent.setTag("" + helper.getAdapterPosition());
-            hashMap.put(helper.getAdapterPosition(), tvContent);
-            tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    // 避免重复监听
-                    for (Integer postion : hashMap.keySet()) {
-                        hashMap.get(postion).getViewTreeObserver().removeOnPreDrawListener(this);
-                    }
-                    int ellipsisCount = 0;
-                    if (tvContent.getLayout() != null) {
-                        ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
-                    }
-                    int line = tvContent.getLineCount();
-                    if (ellipsisCount > 0 || line > MAX_ROW_NUMBER) {
-                        tvMore.setVisibility(View.VISIBLE);
-                        // 内容高度小1000时不滚动
-                        setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
-                    } else {
-                        tvMore.setVisibility(View.GONE);
-                    }
-                    return true;
-                }
-            });
+            int contentWidth = ScreenUtil.getScreenWidth(mContext) -
+                    mContext.getResources().getDimensionPixelOffset(R.dimen.circle_content_margin);
+            float textWidth = tvContent.getPaint().measureText(tvContent.getText().toString());
+            float line = textWidth / contentWidth;
+            if (line > MAX_ROW_NUMBER) {
+                tvMore.setVisibility(View.VISIBLE);
+                // 内容高度小1000时不滚动
+                setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
+            } else {
+                tvMore.setVisibility(View.GONE);
+            }
         } else {
             tvMore.setVisibility(View.VISIBLE);
-            tvContent.setMaxLines(Integer.MAX_VALUE);//默认三行
+            tvContent.setMaxLines(Integer.MAX_VALUE);
             tvMore.setText("收起");
         }
     }
@@ -351,7 +332,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
      * @param pbProgress
      */
     private void addAttachment(BaseViewHolder helper, int position, RecyclerView recyclerView, MessageInfoBean messageInfoBean,
-                               RoundImageView ivSignPicture, JzvdStdCircle jzvdStd, ImageView ivVoicePlay, ProgressBar pbProgress) {
+                               ImageView ivSignPicture, JzvdStdCircle jzvdStd, ImageView ivVoicePlay, ProgressBar pbProgress) {
         List<AttachmentBean> attachmentBeans = null;
         try {
             attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),

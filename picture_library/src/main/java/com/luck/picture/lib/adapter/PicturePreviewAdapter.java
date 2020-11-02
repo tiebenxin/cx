@@ -85,7 +85,9 @@ public class PicturePreviewAdapter extends RecyclerView.Adapter<PicturePreviewAd
         holder.rl_delet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folders.remove(position);
+                if (position < folders.size()) {
+                    folders.remove(position);
+                }
                 if (getItemCount() == 1) {
                     folders.clear();
                 }

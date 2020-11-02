@@ -668,11 +668,9 @@ public class LookUpVideoFragment extends BaseMediaFragment implements TextureVie
                 try {
                     if (mediaPlayer != null) {
                         int currentPosition = mediaPlayer.getCurrentPosition();
-                        LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
                         if (currentPosition > mCurrentPosition) {
                             mCurrentPosition = currentPosition;
                         }
-                        LogUtil.getLog().i(TAG, "mTimer--currentPosition=" + currentPosition /*+ "--currentProgress=" + currentProgress*/);
                         ui.tvStartTime.postDelayed(new Runnable() {
                             @Override
                             public void run() {

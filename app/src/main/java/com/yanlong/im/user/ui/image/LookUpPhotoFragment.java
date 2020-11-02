@@ -275,28 +275,51 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                 return false;
             }
         };
+        boolean isSizeNormal = targetWidth > 0 && targetHeight > 0;
         RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .format(DecodeFormat.PREFER_ARGB_8888);
-        Glide.with(getActivity())
-                .asBitmap()
-                .load(url)
-                .listener(requestListener)
-                .apply(options)
-                .into(new SimpleTarget<Bitmap>(/*Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL*/targetWidth, targetHeight) {
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                    }
-
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                        ivImage.setImageBitmap(resource);
-                        if (pbLoading != null) {
-                            pbLoading.setVisibility(View.GONE);
+        if (isSizeNormal) {
+            Glide.with(getActivity())
+                    .asBitmap()
+                    .load(url)
+                    .listener(requestListener)
+                    .apply(options)
+                    .into(new SimpleTarget<Bitmap>(targetWidth, targetHeight) {
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
                         }
-                    }
-                });
+
+                        @Override
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                            ivImage.setImageBitmap(resource);
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+        } else {
+            Glide.with(getActivity())
+                    .asBitmap()
+                    .load(url)
+                    .listener(requestListener)
+                    .apply(options)
+                    .into(new SimpleTarget<Bitmap>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+                        }
+
+                        @Override
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                            ivImage.setImageBitmap(resource);
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+        }
     }
 
     private void loadGif(String url) {

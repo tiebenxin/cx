@@ -55,7 +55,7 @@ import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.JzvdStdCircle;
-import com.yanlong.im.wight.avatar.RoundImageView;
+import net.cb.cb.library.view.CircleImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
@@ -116,7 +116,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        RoundImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
+        ImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
         JzvdStdCircle jzvdStd = helper.getView(R.id.video_player);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
@@ -190,105 +190,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         helper.setGone(R.id.iv_sign_picture, false);
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
-            List<AttachmentBean> attachmentBeans = null;
-            try {
-                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
-                        new TypeToken<List<AttachmentBean>>() {
-                        }.getType());
-            } catch (Exception e) {
-                attachmentBeans = new ArrayList<>();
-            }
-            if (messageInfoBean.getType() != null &&
-                    (messageInfoBean.getType() == PictureEnum.EContentType.VOICE ||
-                            messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
-                if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                    AttachmentBean attachmentBean = attachmentBeans.get(0);
-                    helper.setText(R.id.tv_time, TimeToString.MM_SS(attachmentBean.getDuration() * 1000));
-                    pbProgress.setProgress(messageInfoBean.getPlayProgress());
-                    // 未播放则重置播放进度
-                    if (!messageInfoBean.isPlay()) {
-                        pbProgress.setProgress(0);
-                        AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
-                        animationDrawable.stop();
-                        animationDrawable.selectDrawable(0);
-                    } else {
-                        AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
-                        animationDrawable.start();
-                    }
-                    ivVoicePlay.setOnClickListener(o -> {
-                        if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                            if (clickListener != null) {
-                                clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
-                            }
-//                            AudioPlayUtil.startAudioPlay(mContext, attachmentBean.getUrl(),
-//                                    ivVoicePlay, pbProgress, helper.getAdapterPosition());
-                        }
-                    });
-                }
-                recyclerView.setVisibility(View.GONE);
-                helper.setGone(R.id.rl_video, false);
-                helper.setVisible(R.id.layout_voice, true);
-            } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE ||
-                    messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE_AND_VOTE)) {
-                if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                    if (attachmentBeans.size() == 1) {
-                        resetSize(ivSignPicture, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
-                        String path = StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl());
-                        if (isGif(path)) {
-                            Glide.with(mContext).load(path).listener(new RequestListener() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-                                    return false;
-                                }
-                            }).into(ivSignPicture);
-                        } else {
-                            Glide.with(mContext)
-                                    .asBitmap()
-                                    .load(path)
-                                    .apply(GlideOptionsUtil.circleImageOptions())
-                                    .into(ivSignPicture);
-                        }
-                        helper.setVisible(R.id.rl_video, true);
-                        recyclerView.setVisibility(View.GONE);
-                        helper.setGone(R.id.layout_voice, false);
-//                        helper.setGone(R.id.iv_play, false);
-                    } else {
-                        helper.setGone(R.id.layout_voice, false);
-                        helper.setGone(R.id.rl_video, false);
-                        recyclerView.setVisibility(View.VISIBLE);
-                        setRecycleView(recyclerView, attachmentBeans, position);
-                    }
-                }
-            } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.VIDEO ||
-                    messageInfoBean.getType() == PictureEnum.EContentType.VIDEO_AND_VOTE)) {
-                if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                    AttachmentBean attachmentBean = attachmentBeans.get(0);
-                    resetSize(jzvdStd, attachmentBean.getWidth(), attachmentBean.getHeight());
-                    // 没有正在播放则设置 处理刷新暂停视频问题
-                    if (!AutoPlayUtils.isPlayVideo(jzvdStd)) {
-                        jzvdStd.setUp(attachmentBean.getUrl(), "", Jzvd.SCREEN_NORMAL);
-
-                        Glide.with(jzvdStd.getContext())
-                                .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
-                                .apply(GlideOptionsUtil.circleImageOptions())
-                                .into(jzvdStd.posterImageView);
-                    }
-
-                    jzvdStd.setVideoUrl(attachmentBean.getUrl());
-                    jzvdStd.setBgUrl(StringUtil.loadThumbnail(attachmentBean.getBgUrl()));
-                    jzvdStd.setAttachmentBean(attachmentBean);
-
-                    helper.setVisible(R.id.rl_video, true);
-                    recyclerView.setVisibility(View.GONE);
-                    helper.setGone(R.id.layout_voice, false);
-//                    helper.setGone(R.id.iv_play, true);
-                }
-            }
+            addAttachment(helper, position, recyclerView, messageInfoBean, ivSignPicture, jzvdStd, ivVoicePlay, pbProgress);
         } else {
             helper.setGone(R.id.layout_voice, false);
             recyclerView.setVisibility(View.GONE);
@@ -296,7 +198,6 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
         helper.setGone(R.id.iv_delete_voice, false);
         TextView tvContent = helper.getView(R.id.tv_content);
-        TextView tvMore = helper.getView(R.id.tv_show_all);
         if (TextUtils.isEmpty(messageInfoBean.getContent())) {
             tvContent.setVisibility(View.GONE);
         } else {
@@ -343,35 +244,11 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             helper.setVisible(R.id.view_line, true);
 //            toggleEllipsize(mContext, tvContent, MAX_ROW_NUMBER, messageInfoBean.getContent(),
 //                    "展开", R.color.blue_500, messageInfoBean.isShowAll(), position, messageInfoBean);
-            if (!messageInfoBean.isShowAll()) {
-                tvContent.setMaxLines(MAX_ROW_NUMBER);//默认三行
-                tvContent.setTag("" + helper.getAdapterPosition());
-                hashMap.put(helper.getAdapterPosition(), tvContent);
-                tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                    @Override
-                    public boolean onPreDraw() {
-                        // 避免重复监听
-                        for (Integer postion : hashMap.keySet()) {
-                            hashMap.get(postion).getViewTreeObserver().removeOnPreDrawListener(this);
-                        }
-                        int ellipsisCount = 0;
-                        if (tvContent.getLayout() != null) {
-                            ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
-                        }
-                        int line = tvContent.getLineCount();
-                        if (ellipsisCount > 0 || line > MAX_ROW_NUMBER) {
-                            helper.setGone(R.id.tv_show_all, true);
-                            // 内容高度小1000时不滚动
-                            setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
-                        } else {
-                            helper.setGone(R.id.tv_show_all, false);
-                        }
-                        return true;
-                    }
-                });
+            TextView tvMore = helper.getView(R.id.tv_show_all);
+            if (!TextUtils.isEmpty(messageInfoBean.getContent())) {
+                setContent(helper, messageInfoBean, tvContent, tvMore);
             } else {
-                tvContent.setMaxLines(Integer.MAX_VALUE);//默认三行
-                tvMore.setText("收起");
+                tvMore.setVisibility(View.GONE);
             }
         }
 
@@ -428,6 +305,144 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
     }
 
+    /**
+     * 添加附件
+     *
+     * @param helper
+     * @param position
+     * @param recyclerView
+     * @param messageInfoBean
+     * @param ivSignPicture
+     * @param jzvdStd
+     * @param ivVoicePlay
+     * @param pbProgress
+     */
+    private void addAttachment(BaseViewHolder helper, int position, RecyclerView recyclerView, MessageInfoBean messageInfoBean, ImageView ivSignPicture, JzvdStdCircle jzvdStd, ImageView ivVoicePlay, ProgressBar pbProgress) {
+        List<AttachmentBean> attachmentBeans = null;
+        try {
+            attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                    new TypeToken<List<AttachmentBean>>() {
+                    }.getType());
+        } catch (Exception e) {
+            attachmentBeans = new ArrayList<>();
+        }
+        if (messageInfoBean.getType() != null &&
+                (messageInfoBean.getType() == PictureEnum.EContentType.VOICE ||
+                        messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                helper.setText(R.id.tv_time, TimeToString.MM_SS(attachmentBean.getDuration() * 1000));
+                pbProgress.setProgress(messageInfoBean.getPlayProgress());
+                // 未播放则重置播放进度
+                if (!messageInfoBean.isPlay()) {
+                    pbProgress.setProgress(0);
+                    AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
+                    animationDrawable.stop();
+                    animationDrawable.selectDrawable(0);
+                } else {
+                    AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
+                    animationDrawable.start();
+                }
+                ivVoicePlay.setOnClickListener(o -> {
+                    if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
+                        if (clickListener != null) {
+                            clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
+                        }
+                    }
+                });
+            }
+            recyclerView.setVisibility(View.GONE);
+            helper.setGone(R.id.rl_video, false);
+            helper.setVisible(R.id.layout_voice, true);
+        } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE ||
+                messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE_AND_VOTE)) {
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                if (attachmentBeans.size() == 1) {
+                    resetSize(ivSignPicture, attachmentBeans.get(0).getWidth(), attachmentBeans.get(0).getHeight());
+                    String path = StringUtil.loadThumbnail(attachmentBeans.get(0).getUrl());
+                    if (isGif(path)) {
+                        Glide.with(mContext).load(path).listener(new RequestListener() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                                return false;
+                            }
+                        }).into(ivSignPicture);
+                    } else {
+                        Glide.with(mContext)
+                                .asBitmap()
+                                .load(path)
+                                .apply(GlideOptionsUtil.circleImageOptions())
+                                .into(ivSignPicture);
+                    }
+                    helper.setVisible(R.id.rl_video, true);
+                    recyclerView.setVisibility(View.GONE);
+                    helper.setGone(R.id.layout_voice, false);
+                } else {
+                    helper.setGone(R.id.layout_voice, false);
+                    helper.setGone(R.id.rl_video, false);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    setRecycleView(recyclerView, attachmentBeans, position);
+                }
+            }
+        } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.VIDEO ||
+                messageInfoBean.getType() == PictureEnum.EContentType.VIDEO_AND_VOTE)) {
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                resetSize(jzvdStd, attachmentBean.getWidth(), attachmentBean.getHeight());
+                // 没有正在播放则设置 处理刷新暂停视频问题
+                if (!AutoPlayUtils.isPlayVideo(jzvdStd)) {
+                    jzvdStd.setUp(attachmentBean.getUrl(), "", Jzvd.SCREEN_NORMAL);
+
+                    Glide.with(jzvdStd.getContext())
+                            .load(StringUtil.loadThumbnail(attachmentBean.getBgUrl()))
+                            .apply(GlideOptionsUtil.circleImageOptions())
+                            .into(jzvdStd.posterImageView);
+                }
+
+                jzvdStd.setVideoUrl(attachmentBean.getUrl());
+                jzvdStd.setBgUrl(StringUtil.loadThumbnail(attachmentBean.getBgUrl()));
+                jzvdStd.setAttachmentBean(attachmentBean);
+
+                helper.setVisible(R.id.rl_video, true);
+                recyclerView.setVisibility(View.GONE);
+                helper.setGone(R.id.layout_voice, false);
+            }
+        }
+    }
+
+    /**
+     * 设置内容
+     *
+     * @param helper
+     * @param messageInfoBean
+     * @param tvContent
+     * @param tvMore
+     */
+    private void setContent(BaseViewHolder helper, MessageInfoBean messageInfoBean, TextView tvContent, TextView tvMore) {
+        if (!messageInfoBean.isShowAll()) {
+            int contentWidth = ScreenUtil.getScreenWidth(mContext) -
+                    mContext.getResources().getDimensionPixelOffset(R.dimen.circle_content_margin);
+            float textWidth = tvContent.getPaint().measureText(tvContent.getText().toString());
+            float line = textWidth / contentWidth;
+            if (line > MAX_ROW_NUMBER) {
+                tvMore.setVisibility(View.VISIBLE);
+                // 内容高度小1000时不滚动
+                setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
+            } else {
+                tvMore.setVisibility(View.GONE);
+            }
+        } else {
+            tvMore.setVisibility(View.VISIBLE);
+            tvContent.setMaxLines(Integer.MAX_VALUE);
+            tvMore.setText("收起");
+        }
+    }
+
     private void setTextViewLines(TextView content, TextView btn, boolean isShowAll, BaseViewHolder helper) {
         if (!isShowAll) {
             //显示3行，按钮设置为点击显示全部。
@@ -459,7 +474,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 width = height = DEFAULT_W;
             }
         }
-        if (view instanceof RoundImageView) {
+        if (view instanceof CircleImageView) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
             lp.width = width;
             lp.height = height;
