@@ -678,7 +678,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             ((LinearLayoutManager) bindingView.recyclerRecommend.getLayoutManager()).scrollToPositionWithOffset(position, offset);
         } else {
             scrollToPosition(0);
-
         }
     }
 
