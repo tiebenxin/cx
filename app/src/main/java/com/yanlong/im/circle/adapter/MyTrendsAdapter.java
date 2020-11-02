@@ -68,10 +68,10 @@ import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
-import net.cb.cb.library.view.CircleImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
@@ -153,6 +153,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private String noticeAvatar;//新消息通知头像
     private int noticeSize;//新消息数量
     private int isVote;
+    private UserDao userDao = new UserDao();
 
     public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid) {
         inflater = LayoutInflater.from(activity);
@@ -419,8 +420,12 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     if (!TextUtils.isEmpty(userBean.getHead())) {
                                         bean.setAvatar(userBean.getHead());
                                     }
-                                    if (!TextUtils.isEmpty(userBean.getName())) {
-                                        bean.setNickname(userBean.getName());
+                                    if (!TextUtils.isEmpty(userBean.getMkName())) {
+                                        bean.setNickname(userBean.getMkName());
+                                    }else {
+                                        if (!TextUtils.isEmpty(userBean.getName())) {
+                                            bean.setNickname(userBean.getName());
+                                        }
                                     }
                                 }
                                 AudioPlayUtil.stopAudioPlay();
@@ -827,7 +832,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 .into(holder.ivMyHeader);
                     }
                     if (!TextUtils.isEmpty(userBean.getName())) {
-                        holder.tvMyName.setText(userBean.getName());
+                        UserInfo userInfo = userDao.findUserInfo(userBean.getUid());
+                        if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                            userBean.setMkName(userInfo.getMkName());
+                            holder.tvMyName.setText(userInfo.getMkName());
+                        }
                     } else {
                         holder.tvMyName.setText("未知用户名");
                     }

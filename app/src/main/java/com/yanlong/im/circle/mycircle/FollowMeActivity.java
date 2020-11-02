@@ -11,6 +11,8 @@ import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyFollowAdapter;
 import com.yanlong.im.circle.bean.FriendUserBean;
 import com.yanlong.im.databinding.ActivityMyFollowBinding;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
@@ -21,7 +23,9 @@ import net.cb.cb.library.view.YLLinearLayoutManager;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -46,6 +50,11 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
     private List<FriendUserBean> allData;//全部数据
     private List<FriendUserBean> searchData;//搜索后的数据
     private MyCircleAction action;
+    /***
+     * 统一处理mkname
+     */
+    private Map<Long, UserInfo> userMap = new HashMap<>();
+    private UserDao userDao = new UserDao();
 
     @Override
     protected int setView() {
@@ -129,6 +138,9 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
                 if (response.body().isOk()){
                     //1 有数据
                     if(response.body().getData()!=null && response.body().getData().size()>0) {
+                        for (FriendUserBean friendUserBean : response.body().getData()) {
+                            resetName(friendUserBean);
+                        }
                         //1-1 加载更多，则分页数据填充到尾部
                         if (page > 1) {
                             allData.addAll(response.body().getData());
@@ -218,5 +230,21 @@ public class FollowMeActivity extends BaseBindActivity<ActivityMyFollowBinding> 
         mList.clear();
         page = 1;
         httpGetFollowMe();
+    }
+
+    private void resetName(FriendUserBean bean) {
+        UserInfo userInfo;
+        if (userMap.containsKey(bean.getUid())) {
+            userInfo = userMap.get(bean.getUid());
+            if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+            }
+        } else {
+            userInfo = userDao.findUserInfo(bean.getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+                userMap.put(bean.getUid(), userInfo);
+            }
+        }
     }
 }
