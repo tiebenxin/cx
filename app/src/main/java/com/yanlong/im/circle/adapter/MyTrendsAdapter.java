@@ -1228,7 +1228,15 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void setRecycleView(RecyclerView rv, List<AttachmentBean> attachmentBeans) {
-        rv.setLayoutManager(new GridLayoutManager(activity, 3));
+        if (attachmentBeans == null) {
+            return;
+        }
+        int size = attachmentBeans.size();
+        if (size == 2 || size == 4) {
+            rv.setLayoutManager(new GridLayoutManager(activity, 2));
+        } else {
+            rv.setLayoutManager(new GridLayoutManager(activity, 3));
+        }
         ShowImagesAdapter taskAdapter = new ShowImagesAdapter();
         rv.setAdapter(taskAdapter);
         taskAdapter.setNewData(attachmentBeans);

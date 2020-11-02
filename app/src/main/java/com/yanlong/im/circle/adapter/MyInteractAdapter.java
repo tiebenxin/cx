@@ -138,11 +138,12 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             Intent intent = new Intent(activity, FriendTrendsActivity.class);
                             intent.putExtra("uid",bean.getFromUid());
                             activity.startActivity(intent);
+                            dataList.get(position).setGreyColor(true);
+                            notifyItemChanged(position);
+                            msgDao.updateMsgGreyColor(bean.getMsgId());
                         }else {
                             //跳详情
                             httpGetNewDetails(bean.getMomentId(),bean.getMomentUid(),position,bean.getMsgId());
-//                            httpQueryById(bean.getMomentId(),bean.getMomentUid(),position,bean.getMsgId());
-
                         }
                     });
                     //互动内容显示
@@ -447,57 +448,6 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         postcard.navigation();
     }
 
-    /**
-     * 获取单条动态详情
-     * @param momentId  说说ID
-     * @param momentUid 说说发布者
-     */
-    public void httpQueryById(Long momentId, Long momentUid,int position,String msgId) {
-//        WeakHashMap<String, Object> params = new WeakHashMap<>();
-//        params.put("momentId", momentId);
-//        params.put("momentUid", momentUid);
-//        new FollowModel().queryById(params, new CallBack<ReturnBean<MessageInfoBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
-//                super.onResponse(call, response);
-//                if (response.code() == 200) {
-//                    if (response.body() != null && response.body().getData() != null) {
-//                        MessageInfoBean bean = response.body().getData();
-//                        //全部都是与我的互动，所以直接拼凑头像和昵称
-//                        if(userBean!=null){
-//                            if (!TextUtils.isEmpty(userBean.getHead())) {
-//                                bean.setAvatar(userBean.getHead());
-//                            }
-//                            if (!TextUtils.isEmpty(userBean.getName())) {
-//                                bean.setNickname(userBean.getName());
-//                            }
-//                        }
-//                        gotoCircleDetailsActivity(false,bean,bean.isFollow());
-//                        //如果没点击过，则置灰并保存点击过状态
-//                        if(dataList.get(position).isGreyColor()==false){
-//                            dataList.get(position).setGreyColor(true);
-//                            notifyItemChanged(position);
-//                            msgDao.updateMsgGreyColor(msgId);
-//                        }
-//                        //如果是删除评论，直接提示
-//                        if(dataList.get(position).getInteractType()==5){
-//                            ToastUtil.show("该评论已删除");
-//                        }
-//                    }
-//                } else {
-//                    ToastUtil.show(response.message());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
-//                super.onFailure(call, t);
-//                ToastUtil.show("投票失败");
-//            }
-//        });
-    }
-
-
     //新的获取动态详情接口(含头像、评论列表)
     public void httpGetNewDetails(Long momentId, Long momentUid,int position,String msgId){
         new MyCircleAction().httpGetNewDetails(momentId, momentUid, new CallBack<ReturnBean<NewTrendDetailsBean>>() {
@@ -512,12 +462,6 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         NewTrendDetailsBean bean = response.body().getData();
                         //跳详情
                         gotoCircleDetailsActivity(bean);
-                        //如果没点击过，则置灰并保存点击过状态
-                        if(dataList.get(position).isGreyColor()==false){
-                            dataList.get(position).setGreyColor(true);
-                            notifyItemChanged(position);
-                            msgDao.updateMsgGreyColor(msgId);
-                        }
                         //如果是删除评论，直接提示
                         if(dataList.get(position).getInteractType()==5){
                             ToastUtil.show("该评论已删除");
@@ -530,7 +474,12 @@ public class MyInteractAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }else {
                         ToastUtil.show("获取动态详情失败");
                     }
-
+                }
+                //如果没点击过，则置灰并保存点击过状态
+                if(dataList.get(position).isGreyColor()==false){
+                    dataList.get(position).setGreyColor(true);
+                    notifyItemChanged(position);
+                    msgDao.updateMsgGreyColor(msgId);
                 }
             }
 
