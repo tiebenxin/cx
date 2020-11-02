@@ -121,6 +121,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private CommonSelectDialog dialogFour;//单选转发/收藏失效消息提示弹框
     private CommonSelectDialog.Builder builder;
     private AttachmentBean attachmentBean;
+    private boolean isDownload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,10 +214,12 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     MsgDao dao = new MsgDao();
                     dao.fixVideoLocalUrl(videoMessage.getMsgId(), fileVideo.getAbsolutePath());
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
-                    scanFile(getContext(), fileVideo.getAbsolutePath());
-                    downloadState = 2;
-                    if (showFinishDownloadToast) {
-                        ToastUtil.show("保存相册成功");
+                    if (isDownload) {
+                        scanFile(getContext(), fileVideo.getAbsolutePath());
+                        downloadState = 2;
+                        if (showFinishDownloadToast) {
+                            ToastUtil.show("保存相册成功");
+                        }
                     }
                 }
 
@@ -760,6 +763,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     public void insertVideoToMediaStore(Context context, String filePath, long createTime, int width, int height, long duration) {
         if (!checkFile(filePath)) {
+            isDownload = true;
             if (downloadState != 1) {
                 downVideo(videoMessage);
             }
