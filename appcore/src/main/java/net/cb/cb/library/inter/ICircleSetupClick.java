@@ -13,7 +13,7 @@ public interface ICircleSetupClick {
 
     void onClickFollow();
 
-    void onClickNoLook();
+    void onClickNoLook(boolean isDel);
 
     void onClickChat(boolean isFriend);
 
