@@ -147,6 +147,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private int TrendPosition;//我的动态、好友动态主页位置
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
+    private boolean isAudioPlaying;
 
     @Override
     protected FollowPresenter createPresenter() {
@@ -343,6 +344,15 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             startActivity(intent);
                         } else {
                             ToastUtil.show("该用户已注销");
+                        }
+                        break;
+                    case R.id.iv_sign_picture:// 单张图片
+                        List<AttachmentBean> attachments = new Gson().fromJson(mMessageInfoBean.getAttachment(),
+                                new TypeToken<List<AttachmentBean>>() {
+                                }.getType());
+                        if (mMessageInfoBean.getType() != null && mMessageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
+                            toPicturePreview(0, attachments);
+                            checkAudioStatus(false);
                         }
                         break;
                 }
@@ -1202,6 +1212,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     AudioPlayUtil.startAudioPlay(this.getApplicationContext(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
                         @Override
                         public void onStart(Uri var1) {
+                            isAudioPlaying = true;
                             messageInfoBean.setPlay(true);
                             messageInfoBean.setPlayProgress(0);
                             updatePosition(messageInfoBean);
@@ -1209,6 +1220,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
                         @Override
                         public void onStop(Uri var1) {
+                            isAudioPlaying = false;
                             messageInfoBean.setPlay(false);
                             updatePosition(messageInfoBean);
 
@@ -1216,6 +1228,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
                         @Override
                         public void onComplete(Uri var1) {
+                            isAudioPlaying = false;
                             messageInfoBean.setPlay(false);
                             messageInfoBean.setPlayProgress(100);
                             updatePosition(messageInfoBean);
@@ -1255,6 +1268,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 }
             }
         }, 100);
+    }
+
+    private void checkAudioStatus(boolean stop) {
+        if (isAudioPlaying && stop) {
+            AudioPlayUtil.stopAudioPlay();
+        }
     }
 
 }
