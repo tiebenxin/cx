@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -62,6 +63,7 @@ import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
 import com.yanlong.im.circle.recommend.RecommendFragment;
+import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserBean;
@@ -141,6 +143,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Drawable like;
     private MyCircleAction action;
     private IRefreshListenr refreshListenr;
+    private IPlayVoiceListener playVoiceListener;
     private UserBean userBean;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private RequestOptions mRequestOptions;
@@ -165,6 +168,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public void setOnRefreshListenr(IRefreshListenr refreshListenr) {
         this.refreshListenr = refreshListenr;
+    }
+    public void setPlayVoiceListener(IPlayVoiceListener playVoiceListener) {
+        this.playVoiceListener = playVoiceListener;
     }
 
     //初始化相关设置
@@ -463,11 +469,21 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                                 holder.tvTime.setText(TimeToString.MM_SS(attachmentBean.getDuration() * 1000));
-                                holder.pbProgress.setProgress(0);
+                                holder.pbProgress.setProgress(bean.getPlayProgress());
+                                if (!bean.isPlay()) {
+                                    holder.pbProgress.setProgress(0);
+                                    AnimationDrawable animationDrawable = (AnimationDrawable) holder.ivVoicePlay.getBackground();
+                                    animationDrawable.stop();
+                                    animationDrawable.selectDrawable(0);
+                                } else {
+                                    AnimationDrawable animationDrawable = (AnimationDrawable) holder.ivVoicePlay.getBackground();
+                                    animationDrawable.start();
+                                }
                                 holder.ivVoicePlay.setOnClickListener(o -> {
                                     if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                                        AudioPlayUtil.startAudioPlay(activity, attachmentBean.getUrl(),
-                                                holder.ivVoicePlay, holder.pbProgress, position);
+                                        if (playVoiceListener != null) {
+                                            playVoiceListener.play(bean);
+                                        }
                                     }
                                 });
                             }
@@ -1243,6 +1259,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
                 .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
+        EventBus.getDefault().post(new EventFactory.DoResumeEvent());
     }
 
     /**
@@ -1502,6 +1519,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             attachmentBeans.add(bean);
         }
         toPictruePreview(position, attachmentBeans);
+
     }
 
     public boolean isGif(String path) {

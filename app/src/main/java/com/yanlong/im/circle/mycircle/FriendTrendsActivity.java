@@ -2,6 +2,7 @@ package com.yanlong.im.circle.mycircle;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,9 +14,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.audio.IAudioPlayProgressListener;
+import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -25,12 +30,14 @@ import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
+import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindActivity;
@@ -38,6 +45,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.IFriendTrendClickListner;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DialogHelper;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
@@ -119,6 +127,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         }
         httpGetFriendTrends();
         adapter = new MyTrendsAdapter(FriendTrendsActivity.this,mList,2,friendUid);
+        bindingView.recyclerView.getItemAnimator().setChangeDuration(0);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
 
@@ -136,6 +145,13 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             public void onRefresh() {
                 page = 1;
                 httpGetFriendTrends();
+            }
+        });
+        //播放语音
+        adapter.setPlayVoiceListener(new IPlayVoiceListener() {
+            @Override
+            public void play(MessageInfoBean bean) {
+                playVoice(bean);
             }
         });
         //置顶->刷新回调
@@ -547,5 +563,77 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 bindingView.tvFollow.setText("关注");
             }
         }
+    }
+
+
+    public void playVoice(MessageInfoBean messageInfoBean) {
+        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+            List<AttachmentBean> attachmentBeans = null;
+            try {
+                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                        new TypeToken<List<AttachmentBean>>() {
+                        }.getType());
+            } catch (Exception e) {
+                attachmentBeans = new ArrayList<>();
+            }
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                if (messageInfoBean.isPlay()) {
+                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayManager.getInstance().stopPlay();
+                    }
+                } else {
+
+                    AudioPlayUtil.startAudioPlay(FriendTrendsActivity.this, attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                        @Override
+                        public void onStart(Uri var1) {
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(0);
+                            updatePosition(messageInfoBean);
+                        }
+
+                        @Override
+                        public void onStop(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onComplete(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            messageInfoBean.setPlayProgress(100);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onProgress(int progress) {
+                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(progress);
+                            updatePosition(messageInfoBean);
+                        }
+                    });
+
+                }
+            }
+        }
+    }
+
+    private void updatePosition(MessageInfoBean messageInfoBean) {
+        if (adapter == null || adapter.getDataList() == null) {
+            return;
+        }
+        bindingView.recyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int position = adapter.getDataList().indexOf(messageInfoBean);
+                if (position >= 0) {
+                    adapter.getDataList().set(position, messageInfoBean);
+                    adapter.notifyItemChanged(position+1);//头部
+                }
+            }
+        }, 100);
     }
 }

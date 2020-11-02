@@ -247,4 +247,11 @@ public class EventFactory extends BaseEvent {
         public long id;//说说id
         public int isLike;//点赞状态 1 我已赞 0 我未赞
     }
+
+    /**
+     * 我的动态->点击大图无需执行resume
+     */
+    public static class DoResumeEvent extends BaseEvent {
+    }
+
 }
