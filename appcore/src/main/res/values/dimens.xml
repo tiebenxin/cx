@@ -57,6 +57,7 @@
     <dimen name="head_portrait_fillet">24dp</dimen>
 
     <!-- 朋友圈 -->
+    <dimen name="circle_content_margin">90dp</dimen>
     <dimen name="circle_title_height">50dp</dimen>
     <dimen name="dimen_101">101dp</dimen>
     <dimen name="dimen_81">81dp</dimen>

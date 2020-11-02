@@ -121,6 +121,11 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                         imageSize = ImgSizeUtil.getAttribute(bean.getBgUrl());
                         bean.setWidth(imageSize.getWidth());
                         bean.setHeight(imageSize.getHeight());
+                    } else if (bean.getType() == PictureEnum.EContentType.PICTRUE) {
+                        if (bean.getWidth() == 0 || bean.getHeight() == 0) {
+                            bean.setWidth(imageSize.getWidth());
+                            bean.setHeight(imageSize.getHeight());
+                        }
                     }
                 }
                 switch (mCircleBean.getType()) {
@@ -296,7 +301,8 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     }
 
     @Override
-    public void uploadSuccess(String url, int type, boolean isVideo, HashMap<String, String> netFile) {
+    public void uploadSuccess(String url, int type, boolean isVideo, HashMap<
+            String, String> netFile) {
         try {
             if (mList != null && mList.size() > 0) {
                 AttachmentBean attachmentBean = mList.get(0);

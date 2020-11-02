@@ -306,34 +306,20 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
      */
     private void setContent(BaseViewHolder helper, MessageInfoBean messageInfoBean, TextView tvContent, TextView tvMore) {
         if (!messageInfoBean.isShowAll()) {
-            tvContent.setMaxLines(MAX_ROW_NUMBER);
-            tvContent.setTag("" + helper.getAdapterPosition());
-            hashMap.put(helper.getAdapterPosition(), tvContent);
-            tvContent.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    // 避免重复监听
-                    for (Integer postion : hashMap.keySet()) {
-                        hashMap.get(postion).getViewTreeObserver().removeOnPreDrawListener(this);
-                    }
-                    int ellipsisCount = 0;
-                    if (tvContent.getLayout() != null) {
-                        ellipsisCount = tvContent.getLayout().getEllipsisCount(tvContent.getLineCount() - 1);
-                    }
-                    int line = tvContent.getLineCount();
-                    if (ellipsisCount > 0 || line > MAX_ROW_NUMBER) {
-                        tvMore.setVisibility(View.VISIBLE);
-                        // 内容高度小1000时不滚动
-                        setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
-                    } else {
-                        tvMore.setVisibility(View.GONE);
-                    }
-                    return true;
-                }
-            });
+            int contentWidth = ScreenUtil.getScreenWidth(mContext) -
+                    mContext.getResources().getDimensionPixelOffset(R.dimen.circle_content_margin);
+            float textWidth = tvContent.getPaint().measureText(tvContent.getText().toString());
+            float line = textWidth / contentWidth;
+            if (line > MAX_ROW_NUMBER) {
+                tvMore.setVisibility(View.VISIBLE);
+                // 内容高度小1000时不滚动
+                setTextViewLines(tvContent, tvMore, messageInfoBean.isShowAll(), helper);
+            } else {
+                tvMore.setVisibility(View.GONE);
+            }
         } else {
             tvMore.setVisibility(View.VISIBLE);
-            tvContent.setMaxLines(Integer.MAX_VALUE);//默认三行
+            tvContent.setMaxLines(Integer.MAX_VALUE);
             tvMore.setText("收起");
         }
     }
