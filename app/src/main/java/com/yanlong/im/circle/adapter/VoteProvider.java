@@ -20,7 +20,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,7 +40,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -61,7 +59,6 @@ import net.cb.cb.library.view.CircleImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -73,7 +70,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.jzvd.Jzvd;
-import cn.jzvd.JzvdStd;
 
 /**
  * @version V1.0
@@ -189,6 +185,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 }
             }
         }
+        //浏览量
+        helper.setText(R.id.tv_watch_num, messageInfoBean.getBrowseCount() + "浏览");
         helper.setGone(R.id.iv_sign_picture, false);
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
