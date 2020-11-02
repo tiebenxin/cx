@@ -662,7 +662,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
      * @return
      */
     public boolean isMe() {
-        if (from_uid == null) {
+        if (from_uid == null || UserAction.getMyInfo() == null || UserAction.getMyInfo().getUid() == null) {
             return false;
         }
         return from_uid == UserAction.getMyInfo().getUid().longValue();
