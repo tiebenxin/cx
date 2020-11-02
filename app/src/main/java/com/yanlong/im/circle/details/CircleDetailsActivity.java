@@ -62,6 +62,7 @@ import com.yanlong.im.circle.follow.FollowView;
 import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
+import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.databinding.ActivityCircleDetails2Binding;
 import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewNoCommentsBinding;
@@ -84,6 +85,7 @@ import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -542,13 +544,15 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     }
 
                     @Override
-                    public void onClickNoLook() {
-                        if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("RecommendFragment")) {
+                    public void onClickNoLook(boolean isDel) {
+                        if (isDel) {
+                            mPresenter.circleDelete(mMessageInfoBean.getId(), mPostion, fromWhere);
+                        } else {
                             EventFactory.NoSeeEvent event = new EventFactory.NoSeeEvent();
                             event.uid = mMessageInfoBean.getUid();
                             EventBus.getDefault().post(event);
-                            finish();
                         }
+                        finish();
                     }
 
                     @Override

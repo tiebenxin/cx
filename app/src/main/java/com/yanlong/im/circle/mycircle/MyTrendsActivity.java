@@ -2,6 +2,7 @@ package com.yanlong.im.circle.mycircle;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,11 +14,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.event.EventFactory;
 import com.luck.picture.lib.rxbus2.RxBus;
 import com.yanlong.im.R;
@@ -27,14 +32,17 @@ import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
+import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -69,6 +77,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
     private MsgDao msgDao;
+    private boolean doResume=true;//如果仅仅只是点击大图不需要再请求接口刷新
 
     @Override
     protected int setView() {
@@ -106,8 +115,9 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     @Override
     protected void loadData() {
-        adapter = new MyTrendsAdapter(MyTrendsActivity.this,mList,1,0);
+        adapter = new MyTrendsAdapter(MyTrendsActivity.this, mList, 1, 0);
         bindingView.recyclerView.setAdapter(adapter);
+        bindingView.recyclerView.getItemAnimator().setChangeDuration(0);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
         //加载更多
         bindingView.recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
@@ -143,6 +153,13 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
             }
         });
+        //播放语音
+        adapter.setPlayVoiceListener(new IPlayVoiceListener() {
+            @Override
+            public void play(MessageInfoBean bean) {
+                playVoice(bean);
+            }
+        });
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
         //发新动态
         bindingView.ivCreateCircle.setOnClickListener(v -> {
@@ -163,17 +180,17 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
         });
         //是否有未读互动消息
-        if(msgDao.getUnreadMsgList()!=null && msgDao.getUnreadMsgList().size()>0){
+        if (msgDao.getUnreadMsgList() != null && msgDao.getUnreadMsgList().size() > 0) {
             String avatar = "";
             int size = msgDao.getUnreadMsgList().size();
-            if(msgDao.getUnreadMsgList().get(0)!=null){
-                if(!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())){
+            if (msgDao.getUnreadMsgList().get(0) != null) {
+                if (!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())) {
                     avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
                 }
             }
-            adapter.showNotice(true,avatar,size);
-        }else {
-            adapter.showNotice(false,"",0);
+            adapter.showNotice(true, avatar, size);
+        } else {
+            adapter.showNotice(false, "", 0);
         }
         // topbar是自定义的标题栏
         bindingView.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -205,7 +222,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         // 设置了一条分割线，渐变的时候分割线先GONE掉，要不不好看
 //                        bindingView.layoutTop.getViewGrayLine().setVisibility(View.GONE);
                         // 从高度的一半开始算透明度，也就是说移动到头部Item的中部，透明度从0开始计算
-                        float alpha = (float)(scrollY - changeHeight) / changeHeight;
+                        float alpha = (float) (scrollY - changeHeight) / changeHeight;
                         bindingView.layoutTop.setAlpha(alpha);
                     }
                     // 其他的时候就设置都可见，透明度是1
@@ -236,28 +253,28 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     //1 有数据
-                    if(response.body().getData()!=null){
+                    if (response.body().getData() != null) {
                         CircleTrendsBean bean = response.body().getData();
                         //动态列表
-                        if(bean.getMomentList()!=null && bean.getMomentList().size()>0){
+                        if (bean.getMomentList() != null && bean.getMomentList().size() > 0) {
                             //1-1 加载更多，则分页数据填充到尾部
                             if (page > 1) {
                                 adapter.addMoreList(bean.getMomentList());
                                 adapter.setLoadState(adapter.LOADING_MORE);
-                            }else {
+                            } else {
                                 //1-2 第一次加载，若超过3个显示加载更多
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
                                 adapter.setTopData(bean);
                                 adapter.updateList(mList);
-                                if(mList.size()>=EndlessRecyclerOnScrollListener.DEFULT_SIZE_3){
+                                if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_3) {
                                     adapter.setLoadState(adapter.LOADING_MORE);
                                 }
                             }
                             page++;
-                        }else {
+                        } else {
                             //2 无数据
                             //2-1 加载更多，当没有数据的时候，提示已经到底了
                             if (page > 1) {
@@ -269,7 +286,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                             }
                         }
                     }
-                }else {
+                } else {
                     ToastUtil.show("获取我的动态失败");
                 }
                 bindingView.swipeRefreshLayout.setRefreshing(false);
@@ -298,7 +315,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 //                    Uri uri = Uri.fromFile(new File(file));
                     alert.show();
                     //上传背景图
-                    if(upFileAction==null){
+                    if (upFileAction == null) {
                         upFileAction = new UpFileAction();
                     }
                     upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.CIRCLE_BACKGROUND, getContext(), new UpFileUtil.OssUpCallback() {
@@ -327,6 +344,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     /**
      * 发请求->更新背景图
+     *
      * @param url
      */
     private void httpSetBackground(String url) {
@@ -337,11 +355,11 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("更新背景图成功");
                     //显示背景图
                     adapter.notifyBackground(url);
-                }else {
+                } else {
                     ToastUtil.show("更新背景图失败");
                 }
             }
@@ -389,19 +407,35 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     @Override
     protected void onResume() {
         super.onResume();
-        page = 1;
-        httpGetMyTrends();
+        if(doResume){
+            page = 1;
+            httpGetMyTrends();
+        }else {
+            doResume = true;
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void UpdateOneTrend(EventFactory.UpdateOneTrendEvent event) {
         //更新我的单条动态
-        if(event.action==1){
-            MessageInfoBean bean = adapter.getDataList().get(event.position-1);//去掉头部
-            if(bean.getId()!=null && bean.getUid()!=null){
-                queryById(bean.getId().longValue(),bean.getUid().longValue(),event.position-1);
+        if (event.action == 1) {
+            MessageInfoBean bean = adapter.getDataList().get(event.position - 1);//去掉头部
+            if (bean.getId() != null && bean.getUid() != null) {
+                queryById(bean.getId().longValue(), bean.getUid().longValue(), event.position - 1);
             }
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void DoResumeEvent(EventFactory.DoResumeEvent event) {
+        doResume = false;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void deleteItem(EventFactory.DeleteMyItemTrend event) {
+        mList.remove(event.position);
+        adapter.notifyItemRemoved(event.position);
+        adapter.notifyItemRangeChanged(event.position, mList.size());
     }
 
     /**
@@ -427,7 +461,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         oldBean.setLike(bean.getLike());
                         oldBean.setLikeCount(bean.getLikeCount());
                         oldBean.setCommentCount(bean.getCommentCount());
-                        adapter.notifyItemChanged(position+1);
+                        adapter.notifyItemChanged(position + 1);
                     }
                 } else {
                     ToastUtil.show("获取动态失败");
@@ -441,4 +475,77 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             }
         });
     }
+
+    public void playVoice(MessageInfoBean messageInfoBean) {
+        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+            List<AttachmentBean> attachmentBeans = null;
+            try {
+                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                        new TypeToken<List<AttachmentBean>>() {
+                        }.getType());
+            } catch (Exception e) {
+                attachmentBeans = new ArrayList<>();
+            }
+            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                if (messageInfoBean.isPlay()) {
+                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayManager.getInstance().stopPlay();
+                    }
+                } else {
+
+                    AudioPlayUtil.startAudioPlay(MyTrendsActivity.this, attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                        @Override
+                        public void onStart(Uri var1) {
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(0);
+                            updatePosition(messageInfoBean);
+                        }
+
+                        @Override
+                        public void onStop(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onComplete(Uri var1) {
+                            messageInfoBean.setPlay(false);
+                            messageInfoBean.setPlayProgress(100);
+                            updatePosition(messageInfoBean);
+
+                        }
+
+                        @Override
+                        public void onProgress(int progress) {
+                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+                            messageInfoBean.setPlay(true);
+                            messageInfoBean.setPlayProgress(progress);
+                            updatePosition(messageInfoBean);
+                        }
+                    });
+
+                }
+            }
+        }
+    }
+
+    private void updatePosition(MessageInfoBean messageInfoBean) {
+        if (adapter == null || adapter.getDataList() == null) {
+            return;
+        }
+        bindingView.recyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int position = adapter.getDataList().indexOf(messageInfoBean);
+                if (position >= 0) {
+                    adapter.getDataList().set(position, messageInfoBean);
+                    adapter.notifyItemChanged(position+1);//头部
+                }
+            }
+        }, 100);
+    }
+
+
 }

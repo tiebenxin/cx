@@ -223,9 +223,17 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
-     * 删除某一条动态
+     * 删除推荐某一条动态
      */
     public static class DeleteItemTrend extends BaseEvent {
+        public int position;//位置
+        public String fromWhere;//从哪里跳转过来
+    }
+
+    /**
+     * 删除我的动态某一条动态
+     */
+    public static class DeleteMyItemTrend extends BaseEvent {
         public int position;//位置
         public String fromWhere;//从哪里跳转过来
     }
@@ -247,4 +255,11 @@ public class EventFactory extends BaseEvent {
         public long id;//说说id
         public int isLike;//点赞状态 1 我已赞 0 我未赞
     }
+
+    /**
+     * 我的动态->点击大图无需执行resume
+     */
+    public static class DoResumeEvent extends BaseEvent {
+    }
+
 }

@@ -169,7 +169,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
     private void notifyChangeAll() {
         if (mFlowAdapter != null) {
-//            mFlowAdapter.setFirstVisiblePosition(firstItemPosition);
             mFlowAdapter.notifyDataSetChanged();
         }
     }
@@ -379,7 +378,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                                     }
 
                                     @Override
-                                    public void onClickNoLook() {
+                                    public void onClickNoLook(boolean isDel) {
                                         if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                                             ToastUtil.show(getActivity().getString(R.string.user_disable_message));
                                             return;
@@ -651,7 +650,6 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         }
         mPresenter.mModel.setData(mFollowList);
         bindingView.srlFollow.finishRefresh();
-
     }
 
     private void scrollToPosition(int position) {
