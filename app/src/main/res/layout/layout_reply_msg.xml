@@ -12,7 +12,7 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
-        <com.yanlong.im.wight.avatar.RoundImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_reply_image"
             android:layout_width="45dp"
             android:layout_height="45dp"

@@ -117,7 +117,7 @@
                         android:layout_height="120dp"
                         android:visibility="visible">
 
-                        <com.yanlong.im.wight.avatar.RoundImageView
+                        <net.cb.cb.library.view.CircleImageView
                             android:id="@+id/iv_location_bg"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -169,7 +169,7 @@
 
         </LinearLayout>
 
-        <com.yanlong.im.wight.avatar.RoundImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"

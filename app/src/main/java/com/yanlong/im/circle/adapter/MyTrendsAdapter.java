@@ -71,7 +71,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.wight.avatar.RoundImageView;
+import net.cb.cb.library.view.CircleImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
@@ -893,7 +893,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private LinearLayout layoutContent;
         private RecyclerView recyclerView;
         private RelativeLayout layoutVideo;
-        private RoundImageView ivVideo;
+        private ImageView ivVideo;
         private LinearLayout layoutVoice;
         private TextView tvTime;
         private ProgressBar pbProgress;
@@ -1474,7 +1474,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
 
-    private void resetSize(RoundImageView imageView, int imgWidth, int imgHeight) {
+    private void resetSize(ImageView imageView, int imgWidth, int imgHeight) {
         //w/h = 3/4
         final int DEFAULT_W = DensityUtil.dip2px(activity, 120);
         final int DEFAULT_H = DensityUtil.dip2px(activity, 180);

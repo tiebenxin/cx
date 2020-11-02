@@ -57,7 +57,7 @@ import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.JzvdStdCircle;
-import com.yanlong.im.wight.avatar.RoundImageView;
+import net.cb.cb.library.view.CircleImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
@@ -120,7 +120,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        RoundImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
+        ImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
         JzvdStdCircle jzvdStd = helper.getView(R.id.video_player);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
@@ -319,7 +319,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
      * @param ivVoicePlay
      * @param pbProgress
      */
-    private void addAttachment(BaseViewHolder helper, int position, RecyclerView recyclerView, MessageInfoBean messageInfoBean, RoundImageView ivSignPicture, JzvdStdCircle jzvdStd, ImageView ivVoicePlay, ProgressBar pbProgress) {
+    private void addAttachment(BaseViewHolder helper, int position, RecyclerView recyclerView, MessageInfoBean messageInfoBean, ImageView ivSignPicture, JzvdStdCircle jzvdStd, ImageView ivVoicePlay, ProgressBar pbProgress) {
         List<AttachmentBean> attachmentBeans = null;
         try {
             attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
@@ -476,7 +476,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 width = height = DEFAULT_W;
             }
         }
-        if (view instanceof RoundImageView) {
+        if (view instanceof CircleImageView) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
             lp.width = width;
             lp.height = height;
