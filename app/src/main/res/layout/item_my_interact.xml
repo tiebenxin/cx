@@ -26,14 +26,14 @@
             android:layout_marginRight="15dp"
             android:orientation="horizontal">
 
-            <net.cb.cb.library.view.CircleImageView
+            <com.yanlong.im.wight.avatar.RoundImageView
                 android:id="@+id/iv_img"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:src="@mipmap/default_image"
                 android:layout_centerInParent="true"
-                app:radius="5dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:radius="4dp" />
 
             <ImageView
                 android:id="@+id/iv_play"
