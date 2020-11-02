@@ -223,9 +223,17 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
-     * 删除某一条动态
+     * 删除推荐某一条动态
      */
     public static class DeleteItemTrend extends BaseEvent {
+        public int position;//位置
+        public String fromWhere;//从哪里跳转过来
+    }
+
+    /**
+     * 删除我的动态某一条动态
+     */
+    public static class DeleteMyItemTrend extends BaseEvent {
         public int position;//位置
         public String fromWhere;//从哪里跳转过来
     }

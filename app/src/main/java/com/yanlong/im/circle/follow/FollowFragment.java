@@ -235,7 +235,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                                     }
 
                                     @Override
-                                    public void onClickNoLook() {
+                                    public void onClickNoLook(boolean isDel) {
 
                                     }
 
@@ -382,12 +382,6 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     @Override
     public void onAddFriendSuccess(boolean isSuccess) {
 
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void deleteItem(EventFactory.DeleteItemTrend event) {
-        //推荐列表和关注列表只更新自己点击的数据
-        onDeleteItem(event.position);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

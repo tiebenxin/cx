@@ -854,9 +854,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             }
             //展示无数据图
-            if(dataList.size()==0){
+            if (dataList.size() == 0) {
                 holder.layoutNoData.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 holder.layoutNoData.setVisibility(View.GONE);
             }
         }
@@ -1169,7 +1169,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (infoBean.getId().longValue() == id) {
                             spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
                             //然后及时通知广场推荐刷新
-                            EventBus.getDefault().post(new EventFactory.DeleteItemTrend());
+                            EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
+                            event.position = 0;
+                            EventBus.getDefault().post(event);
                         }
                     }
                 }

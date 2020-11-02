@@ -189,7 +189,11 @@ public class DialogHelper {
                     selectDialog.dismiss();
                 }
                 if (iCircleSetupClick != null) {
-                    iCircleSetupClick.onClickNoLook();
+                    if ("删除".equals(tvNoLook.getText().toString())) {
+                        iCircleSetupClick.onClickNoLook(true);
+                    } else {
+                        iCircleSetupClick.onClickNoLook(false);
+                    }
                 }
             }
         });
@@ -223,11 +227,11 @@ public class DialogHelper {
     /**
      * 我的动态(我的朋友圈) 底部弹框
      *
-     * @param isTop 是否置顶 1是 0否
+     * @param isTop        是否置顶 1是 0否
      * @param context
      * @param clickListner
      */
-    public void createTrendDialog(int isTop,Context context, final ITrendClickListner clickListner) {
+    public void createTrendDialog(int isTop, Context context, final ITrendClickListner clickListner) {
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
@@ -241,9 +245,9 @@ public class DialogHelper {
         dialogParams.width = width;
         window.setAttributes(dialogParams);
         TextView tvTop = dialogview.findViewById(R.id.tv_istop);
-        if(isTop==1){
+        if (isTop == 1) {
             tvTop.setText("取消置顶");
-        }else {
+        } else {
             tvTop.setText("置顶");
         }
         dialogview.findViewById(R.id.tv_cancle).setOnClickListener(new View.OnClickListener() {
@@ -440,7 +444,7 @@ public class DialogHelper {
      * @param context
      * @param clickListner
      */
-    public void createFriendTrendDialog(boolean showCancleFollow,Context context, final IFriendTrendClickListner clickListner) {
+    public void createFriendTrendDialog(boolean showCancleFollow, Context context, final IFriendTrendClickListner clickListner) {
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
@@ -454,9 +458,9 @@ public class DialogHelper {
         dialogParams.width = width;
         window.setAttributes(dialogParams);
         TextView tvFollow = dialogview.findViewById(R.id.tv_follow);
-        if(showCancleFollow){
+        if (showCancleFollow) {
             tvFollow.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             tvFollow.setVisibility(View.GONE);
         }
         tvFollow.setOnClickListener(new View.OnClickListener() {
