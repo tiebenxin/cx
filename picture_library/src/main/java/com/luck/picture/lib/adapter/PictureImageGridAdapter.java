@@ -69,6 +69,13 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
     private PictureSelectionConfig config;
     private int mimeType;
     private boolean zoomAnim;
+    private boolean isCircle;// 是否是发布广场动态
+    private int maxLeng = 50;
+
+    public void setCircle(boolean circle) {
+        isCircle = circle;
+    }
+
     /**
      * 单选图片
      */
@@ -235,17 +242,29 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                             if (!TextUtils.isEmpty(path)) {
                                 long length = PicImgSizeUtil.getVideoSize(path);
                                 long duration = Long.parseLong(getVideoAtt(path));
+                                if (isCircle) {
+                                    maxLeng = 20;
+                                }
                                 // 大于50M、5分钟不发送
-                                if (PicImgSizeUtil.formetFileSize(length) > 50) {
-                                    Toast.makeText(context, "不能选择超过50M的视频", Toast.LENGTH_SHORT)
+                                if (PicImgSizeUtil.formetFileSize(length) > maxLeng) {
+                                    Toast.makeText(context, "不能选择超过" + maxLeng + "M的视频", Toast.LENGTH_SHORT)
                                             .show();
                                     return;
                                 }
-                                if (duration > 5 * 60000) {
-                                    Toast.makeText(context, "不能选择超过5分钟的视频", Toast.LENGTH_SHORT)
-                                            .show();
-                                    return;
+                                if (isCircle) {
+                                    if (duration > 30000) {
+                                        Toast.makeText(context, "不能选择超过30秒的视频", Toast.LENGTH_SHORT)
+                                                .show();
+                                        return;
+                                    }
+                                } else {
+                                    if (duration > 5 * 60000) {
+                                        Toast.makeText(context, "不能选择超过5分钟的视频", Toast.LENGTH_SHORT)
+                                                .show();
+                                        return;
+                                    }
                                 }
+
                             }
                         }
                         changeCheckboxState(contentHolder, image);

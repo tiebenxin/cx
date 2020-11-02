@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.user.action.UserAction;
@@ -18,6 +19,7 @@ import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileCacheUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -368,13 +370,14 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
      * 顶部未读消息悬浮
      */
     public void getUnreadMsg() {
+        List<InteractMessage> list = msgDao.getUnreadMsgList();
         //是否有未读互动消息
-        if (msgDao.getUnreadMsgList() != null && msgDao.getUnreadMsgList().size() > 0) {
+        if (list != null && list.size() > 0) {
             String avatar = "";
-            int size = msgDao.getUnreadMsgList().size();
-            if (msgDao.getUnreadMsgList().get(0) != null) {
-                if (!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())) {
-                    avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
+            int size = list.size();
+            if (list.get(0) != null) {
+                if (!TextUtils.isEmpty(list.get(0).getAvatar())) {
+                    avatar = list.get(0).getAvatar();
                 }
             }
             mView.showUnreadMsg(size, avatar);

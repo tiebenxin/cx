@@ -544,6 +544,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             selectionMedias = PictureSelector.obtainSelectorList(savedInstanceState);
         }
         adapter = new PictureImageGridAdapter(mContext, config);
+        adapter.setCircle(true);
         adapter.setOnPhotoSelectChangedListener(CreateCircleActivity.this);
         adapter.bindSelectImages(selectionMedias);
         picture_recycler.setAdapter(adapter);
@@ -818,6 +819,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                         attachment.setType(PictureEnum.EContentType.PICTRUE);
                         circleBean.setType(PictureEnum.EContentType.PICTRUE);
                     } else {
+                        attachment.setDuration(localMedia.getDuration());
                         attachment.setBgUrl((getVideoAttBitmap(localMedia.getPath())));
                         attachment.setType(PictureEnum.EContentType.VIDEO);
                         circleBean.setType(PictureEnum.EContentType.VIDEO);

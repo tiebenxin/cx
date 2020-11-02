@@ -11,6 +11,7 @@ import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendFragment;
@@ -531,12 +532,13 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
      */
     public void getUnreadMsg() {
         //是否有未读互动消息
-        if (msgDao.getUnreadMsgList() != null && msgDao.getUnreadMsgList().size() > 0) {
+        List<InteractMessage> list = msgDao.getUnreadMsgList();
+        if (list != null && list.size() > 0) {
             String avatar = "";
-            int size = msgDao.getUnreadMsgList().size();
-            if (msgDao.getUnreadMsgList().get(0) != null) {
-                if (!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())) {
-                    avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
+            int size = list.size();
+            if (list.get(0) != null) {
+                if (!TextUtils.isEmpty(list.get(0).getAvatar())) {
+                    avatar = list.get(0).getAvatar();
                 }
             }
             mView.showUnreadMsg(size, avatar);
