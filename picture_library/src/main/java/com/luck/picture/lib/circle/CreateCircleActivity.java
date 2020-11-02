@@ -634,6 +634,16 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     public void startCamera() {
         // 防止快速点击，但是单独拍照不管
         if (!DoubleUtils.isFastDoubleClick() || config.camera) {
+            int model = PhotoPopupWindow.ETakeModel.ALL;
+            if (mList != null && mList.size() > 0) {
+                LocalMedia media = mList.get(0);
+                if (PictureMimeType.isVideo(media.getPictureType())) {
+                    ToastManage.s(this, "你最多可以选择1个视频");
+                    return;
+                } else {
+                    model = PhotoPopupWindow.ETakeModel.PHOTO;
+                }
+            }
             switch (config.mimeType) {
                 case PictureConfig.TYPE_ALL:
                     // 如果是全部类型下，单独拍照就默认图片 (因为单独拍照不会new此PopupWindow对象)
@@ -641,16 +651,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                         if (popupWindow.isShowing()) {
                             popupWindow.dismiss();
                         }
-                        if (mList != null && mList.size() > 0) {
-                            LocalMedia media = mList.get(0);
-                            if (PictureMimeType.isVideo(media.getPictureType())) {
-                                popupWindow.setTakeMode(PhotoPopupWindow.ETakeModel.VIDEO);
-                            } else {
-                                popupWindow.setTakeMode(PhotoPopupWindow.ETakeModel.PHOTO);
-                            }
-                        } else {
-                            popupWindow.setTakeMode(PhotoPopupWindow.ETakeModel.ALL);
-                        }
+                        popupWindow.setTakeMode(model);
                         popupWindow.showAsDropDown(rl_picture_title);
                     } else {
                         startOpenCamera();
