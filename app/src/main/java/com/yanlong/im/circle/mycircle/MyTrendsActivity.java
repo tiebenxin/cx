@@ -495,24 +495,30 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
-
-                    AudioPlayUtil.startAudioPlay(MyTrendsActivity.this, attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                    try {
+                        if (AudioPlayManager2.getInstance().getPlayingUri() != null) {
+                            AudioPlayUtil.completeAudioPlay();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    AudioPlayUtil.startAudioPlay(MyTrendsActivity.this, attachmentBean.getUrl(), messageInfoBean, new IAudioPlayProgressListener() {
                         @Override
-                        public void onStart(Uri var1) {
+                        public void onStart(Uri var1, Object o) {
                             messageInfoBean.setPlay(true);
                             messageInfoBean.setPlayProgress(0);
                             updatePosition(messageInfoBean);
                         }
 
                         @Override
-                        public void onStop(Uri var1) {
+                        public void onStop(Uri var1, Object o) {
                             messageInfoBean.setPlay(false);
                             updatePosition(messageInfoBean);
 
                         }
 
                         @Override
-                        public void onComplete(Uri var1) {
+                        public void onComplete(Uri var1, Object o) {
                             messageInfoBean.setPlay(false);
                             messageInfoBean.setPlayProgress(100);
                             updatePosition(messageInfoBean);
@@ -520,7 +526,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         }
 
                         @Override
-                        public void onProgress(int progress) {
+                        public void onProgress(int progress, Object o) {
                             LogUtil.getLog().i("语音", "播放进度--" + progress);
                             messageInfoBean.setPlay(true);
                             messageInfoBean.setPlayProgress(progress);

@@ -57,6 +57,7 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
@@ -552,12 +553,11 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 }
             }
         } else if (type == CoreEnum.EClickType.CLICK_VOICE) {
-            currentMessage = mFlowAdapter.getData().get(position).getData();
-            if (currentMessage != null && currentMessage.getType() != null &&
-                    (currentMessage.getType() == PictureEnum.EContentType.VOICE || currentMessage.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
-                playVoice();
+            MessageInfoBean bean = mFlowAdapter.getData().get(position).getData();
+            if (bean != null && bean.getType() != null &&
+                    (bean.getType() == PictureEnum.EContentType.VOICE || bean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
+                playVoice(bean);
             }
-
         } else {
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                 ToastUtil.show(getActivity().getString(R.string.user_disable_message));
@@ -846,14 +846,14 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         dialog.show();
     }
 
-    public void playVoice() {
-        if (currentMessage == null) {
+    public void playVoice(MessageInfoBean bean) {
+        if (bean == null) {
             return;
         }
-        if (!TextUtils.isEmpty(currentMessage.getAttachment())) {
+        if (!TextUtils.isEmpty(bean.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
             try {
-                attachmentBeans = new Gson().fromJson(currentMessage.getAttachment(),
+                attachmentBeans = new Gson().fromJson(bean.getAttachment(),
                         new TypeToken<List<AttachmentBean>>() {
                         }.getType());
             } catch (Exception e) {
@@ -861,44 +861,51 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             }
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
-                if (currentMessage.isPlay()) {
+                if (bean.isPlay()) {
                     if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
                         AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
-
-                    AudioPlayUtil.startAudioPlay(getActivity(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                    try {
+                        if (AudioPlayManager2.getInstance().getPlayingUri() != null) {
+                            AudioPlayUtil.completeAudioPlay();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    AudioPlayUtil.startAudioPlay(getActivity(), attachmentBean.getUrl(), bean, new IAudioPlayProgressListener() {
                         @Override
-                        public void onStart(Uri var1) {
+                        public void onStart(Uri var1, Object o) {
+                            currentMessage = bean;
                             isAudioPlaying = true;
-                            currentMessage.setPlay(true);
-                            currentMessage.setPlayProgress(0);
-                            updatePosition(currentMessage);
+                            bean.setPlay(true);
+                            bean.setPlayProgress(0);
+                            updatePosition(bean);
                         }
 
                         @Override
-                        public void onStop(Uri var1) {
+                        public void onStop(Uri var1, Object o) {
                             isAudioPlaying = false;
-                            currentMessage.setPlay(false);
-                            updatePosition(currentMessage);
+                            bean.setPlay(false);
+                            updatePosition(bean);
 
                         }
 
                         @Override
-                        public void onComplete(Uri var1) {
+                        public void onComplete(Uri var1, Object o) {
                             isAudioPlaying = false;
-                            currentMessage.setPlay(false);
-                            currentMessage.setPlayProgress(100);
-                            updatePosition(currentMessage);
+                            bean.setPlay(false);
+                            bean.setPlayProgress(100);
+                            updatePosition(bean);
 
                         }
 
                         @Override
-                        public void onProgress(int progress) {
+                        public void onProgress(int progress, Object o) {
                             LogUtil.getLog().i("语音", "播放进度--" + progress);
-                            currentMessage.setPlay(true);
-                            currentMessage.setPlayProgress(progress);
-                            updatePosition(currentMessage);
+//                            currentMessage.setPlay(true);
+                            bean.setPlayProgress(progress);
+                            updatePosition(bean);
                         }
                     });
 
@@ -910,6 +917,10 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     private void updatePosition(MessageInfoBean messageInfoBean) {
         if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
             return;
+        }
+        if (currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
+            currentMessage.setPlay(messageInfoBean.isPlay());
+            currentMessage.setPlayProgress(messageInfoBean.getPlayProgress());
         }
         bindingView.recyclerRecommend.postDelayed(new Runnable() {
             @Override

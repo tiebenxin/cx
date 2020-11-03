@@ -1202,11 +1202,14 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         dialog.show();
     }
 
-    public void playVoice(MessageInfoBean messageInfoBean) {
-        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+    public void playVoice(MessageInfoBean bean) {
+        if (bean == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(bean.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
             try {
-                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                attachmentBeans = new Gson().fromJson(bean.getAttachment(),
                         new TypeToken<List<AttachmentBean>>() {
                         }.getType());
             } catch (Exception e) {
@@ -1214,44 +1217,51 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             }
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
-                if (messageInfoBean.isPlay()) {
+                if (bean.isPlay()) {
                     if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
                         AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
-
-                    AudioPlayUtil.startAudioPlay(this.getApplicationContext(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                    try {
+                        if (AudioPlayManager2.getInstance().getPlayingUri() != null) {
+                            AudioPlayUtil.completeAudioPlay();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    AudioPlayUtil.startAudioPlay(this, attachmentBean.getUrl(), bean, new IAudioPlayProgressListener() {
                         @Override
-                        public void onStart(Uri var1) {
+                        public void onStart(Uri var1, Object o) {
+//                            currentMessage = bean;
                             isAudioPlaying = true;
-                            messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(0);
-                            updatePosition(messageInfoBean);
+                            bean.setPlay(true);
+                            bean.setPlayProgress(0);
+                            updatePosition(bean);
                         }
 
                         @Override
-                        public void onStop(Uri var1) {
+                        public void onStop(Uri var1, Object o) {
                             isAudioPlaying = false;
-                            messageInfoBean.setPlay(false);
-                            updatePosition(messageInfoBean);
+                            bean.setPlay(false);
+                            updatePosition(bean);
 
                         }
 
                         @Override
-                        public void onComplete(Uri var1) {
+                        public void onComplete(Uri var1, Object o) {
                             isAudioPlaying = false;
-                            messageInfoBean.setPlay(false);
-                            messageInfoBean.setPlayProgress(100);
-                            updatePosition(messageInfoBean);
+                            bean.setPlay(false);
+                            bean.setPlayProgress(100);
+                            updatePosition(bean);
 
                         }
 
                         @Override
-                        public void onProgress(int progress) {
+                        public void onProgress(int progress, Object o) {
                             LogUtil.getLog().i("语音", "播放进度--" + progress);
-                            messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(progress);
-                            updatePosition(messageInfoBean);
+//                            currentMessage.setPlay(true);
+                            bean.setPlayProgress(progress);
+                            updatePosition(bean);
                         }
                     });
 
@@ -1264,6 +1274,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
             return;
         }
+//        if (currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
+//            currentMessage.setPlay(messageInfoBean.isPlay());
+//            currentMessage.setPlayProgress(messageInfoBean.getPlayProgress());
+//        }
         bindingView.recyclerComment.postDelayed(new Runnable() {
             @Override
             public void run() {

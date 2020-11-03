@@ -1468,18 +1468,24 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     }
 
+
     @Override
-    public void onStart(Uri var1) {
+    public void onProgress(int progress, Object o) {
 
     }
 
     @Override
-    public void onStop(Uri var1) {
+    public void onStart(Uri var1, Object o) {
 
     }
 
     @Override
-    public void onComplete(Uri var1) {
+    public void onStop(Uri var1, Object o) {
+
+    }
+
+    @Override
+    public void onComplete(Uri var1, Object o) {
         iv_action.setVisibility(View.VISIBLE);
         iv_action.setImageResource(R.mipmap.ic_start_recorder);
         iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
@@ -1487,11 +1493,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         iv_reset.setVisibility(View.VISIBLE);
         iv_confirm.setVisibility(View.VISIBLE);
         mAudioState = 2;
-    }
-
-    @Override
-    public void onProgress(int progress) {
-
     }
 
     /**

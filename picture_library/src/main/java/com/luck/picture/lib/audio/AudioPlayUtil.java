@@ -30,6 +30,7 @@ public class AudioPlayUtil {
     private boolean play, isPause;
     private static Uri uri;
     private static IAudioPlayProgressListener mIAudioPlayListener;
+    private static Object currentMsg;
 
     private AudioPlayUtil(Context context, String file, AnimationDrawable ani, ProgressBar progressBar,
                           int recPosition, IAudioPlayProgressListener listener) {
@@ -41,9 +42,10 @@ public class AudioPlayUtil {
         this.recyclerviewPosition = recPosition;
     }
 
-    private AudioPlayUtil(Context context, String file, IAudioPlayProgressListener listener) {
+    private AudioPlayUtil(Context context, String file, Object ob, IAudioPlayProgressListener listener) {
         this.context = context;
         this.file = file;
+        this.currentMsg = ob;
         this.mIAudioPlayListener = listener;
     }
 
@@ -84,7 +86,7 @@ public class AudioPlayUtil {
                 playUtil = new AudioPlayUtil(context, audioUrl, (AnimationDrawable) imageView.getBackground(),
                         progressBar, -1, iAudioPlayListener);
             } else {
-                playUtil = new AudioPlayUtil(context, audioUrl, iAudioPlayListener);
+                playUtil = new AudioPlayUtil(context, audioUrl, null, iAudioPlayListener);
             }
         }
         playUtil.actAudio();
@@ -95,7 +97,18 @@ public class AudioPlayUtil {
         if (playUtil != null) {
             playUtil.clearProgressBar();
             if (mIAudioPlayListener != null) {
-                mIAudioPlayListener.onStop(uri);
+                mIAudioPlayListener.onStop(uri, currentMsg);
+            }
+            playUtil.release();
+            playUtil = null;
+        }
+    }
+
+    public static void completeAudioPlay() {
+        if (playUtil != null) {
+            playUtil.clearProgressBar();
+            if (mIAudioPlayListener != null) {
+                mIAudioPlayListener.onComplete(uri, currentMsg);
             }
             playUtil.release();
             playUtil = null;
@@ -146,7 +159,7 @@ public class AudioPlayUtil {
         }
         AudioPlayManager2.getInstance().startPlay(context, uri, position, new IAudioPlayListener() {
             @Override
-            public void onStart(Uri var1) {
+            public void onStart(Uri var1, Object msg) {
                 if (ani != null) {
                     ani.start();
                 }
@@ -155,23 +168,23 @@ public class AudioPlayUtil {
 //                    setSeekBar();
 //                }
                 if (mIAudioPlayListener != null) {
-                    mIAudioPlayListener.onStart(var1);
+                    mIAudioPlayListener.onStart(var1, currentMsg);
                 }
             }
 
             @Override
-            public void onStop(Uri var1) {
+            public void onStop(Uri var1, Object msg) {
                 if (ani != null) {
                     ani.stop();
                     ani.selectDrawable(0);
                 }
                 if (mIAudioPlayListener != null) {
-                    mIAudioPlayListener.onStop(var1);
+                    mIAudioPlayListener.onStop(var1, currentMsg);
                 }
             }
 
             @Override
-            public void onComplete(Uri var1) {
+            public void onComplete(Uri var1, Object msg) {
                 if (ani != null) {
                     ani.stop();
                     ani.selectDrawable(0);
@@ -181,7 +194,7 @@ public class AudioPlayUtil {
                     play = false;
                 }
                 if (mIAudioPlayListener != null) {
-                    mIAudioPlayListener.onComplete(var1);
+                    mIAudioPlayListener.onComplete(var1, currentMsg);
                 }
             }
         });
@@ -242,6 +255,7 @@ public class AudioPlayUtil {
         position = 0;
         play = false;
         uri = null;
+        currentMsg = null;
         mIAudioPlayListener = null;
     }
 
@@ -268,7 +282,7 @@ public class AudioPlayUtil {
                             double progress = (getCurrentPosition() / Double.parseDouble(getDuration() + "")) * 100;
                             BigDecimal bd = new BigDecimal(progress);
                             if (mIAudioPlayListener != null) {
-                                mIAudioPlayListener.onProgress(bd.setScale(1, BigDecimal.ROUND_HALF_UP).intValue());
+                                mIAudioPlayListener.onProgress(bd.setScale(1, BigDecimal.ROUND_HALF_UP).intValue(), currentMsg);
                             }
                             if (mProgressBar != null) {
                                 mProgressBar.setProgress(bd.setScale(1, BigDecimal.ROUND_HALF_UP).intValue());
@@ -286,20 +300,17 @@ public class AudioPlayUtil {
         }.start();
     }
 
-    public static void startAudioPlay(Context context, String audioUrl, IAudioPlayProgressListener iAudioPlayListener) {
+    public static void startAudioPlay(Context context, String audioUrl, Object ob, IAudioPlayProgressListener iAudioPlayListener) {
         if (TextUtils.isEmpty(audioUrl)) {
             return;
         }
         if (playUtil != null && !playUtil.isSame(audioUrl)) {
             //不是同一个语音 停止上一个
             stopAudioPlay();
-//            playUtil.pause();
-//            playUtil.clearProgressBar();
-//            playUtil = null;
         }
 
         if (playUtil == null) {
-            playUtil = new AudioPlayUtil(context, audioUrl, iAudioPlayListener);
+            playUtil = new AudioPlayUtil(context, audioUrl, ob, iAudioPlayListener);
         }
         playUtil.actAudio();
     }
