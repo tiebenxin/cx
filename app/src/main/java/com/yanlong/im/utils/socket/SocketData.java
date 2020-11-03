@@ -1438,10 +1438,18 @@ public class SocketData {
      * 多端同步,目前只发送群已读
      */
     public static MsgAllBean sendMultiTerminalSync(String gid) {
-        MsgBean.MultiTerminalSync msg = MsgBean.MultiTerminalSync.newBuilder()
-                .setGid(gid)
-                .build();
-        return send4Base(false, null, gid, MsgBean.MessageType.MULTI_TERMINAL_SYNC, msg);
+        try {
+            if (UserAction.getMyId() == null || TextUtils.isEmpty(gid)) {
+                return null;
+            }
+            MsgBean.MultiTerminalSync msg = MsgBean.MultiTerminalSync.newBuilder()
+                    .setGid(gid)
+                    .build();
+            return send4Base(false, UserAction.getMyId(), null, MsgBean.MessageType.MULTI_TERMINAL_SYNC, msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
