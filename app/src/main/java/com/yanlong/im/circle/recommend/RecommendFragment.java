@@ -917,19 +917,19 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null || currentMessage == null) {
             return;
         }
-        if (currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
+        if (currentMessage.getId().equals(messageInfoBean.getId())) {
             currentMessage.setPlay(messageInfoBean.isPlay());
             currentMessage.setPlayProgress(messageInfoBean.getPlayProgress());
         }
         bindingView.recyclerRecommend.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(messageInfoBean.getType()), messageInfoBean);
+                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(messageInfoBean.getType()), currentMessage);
                 int position = mFlowAdapter.getData().indexOf(bean);
-                LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
+                LogUtil.getLog().i("语音", "position=" + position + "  id=" + currentMessage.getId() + "  isPlay=" + currentMessage.isPlay());
                 if (position >= 0) {
                     mFlowAdapter.getData().set(position, bean);
                     if (mFlowAdapter.getHeaderLayoutCount() > 0) {
