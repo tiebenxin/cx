@@ -1286,7 +1286,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
                 .openExternalPreview1(postion, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
-        EventBus.getDefault().post(new EventFactory.DoResumeEvent());
     }
 
     /**

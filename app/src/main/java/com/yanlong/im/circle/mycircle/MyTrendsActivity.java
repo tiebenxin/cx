@@ -78,7 +78,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
     private MsgDao msgDao;
-    private boolean doResume = true;//如果仅仅只是点击大图不需要再请求接口刷新
 
     @Override
     protected int setView() {
@@ -120,6 +119,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.getItemAnimator().setChangeDuration(0);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
+        httpGetMyTrends();
         //加载更多
         bindingView.recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
@@ -374,20 +374,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         });
     }
 
-//    /**
-//     * 是否显示无数据占位图
-//     * @param ifShow
-//     */
-//    private void showNoDataLayout(boolean ifShow) {
-//        if (ifShow) {
-//            bindingView.recyclerView.setVisibility(View.GONE);
-//            bindingView.noDataLayout.setVisibility(View.VISIBLE);
-//        } else {
-//            bindingView.recyclerView.setVisibility(View.VISIBLE);
-//            bindingView.noDataLayout.setVisibility(View.GONE);
-//        }
-//    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -395,26 +381,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             RxBus.getDefault().unregister(this);
         }
         AudioPlayUtil.stopAudioPlay();
-    }
-
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        if (RxBus.getDefault().isRegistered(this)) {
-//            RxBus.getDefault().unregister(this);
-//        }
-//        AudioPlayUtil.stopAudioPlay();
-//    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (doResume) {
-            page = 1;
-            httpGetMyTrends();
-        } else {
-            doResume = true;
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -425,19 +391,17 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             if (bean.getId() != null && bean.getUid() != null) {
                 queryById(bean.getId().longValue(), bean.getUid().longValue(), event.position - 1);
             }
+            //详情修改可见度
+        }else if(event.action == 4){
+            adapter.getDataList().get(event.position-1).setVisibility(event.visibility);
+            adapter.notifyItemChanged(event.position);
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void DoResumeEvent(EventFactory.DoResumeEvent event) {
-        doResume = false;
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteMyItemTrend event) {
-        mList.remove(event.position);
-        adapter.notifyItemRemoved(event.position);
-        adapter.notifyItemRangeChanged(event.position, mList.size());
+        adapter.getDataList().remove(event.position-1);
+        adapter.notifyDataSetChanged();
     }
 
     /**
