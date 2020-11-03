@@ -341,6 +341,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
                     animationDrawable.stop();
                     animationDrawable.selectDrawable(0);
+                    ivVoicePlay.setBackground(null);
+                    ivVoicePlay.setBackgroundResource(R.drawable.ic_voice_anim_circle);
                 } else {
                     AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
                     animationDrawable.start();
