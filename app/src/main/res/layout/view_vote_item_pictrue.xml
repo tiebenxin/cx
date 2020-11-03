@@ -8,9 +8,7 @@
     <RelativeLayout
         android:id="@+id/relative_layout"
         android:layout_width="101dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:layout_marginRight="6dp">
+        android:layout_height="wrap_content">
 
         <com.yanlong.im.view.RadiusCardView
             android:id="@+id/card_view"
@@ -64,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="10dp"
                 android:textColor="@color/c_474747"
                 android:textSize="15sp" />
 

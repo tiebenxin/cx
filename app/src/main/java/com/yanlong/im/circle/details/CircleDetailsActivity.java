@@ -242,11 +242,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void initEvent() {
-//        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
-//        ivRight.setImageResource(R.mipmap.ic_circle_more);
-//        ivRight.setVisibility(View.VISIBLE);
-//        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
-//                ScreenUtil.dip2px(this, 10), 0);
         bindingView.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -260,17 +255,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 showFunctionDialog();
             }
         });
-//        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
-//            @Override
-//            public void onBack() {
-//                onBackPressed();
-//            }
-//
-//            @Override
-//            public void onRight() {
-//                showFunctionDialog();
-//            }
-//        });
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
@@ -445,7 +429,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 return false;
             }
         });
-
 
         //输入框
         bindingView.etMessage.setOnTouchListener(new View.OnTouchListener() {
@@ -861,15 +844,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
         }
-        mFlowAdapter.notifyDataSetChanged();
-        mFlowAdapter.finishInitialize();
         bindingView.tvSend.setEnabled(true);
         bindingView.recyclerComment.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ((LinearLayoutManager) bindingView.recyclerComment.getLayoutManager()).scrollToPositionWithOffset(mCommentTxtAdapter.getItemCount() - 1, Integer.MIN_VALUE);
+                bindingView.recyclerComment.scrollToPosition(mCommentTxtAdapter.getItemCount() - 1);
             }
-        }, 100);
+        }, 300);
 
         if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
             //通知好友动态主页、我的动态主页刷新
@@ -972,7 +953,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         //获取浏览量
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(0).getData();
         messageInfoBean.setBrowseCount(commentBean.getBrowseCount());
-        mFlowAdapter.notifyItemChanged(0);
+        mFlowAdapter.notifyDataSetChanged();
         //通知更新广场推荐/关注列表某一项状态
         EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
         event1.id = messageInfoBean.getId();

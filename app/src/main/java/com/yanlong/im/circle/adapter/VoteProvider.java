@@ -55,6 +55,8 @@ import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.JzvdStdCircle;
+import com.yanlong.im.wight.avatar.RoundImageView;
+
 import net.cb.cb.library.view.CircleImageView;
 
 import net.cb.cb.library.CoreEnum;
@@ -116,7 +118,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        ImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
+        RoundImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
         JzvdStdCircle jzvdStd = helper.getView(R.id.video_player);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
@@ -379,15 +381,15 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                                 .apply(GlideOptionsUtil.circleImageOptions())
                                 .into(ivSignPicture);
                     }
-                    helper.setVisible(R.id.rl_video, true);
+                    helper.setVisible(R.id.iv_sign_picture, true);
                     recyclerView.setVisibility(View.GONE);
                     helper.setGone(R.id.layout_voice, false);
                 } else {
                     helper.setGone(R.id.layout_voice, false);
-                    helper.setGone(R.id.rl_video, false);
                     recyclerView.setVisibility(View.VISIBLE);
                     setRecycleView(recyclerView, attachmentBeans, position);
                 }
+                helper.setGone(R.id.rl_video, false);
             }
         } else if (messageInfoBean.getType() != null && (messageInfoBean.getType() == PictureEnum.EContentType.VIDEO ||
                 messageInfoBean.getType() == PictureEnum.EContentType.VIDEO_AND_VOTE)) {
@@ -474,7 +476,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 width = height = DEFAULT_W;
             }
         }
-        if (view instanceof CircleImageView) {
+        if (view instanceof RoundImageView) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
             lp.width = width;
             lp.height = height;

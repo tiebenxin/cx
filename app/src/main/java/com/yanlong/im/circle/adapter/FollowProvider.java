@@ -114,7 +114,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        ImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
+        RoundImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
         JzvdStdCircle jzvdStd = helper.getView(R.id.video_player);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);

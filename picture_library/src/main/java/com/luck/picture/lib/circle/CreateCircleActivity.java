@@ -388,6 +388,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     private void setRecyclerViewHeight(int height) {
         if (height > 0 && isRestHeight) {
+            if (height < mFuncHeight) {
+                height = mFuncHeight;
+            }
             mKeyboardHeight = height;
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
             frame_content.setLayoutParams(layoutParams);
@@ -1918,7 +1921,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 //                        tv_empty.setVisibility(images.size() > 0
 //                                ? View.INVISIBLE : View.VISIBLE);
                     }
-
                     if (config.mimeType != PictureMimeType.ofAudio()) {
                         int lastImageId = getLastImageId(eqVideo);
                         if (lastImageId != -1) {
