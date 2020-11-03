@@ -480,6 +480,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     AnimationDrawable animationDrawable = (AnimationDrawable) holder.ivVoicePlay.getBackground();
                                     animationDrawable.stop();
                                     animationDrawable.selectDrawable(0);
+                                    holder.ivVoicePlay.setBackground(null);
+                                    holder.ivVoicePlay.setBackgroundResource(R.drawable.ic_voice_anim_circle);
                                 } else {
                                     AnimationDrawable animationDrawable = (AnimationDrawable) holder.ivVoicePlay.getBackground();
                                     animationDrawable.start();
