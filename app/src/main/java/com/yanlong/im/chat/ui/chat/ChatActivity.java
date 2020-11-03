@@ -781,7 +781,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         super.onStop();
         LogUtil.getLog().i(TAG, "ChatActivity-onStop");
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
-//        AudioPlayManager.getInstance().stopPlay();
+//        AudioPlayManager2.getInstance().stopPlay();
         stopRecordVoice();
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
@@ -3910,8 +3910,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
 
     private void playVoice(MsgAllBean msgBean, int position) {
         //会导致播放不能暂停
-//        if (AudioPlayManager.getInstance().isPlayingVoice()) {
-//            AudioPlayManager.getInstance().stopPlay();
+//        if (AudioPlayManager2.getInstance().isPlayingVoice()) {
+//            AudioPlayManager2.getInstance().stopPlay();
 //        }
         currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();

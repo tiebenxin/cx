@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
@@ -56,7 +57,6 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindMvpFragment;
@@ -862,8 +862,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                 if (currentMessage.isPlay()) {
-                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
-//                        AudioPlayManager.getInstance().stopPlay();
+                    if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
                         AudioPlayUtil.stopAudioPlay();
                     }
                 } else {

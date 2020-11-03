@@ -144,7 +144,7 @@ public class AudioPlayUtil {
         } else {//本地文件
             uri = Uri.fromFile(new File(file));
         }
-        AudioPlayManager.getInstance().startPlay(context, uri, position, new IAudioPlayListener() {
+        AudioPlayManager2.getInstance().startPlay(context, uri, position, new IAudioPlayListener() {
             @Override
             public void onStart(Uri var1) {
                 if (ani != null) {
@@ -188,21 +188,21 @@ public class AudioPlayUtil {
     }
 
     public void pause() {
-        position = AudioPlayManager.getInstance().pausePlay();
+        position = AudioPlayManager2.getInstance().pausePlay();
         play = false;
         isPause = true;
     }
 
     public static int getCurrentPosition() {
-        return AudioPlayManager.getInstance().getCurrentPosition();
+        return AudioPlayManager2.getInstance().getCurrentPosition();
     }
 
     public static int getDuration() {
-        return AudioPlayManager.getInstance().getDuration();
+        return AudioPlayManager2.getInstance().getDuration();
     }
 
     public void stop() {
-        AudioPlayManager.getInstance().stopPlay();
+        AudioPlayManager2.getInstance().stopPlay();
     }
 
     public static boolean isPlay() {
@@ -228,14 +228,14 @@ public class AudioPlayUtil {
     }
 
     public void seekTo(int postion) {
-        if (AudioPlayManager.getInstance().getMediaplayer() != null) {
+        if (AudioPlayManager2.getInstance().getMediaplayer() != null) {
             position = postion;
-            AudioPlayManager.getInstance().getMediaplayer().seekTo(postion);
+            AudioPlayManager2.getInstance().getMediaplayer().seekTo(postion);
         }
     }
 
     public void release() {
-        AudioPlayManager.getInstance().stopPlay();
+        AudioPlayManager2.getInstance().stopPlay();
         file = null;
         context = null;
         ani = null;

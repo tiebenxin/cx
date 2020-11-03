@@ -29,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.circle.CreateCircleActivity;
@@ -71,7 +72,6 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.view.DeletPopWindow;
 
 import net.cb.cb.library.CoreEnum;
@@ -775,7 +775,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             finish();
         } else if (type == CoreEnum.EClickType.CLICK_VOICE) {
             MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
-            if (messageInfoBean != null && messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
+            if (messageInfoBean != null && messageInfoBean.getType() != null &&
+                    (messageInfoBean.getType() == PictureEnum.EContentType.VOICE || messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
                 playVoice(messageInfoBean);
             }
 
@@ -1211,8 +1212,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                 if (messageInfoBean.isPlay()) {
-                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
-                        AudioPlayManager.getInstance().stopPlay();
+                    if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
 

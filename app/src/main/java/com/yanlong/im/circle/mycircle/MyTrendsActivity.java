@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
@@ -37,7 +38,6 @@ import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindActivity;
@@ -491,8 +491,8 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                 if (messageInfoBean.isPlay()) {
-                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
-                        AudioPlayManager.getInstance().stopPlay();
+                    if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
 
