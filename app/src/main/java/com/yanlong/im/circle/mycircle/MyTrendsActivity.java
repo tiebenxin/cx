@@ -404,6 +404,12 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         adapter.notifyDataSetChanged();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventFactory.CreateCircleEvent event) {
+        page = 1;
+        httpGetMyTrends();
+    }
+
     /**
      * 获取单条朋友圈
      *
