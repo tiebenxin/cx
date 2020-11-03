@@ -543,7 +543,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     @Override
                     public void onClickNoLook(boolean isDel) {
                         if (isDel) {
-                            mPresenter.circleDelete(mMessageInfoBean.getId(), mPostion, fromWhere);
+                            if(fromWhere.equals("MyTrendsActivity")){
+                                mPresenter.circleDelete(mMessageInfoBean.getId(), TrendPosition, fromWhere);
+                            }else {
+                                mPresenter.circleDelete(mMessageInfoBean.getId(), mPostion, fromWhere);
+                            }
                         } else {
                             EventFactory.NoSeeEvent event = new EventFactory.NoSeeEvent();
                             event.uid = mMessageInfoBean.getUid();
@@ -1077,6 +1081,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 String visible = data.getStringExtra(CreateCircleActivity.INTENT_POWER);
                 if (mMessageInfoBean != null) {
                     mMessageInfoBean.setVisibility(StringUtil.getVisible(visible));
+                    EventFactory.UpdateOneTrendEvent event = new EventFactory.UpdateOneTrendEvent();
+                    event.action = 4;
+                    event.position = TrendPosition;
+                    event.visibility = StringUtil.getVisible(visible);
+                    EventBus.getDefault().post(event);
                 }
             }
         }
