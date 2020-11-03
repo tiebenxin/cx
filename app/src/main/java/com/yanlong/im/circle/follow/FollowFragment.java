@@ -64,6 +64,7 @@ import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.YLLinearLayoutManager;
@@ -101,6 +102,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     private CommonSelectDialog.Builder builder;
     private boolean isAudioPlaying = false;//是否语音正在播放
     private MessageInfoBean currentMessage;
+    private boolean isCurrentMsgRefresh;
 
     protected FollowPresenter createPresenter() {
         return new FollowPresenter(getContext());
@@ -512,6 +514,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 // TODO 服务端没返回头像跟昵称所以取原来的数据
                 MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
                 if (currentMessage != null && currentMessage.getId().equals(serverInfoBean.getId())) {
+                    isCurrentMsgRefresh = true;
                     MessageInfoBean tempMessage = currentMessage;//保存本地播放数据
                     currentMessage = serverInfoBean;
                     currentMessage.setPlayProgress(tempMessage.getPlayProgress());
@@ -753,33 +756,35 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     AudioPlayUtil.startAudioPlay(getActivity(), attachmentBean.getUrl(), bean, new IAudioPlayProgressListener() {
                         @Override
                         public void onStart(Uri var1, Object o) {
-                            currentMessage = bean;
+                            LogUtil.getLog().i("语音", "onStart=" + "--bean_id=" + bean.getId());
                             isAudioPlaying = true;
                             bean.setPlay(true);
                             bean.setPlayProgress(0);
+                            currentMessage = bean;
                             updatePosition(bean);
                         }
 
                         @Override
                         public void onStop(Uri var1, Object o) {
+                            LogUtil.getLog().i("语音", "onStop=" + " current id=" + currentMessage.getId() + "--bean_id=" + bean.getId());
                             isAudioPlaying = false;
                             bean.setPlay(false);
                             updatePosition(bean);
-
                         }
 
                         @Override
                         public void onComplete(Uri var1, Object o) {
+                            LogUtil.getLog().i("语音", "onComplete=" + " current id=" + currentMessage.getId() + "--bean_id=" + bean.getId());
                             isAudioPlaying = false;
                             bean.setPlay(false);
-                            bean.setPlayProgress(100);
+                            bean.setPlayProgress(0);
                             updatePosition(bean);
 
                         }
 
                         @Override
                         public void onProgress(int progress, Object o) {
-                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+//                            LogUtil.getLog().i("语音", "播放进度--" + progress);
 //                            currentMessage.setPlay(true);
                             bean.setPlayProgress(progress);
                             updatePosition(bean);
@@ -792,19 +797,24 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null|| currentMessage == null) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
             return;
         }
-        if ( currentMessage.getId().equals(messageInfoBean.getId())) {
-            currentMessage.setPlay(messageInfoBean.isPlay());
-            currentMessage.setPlayProgress(messageInfoBean.getPlayProgress());
+//        LogUtil.getLog().i("语音", "updatePosition=" + " current id=" + currentMessage.getId() + "  isPlay=" + currentMessage.isPlay());
+        if (isCurrentMsgRefresh && currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
+            MessageInfoBean temp = messageInfoBean;
+            messageInfoBean = currentMessage;
+            messageInfoBean.setPlay(temp.isPlay());
+            messageInfoBean.setPlayProgress(temp.getPlayProgress());
+            isCurrentMsgRefresh = false;
         }
+        MessageInfoBean finalMessageInfoBean = messageInfoBean;
         bindingView.recyclerFollow.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(currentMessage.getType()), currentMessage);
+                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(finalMessageInfoBean.getType()), finalMessageInfoBean);
                 int position = mFlowAdapter.getData().indexOf(bean);
-                LogUtil.getLog().i("语音", "position=" + position + "  id=" + currentMessage.getId() + "  isPlay=" + currentMessage.isPlay());
+//                LogUtil.getLog().i("语音", "updatePosition---position=" + position + "  id=" + finalMessageInfoBean.getId() + "  isPlay=" + finalMessageInfoBean.isPlay() + "--progress=" + finalMessageInfoBean.getPlayProgress());
                 if (position >= 0) {
                     mFlowAdapter.getData().set(position, bean);
                     if (mFlowAdapter.getHeaderLayoutCount() > 0) {
@@ -813,7 +823,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     mFlowAdapter.notifyItemChanged(position);
                 }
             }
-        }, 100);
+        }, 0);
     }
 
     private void checkAudioStatus(boolean stop) {

@@ -31,6 +31,7 @@ public class AudioPlayUtil {
     private static Uri uri;
     private static IAudioPlayProgressListener mIAudioPlayListener;
     private static Object currentMsg;
+    private static boolean isCompleted = false;
 
     private AudioPlayUtil(Context context, String file, AnimationDrawable ani, ProgressBar progressBar,
                           int recPosition, IAudioPlayProgressListener listener) {
@@ -94,18 +95,21 @@ public class AudioPlayUtil {
 
     //停止语音播放
     public static void stopAudioPlay() {
-        if (playUtil != null) {
-            playUtil.clearProgressBar();
-            if (mIAudioPlayListener != null) {
-                mIAudioPlayListener.onStop(uri, currentMsg);
+        if (!isCompleted) {
+            if (playUtil != null) {
+                playUtil.clearProgressBar();
+                if (mIAudioPlayListener != null && uri != null) {
+                    mIAudioPlayListener.onStop(uri, currentMsg);
+                }
+                playUtil.release();
+                playUtil = null;
             }
-            playUtil.release();
-            playUtil = null;
         }
     }
 
     public static void completeAudioPlay() {
         if (playUtil != null) {
+            isCompleted = true;
             playUtil.clearProgressBar();
             if (mIAudioPlayListener != null) {
                 mIAudioPlayListener.onComplete(uri, currentMsg);
@@ -152,6 +156,7 @@ public class AudioPlayUtil {
             return;
         }
         play = true;
+        isCompleted = false;
         if (file.startsWith("http")) {//网络
             uri = Uri.parse(file);
         } else {//本地文件
@@ -178,7 +183,7 @@ public class AudioPlayUtil {
                     ani.stop();
                     ani.selectDrawable(0);
                 }
-                if (mIAudioPlayListener != null) {
+                if (!isCompleted && mIAudioPlayListener != null) {
                     mIAudioPlayListener.onStop(var1, currentMsg);
                 }
             }
@@ -193,6 +198,7 @@ public class AudioPlayUtil {
                     position = 0;
                     play = false;
                 }
+                isCompleted = false;
                 if (mIAudioPlayListener != null) {
                     mIAudioPlayListener.onComplete(var1, currentMsg);
                 }
