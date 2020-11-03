@@ -498,6 +498,8 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
         postcard.withBoolean(IS_OPEN, isOpen);
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+        messageInfoBean.setPlay(false);
+        messageInfoBean.setPlayProgress(0);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, messageInfoBean.isFollow());
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_POSTION, position);
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));

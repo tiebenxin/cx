@@ -429,6 +429,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, true);
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+        messageInfoBean.setPlay(false);
+        messageInfoBean.setPlayProgress(0);
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_POSTION, position);
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));
         postcard.withInt(CircleDetailsActivity.ITEM_DATA_TYPE, mFlowAdapter.getData().get(position).getItemType());
