@@ -270,10 +270,8 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                         List<AttachmentBean> attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
                                 new TypeToken<List<AttachmentBean>>() {
                                 }.getType());
-                        if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.PICTRUE) {
-                            toPicturePreview(0, attachmentBeans);
-                            checkAudioStatus(false);
-                        }
+                        toPicturePreview(0, attachmentBeans);
+                        checkAudioStatus(false);
                         break;
                     case R.id.tv_user_name:// 昵称，没注销的用户才允许跳朋友圈
                         if (!TextUtils.isEmpty(messageInfoBean.getNickname()) || !TextUtils.isEmpty(messageInfoBean.getAvatar())) {

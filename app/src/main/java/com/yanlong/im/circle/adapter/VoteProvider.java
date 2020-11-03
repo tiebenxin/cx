@@ -57,6 +57,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.view.JzvdStdCircle;
 import com.yanlong.im.wight.avatar.RoundImageView;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.CircleImageView;
 
 import net.cb.cb.library.CoreEnum;
@@ -341,6 +342,8 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                     AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
                     animationDrawable.stop();
                     animationDrawable.selectDrawable(0);
+                    ivVoicePlay.setBackground(null);
+                    ivVoicePlay.setBackgroundResource(R.drawable.ic_voice_anim_circle);
                 } else {
                     AnimationDrawable animationDrawable = (AnimationDrawable) ivVoicePlay.getBackground();
                     animationDrawable.start();
@@ -348,6 +351,9 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 ivVoicePlay.setOnClickListener(o -> {
                     if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
                         if (clickListener != null) {
+                            if (jzvdStd != null) {
+                                jzvdStd.releaseAllVideos();
+                            }
                             clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
                         }
                     }
