@@ -923,14 +923,22 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
             return;
         }
 //        LogUtil.getLog().i("语音", "updatePosition=" + " current id=" + currentMessage.getId() + "  isPlay=" + currentMessage.isPlay());
-        if (isCurrentMsgRefresh && currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
-            MessageInfoBean temp = messageInfoBean;
-            messageInfoBean = currentMessage;
-            messageInfoBean.setPlay(temp.isPlay());
-            messageInfoBean.setPlayProgress(temp.getPlayProgress());
-            isCurrentMsgRefresh = false;
+        MessageInfoBean msgTemp = null;
+        if (isCurrentMsgRefresh) {
+            int index = mFlowAdapter.getData().indexOf(new MessageFlowItemBean(messageInfoBean.getType(), messageInfoBean));
+            if (index < 0) {
+                return;
+            }
+            msgTemp = mFlowAdapter.getData().get(index).getData();
+            msgTemp.setPlay(messageInfoBean.isPlay());
+            msgTemp.setPlayProgress(messageInfoBean.getPlayProgress());
         }
-        MessageInfoBean finalMessageInfoBean = messageInfoBean;
+        MessageInfoBean finalMessageInfoBean;
+        if (msgTemp == null) {
+            finalMessageInfoBean = messageInfoBean;
+        } else {
+            finalMessageInfoBean = msgTemp;
+        }
         bindingView.recyclerRecommend.postDelayed(new Runnable() {
             @Override
             public void run() {

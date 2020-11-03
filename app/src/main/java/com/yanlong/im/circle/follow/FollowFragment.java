@@ -769,7 +769,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                             LogUtil.getLog().i("语音", "onStop=" + " current id=" + currentMessage.getId() + "--bean_id=" + bean.getId());
                             isAudioPlaying = false;
                             bean.setPlay(false);
-                            updatePosition(bean);
+                            updatePosition((MessageInfoBean) o);
                         }
 
                         @Override
@@ -778,7 +778,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                             isAudioPlaying = false;
                             bean.setPlay(false);
                             bean.setPlayProgress(0);
-                            updatePosition(bean);
+                            updatePosition((MessageInfoBean) o);
 
                         }
 
@@ -787,7 +787,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
 //                            LogUtil.getLog().i("语音", "播放进度--" + progress);
 //                            currentMessage.setPlay(true);
                             bean.setPlayProgress(progress);
-                            updatePosition(bean);
+                            updatePosition((MessageInfoBean) o);
                         }
                     });
 
@@ -800,15 +800,22 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
             return;
         }
-//        LogUtil.getLog().i("语音", "updatePosition=" + " current id=" + currentMessage.getId() + "  isPlay=" + currentMessage.isPlay());
-        if (isCurrentMsgRefresh && currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
-            MessageInfoBean temp = messageInfoBean;
-            messageInfoBean = currentMessage;
-            messageInfoBean.setPlay(temp.isPlay());
-            messageInfoBean.setPlayProgress(temp.getPlayProgress());
-            isCurrentMsgRefresh = false;
+        MessageInfoBean msgTemp = null;
+        if (isCurrentMsgRefresh) {
+            int index = mFlowAdapter.getData().indexOf(new MessageFlowItemBean(messageInfoBean.getType(), messageInfoBean));
+            if (index < 0) {
+                return;
+            }
+            msgTemp = mFlowAdapter.getData().get(index).getData();
+            msgTemp.setPlay(messageInfoBean.isPlay());
+            msgTemp.setPlayProgress(messageInfoBean.getPlayProgress());
         }
-        MessageInfoBean finalMessageInfoBean = messageInfoBean;
+        MessageInfoBean finalMessageInfoBean;
+        if (msgTemp == null) {
+            finalMessageInfoBean = messageInfoBean;
+        } else {
+            finalMessageInfoBean = msgTemp;
+        }
         bindingView.recyclerFollow.postDelayed(new Runnable() {
             @Override
             public void run() {

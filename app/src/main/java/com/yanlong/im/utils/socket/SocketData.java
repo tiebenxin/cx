@@ -1434,6 +1434,17 @@ public class SocketData {
         return send4Base(false, toId, null, MsgBean.MessageType.HISTORY_CLEAN, msg);
     }
 
+    /**
+     * 多端同步,目前只发送群已读
+     */
+    public static MsgAllBean sendMultiTerminalSync(String gid) {
+        MsgBean.MultiTerminalSync msg = MsgBean.MultiTerminalSync.newBuilder()
+                .setGid(gid)
+                .build();
+        return send4Base(false, null, gid, MsgBean.MessageType.MULTI_TERMINAL_SYNC, msg);
+    }
+
+
     public static void saveMessage(MsgAllBean bean) {
         DaoUtil.update(bean);
         if (msgDao == null) {
