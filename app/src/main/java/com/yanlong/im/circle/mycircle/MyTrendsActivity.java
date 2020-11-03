@@ -30,6 +30,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.MyTrendsAdapter;
 import com.yanlong.im.circle.bean.CircleTrendsBean;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
@@ -77,7 +78,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
     private MsgDao msgDao;
-    private boolean doResume=true;//如果仅仅只是点击大图不需要再请求接口刷新
+    private boolean doResume = true;//如果仅仅只是点击大图不需要再请求接口刷新
 
     @Override
     protected int setView() {
@@ -180,12 +181,13 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
         });
         //是否有未读互动消息
-        if (msgDao.getUnreadMsgList() != null && msgDao.getUnreadMsgList().size() > 0) {
+        List<InteractMessage> list = msgDao.getUnreadMsgList();
+        if (list != null && list.size() > 0) {
             String avatar = "";
-            int size = msgDao.getUnreadMsgList().size();
-            if (msgDao.getUnreadMsgList().get(0) != null) {
-                if (!TextUtils.isEmpty(msgDao.getUnreadMsgList().get(0).getAvatar())) {
-                    avatar = msgDao.getUnreadMsgList().get(0).getAvatar();
+            int size = list.size();
+            if (list.get(0) != null) {
+                if (!TextUtils.isEmpty(list.get(0).getAvatar())) {
+                    avatar = list.get(0).getAvatar();
                 }
             }
             adapter.showNotice(true, avatar, size);
@@ -407,10 +409,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     @Override
     protected void onResume() {
         super.onResume();
-        if(doResume){
+        if (doResume) {
             page = 1;
             httpGetMyTrends();
-        }else {
+        } else {
             doResume = true;
         }
     }
@@ -541,7 +543,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 int position = adapter.getDataList().indexOf(messageInfoBean);
                 if (position >= 0) {
                     adapter.getDataList().set(position, messageInfoBean);
-                    adapter.notifyItemChanged(position+1);//头部
+                    adapter.notifyItemChanged(position + 1);//头部
                 }
             }
         }, 100);

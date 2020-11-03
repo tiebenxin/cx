@@ -2,6 +2,7 @@ package com.yanlong.im.circle.follow;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -337,17 +338,30 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void deleteItem(EventFactory.DeleteItemTrend event) {
+        //推荐列表和关注列表只更新自己点击的数据
+        onDeleteItem(event.position);
+    }
+
+    Handler mHandler = new Handler();
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void checkUnreadMsg(EventFactory.CheckUnreadMsgEvent event) {
-        mPresenter.getUnreadMsg();
-        if (event.data instanceof InteractMessage) {
-            InteractMessage message = (InteractMessage) event.data;
-            if (message.getInteractType() == 1 || message.getInteractType() == 2 || message.getInteractType() == 4) {//点赞，评论或投票互动
-                int position = 0;
-                if (isContain(message.getMomentId(), position)) {
-                    mPresenter.queryById(message.getMomentId(), message.getFromUid(), position);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mPresenter.getUnreadMsg();
+                if (event.data instanceof InteractMessage) {
+                    InteractMessage message = (InteractMessage) event.data;
+                    if (message.getInteractType() == 1 || message.getInteractType() == 2 || message.getInteractType() == 4) {//点赞，评论或投票互动
+                        int position = 0;
+                        if (isContain(message.getMomentId(), position)) {
+                            mPresenter.queryById(message.getMomentId(), message.getFromUid(), position);
+                        }
+                    }
                 }
             }
-        }
+        }, 300);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

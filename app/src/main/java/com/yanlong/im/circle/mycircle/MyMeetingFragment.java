@@ -2,6 +2,7 @@ package com.yanlong.im.circle.mycircle;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,8 @@ import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.adapter.MyFollowAdapter;
 import com.yanlong.im.circle.bean.FriendUserBean;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -22,7 +25,9 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -47,6 +52,12 @@ public class MyMeetingFragment extends Fragment {
     private List<FriendUserBean> mList;
     private Activity activity;
     private MyCircleAction action;
+
+    /***
+     * 统一处理mkname
+     */
+    private Map<Long, UserInfo> userMap = new HashMap<>();
+    private UserDao userDao = new UserDao();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,6 +108,9 @@ public class MyMeetingFragment extends Fragment {
                 if (response.body().isOk()) {
                     //1 有数据
                     if (response.body().getData() != null && response.body().getData().size() > 0) {
+                        for (FriendUserBean friendUserBean : response.body().getData()) {
+                            resetName(friendUserBean);
+                        }
                         //1-1 加载更多，则分页数据填充到尾部
                         if (page > 1) {
                             adapter.addMoreList(response.body().getData());
@@ -173,5 +187,21 @@ public class MyMeetingFragment extends Fragment {
         mList.clear();
         page = 1;
         httpGetData();
+    }
+
+    private void resetName(FriendUserBean bean) {
+        UserInfo userInfo;
+        if (userMap.containsKey(bean.getUid())) {
+            userInfo = userMap.get(bean.getUid());
+            if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+            }
+        } else {
+            userInfo = userDao.findUserInfo(bean.getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+                userMap.put(bean.getUid(), userInfo);
+            }
+        }
     }
 }

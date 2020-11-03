@@ -1,6 +1,7 @@
 package com.yanlong.im.circle.mycircle;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.luck.picture.lib.event.EventFactory;
@@ -9,6 +10,8 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.MyInteractAdapter;
 import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.databinding.ActivityMyInteractBinding;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.view.YLLinearLayoutManager;
@@ -16,7 +19,9 @@ import net.cb.cb.library.view.YLLinearLayoutManager;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -31,6 +36,11 @@ public class MyInteractActivity extends BaseBindActivity<ActivityMyInteractBindi
     private MyInteractAdapter adapter;
     private List<InteractMessage> mList;
     private MsgDao msgDao;
+    /***
+     * 统一处理mkname
+     */
+    private Map<Long, UserInfo> userMap = new HashMap<>();
+    private UserDao userDao = new UserDao();
 
     @Override
     protected int setView() {
@@ -53,8 +63,13 @@ public class MyInteractActivity extends BaseBindActivity<ActivityMyInteractBindi
         adapter = new MyInteractAdapter(MyInteractActivity.this,mList);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
         bindingView.recyclerView.setAdapter(adapter);
-        if(msgDao.getAllInteractMsg()!=null && msgDao.getAllInteractMsg().size()>0){
-            mList.addAll(msgDao.getAllInteractMsg());
+
+        List<InteractMessage> daoList = msgDao.getAllInteractMsg();
+        if(daoList.size()>0){
+            for (InteractMessage interactMessage : daoList) {
+                resetName(interactMessage);
+            }
+            mList.addAll(daoList);
             adapter.updateList(mList);
             showNoDataLayout(false);
         }else {
@@ -80,4 +95,21 @@ public class MyInteractActivity extends BaseBindActivity<ActivityMyInteractBindi
             bindingView.noDataLayout.setVisibility(View.GONE);
         }
     }
+
+    private void resetName(InteractMessage bean) {
+        UserInfo userInfo;
+        if (userMap.containsKey(bean.getFromUid())) {
+            userInfo = userMap.get(bean.getFromUid());
+            if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+            }
+        } else {
+            userInfo = userDao.findUserInfo(bean.getFromUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+                userMap.put(bean.getFromUid(), userInfo);
+            }
+        }
+    }
+
 }
