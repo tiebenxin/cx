@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
@@ -62,7 +64,7 @@ import com.yanlong.im.circle.follow.FollowView;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
 import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
-import com.yanlong.im.databinding.ActivityCircleDetails2Binding;
+import com.yanlong.im.databinding.ActivityCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewNoCommentsBinding;
 import com.yanlong.im.interf.ICircleClickListener;
@@ -111,7 +113,7 @@ import static com.luck.picture.lib.config.PictureConfig.FROM_CIRCLE;
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
 @Route(path = CircleDetailsActivity.path)
-public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, ActivityCircleDetails2Binding>
+public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, ActivityCircleDetailsBinding>
         implements FollowView, ICircleClickListener, View.OnClickListener {
     public static final String path = "/circle/details/CircleDetailsActivity";
 
@@ -160,7 +162,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
     @Override
     protected int setView() {
-        return R.layout.activity_circle_details2;
+        return R.layout.activity_circle_details;
     }
 
     @Override
@@ -543,9 +545,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     @Override
                     public void onClickNoLook(boolean isDel) {
                         if (isDel) {
-                            if(fromWhere.equals("MyTrendsActivity")){
+                            if (fromWhere.equals("MyTrendsActivity")) {
                                 mPresenter.circleDelete(mMessageInfoBean.getId(), TrendPosition, fromWhere);
-                            }else {
+                            } else {
                                 mPresenter.circleDelete(mMessageInfoBean.getId(), mPostion, fromWhere);
                             }
                         } else {
@@ -1147,21 +1149,25 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         }
     }
 
+    Handler handler = new Handler();
 
     private synchronized void showOrHideInput(boolean isSoftShow, boolean isEmojiOpen) {
         LogUtil.getLog().i(getClass().getSimpleName(), "showOrHideInput--isSoftShow=" + isSoftShow + "--isEmojiOpen=" + isEmojiOpen);
         if (isSoftShow || isEmojiOpen) {
             if (isEmojiOpen) {
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                 InputUtil.hideKeyboard(bindingView.etMessage);
                 bindingView.ivEmj.setImageLevel(1);
                 bindingView.viewFaceview.setVisibility(View.VISIBLE);
             } else {
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                 bindingView.ivEmj.setImageLevel(0);
                 bindingView.viewFaceview.setVisibility(View.GONE);
                 bindingView.etMessage.requestFocus();
                 InputUtil.showKeyboard(bindingView.etMessage);
             }
         } else {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             bindingView.viewFaceview.setVisibility(View.GONE);
             InputUtil.hideKeyboard(bindingView.etMessage);
             if (!TextUtils.isEmpty(bindingView.etMessage.getText())) {
