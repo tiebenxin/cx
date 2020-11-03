@@ -388,6 +388,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     private void setRecyclerViewHeight(int height) {
         if (height > 0 && isRestHeight) {
+            if (height < mFuncHeight) {
+                height = mFuncHeight;
+            }
             mKeyboardHeight = height;
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
             frame_content.setLayoutParams(layoutParams);
@@ -1468,18 +1471,24 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         }
     }
 
+
     @Override
-    public void onStart(Uri var1) {
+    public void onProgress(int progress, Object o) {
 
     }
 
     @Override
-    public void onStop(Uri var1) {
+    public void onStart(Uri var1, Object o) {
 
     }
 
     @Override
-    public void onComplete(Uri var1) {
+    public void onStop(Uri var1, Object o) {
+
+    }
+
+    @Override
+    public void onComplete(Uri var1, Object o) {
         iv_action.setVisibility(View.VISIBLE);
         iv_action.setImageResource(R.mipmap.ic_start_recorder);
         iv_voice_bg.setImageResource(R.drawable.bg_audio_recorder);
@@ -1487,11 +1496,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         iv_reset.setVisibility(View.VISIBLE);
         iv_confirm.setVisibility(View.VISIBLE);
         mAudioState = 2;
-    }
-
-    @Override
-    public void onProgress(int progress) {
-
     }
 
     /**
@@ -1917,7 +1921,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 //                        tv_empty.setVisibility(images.size() > 0
 //                                ? View.INVISIBLE : View.VISIBLE);
                     }
-
                     if (config.mimeType != PictureMimeType.ofAudio()) {
                         int lastImageId = getLastImageId(eqVideo);
                         if (lastImageId != -1) {

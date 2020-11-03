@@ -126,8 +126,8 @@
         <!-- 单张图片-->
         <com.yanlong.im.wight.avatar.RoundImageView
             android:id="@+id/iv_sign_picture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="186dp"
+            android:layout_height="255dp"
             android:layout_marginTop="10dp"
             android:visibility="gone"
             app:radius="4dp" />

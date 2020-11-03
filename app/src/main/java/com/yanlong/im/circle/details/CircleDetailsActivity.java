@@ -242,11 +242,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void initEvent() {
-//        ImageView ivRight = bindingView.headView.getActionbar().getBtnRight();
-//        ivRight.setImageResource(R.mipmap.ic_circle_more);
-//        ivRight.setVisibility(View.VISIBLE);
-//        ivRight.setPadding(ScreenUtil.dip2px(this, 10), 0,
-//                ScreenUtil.dip2px(this, 10), 0);
         bindingView.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -260,17 +255,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 showFunctionDialog();
             }
         });
-//        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
-//            @Override
-//            public void onBack() {
-//                onBackPressed();
-//            }
-//
-//            @Override
-//            public void onRight() {
-//                showFunctionDialog();
-//            }
-//        });
         mFlowAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
@@ -445,7 +429,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 return false;
             }
         });
-
 
         //输入框
         bindingView.etMessage.setOnTouchListener(new View.OnTouchListener() {
@@ -861,15 +844,13 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
         }
-        mFlowAdapter.notifyDataSetChanged();
-        mFlowAdapter.finishInitialize();
         bindingView.tvSend.setEnabled(true);
         bindingView.recyclerComment.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ((LinearLayoutManager) bindingView.recyclerComment.getLayoutManager()).scrollToPositionWithOffset(mCommentTxtAdapter.getItemCount() - 1, Integer.MIN_VALUE);
+                bindingView.recyclerComment.scrollToPosition(mCommentTxtAdapter.getItemCount() - 1);
             }
-        }, 100);
+        }, 300);
 
         if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyTrendsActivity") || fromWhere.equals("FriendTrendsActivity")) {
             //通知好友动态主页、我的动态主页刷新
@@ -972,7 +953,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         //获取浏览量
         MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(0).getData();
         messageInfoBean.setBrowseCount(commentBean.getBrowseCount());
-        mFlowAdapter.notifyItemChanged(0);
+        mFlowAdapter.notifyDataSetChanged();
         //通知更新广场推荐/关注列表某一项状态
         EventFactory.UpdateOneTrendEvent event1 = new EventFactory.UpdateOneTrendEvent();
         event1.id = messageInfoBean.getId();
@@ -1202,11 +1183,14 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         dialog.show();
     }
 
-    public void playVoice(MessageInfoBean messageInfoBean) {
-        if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
+    public void playVoice(MessageInfoBean bean) {
+        if (bean == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(bean.getAttachment())) {
             List<AttachmentBean> attachmentBeans = null;
             try {
-                attachmentBeans = new Gson().fromJson(messageInfoBean.getAttachment(),
+                attachmentBeans = new Gson().fromJson(bean.getAttachment(),
                         new TypeToken<List<AttachmentBean>>() {
                         }.getType());
             } catch (Exception e) {
@@ -1214,44 +1198,51 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             }
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
-                if (messageInfoBean.isPlay()) {
+                if (bean.isPlay()) {
                     if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
                         AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
-
-                    AudioPlayUtil.startAudioPlay(this.getApplicationContext(), attachmentBean.getUrl(), new IAudioPlayProgressListener() {
+                    try {
+                        if (AudioPlayManager2.getInstance().getPlayingUri() != null) {
+                            AudioPlayUtil.completeAudioPlay();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    AudioPlayUtil.startAudioPlay(this, attachmentBean.getUrl(), bean, new IAudioPlayProgressListener() {
                         @Override
-                        public void onStart(Uri var1) {
+                        public void onStart(Uri var1, Object o) {
+//                            currentMessage = bean;
                             isAudioPlaying = true;
-                            messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(0);
-                            updatePosition(messageInfoBean);
+                            bean.setPlay(true);
+                            bean.setPlayProgress(0);
+                            updatePosition(bean);
                         }
 
                         @Override
-                        public void onStop(Uri var1) {
+                        public void onStop(Uri var1, Object o) {
                             isAudioPlaying = false;
-                            messageInfoBean.setPlay(false);
-                            updatePosition(messageInfoBean);
+                            bean.setPlay(false);
+                            updatePosition(bean);
 
                         }
 
                         @Override
-                        public void onComplete(Uri var1) {
+                        public void onComplete(Uri var1, Object o) {
                             isAudioPlaying = false;
-                            messageInfoBean.setPlay(false);
-                            messageInfoBean.setPlayProgress(100);
-                            updatePosition(messageInfoBean);
+                            bean.setPlay(false);
+                            bean.setPlayProgress(100);
+                            updatePosition(bean);
 
                         }
 
                         @Override
-                        public void onProgress(int progress) {
+                        public void onProgress(int progress, Object o) {
                             LogUtil.getLog().i("语音", "播放进度--" + progress);
-                            messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(progress);
-                            updatePosition(messageInfoBean);
+//                            currentMessage.setPlay(true);
+                            bean.setPlayProgress(progress);
+                            updatePosition(bean);
                         }
                     });
 
@@ -1261,7 +1252,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
             return;
         }
         bindingView.recyclerComment.postDelayed(new Runnable() {

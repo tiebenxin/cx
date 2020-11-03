@@ -129,7 +129,7 @@
             android:layout_width="186dp"
             android:layout_height="255dp"
             android:layout_marginTop="10dp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:radius="4dp" />
         <!-- 视频-->
         <RelativeLayout

@@ -170,6 +170,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void setOnRefreshListenr(IRefreshListenr refreshListenr) {
         this.refreshListenr = refreshListenr;
     }
+
     public void setPlayVoiceListener(IPlayVoiceListener playVoiceListener) {
         this.playVoiceListener = playVoiceListener;
     }
@@ -422,7 +423,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     }
                                     if (!TextUtils.isEmpty(userBean.getMkName())) {
                                         bean.setNickname(userBean.getMkName());
-                                    }else {
+                                    } else {
                                         if (!TextUtils.isEmpty(userBean.getName())) {
                                             bean.setNickname(userBean.getName());
                                         }
@@ -838,7 +839,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
                             userBean.setMkName(userInfo.getMkName());
                             holder.tvMyName.setText(userInfo.getMkName());
-                        }else {
+                        } else {
 //                            userBean.setMkName(userBean.getName());
                             holder.tvMyName.setText(userBean.getName());
                         }
@@ -1020,6 +1021,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private void gotoCircleDetailsActivity(boolean isOpen, MessageInfoBean messageInfoBean, int position) {
         Postcard postcard = ARouter.getInstance().build(CircleDetailsActivity.path);
+        messageInfoBean.setPlayProgress(0);
+        messageInfoBean.setPlay(false);
         postcard.withBoolean(IS_OPEN, isOpen);
         postcard.withBoolean(CircleDetailsActivity.SOURCE_TYPE, isFollow);//是否关注
         postcard.withString(CircleDetailsActivity.ITEM_DATA, new Gson().toJson(messageInfoBean));

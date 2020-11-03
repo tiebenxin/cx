@@ -93,19 +93,29 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
         } else {
             RelativeLayout relativeLayout = helper.getView(R.id.relative_layout);
             ImageView ivPicture = helper.getView(R.id.iv_picture);
-            int relativeHeight, pictureHeight;
+            int relativeWidth, pictureWidth;
             if (columnsCount == 2) {
-                relativeHeight = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
-                pictureHeight = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
+                relativeWidth = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
+                pictureWidth = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
             } else {
-                relativeHeight = (int) mContext.getResources().getDimension(R.dimen.dimen_81);
-                pictureHeight = (int) mContext.getResources().getDimension(R.dimen.dimen_81);
+                int contentWidth = ScreenUtil.getScreenWidth(mContext) -
+                        mContext.getResources().getDimensionPixelOffset(R.dimen.circle_content_margin);
+                relativeWidth = contentWidth / 3 - ScreenUtil.px2dip(mContext, 12);
+                pictureWidth = relativeWidth;
             }
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(relativeHeight, ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(relativeWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (columnsCount == 2) {
+                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+            } else {
+                if (helper.getAdapterPosition() == getItemCount() - 1) {
+                    layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), 0, 0);
+                } else {
+                    layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+                }
+            }
             relativeLayout.setLayoutParams(layoutParams);
 
-            RadiusCardView.LayoutParams picParams = new RadiusCardView.LayoutParams(pictureHeight, pictureHeight);
+            RadiusCardView.LayoutParams picParams = new RadiusCardView.LayoutParams(pictureWidth, pictureWidth);
             ivPicture.setLayoutParams(picParams);
 
             RelativeLayout layoutVoteBg = helper.getView(R.id.layout_vote_bg);
@@ -137,7 +147,7 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
 
                 Drawable drawable = mContext.getResources().getDrawable(R.mipmap.img_vote_yes);
                 drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());//必须设置图片大小，否则不显示
-                tvTitle.setCompoundDrawablePadding(ScreenUtil.dip2px(mContext, 15));
+                tvTitle.setCompoundDrawablePadding(ScreenUtil.dip2px(mContext, 10));
                 tvTitle.setCompoundDrawables(drawable, null, null, null);
             } else {
                 tvTitle.setText(positionConvert(helper.getAdapterPosition()));

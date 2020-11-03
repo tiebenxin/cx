@@ -155,7 +155,7 @@ public class AudioPlayManager2 implements SensorEventListener {
         if (context != null && audioUri != null) {
             this.context = context;
             if (this._playListener != null && this._playingUri != null) {
-                this._playListener.onStop(this._playingUri);
+                this._playListener.onStop(this._playingUri,null);
             }
 
             this.resetMediaPlayer();
@@ -186,7 +186,7 @@ public class AudioPlayManager2 implements SensorEventListener {
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
                         if (AudioPlayManager2.this._playListener != null) {
-                            AudioPlayManager2.this._playListener.onComplete(AudioPlayManager2.this._playingUri);
+                            AudioPlayManager2.this._playListener.onComplete(AudioPlayManager2.this._playingUri,null);
                             AudioPlayManager2.this._playListener = null;
                             AudioPlayManager2.this.context = null;
                         }
@@ -206,12 +206,12 @@ public class AudioPlayManager2 implements SensorEventListener {
                 this._mediaPlayer.start();
                 //this._mediaPlayer.seekTo();
                 if (this._playListener != null) {
-                    this._playListener.onStart(this._playingUri);
+                    this._playListener.onStart(this._playingUri,null);
                 }
             } catch (Exception var5) {
                 var5.printStackTrace();
                 if (this._playListener != null) {
-                    this._playListener.onStop(audioUri);
+                    this._playListener.onStop(audioUri,null);
                     this._playListener = null;
                 }
 
@@ -227,7 +227,7 @@ public class AudioPlayManager2 implements SensorEventListener {
         if (context != null && audioUri != null) {
             this.context = context;
             if (this._playListener != null && this._playingUri != null) {
-                this._playListener.onStop(this._playingUri);
+                this._playListener.onStop(this._playingUri,null);
             }
 
             this.resetMediaPlayer();
@@ -258,7 +258,7 @@ public class AudioPlayManager2 implements SensorEventListener {
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
                         if (AudioPlayManager2.this._playListener != null) {
-                            AudioPlayManager2.this._playListener.onComplete(AudioPlayManager2.this._playingUri);
+                            AudioPlayManager2.this._playListener.onComplete(AudioPlayManager2.this._playingUri,null);
                             AudioPlayManager2.this._playListener = null;
                             AudioPlayManager2.this.context = null;
                         }
@@ -279,12 +279,12 @@ public class AudioPlayManager2 implements SensorEventListener {
                 this._mediaPlayer.start();
                 //this._mediaPlayer.seekTo();
                 if (this._playListener != null) {
-                    this._playListener.onStart(this._playingUri);
+                    this._playListener.onStart(this._playingUri,null);
                 }
             } catch (Exception var5) {
                 var5.printStackTrace();
                 if (this._playListener != null) {
-                    this._playListener.onStop(audioUri);
+                    this._playListener.onStop(audioUri,null);
                     this._playListener = null;
                 }
 
@@ -302,7 +302,7 @@ public class AudioPlayManager2 implements SensorEventListener {
 
     public void stopPlay() {
         if (this._playListener != null && this._playingUri != null) {
-            this._playListener.onStop(this._playingUri);
+            this._playListener.onStop(this._playingUri,null);
         }
         this.reset();
     }
@@ -310,7 +310,7 @@ public class AudioPlayManager2 implements SensorEventListener {
     public int pausePlay() {
         int position = 0;
         if (this._playListener != null && this._playingUri != null) {
-            this._playListener.onStop(this._playingUri);
+            this._playListener.onStop(this._playingUri,null);
         }
         if (this._mediaPlayer != null) {
             position = this._mediaPlayer.getCurrentPosition();
