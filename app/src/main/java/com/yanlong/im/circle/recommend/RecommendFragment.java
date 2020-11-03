@@ -917,7 +917,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
             return;
         }
         if (currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {

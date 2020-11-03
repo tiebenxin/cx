@@ -540,7 +540,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (adapter == null || adapter.getDataList() == null) {
+        if (adapter == null || adapter.getDataList() == null || messageInfoBean == null) {
             return;
         }
         bindingView.recyclerView.postDelayed(new Runnable() {

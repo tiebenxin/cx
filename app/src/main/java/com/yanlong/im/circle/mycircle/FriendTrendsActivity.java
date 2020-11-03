@@ -631,7 +631,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (adapter == null || adapter.getDataList() == null) {
+        if (adapter == null || adapter.getDataList() == null|| messageInfoBean == null) {
             return;
         }
         bindingView.recyclerView.postDelayed(new Runnable() {

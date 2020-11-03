@@ -1271,13 +1271,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (mFlowAdapter == null || mFlowAdapter.getData() == null) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
             return;
         }
-//        if (currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
-//            currentMessage.setPlay(messageInfoBean.isPlay());
-//            currentMessage.setPlayProgress(messageInfoBean.getPlayProgress());
-//        }
         bindingView.recyclerComment.postDelayed(new Runnable() {
             @Override
             public void run() {
