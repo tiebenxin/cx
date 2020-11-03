@@ -552,9 +552,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private void showBottomView(){
         if (uType == ChatEnum.EUserType.FRIEND || uType == ChatEnum.EUserType.BLACK) {
             if (isFollow==1) {
+                bindingView.ivFollow.setImageResource(R.mipmap.ic_chat);
                 bindingView.tvFollow.setText("私聊");
             } else {
                 bindingView.tvFollow.setText("关注");
+                bindingView.ivFollow.setImageResource(R.mipmap.ic_follow);
             }
         } else {
             if (isFollow==1) {
@@ -562,6 +564,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             } else {
                 bindingView.tvFollow.setText("关注");
             }
+            bindingView.ivFollow.setImageResource(R.mipmap.ic_follow);
         }
     }
 
