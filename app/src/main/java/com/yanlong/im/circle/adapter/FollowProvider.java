@@ -363,6 +363,9 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                     if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
                         // 记录播放状态
                         if (clickListener != null) {
+                            if (jzvdStd != null) {
+                                jzvdStd.releaseAllVideos();
+                            }
                             clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
                         }
                     }
@@ -409,6 +412,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             }
         } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VIDEO) {
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                LogUtil.getLog().i("1212", "55555555");
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                 resetSize(jzvdStd, attachmentBean.getWidth(), attachmentBean.getHeight());
                 // 没有正在播放则设置 处理刷新暂停视频问题
