@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -1233,7 +1234,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
             ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean.getName());
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
-        } else if (FaceConstans.face_emoji.equals(bean.getGroup()) ||FaceConstans.face_lately_emoji.equals(bean.getGroup())) {
+        } else if (FaceConstans.face_emoji.equals(bean.getGroup()) || FaceConstans.face_lately_emoji.equals(bean.getGroup())) {
             editChat.addEmojSpan(bean.getName());
         } else if (FaceConstans.face_custom.equals(bean.getGroup())) {
             if ("add".equals(bean.getName())) {
@@ -4910,9 +4911,8 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 if (bean.getRead() == 0) {
                     if (MessageManager.getInstance().isReadTimeValid(toGid, bean.getTimestamp())) {
                         MessageManager.getInstance().addReadTime(toGid, bean.getTimestamp());
-                        LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--time=" + bean.getTimestamp());
-                        ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
-                        sendMessage(read, ChatEnum.EMessageType.READ);
+                        LogUtil.getLog().i(TAG, "发送已读同步--msgID=" + bean.getMsg_id() + "--time=" + bean.getTimestamp());
+                        SocketData.sendMultiTerminalSync(toGid);
                     }
                 }
             }
