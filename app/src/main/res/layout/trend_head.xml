@@ -68,7 +68,7 @@
                 android:layout_centerVertical="true"
                 android:paddingLeft="17dp"
                 android:paddingRight="15dp"
-                android:paddingTop="50dp"
+                android:paddingTop="40dp"
                 android:paddingBottom="10dp"
                 />
             <TextView
@@ -93,7 +93,7 @@
                 android:layout_centerVertical="true"
                 android:paddingLeft="15dp"
                 android:paddingRight="17dp"
-                android:paddingTop="50dp"
+                android:paddingTop="40dp"
                 android:paddingBottom="10dp"
                 android:src="@mipmap/ic_see_more" />
         </RelativeLayout>
