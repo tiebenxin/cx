@@ -16,45 +16,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-<!--        <RelativeLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content">-->
-<!--            <ImageView-->
-<!--                android:id="@+id/iv_back"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:src="@mipmap/ic_left_back"-->
-<!--                android:layout_alignParentLeft="true"-->
-<!--                android:layout_centerVertical="true"-->
-<!--                android:paddingLeft="17dp"-->
-<!--                android:paddingRight="15dp"-->
-<!--                android:paddingTop="50dp"-->
-<!--                android:paddingBottom="10dp"-->
-<!--                />-->
-<!--            <TextView-->
-<!--                android:id="@+id/tv_title"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:ellipsize="end"-->
-<!--                android:maxWidth="150dp"-->
-<!--                android:maxLines="1"-->
-<!--                android:text="我的动态"-->
-<!--                android:layout_centerInParent="true"-->
-<!--                android:textColor="@color/white"-->
-<!--                android:textSize="16sp" />-->
-<!--            <ImageView-->
-<!--                android:id="@+id/iv_more"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_alignParentRight="true"-->
-<!--                android:layout_centerVertical="true"-->
-<!--                android:paddingLeft="15dp"-->
-<!--                android:paddingRight="17dp"-->
-<!--                android:paddingTop="5dp"-->
-<!--                android:paddingBottom="5dp"-->
-<!--                android:src="@mipmap/ic_see_more" />-->
-<!--        </RelativeLayout>-->
-
         <RelativeLayout
             android:id="@+id/layout_top"
             android:layout_width="match_parent"
@@ -66,9 +27,9 @@
                 android:src="@mipmap/ic_left_back"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:paddingLeft="17dp"
+                android:paddingLeft="20dp"
                 android:paddingRight="15dp"
-                android:paddingTop="40dp"
+                android:paddingTop="35dp"
                 android:paddingBottom="10dp"
                 />
             <TextView
@@ -93,7 +54,7 @@
                 android:layout_centerVertical="true"
                 android:paddingLeft="15dp"
                 android:paddingRight="17dp"
-                android:paddingTop="40dp"
+                android:paddingTop="35dp"
                 android:paddingBottom="10dp"
                 android:src="@mipmap/ic_see_more" />
         </RelativeLayout>

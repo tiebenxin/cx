@@ -52,6 +52,7 @@ import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
 import net.cb.cb.library.bean.FileBean;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
@@ -103,7 +104,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     String indexPath;
     private String collectJson = "";//收藏详情点击大图转发需要的数据
     private Activity activity;
-
+    private DialogLoadingProgress mLoadingProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -697,9 +698,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     //转存朋友群缩略图
     public void persistImage(LocalMedia media) {
+        mLoadingProgress = new DialogLoadingProgress(this);
+        mLoadingProgress.show();
         new UpFileAction().persistImage(UpFileAction.PATH.IMG_PERSIST, PictureExternalPreviewActivity.this, media.getCompressPath(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String thumb) {
+                mLoadingProgress.dismiss();
                 MsgAllBean msgAllBean = new MsgAllBean();
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
                 ImageMessage imageMessage = new ImageMessage();
@@ -719,6 +723,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             @Override
             public void fail() {
+                mLoadingProgress.dismiss();
                 ThreadUtil.getInstance().runMainThread(new Runnable() {
                     @Override
                     public void run() {
