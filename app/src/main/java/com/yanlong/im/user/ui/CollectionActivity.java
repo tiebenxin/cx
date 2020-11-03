@@ -361,7 +361,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                     }
 //                                        VoiceMessage vm = bean.getVoiceMessage();
 //                                        String url = bean.isMe() ? vm.getLocalUrl() : vm.getUrl();
-//                                        binding.voiceView.init(true,vm.getTime(), true, AudioPlayManager.getInstance().isPlay(Uri.parse(url)), vm.getPlayStatus());
+//                                        binding.voiceView.init(true,vm.getTime(), true, AudioPlayManager2.getInstance().isPlay(Uri.parse(url)), vm.getPlayStatus());
                                 }
                                 break;
                             case ChatEnum.EMessageType.LOCATION: //位置消息

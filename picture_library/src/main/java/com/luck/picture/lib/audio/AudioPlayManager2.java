@@ -15,7 +15,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class AudioPlayManager implements SensorEventListener {
+public class AudioPlayManager2 implements SensorEventListener {
     private static final String TAG = "LQR_AudioPlayManager";
     private MediaPlayer _mediaPlayer;
     private IAudioPlayListener _playListener;
@@ -29,10 +29,10 @@ public class AudioPlayManager implements SensorEventListener {
     private Context context;
     private int position;
 
-    public AudioPlayManager() {
+    public AudioPlayManager2() {
     }
 
-    public static AudioPlayManager getInstance() {
+    public static AudioPlayManager2 getInstance() {
         return SingletonHolder.sInstance;
     }
 
@@ -162,10 +162,10 @@ public class AudioPlayManager implements SensorEventListener {
             this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
                 public void onAudioFocusChange(int focusChange) {
                     Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
-                    if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
-                        AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
-                        AudioPlayManager.this.afChangeListener = null;
-                        AudioPlayManager.this.resetMediaPlayer();
+                    if (AudioPlayManager2.this._audioManager != null && focusChange == -1) {
+                        AudioPlayManager2.this._audioManager.abandonAudioFocus(AudioPlayManager2.this.afChangeListener);
+                        AudioPlayManager2.this.afChangeListener = null;
+                        AudioPlayManager2.this.resetMediaPlayer();
                     }
                 }
             };
@@ -185,18 +185,18 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
-                        if (AudioPlayManager.this._playListener != null) {
-                            AudioPlayManager.this._playListener.onComplete(AudioPlayManager.this._playingUri);
-                            AudioPlayManager.this._playListener = null;
-                            AudioPlayManager.this.context = null;
+                        if (AudioPlayManager2.this._playListener != null) {
+                            AudioPlayManager2.this._playListener.onComplete(AudioPlayManager2.this._playingUri);
+                            AudioPlayManager2.this._playListener = null;
+                            AudioPlayManager2.this.context = null;
                         }
 
-                        AudioPlayManager.this.reset();
+                        AudioPlayManager2.this.reset();
                     }
                 });
                 this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                     public boolean onError(MediaPlayer mp, int what, int extra) {
-                        AudioPlayManager.this.reset();
+                        AudioPlayManager2.this.reset();
                         return true;
                     }
                 });
@@ -234,10 +234,10 @@ public class AudioPlayManager implements SensorEventListener {
             this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
                 public void onAudioFocusChange(int focusChange) {
                     Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
-                    if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
-                        AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
-                        AudioPlayManager.this.afChangeListener = null;
-                        AudioPlayManager.this.resetMediaPlayer();
+                    if (AudioPlayManager2.this._audioManager != null && focusChange == -1) {
+                        AudioPlayManager2.this._audioManager.abandonAudioFocus(AudioPlayManager2.this.afChangeListener);
+                        AudioPlayManager2.this.afChangeListener = null;
+                        AudioPlayManager2.this.resetMediaPlayer();
                     }
                 }
             };
@@ -257,18 +257,18 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
-                        if (AudioPlayManager.this._playListener != null) {
-                            AudioPlayManager.this._playListener.onComplete(AudioPlayManager.this._playingUri);
-                            AudioPlayManager.this._playListener = null;
-                            AudioPlayManager.this.context = null;
+                        if (AudioPlayManager2.this._playListener != null) {
+                            AudioPlayManager2.this._playListener.onComplete(AudioPlayManager2.this._playingUri);
+                            AudioPlayManager2.this._playListener = null;
+                            AudioPlayManager2.this.context = null;
                         }
 
-                        AudioPlayManager.this.reset();
+                        AudioPlayManager2.this.reset();
                     }
                 });
                 this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                     public boolean onError(MediaPlayer mp, int what, int extra) {
-                        AudioPlayManager.this.reset();
+                        AudioPlayManager2.this.reset();
                         return true;
                     }
                 });
@@ -400,9 +400,19 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     static class SingletonHolder {
-        static AudioPlayManager sInstance = new AudioPlayManager();
+        static AudioPlayManager2 sInstance = new AudioPlayManager2();
 
         SingletonHolder() {
         }
+    }
+
+    public boolean isPlay(Uri url) {
+        if (_playingUri == null)
+            return false;
+        boolean isPlay = false;
+        if (_playingUri.equals(url)) {
+            isPlay = true;
+        }
+        return isPlay;
     }
 }

@@ -5,14 +5,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,6 +12,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.annotation.Route;
@@ -30,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.circle.CreateCircleActivity;
@@ -59,10 +59,9 @@ import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
-import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
-import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.databinding.ActivityCircleDetails2Binding;
 import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewNoCommentsBinding;
@@ -73,7 +72,6 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.view.DeletPopWindow;
 
 import net.cb.cb.library.CoreEnum;
@@ -85,7 +83,6 @@ import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
-import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -771,7 +768,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             finish();
         } else if (type == CoreEnum.EClickType.CLICK_VOICE) {
             MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(position).getData();
-            if (messageInfoBean != null && messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VOICE) {
+            if (messageInfoBean != null && messageInfoBean.getType() != null &&
+                    (messageInfoBean.getType() == PictureEnum.EContentType.VOICE || messageInfoBean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE)) {
                 playVoice(messageInfoBean);
             }
 
@@ -1204,8 +1202,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                 if (messageInfoBean.isPlay()) {
-                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
-                        AudioPlayManager.getInstance().stopPlay();
+                    if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                        AudioPlayUtil.stopAudioPlay();
                     }
                 } else {
 

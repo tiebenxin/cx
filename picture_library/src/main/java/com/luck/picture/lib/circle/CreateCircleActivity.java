@@ -53,10 +53,9 @@ import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.adapter.PicturePreviewAdapter;
-import com.luck.picture.lib.audio.AudioPlayManager;
+import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.AudioRecorder;
-import com.luck.picture.lib.audio.IAudioPlayListener;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -1237,7 +1236,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             mAudioHandler.removeCallbacks(mAudioRunnable);
         }
         if (isPlaying) {
-            AudioPlayManager.getInstance().stopPlay();
+            AudioPlayManager2.getInstance().stopPlay();
             AudioPlayUtil.stopAudioPlay();
             isPlaying = false;
         }
