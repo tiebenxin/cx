@@ -321,8 +321,12 @@ public class AudioPlayManager2 implements SensorEventListener {
 
     public int getCurrentPosition() {
         int position = 0;
-        if (this._mediaPlayer != null) {
-            position = this._mediaPlayer.getCurrentPosition();
+        try {
+            if (this._mediaPlayer != null) {
+                position = this._mediaPlayer.getCurrentPosition();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return position;
     }
@@ -334,7 +338,7 @@ public class AudioPlayManager2 implements SensorEventListener {
                 duration = this._mediaPlayer.getDuration();
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         return duration;
     }

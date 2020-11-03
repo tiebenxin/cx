@@ -53,6 +53,7 @@ import com.yanlong.im.circle.CircleUIHelper;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.adapter.CommentAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.circle.bean.MessageFlowItemBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.NewTrendDetailsBean;
@@ -90,6 +91,8 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1273,5 +1276,31 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             AudioPlayUtil.stopAudioPlay();
         }
     }
+
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void checkUnreadMsg(EventFactory.CheckUnreadMsgEvent event) {
+//        if (event.data instanceof InteractMessage) {
+//            InteractMessage message = (InteractMessage) event.data;
+//            if (message.getInteractType() == 1 || message.getInteractType() == 2 || message.getInteractType() == 4) {//点赞，评论或投票互动
+//                int position = 0;
+//                if (isContain(message.getMomentId())) {
+//                    mPresenter.queryById(message.getMomentId(), message.getFromUid(), position);
+//                }
+//            }
+//        }
+//    }
+//
+//    //列表是否包含該消息
+//    private boolean isContain(Long id) {
+//        boolean isContain = false;
+//        if (mFlowAdapter != null && mFlowAdapter.getData() != null && id != null) {
+//            MessageInfoBean bean = new MessageInfoBean();
+//            bean.setId(id);
+//            if (mFlowAdapter.getData().contains(bean)) {
+//                isContain = true;
+//            }
+//        }
+//        return isContain;
+//    }
 
 }
