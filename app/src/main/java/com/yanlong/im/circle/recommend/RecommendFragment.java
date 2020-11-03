@@ -111,6 +111,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     private CommonSelectDialog.Builder builder;
     private boolean isAudioPlaying = false;//是否语音正在播放
     private MessageInfoBean currentMessage;
+    private boolean isCurrentMsgRefresh;
 
 
     protected RecommendPresenter createPresenter() {
@@ -746,6 +747,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 // TODO 服务端没返回头像跟昵称所以取原来的数据
                 MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
                 if (currentMessage != null && currentMessage.getId().equals(serverInfoBean.getId())) {
+                    isCurrentMsgRefresh = true;
                     MessageInfoBean tempMessage = currentMessage;//保存本地播放数据
                     currentMessage = serverInfoBean;
                     currentMessage.setPlayProgress(tempMessage.getPlayProgress());
@@ -904,7 +906,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
 
                         @Override
                         public void onProgress(int progress, Object o) {
-                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+//                            LogUtil.getLog().i("语音", "播放进度--" + progress);
 //                            currentMessage.setPlay(true);
                             bean.setPlayProgress(progress);
                             updatePosition(bean);
@@ -917,19 +919,24 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
     }
 
     private void updatePosition(MessageInfoBean messageInfoBean) {
-        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null || currentMessage == null) {
+        if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
             return;
         }
-        if (currentMessage.getId().equals(messageInfoBean.getId())) {
-            currentMessage.setPlay(messageInfoBean.isPlay());
-            currentMessage.setPlayProgress(messageInfoBean.getPlayProgress());
+//        LogUtil.getLog().i("语音", "updatePosition=" + " current id=" + currentMessage.getId() + "  isPlay=" + currentMessage.isPlay());
+        if (isCurrentMsgRefresh && currentMessage != null && currentMessage.getId().equals(messageInfoBean.getId())) {
+            MessageInfoBean temp = messageInfoBean;
+            messageInfoBean = currentMessage;
+            messageInfoBean.setPlay(temp.isPlay());
+            messageInfoBean.setPlayProgress(temp.getPlayProgress());
+            isCurrentMsgRefresh = false;
         }
+        MessageInfoBean finalMessageInfoBean = messageInfoBean;
         bindingView.recyclerRecommend.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(messageInfoBean.getType()), currentMessage);
+                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(finalMessageInfoBean.getType()), finalMessageInfoBean);
                 int position = mFlowAdapter.getData().indexOf(bean);
-                LogUtil.getLog().i("语音", "position=" + position + "  id=" + currentMessage.getId() + "  isPlay=" + currentMessage.isPlay());
+//                LogUtil.getLog().i("语音", "updatePosition---position=" + position + "  id=" + finalMessageInfoBean.getId() + "  isPlay=" + finalMessageInfoBean.isPlay() + "--progress=" + finalMessageInfoBean.getPlayProgress());
                 if (position >= 0) {
                     mFlowAdapter.getData().set(position, bean);
                     if (mFlowAdapter.getHeaderLayoutCount() > 0) {
@@ -938,7 +945,7 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     mFlowAdapter.notifyItemChanged(position);
                 }
             }
-        }, 100);
+        }, 0);
     }
 
     private void checkAudioStatus(boolean stop) {
