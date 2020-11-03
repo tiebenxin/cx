@@ -5,14 +5,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,6 +12,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.alibaba.android.arouter.facade.Postcard;
 import com.alibaba.android.arouter.facade.annotation.Route;
@@ -59,10 +58,9 @@ import com.yanlong.im.circle.bean.NewTrendDetailsBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.follow.FollowPresenter;
 import com.yanlong.im.circle.follow.FollowView;
-import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
+import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.MyTrendsActivity;
-import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.databinding.ActivityCircleDetails2Binding;
 import com.yanlong.im.databinding.ViewCircleDetailsBinding;
 import com.yanlong.im.databinding.ViewNoCommentsBinding;
@@ -85,7 +83,6 @@ import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
-import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -95,7 +92,9 @@ import net.cb.cb.library.view.YLLinearLayoutManager;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -148,6 +147,11 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
     private boolean isAudioPlaying;
+    /***
+     * 统一处理mkname
+     */
+    private Map<Long, UserInfo> userMap = new HashMap<>();
+    private UserDao userDao = new UserDao();
 
     @Override
     protected FollowPresenter createPresenter() {
@@ -943,6 +947,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             bindingView.srlFollow.finishLoadMore();
         } else {
             if (list != null && list.size() > 0) {
+                for (CircleCommentBean.CommentListBean bean : list) {
+                    resetName(bean);
+                }
                 mCommentList.addAll(list);
             }
             if (list == null || list.size() == 0) {
@@ -1273,6 +1280,22 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     private void checkAudioStatus(boolean stop) {
         if (isAudioPlaying && stop) {
             AudioPlayUtil.stopAudioPlay();
+        }
+    }
+
+    private void resetName(CircleCommentBean.CommentListBean bean) {
+        UserInfo userInfo;
+        if (userMap.containsKey(bean.getUid())) {
+            userInfo = userMap.get(bean.getUid());
+            if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+            }
+        } else {
+            userInfo = userDao.findUserInfo(bean.getUid());
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                bean.setNickname(userInfo.getMkName());
+                userMap.put(bean.getUid(), userInfo);
+            }
         }
     }
 
