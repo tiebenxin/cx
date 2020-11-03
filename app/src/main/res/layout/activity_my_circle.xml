@@ -103,6 +103,7 @@
                     android:layout_centerInParent="true"
                     android:background="@drawable/shape_5radius_solid_32b053">
                     <ImageView
+                        android:id="@+id/iv_follow"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
                         android:src="@mipmap/ic_follow"/>
