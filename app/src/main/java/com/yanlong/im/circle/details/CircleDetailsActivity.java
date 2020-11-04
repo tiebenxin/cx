@@ -572,6 +572,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             intent.putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid());
                             startActivity(intent);
                         }
+                        checkAudioStatus(true);
                     }
 
                     @Override
