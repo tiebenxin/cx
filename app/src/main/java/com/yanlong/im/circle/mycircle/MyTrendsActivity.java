@@ -38,12 +38,15 @@ import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.FileCacheUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -248,59 +251,86 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
      * 发请求->获取我的动态(说说主页及列表)
      */
     private void httpGetMyTrends() {
-        action.httpGetMyTrends(page, DEFAULT_PAGE_SIZE, new CallBack<ReturnBean<CircleTrendsBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<CircleTrendsBean>> call, Response<ReturnBean<CircleTrendsBean>> response) {
-                super.onResponse(call, response);
-                if (response.body() == null) {
-                    return;
-                }
-                if (response.body().isOk()) {
-                    //1 有数据
-                    if (response.body().getData() != null) {
-                        CircleTrendsBean bean = response.body().getData();
-                        //动态列表
-                        if (bean.getMomentList() != null && bean.getMomentList().size() > 0) {
-                            //1-1 加载更多，则分页数据填充到尾部
-                            if (page > 1) {
-                                adapter.addMoreList(bean.getMomentList());
-                                adapter.setLoadState(adapter.LOADING_MORE);
-                            } else {
-                                //1-2 第一次加载，若超过3个显示加载更多
-                                mList.clear();
-                                mList.addAll(bean.getMomentList());
-                                adapter.setTopData(bean);
-                                adapter.updateList(mList);
-                                if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_3) {
+        if(checkNetConnectStatus(1)){
+            action.httpGetMyTrends(page, DEFAULT_PAGE_SIZE, new CallBack<ReturnBean<CircleTrendsBean>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<CircleTrendsBean>> call, Response<ReturnBean<CircleTrendsBean>> response) {
+                    super.onResponse(call, response);
+                    if (response.body() == null) {
+                        return;
+                    }
+                    if (response.body().isOk()) {
+                        //1 有数据
+                        if (response.body().getData() != null) {
+                            CircleTrendsBean bean = response.body().getData();
+                            //动态列表
+                            if (bean.getMomentList() != null && bean.getMomentList().size() > 0) {
+                                //1-1 加载更多，则分页数据填充到尾部
+                                if (page > 1) {
+                                    adapter.addMoreList(bean.getMomentList());
                                     adapter.setLoadState(adapter.LOADING_MORE);
+                                } else {
+                                    //1-2 第一次加载，若超过3个显示加载更多
+                                    mList.clear();
+                                    mList.addAll(bean.getMomentList());
+                                    adapter.setTopData(bean);
+                                    adapter.updateList(mList);
+                                    if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_3) {
+                                        adapter.setLoadState(adapter.LOADING_MORE);
+                                    }
+                                    //缓存我的动态第一页数据
+                                    FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "httpGetMyTrends",
+                                            new Gson().toJson(response.body().getData()));
+                                }
+                                page++;
+                            } else {
+                                //2 无数据
+                                //2-1 加载更多，当没有数据的时候，提示已经到底了
+                                if (page > 1) {
+                                    adapter.setLoadState(adapter.LOADING_END);
+                                } else {
+                                    //2-2 第一次加载，没有数据则不显示尾部
+                                    adapter.setLoadState(adapter.LOADING_GONE);
+                                    adapter.setTopData(bean);
                                 }
                             }
-                            page++;
-                        } else {
-                            //2 无数据
-                            //2-1 加载更多，当没有数据的时候，提示已经到底了
-                            if (page > 1) {
-                                adapter.setLoadState(adapter.LOADING_END);
-                            } else {
-                                //2-2 第一次加载，没有数据则不显示尾部
-                                adapter.setLoadState(adapter.LOADING_GONE);
-                                adapter.setTopData(bean);
-                            }
                         }
+                    } else {
+                        ToastUtil.show("获取我的动态失败，请检查您的网络是否正常");
                     }
-                } else {
-                    ToastUtil.show("获取我的动态失败");
+                    bindingView.swipeRefreshLayout.setRefreshing(false);
                 }
-                bindingView.swipeRefreshLayout.setRefreshing(false);
-            }
 
-            @Override
-            public void onFailure(Call<ReturnBean<CircleTrendsBean>> call, Throwable t) {
-                super.onFailure(call, t);
-                ToastUtil.show("获取我的动态失败");
-                bindingView.swipeRefreshLayout.setRefreshing(false);
+                @Override
+                public void onFailure(Call<ReturnBean<CircleTrendsBean>> call, Throwable t) {
+                    super.onFailure(call, t);
+                    ToastUtil.show("获取我的动态失败，请检查您的网络是否正常");
+                    bindingView.swipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        }else {
+            if (page == 1) {
+                String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "httpGetMyTrends");
+                if (!TextUtils.isEmpty(content)) {
+                    CircleTrendsBean bean = new Gson().fromJson(content,CircleTrendsBean.class);
+                    if (bean.getMomentList() != null && bean.getMomentList().size() > 0) {
+                        //1-2 第一次加载，若超过3个显示加载更多
+                        mList.clear();
+                        mList.addAll(bean.getMomentList());
+                        adapter.setTopData(bean);
+                        adapter.updateList(mList);
+                        if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_3) {
+                            adapter.setLoadState(adapter.LOADING_MORE);
+                        }
+                    }else {
+                        ToastUtil.show("获取我的动态失败，请检查您的网络是否正常");
+                    }
+                    page++;
+                }
+            }else {
+                ToastUtil.show("获取我的动态失败，请检查您的网络是否正常");
             }
-        });
+        }
     }
 
     @Override
@@ -525,5 +555,27 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         }, 100);
     }
 
+    /*
+     * 发送消息前，需要检测网络连接状态，网络不可用，不能发送
+     * 每条消息发送前，需要检测，语音和小视频录制之前，仍需要检测
+     * type=0 默认提示 type=1 仅获取断网状态/不提示
+     * */
+    public boolean checkNetConnectStatus(int type) {
+        boolean isOk;
+        if (!NetUtil.isNetworkConnected()) {
+            if (type == 0) {
+                ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            }
+            isOk = false;
+        } else {
+            isOk = SocketUtil.getSocketUtil().getOnlineState();
+            if (!isOk) {
+                if (type == 0) {
+                    ToastUtil.show(this, "连接已断开，请稍后再试");
+                }
+            }
+        }
+        return isOk;
+    }
 
 }
