@@ -154,6 +154,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
      */
     private Map<Long, UserInfo> userMap = new HashMap<>();
     private UserDao userDao = new UserDao();
+    private boolean isCurrentMsgRefresh;
+    private MessageInfoBean currentMessage;
 
     @Override
     protected FollowPresenter createPresenter() {
@@ -917,11 +919,30 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             if (flowItemBean != null) {
                 // TODO 服务端没返回头像跟昵称所以取原来的数据
                 MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
-                MessageInfoBean locationInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
-                serverInfoBean.setAvatar(locationInfoBean.getAvatar());
-                serverInfoBean.setNickname(locationInfoBean.getNickname());
-                mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
-                mFlowAdapter.notifyItemChanged(position);
+                if (currentMessage != null && currentMessage.getId().equals(serverInfoBean.getId())) {
+                    isCurrentMsgRefresh = true;
+                    MessageInfoBean tempMessage = currentMessage;//保存本地播放数据
+                    currentMessage = serverInfoBean;
+                    currentMessage.setPlayProgress(tempMessage.getPlayProgress());
+                    currentMessage.setPlay(tempMessage.isPlay());
+                    LogUtil.getLog().i("语音", "更新current" + currentMessage.getId());
+                    currentMessage.setAvatar(tempMessage.getAvatar());
+                    currentMessage.setNickname(tempMessage.getNickname());
+                    mFlowAdapter.getData().get(position).setData(currentMessage);
+                    if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                        position = position + 1;
+                    }
+                    mFlowAdapter.notifyItemChanged(position);
+                } else {
+                    MessageInfoBean locationInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(position).getData();
+                    serverInfoBean.setAvatar(locationInfoBean.getAvatar());
+                    serverInfoBean.setNickname(locationInfoBean.getNickname());
+                    mFlowAdapter.getData().get(position).setData(flowItemBean.getData());
+                    if (mFlowAdapter.getHeaderLayoutCount() > 0) {
+                        position = position + 1;
+                    }
+                    mFlowAdapter.notifyItemChanged(position);
+                }
             }
         } catch (Exception e) {
         }
@@ -1225,39 +1246,41 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    AudioPlayUtil.startAudioPlay(this, attachmentBean.getUrl(), bean, new IAudioPlayProgressListener() {
+                    AudioPlayUtil.startAudioPlay(CircleDetailsActivity.this, attachmentBean.getUrl(), bean, new IAudioPlayProgressListener() {
                         @Override
                         public void onStart(Uri var1, Object o) {
-//                            currentMessage = bean;
+                            LogUtil.getLog().i("语音", "onStart=" + "--bean_id=" + bean.getId());
                             isAudioPlaying = true;
                             bean.setPlay(true);
                             bean.setPlayProgress(0);
+                            currentMessage = bean;
                             updatePosition(bean);
                         }
 
                         @Override
                         public void onStop(Uri var1, Object o) {
+                            LogUtil.getLog().i("语音", "onStop=" + " current id=" + currentMessage.getId() + "--bean_id=" + bean.getId());
                             isAudioPlaying = false;
                             bean.setPlay(false);
-                            updatePosition(bean);
-
+                            updatePosition((MessageInfoBean) o);
                         }
 
                         @Override
                         public void onComplete(Uri var1, Object o) {
+                            LogUtil.getLog().i("语音", "onComplete=" + " current id=" + currentMessage.getId() + "--bean_id=" + bean.getId());
                             isAudioPlaying = false;
                             bean.setPlay(false);
-                            bean.setPlayProgress(100);
-                            updatePosition(bean);
+                            bean.setPlayProgress(0);
+                            updatePosition((MessageInfoBean) o);
 
                         }
 
                         @Override
                         public void onProgress(int progress, Object o) {
-                            LogUtil.getLog().i("语音", "播放进度--" + progress);
+//                            LogUtil.getLog().i("语音", "播放进度--" + progress);
 //                            currentMessage.setPlay(true);
                             bean.setPlayProgress(progress);
-                            updatePosition(bean);
+                            updatePosition((MessageInfoBean) o);
                         }
                     });
 
@@ -1270,12 +1293,28 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (mFlowAdapter == null || mFlowAdapter.getData() == null || messageInfoBean == null) {
             return;
         }
+        MessageInfoBean msgTemp = null;
+        if (isCurrentMsgRefresh) {
+            int index = mFlowAdapter.getData().indexOf(new MessageFlowItemBean(messageInfoBean.getType(), messageInfoBean));
+            if (index < 0) {
+                return;
+            }
+            msgTemp = mFlowAdapter.getData().get(index).getData();
+            msgTemp.setPlay(messageInfoBean.isPlay());
+            msgTemp.setPlayProgress(messageInfoBean.getPlayProgress());
+        }
+        MessageInfoBean finalMessageInfoBean;
+        if (msgTemp == null) {
+            finalMessageInfoBean = messageInfoBean;
+        } else {
+            finalMessageInfoBean = msgTemp;
+        }
         bindingView.recyclerComment.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(messageInfoBean.getType()), messageInfoBean);
+                MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(finalMessageInfoBean.getType()), finalMessageInfoBean);
                 int position = mFlowAdapter.getData().indexOf(bean);
-                LogUtil.getLog().i("语音", "position=" + position + "  id=" + messageInfoBean.getId() + "  isPlay=" + messageInfoBean.isPlay());
+//                LogUtil.getLog().i("语音", "updatePosition---position=" + position + "  id=" + finalMessageInfoBean.getId() + "  isPlay=" + finalMessageInfoBean.isPlay() + "--progress=" + finalMessageInfoBean.getPlayProgress());
                 if (position >= 0) {
                     mFlowAdapter.getData().set(position, bean);
                     if (mFlowAdapter.getHeaderLayoutCount() > 0) {
@@ -1284,7 +1323,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     mFlowAdapter.notifyItemChanged(position);
                 }
             }
-        }, 100);
+        }, 0);
     }
 
     private void checkAudioStatus(boolean stop) {

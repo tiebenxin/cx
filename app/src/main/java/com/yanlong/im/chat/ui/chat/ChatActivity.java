@@ -4901,7 +4901,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                         sendMessage(read, ChatEnum.EMessageType.READ);
                     } else {
                         LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
-                        LogUtil.writeLog(TAG + "--发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
+//                        LogUtil.writeLog(TAG + "--发送已读--msgID=" + bean.getMsg_id() + "--无效--time=" + bean.getTimestamp());
                     }
                 }
             }

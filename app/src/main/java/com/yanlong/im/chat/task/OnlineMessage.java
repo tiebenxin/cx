@@ -83,7 +83,7 @@ public class OnlineMessage extends DispatchMessage {
                 for (int i = 0; i < size; i++) {
                     MsgBean.UniversalMessage.WrapMessage msg = msgList.get(i);
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
-                    LogUtil.writeLog("dispatch--在线消息--" + "msgId=" + msg.getMsgId() + "--msgType=" + msg.getMsgType() + "--gid=" + msg.getGid() + "--fromUid=" + msg.getFromUid());
+//                    LogUtil.writeLog("dispatch--在线消息--" + "msgId=" + msg.getMsgId() + "--msgType=" + msg.getMsgType() + "--gid=" + msg.getGid() + "--fromUid=" + msg.getFromUid());
                     //开始处理消息
                     boolean toDOResult = handlerMessage(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
                             i == msgList.size() - 1);
@@ -97,7 +97,7 @@ public class OnlineMessage extends DispatchMessage {
                 }
                 //不需要发送回执
                 if (size == 1 && !bean.getRequestId().contains("NONE_ACK")) {
-                    LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
+//                    LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
                     SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
                 }
             }
@@ -105,7 +105,7 @@ public class OnlineMessage extends DispatchMessage {
             DaoUtil.reportException(e);
         }
         if (result && bean.getWrapMsgCount() > 1) {
-            LogUtil.writeLog("--发送回执3在线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
+//            LogUtil.writeLog("--发送回执3在线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
         }
     }

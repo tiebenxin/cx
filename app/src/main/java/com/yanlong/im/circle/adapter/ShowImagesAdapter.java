@@ -44,7 +44,7 @@ public class ShowImagesAdapter extends BaseQuickAdapter<AttachmentBean, BaseView
         RelativeLayout rlParent = helper.getView(R.id.rl_parent);
         ImageView ivImg = helper.getView(R.id.iv_img);
         CardView cardView = helper.getView(R.id.card_view);
-        resize(rlParent, cardView);
+//        resize(rlParent, cardView);
         String path = StringUtil.loadThumbnail(attachmentBean.getUrl());
         if (isGif(path)) {
             Glide.with(mContext).load(path).listener(new RequestListener() {

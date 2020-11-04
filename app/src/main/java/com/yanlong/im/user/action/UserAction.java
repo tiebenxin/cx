@@ -426,7 +426,7 @@ public class UserAction {
                     token.setAccessToken(newToken.getAccessToken());
                     token.setBankReqSignKey(EncrypUtil.aesDecode(token.getBankReqSignKey()));
                     LogUtil.getLog().i("updateToken--成功", "--token=" + newToken.getAccessToken());
-                    LogUtil.writeLog("updateToken--成功" + "---uid=" + newToken.getUid() + "--token=" + newToken.getAccessToken() + "--time=" + System.currentTimeMillis());
+//                    LogUtil.writeLog("updateToken--成功" + "---uid=" + newToken.getUid() + "--token=" + newToken.getAccessToken() + "--time=" + System.currentTimeMillis());
                     setToken(token, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
@@ -442,7 +442,7 @@ public class UserAction {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
                 LogUtil.getLog().i("updateToken--失败", "--token=" + token.getAccessToken() + "--msg=" + t.getMessage());
-                LogUtil.writeLog("updateToken--失败" + "--token=" + token.getAccessToken() + "--msg=" + t.getMessage());
+//                LogUtil.writeLog("updateToken--失败" + "--token=" + token.getAccessToken() + "--msg=" + t.getMessage());
             }
         });
 
