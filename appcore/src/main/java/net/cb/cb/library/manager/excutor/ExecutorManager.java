@@ -20,7 +20,7 @@ public class ExecutorManager {
     public static final String READ_THREAD_NAME = THREAD_NAME_PREFIX + "read-t";
     public static final String TIMER_THREAD_NAME = THREAD_NAME_PREFIX + "timer-t";
     public static final String NORMAL_THREAD_NAME = THREAD_NAME_PREFIX + "normal-t";
-    public static final String SOCKET_THREAD_NAME = THREAD_NAME_PREFIX + "socket-t";
+    public static final String REALM_THREAD_NAME = THREAD_NAME_PREFIX + "realm-t";
 
 
     public static final ExecutorManager INSTANCE = new ExecutorManager();
@@ -30,6 +30,7 @@ public class ExecutorManager {
     private ThreadPoolExecutor normalThread;
     private ThreadPoolExecutor socketThread;
     private ScheduledExecutorService timerThread;
+    private ThreadPoolExecutor offlineThread;
 
     public ThreadPoolExecutor getWriteThread() {
         if (writeThread == null || writeThread.isShutdown()) {
@@ -83,6 +84,17 @@ public class ExecutorManager {
                     new RejectedHandler());
         }
         return timerThread;
+    }
+
+    public ThreadPoolExecutor getOfflineThread() {
+        if (offlineThread == null || offlineThread.isShutdown()) {
+            offlineThread = new ThreadPoolExecutor(1, 1,
+                    0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>(50),
+                    new NamedThreadFactory(REALM_THREAD_NAME),
+                    new RejectedHandler());
+        }
+        return offlineThread;
     }
 
 
