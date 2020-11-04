@@ -477,11 +477,19 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         if (imgHeight > 0) {
             double scale = (imgWidth * 1.00) / imgHeight;
             if (imgWidth > imgHeight) {
-                width = DEFAULT_W;
+                if (scale > 2) {
+                    width = DEFAULT_H;
+                } else {
+                    width = DEFAULT_W;
+                }
                 height = (int) (width / scale);
             } else if (imgWidth < imgHeight) {
                 height = DEFAULT_H;
-                width = (int) (height * scale);
+                if (scale < 0.1) {
+                    width = (int) (height * scale) * 2;
+                } else {
+                    width = (int) (height * scale);
+                }
             } else {
                 width = height = DEFAULT_W;
             }
@@ -843,7 +851,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             isOk = SocketUtil.getSocketUtil().getOnlineState();
             if (!isOk) {
                 if (type == 0) {
-                    ToastUtil.show( "连接已断开，请稍后再试");
+                    ToastUtil.show("连接已断开，请稍后再试");
                 }
             }
         }

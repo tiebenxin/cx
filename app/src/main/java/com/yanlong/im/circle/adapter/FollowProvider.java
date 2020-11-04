@@ -470,7 +470,11 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 height = (int) (width / scale);
             } else if (imgWidth < imgHeight) {
                 height = DEFAULT_H;
-                width = (int) (height * scale);
+                if (scale < 0.1) {
+                    width = (int) (height * scale) * 2;
+                } else {
+                    width = (int) (height * scale);
+                }
             } else {
                 width = height = DEFAULT_W;
             }
@@ -731,7 +735,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             isOk = SocketUtil.getSocketUtil().getOnlineState();
             if (!isOk) {
                 if (type == 0) {
-                    ToastUtil.show( "连接已断开，请稍后再试");
+                    ToastUtil.show("连接已断开，请稍后再试");
                 }
             }
         }
