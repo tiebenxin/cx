@@ -434,11 +434,6 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         adapter.notifyDataSetChanged();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRefreshChat(EventFactory.CreateCircleEvent event) {
-        page = 1;
-        httpGetMyTrends();
-    }
 
     /**
      * 获取单条朋友圈
@@ -564,14 +559,14 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         boolean isOk;
         if (!NetUtil.isNetworkConnected()) {
             if (type == 0) {
-                ToastUtil.show(this, "网络连接不可用，请稍后重试");
+                ToastUtil.show( "网络连接不可用，请稍后重试");
             }
             isOk = false;
         } else {
             isOk = SocketUtil.getSocketUtil().getOnlineState();
             if (!isOk) {
                 if (type == 0) {
-                    ToastUtil.show(this, "连接已断开，请稍后再试");
+                    ToastUtil.show("连接已断开，请稍后再试");
                 }
             }
         }
