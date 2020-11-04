@@ -252,6 +252,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                                             intent.putExtra(UserInfoActivity.ID, messageInfoBean.getUid());
                                             startActivity(intent);
                                         }
+                                        checkAudioStatus(true);
                                     }
 
                                     @Override
