@@ -151,7 +151,7 @@ public class OfflineMessage extends DispatchMessage {
                                 break;
                             }
                             MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
-                            LogUtil.writeLog("dispatch--离线消息--" + "msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType() + "--gid=" + wrapMessage.getGid() + "--fromUid=" + wrapMessage.getFromUid());
+//                            LogUtil.writeLog("dispatch--离线消息--" + "msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType() + "--gid=" + wrapMessage.getGid() + "--fromUid=" + wrapMessage.getFromUid());
                             //是否为本批消息的最后一条消息,并发的只能取数量
                             boolean isLastMessage = mBatchCompletedCount.get() == msgList.size();
                             boolean toDOResult = false;
@@ -180,7 +180,7 @@ public class OfflineMessage extends DispatchMessage {
                         DaoUtil.close(realm);
                     }
                 } else {//空消息 回执
-                    LogUtil.writeLog("--发送回执2离线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
+//                    LogUtil.writeLog("--发送回执2离线--requestId=" + bean.getRequestId() + "--count=" + bean.getWrapMsgCount());
                     SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, SocketData.isEnough(0)), null, bean.getRequestId());
                 }
 
@@ -207,7 +207,7 @@ public class OfflineMessage extends DispatchMessage {
                     if (result) {
                         //全部保存成功，消息回执
                         MessageManager.getInstance().setReceiveOffline(false);
-                        LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
+//                        LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
                         SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                         //在线，表示能回执成功，清除掉MsgId
                         if (SocketUtil.getSocketUtil().getOnlineState())
@@ -215,7 +215,7 @@ public class OfflineMessage extends DispatchMessage {
                     } else if (!repository.hasValidOfflineMessage()) {
                         //无有效离线消息直接发送回执
                         MessageManager.getInstance().setReceiveOffline(false);
-                        LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
+//                        LogUtil.writeLog("--发送回执2离线--requestId=" + requestId + "--count=" + batchTotalCount);
                         SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
                     }
                     //更新所有的session

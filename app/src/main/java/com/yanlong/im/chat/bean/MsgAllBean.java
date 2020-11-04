@@ -804,7 +804,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 }
                 layout = getReplyLayout(quotedMessage.getMsgType(), isMe);
                 if (layout == null) {
-                    LogUtil.writeLog("MsgAllBean--" + "--不能识别回复消息--UNRECOGNIZED--" + quotedMessage.getMsgType());
+//                    LogUtil.writeLog("MsgAllBean--" + "--不能识别回复消息--UNRECOGNIZED--" + quotedMessage.getMsgType());
                     if (isMe) {
                         layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
                     } else {
@@ -833,15 +833,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.BALANCE_ASSISTANT;
                 }
                 break;
-            case ChatEnum.EMessageType.UNRECOGNIZED://未识别
-                LogUtil.writeLog("MsgAllBean--" + "--不能识别消息--UNRECOGNIZED--" + msg_type);
-                if (isMe) {
-                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
-                } else {
-                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
-                }
-                break;
             default://未识别
+                //  LogUtil.writeLog("MsgAllBean--" + "--不能识别消息--UNRECOGNIZED--" + msg_type);
                 if (isMe) {
                     layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
                 } else {

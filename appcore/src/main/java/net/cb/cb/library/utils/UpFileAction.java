@@ -182,12 +182,6 @@ public class UpFileAction {
                                     long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                                     String endpoint;
                                     endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
-
-//                                    if (PATH.VIDEO == type) {
-//                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
-//                                    } else {
-//                                        endpoint = configBean.getEndpoint();
-//                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, ""), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
                                             configBean.getBucket(), callback, filePath, fileByte, isLocalTake);
