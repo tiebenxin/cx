@@ -257,4 +257,10 @@ public class EventFactory extends BaseEvent {
         public int visibility;// 可见度(0:广场可见|1:好友可见|2:陌生人可见|3:自己可见)
     }
 
+    /**
+     * 我的动态界面创建一条新动态
+     */
+    public static class CreateNewInMyTrends extends BaseEvent {
+    }
+
 }

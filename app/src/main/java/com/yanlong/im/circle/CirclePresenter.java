@@ -3,8 +3,6 @@ package com.yanlong.im.circle;
 import android.content.Context;
 import android.text.TextUtils;
 
-import androidx.fragment.app.Fragment;
-
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
@@ -27,6 +25,8 @@ import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.UpLoadFileUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -148,6 +148,7 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
                     mView.onSuccess(createFlowItemBean(response.body().getData()));
+                    EventBus.getDefault().post(new EventFactory.CreateNewInMyTrends());
                 } else {
                     mView.showMessage(getFailMessage(response.body()));
                 }
