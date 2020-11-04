@@ -1,6 +1,7 @@
 package net.cb.cb.library.manager;
 
 import android.os.Environment;
+import android.text.TextUtils;
 
 
 import net.cb.cb.library.manager.excutor.ExecutorManager;
@@ -163,6 +164,10 @@ public class FileManager {
         return getImageCachePath() + "/" + System.currentTimeMillis() + ".jpg";
     }
 
+    public String createImagePathByUrl(String url) {
+        return getImageCachePath() + "/" + getFileName(url) + ".jpg";
+    }
+
     public String createImagePath(String fileName) {
         return getImageCachePath() + "/" + fileName;
     }
@@ -219,6 +224,23 @@ public class FileManager {
             }
         });
         ExecutorManager.INSTANCE.getNormalThread().shutdown();
+    }
+
+
+    //获取保存图片地址的文件名
+    public static String getFileName(String url) {
+        try {
+            if (TextUtils.isEmpty(url)) {
+                return "";
+            }
+            int start = url.lastIndexOf("/");
+            int end = url.lastIndexOf(".");
+            start = start < 0 ? 0 : start;
+            end = end < 0 ? url.length() : end;
+            return url.substring(start + 1, end);
+        } catch (Exception e) {
+            return "exception";
+        }
     }
 
 }

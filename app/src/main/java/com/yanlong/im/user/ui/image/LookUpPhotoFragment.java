@@ -742,7 +742,8 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
         String format = PictureFileUtils.getFileFormatName(media.getCompressPath());
         if (isGif) {
             if (isHttp) {
-                String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), getActivity());
+//                String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), getActivity());
+                String cacheFile =FileManager.getInstance().createImagePathByUrl(media.getPath());
                 if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                     saveImageFromCacheFile(cacheFile, format, ivZoom);
                 } else {
@@ -767,7 +768,8 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                 }
             } else {
                 if (isHttp) {
-                    String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), getActivity());
+//                    String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), getActivity());
+                    String cacheFile = FileManager.getInstance().createImagePathByUrl(media.getPath());
                     if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                         saveImageFromCacheFile(cacheFile, format, ivZoom);
                     } else {
@@ -779,7 +781,8 @@ public class LookUpPhotoFragment extends BaseMediaFragment {
                     } else if (PictureFileUtils.hasImageCache(media.getCompressPath(), media.getSize())) {
                         saveImageFromCacheFile(media.getCompressPath(), format, ivZoom);
                     } else {
-                        String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), getActivity());
+//                        String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), getActivity());
+                        String cacheFile = FileManager.getInstance().createImagePathByUrl(media.getPath());
                         if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                             saveImageFromCacheFile(cacheFile, format, ivZoom);
                         } else {
