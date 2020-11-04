@@ -67,6 +67,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean synOrAsy;
     public boolean isDragFrame;
     public boolean isArtworkMaster;
+    public int fromWhere;
 
     public List<LocalMedia> selectionMedias;
 
@@ -188,6 +189,7 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeByte(this.isDragFrame ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isArtworkMaster ? (byte) 1 : (byte) 0);
         dest.writeTypedList(this.selectionMedias);
+        dest.writeInt(this.fromWhere);
     }
 
     public PictureSelectionConfig() {
@@ -240,6 +242,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isDragFrame = in.readByte() != 0;
         this.isArtworkMaster = in.readByte() != 0;
         this.selectionMedias = in.createTypedArrayList(LocalMedia.CREATOR);
+        this.fromWhere = in.readInt();
     }
 
     public static final Parcelable.Creator<PictureSelectionConfig> CREATOR = new Parcelable.Creator<PictureSelectionConfig>() {

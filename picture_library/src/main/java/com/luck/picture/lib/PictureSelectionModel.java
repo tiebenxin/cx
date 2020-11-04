@@ -518,4 +518,9 @@ public class PictureSelectionModel {
         }
     }
 
+    public PictureSelectionModel setFromWhere(int from) {
+        selectionConfig.fromWhere = from;
+        return this;
+    }
+
 }

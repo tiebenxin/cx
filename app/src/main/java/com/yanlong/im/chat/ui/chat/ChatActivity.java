@@ -2064,6 +2064,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                 .maxVideoSelectNum(1)
                 .compress(true)// 是否压缩 true or false
                 .isGif(true)
+                .setFromWhere(PictureConfig.FROM_DEFAULT)
                 .selectArtworkMaster(true)
                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
@@ -2929,6 +2930,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
         PictureSelector.create(ChatActivity.this)
                 .openCamera(PictureMimeType.ofImage())
                 .compress(true)
+                .setFromWhere(PictureConfig.FROM_DEFAULT)
                 .forResult(PictureConfig.REQUEST_CAMERA);
     }
 
@@ -6954,6 +6956,7 @@ public class ChatActivity extends BaseTcpActivity implements IActionTagClickList
                     previewList.add(localMedia);
                     PictureSelector.create(ChatActivity.this)
                             .openGallery(PictureMimeType.ofAll())
+                            .setFromWhere(PictureConfig.FROM_DEFAULT)
                             .compress(true);//复用，直接跳图片选择器的预览界面会崩溃，需要先初始化
                     previewImage(previewList, previewList, 0);
                     overridePendingTransition(com.luck.picture.lib.R.anim.a5, 0);

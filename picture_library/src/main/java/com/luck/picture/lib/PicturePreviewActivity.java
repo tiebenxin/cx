@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
@@ -32,11 +34,14 @@ import com.luck.picture.lib.rxbus2.ThreadMode;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.ToastManage;
 import com.luck.picture.lib.tools.VoiceUtils;
+import com.luck.picture.lib.utils.PicImgSizeUtil;
 import com.luck.picture.lib.widget.PreviewViewPager;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropMulti;
 import com.yalantis.ucrop.model.CutInfo;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +78,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private int fromWhere = 0;//跳转来源 0 默认 1 猜你想要
     private CheckBox cbOrigin;
     private boolean isOrigin;
+    private int maxLength = 50;
+
 
     /**
      * EventBus 3.0 回调
@@ -164,24 +171,43 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
             public void onClick(View view) {
                 if (images != null && images.size() > 0) {
                     LocalMedia image = images.get(viewPager.getCurrentItem());
-                    String pictureType = selectImages.size() > 0 ?
-                            selectImages.get(0).getPictureType() : "";
+                    String pictureType = selectImages.size() > 0 ? selectImages.get(0).getPictureType() : image.getPictureType();
                     if (!TextUtils.isEmpty(pictureType)) {
-                        boolean toEqual = PictureMimeType.
-                                mimeToEqual(pictureType, image.getPictureType());
+                        boolean toEqual = PictureMimeType.mimeToEqual(pictureType, image.getPictureType());
                         if (!toEqual) {
                             ToastManage.s(mContext, getString(R.string.picture_rule));
                             return;
                         }
-
                     }
                     // 刷新图片列表中图片状态
                     boolean isChecked;
+                    boolean isCircle = fromWhere == PictureConfig.FROM_CIRCLE;
                     if (!check.isSelected()) {
-                        if (PictureMimeType.isVideo(pictureType) && (selectImages != null && selectImages.size() > 0)) {
-                            String str = getString(R.string.picture_message_video_max_num, 1);
-                            ToastManage.s(PicturePreviewActivity.this, str);
-                            return;
+                        if (PictureMimeType.isVideo(pictureType)) {
+                            if (selectImages != null && selectImages.size() > 0) {
+                                String str = getString(R.string.picture_message_video_max_num, 1);
+                                ToastManage.s(PicturePreviewActivity.this, str);
+                                return;
+                            }
+                            long length = PicImgSizeUtil.getVideoSize(image.getPath());
+                            long duration = Long.parseLong(getVideoAtt(image.getPath()));
+                            if (isCircle) {
+                                maxLength = 20;
+                                if (duration > 30000) {
+                                    Toast.makeText(PicturePreviewActivity.this, "不能选择超过30秒的视频", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            } else {
+                                if (duration > 5 * 60000) {
+                                    Toast.makeText(PicturePreviewActivity.this, "不能选择超过5分钟的视频", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            }
+                            // 大于50M、5分钟不发送
+                            if (PicImgSizeUtil.formetFileSize(length) > maxLength) {
+                                Toast.makeText(PicturePreviewActivity.this, "不能选择超过" + maxLength + "M的视频", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                         }
                         isChecked = true;
                         check.setSelected(true);
@@ -479,7 +505,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
     /**
      * 更新图片选择原图
-     *
      */
     private void updateOrigin() {
         EventEntity obj = new EventEntity(PictureConfig.SELECT_ORIGINAL, selectImages, index);
@@ -617,5 +642,23 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     @Override
     public void onActivityBackPressed() {
         onBackPressed();
+    }
+
+    private String getVideoAtt(String mUri) {
+        String duration = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null) {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+            }
+            duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+
+        } catch (Exception ex) {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return duration;
     }
 }

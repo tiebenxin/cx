@@ -597,7 +597,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
             bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
             bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-            bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
+            bundle.putInt(PictureConfig.FROM_WHERE, config.fromWhere);//跳转来源 0 默认 1 猜你想要 2 收藏详情
             bundle.putBoolean(PictureConfig.IS_ARTWORK_MASTER, isArtworkMaster);
             startActivity(PicturePreviewActivity.class, bundle,
                     config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);

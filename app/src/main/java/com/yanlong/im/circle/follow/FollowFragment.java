@@ -458,6 +458,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         PictureSelector.create(getActivity())
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
+                .setFromWhere(PictureConfig.FROM_CIRCLE)
                 .openExternalPreview1(position, selectList, "", 0L, PictureConfig.FROM_CIRCLE, "");
     }
 

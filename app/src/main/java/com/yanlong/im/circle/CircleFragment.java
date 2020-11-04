@@ -238,6 +238,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                         .maxVideoSelectNum(1)
                         .compress(true)// 是否压缩 true or false
                         .isGif(true)
+                        .setFromWhere(PictureConfig.FROM_CIRCLE)
                         .selectArtworkMaster(true)
                         .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
             } else if (floatModel == 1) {

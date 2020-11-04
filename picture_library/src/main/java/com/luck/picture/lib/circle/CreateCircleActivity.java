@@ -1290,7 +1290,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
         bundle.putInt(PictureConfig.EXTRA_POSITION, position);
-        bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);//跳转来源 0 默认 1 猜你想要 2 收藏详情
+        bundle.putInt(PictureConfig.FROM_WHERE, PictureConfig.FROM_CIRCLE);//跳转来源 0 默认 1 猜你想要 2 收藏详情
         intent.putExtras(bundle);
         startActivityForResult(intent,
                 config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
@@ -1716,6 +1716,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     .isGif(true)
                     .selectArtworkMaster(true)
                     .selectionMedia(adapter.getSelectedImages())
+                    .setFromWhere(PictureConfig.FROM_CIRCLE)
                     .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
         } else {
             List<LocalMedia> previewList = new ArrayList<>();
@@ -2169,6 +2170,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 .compress(true)// 是否压缩 true or false
                 .isGif(true)
                 .selectArtworkMaster(true)
+                .setFromWhere(PictureConfig.FROM_CIRCLE)
                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
 
