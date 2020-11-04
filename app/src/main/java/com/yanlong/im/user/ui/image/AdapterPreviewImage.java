@@ -345,25 +345,29 @@ public class AdapterPreviewImage extends PagerAdapter {
                         pbLoading.setVisibility(View.GONE);
                     }
                     if (e.getMessage().contains("FileNotFoundException")) {
-                        ivZoom.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                ivZoom.setImageResource(R.mipmap.ic_img_past);
-                            }
-                        }, 100);
+                        if (ivZoom != null) {
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ivZoom.setImageResource(R.mipmap.ic_img_past);
+                                }
+                            }, 100);
+                        }
                     } else {
-                        ivZoom.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (ivZoom == null || ivZoom.getContext() == null || ((Activity) ivZoom.getContext()).isDestroyed()
-                                        || ((Activity) ivZoom.getContext()).isFinishing()) {
-                                    return;
+                        if (ivZoom != null) {
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (ivZoom == null || ivZoom.getContext() == null || ((Activity) ivZoom.getContext()).isDestroyed()
+                                            || ((Activity) ivZoom.getContext()).isFinishing()) {
+                                        return;
+                                    }
+                                    if (isCurrent) {
+                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                    }
                                 }
-                                if (isCurrent) {
-                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
-                                }
-                            }
-                        }, 100);
+                            }, 100);
+                        }
                     }
                     return false;
                 }
@@ -452,14 +456,16 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
             boolean isSuccess = PicSaveUtils.saveImgLoc(context, bitmap, "");
-            ivZoom.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (isSuccess) {
-                        ToastUtil.show(AppConfig.getContext(), "保存成功");
+            if (ivZoom != null) {
+                ivZoom.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isSuccess) {
+                            ToastUtil.show(AppConfig.getContext(), "保存成功");
+                        }
                     }
-                }
-            }, 100);
+                }, 100);
+            }
         } else if (drawable instanceof GifDrawable) {
 
         }
@@ -469,14 +475,16 @@ public class AdapterPreviewImage extends PagerAdapter {
     private void saveImageFromCacheFile(String filePath, String format, ZoomImageView ivZoom) {
         if (!TextUtils.isEmpty(filePath) && context != null && ivZoom != null) {
             boolean isSuccess = PicSaveUtils.saveOriginImage(context, filePath, format);
-            ivZoom.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (isSuccess) {
-                        ToastUtil.show(AppConfig.getContext(), "保存成功");
+            if (ivZoom != null) {
+                ivZoom.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isSuccess) {
+                            ToastUtil.show(AppConfig.getContext(), "保存成功");
+                        }
                     }
-                }
-            }, 100);
+                }, 100);
+            }
         }
     }
 
@@ -488,12 +496,14 @@ public class AdapterPreviewImage extends PagerAdapter {
                 if (hasRead) {//原图已读,就显示
                     loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent);
                     if (!TextUtils.isEmpty(media.getPath())) {
-                        ivZoom.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                loadImage(media.getPath(), ivZoom, false, pbLoading, isCurrent);
-                            }
-                        }, 50);
+                        if (ivZoom != null) {
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadImage(media.getPath(), ivZoom, false, pbLoading, isCurrent);
+                                }
+                            }, 50);
+                        }
                     }
                     showZoomView(ivZoom, true);
                 } else {
@@ -508,12 +518,14 @@ public class AdapterPreviewImage extends PagerAdapter {
                 ivDownload.setVisibility(View.VISIBLE);
                 loadImage(media.getCutPath(), ivZoom, false, pbLoading, isCurrent);
                 //延时加载预览图
-                ivZoom.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent);
-                    }
-                }, 50);
+                if (ivZoom != null) {
+                    ivZoom.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent);
+                        }
+                    }, 50);
+                }
             }
         } else {
             ivDownload.setVisibility(View.VISIBLE);
@@ -568,26 +580,29 @@ public class AdapterPreviewImage extends PagerAdapter {
                             pbLoading.setVisibility(View.GONE);
                         }
                         if (e.getMessage().contains("FileNotFoundException")) {
-                            ivZoom.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ivZoom.setImageResource(R.mipmap.ic_img_past);
-                                }
-                            }, 100);
-
+                            if (ivZoom != null) {
+                                ivZoom.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ivZoom.setImageResource(R.mipmap.ic_img_past);
+                                    }
+                                }, 100);
+                            }
                         } else {
-                            ivZoom.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (ivZoom == null || ivZoom.getContext() == null || ((Activity) ivZoom.getContext()).isDestroyed()
-                                            || ((Activity) ivZoom.getContext()).isFinishing()) {
-                                        return;
+                            if (ivZoom != null) {
+                                ivZoom.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (ivZoom == null || ivZoom.getContext() == null || ((Activity) ivZoom.getContext()).isDestroyed()
+                                                || ((Activity) ivZoom.getContext()).isFinishing()) {
+                                            return;
+                                        }
+                                        if (isCurrent) {
+                                            ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                        }
                                     }
-                                    if (isCurrent) {
-                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
-                                    }
-                                }
-                            }, 100);
+                                }, 100);
+                            }
                         }
                         return false;
                     }
@@ -618,12 +633,14 @@ public class AdapterPreviewImage extends PagerAdapter {
                     ivZoom.setImageResource(R.mipmap.ic_img_past);
                 } else {
                     if (isCurrent) {
-                        ivZoom.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
-                            }
-                        }, 100);
+                        if (ivZoom != null) {
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                                }
+                            }, 100);
+                        }
                     }
                 }
                 return false;
@@ -750,19 +767,16 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                     @Override
                     public void onDownloadFailed(Exception e) {
-                        ivDownload.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                ivZoom.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        preProgress = 0;
-                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+                        if (ivZoom != null) {
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    preProgress = 0;
+                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
 
-                                    }
-                                }, 100);
-                            }
-                        }, 100);
+                                }
+                            }, 100);
+                        }
                         new File(filePath + "/" + fileName).delete();
                         new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
                         e.printStackTrace();
