@@ -462,7 +462,11 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         if (imgHeight > 0) {
             double scale = (imgWidth * 1.00) / imgHeight;
             if (imgWidth > imgHeight) {
-                width = DEFAULT_W;
+                if (scale > 2) {
+                    width = DEFAULT_H;
+                } else {
+                    width = DEFAULT_W;
+                }
                 height = (int) (width / scale);
             } else if (imgWidth < imgHeight) {
                 height = DEFAULT_H;
@@ -470,6 +474,8 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             } else {
                 width = height = DEFAULT_W;
             }
+            LogUtil.getLog().i("1212", "imgWidth:" + imgWidth + " imgHeight:" + imgHeight);
+            LogUtil.getLog().i("1212", "width:" + width + " height:" + height);
         }
         if (view instanceof RoundImageView) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);

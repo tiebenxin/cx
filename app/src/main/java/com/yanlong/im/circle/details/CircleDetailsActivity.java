@@ -438,8 +438,10 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         bindingView.etMessage.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (!mViewModel.isInputText.getValue())
+                if (!mViewModel.isInputText.getValue()) {
                     mViewModel.isInputText.setValue(true);
+                    mViewModel.isOpenEmoj.setValue(false);
+                }
                 return false;
             }
         });
