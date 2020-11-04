@@ -124,13 +124,14 @@
             android:layout_marginTop="5dp"
             android:visibility="gone" />
         <!-- 单张图片-->
-        <com.yanlong.im.wight.avatar.RoundImageView
+        <com.yanlong.im.wight.avatar.RoundImageView2
             android:id="@+id/iv_sign_picture"
             android:layout_width="186dp"
             android:layout_height="255dp"
             android:layout_marginTop="10dp"
             android:visibility="gone"
-            app:radius="4dp" />
+            app:shape_type="round"
+            app:corner_radius="4dp" />
         <!-- 视频-->
         <RelativeLayout
             android:id="@+id/rl_video"

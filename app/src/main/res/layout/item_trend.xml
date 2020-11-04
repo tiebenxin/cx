@@ -78,6 +78,7 @@
             android:text="内容"
             android:textColor="@color/c_474747"
             android:textSize="16sp" />
+
         <LinearLayout
             android:id="@+id/layout_content"
             android:layout_width="match_parent"
@@ -90,24 +91,25 @@
                 android:id="@+id/recycler_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="visible"
+                android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp" />
+                android:visibility="visible" />
             <!-- 视频-->
             <RelativeLayout
                 android:id="@+id/layout_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:layout_marginRight="15dp"
                 android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:background="@color/white"
                 android:visibility="gone">
 
-                <com.yanlong.im.wight.avatar.RoundImageView
+                <com.yanlong.im.wight.avatar.RoundImageView2
                     android:id="@+id/iv_video"
                     android:layout_width="186dp"
                     android:layout_height="255dp"
-                    app:radius="5dp" />
+                    app:corner_radius="5dp"
+                    app:shape_type="round" />
 
                 <ImageView
                     android:id="@+id/iv_play"
@@ -132,11 +134,11 @@
                 android:id="@+id/layout_vote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp"
-                android:visibility="gone"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_vote"
@@ -156,7 +158,6 @@
         </LinearLayout>
 
 
-
         <RelativeLayout
             android:id="@+id/layout_bottom"
             android:layout_width="match_parent"
@@ -171,14 +172,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
                 android:layout_toLeftOf="@+id/tv_like"
                 android:clickable="false"
                 android:drawableLeft="@mipmap/ic_circle_location_gray"
+                android:drawablePadding="5dp"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:singleLine="true"
-                android:drawablePadding="5dp"
-                android:layout_marginLeft="5dp"
                 android:text="未设置地点"
                 android:textColor="@color/green_500"
                 android:textSize="15sp" />

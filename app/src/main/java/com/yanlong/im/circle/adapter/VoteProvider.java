@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -56,7 +57,7 @@ import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.JzvdStdCircle;
-import com.yanlong.im.wight.avatar.RoundImageView;
+import com.yanlong.im.wight.avatar.RoundImageView2;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
@@ -119,7 +120,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         RecyclerView recyclerView = helper.getView(R.id.recycler_view);
         MessageInfoBean messageInfoBean = data.getData();
         ImageView ivHead = helper.getView(R.id.iv_header);
-        RoundImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
+        ImageView ivSignPicture = helper.getView(R.id.iv_sign_picture);
         JzvdStdCircle jzvdStd = helper.getView(R.id.video_player);
         ImageView ivVoicePlay = helper.getView(R.id.iv_voice_play);
         TextView ivLike = helper.getView(R.id.iv_like);
@@ -485,7 +486,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                 width = height = DEFAULT_W;
             }
         }
-        if (view instanceof RoundImageView) {
+        if (view instanceof RoundImageView2) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
             lp.width = width;
             lp.height = height;

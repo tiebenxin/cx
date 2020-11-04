@@ -122,12 +122,13 @@
                         android:gravity="center">
 
 
-                        <com.yanlong.im.wight.avatar.RoundImageView
+                        <com.yanlong.im.wight.avatar.RoundImageView2
                             android:id="@+id/iv_img"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@mipmap/ic_image_bg"
-                            app:radius="4dp" />
+                            app:shape_type="round"
+                            app:corner_radius="4dp" />
 
                         <LinearLayout
                             android:id="@+id/ll_progress"
@@ -169,7 +170,7 @@
 
         </LinearLayout>
 
-        <com.yanlong.im.wight.avatar.RoundImageView
+        <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"

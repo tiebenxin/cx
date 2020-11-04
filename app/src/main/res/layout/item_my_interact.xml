@@ -26,14 +26,15 @@
             android:layout_marginRight="15dp"
             android:orientation="horizontal">
 
-            <com.yanlong.im.wight.avatar.RoundImageView
+            <com.yanlong.im.wight.avatar.RoundImageView2
                 android:id="@+id/iv_img"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:src="@mipmap/default_image"
                 android:layout_centerInParent="true"
                 android:visibility="gone"
-                app:radius="4dp" />
+                app:shape_type="round"
+                app:corner_radius="4dp" />
 
             <ImageView
                 android:id="@+id/iv_play"
