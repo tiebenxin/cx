@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui.image;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -71,6 +72,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -491,16 +493,17 @@ public class AdapterPreviewImage extends PagerAdapter {
     private void showImage2(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong, ProgressBar pbLoading, LinearLayout llLock, boolean isCurrent) {
         tvViewOrigin.setTag(media.getSize());
         showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize(), llLock);
+        InitTargetSize targetSize = new InitTargetSize(media, context).invoke();
         if (isHttp) {
             if (isOrigin) {
                 if (hasRead) {//原图已读,就显示
-                    loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent);
+                    loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
                     if (!TextUtils.isEmpty(media.getPath())) {
                         if (ivZoom != null) {
                             ivZoom.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    loadImage(media.getPath(), ivZoom, false, pbLoading, isCurrent);
+                                    loadImage(media.getPath(), ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
                                 }
                             }, 50);
                         }
@@ -508,21 +511,21 @@ public class AdapterPreviewImage extends PagerAdapter {
                     showZoomView(ivZoom, true);
                 } else {
                     if (!TextUtils.isEmpty(media.getCutPath())) {
-                        loadImage(media.getCutPath(), ivZoom, false, pbLoading, isCurrent);
-                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent);
+                        loadImage(media.getCutPath(), ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
                     } else {
-                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent);
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
                     }
                 }
             } else {
                 ivDownload.setVisibility(View.VISIBLE);
-                loadImage(media.getCutPath(), ivZoom, false, pbLoading, isCurrent);
+                loadImage(media.getCutPath(), ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
                 //延时加载预览图
                 if (ivZoom != null) {
                     ivZoom.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent);
+                            loadImage(media.getCompressPath(), ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
                         }
                     }, 50);
                 }
@@ -530,7 +533,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         } else {
             ivDownload.setVisibility(View.VISIBLE);
             String url = !TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath();
-            loadImage(url, ivZoom, false, pbLoading, isCurrent);
+            loadImage(url, ivZoom, false, pbLoading, isCurrent, targetSize.width, targetSize.height);
         }
     }
 
@@ -619,7 +622,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     /*
      * 加载图片
      * */
-    private void loadImage(String url, ZoomImageView ivZoom, boolean isOrigin, ProgressBar pbLoading, boolean isCurrent) {
+    private void loadImage(String url, ZoomImageView ivZoom, boolean isOrigin, ProgressBar pbLoading, boolean isCurrent, int targetWidth, int targetHeight) {
         if (activityIsFinish()) {
             return;
         }
@@ -654,25 +657,48 @@ public class AdapterPreviewImage extends PagerAdapter {
         RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .format(DecodeFormat.PREFER_ARGB_8888);
-        Glide.with(context)//TODO bugly #107911
-                .asBitmap()
-                .load(url)
-                .listener(requestListener)
-                .apply(options)
-                .into(new SimpleTarget<Bitmap>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                    }
-
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                        ivZoom.setImageBitmap(resource);
-                        if (pbLoading != null) {
-                            pbLoading.setVisibility(View.GONE);
+        boolean isSizeNormal = targetWidth > 0 && targetHeight > 0;
+        if (isSizeNormal) {
+            Glide.with(context)//TODO bugly #107911
+                    .asBitmap()
+                    .load(url)
+                    .listener(requestListener)
+                    .apply(options)
+                    .into(new SimpleTarget<Bitmap>(targetWidth, targetHeight) {
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
                         }
-                    }
-                });
+
+                        @Override
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                            ivZoom.setImageBitmap(resource);
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+        } else {
+            Glide.with(context)
+                    .asBitmap()
+                    .load(url)
+                    .listener(requestListener)
+                    .apply(options)
+                    .into(new SimpleTarget<Bitmap>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+                        }
+
+                        @Override
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                            ivZoom.setImageBitmap(resource);
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+        }
     }
 
 
@@ -733,7 +759,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                     setDownloadProgress(tvViewOrigin, 100, llLook);
                                     ivDownload.setEnabled(true);
 //                                    ivLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
-                                    loadImage(file.getAbsolutePath(), ivZoom, true, null, isCurrent);
+                                    loadImage(file.getAbsolutePath(), ivZoom, true, null, isCurrent, 0, 0);
                                     showZoomView(ivZoom, true);
 //                                loadLargeImage(file.getAbsolutePath(), ivLarge);
                                     MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
@@ -1111,6 +1137,81 @@ public class AdapterPreviewImage extends PagerAdapter {
      */
     private void checkFile(String msgId, int fromWhere, int type, LocalMedia media) {
         mIPreviewImage.onClick(msgId, fromWhere, type, media);
+    }
+
+    private void initSize(LocalMedia media, int targetWidth, int targetHeight) {
+        int realW = media.getWidth();
+        int realH = media.getHeight();
+        int screenWidth = ScreenUtil.getScreenWidth(context);
+        int screenHeight = ScreenUtil.getScreenHeight(context);
+        if (realH > 0) {
+            double scale = (realW * 1.00) / realH;
+            if (scale < 0.33) {//长图
+                targetWidth = realW;
+                targetHeight = realH;
+            } else {
+                if (realW > screenWidth && realW < screenWidth * 2) {
+                    targetWidth = screenWidth;
+                    targetHeight = (int) (targetWidth / scale);
+                } else if (realH > screenHeight) {
+                    targetHeight = screenHeight;
+                    targetWidth = (int) (targetHeight * scale);
+                } else if (realW == realH) {
+                    targetWidth = screenWidth;
+                    targetHeight = screenWidth;
+                } else {
+                    targetWidth = realW;
+                    targetHeight = (int) (targetWidth / scale);
+                }
+            }
+        } else {
+            targetWidth = realW;
+            targetHeight = realW;
+        }
+    }
+
+    private static class InitTargetSize {
+        private int width;
+        private int height;
+        private final LocalMedia media;
+        private Context context;
+
+        public InitTargetSize(LocalMedia media, Context context) {
+            this.media = media;
+            this.context = context;
+        }
+
+        public InitTargetSize invoke() {
+            int realW = media.getWidth();
+            int realH = media.getHeight();
+            int screenWidth = ScreenUtil.getScreenWidth(context);
+            int screenHeight = ScreenUtil.getScreenHeight(context);
+            if (realH > 0) {
+                double scale = (realW * 1.00) / realH;
+                if (scale < 0.33) {//长图
+                    width = realW;
+                    width = realH;
+                } else {
+                    if (realW > screenWidth && realW < screenWidth * 2) {
+                        width = screenWidth;
+                        height = (int) (width / scale);
+                    } else if (realH > screenHeight) {
+                        height = screenHeight;
+                        width = (int) (height * scale);
+                    } else if (realW == realH) {
+                        width = screenWidth;
+                        height = screenWidth;
+                    } else {
+                        width = realW;
+                        height = (int) (width / scale);
+                    }
+                }
+            } else {
+                width = realW;
+                height = realW;
+            }
+            return this;
+        }
     }
 
 }
