@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +13,7 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <androidx.constraintlayout.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/app_layout_list2_item"
         android:layout_height="89dp"
         android:layout_marginTop="@dimen/app_margin_item_top">
@@ -24,7 +25,8 @@
             android:scaleType="fitXY"
             android:src="@mipmap/ic_weixin_banding"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
 
         <TextView
             android:id="@+id/tv_title"
@@ -52,7 +54,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-    </androidx.constraintlayout.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </net.cb.cb.library.view.HeadView>

@@ -62,6 +62,7 @@ import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.circle.CircleFragment;
+import com.yanlong.im.circle.bean.InteractMessage;
 import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
@@ -317,6 +318,11 @@ public class MainActivity extends BaseTcpActivity {
         RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().beginGroup().greaterThan("unread_count", 0).endGroup()
                 .or().beginGroup().greaterThan("markRead", 0).and().equalTo("isMute", 0).endGroup()
                 .limit(100).findAll();
+        // 获取通讯录红点数
+        int friendNum = taskGetFriendNum();
+        // 获取广场红点数
+        List<InteractMessage> list = msgDao.getUnreadMsgList();
+
         if (sessionList != null) {
             Number unreadCount = sessionList.where().sum("unread_count");
             Number markCount = sessionList.where().sum("markRead");
@@ -328,10 +334,10 @@ public class MainActivity extends BaseTcpActivity {
             if (markCount != null) {
                 count2 = markCount.intValue();
             }
-            updateMsgUnread(count1 + count2);
+            updateMsgUnread(count1 + count2, friendNum, list == null ? 0 : list.size());
 
         } else {
-            updateMsgUnread(0);
+            updateMsgUnread(0, friendNum, list == null ? 0 : list.size());
         }
     }
 
@@ -661,10 +667,14 @@ public class MainActivity extends BaseTcpActivity {
         try {
             ChatBitmapCache.getInstance().clearCache();
             isActivityStop = false;
-            //显示消息未读数
-            taskGetMsgNum();
-            //显示通讯录未读数
-            taskGetFriendNum();
+            // 显示消息未读数
+            int msgNum = taskGetMsgNum();
+            // 显示通讯录未读数
+            int friendNum = taskGetFriendNum();
+            // 广场未读数
+            int circleNum = getCircleNum();
+            // 更新桌面角标
+            BadgeUtil.setBadgeCount(getApplicationContext(), msgNum + friendNum + circleNum);
             checkNotificationOK();
             checkPayEnvironmentInit();
             if (AppConfig.isOnline()) {
@@ -1023,19 +1033,19 @@ public class MainActivity extends BaseTcpActivity {
      * 未读消息
      * @return
      */
-    private void taskGetMsgNum() {
+    private int taskGetMsgNum() {
         if (sbmsg == null)
-            return;
+            return 0;
         int num = msgDao.sessionReadGetAll();
         LogUtil.getLog().e("获取session未读数", "num=" + num);
         sbmsg.setNum(num, true);
-        BadgeUtil.setBadgeCount(getApplicationContext(), num);
+        return num;
     }
 
     /***
      * 好友或者群申请数量
      */
-    private void taskGetFriendNum() {
+    private int taskGetFriendNum() {
         //  ToastUtil.show(getContext(),"更新好友的提示数量");
         int sum = 0;
         sum += msgDao.remidGet(Preferences.FRIEND_APPLY);
@@ -1051,6 +1061,23 @@ public class MainActivity extends BaseTcpActivity {
             sbfriend.setSktype(0);
             sbfriend.setNum(sum, true);
         }
+        return sum;
+    }
+
+    /**
+     * 获取广场红点
+     *
+     * @return
+     */
+    private int getCircleNum() {
+        int circleNum = 0;
+        // 获取广场红点数
+        List<InteractMessage> list = msgDao.getUnreadMsgList();
+        if (list != null) {
+            circleNum = list.size();
+        }
+        sbshop.setNum(circleNum, true);
+        return circleNum;
     }
 
     /**
@@ -1436,10 +1463,12 @@ public class MainActivity extends BaseTcpActivity {
     }
 
 
-    public final void updateMsgUnread(int num) {
-        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
+    public final void updateMsgUnread(int num, int friendNum, int circleNum) {
+        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + (num + friendNum + circleNum));
         sbmsg.setNum(num, true);
-        BadgeUtil.setBadgeCount(getApplicationContext(), num);
+        sbfriend.setNum(friendNum, true);
+        sbshop.setNum(circleNum, true);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num + friendNum + circleNum);
     }
 
     //上报IP
