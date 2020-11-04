@@ -927,7 +927,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     currentMessage = serverInfoBean;
                     currentMessage.setPlayProgress(tempMessage.getPlayProgress());
                     currentMessage.setPlay(tempMessage.isPlay());
-                    LogUtil.getLog().i("语音", "更新current" + currentMessage.getId());
+                    currentMessage.setUserType(tempMessage.getUserType());
+                    LogUtil.getLog().i("语音", "更新current--" + currentMessage.getId());
                     currentMessage.setAvatar(tempMessage.getAvatar());
                     currentMessage.setNickname(tempMessage.getNickname());
                     mFlowAdapter.getData().get(position).setData(currentMessage);
@@ -1304,6 +1305,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             msgTemp = mFlowAdapter.getData().get(index).getData();
             msgTemp.setPlay(messageInfoBean.isPlay());
             msgTemp.setPlayProgress(messageInfoBean.getPlayProgress());
+            msgTemp.setPlayProgress(messageInfoBean.getUserType());
         }
         MessageInfoBean finalMessageInfoBean;
         if (msgTemp == null) {
