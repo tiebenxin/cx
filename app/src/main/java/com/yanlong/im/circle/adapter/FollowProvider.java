@@ -53,16 +53,19 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.JzvdStdCircle;
 import com.yanlong.im.wight.avatar.RoundImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ScreenUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -360,13 +363,15 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                     animationDrawable.start();
                 }
                 ivVoicePlay.setOnClickListener(o -> {
-                    if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                        // 记录播放状态
-                        if (clickListener != null) {
-                            if (jzvdStd != null) {
-                                jzvdStd.releaseAllVideos();
+                    if (checkNetConnectStatus(0)) {
+                        if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
+                            // 记录播放状态
+                            if (clickListener != null) {
+                                if (jzvdStd != null) {
+                                    jzvdStd.releaseAllVideos();
+                                }
+                                clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
                             }
-                            clickListener.onClick(position, 0, CoreEnum.EClickType.CLICK_VOICE, pbProgress);
                         }
                     }
                 });
@@ -702,5 +707,28 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             }
         }
         return false;
+    }
+
+    /*
+     * 发送消息前，需要检测网络连接状态，网络不可用，不能发送
+     * 每条消息发送前，需要检测，语音和小视频录制之前，仍需要检测
+     * type=0 默认提示 type=1 仅获取断网状态/不提示
+     * */
+    public boolean checkNetConnectStatus(int type) {
+        boolean isOk;
+        if (!NetUtil.isNetworkConnected()) {
+            if (type == 0) {
+                ToastUtil.show("网络连接不可用，请稍后重试");
+            }
+            isOk = false;
+        } else {
+            isOk = SocketUtil.getSocketUtil().getOnlineState();
+            if (!isOk) {
+                if (type == 0) {
+                    ToastUtil.show( "连接已断开，请稍后再试");
+                }
+            }
+        }
+        return isOk;
     }
 }

@@ -72,6 +72,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
@@ -82,6 +83,7 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -488,11 +490,14 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     animationDrawable.start();
                                 }
                                 holder.ivVoicePlay.setOnClickListener(o -> {
-                                    if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
-                                        if (playVoiceListener != null) {
-                                            playVoiceListener.play(bean);
+                                    if(checkNetConnectStatus(0)){
+                                        if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
+                                            if (playVoiceListener != null) {
+                                                playVoiceListener.play(bean);
+                                            }
                                         }
                                     }
+
                                 });
                             }
                             holder.ivDeleteVoice.setVisibility(View.GONE);
@@ -1555,5 +1560,28 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         }
         return false;
+    }
+
+    /*
+     * 发送消息前，需要检测网络连接状态，网络不可用，不能发送
+     * 每条消息发送前，需要检测，语音和小视频录制之前，仍需要检测
+     * type=0 默认提示 type=1 仅获取断网状态/不提示
+     * */
+    public boolean checkNetConnectStatus(int type) {
+        boolean isOk;
+        if (!NetUtil.isNetworkConnected()) {
+            if (type == 0) {
+                ToastUtil.show("网络连接不可用，请稍后重试");
+            }
+            isOk = false;
+        } else {
+            isOk = SocketUtil.getSocketUtil().getOnlineState();
+            if (!isOk) {
+                if (type == 0) {
+                    ToastUtil.show( "连接已断开，请稍后再试");
+                }
+            }
+        }
+        return isOk;
     }
 }
