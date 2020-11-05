@@ -163,10 +163,12 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                             if(!TextUtils.isEmpty(attachmentBean.getUrl())){
                                 voiceUrl = attachmentBean.getUrl();
                                 //语音播放过程中置顶/取消置顶
-                                if(bean.getIsTop()==1){
-                                    currentMessage.setIsTop(1);
-                                }else {
-                                    currentMessage.setIsTop(0);
+                                if(currentMessage!=null){
+                                    if(bean.getIsTop()==1){
+                                        currentMessage.setIsTop(1);
+                                    }else {
+                                        currentMessage.setIsTop(0);
+                                    }
                                 }
                             }
                         }
