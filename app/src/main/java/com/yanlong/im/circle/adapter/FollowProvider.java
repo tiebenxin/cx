@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -208,7 +209,7 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
         } else {
             helper.setText(R.id.iv_comment, "评论");
         }
-        helper.setGone(R.id.iv_sign_picture, false);
+        helper.setGone(R.id.card_view_sign, false);
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
             addAttachment(helper, position, recyclerView, messageInfoBean, ivSignPicture, jzvdStd, ivVoicePlay, pbProgress);
@@ -400,12 +401,11 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                         }).into(ivSignPicture);
                     } else {
                         Glide.with(mContext)
-                                .asBitmap()
                                 .load(path)
                                 .apply(GlideOptionsUtil.circleImageOptions())
                                 .into(ivSignPicture);
                     }
-                    helper.setVisible(R.id.iv_sign_picture, true);
+                    helper.setVisible(R.id.card_view_sign, true);
                     recyclerView.setVisibility(View.GONE);
                     helper.setGone(R.id.layout_voice, false);
                 } else {
@@ -417,7 +417,6 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             }
         } else if (messageInfoBean.getType() != null && messageInfoBean.getType() == PictureEnum.EContentType.VIDEO) {
             if (attachmentBeans != null && attachmentBeans.size() > 0) {
-                LogUtil.getLog().i("1212", "55555555");
                 AttachmentBean attachmentBean = attachmentBeans.get(0);
                 resetSize(jzvdStd, attachmentBean.getWidth(), attachmentBean.getHeight());
                 // 没有正在播放则设置 处理刷新暂停视频问题
@@ -478,8 +477,6 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
             } else {
                 width = height = DEFAULT_W;
             }
-            LogUtil.getLog().i("1212", "imgWidth:" + imgWidth + " imgHeight:" + imgHeight);
-            LogUtil.getLog().i("1212", "width:" + width + " height:" + height);
         }
         if (view instanceof RoundImageView2) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);

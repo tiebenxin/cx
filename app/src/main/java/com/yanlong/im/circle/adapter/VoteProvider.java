@@ -191,7 +191,7 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
         }
         //浏览量
         helper.setText(R.id.tv_watch_num, messageInfoBean.getBrowseCount() + "浏览");
-        helper.setGone(R.id.iv_sign_picture, false);
+        helper.setGone(R.id.card_view_sign, false);
         // 附件
         if (!TextUtils.isEmpty(messageInfoBean.getAttachment())) {
             addAttachment(helper, position, recyclerView, messageInfoBean, ivSignPicture, jzvdStd, ivVoicePlay, pbProgress);
@@ -386,12 +386,11 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
                         }).into(ivSignPicture);
                     } else {
                         Glide.with(mContext)
-                                .asBitmap()
                                 .load(path)
                                 .apply(GlideOptionsUtil.circleImageOptions())
                                 .into(ivSignPicture);
                     }
-                    helper.setVisible(R.id.iv_sign_picture, true);
+                    helper.setVisible(R.id.card_view_sign, true);
                     recyclerView.setVisibility(View.GONE);
                     helper.setGone(R.id.layout_voice, false);
                 } else {
