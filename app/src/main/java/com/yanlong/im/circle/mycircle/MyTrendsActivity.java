@@ -162,17 +162,17 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                             AttachmentBean attachmentBean = attachmentBeans.get(0);
                             if(!TextUtils.isEmpty(attachmentBean.getUrl())){
                                 voiceUrl = attachmentBean.getUrl();
+                                //语音播放过程中置顶/取消置顶
+                                if(bean.getIsTop()==1){
+                                    currentMessage.setIsTop(1);
+                                }else {
+                                    currentMessage.setIsTop(0);
+                                }
                             }
                         }
                     }
                 }else {
                     voiceUrl = "";
-                }
-                //语音播放过程中置顶/取消置顶
-                if(bean.getIsTop()==1){
-                    currentMessage.setIsTop(1);
-                }else {
-                    currentMessage.setIsTop(0);
                 }
                 page = 1;
                 httpGetMyTrends();
