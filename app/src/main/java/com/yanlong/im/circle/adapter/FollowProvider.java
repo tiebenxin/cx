@@ -478,18 +478,10 @@ public class FollowProvider extends BaseItemProvider<MessageFlowItemBean<Message
                 width = height = DEFAULT_W;
             }
         }
-        if (view instanceof RoundImageView2) {
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            lp.width = width;
-            lp.height = height;
-            lp.setMargins(0, ScreenUtil.dip2px(mContext, 10), 0, 0);
-            view.setLayoutParams(lp);
-        } else {
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-            lp.width = width;
-            lp.height = height;
-            view.setLayoutParams(lp);
-        }
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        lp.width = width;
+        lp.height = height;
+        view.setLayoutParams(lp);
     }
 
     /**
