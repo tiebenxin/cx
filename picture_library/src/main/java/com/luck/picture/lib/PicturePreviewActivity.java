@@ -263,7 +263,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 String pictureType = media.getPictureType();
                 boolean isGif = PictureMimeType.isGif(pictureType);
                 boolean isVideo = PictureMimeType.isVideo(pictureType);
-                if (isGif || isVideo) {
+                if (isGif || isVideo || fromWhere == PictureConfig.FROM_CIRCLE) {
                     tvEdit.setVisibility(View.INVISIBLE);
                 } else {
                     tvEdit.setVisibility(View.VISIBLE);
@@ -359,7 +359,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         adapter.setShowEditListner(new SimpleFragmentAdapter.ShowEditListner() {
             @Override
             public void showEditItem(boolean ifShow) {
-                if (ifShow) {
+                if (ifShow && fromWhere != PictureConfig.FROM_CIRCLE) {
                     tvEdit.setVisibility(View.VISIBLE);
                 } else {
                     tvEdit.setVisibility(View.GONE);
@@ -381,7 +381,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 }
                 boolean isGif = PictureMimeType.isGif(media.getPictureType());
                 boolean isVideo = PictureMimeType.isVideo(media.getPictureType());
-                if (isGif || isVideo) {
+                if (isGif || isVideo || fromWhere == PictureConfig.FROM_CIRCLE) {
                     tvEdit.setVisibility(View.INVISIBLE);
                 } else {
                     tvEdit.setVisibility(View.VISIBLE);
