@@ -1872,7 +1872,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     media.setPictureType(pictureType);
                     media.setDuration(duration);
                     media.setMimeType(config.mimeType);
-
+                    if (duration / 1000 > RECORD_VIDEO_SECOND) {
+                        Toast.makeText(this, "视频不能超过30秒", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     // 因为加入了单独拍照功能，所有如果是单独拍照的话也默认为单选状态
                     if (config.camera) {
                         // 如果是单选 拍照后直接返回
