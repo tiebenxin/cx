@@ -15,7 +15,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.widget.ImageView;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 import com.yanlong.im.R;
 
@@ -24,7 +25,7 @@ import com.yanlong.im.R;
  * @date 2020/11/4
  * Description
  */
-public class RoundImageView2 extends ImageView {
+public class RoundImageView2 extends AppCompatImageView {
     /**
      * 图片的类型，圆形or圆角
      */

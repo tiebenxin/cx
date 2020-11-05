@@ -475,7 +475,7 @@ public class SocketUtil {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                parseDNS();
+//                parseDNS();
                 LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
                 if (socketChannel != null) {
                     LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
@@ -599,9 +599,9 @@ public class SocketUtil {
             startTime = System.currentTimeMillis();
             isFirst = false;
         }
-        LogUtil.getLog().d(TAG, "连接LOG " + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
-        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + host + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
-        if (!socketChannel.connect(new InetSocketAddress(host, AppHostUtil.TCP_PORT))) {
+        LogUtil.getLog().d(TAG, "连接LOG " + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        LogUtil.writeLog(TAG + "--连接LOG--" + "connect--" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "--time=" + startTime);
+        if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, "连接LOG>>>链接中" + "--time=" + System.currentTimeMillis());
             if (finishConnect()) return;

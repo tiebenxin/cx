@@ -104,12 +104,11 @@
                 android:background="@color/white"
                 android:visibility="gone">
 
-                <com.yanlong.im.wight.avatar.RoundImageView2
+                <com.yanlong.im.wight.avatar.RoundImageView
                     android:id="@+id/iv_video"
                     android:layout_width="186dp"
                     android:layout_height="255dp"
-                    app:corner_radius="5dp"
-                    app:shape_type="round" />
+                    app:radius="5dp" />
 
                 <ImageView
                     android:id="@+id/iv_play"

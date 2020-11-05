@@ -3,7 +3,6 @@ package com.yanlong.im.circle.follow;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,15 +56,12 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.YLLinearLayoutManager;
@@ -97,8 +93,6 @@ public class FollowFragment extends BaseCircleFragment<FollowPresenter, Fragment
     private int mCurrentPage = 1;
     ViewNewCircleMessageBinding messageBinding;
     private YLLinearLayoutManager linearLayoutManager;
-    private int firstOffset;
-    private boolean isRefreshing;
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
     private boolean isAudioPlaying = false;//是否语音正在播放
@@ -474,7 +468,6 @@ public class FollowFragment extends BaseCircleFragment<FollowPresenter, Fragment
 
     @Override
     public void onSuccess(List<MessageFlowItemBean> list) {
-        isRefreshing = false;
         if (mCurrentPage == 1) {
             mFollowList.clear();
         }
@@ -601,7 +594,6 @@ public class FollowFragment extends BaseCircleFragment<FollowPresenter, Fragment
 
     @Override
     public void onShowMessage(String msg) {
-        isRefreshing = false;
         if (!TextUtils.isEmpty(msg)) {
             ToastUtil.show(msg);
         }

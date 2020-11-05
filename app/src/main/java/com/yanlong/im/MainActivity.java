@@ -622,6 +622,7 @@ public class MainActivity extends BaseTcpActivity {
         MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         LogUtil.getLog().i("MainActivity--跟踪--Main", "onDestroy--" + SocketUtil.getSocketUtil().isKeepConnect());
         if (!SocketUtil.getSocketUtil().isKeepConnect()) {
+            LogUtil.writeLog("MainActivity--连接LOG--" + "onDestroy--stopTCP");
             stopTCP();
         }
         SocketUtil.getSocketUtil().setMainLive(false);
@@ -802,6 +803,7 @@ public class MainActivity extends BaseTcpActivity {
         if (isRun) {
             startTCP();
         } else {
+            LogUtil.writeLog("MainActivity--连接LOG--" + "tcpConnect--stopTCP--isRun= false");
             stopTCP();
         }
     }

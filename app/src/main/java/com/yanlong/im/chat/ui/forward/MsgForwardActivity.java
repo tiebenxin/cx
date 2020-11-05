@@ -202,6 +202,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (SocketUtil.getSocketUtil().isKeepConnect()) {
             SocketUtil.getSocketUtil().setKeepConnect(false);
             if (!SocketUtil.getSocketUtil().isMainLive()) {
+                LogUtil.writeLog("MsgForwardActivity--连接LOG--" + "onStop--stopTCP");
                 TcpConnection.getInstance(AppConfig.getContext()).destroyConnect();
             }
         }
