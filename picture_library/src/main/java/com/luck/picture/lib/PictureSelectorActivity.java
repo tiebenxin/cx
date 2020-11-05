@@ -582,6 +582,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         //TODO:bundle 不能传太多数据
         try {
             int size = previewImages.size();
+            LocalMedia currentMedia = previewImages.get(position);
             List<LocalMedia> totalImages = new ArrayList<>();
             if (size <= 100) {
                 totalImages.addAll(previewImages);
@@ -592,6 +593,12 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     totalImages.addAll(previewImages.subList(size - 100, size));
                 } else {//取中间
                     totalImages.addAll(previewImages.subList(position - 50, position + 50));
+                }
+            }
+            if (currentMedia != null) {
+                position = totalImages.indexOf(currentMedia);
+                if (position < 0) {
+                    position = 0;
                 }
             }
             Bundle bundle = new Bundle();
