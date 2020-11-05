@@ -17,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayUtil;
+import com.luck.picture.lib.circle.CreateCircleActivity;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -240,10 +241,11 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                         .isCamera(true)// 是否显示拍照按钮 ture or false
                         .maxSelectNum(4)
                         .maxVideoSelectNum(1)
+                        .recordVideoSecond(CreateCircleActivity.RECORD_VIDEO_SECOND)// 视频最长可以录制多少秒
                         .compress(true)// 是否压缩 true or false
                         .isGif(true)
                         .setFromWhere(PictureConfig.FROM_CIRCLE)
-                        .selectArtworkMaster(true)
+                        .selectArtworkMaster(false)
                         .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
             } else if (floatModel == 1) {
                 //置顶模式
