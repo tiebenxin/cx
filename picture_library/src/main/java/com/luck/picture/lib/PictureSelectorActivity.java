@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -300,6 +301,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
         adapter = new PictureImageGridAdapter(mContext, config);
         adapter.setOnPhotoSelectChangedListener(PictureSelectorActivity.this);
+        adapter.setCircle(config.fromWhere == PictureConfig.FROM_CIRCLE);
         adapter.bindSelectImages(selectionMedias);
         picture_recycler.setAdapter(adapter);
         String titleText = picture_title.getText().toString().trim();
