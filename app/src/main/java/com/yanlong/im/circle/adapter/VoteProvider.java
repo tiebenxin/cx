@@ -478,9 +478,9 @@ public class VoteProvider extends BaseItemProvider<MessageFlowItemBean<MessageIn
             double scale = (imgWidth * 1.00) / imgHeight;
             if (imgWidth > imgHeight) {
                 if (scale > 2) {
-                    width = DEFAULT_H;
+                    width = DensityUtil.dip2px(mContext, 240);
                 } else {
-                    width = DEFAULT_W;
+                    width = DensityUtil.dip2px(mContext, 180);
                 }
                 height = (int) (width / scale);
             } else if (imgWidth < imgHeight) {
