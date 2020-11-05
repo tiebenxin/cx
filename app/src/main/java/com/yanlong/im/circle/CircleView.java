@@ -24,4 +24,8 @@ public interface CircleView extends IBaseView {
     void showMessage(String message);
 
     void showRedDot(int redPoint);
+
+    void scrollDown();
+
+    void scrollStop();
 }

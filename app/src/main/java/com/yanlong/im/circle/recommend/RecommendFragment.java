@@ -39,6 +39,7 @@ import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.circle.BaseCircleFragment;
 import com.yanlong.im.circle.CircleUIHelper;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.InteractMessage;
@@ -90,7 +91,7 @@ import cn.jzvd.Jzvd;
  * @description 朋友圈 推荐
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, FragmentRecommendBinding>
+public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, FragmentRecommendBinding>
         implements RecommendView, ICircleClickListener {
 
     private CircleFlowAdapter mFlowAdapter;
@@ -475,6 +476,9 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                     AutoPlayUtils.onScrollPlayVideo(recyclerView, R.id.video_player,
                             linearLayoutManager.findFirstVisibleItemPosition(),
                             linearLayoutManager.findLastVisibleItemPosition());
+                    if (listener != null) {
+                        listener.onScrollStop();
+                    }
                 }
             }
 
@@ -484,6 +488,11 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 if (dy != 0) {
                     AutoPlayUtils.onScrollReleaseAllVideos(linearLayoutManager.findFirstVisibleItemPosition(),
                             linearLayoutManager.findLastVisibleItemPosition(), 0.2f);
+                    if (dy < 0) {
+                        if (listener != null) {
+                            listener.onScrollDown();
+                        }
+                    }
                 }
             }
         });
@@ -824,6 +833,11 @@ public class RecommendFragment extends BaseBindMvpFragment<RecommendPresenter, F
                 mPresenter.getRecommendMomentList(mCurrentPage, PAGE_SIZE, 0);
             }
         }
+    }
+
+    @Override
+    public void scrollToTop() {
+        scrollToPosition(0);
     }
 
     /**

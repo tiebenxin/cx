@@ -124,14 +124,21 @@
             android:layout_marginTop="5dp"
             android:visibility="gone" />
         <!-- 单张图片-->
-        <com.yanlong.im.wight.avatar.RoundImageView2
-            android:id="@+id/iv_sign_picture"
-            android:layout_width="186dp"
-            android:layout_height="255dp"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_view_sign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:visibility="visible"
-            app:corner_radius="4dp"
-            app:shape_type="round" />
+            android:visibility="gone"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/iv_sign_picture"
+                android:layout_width="186dp"
+                android:layout_height="255dp"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
         <!-- 视频-->
         <RelativeLayout
             android:id="@+id/rl_video"

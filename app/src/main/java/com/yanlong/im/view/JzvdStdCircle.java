@@ -50,6 +50,7 @@ public class JzvdStdCircle extends JzvdStd {
     public void onClick(View v) {
         if (v.getId() == cn.jzvd.R.id.surface_container
                 || v.getId() == cn.jzvd.R.id.poster || v.getId() == cn.jzvd.R.id.start) {
+            // 进入播放视频界面
             gotoVideoPlay();
         }
     }
@@ -57,6 +58,7 @@ public class JzvdStdCircle extends JzvdStd {
     @Override
     public void onStateAutoComplete() {
         super.onStateAutoComplete();
+        // 自动播放完后释放内容
         releaseAllVideos();
     }
 
@@ -64,6 +66,9 @@ public class JzvdStdCircle extends JzvdStd {
 
     public void onPrepared() {
         super.onPrepared();
+        // 设置wifi切4g不弹提示框
+        WIFI_TIP_DIALOG_SHOWED = true;
+        // 隐藏底部进度条
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(0, 0);
         bottomContainer.setLayoutParams(layoutParams);
         mediaInterface.setVolume(0f, 0f);

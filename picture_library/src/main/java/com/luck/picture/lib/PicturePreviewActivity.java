@@ -147,6 +147,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, PictureConfig.FROM_DEFAULT);
         isOrigin = getIntent().getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
         cbOrigin.setChecked(isOrigin);
+        if (fromWhere == PictureConfig.FROM_CIRCLE) {
+            cbOrigin.setVisibility(View.GONE);
+        }
         tv_ok.setText(numComplete ? getString(R.string.picture_done_front_num,
                 0, config.selectionMode == PictureConfig.SINGLE ? 1 : config.maxSelectNum)
                 : getString(R.string.picture_please_select));

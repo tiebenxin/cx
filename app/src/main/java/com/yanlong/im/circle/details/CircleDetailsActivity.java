@@ -572,6 +572,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             intent.putExtra(UserInfoActivity.ID, mMessageInfoBean.getUid());
                             startActivity(intent);
                         }
+                        checkAudioStatus(true);
                     }
 
                     @Override
@@ -1265,7 +1266,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             LogUtil.getLog().i("语音", "onStop=" + " current id=" + currentMessage.getId() + "--bean_id=" + bean.getId());
                             isAudioPlaying = false;
                             bean.setPlay(false);
-                            updatePosition((MessageInfoBean) o);
+                            updatePosition(bean);
                         }
 
                         @Override
@@ -1274,7 +1275,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             isAudioPlaying = false;
                             bean.setPlay(false);
                             bean.setPlayProgress(0);
-                            updatePosition((MessageInfoBean) o);
+                            updatePosition(bean);
 
                         }
 
@@ -1283,7 +1284,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 //                            LogUtil.getLog().i("语音", "播放进度--" + progress);
 //                            currentMessage.setPlay(true);
                             bean.setPlayProgress(progress);
-                            updatePosition((MessageInfoBean) o);
+                            updatePosition(bean);
                         }
                     });
 
@@ -1305,7 +1306,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             msgTemp = mFlowAdapter.getData().get(index).getData();
             msgTemp.setPlay(messageInfoBean.isPlay());
             msgTemp.setPlayProgress(messageInfoBean.getPlayProgress());
-            msgTemp.setPlayProgress(messageInfoBean.getUserType());
+            msgTemp.setUserType(messageInfoBean.getUserType());
         }
         MessageInfoBean finalMessageInfoBean;
         if (msgTemp == null) {
@@ -1318,7 +1319,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             public void run() {
                 MessageFlowItemBean bean = new MessageFlowItemBean(CircleUIHelper.getHolderType(finalMessageInfoBean.getType()), finalMessageInfoBean);
                 int position = mFlowAdapter.getData().indexOf(bean);
-//                LogUtil.getLog().i("语音", "updatePosition---position=" + position + "  id=" + finalMessageInfoBean.getId() + "  isPlay=" + finalMessageInfoBean.isPlay() + "--progress=" + finalMessageInfoBean.getPlayProgress());
+                LogUtil.getLog().i("语音", "updatePosition---position=" + position + "  id=" + finalMessageInfoBean.getId() + "  isPlay=" + finalMessageInfoBean.isPlay() + "--progress=" + finalMessageInfoBean.getPlayProgress());
                 if (position >= 0) {
                     mFlowAdapter.getData().set(position, bean);
                     if (mFlowAdapter.getHeaderLayoutCount() > 0) {

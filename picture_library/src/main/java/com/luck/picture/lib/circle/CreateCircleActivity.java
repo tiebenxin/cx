@@ -127,6 +127,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private static final int REQUEST_CODE_VOTE_TXT = 300;
     private static final int REQUEST_CODE_VOTE_PICTRUE = 400;
     private final int MAX_COUNT = 500;// 最大字数
+    public static int RECORD_VIDEO_SECOND = 30;// 视频最长30秒
     public static final String INTENT_LOCATION_NAME = "intent_location_name";
     public static final String INTENT_LOCATION_DESC = "intent_location_desc";
     public static final String CITY_NAME = "city_name";
@@ -1680,7 +1681,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 break;
             }
         }
-        Log.i("1212", "index:" + index);
         if (index == -1) {//没有找到，没有被选中
             previewList.add(media);
             index = previewList.size() - 1;
@@ -1712,9 +1712,10 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     .previewImage(false)// 是否可预览图片 true or false
                     .isCamera(true)// 是否显示拍照按钮 ture or false
                     .maxVideoSelectNum(1)
+                    .recordVideoSecond(RECORD_VIDEO_SECOND)
                     .compress(true)// 是否压缩 true or false
                     .isGif(true)
-                    .selectArtworkMaster(true)
+                    .selectArtworkMaster(false)
                     .selectionMedia(adapter.getSelectedImages())
                     .setFromWhere(PictureConfig.FROM_CIRCLE)
                     .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
@@ -1828,17 +1829,19 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     break;
                 case UCropMulti.REQUEST_MULTI_CROP:
                     List<CutInfo> mCuts = UCropMulti.getOutput(data);
-                    for (CutInfo c : mCuts) {
-                        media = new LocalMedia();
-                        imageType = PictureMimeType.createImageType(c.getPath());
-                        media.setCut(true);
-                        media.setPath(c.getPath());
-                        media.setCutPath(c.getCutPath());
-                        media.setPictureType(imageType);
-                        media.setMimeType(config.mimeType);
-                        medias.add(media);
+                    if (mCuts != null) {
+                        for (CutInfo c : mCuts) {
+                            media = new LocalMedia();
+                            imageType = PictureMimeType.createImageType(c.getPath());
+                            media.setCut(true);
+                            media.setPath(c.getPath());
+                            media.setCutPath(c.getCutPath());
+                            media.setPictureType(imageType);
+                            media.setMimeType(config.mimeType);
+                            medias.add(media);
+                        }
+                        handlerResult(medias);
                     }
-                    handlerResult(medias);
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                     if (config.mimeType == PictureMimeType.ofAudio()) {

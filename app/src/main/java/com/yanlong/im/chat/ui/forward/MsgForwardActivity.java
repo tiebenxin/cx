@@ -462,7 +462,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 if (sendQueue != null && sendQueue.size() > 0) {
                     removeSendQueue(ackMessage.getMsgId(0));
                 } else {
-                    ToastUtil.showCenter(MsgForwardActivity.this, "发送失败");
+                    if (ackMessage.getRejectType() != MsgBean.RejectType.ACCEPTED) {
+                        ToastUtil.showCenter(MsgForwardActivity.this, "发送失败");
+                    }
                 }
             }
         }
@@ -1167,7 +1169,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),thumb);
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(), thumb);
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;
@@ -1347,7 +1349,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 if (imgSize == null) {
                     continue;
                 }
-                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), url, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize(),"");
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), url, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize(), "");
                 MsgAllBean msgAllBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
                 if (msgAllBean != null) {
                     list.add(msgAllBean);
@@ -1370,7 +1372,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     switch (type) {
                         case IMG:
                             ImageMessage image = msg.getImage();
-                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(),thumb);
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize(), thumb);
                             msg.setImage(imageMessage);
                             sendMessage(msg);
                             break;

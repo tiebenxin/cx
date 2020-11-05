@@ -22,6 +22,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
+import com.luck.picture.lib.circle.CreateCircleActivity;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
@@ -208,9 +209,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     .previewImage(false)// 是否可预览图片 true or false
                     .isCamera(true)// 是否显示拍照按钮 ture or false
                     .maxVideoSelectNum(1)
+                    .recordVideoSecond(CreateCircleActivity.RECORD_VIDEO_SECOND)// 视频最长可以录制多少秒
                     .compress(true)// 是否压缩 true or false
                     .isGif(true)
-                    .selectArtworkMaster(true)
+                    .selectArtworkMaster(false)
                     .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
         });
         //是否有未读互动消息
@@ -281,7 +283,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
      * 发请求->获取我的动态(说说主页及列表)
      */
     private void httpGetMyTrends() {
-        if(checkNetConnectStatus(1)){
+        if (checkNetConnectStatus(1)) {
             action.httpGetMyTrends(page, DEFAULT_PAGE_SIZE, new CallBack<ReturnBean<CircleTrendsBean>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<CircleTrendsBean>> call, Response<ReturnBean<CircleTrendsBean>> response) {
@@ -343,11 +345,11 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     bindingView.swipeRefreshLayout.setRefreshing(false);
                 }
             });
-        }else {
+        } else {
             if (page == 1) {
                 String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "httpGetMyTrends");
                 if (!TextUtils.isEmpty(content)) {
-                    CircleTrendsBean bean = new Gson().fromJson(content,CircleTrendsBean.class);
+                    CircleTrendsBean bean = new Gson().fromJson(content, CircleTrendsBean.class);
                     if (bean.getMomentList() != null && bean.getMomentList().size() > 0) {
                         //1-2 第一次加载，若超过3个显示加载更多
                         mList.clear();
@@ -357,12 +359,12 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_3) {
                             adapter.setLoadState(adapter.LOADING_MORE);
                         }
-                    }else {
+                    } else {
                         ToastUtil.show("获取我的动态失败，请检查您的网络是否正常");
                     }
                     page++;
                 }
-            }else {
+            } else {
                 ToastUtil.show("获取我的动态失败，请检查您的网络是否正常");
             }
         }
@@ -457,15 +459,15 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                 queryById(bean.getId().longValue(), bean.getUid().longValue(), event.position - 1);
             }
             //详情修改可见度
-        }else if(event.action == 4){
-            adapter.getDataList().get(event.position-1).setVisibility(event.visibility);
+        } else if (event.action == 4) {
+            adapter.getDataList().get(event.position - 1).setVisibility(event.visibility);
             adapter.notifyItemChanged(event.position);
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void deleteItem(EventFactory.DeleteMyItemTrend event) {
-        adapter.getDataList().remove(event.position-1);
+        adapter.getDataList().remove(event.position - 1);
         adapter.notifyDataSetChanged();
     }
 
@@ -602,7 +604,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         boolean isOk;
         if (!NetUtil.isNetworkConnected()) {
             if (type == 0) {
-                ToastUtil.show( "网络连接不可用，请稍后重试");
+                ToastUtil.show("网络连接不可用，请稍后重试");
             }
             isOk = false;
         } else {
