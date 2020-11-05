@@ -127,18 +127,27 @@
                             android:layout_gravity="right"
                             android:gravity="center">
 
+                            <!--                            <androidx.cardview.widget.CardView-->
+                            <!--                                android:id="@+id/card_view"-->
+                            <!--                                android:layout_width="wrap_content"-->
+                            <!--                                android:layout_height="wrap_content"-->
+                            <!--                                android:background="@mipmap/ic_image_bg"-->
+                            <!--                                app:cardCornerRadius="4dp"-->
+                            <!--                                app:cardElevation="0dp">-->
 
-                            <com.yanlong.im.wight.avatar.RoundImageView2
+                            <!--                                <ImageView-->
+                            <!--                                    android:id="@+id/iv_img"-->
+                            <!--                                    android:layout_width="wrap_content"-->
+                            <!--                                    android:layout_height="wrap_content"-->
+                            <!--                                    android:src="@mipmap/ic_image_bg" />-->
+
+                            <!--                            </androidx.cardview.widget.CardView>-->
+                            <com.yanlong.im.wight.avatar.RoundImageView
                                 android:id="@+id/iv_img"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:selectAllOnFocus="true"
                                 android:src="@mipmap/ic_image_bg"
-                                android:textColor="@color/black"
-                                android:textIsSelectable="false"
-                                android:textSize="15sp"
-                                app:corner_radius="4dp"
-                                app:shape_type="round" />
+                                app:radius="4dp"/>
 
                             <LinearLayout
                                 android:id="@+id/ll_progress"

@@ -99,7 +99,7 @@ public class ChatCellVideo extends ChatCellImage {
         }
         resetSize();
         String url = video.getBg_url();
-        rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
+        rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 10))*/;
         rOptions.override(width, height);
         rOptions.dontAnimate();
         String tag = (String) ivBg.getTag(R.id.tag_img);
