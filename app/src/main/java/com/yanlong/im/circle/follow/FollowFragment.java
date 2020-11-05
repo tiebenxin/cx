@@ -38,6 +38,7 @@ import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.circle.BaseCircleFragment;
 import com.yanlong.im.circle.CircleUIHelper;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
@@ -87,7 +88,7 @@ import cn.jzvd.Jzvd;
  * @description 朋友圈 关注
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, FragmentFollowBinding> implements FollowView, ICircleClickListener {
+public class FollowFragment extends BaseCircleFragment<FollowPresenter, FragmentFollowBinding> implements FollowView, ICircleClickListener {
 
     private CircleFlowAdapter mFlowAdapter;
     private List<MessageFlowItemBean> mFollowList;
@@ -313,6 +314,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                     AutoPlayUtils.onScrollPlayVideo(recyclerView, R.id.video_player,
                             linearLayoutManager.findFirstVisibleItemPosition(),
                             linearLayoutManager.findLastVisibleItemPosition());
+                    if (listener != null) {
+                        listener.onScrollStop();
+                    }
                 }
             }
 
@@ -322,6 +326,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
                 if (dy != 0) {
                     AutoPlayUtils.onScrollReleaseAllVideos(linearLayoutManager.findFirstVisibleItemPosition(),
                             linearLayoutManager.findLastVisibleItemPosition(), 0.2f);
+                    if (dy < 0) {
+                        if (listener != null) {
+                            listener.onScrollDown();
+                        }
+                    }
                 }
             }
         });
@@ -500,7 +509,7 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
             }
 
             if (mCurrentPage == 1) {
-                bindingView.recyclerFollow.scrollToPosition(0);
+                scrollToPosition(0);
             }
         }
         bindingView.srlFollow.finishRefresh();
@@ -694,6 +703,11 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         }
     }
 
+    @Override
+    public void scrollToTop() {
+        scrollToPosition(0);
+    }
+
     //列表是否包含該消息
     private boolean isContain(Long id) {
         boolean isContain = false;
@@ -837,5 +851,9 @@ public class FollowFragment extends BaseBindMvpFragment<FollowPresenter, Fragmen
         if (isAudioPlaying && stop) {
             AudioPlayUtil.stopAudioPlay();
         }
+    }
+
+    private void scrollToPosition(int position) {
+        bindingView.recyclerFollow.scrollToPosition(position);
     }
 }

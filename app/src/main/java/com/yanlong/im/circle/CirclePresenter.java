@@ -17,7 +17,6 @@ import com.yanlong.im.circle.bean.VoteBean;
 import com.yanlong.im.circle.follow.FollowFragment;
 import com.yanlong.im.circle.recommend.RecommendFragment;
 
-import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -45,10 +44,10 @@ import retrofit2.Response;
  * @description
  * @copyright copyright(c)2020 ChangSha YouMeng Technology Co., Ltd. Inc. All rights reserved.
  */
-public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
+public class CirclePresenter extends BasePresenter<CircleModel, CircleView> implements BaseCircleFragment.IScrollListener {
 
     private List<CircleTitleBean> mListTitle = new ArrayList<>();
-    private List<BaseBindMvpFragment> mListFragments = new ArrayList<>();
+    private List<BaseCircleFragment> mListFragments = new ArrayList<>();
     private final String FILE_NAME = ".jpg";
     private final String FILE_NAME_GIF = ".gif";
     private final String FILE_DIRECTORY = "image/";
@@ -74,11 +73,15 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
         if (mListFragments != null) {
             mListFragments.clear();
         }
-        mListFragments.add(new RecommendFragment());
-        mListFragments.add(new FollowFragment());
+        RecommendFragment recommendFragment = new RecommendFragment();
+        recommendFragment.setScrollListener(this);
+        FollowFragment followFragment = new FollowFragment();
+        followFragment.setScrollListener(this);
+        mListFragments.add(recommendFragment);
+        mListFragments.add(followFragment);
     }
 
-    public List<BaseBindMvpFragment> getListFragment() {
+    public List<BaseCircleFragment> getListFragment() {
         if (mListFragments == null) {
             mListFragments = new ArrayList<>();
             init();
@@ -336,5 +339,15 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> {
                 super.onFailure(call, t);
             }
         });
+    }
+
+    @Override
+    public void onScrollDown() {
+        mView.scrollDown();
+    }
+
+    @Override
+    public void onScrollStop() {
+        mView.scrollStop();
     }
 }

@@ -66,8 +66,9 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
     private List<AttachmentBean> mList;
     private List<CircleTitleBean> mVotePictrueList;
     private DialogLoadingProgress mLoadingProgress;
-    private int floatModel = 0;//悬浮按钮模式
+    private int floatModel = 0;//悬浮按钮模式 0-创建，1-回到顶部
     private int unreadCount = 0;
+    private int currentTab = 0;
 
     @Override
     protected CirclePresenter createPresenter() {
@@ -95,7 +96,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         bindingView.viewPager.setAdapter(mViewPagerAdapter);
         bindingView.viewPager.setOffscreenPageLimit(mPresenter.getListFragment().size());
         bindingView.viewPager.setCurrentItem(0);
-
+        currentTab = 0;
         mPresenter.latestData();
     }
 
@@ -201,6 +202,7 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
             @Override
             public void onPageSelected(int position) {
+                currentTab = position;
                 setTitleBold(position);
                 AudioPlayUtil.stopAudioPlay();
                 clearUnreadCount(position);
@@ -212,12 +214,14 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             }
         });
         bindingView.rbFollow.setOnClickListener(o -> {
+            currentTab = 1;
             setTitleBold(1);
             bindingView.viewPager.setCurrentItem(1);
             clearUnreadCount(1);
 
         });
         bindingView.rbRecommend.setOnClickListener(o -> {
+            currentTab = 0;
             setTitleBold(0);
             bindingView.viewPager.setCurrentItem(0);
         });
@@ -243,6 +247,13 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                         .toResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
             } else if (floatModel == 1) {
                 //置顶模式
+                scrollToTop();
+                bindingView.viewPager.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        switchFloatButton(0);
+                    }
+                }, 500);
             }
         });
     }
@@ -362,12 +373,29 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         }
     }
 
-    public class ViewPagerAdapter extends FragmentPagerAdapter {
-        private List<BaseBindMvpFragment> mFragments;
+    @Override
+    public void scrollDown() {
+        switchFloatButton(1);
+    }
 
-        public ViewPagerAdapter(FragmentManager fm, List<BaseBindMvpFragment> fagments) {
+    @Override
+    public void scrollStop() {
+        if (floatModel == 1) {
+            bindingView.viewPager.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    switchFloatButton(0);
+                }
+            }, 1000);
+        }
+    }
+
+    public class ViewPagerAdapter extends FragmentPagerAdapter {
+        private List<BaseCircleFragment> mFragments;
+
+        public ViewPagerAdapter(FragmentManager fm, List<BaseCircleFragment> fragments) {
             super(fm);
-            this.mFragments = fagments;
+            this.mFragments = fragments;
         }
 
         @Override
@@ -398,9 +426,16 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
         LogUtil.getLog().i("Circle", "可见了");
         if (mPresenter != null && mPresenter.getListFragment() != null) {
             for (int i = 0; i < mPresenter.getListFragment().size(); i++) {
-                BaseBindMvpFragment fragment = mPresenter.getListFragment().get(i);
+                BaseCircleFragment fragment = mPresenter.getListFragment().get(i);
                 fragment.notifyShow();
             }
+        }
+    }
+
+    public void scrollToTop() {
+        if (mPresenter != null && mPresenter.getListFragment() != null) {
+            BaseCircleFragment fragment = mPresenter.getListFragment().get(currentTab);
+            fragment.scrollToTop();
         }
     }
 
