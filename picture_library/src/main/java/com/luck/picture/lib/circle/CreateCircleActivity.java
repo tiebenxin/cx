@@ -2172,10 +2172,11 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 .previewImage(true)// 是否可预览图片 true or false
                 .isCamera(false)// 是否显示拍照按钮 ture or false
                 .maxVideoSelectNum(1)
+                .recordVideoSecond(RECORD_VIDEO_SECOND)
                 .maxSelectNum(4)
                 .compress(true)// 是否压缩 true or false
                 .isGif(true)
-                .selectArtworkMaster(true)
+                .selectArtworkMaster(false)
                 .setFromWhere(PictureConfig.FROM_CIRCLE)
                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
     }
