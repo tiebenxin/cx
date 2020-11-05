@@ -118,6 +118,8 @@ public class ChatCellImage extends ChatCellFileBase {
         if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
             return;
         }
+//        rOptions.placeholder(R.mipmap.ic_image_bg);
+//        rOptions.error(R.mipmap.ic_image_bg);
         currentUrl = url;
         localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
@@ -161,6 +163,8 @@ public class ChatCellImage extends ChatCellFileBase {
         currentUrl = url;
         LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载gif图片--url=" + url);
         rOptions = new RequestOptions()/*.centerCrop()*/;
+//        rOptions.placeholder(R.mipmap.ic_image_bg);
+//        rOptions.error(R.mipmap.ic_image_bg);
 //        rOptions .priority(Priority.HIGH);
 //        rOptions.skipMemoryCache(false);
         rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
