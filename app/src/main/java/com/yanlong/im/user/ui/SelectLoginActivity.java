@@ -53,13 +53,9 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
 
         initView();
         initEvent();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         taskNewVersion();
     }
+
 
     private void initView(){
         mBtnLogin =  findViewById(R.id.btn_login);

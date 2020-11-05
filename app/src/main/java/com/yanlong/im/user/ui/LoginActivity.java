@@ -112,11 +112,6 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         initView();
         initEvent();
         initData();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         taskNewVersion();
     }
 

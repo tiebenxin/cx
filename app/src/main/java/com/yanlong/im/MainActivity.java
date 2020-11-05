@@ -139,7 +139,6 @@ import java.util.Locale;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jzvd.Jzvd;
-import cn.jzvd.JzvdStd;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -205,6 +204,7 @@ public class MainActivity extends BaseTcpActivity {
         doRegisterNetReceiver();
         SocketUtil.getSocketUtil().setMainLive(true);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+        uploadApp();
     }
 
     private void checkPermission() {
@@ -280,7 +280,6 @@ public class MainActivity extends BaseTcpActivity {
             initLocation();
             FileManager.getInstance().clearLogDir();
         }
-        uploadApp();
         if (mMsgMainFragment != null && !SocketUtil.getSocketUtil().getOnlineState()) {
             mMsgMainFragment.doOnlineChange(false);
         }
