@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.android.arouter.facade.Postcard;
@@ -58,10 +57,8 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.base.bind.BaseBindMvpFragment;
 import net.cb.cb.library.inter.ICircleSetupClick;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.utils.DialogHelper;
@@ -105,9 +102,6 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
     private final int MAX_REFRESH_MINUTE = 2;// 超过3分钟不显示
     ViewNewCircleMessageBinding messageBinding;
     private YLLinearLayoutManager linearLayoutManager;
-    private int firstItemPosition;
-    private int firstOffset;
-    private boolean isRefreshing;
     private CommonSelectDialog dialog;
     private CommonSelectDialog.Builder builder;
     private boolean isAudioPlaying = false;//是否语音正在播放
@@ -581,7 +575,6 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
     @Override
     public void onSuccess(List<MessageFlowItemBean> list, int serviceType) {
         //serviceType 0 下拉刷新  1 加载更多   -1 源数据过滤
-        isRefreshing = false;
         if (serviceType == 0 || serviceType == -1) {
             mFollowList.clear();
             // 判断缓存是否有数据
@@ -659,11 +652,7 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
             }
 
             if (serviceType == 0 || serviceType == -1) {
-                if (firstItemPosition >= 0) {
-                    scrollListView(firstItemPosition, firstOffset);
-                } else {
-                    scrollToPosition(0);
-                }
+                scrollToPosition(0);
             }
         }
         mPresenter.mModel.setData(mFollowList);
@@ -676,7 +665,6 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
 
     @Override
     public void onShowMessage(String msg) {
-        isRefreshing = false;
         if (!TextUtils.isEmpty(msg)) {
             ToastUtil.show(msg);
         }
@@ -689,14 +677,6 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
     public void onDeleteItem(int position) {
         mFollowList.remove(position);
         mFlowAdapter.notifyDataSetChanged();
-    }
-
-    public void scrollListView(int position, int offset) {
-        if (position >= 0) {
-            ((LinearLayoutManager) bindingView.recyclerRecommend.getLayoutManager()).scrollToPositionWithOffset(position, offset);
-        } else {
-            scrollToPosition(0);
-        }
     }
 
     @Override
