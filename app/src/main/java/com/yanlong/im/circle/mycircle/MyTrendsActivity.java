@@ -304,7 +304,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                 } else {
                                     if(!TextUtils.isEmpty(voiceUrl)){
                                         if (AudioPlayManager2.getInstance().isPlay(Uri.parse(voiceUrl))) {
-                                            updatePositionList(mList);
+                                            updatePositionList(adapter.getDataList());//如果超过一页，所以要把全部数据放进去查找
                                         }
                                     }
                                     //1-2 第一次加载，若超过3个显示加载更多
