@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -158,6 +159,15 @@ public class BlacklistActivity extends AppActivity {
                 @Override
                 public void onClick(View v) {
                     taskFriendBlackRemove(userInfo.getUid(), i);
+                }
+            });
+
+            viewHolder.mImgHead.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, userInfo.getUid());
+                    startActivity(intent);
                 }
             });
         }
