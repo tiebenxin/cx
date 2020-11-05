@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -43,6 +44,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -351,10 +353,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     }
                                     if (type == 1) {
                                         //取消置顶
-                                        httpIsTop(bean.getId(), 0);
+                                        httpIsTop(bean, 0);
                                     } else {
                                         //置顶
-                                        httpIsTop(bean.getId(), 1);
+                                        httpIsTop(bean, 1);
                                     }
                                 }
 
@@ -404,7 +406,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         return;
                                     }
                                     //删除动态
-                                    httpDeleteTrend(bean.getId(), position);
+                                    httpDeleteTrend(bean, position);
                                 }
 
                                 @Override
@@ -1110,8 +1112,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->置顶
      */
-    private void httpIsTop(long id, int isTop) {
-        action.httpIsTop(id, isTop, new CallBack<ReturnBean>() {
+    private void httpIsTop(MessageInfoBean bean, int isTop) {
+        action.httpIsTop(bean.getId().longValue(), isTop, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
@@ -1121,10 +1123,12 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body().isOk()) {
                     if (isTop == 1) {
                         ToastUtil.show("置顶成功");
+                        bean.setIsTop(1);
                     } else {
                         ToastUtil.show("取消置顶成功");
+                        bean.setIsTop(0);
                     }
-                    refreshListenr.onRefresh();
+                    refreshListenr.onRefresh(bean);
                 }
             }
 
@@ -1170,8 +1174,8 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->删除动态
      */
-    private void httpDeleteTrend(long id, int position) {
-        action.httpDeleteTrend(id, new CallBack<ReturnBean>() {
+    private void httpDeleteTrend(MessageInfoBean bean, int position) {
+        action.httpDeleteTrend(bean.getId().longValue(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
@@ -1180,6 +1184,27 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
                 if (response.body().isOk()) {
                     ToastUtil.show("删除成功");
+                    //考虑到此动态语音正在播放途中删除动态的情况
+                    if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOICE || bean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE) {
+                        if (!TextUtils.isEmpty(bean.getAttachment())) {
+                            List<AttachmentBean> attachmentBeans;
+                            try {
+                                attachmentBeans = new Gson().fromJson(bean.getAttachment(),
+                                        new TypeToken<List<AttachmentBean>>() {
+                                        }.getType());
+                            } catch (Exception e) {
+                                attachmentBeans = new ArrayList<>();
+                            }
+                            if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                                AttachmentBean attachmentBean = attachmentBeans.get(0);
+                                if(!TextUtils.isEmpty(attachmentBean.getUrl())){
+                                    if (AudioPlayManager2.getInstance().isPlay(Uri.parse(attachmentBean.getUrl()))) {
+                                        AudioPlayUtil.stopAudioPlay();
+                                    }
+                                }
+                            }
+                        }
+                    }
                     dataList.remove(position - 1);//删除数据源,移除集合中当前下标的数据
                     notifyItemRemoved(position);//刷新被删除的地方
                     notifyItemRangeChanged(position, getItemCount()); //刷新被删除数据，以及其后面的数据
@@ -1188,7 +1213,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     String value = spUtil.getSPValue(RecommendFragment.REFRESH_COUNT, "");
                     if (!TextUtils.isEmpty(value)) {
                         MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
-                        if (infoBean.getId().longValue() == id) {
+                        if (infoBean.getId().longValue() == bean.getId().longValue()) {
                             spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
                             //然后及时通知广场推荐刷新
                             EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();

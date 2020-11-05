@@ -1,5 +1,7 @@
 package com.yanlong.im.circle.bean;
 
+import androidx.annotation.Nullable;
+
 import com.yanlong.im.chat.ChatEnum;
 
 import net.cb.cb.library.base.BaseBean;
@@ -310,5 +312,23 @@ public class MessageInfoBean extends BaseBean {
                 this.id = id;
             }
         }
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        try {
+            if (id == null || obj == null) {
+                return false;
+            }
+            if (id == null || ((MessageInfoBean) obj).getId() == null) {
+                return false;
+            }
+            if (id.longValue() == ((MessageInfoBean) obj).getId().longValue()) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

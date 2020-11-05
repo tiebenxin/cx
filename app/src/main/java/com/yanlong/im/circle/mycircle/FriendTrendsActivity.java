@@ -157,7 +157,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         //置顶->刷新回调
         adapter.setOnRefreshListenr(new IRefreshListenr() {
             @Override
-            public void onRefresh() {
+            public void onRefresh(MessageInfoBean bean) {
                 page = 1;
                 httpGetFriendTrends();
             }

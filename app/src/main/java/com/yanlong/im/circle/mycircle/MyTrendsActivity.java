@@ -17,6 +17,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
@@ -81,6 +82,8 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
     private MyTrendsAdapter adapter;
     private List<MessageInfoBean> mList;
     private MsgDao msgDao;
+    private MessageInfoBean currentMessage;
+    private String voiceUrl;
 
     @Override
     protected int setView() {
@@ -142,7 +145,34 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         //置顶->刷新回调
         adapter.setOnRefreshListenr(new IRefreshListenr() {
             @Override
-            public void onRefresh() {
+            public void onRefresh(MessageInfoBean bean) {
+                //考虑到此动态语音播放途中置顶的情况，拿到置顶语音的url
+                if (bean.getType() != null && bean.getType() == PictureEnum.EContentType.VOICE || bean.getType() == PictureEnum.EContentType.VOICE_AND_VOTE) {
+                    if (!TextUtils.isEmpty(bean.getAttachment())) {
+                        List<AttachmentBean> attachmentBeans;
+                        try {
+                            attachmentBeans = new Gson().fromJson(bean.getAttachment(),
+                                    new TypeToken<List<AttachmentBean>>() {
+                                    }.getType());
+                        } catch (Exception e) {
+                            attachmentBeans = new ArrayList<>();
+                        }
+                        if (attachmentBeans != null && attachmentBeans.size() > 0) {
+                            AttachmentBean attachmentBean = attachmentBeans.get(0);
+                            if(!TextUtils.isEmpty(attachmentBean.getUrl())){
+                                voiceUrl = attachmentBean.getUrl();
+                            }
+                        }
+                    }
+                }else {
+                    voiceUrl = "";
+                }
+                //语音播放过程中置顶/取消置顶
+                if(bean.getIsTop()==1){
+                    currentMessage.setIsTop(1);
+                }else {
+                    currentMessage.setIsTop(0);
+                }
                 page = 1;
                 httpGetMyTrends();
             }
@@ -270,6 +300,11 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                     adapter.addMoreList(bean.getMomentList());
                                     adapter.setLoadState(adapter.LOADING_MORE);
                                 } else {
+                                    if(!TextUtils.isEmpty(voiceUrl)){
+                                        if (AudioPlayManager2.getInstance().isPlay(Uri.parse(voiceUrl))) {
+                                            updatePositionList(mList);
+                                        }
+                                    }
                                     //1-2 第一次加载，若超过3个显示加载更多
                                     mList.clear();
                                     mList.addAll(bean.getMomentList());
@@ -502,11 +537,13 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    //开始播放语音，传入点击的动态实体类
                     AudioPlayUtil.startAudioPlay(MyTrendsActivity.this, attachmentBean.getUrl(), messageInfoBean, new IAudioPlayProgressListener() {
                         @Override
                         public void onStart(Uri var1, Object o) {
                             messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(0);
+                            messageInfoBean.setPlayProgress(0);//设置播放状态和进度
+                            currentMessage = messageInfoBean;//开始播放的时候，保存一份数据复制出来
                             updatePosition(messageInfoBean);
                         }
 
@@ -520,7 +557,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         @Override
                         public void onComplete(Uri var1, Object o) {
                             messageInfoBean.setPlay(false);
-                            messageInfoBean.setPlayProgress(100);
+                            messageInfoBean.setPlayProgress(100);//播放完成
                             updatePosition(messageInfoBean);
 
                         }
@@ -529,7 +566,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         public void onProgress(int progress, Object o) {
                             LogUtil.getLog().i("语音", "播放进度--" + progress);
                             messageInfoBean.setPlay(true);
-                            messageInfoBean.setPlayProgress(progress);
+                            messageInfoBean.setPlayProgress(progress);//更新进度
                             updatePosition(messageInfoBean);
                         }
                     });
@@ -546,9 +583,10 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         bindingView.recyclerView.postDelayed(new Runnable() {
             @Override
             public void run() {
+                //从最新的数据里面查找出正在播放对象的位置
                 int position = adapter.getDataList().indexOf(messageInfoBean);
                 if (position >= 0) {
-                    adapter.getDataList().set(position, messageInfoBean);
+                    adapter.getDataList().set(position, messageInfoBean);//每隔0.1s刷新进度并替换进去
                     adapter.notifyItemChanged(position + 1);//头部
                 }
             }
@@ -576,6 +614,21 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             }
         }
         return isOk;
+    }
+
+    private void updatePositionList(List<MessageInfoBean> list) {
+        if (currentMessage == null) {
+            return;
+        }
+        MessageInfoBean msgTemp = null;
+        int index = list.indexOf(currentMessage);//通过重写equals方法，比较id，找到正在播放的同一个object对象
+        if (index < 0) {
+            return;
+        }
+        msgTemp = list.get(index);
+        msgTemp.setPlay(currentMessage.isPlay());
+        msgTemp.setPlayProgress(currentMessage.getPlayProgress());
+        list.set(index,msgTemp);
     }
 
 }
