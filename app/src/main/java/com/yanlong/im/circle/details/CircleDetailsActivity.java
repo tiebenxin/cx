@@ -185,7 +185,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 newTrendDetailsBean = new Gson().fromJson(dataJson, NewTrendDetailsBean.class);
                 mMessageInfoBean = newTrendDetailsBean.getOtherMomentVo();
                 //如果查询详情为我自己，需要自行拼凑昵称头像，后端沟通后不返回
-                if (newTrendDetailsBean.getOtherMomentVo().getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                if (UserAction.getMyInfo() != null &&
+                        newTrendDetailsBean.getOtherMomentVo().getUid() == UserAction.getMyInfo().getUid().longValue()) {
                     mMessageInfoBean.setNickname(UserAction.getMyInfo().getName());
                     mMessageInfoBean.setAvatar(UserAction.getMyInfo().getHead());
                 }
@@ -276,7 +277,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                     case R.id.iv_header:// 头像
                         AudioPlayUtil.stopAudioPlay();
                         //如果是我自己，则跳朋友圈，其他人跳详细资料
-                        if (mMessageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                        if (UserAction.getMyInfo() != null && mMessageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                             Intent intent = new Intent(CircleDetailsActivity.this, MyTrendsActivity.class);
                             startActivity(intent);
                         } else {
@@ -756,7 +757,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                 ToastUtil.show(getString(R.string.user_disable_message));
                 return;
             }
-            if (!TextUtils.isEmpty(UserAction.getMyInfo().getName())) {
+            if (UserAction.getMyInfo() != null && !TextUtils.isEmpty(UserAction.getMyInfo().getName())) {
                 mPresenter.addFriend(mMessageInfoBean.getUid(), "你好，我是" + UserAction.getMyInfo().getName());
             } else {
                 mPresenter.addFriend(mMessageInfoBean.getUid(), "交个朋友吧~");

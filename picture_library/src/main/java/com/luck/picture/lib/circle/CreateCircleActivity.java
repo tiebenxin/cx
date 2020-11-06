@@ -1647,6 +1647,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     @Override
     public void onChange(List<LocalMedia> selectImages) {
         if (trendModel == ETrendModel.VOTE) {
+            mPictureAdapter.notifyDataSetChanged();
             return;
         }
         changeImageNumber(selectImages);

@@ -48,7 +48,7 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         this.isShowAll = isShowAll;
     }
 
-    public void setLandlordUid(long landlordUid){
+    public void setLandlordUid(long landlordUid) {
         this.landlordUid = landlordUid;
     }
 
@@ -78,12 +78,12 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         TextView tvContent = helper.getView(R.id.tv_content);
         TextView ivLike = helper.getView(R.id.iv_like);
         helper.setText(R.id.tv_date, TimeToString.getTimeWx(commentBean.getCreateTime()));
-        if(commentBean.getUid()!=null){
-            if(commentBean.getUid().longValue()== UserAction.getMyInfo().getUid().longValue()){
+        if (commentBean.getUid() != null) {
+            if (UserAction.getMyInfo() != null && commentBean.getUid().longValue() == UserAction.getMyInfo().getUid().longValue()) {
                 tvName.setText("我");
-            }else if(commentBean.getUid().longValue()==landlordUid){
+            } else if (commentBean.getUid().longValue() == landlordUid) {
                 tvName.setText("楼主");
-            }else {
+            } else {
                 tvName.setText(commentBean.getNickname());
             }
         }
@@ -104,27 +104,27 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
 
         if (commentBean.getReplyUid() != null && commentBean.getReplyUid() != 0) {
             String replyName;
-            if(commentBean.getReplyUid().longValue()== UserAction.getMyInfo().getUid().longValue()){
+            if (UserAction.getMyInfo() != null && commentBean.getReplyUid().longValue() == UserAction.getMyInfo().getUid().longValue()) {
                 replyName = "我";
-            }else if(commentBean.getReplyUid().longValue()==landlordUid){
+            } else if (commentBean.getReplyUid().longValue() == landlordUid) {
                 replyName = "楼主";
-            }else {
+            } else {
                 replyName = commentBean.getReplyNickname();
             }
-            tvContent.setText(getSpan(replyName.length(),"回复" + replyName + ":"+commentBean.getContent()));
+            tvContent.setText(getSpan(replyName.length(), "回复" + replyName + ":" + commentBean.getContent()));
             //TODO 这个会导致变色和emoji无法同时显示
 //            CommonUtils.setSignTextColor("回复" + commentBean.getReplyNickname() + ":" + commentBean.getContent(),
 //                    commentBean.getReplyNickname(), R.color.color_488, 2,tvContent, mContext);
         } else {
             tvContent.setTextColor(mContext.getResources().getColor(R.color.gray_484));
-            tvContent.setText(getSpan(0,commentBean.getContent()));
+            tvContent.setText(getSpan(0, commentBean.getContent()));
         }
-        helper.addOnClickListener(R.id.layout_item, R.id.iv_header,R.id.iv_like);
+        helper.addOnClickListener(R.id.layout_item, R.id.iv_header, R.id.iv_like);
         helper.addOnLongClickListener(R.id.layout_item);
     }
 
     //先转换成emoji，再变色，最后一次性显示
-    private SpannableString getSpan(int length,String msg) {
+    private SpannableString getSpan(int length, String msg) {
         Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
         SpannableString spannableString = null;
         if (fontSize != null) {
@@ -132,9 +132,9 @@ public class CommentAdapter extends BaseQuickAdapter<CircleCommentBean.CommentLi
         } else {
             spannableString = ExpressionUtil.getExpressionString(mContext, ExpressionUtil.DEFAULT_SIZE, msg);
         }
-        if(length!=0){
+        if (length != 0) {
             ForegroundColorSpan colorSpan = new ForegroundColorSpan(mContext.getResources().getColor(R.color.color_488));
-            spannableString.setSpan(colorSpan, 2,2+length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            spannableString.setSpan(colorSpan, 2, 2 + length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         }
         return spannableString;
     }

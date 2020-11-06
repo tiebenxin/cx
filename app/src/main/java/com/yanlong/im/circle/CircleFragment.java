@@ -293,8 +293,10 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
             if (flowItemBean != null) {
                 // TODO 服务端没返回头像跟昵称所以取原来的数据
                 MessageInfoBean serverInfoBean = (MessageInfoBean) flowItemBean.getData();
-                serverInfoBean.setAvatar(UserAction.getMyInfo().getHead());
-                serverInfoBean.setNickname(UserAction.getMyInfo().getName());
+                if (UserAction.getMyInfo() != null) {
+                    serverInfoBean.setAvatar(UserAction.getMyInfo().getHead());
+                    serverInfoBean.setNickname(UserAction.getMyInfo().getName());
+                }
                 serverInfoBean.setRefreshCount(0);
 
                 SpUtil spUtil = SpUtil.getSpUtil();

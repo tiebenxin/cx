@@ -59,6 +59,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             app:srlEnableHeaderTranslationContent="false"
+            android:background="@color/white"
             app:srlEnableLoadMore="true"
             app:srlEnableRefresh="false">
 
