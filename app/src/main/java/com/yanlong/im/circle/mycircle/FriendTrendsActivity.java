@@ -352,6 +352,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     //1 有数据
                     if (response.body().getData() != null) {
                         CircleTrendsBean bean = response.body().getData();
+                        if (bean != null){
+                            adapter.setTopData(bean);
+                        }
                         //动态列表
                         if (bean.getMomentList() != null && bean.getMomentList().size() > 0) {
                             //1-1 加载更多，则分页数据填充到尾部
@@ -369,7 +372,6 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 showBottomView();
                                 mList.clear();
                                 mList.addAll(bean.getMomentList());
-                                adapter.setTopData(bean);
                                 adapter.updateList(mList);
                                 if (mList.size() >= EndlessRecyclerOnScrollListener.DEFULT_SIZE_3) {
                                     adapter.setLoadState(adapter.LOADING_MORE);
