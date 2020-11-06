@@ -365,9 +365,6 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     //1 有数据
                     if (response.body().getData() != null) {
                         CircleTrendsBean bean = response.body().getData();
-                        if (bean != null){
-                            adapter.setTopData(bean);
-                        }
                         //动态列表
                         if (bean.getMomentList() != null && bean.getMomentList().size() > 0) {
                             //1-1 加载更多，则分页数据填充到尾部
@@ -376,6 +373,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                 adapter.setLoadState(adapter.LOADING_MORE);
                             } else {
                                 //1-2 第一次加载，若超过3个显示加载更多
+                                if (bean != null){
+                                    adapter.setTopData(bean);
+                                }
                                 isFollow = bean.getMyFollow();
                                 if (isFollow == 0) {
                                     adapter.ifFollow(false);
@@ -403,6 +403,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                                     adapter.ifFollow(false);
                                 } else {
                                     adapter.ifFollow(true);
+                                }
+                                if (bean != null){
+                                    adapter.setTopData(bean);
                                 }
                                 showBottomView();
                                 adapter.setLoadState(adapter.LOADING_GONE);

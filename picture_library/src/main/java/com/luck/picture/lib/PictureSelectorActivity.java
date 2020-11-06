@@ -1032,17 +1032,19 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     break;
                 case UCropMulti.REQUEST_MULTI_CROP:
                     List<CutInfo> mCuts = UCropMulti.getOutput(data);
-                    for (CutInfo c : mCuts) {
-                        media = new LocalMedia();
-                        imageType = PictureMimeType.createImageType(c.getPath());
-                        media.setCut(true);
-                        media.setPath(c.getPath());
-                        media.setCutPath(c.getCutPath());
-                        media.setPictureType(imageType);
-                        media.setMimeType(config.mimeType);
-                        medias.add(media);
+                    if (mCuts != null) {
+                        for (CutInfo c : mCuts) {
+                            media = new LocalMedia();
+                            imageType = PictureMimeType.createImageType(c.getPath());
+                            media.setCut(true);
+                            media.setPath(c.getPath());
+                            media.setCutPath(c.getCutPath());
+                            media.setPictureType(imageType);
+                            media.setMimeType(config.mimeType);
+                            medias.add(media);
+                        }
+                        handlerResult(medias);
                     }
-                    handlerResult(medias);
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                     if (config.mimeType == PictureMimeType.ofAudio()) {
