@@ -561,7 +561,13 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                         } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                            SharedPreferencesUtil ignoreVersion = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
+                            String ignore = ignoreVersion.getString("IGNORE_THIS_VERSION");
+                            if(!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())){
+                                //忽略此版本
+                            }else {
+                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                            }
                         }
                     }
                 }

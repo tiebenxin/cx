@@ -1104,7 +1104,13 @@ public class MainActivity extends BaseTcpActivity {
                             if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                                 updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                             } else {
-                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                SharedPreferencesUtil ignoreVersion = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
+                                String ignore = ignoreVersion.getString("IGNORE_THIS_VERSION");
+                                if(!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())){
+                                    //忽略此版本
+                                }else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                }
                                 //如有新版本，首页底部提示红点
                                 if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                                     if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
