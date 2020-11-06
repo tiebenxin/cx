@@ -226,6 +226,9 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     public void eventBus(EventEntity obj) {
         switch (obj.what) {
             case PictureConfig.UPDATE_FLAG:
+                if (trendModel == ETrendModel.VOTE) {
+                    return;
+                }
                 // 预览时勾选图片更新回调
                 List<LocalMedia> selectImages = obj.medias;
                 anim = selectImages.size() > 0 ? true : false;
@@ -1646,10 +1649,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
 
     @Override
     public void onChange(List<LocalMedia> selectImages) {
-        if (trendModel == ETrendModel.VOTE) {
-            mPictureAdapter.notifyDataSetChanged();
-            return;
-        }
         changeImageNumber(selectImages);
         if (isArtworkMaster) {
             setOriginImageSize();
