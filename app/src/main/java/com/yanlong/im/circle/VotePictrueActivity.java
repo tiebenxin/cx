@@ -200,7 +200,7 @@ public class VotePictrueActivity extends BaseBindActivity<ActivityVotePictrueBin
                     .maxVideoSelectNum(1)
                     .compress(true)// 是否压缩 true or false
                     .isGif(true)
-                    .selectArtworkMaster(true)
+                    .selectArtworkMaster(false)
                     .selectionMedia(getLocalMedia())
                     .maxSelectNum(MAX_NUMBER)
                     .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调 code
