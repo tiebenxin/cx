@@ -14,7 +14,8 @@
         <ImageView
             android:id="@+id/iv_background"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:foreground="#66000000"/>
 
         <RelativeLayout
             android:id="@+id/layout_top"
