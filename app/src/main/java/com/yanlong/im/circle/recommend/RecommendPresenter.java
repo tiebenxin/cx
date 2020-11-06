@@ -95,10 +95,14 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
      * @param serviceType 业务类型(0:向下拉取|1:向上拉取)
      */
     public void getRecommendMomentList(Long nextId, int pageSize, int serviceType) {
+        int sex = 0;
+        if (UserAction.getMyId() != null) {
+            sex = UserAction.getMyInfo().getSex();
+        }
         WeakHashMap<String, Object> params = new WeakHashMap<>();
         params.put("nextId", nextId);
         params.put("pageSize", pageSize);
-        params.put("gender", UserAction.getMyInfo().getSex());// 性别(0:未知|1:男|2:女)
+        params.put("gender", sex);// 性别(0:未知|1:男|2:女)
         params.put("serviceType", serviceType);
         mModel.getRecommendList(params, new CallBack<ReturnBean<List<MessageInfoBean>>>() {
             @Override
