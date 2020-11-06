@@ -109,7 +109,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     @Override
     protected void init(Bundle savedInstanceState) {
         //TODO 上线前此行代码注释
-        openEditMode = true;
+//        openEditMode = true;
 
         action = new MyCircleAction();
         mList = new ArrayList<>();
