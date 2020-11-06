@@ -31,6 +31,7 @@ import com.yanlong.im.circle.bean.CircleTrendsBean;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendModel;
 import com.yanlong.im.databinding.ActivityMyCircleBinding;
+import com.yanlong.im.interf.IEditModeListenr;
 import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
@@ -81,8 +82,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private long friendUid;//别人的uid
     private int isFollow;//是否关注了该用户
     private CommonSelectDialog dialog;
+    private CommonSelectDialog editDialog;
     private CommonSelectDialog.Builder builder;
     private int uType;//好友关系
+
+    private boolean openEditMode;//是否处于编辑模式(超级用户专用)
 
     @Override
     protected int setView() {
@@ -91,6 +95,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     @Override
     protected void init(Bundle savedInstanceState) {
+        //TODO 上线前此行代码注释
+        openEditMode = true;
+
         action = new MyCircleAction();
         mList = new ArrayList<>();
         bindingView.layoutFollow.setVisibility(View.VISIBLE);
@@ -126,7 +133,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             uType = userInfo.getuType().intValue();
         }
         httpGetFriendTrends();
-        adapter = new MyTrendsAdapter(FriendTrendsActivity.this, mList, 2, friendUid);
+        adapter = new MyTrendsAdapter(FriendTrendsActivity.this, mList, 2, friendUid,openEditMode);
         bindingView.recyclerView.getItemAnimator().setChangeDuration(0);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
@@ -193,6 +200,19 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 });
             }
         });
+        if(openEditMode){
+            adapter.setEditListener(new IEditModeListenr() {
+                @Override
+                public void onSetNewName() {
+                    showEditNameDialog();
+                }
+
+                @Override
+                public void onSetNewAvatar() {
+
+                }
+            });
+        }
         bindingView.swipeRefreshLayout.setColorSchemeResources(R.color.c_169BD5);
         bindingView.ivCreateCircle.setVisibility(View.GONE);
         //关注点击事件
@@ -645,4 +665,57 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             }
         }, 100);
     }
+
+    /**
+     * 编辑模式->修改用户名弹框
+     */
+    private void showEditNameDialog() {
+        if (editDialog == null) {
+            editDialog = builder.setTitle("修改该用户昵称")
+                    .setLeftText("取消")
+                    .setRightText("确定")
+                    .setType(1)
+                    .setLeftOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            editDialog.dismiss();
+                        }
+                    })
+                    .setRightOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            editDialog.dismiss();
+                            if(!TextUtils.isEmpty(editDialog.getEditContent())){
+//                                taskUserInfoSet(editDialog.getEditContent());
+                            }
+                        }
+                    })
+                    .build();
+        }
+        editDialog.show();
+    }
+
+//    private void taskUserInfoSet(final String nickname) {
+//        new UserAction().myInfoSet(null, null, nickname, null,robotId, new CallBack<ReturnBean>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+//                if (response.body() == null) {
+//                    return;
+//                }
+//                if (response.body().isOk()) {
+//                    ToastUtil.show("修改成功");
+//                }else {
+//                    ToastUtil.show(response.body().getMsg());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ReturnBean> call, Throwable t) {
+//                super.onFailure(call, t);
+//                ToastUtil.show( t.getMessage());
+//            }
+//        });
+//    }
+
+
 }

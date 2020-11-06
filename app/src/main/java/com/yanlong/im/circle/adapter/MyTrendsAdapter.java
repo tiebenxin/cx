@@ -65,6 +65,7 @@ import com.yanlong.im.circle.mycircle.MyFollowActivity;
 import com.yanlong.im.circle.mycircle.MyInteractActivity;
 import com.yanlong.im.circle.mycircle.MyMeetingActivity;
 import com.yanlong.im.circle.recommend.RecommendFragment;
+import com.yanlong.im.interf.IEditModeListenr;
 import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
@@ -148,6 +149,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private MyCircleAction action;
     private IRefreshListenr refreshListenr;
     private IPlayVoiceListener playVoiceListener;
+    private IEditModeListenr iEditModeListenr;
     private UserBean userBean;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private RequestOptions mRequestOptions;
@@ -158,8 +160,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private int noticeSize;//新消息数量
     private int isVote;
     private UserDao userDao = new UserDao();
+    private boolean openEditMode;//是否处于编辑模式(超级用户专用)
 
-    public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid) {
+    public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid,boolean openEditMode) {
         inflater = LayoutInflater.from(activity);
         this.activity = activity;
         this.type = type;
@@ -169,6 +172,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.dataList.addAll(dataList);
         }
         init();
+        this.openEditMode = openEditMode;
     }
 
     public void setOnRefreshListenr(IRefreshListenr refreshListenr) {
@@ -177,6 +181,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public void setPlayVoiceListener(IPlayVoiceListener playVoiceListener) {
         this.playVoiceListener = playVoiceListener;
+    }
+
+    public void setEditListener(IEditModeListenr iEditModeListenr) {
+        this.iEditModeListenr = iEditModeListenr;
     }
 
     //初始化相关设置
@@ -691,6 +699,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         refreshListenr.onRightClick();
                     }
                 });
+                if(openEditMode){
+                    holder.tvTitle.setVisibility(View.VISIBLE);
+                    holder.tvTitle.setText("当前处于编辑模式");
+                }
             }
             //展示头部数据
             if (topData != null) {
@@ -871,6 +883,9 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.tvMyName.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            if (openEditMode) {
+                                iEditModeListenr.onSetNewName();
+                            }
                         }
                     });
                 }

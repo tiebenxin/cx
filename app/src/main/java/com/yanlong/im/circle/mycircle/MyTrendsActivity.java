@@ -122,7 +122,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     @Override
     protected void loadData() {
-        adapter = new MyTrendsAdapter(MyTrendsActivity.this, mList, 1, 0);
+        adapter = new MyTrendsAdapter(MyTrendsActivity.this, mList, 1, 0,false);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.getItemAnimator().setChangeDuration(0);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
