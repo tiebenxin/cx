@@ -1,6 +1,5 @@
 package com.yanlong.im.circle.mycircle;
 
-import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -50,7 +49,6 @@ import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.IFriendTrendClickListner;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -98,8 +96,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
     private boolean openEditMode;//是否处于编辑模式(超级用户专用)
     private PopupSelectView popupSelectView;
-    private String[] strings = {"拍照", "从手机相册中选择", "取消"};
-    private CheckPermission2Util permission2Util = new CheckPermission2Util();
+    private String[] strings = {"从手机相册中选择", "取消"};
 
     @Override
     protected int setView() {
@@ -109,7 +106,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     @Override
     protected void init(Bundle savedInstanceState) {
         //TODO 上线前此行代码注释
-//        openEditMode = true;
+        openEditMode = true;
 
         action = new MyCircleAction();
         mList = new ArrayList<>();
@@ -746,26 +743,6 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        permission2Util.requestPermissions(FriendTrendsActivity.this, new CheckPermission2Util.Event() {
-                            @Override
-                            public void onSuccess() {
-                                PictureSelector.create(FriendTrendsActivity.this)
-                                        .openCamera(PictureMimeType.ofImage())
-                                        .compress(true)
-                                        .enableCrop(true)
-                                        .withAspectRatio(1, 1)
-                                        .freeStyleCropEnabled(false)
-                                        .rotateEnabled(false)
-                                        .forResult(PictureConfig.CHOOSE_REQUEST);
-                            }
-
-                            @Override
-                            public void onFail() {
-
-                            }
-                        }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
-                        break;
-                    case 1:
                         PictureSelector.create(FriendTrendsActivity.this)
                                 .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                                 .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
