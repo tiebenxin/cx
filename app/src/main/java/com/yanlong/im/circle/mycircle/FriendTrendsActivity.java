@@ -1,11 +1,13 @@
 package com.yanlong.im.circle.mycircle;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,9 +20,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hm.cxpay.dailog.CommonSelectDialog;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
+import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.audio.AudioPlayManager2;
 import com.luck.picture.lib.audio.AudioPlayUtil;
 import com.luck.picture.lib.audio.IAudioPlayProgressListener;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.AttachmentBean;
 import com.luck.picture.lib.event.EventFactory;
 import com.yanlong.im.R;
@@ -45,15 +50,20 @@ import net.cb.cb.library.base.bind.BaseBindActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.IFriendTrendClickListner;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
+import net.cb.cb.library.view.PopupSelectView;
 import net.cb.cb.library.view.YLLinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -87,6 +97,9 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
     private int uType;//好友关系
 
     private boolean openEditMode;//是否处于编辑模式(超级用户专用)
+    private PopupSelectView popupSelectView;
+    private String[] strings = {"拍照", "从手机相册中选择", "取消"};
+    private CheckPermission2Util permission2Util = new CheckPermission2Util();
 
     @Override
     protected int setView() {
@@ -209,7 +222,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
                 @Override
                 public void onSetNewAvatar() {
-
+                    initPopup();
                 }
             });
         }
@@ -701,7 +714,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
      * 编辑模式->修改好友用户名
      */
     private void taskUserInfoSet(final String nickname,long robotId) {
-        new UserAction().EditUserInfoSet(null, null, nickname, null,robotId, new CallBack<ReturnBean>() {
+        new UserAction().editUserInfoSet(null, null, nickname, null,robotId, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
@@ -718,6 +731,106 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
                 ToastUtil.show( t.getMessage());
+            }
+        });
+    }
+
+    private void initPopup() {
+        popupSelectView = new PopupSelectView(this, strings);
+        popupSelectView.showAtLocation(bindingView.layoutFollow, Gravity.BOTTOM, 0, 0);
+        popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
+            @Override
+            public void onItem(String string, int postsion) {
+                switch (postsion) {
+                    case 0:
+                        permission2Util.requestPermissions(FriendTrendsActivity.this, new CheckPermission2Util.Event() {
+                            @Override
+                            public void onSuccess() {
+                                PictureSelector.create(FriendTrendsActivity.this)
+                                        .openCamera(PictureMimeType.ofImage())
+                                        .compress(true)
+                                        .enableCrop(true)
+                                        .withAspectRatio(1, 1)
+                                        .freeStyleCropEnabled(false)
+                                        .rotateEnabled(false)
+                                        .forResult(PictureConfig.CHOOSE_REQUEST);
+                            }
+
+                            @Override
+                            public void onFail() {
+
+                            }
+                        }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+                        break;
+                    case 1:
+                        PictureSelector.create(FriendTrendsActivity.this)
+                                .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                                .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                                .previewImage(false)// 是否可预览图片 true or false
+                                .isCamera(false)// 是否显示拍照按钮 ture or false
+                                .compress(true)// 是否压缩 true or false
+                                .enableCrop(true)
+                                .withAspectRatio(1, 1)
+                                .freeStyleCropEnabled(false)
+                                .rotateEnabled(false)
+                                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+
+                        break;
+                }
+                popupSelectView.dismiss();
+            }
+        });
+    }
+
+    private UpFileAction upFileAction = new UpFileAction();
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case PictureConfig.CHOOSE_REQUEST:
+                    // 图片选择结果回调
+                    final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
+                    // 例如 LocalMedia 里面返回两种path
+                    // 1.media.getPath(); 为原图path
+                    // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
+                    Uri uri = Uri.fromFile(new File(file));
+                    alert.show();
+                    upFileAction.upFile(friendUid+ "", UpFileAction.PATH.HEAD, getContext(), new UpFileUtil.OssUpCallback() {
+                        @Override
+                        public void success(String url) {
+                            alert.dismiss();
+                            taskUserInfoSet(null, url, null, null);
+                        }
+
+                        @Override
+                        public void fail() {
+                            alert.dismiss();
+                            ToastUtil.show(getContext(), "上传失败!");
+                        }
+
+                        @Override
+                        public void inProgress(long progress, long zong) {
+
+                        }
+                    }, file);
+                    break;
+            }
+        }
+    }
+
+    private void taskUserInfoSet(String imid, final String avatar, String nickname, Integer gender) {
+        new UserAction().editUserInfoSet(imid, avatar, nickname, gender,friendUid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if(response.body().isOk()){
+//                    imageHead = avatar;
+                }
+                ToastUtil.show(FriendTrendsActivity.this, response.body().getMsg());
             }
         });
     }

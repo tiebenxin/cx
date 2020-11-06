@@ -869,14 +869,18 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     holder.ivMyHeader.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            List<LocalMedia> selectList = new ArrayList<>();
-                            LocalMedia lc = new LocalMedia();
-                            lc.setPath(userBean.getHead());
-                            selectList.add(lc);
-                            PictureSelector.create(activity)
-                                    .themeStyle(R.style.picture_default_style)
-                                    .isGif(false)
-                                    .openExternalPreviewImage(0, selectList);
+                            if (openEditMode) {
+                                iEditModeListenr.onSetNewAvatar();
+                            }else {
+                                List<LocalMedia> selectList = new ArrayList<>();
+                                LocalMedia lc = new LocalMedia();
+                                lc.setPath(userBean.getHead());
+                                selectList.add(lc);
+                                PictureSelector.create(activity)
+                                        .themeStyle(R.style.picture_default_style)
+                                        .isGif(false)
+                                        .openExternalPreviewImage(0, selectList);
+                            }
                         }
                     });
                     //点击别人的昵称暂无操作

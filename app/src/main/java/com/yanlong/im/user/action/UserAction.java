@@ -698,7 +698,7 @@ public class UserAction {
     /**
      * 编辑模式->设置好友资料
      */
-    public void EditUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender,final long robotId, final CallBack<ReturnBean> callback) {
+    public void editUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender,final long robotId, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.userInfoSetEditMode(imid, avatar, nickname, gender,robotId), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
