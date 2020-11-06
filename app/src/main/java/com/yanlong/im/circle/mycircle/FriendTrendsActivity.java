@@ -686,7 +686,7 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                         public void onClick(View v) {
                             editDialog.dismiss();
                             if(!TextUtils.isEmpty(editDialog.getEditContent())){
-//                                taskUserInfoSet(editDialog.getEditContent());
+                                taskUserInfoSet(editDialog.getEditContent(),friendUid);
                             }
                         }
                     })
@@ -695,27 +695,30 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         editDialog.show();
     }
 
-//    private void taskUserInfoSet(final String nickname) {
-//        new UserAction().myInfoSet(null, null, nickname, null,robotId, new CallBack<ReturnBean>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                if (response.body() == null) {
-//                    return;
-//                }
-//                if (response.body().isOk()) {
-//                    ToastUtil.show("修改成功");
-//                }else {
-//                    ToastUtil.show(response.body().getMsg());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ReturnBean> call, Throwable t) {
-//                super.onFailure(call, t);
-//                ToastUtil.show( t.getMessage());
-//            }
-//        });
-//    }
+    /**
+     * 编辑模式->修改好友用户名
+     */
+    private void taskUserInfoSet(final String nickname,long robotId) {
+        new UserAction().EditUserInfoSet(null, null, nickname, null,robotId, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    ToastUtil.show("修改成功");
+                }else {
+                    ToastUtil.show(response.body().getMsg());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show( t.getMessage());
+            }
+        });
+    }
 
 
 }

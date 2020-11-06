@@ -698,33 +698,33 @@ public class UserAction {
     /**
      * 编辑模式->设置好友资料
      */
-//    public void EditUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender,final long robotId, final CallBack<ReturnBean> callback) {
-//        NetUtil.getNet().exec(server.userInfoSetEditMode(imid, avatar, nickname, gender,robotId), new CallBack<ReturnBean>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                try {
-//                    if (response.body() == null)
-//                        return;
-//                    if (response.body().isOk()) {
-//                        UserBean friendInfo = dao.findUserBean(robotId);
-//                        if (friendInfo != null) {
-//                            if (!TextUtils.isEmpty(imid))
-//                                friendInfo.setImid(imid);
-//                            if (!TextUtils.isEmpty(avatar))
-//                                friendInfo.setHead(avatar);
-//                            if (!TextUtils.isEmpty(nickname))
-//                                friendInfo.setName(nickname);
-//                            if (gender != null)
-//                                friendInfo.setSex(gender);
-//                            updateUser2DB(friendInfo);
-//                        }
-//                    }
-//                } catch (Exception e) {
-//                }
-//                callback.onResponse(call, response);
-//            }
-//        });
-//    }
+    public void EditUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender,final long robotId, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userInfoSetEditMode(imid, avatar, nickname, gender,robotId), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                try {
+                    if (response.body() == null)
+                        return;
+                    if (response.body().isOk()) {
+                        UserBean friendInfo = dao.findUserBean(robotId);
+                        if (friendInfo != null) {
+                            if (!TextUtils.isEmpty(imid))
+                                friendInfo.setImid(imid);
+                            if (!TextUtils.isEmpty(avatar))
+                                friendInfo.setHead(avatar);
+                            if (!TextUtils.isEmpty(nickname))
+                                friendInfo.setName(nickname);
+                            if (gender != null)
+                                friendInfo.setSex(gender);
+                            updateUser2DB(friendInfo);
+                        }
+                    }
+                } catch (Exception e) {
+                }
+                callback.onResponse(call, response);
+            }
+        });
+    }
 
     /**
      * 修改用户组合开关

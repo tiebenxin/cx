@@ -125,7 +125,7 @@ public interface UserServer {
     @POST("/user/set-user-info")
     @FormUrlEncoded
     Call<ReturnBean> userInfoSetEditMode(@Field("imid") String imid, @Field("avatar") String avatar,
-                                 @Field("nickname") String nickname, @Field("gender") Integer gender,@Field("robotId") Integer robotId);
+                                 @Field("nickname") String nickname, @Field("gender") Integer gender,@Field("robotId") long robotId);
 
     @POST("user/set-user-mask")
     @FormUrlEncoded
