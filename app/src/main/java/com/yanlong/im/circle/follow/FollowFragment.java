@@ -197,7 +197,7 @@ public class FollowFragment extends BaseCircleFragment<FollowPresenter, Fragment
                             AudioPlayUtil.stopAudioPlay();
                         }
                         //如果是我自己，则跳朋友圈，其他人跳详细资料
-                        if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                        if (UserAction.getMyInfo() != null && messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                             intent = new Intent(getContext(), FriendTrendsActivity.class);
                             intent.putExtra("uid", messageInfoBean.getUid());
                             intent.putExtra(FriendTrendsActivity.POSITION, position);

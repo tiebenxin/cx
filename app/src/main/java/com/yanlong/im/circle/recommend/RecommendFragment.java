@@ -345,7 +345,7 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
                             AudioPlayUtil.stopAudioPlay();
                         }
                         //如果是我自己，则跳朋友圈，其他人跳详细资料
-                        if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                        if (UserAction.getMyInfo() != null && messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                             intent = new Intent(getContext(), MyTrendsActivity.class);
                             startActivity(intent);
                         } else {
@@ -427,7 +427,7 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
                             AudioPlayUtil.stopAudioPlay();
                         }
                         //如果是我自己，则跳我的朋友圈，其他人跳好友朋友圈
-                        if (messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
+                        if (UserAction.getMyInfo() != null && messageInfoBean.getUid() == UserAction.getMyInfo().getUid().longValue()) {
                             intent = new Intent(getContext(), MyTrendsActivity.class);
                             startActivity(intent);
                         } else {
