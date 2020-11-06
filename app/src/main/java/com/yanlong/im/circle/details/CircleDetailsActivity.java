@@ -1122,6 +1122,9 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         bindingView.etMessage.setText("");
         bindingView.etMessage.setHint("发表评论");
         hideKeyboard();
+        if (mViewModel.isOpenEmoj.getValue()) {
+            mViewModel.isOpenEmoj.setValue(false);
+        }
     }
 
     private void setSoftKeyboard() {
