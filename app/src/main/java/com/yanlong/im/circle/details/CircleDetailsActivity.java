@@ -602,12 +602,8 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
 
         if (mMessageInfoBean.getCommentCount() != null && mMessageInfoBean.getCommentCount() > 0) {
             binding.tvCommentCount.setVisibility(View.VISIBLE);
-            binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
-            showFooterView(false);
         } else {
             binding.tvCommentCount.setVisibility(View.VISIBLE);
-            binding.tvCommentCount.setText("所有评论");
-            showFooterView(true);
         }
         if (!TextUtils.isEmpty(fromWhere) && fromWhere.equals("MyInteract")) { //若来自我的互动无需再次请求评论列表，已经包含第一页评论的内容
             if (mCurrentPage == 1) {
@@ -617,6 +613,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             if (mCurrentPage == 1 && (list == null || list.size() == 0)) {
                 bindingView.srlFollow.setEnableLoadMore(false);
                 bindingView.srlFollow.finishLoadMore();
+                showFooterView(true);
             } else {
                 if (list != null && list.size() > 0) {
                     for (CircleCommentBean.CommentListBean bean : list) {
@@ -839,23 +836,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
     @Override
     public void onCommentSuccess(boolean isAdd) {
         clearEdit();
-        int count = 0;
-        if (isAdd) {
-            mMessageInfoBean.setCommentCount(count = mMessageInfoBean.getCommentCount() + 1);
-        } else {
-            mMessageInfoBean.setCommentCount(count = mMessageInfoBean.getCommentCount() - 1);
-        }
         if (mMessageInfoBean != null) {
             mCurrentPage = 1;
             mPresenter.circleCommentList(mCurrentPage, PAGE_SIZE, mMessageInfoBean.getId(), mMessageInfoBean.getUid(),
                     UserAction.getMyId() == mMessageInfoBean.getUid() ? 1 : 0, 0, mPostion, fromWhere);
         }
-        if (count <= 0) {
-            binding.tvCommentCount.setText("所有评论");
-            showFooterView(true);
-        } else {
-            binding.tvCommentCount.setText("所有评论（" + mMessageInfoBean.getCommentCount() + "）");
-        }
+
         bindingView.tvSend.setEnabled(true);
         bindingView.recyclerComment.postDelayed(new Runnable() {
             @Override
@@ -888,7 +874,6 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else {
             mCommentTxtAdapter.removeFooterView(bindEmpty.getRoot());
         }
-
     }
 
     @Override
@@ -962,6 +947,7 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         if (mCurrentPage == 1 && (list == null || list.size() == 0)) {
             bindingView.srlFollow.setEnableLoadMore(false);
             bindingView.srlFollow.finishLoadMore();
+            showFooterView(true);
         } else {
             if (list != null && list.size() > 0) {
                 for (CircleCommentBean.CommentListBean bean : list) {
@@ -980,10 +966,19 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
             }
             showFooterView(false);
         }
+
+        mMessageInfoBean.setCommentCount(commentBean.getCommentCount());
+        mMessageInfoBean.setLikeCount(commentBean.getLikeCount());
+        if (commentBean.getCommentCount() <= 0) {
+            binding.tvCommentCount.setText("所有评论");
+        } else {
+            binding.tvCommentCount.setText("所有评论（" + commentBean.getCommentCount() + "）");
+        }
+
         binding.tvCommentCount.setVisibility(View.VISIBLE);
         mCommentTxtAdapter.notifyDataSetChanged();
         //获取浏览量
-        MessageInfoBean messageInfoBean = (MessageInfoBean) mFlowAdapter.getData().get(0).getData();
+        MessageInfoBean messageInfoBean = mFlowAdapter.getData().get(0).getData();
         messageInfoBean.setBrowseCount(commentBean.getBrowseCount());
         mFlowAdapter.notifyDataSetChanged();
         //通知更新广场推荐/关注列表某一项状态

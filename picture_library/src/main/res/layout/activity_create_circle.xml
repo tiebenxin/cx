@@ -256,7 +256,7 @@
             <ImageView
                 android:id="@+id/iv_voice"
                 style="@style/circle_create_item"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="25dp"
                 android:src="@drawable/selector_circle_vote" />
 
             <ImageView

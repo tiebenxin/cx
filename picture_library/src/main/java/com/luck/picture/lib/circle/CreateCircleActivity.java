@@ -449,7 +449,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         tv_voice_time = findViewById(R.id.tv_voice_time);
         tv_voice_tip = findViewById(R.id.tv_voice_tip);
         iv_voice_bg = findViewById(R.id.iv_voice_bg);
-        iv_picture.setImageLevel(1);
+//        iv_picture.setImageLevel(1);
         isNumComplete(numComplete);
         if (config.mimeType == PictureMimeType.ofAll()) {
             popupWindow = new PhotoPopupWindow(this);
