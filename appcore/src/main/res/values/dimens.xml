@@ -3,7 +3,7 @@
     <!-- 统一的左右Margin值 -->
     <dimen name="app_margin_main">16dp</dimen>
 
-    <dimen name="app_margin_circle">15dp</dimen>
+    <dimen name="app_margin_circle">12dp</dimen>
 
     <dimen name="actionbar_height">56dp</dimen>
     <!-- 统一的viewMargin值 -->

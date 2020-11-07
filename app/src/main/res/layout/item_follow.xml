@@ -10,7 +10,7 @@
         android:id="@+id/layout_head"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/app_margin_circle">
+        android:layout_marginLeft="11dp">
 
         <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_header"
@@ -33,7 +33,7 @@
         android:id="@+id/ll_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="9dp"
         android:layout_toRightOf="@+id/layout_head"
         android:orientation="vertical">
 
@@ -73,7 +73,7 @@
                 android:layout_width="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="15dp"
+                android:layout_marginRight="25dp"
                 android:gravity="center"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
@@ -86,7 +86,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:paddingLeft="25dp"
-                android:paddingRight="@dimen/app_margin_circle"
+                android:paddingTop="10dp"
+                android:paddingRight="25dp"
                 android:paddingBottom="10dp"
                 android:src="@mipmap/ic_circle_more" />
         </RelativeLayout>
@@ -96,7 +97,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginRight="@dimen/app_margin_circle"
+            android:layout_marginRight="25dp"
             android:ellipsize="end"
             android:lineSpacingExtra="3dp"
             android:maxLines="4"
@@ -129,6 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="25dp"
             android:visibility="gone"
             app:cardCornerRadius="4dp"
             app:cardElevation="0dp">
@@ -145,6 +147,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="25dp"
             android:background="@color/white"
             android:visibility="gone">
 
@@ -166,7 +169,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginRight="@dimen/app_margin_circle"
+            android:layout_marginRight="25dp"
             android:clickable="true"
             android:visibility="gone" />
 
@@ -194,7 +197,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="0dp"
-            android:layout_marginRight="@dimen/app_margin_circle">
+            android:layout_marginRight="25dp">
 
             <TextView
                 android:id="@+id/tv_location"
@@ -237,8 +240,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:drawableLeft="@mipmap/ic_circle_common"
-                android:gravity="center_vertical"
-                android:minWidth="60dp"
+                android:gravity="center_vertical|right"
                 android:text="评论"
                 android:textColor="@color/c_b1b1b1"
                 android:textSize="13sp" />

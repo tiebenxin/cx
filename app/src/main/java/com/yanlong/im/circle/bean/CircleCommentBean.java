@@ -20,6 +20,8 @@ public class CircleCommentBean extends BaseBean {
      * commentList : [{"avatar":"","content":"","createTime":"","id":0,"nickname":"","replyAvatar":"","replyNickname":"","replyUid":0,"uid":0}]
      */
     private int browseCount;
+    private int commentCount;
+    private int likeCount;
     private List<CommentListBean> commentList;
 
     public int getBrowseCount() {
@@ -28,6 +30,22 @@ public class CircleCommentBean extends BaseBean {
 
     public void setBrowseCount(int browseCount) {
         this.browseCount = browseCount;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
     }
 
     public List<CommentListBean> getCommentList() {
