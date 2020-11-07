@@ -284,7 +284,8 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                 int position = layoutManager.findFirstVisibleItemPosition();
                 // 是第一项才去渐变
                 if (position == 0) {
-                    // 注意此操作如果第一项划出屏幕外,拿到的是空的，所以必须是position是0的时候才能调用
+                    // 注意此操作如果第一项划出屏幕外,拿到的是空的，所以必须是position是
+                    // 0的时候才能调用
                     View firstView = layoutManager.findViewByPosition(position);
                     // 第一项Item的高度
                     int firstHeight = firstView.getHeight();
@@ -297,11 +298,12 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                         bindingView.layoutTop.setVisibility(View.GONE);
                     } else {
                         bindingView.layoutTop.setVisibility(View.VISIBLE);
+                        bindingView.tvTitle.setText(adapter.getFriendNickName());
                         // 设置了一条分割线，渐变的时候分割线先GONE掉，要不不好看
 //                        bindingView.layoutTop.getViewGrayLine().setVisibility(View.GONE);
                         // 从高度的一半开始算透明度，也就是说移动到头部Item的中部，透明度从0开始计算
-                        float alpha = (float) (scrollY - changeHeight) / changeHeight;
-                        bindingView.layoutTop.setAlpha(alpha);
+//                        float alpha = (float) (scrollY - changeHeight) / changeHeight;
+//                        bindingView.layoutTop.setAlpha(alpha);
                     }
                     // 其他的时候就设置都可见，透明度是1
                 } else {
@@ -344,7 +346,6 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
 
             }
         });
-        bindingView.tvTitle.setVisibility(View.GONE);
     }
 
     /**

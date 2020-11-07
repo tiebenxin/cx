@@ -64,8 +64,8 @@
         <net.cb.cb.library.view.CircleImageView
             android:id="@+id/iv_my_header"
             style="@style/app_img_head"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="17dp"
             android:layout_marginBottom="27dp"/>

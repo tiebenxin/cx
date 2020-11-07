@@ -76,8 +76,8 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="25dp"
             android:text="内容"
-            android:textColor="@color/c_474747"
-            android:textSize="16sp" />
+            android:textColor="@color/color_2A2"
+            android:textSize="15sp" />
 
         <LinearLayout
             android:id="@+id/layout_content"
@@ -181,7 +181,7 @@
                 android:singleLine="true"
                 android:text="未设置地点"
                 android:textColor="@color/green_500"
-                android:textSize="15sp" />
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tv_comment"

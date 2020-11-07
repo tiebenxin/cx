@@ -27,7 +27,7 @@
             <RelativeLayout
                 android:id="@+id/layout_top"
                 android:layout_width="match_parent"
-                android:background="@color/c_e6e6e6"
+                android:background="#fafafa"
                 android:layout_height="wrap_content">
                 <ImageView
                     android:id="@+id/iv_back"

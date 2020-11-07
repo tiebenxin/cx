@@ -161,6 +161,7 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private int isVote;
     private UserDao userDao = new UserDao();
     private boolean openEditMode;//是否处于编辑模式(超级用户专用)
+    private String friendNickName;//好友动态的昵称
 
     public MyTrendsAdapter(Activity activity, List<MessageInfoBean> dataList, int type, long friendUid,boolean openEditMode) {
         inflater = LayoutInflater.from(activity);
@@ -247,6 +248,10 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.noticeAvatar = avatar;
         this.noticeSize = size;
         notifyItemChanged(0);
+    }
+
+    public String getFriendNickName(){
+        return friendNickName;
     }
 
     //是否关注
@@ -681,9 +686,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         refreshListenr.onLeftClick();
                     }
                 });
-                holder.tvTitle.setVisibility(View.VISIBLE);
                 holder.ivMore.setVisibility(View.GONE);
+                holder.tvTitle.setVisibility(View.VISIBLE);
+                holder.tvTitle.setText("我的动态");
             } else {
+                holder.tvTitle.setVisibility(View.GONE);
                 holder.ivBack.setVisibility(View.VISIBLE);
                 holder.ivBack.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -691,7 +698,6 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         refreshListenr.onLeftClick();
                     }
                 });
-                holder.tvTitle.setVisibility(View.GONE);
                 holder.ivMore.setVisibility(View.VISIBLE);
                 holder.ivMore.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -858,9 +864,11 @@ public class MyTrendsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
                             userBean.setMkName(userInfo.getMkName());
                             holder.tvMyName.setText(userInfo.getMkName());
+                            friendNickName = userInfo.getMkName();
                         } else {
 //                            userBean.setMkName(userBean.getName());
                             holder.tvMyName.setText(userBean.getName());
+                            friendNickName = userBean.getName();
                         }
                     } else {
                         holder.tvMyName.setText("未知用户名");
