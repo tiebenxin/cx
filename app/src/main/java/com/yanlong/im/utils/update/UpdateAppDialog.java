@@ -64,7 +64,7 @@ public class UpdateAppDialog {
         }
         btnCl.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                event.onON();
+                event.onON(btnCl.getText().toString());
                 dismiss();
             }
         });
@@ -201,7 +201,7 @@ public class UpdateAppDialog {
 
 
     public interface Event {
-        void onON();
+        void onON(String msg);
 
         void onUpdate();
 

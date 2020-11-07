@@ -112,9 +112,14 @@ public class UpdateManage {
             newVersion = versions;
             dialog.init(activity, versions, content, new UpdateAppDialog.Event() {
                 @Override
-                public void onON() {
+                public void onON(String msg) {
                     if (call != null) {
                         call.cancel();
+                    }
+                    //保存忽略的版本号
+                    if(msg.equals("以后再说")){
+                        SharedPreferencesUtil ignoreVersion = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
+                        ignoreVersion.saveString("IGNORE_THIS_VERSION",versions);
                     }
                 }
 

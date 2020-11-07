@@ -161,7 +161,13 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
                             if ((!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                                 updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                             } else {
-                                updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                SharedPreferencesUtil ignoreVersion = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
+                                String ignore = ignoreVersion.getString("IGNORE_THIS_VERSION");
+                                if(!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())){
+                                    //缓存拿是否忽略此版本
+                                }else {
+                                    updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                                }
                             }
                         }
                     }

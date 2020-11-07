@@ -564,7 +564,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                             SharedPreferencesUtil ignoreVersion = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
                             String ignore = ignoreVersion.getString("IGNORE_THIS_VERSION");
                             if(!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())){
-                                //忽略此版本
+                                //缓存拿是否忽略此版本
                             }else {
                                 updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                             }
