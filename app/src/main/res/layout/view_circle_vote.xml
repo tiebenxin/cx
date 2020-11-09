@@ -168,7 +168,7 @@
             android:id="@+id/recycler_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="4dp"
             android:layout_marginRight="25dp"
             android:clickable="true"
             android:visibility="gone" />
@@ -261,8 +261,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:drawableLeft="@mipmap/ic_circle_common"
-                android:gravity="center_vertical|right"
-                android:minWidth="50dp"
+                android:gravity="center_vertical"
+                android:minWidth="55dp"
                 android:text="评论"
                 android:textColor="@color/c_b1b1b1"
                 android:textSize="13sp" />

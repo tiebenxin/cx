@@ -44,7 +44,7 @@ public class ShowImagesAdapter extends BaseQuickAdapter<AttachmentBean, BaseView
         RelativeLayout rlParent = helper.getView(R.id.rl_parent);
         ImageView ivImg = helper.getView(R.id.iv_img);
         CardView cardView = helper.getView(R.id.card_view);
-//        resize(rlParent, cardView);
+        restPictureSize(helper, cardView);
         String path = StringUtil.loadThumbnail(attachmentBean.getUrl());
         if (isGif(path)) {
             Glide.with(mContext).load(path).listener(new RequestListener() {
@@ -73,13 +73,22 @@ public class ShowImagesAdapter extends BaseQuickAdapter<AttachmentBean, BaseView
         return false;
     }
 
-    public void resize(RelativeLayout rlParent, CardView view) {
-        int pictureSize = (int) mContext.getResources().getDimension(R.dimen.dimen_81);
-        SquareRelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(pictureSize, pictureSize);
-        view.setLayoutParams(layoutParams);
-
-        RelativeLayout.LayoutParams layoutParams2 = new RelativeLayout.LayoutParams(pictureSize, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams2.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
-        rlParent.setLayoutParams(layoutParams2);
+    public void restPictureSize(BaseViewHolder helper, CardView view) {
+        if (getData().size() == 2 || getData().size() == 4) {
+            int sumWidth = ScreenUtil.getScreenWidth(mContext) - (int) mContext.getResources().getDimension(R.dimen.dimen_151);
+            int pictureSize = sumWidth / 2;
+            SquareRelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(pictureSize, pictureSize);
+            if (helper.getAdapterPosition() == 1 || helper.getAdapterPosition() == 3) {
+                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+            } else {
+                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), 0, 0);
+            }
+            view.setLayoutParams(layoutParams);
+        } else {
+            SquareRelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+            view.setLayoutParams(layoutParams);
+        }
     }
 }

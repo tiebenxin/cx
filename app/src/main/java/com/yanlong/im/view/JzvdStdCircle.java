@@ -65,13 +65,17 @@ public class JzvdStdCircle extends JzvdStd {
     @Override
 
     public void onPrepared() {
-        super.onPrepared();
-        // 设置wifi切4g不弹提示框
-        WIFI_TIP_DIALOG_SHOWED = true;
-        // 隐藏底部进度条
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(0, 0);
-        bottomContainer.setLayoutParams(layoutParams);
-        mediaInterface.setVolume(0f, 0f);
+        try {
+            super.onPrepared();
+            // 设置wifi切4g不弹提示框
+            WIFI_TIP_DIALOG_SHOWED = true;
+            // 隐藏底部进度条
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(0, 0);
+            bottomContainer.setLayoutParams(layoutParams);
+            mediaInterface.setVolume(0f, 0f);
+        } catch (Exception e) {
+
+        }
     }
 
     private void gotoVideoPlay() {

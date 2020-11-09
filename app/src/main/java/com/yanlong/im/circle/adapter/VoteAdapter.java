@@ -11,6 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -20,6 +21,7 @@ import com.bumptech.glide.request.target.Target;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.luck.picture.lib.PictureEnum;
+import com.luck.picture.lib.widget.SquareRelativeLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.bean.VoteBean;
@@ -93,30 +95,31 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
         } else {
             RelativeLayout relativeLayout = helper.getView(R.id.relative_layout);
             ImageView ivPicture = helper.getView(R.id.iv_picture);
-            int relativeWidth, pictureWidth;
-            if (columnsCount == 2) {
-                relativeWidth = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
-                pictureWidth = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
-            } else {
-                int contentWidth = ScreenUtil.getScreenWidth(mContext) -
-                        mContext.getResources().getDimensionPixelOffset(R.dimen.circle_content_margin);
-                relativeWidth = contentWidth / 3 - ScreenUtil.px2dip(mContext, 12);
-                pictureWidth = relativeWidth;
-            }
-            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(relativeWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-            if (columnsCount == 2) {
-                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
-            } else {
-                if (helper.getAdapterPosition() == getItemCount() - 1) {
-                    layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), 0, 0);
-                } else {
-                    layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
-                }
-            }
-            relativeLayout.setLayoutParams(layoutParams);
+//            int relativeWidth, pictureWidth;
+//            if (columnsCount == 2) {
+//                relativeWidth = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
+//                pictureWidth = (int) mContext.getResources().getDimension(R.dimen.dimen_101);
+//            } else {
+//                int contentWidth = ScreenUtil.getScreenWidth(mContext) -
+//                        mContext.getResources().getDimensionPixelOffset(R.dimen.circle_content_margin);
+//                relativeWidth = contentWidth / 3 - ScreenUtil.px2dip(mContext, 12);
+//                pictureWidth = relativeWidth;
+//            }
+//            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(relativeWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+//            if (columnsCount == 2) {
+//                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+//            } else {
+//                if (helper.getAdapterPosition() == getItemCount() - 1) {
+//                    layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), 0, 0);
+//                } else {
+//                    layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+//                }
+//            }
+//            relativeLayout.setLayoutParams(layoutParams);
+            restPictureSize(helper, relativeLayout, ivPicture);
 
-            RadiusCardView.LayoutParams picParams = new RadiusCardView.LayoutParams(pictureWidth, pictureWidth);
-            ivPicture.setLayoutParams(picParams);
+//            RadiusCardView.LayoutParams picParams = new RadiusCardView.LayoutParams(pictureWidth, pictureWidth);
+//            ivPicture.setLayoutParams(picParams);
 
             RelativeLayout layoutVoteBg = helper.getView(R.id.layout_vote_bg);
             ImageView ivPictrue = helper.getView(R.id.iv_picture);
@@ -223,5 +226,34 @@ public class VoteAdapter extends BaseQuickAdapter<VoteBean.Item, BaseViewHolder>
             }
         }
         return false;
+    }
+
+    public void restPictureSize(BaseViewHolder helper, RelativeLayout view, ImageView ivPicture) {
+        if (getData().size() == 2 || getData().size() == 4) {
+            int sumWidth = ScreenUtil.getScreenWidth(mContext) - (int) mContext.getResources().getDimension(R.dimen.dimen_151);
+            int pictureSize = sumWidth / 2;
+            SquareRelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(pictureSize,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (helper.getAdapterPosition() == 1 || helper.getAdapterPosition() == 3) {
+                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+            } else {
+                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), 0, 0);
+            }
+            view.setLayoutParams(layoutParams);
+        } else {
+            int sumWidth = ScreenUtil.getScreenWidth(mContext) - (int) mContext.getResources().getDimension(R.dimen.dimen_102);
+            int pictureSize = sumWidth / 3;
+
+            SquareRelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(pictureSize, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (helper.getAdapterPosition() == getItemCount() - 1) {
+                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), 0, 0);
+            } else {
+                layoutParams.setMargins(0, ScreenUtil.dip2px(mContext, 6), ScreenUtil.dip2px(mContext, 6), 0);
+            }
+            view.setLayoutParams(layoutParams);
+
+            RadiusCardView.LayoutParams picParams = new RadiusCardView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, pictureSize);
+            ivPicture.setLayoutParams(picParams);
+        }
     }
 }

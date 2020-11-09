@@ -3,18 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView
+        android:id="@+id/iv_long"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_centerInParent="true" />
+
     <com.luck.picture.lib.photoview.ZoomImageView
         android:id="@+id/iv_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp" />
-
-    <!--    <com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView-->
-    <!--        android:id="@+id/iv_long"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"-->
-    <!--        android:layout_centerInParent="true" />-->
 
     <com.luck.picture.lib.view.bigImg.LargeImageView
         android:id="@+id/iv_image_large"
