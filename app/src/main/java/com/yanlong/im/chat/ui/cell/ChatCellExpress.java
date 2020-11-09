@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.cardview.widget.CardView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -16,6 +18,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.view.face.FaceView;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.DensityUtil;
 
 import static android.view.View.VISIBLE;
@@ -34,6 +37,7 @@ public class ChatCellExpress extends ChatCellFileBase {
     private ShippedExpressionMessage contentMessage;
     private final RequestOptions options;
     private String uri;
+    private CardView cardView;
 
     protected ChatCellExpress(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -49,6 +53,8 @@ public class ChatCellExpress extends ChatCellFileBase {
     protected void initView() {
         super.initView();
         imageView = getView().findViewById(R.id.iv_img);
+        cardView = getView().findViewById(R.id.card_view);
+        cardView.setCardBackgroundColor(AppConfig.getColor(R.color.transparent));
     }
 
     @SuppressLint("CheckResult")

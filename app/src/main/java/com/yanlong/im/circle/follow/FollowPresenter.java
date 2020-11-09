@@ -117,8 +117,10 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                                 new TypeToken<List<MessageInfoBean>>() {
                                 }.getType());
                         List<MessageFlowItemBean> flowList = new ArrayList<>();
-                        for (MessageInfoBean messageInfoBean : infoList) {
-                            flowList.add(createFlowItemBean(messageInfoBean));
+                        if (infoList != null) {
+                            for (MessageInfoBean messageInfoBean : infoList) {
+                                flowList.add(createFlowItemBean(messageInfoBean));
+                            }
                         }
                         mView.onSuccess(flowList);
                     }
