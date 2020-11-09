@@ -420,7 +420,9 @@ public class MainActivity extends BaseTcpActivity {
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 } else if (tab.getPosition() == EMainTab.CONTACT || tab.getPosition() == EMainTab.ME) {  // 同时点击导航栏跟气泡时，延迟关闭气泡
                     if (tab.getPosition() == EMainTab.CONTACT) {
-                        ((FriendMainFragment) fragments[tab.getPosition()]).notifyShow();
+                        if (fragments != null && fragments[tab.getPosition()] != null) {
+                            ((FriendMainFragment) fragments[tab.getPosition()]).notifyShow();
+                        }
                     }
                     if (!isFinishing()) {
                         new Handler().postDelayed(new Runnable() {
@@ -1109,9 +1111,9 @@ public class MainActivity extends BaseTcpActivity {
                             } else {
                                 SharedPreferencesUtil ignoreVersion = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
                                 String ignore = ignoreVersion.getString("IGNORE_THIS_VERSION");
-                                if(!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())){
+                                if (!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())) {
                                     //忽略此版本
-                                }else {
+                                } else {
                                     updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                                 }
                                 //如有新版本，首页底部提示红点
