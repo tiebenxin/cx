@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -509,9 +510,10 @@ public class UserDao {
             RealmResults<UserInfo> users = realm.where(UserInfo.class)
                     .equalTo("uType", 2).and()
                     .beginGroup()
-                    .contains("name", key).or()
-                    .contains("mkName", key).or()
-                    .contains("pinyinHead", key)
+                    .like("name", key, Case.INSENSITIVE).or()//文本聊天
+                    .like("mkName", key, Case.INSENSITIVE).or()//文本聊天
+                    .like("pinyinHead", key, Case.INSENSITIVE).or()//文本聊天
+                    .like("tag", key, Case.INSENSITIVE).or()//文本聊天
                     .endGroup().findAll();
             if (users != null)
                 ret = realm.copyFromRealm(users);
