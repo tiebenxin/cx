@@ -127,7 +127,7 @@ public class PinyinUtil {
                     } else {
                         for (String str : charPinYin) {
                             if (("" + str.charAt(0)).equalsIgnoreCase(value)) {
-                                pinyin += str.toLowerCase().substring(0, charPinYin[0].length() - 1);
+                                pinyin += str.toLowerCase().substring(0, str.length() - 1);
                                 break;
                             }
                         }
@@ -154,9 +154,27 @@ public class PinyinUtil {
         final StringBuffer buffer = new StringBuffer(srcChar.length);
         for (char index : srcChar) {
             if (isChinese(index)) {// 当是中文时
-                String pinyinArray[] = PinyinHelper.toHanyuPinyinStringArray(index);
-                if (pinyinArray != null) {
-                    buffer.append(pinyinArray[0].charAt(0));
+                String[] pinyinArray = PinyinHelper.toHanyuPinyinStringArray(index);
+                if (pinyinArray == null) {//不是多音字，存储原字符
+                    buffer.append(index);
+                } else {
+                    // 判断是否为多音字
+                    String value = "";//大写
+                    if (pinyinArray.length > 1) {
+                        value = PinyinUtil.getUserName(index + "");//当前字非多音字时，为空
+                        if (TextUtils.isEmpty(value)) {//非支持的多音字，去掉最后一个数字
+                            buffer.append(pinyinArray[0].charAt(0));
+                        } else {
+                            for (String str : pinyinArray) {
+                                if (("" + str.charAt(0)).equalsIgnoreCase(value)) {
+                                    buffer.append(str.charAt(0));
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        buffer.append(pinyinArray[0].charAt(0));
+                    }
                 }
             } else {
                 buffer.append(index);
