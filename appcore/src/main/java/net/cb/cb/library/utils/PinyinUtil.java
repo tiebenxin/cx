@@ -121,14 +121,15 @@ public class PinyinUtil {
                 // 判断是否为多音字
                 String value = "";//大写
                 if (charPinYin.length > 1) {
-                    value = PinyinUtil.getUserName(text.charAt(0) + "");
-                    if (TextUtils.isEmpty(value)) {//去掉最后一个数字
+                    value = PinyinUtil.getUserName(text.charAt(i) + "");//当前字非多音字时，为空
+                    if (TextUtils.isEmpty(value)) {//非支持的多音字，去掉最后一个数字
                         pinyin += charPinYin[0].toLowerCase().substring(0, charPinYin[0].length() - 1);
                     } else {
                         for (String str : charPinYin) {
-                            if (("" + str.charAt(0)).equalsIgnoreCase(value))
-                                pinyin += str;
-                            break;
+                            if (("" + str.charAt(0)).equalsIgnoreCase(value)) {
+                                pinyin += str.toLowerCase().substring(0, charPinYin[0].length() - 1);
+                                break;
+                            }
                         }
                     }
                 } else {//去掉最后一个数字
