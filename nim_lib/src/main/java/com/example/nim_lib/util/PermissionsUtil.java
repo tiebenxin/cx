@@ -136,6 +136,9 @@ public class PermissionsUtil {
      * 显示权限对话框
      */
     public static void showPermissionDialog(Activity activity) {
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
         final String title = "权限申请";
         final String content = "在设置-应用-常信-权限中开启悬浮窗权限，以保证音视频功能的正常使用，取消可能会接收不到音视频通话";
 
@@ -168,7 +171,7 @@ public class PermissionsUtil {
                 }
             });
         }
-        if(activity!=null && !activity.isFinishing()){
+        if (activity != null && !activity.isFinishing()) {
             if (mAlertYesNo.isShowing()) {
                 mAlertYesNo.dismiss();
             }

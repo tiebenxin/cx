@@ -384,11 +384,13 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     @Override
     public void scrollStop() {
-        if (floatModel == 1) {
+        if (floatModel == 1 && getActivity() != null && !getActivity().isFinishing()) {
             bindingView.viewPager.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    switchFloatButton(0);
+                    if (getActivity() != null && !getActivity().isFinishing()) {
+                        switchFloatButton(0);
+                    }
                 }
             }, 1000);
         }

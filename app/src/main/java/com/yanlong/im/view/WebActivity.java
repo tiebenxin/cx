@@ -1,7 +1,10 @@
 package com.yanlong.im.view;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -46,7 +49,13 @@ public class WebActivity extends BaseBindActivity<ActivityWebBinding> {
 
     @Override
     protected void init(Bundle savedInstanceState) {
-
+        // TODO 解决#291424 java.lang.RuntimeException
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            String processName = getProcessName(this);
+            if (!"com.yanlong.im".equals(processName)) {// 判断不等于默认进程名称
+                WebView.setDataDirectorySuffix(processName);
+            }
+        }
     }
 
     @Override
@@ -111,6 +120,17 @@ public class WebActivity extends BaseBindActivity<ActivityWebBinding> {
                 handler.proceed();// 接受所有网站的证书
             }
         });
+    }
+
+    public String getProcessName(Context context) {
+        if (context == null) return null;
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+            if (processInfo.pid == android.os.Process.myPid()) {
+                return processInfo.processName;
+            }
+        }
+        return null;
     }
 
     public class JavascriptInterface {

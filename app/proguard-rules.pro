@@ -65,7 +65,10 @@
 -keep public class * extends android.content.ContentProvider
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
--keep public class com.android.vending.licensing.ILicensingService
+-keep public class * extends net.cb.cb.library.base.bind.BasePresenter
+-keep public class * extends net.cb.cb.library.base.bind.BaseBindActivity
+-keep public class * extends net.cb.cb.library.base.bind.BaseBindMvpFragment
+-keep public class * extends net.cb.cb.library.base.bind.BaseBindMvpActivity
 -keep public class net.cb.cb.library.utils.FileConfig
 -keep public class net.cb.cb.library.utils.NetUtil{*;}
 -keep public class com.yanlong.im.user.action.UserAction{*;}
