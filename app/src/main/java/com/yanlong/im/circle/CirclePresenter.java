@@ -48,10 +48,6 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> impl
 
     private List<CircleTitleBean> mListTitle = new ArrayList<>();
     private List<BaseCircleFragment> mListFragments = new ArrayList<>();
-    private final String FILE_NAME = ".jpg";
-    private final String FILE_NAME_GIF = ".gif";
-    private final String FILE_DIRECTORY = "image/";
-//    private HashMap<String, String> mNetFile = new HashMap<>();
 
     CirclePresenter(Context context) {
         super(context);
@@ -149,11 +145,15 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> impl
             @Override
             public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onSuccess(createFlowItemBean(response.body().getData()));
-                    EventBus.getDefault().post(new EventFactory.CreateNewInMyTrends());
-                } else {
-                    mView.showMessage(getFailMessage(response.body()));
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onSuccess(createFlowItemBean(response.body().getData()));
+                        EventBus.getDefault().post(new EventFactory.CreateNewInMyTrends());
+                    } else {
+                        mView.showMessage(getFailMessage(response.body()));
+                    }
+                } catch (Exception e) {
+                    mView.showMessage("发布动态失败");
                 }
             }
 
@@ -324,13 +324,16 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> impl
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    try {
-                        LinkedTreeMap<String, Double> hashMap = (LinkedTreeMap<String, Double>) response.body().getData();
-                        mView.showRedDot(hashMap.get("redPoint").intValue());
-                    } catch (Exception e) {
-                        mView.showRedDot(0);
+                try {
+                    if (checkSuccess(response.body())) {
+                        try {
+                            LinkedTreeMap<String, Double> hashMap = (LinkedTreeMap<String, Double>) response.body().getData();
+                            mView.showRedDot(hashMap.get("redPoint").intValue());
+                        } catch (Exception e) {
+                            mView.showRedDot(0);
+                        }
                     }
+                } catch (Exception e) {
                 }
             }
 

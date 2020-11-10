@@ -317,12 +317,15 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    if (response.body() != null && response.body().getData() != null) {
-                        mView.onSuccess(position, createFlowItemBean(response.body().getData()));
+                try {
+                    if (checkSuccess(response.body())) {
+                        if (response.body() != null && response.body().getData() != null) {
+                            mView.onSuccess(position, createFlowItemBean(response.body().getData()));
+                        }
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
                     }
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                } catch (Exception e) {
                 }
             }
 
@@ -374,18 +377,24 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
      * 顶部未读消息悬浮
      */
     public void getUnreadMsg() {
-        List<InteractMessage> list = msgDao.getUnreadMsgList();
-        //是否有未读互动消息
-        if (list != null && list.size() > 0) {
-            String avatar = "";
-            int size = list.size();
-            if (list.get(0) != null) {
-                if (!TextUtils.isEmpty(list.get(0).getAvatar())) {
-                    avatar = list.get(0).getAvatar();
+        try {
+            if (msgDao != null) {
+                List<InteractMessage> list = msgDao.getUnreadMsgList();
+                // 是否有未读互动消息
+                if (list != null && list.size() > 0) {
+                    String avatar = "";
+                    int size = list.size();
+                    if (list.get(0) != null) {
+                        if (!TextUtils.isEmpty(list.get(0).getAvatar())) {
+                            avatar = list.get(0).getAvatar();
+                        }
+                    }
+                    mView.showUnreadMsg(size, avatar);
+                } else {
+                    mView.showUnreadMsg(0, "");
                 }
             }
-            mView.showUnreadMsg(size, avatar);
-        } else {
+        } catch (Exception e) {
             mView.showUnreadMsg(0, "");
         }
     }

@@ -786,24 +786,27 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
 
     @Override
     public void showUnreadMsg(int unCount, String avatar) {
-        //是否有未读互动消息
-        if (unCount > 0) {
-            if (mFlowAdapter.getHeaderLayoutCount() == 0) {
-                mFlowAdapter.addHeaderView(messageBinding.getRoot());
+        // 是否有未读互动消息
+        try {
+            if (unCount > 0) {
+                if (mFlowAdapter.getHeaderLayoutCount() == 0) {
+                    mFlowAdapter.addHeaderView(messageBinding.getRoot());
+                }
+                Glide.with(getActivity())
+                        .asBitmap()
+                        .load(avatar)
+                        .apply(GlideOptionsUtil.headImageOptions())
+                        .into(messageBinding.ivNoticeAvatar);
+                messageBinding.tvNotice.setText(unCount + "条新消息");
+            } else {
+                mFlowAdapter.removeAllHeaderView();
             }
-            Glide.with(getActivity())
-                    .asBitmap()
-                    .load(avatar)
-                    .apply(GlideOptionsUtil.headImageOptions())
-                    .into(messageBinding.ivNoticeAvatar);
-            messageBinding.tvNotice.setText(unCount + "条新消息");
-        } else {
-            mFlowAdapter.removeAllHeaderView();
+            //通知首页显示红点
+            EventFactory.HomePageShowUnreadMsgEvent event = new EventFactory.HomePageShowUnreadMsgEvent();
+            event.num = unCount;
+            EventBus.getDefault().post(event);
+        } catch (Exception e) {
         }
-        //通知首页显示红点
-        EventFactory.HomePageShowUnreadMsgEvent event = new EventFactory.HomePageShowUnreadMsgEvent();
-        event.num = unCount;
-        EventBus.getDefault().post(event);
     }
 
     @Override

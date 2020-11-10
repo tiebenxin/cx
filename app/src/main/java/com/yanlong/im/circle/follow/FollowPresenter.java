@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.luck.picture.lib.PictureEnum;
 import com.luck.picture.lib.event.EventFactory;
+import com.umeng.commonsdk.debug.E;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.circle.adapter.CircleFlowAdapter;
 import com.yanlong.im.circle.bean.CircleCommentBean;
@@ -89,49 +90,57 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<List<MessageInfoBean>>> call, Response<ReturnBean<List<MessageInfoBean>>> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    List<MessageFlowItemBean> flowList = new ArrayList<>();
-                    if (response.body() != null && response.body().getData() != null) {
-                        for (MessageInfoBean messageInfoBean : response.body().getData()) {
-                            resetName(messageInfoBean);
-                            flowList.add(createFlowItemBean(messageInfoBean));
+                try {
+                    if (checkSuccess(response.body())) {
+                        List<MessageFlowItemBean> flowList = new ArrayList<>();
+                        if (response.body() != null && response.body().getData() != null) {
+                            for (MessageInfoBean messageInfoBean : response.body().getData()) {
+                                resetName(messageInfoBean);
+                                flowList.add(createFlowItemBean(messageInfoBean));
+                            }
                         }
+                        if (flowList != null) {
+                            mView.onSuccess(flowList);
+                            if (currentPage == 1) {// 添加缓存
+                                FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getFollowMomentList",
+                                        new Gson().toJson(response.body().getData()));
+                            }
+                        }
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
                     }
-                    mView.onSuccess(flowList);
-                    if (currentPage == 1) {// 添加缓存
-                        FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getFollowMomentList",
-                                new Gson().toJson(response.body().getData()));
-                    }
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                } catch (Exception e) {
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<MessageInfoBean>>> call, Throwable t) {
                 super.onFailure(call, t);
-                if (currentPage == 1) {
-                    String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getFollowMomentList");
-                    if (!TextUtils.isEmpty(content)) {
-                        List<MessageInfoBean> infoList = new Gson().fromJson(content,
-                                new TypeToken<List<MessageInfoBean>>() {
-                                }.getType());
-                        List<MessageFlowItemBean> flowList = new ArrayList<>();
-                        if (infoList != null) {
-                            for (MessageInfoBean messageInfoBean : infoList) {
-                                flowList.add(createFlowItemBean(messageInfoBean));
+                try {
+                    if (currentPage == 1) {
+                        String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getFollowMomentList");
+                        if (!TextUtils.isEmpty(content)) {
+                            List<MessageInfoBean> infoList = new Gson().fromJson(content,
+                                    new TypeToken<List<MessageInfoBean>>() {
+                                    }.getType());
+                            List<MessageFlowItemBean> flowList = new ArrayList<>();
+                            if (infoList != null) {
+                                for (MessageInfoBean messageInfoBean : infoList) {
+                                    flowList.add(createFlowItemBean(messageInfoBean));
+                                }
                             }
+                            mView.onSuccess(flowList);
                         }
-                        mView.onSuccess(flowList);
                     }
+                    mView.onShowMessage("刷新失败");
+                } catch (Exception e) {
                 }
-                mView.onShowMessage("刷新失败");
             }
         });
     }
 
     private void resetName(MessageInfoBean bean) {
-        if (bean.getUid() == null) {
+        if (bean.getUid() == null || userMap == null) {
             return;
         }
         UserInfo userInfo;
@@ -164,12 +173,16 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    if (response.body() != null && response.body().getData() != null) {
-                        mView.onSuccess(position, createFlowItemBean(response.body().getData()));
+                try {
+                    if (checkSuccess(response.body())) {
+                        if (response.body() != null && response.body().getData() != null) {
+                            mView.onSuccess(position, createFlowItemBean(response.body().getData()));
+                        }
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
                     }
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                } catch (Exception e) {
+                    mView.onShowMessage("刷新失败");
                 }
             }
 
@@ -216,14 +229,18 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onVoteSuccess(parentPostion, response.message());
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
-                    //如果动态已经被删除，则通知刷新
-                    if (response.body().getCode() == 100104) {
-                        mView.onDeleteItem(parentPostion);
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onVoteSuccess(parentPostion, response.message());
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                        // 如果动态已经被删除，则通知刷新
+                        if (response.body() != null && response.body().getCode() == 100104) {
+                            mView.onDeleteItem(parentPostion);
+                        }
                     }
+                } catch (Exception e) {
+                    mView.onShowMessage("刷新失败");
                 }
             }
 
@@ -250,14 +267,18 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onLikeSuccess(postion, response.message());
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
-                    //如果动态已经被删除，则通知刷新
-                    if (response.body().getCode() == 100104) {
-                        mView.onDeleteItem(postion);
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onLikeSuccess(postion, response.message());
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                        // 如果动态已经被删除，则通知刷新
+                        if (response.body() != null && response.body().getCode() == 100104) {
+                            mView.onDeleteItem(postion);
+                        }
                     }
+                } catch (Exception e) {
+                    mView.onShowMessage("刷新失败");
                 }
             }
 
@@ -284,14 +305,18 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onLikeSuccess(postion, response.message());
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
-                    //如果动态已经被删除，则通知刷新
-                    if (response.body().getCode() == 100104) {
-                        mView.onDeleteItem(postion);
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onLikeSuccess(postion, response.message());
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                        // 如果动态已经被删除，则通知刷新
+                        if (response.body() != null && response.body().getCode() == 100104) {
+                            mView.onDeleteItem(postion);
+                        }
                     }
+                } catch (Exception e) {
+                    mView.onShowMessage("刷新失败");
                 }
             }
 
@@ -316,16 +341,20 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onShowMessage("关注成功");
-                    mView.onSuccess(postion, false, response.message());
-                    //关注单个用户，推荐列表、好友动态主页需要更新状态
-                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
-                    event.type = 1;
-                    event.uid = followId.longValue();
-                    EventBus.getDefault().post(event);
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onShowMessage("关注成功");
+                        mView.onSuccess(postion, false, response.message());
+                        //关注单个用户，推荐列表、好友动态主页需要更新状态
+                        EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                        event.type = 1;
+                        event.uid = followId.longValue();
+                        EventBus.getDefault().post(event);
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                    }
+                } catch (Exception e) {
+                    mView.onShowMessage("关注失败");
                 }
             }
 
@@ -350,15 +379,19 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onSuccess(postion, true, response.message());
-                    //取消关注单个用户，推荐列表、好友动态主页需要更新状态
-                    EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
-                    event.type = 0;
-                    event.uid = followId.longValue();
-                    EventBus.getDefault().post(event);
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onSuccess(postion, true, response.message());
+                        //取消关注单个用户，推荐列表、好友动态主页需要更新状态
+                        EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
+                        event.type = 0;
+                        event.uid = followId.longValue();
+                        EventBus.getDefault().post(event);
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                    }
+                } catch (Exception e) {
+                    mView.onShowMessage("取消关注失败");
                 }
             }
 
@@ -388,10 +421,14 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onCommentSuccess(true);
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onCommentSuccess(true);
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                    }
+                } catch (Exception e) {
+                    mView.onShowMessage("发送失败");
                 }
             }
 
@@ -427,16 +464,19 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean<CircleCommentBean>> call, Response<ReturnBean<CircleCommentBean>> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onCommentSuccess(response.body().getData());
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
-                    if (response.body() != null && response.body().getCode() != null && response.body().getCode().longValue() == 100104) {
-                        EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
-                        event.position = position;
-                        event.fromWhere = fromWhere;
-                        EventBus.getDefault().post(event);
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onCommentSuccess(response.body().getData());
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                        if (response.body() != null && response.body().getCode() != null && response.body().getCode().longValue() == 100104) {
+                            EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
+                            event.position = position;
+                            event.fromWhere = fromWhere;
+                            EventBus.getDefault().post(event);
+                        }
                     }
+                } catch (Exception e) {
                 }
             }
 
@@ -464,10 +504,14 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    mView.onCommentSuccess(false);
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                try {
+                    if (checkSuccess(response.body())) {
+                        mView.onCommentSuccess(false);
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
+                    }
+                } catch (Exception e) {
+                    mView.onShowMessage("删除失败");
                 }
             }
 
@@ -493,31 +537,35 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    // 是刚发的则删除缓存
-                    SpUtil spUtil = SpUtil.getSpUtil();
-                    String value = spUtil.getSPValue(RecommendFragment.REFRESH_COUNT, "");
-                    if (!TextUtils.isEmpty(value)) {
-                        MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
-                        if (momentId.intValue() == infoBean.getId().intValue()) {
-                            spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
-                            // 删除广场推荐列表数据
-                            EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
+                try {
+                    if (checkSuccess(response.body())) {
+                        // 是刚发的则删除缓存
+                        SpUtil spUtil = SpUtil.getSpUtil();
+                        String value = spUtil.getSPValue(RecommendFragment.REFRESH_COUNT, "");
+                        if (!TextUtils.isEmpty(value)) {
+                            MessageInfoBean infoBean = new Gson().fromJson(value, MessageInfoBean.class);
+                            if (momentId.intValue() == infoBean.getId().intValue()) {
+                                spUtil.putSPValue(RecommendFragment.REFRESH_COUNT, "");
+                                // 删除广场推荐列表数据
+                                EventFactory.DeleteItemTrend event = new EventFactory.DeleteItemTrend();
+                                event.position = postion;
+                                EventBus.getDefault().post(event);
+                            }
+                        }
+                        // 更新我的动态列表
+                        if (fromWhere.equals("MyTrendsActivity")) {
+                            EventFactory.DeleteMyItemTrend event = new EventFactory.DeleteMyItemTrend();
                             event.position = postion;
                             EventBus.getDefault().post(event);
                         }
+                        if (mContext != null) {
+                            ((Activity) mContext).finish();
+                        }
+                    } else {
+                        mView.onShowMessage(getFailMessage(response.body()));
                     }
-                    // 更新我的动态列表
-                    if (fromWhere.equals("MyTrendsActivity")) {
-                        EventFactory.DeleteMyItemTrend event = new EventFactory.DeleteMyItemTrend();
-                        event.position = postion;
-                        EventBus.getDefault().post(event);
-                    }
-                    if (mContext != null) {
-                        ((Activity) mContext).finish();
-                    }
-                } else {
-                    mView.onShowMessage(getFailMessage(response.body()));
+                } catch (Exception e) {
+                    mView.onShowMessage("删除失败");
                 }
             }
 
