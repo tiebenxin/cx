@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui.cell;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
@@ -8,8 +9,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -47,6 +55,7 @@ public class ChatCellVideo extends ChatCellImage {
         ivBg = getView().findViewById(R.id.iv_img);
         ivPlay = getView().findViewById(R.id.iv_play);
         tv_video_time = getView().findViewById(R.id.tv_video_time);
+//        CardView cardView = getView().findViewById(R.id.card_view);
     }
 
     @Override
@@ -92,6 +101,7 @@ public class ChatCellVideo extends ChatCellImage {
         }
     }
 
+    @SuppressLint("CheckResult")
     private void loadImage(MsgAllBean message) {
         VideoMessage video = message.getVideoMessage();
         if (video == null || ivBg == null) {
@@ -100,7 +110,9 @@ public class ChatCellVideo extends ChatCellImage {
         resetSize();
         String url = video.getBg_url();
         rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 10))*/;
-        rOptions.override(width, height);
+        if (width > 0 && height > 0) {
+            rOptions.override(width, height);
+        }
         rOptions.dontAnimate();
         String tag = (String) ivBg.getTag(R.id.tag_img);
         if (TextUtils.isEmpty(tag) || !TextUtils.equals(tag, url)) {
@@ -163,12 +175,26 @@ public class ChatCellVideo extends ChatCellImage {
 
     @Override
     public void glide(RequestOptions rOptions, String url) {
+        LogUtil.getLog().i("ChatCellVideo", "glide--url=" + url + "--width=" + width + "--height=" + height);
         localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
             Glide.with(getContext())
                     .asBitmap()
                     .load(url)
                     .apply(rOptions)
+                    .listener(new RequestListener<Bitmap>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                            if (e.getMessage().contains("FileNotFoundException")) {
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
                     .into(ivBg);
         } else {
             ivBg.setImageBitmap(localBitmap);
