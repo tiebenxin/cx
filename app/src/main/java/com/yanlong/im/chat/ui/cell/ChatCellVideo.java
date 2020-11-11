@@ -111,7 +111,7 @@ public class ChatCellVideo extends ChatCellImage {
         String url = video.getBg_url();
         rOptions = new RequestOptions().centerCrop()/*.transform(new RoundTransform(mContext, 10))*/;
         if (width > 0 && height > 0) {
-            rOptions.override(width, height);
+//            rOptions.override(width, height);
         }
         rOptions.dontAnimate();
         String tag = (String) ivBg.getTag(R.id.tag_img);
@@ -175,16 +175,22 @@ public class ChatCellVideo extends ChatCellImage {
 
     @Override
     public void glide(RequestOptions rOptions, String url) {
+        if (!TextUtils.isEmpty(currentUrl) && url.equals(currentUrl) && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        currentUrl = url;
         LogUtil.getLog().i("ChatCellVideo", "glide--url=" + url + "--width=" + width + "--height=" + height);
         localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
             Glide.with(getContext())
                     .asBitmap()
                     .load(url)
+                    .thumbnail(0.1f)
                     .apply(rOptions)
                     .listener(new RequestListener<Bitmap>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                            currentUrl = "";
                             if (e.getMessage().contains("FileNotFoundException")) {
                             }
                             return false;
