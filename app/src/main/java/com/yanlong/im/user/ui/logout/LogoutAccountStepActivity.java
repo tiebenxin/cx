@@ -1,7 +1,9 @@
 package com.yanlong.im.user.ui.logout;
 
 import android.content.Intent;
+
 import androidx.databinding.DataBindingUtil;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -10,6 +12,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityLogoutStepBinding;
 import com.yanlong.im.user.action.UserAction;
 
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.utils.CallBack;
@@ -18,6 +21,8 @@ import net.cb.cb.library.utils.ThreadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -111,7 +116,14 @@ public class LogoutAccountStepActivity extends AppActivity {
                     ToastUtil.show(context, "注销账号失败");
                     return;
                 }
-                ToastUtil.show(LogoutAccountStepActivity.this, response.body().getMsg());
+                if (response.body().isOk()) {
+                    //通过页面发出退登eventbus
+                    EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
+                    eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
+                    EventBus.getDefault().post(eventLoginOut4Conflict);
+                } else {
+                    ToastUtil.show(LogoutAccountStepActivity.this, response.body().getMsg());
+                }
             }
         });
     }

@@ -748,6 +748,7 @@ public class MessageRepository {
      * @param wrapMessage
      */
     public void toDoForceOffline(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean canNotify = true;
         EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
         if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.CONFLICT) {// 登录冲突
             String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
@@ -756,14 +757,17 @@ public class MessageRepository {
             eventLoginOut4Conflict.setMsg("你已被限制登录");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
             eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
-        } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//修改密码
+        } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//账号注销
+            canNotify = false;
             eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
             eventLoginOut4Conflict.setMsg("更换绑定手机号成功，\n请新手机号重新登录");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.APPEAL_PASS) {//申诉通过
             eventLoginOut4Conflict.setMsg("您的账号申诉已通过，请重新登录以恢复功能使用");
         }
-        EventBus.getDefault().post(eventLoginOut4Conflict);
+        if (canNotify) {
+            EventBus.getDefault().post(eventLoginOut4Conflict);
+        }
     }
 
     /**
