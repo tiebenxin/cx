@@ -744,6 +744,7 @@ public class MessageRepository {
 
     /**
      * 强制退出，登录冲突
+     * 注意：注销账号，修改手机号，修改密码退登event从操作页面发出
      *
      * @param wrapMessage
      */
@@ -756,11 +757,13 @@ public class MessageRepository {
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
             eventLoginOut4Conflict.setMsg("你已被限制登录");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
+            canNotify = false;
             eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//账号注销
             canNotify = false;
             eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
+            canNotify = false;
             eventLoginOut4Conflict.setMsg("更换绑定手机号成功，\n请新手机号重新登录");
         } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.APPEAL_PASS) {//申诉通过
             eventLoginOut4Conflict.setMsg("您的账号申诉已通过，请重新登录以恢复功能使用");

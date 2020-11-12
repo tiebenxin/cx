@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -78,7 +79,7 @@ public class ChangePhoneNumActivity extends AppActivity {
             }
         });
         //密码、确认密码默认隐藏明文
-        TransformationMethod method =  PasswordTransformationMethod.getInstance();
+        TransformationMethod method = PasswordTransformationMethod.getInstance();
         etUserPsw.setTransformationMethod(method);
         //获取验证码
         tvGetCode.setOnClickListener(new View.OnClickListener() {
@@ -94,9 +95,9 @@ public class ChangePhoneNumActivity extends AppActivity {
                 //三项必填
                 if (!TextUtils.isEmpty(etUserPsw.getText().toString())) {
                     if (!TextUtils.isEmpty(etNewPhoneNum.getText().toString())) {
-                        if(!TextUtils.isEmpty(etCode.getText().toString())){
+                        if (!TextUtils.isEmpty(etCode.getText().toString())) {
                             httpChangePhone();
-                        }else {
+                        } else {
                             ToastUtil.show(activity, "验证码不能为空");
                         }
                     } else {
@@ -142,15 +143,15 @@ public class ChangePhoneNumActivity extends AppActivity {
     /**
      * 修改手机号
      */
-    private void httpChangePhone(){
-        new UserAction().changePhoneNum(MD5.md5(etUserPsw.getText().toString()), etNewPhoneNum.getText().toString(),etCode.getText().toString(),new CallBack<ReturnBean>() {
+    private void httpChangePhone() {
+        new UserAction().changePhoneNum(MD5.md5(etUserPsw.getText().toString()), etNewPhoneNum.getText().toString(), etCode.getText().toString(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 }
                 if (response.body().isOk()) {
-
+                    MessageManager.getInstance().notifyLoginOut("更换绑定手机号成功，\n请新手机号重新登录");
                 } else {
                     ToastUtil.show(response.body().getMsg());
                 }

@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.databinding.ActivityLogoutStepBinding;
 import com.yanlong.im.user.action.UserAction;
 
@@ -118,9 +119,7 @@ public class LogoutAccountStepActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     //通过页面发出退登eventbus
-                    EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
-                    eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
-                    EventBus.getDefault().post(eventLoginOut4Conflict);
+                    MessageManager.getInstance().notifyLoginOut("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
                 } else {
                     ToastUtil.show(LogoutAccountStepActivity.this, response.body().getMsg());
                 }

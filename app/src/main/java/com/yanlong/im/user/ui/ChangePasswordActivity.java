@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.PasswordTextWather;
 
@@ -111,9 +112,11 @@ public class ChangePasswordActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
+                    MessageManager.getInstance().notifyLoginOut("您已成功重置密码，请使用新密码重新登录");
                     finish();
+                }else {
+                    ToastUtil.show(ChangePasswordActivity.this, response.body().getMsg());
                 }
-                ToastUtil.show(ChangePasswordActivity.this, response.body().getMsg());
             }
         });
     }

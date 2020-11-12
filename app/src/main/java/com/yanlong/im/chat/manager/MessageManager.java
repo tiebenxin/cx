@@ -38,6 +38,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventGroupChange;
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -854,6 +855,12 @@ public class MessageManager {
     //是否视频通话界面Live
     public boolean isCallLive() {
         return VideoActivity.returnVideoActivity;
+    }
+
+    public void notifyLoginOut(String msg){
+        EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
+        eventLoginOut4Conflict.setMsg(msg);
+        EventBus.getDefault().post(eventLoginOut4Conflict);
     }
 
 }
