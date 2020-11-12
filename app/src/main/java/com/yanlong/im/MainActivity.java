@@ -524,9 +524,6 @@ public class MainActivity extends BaseTcpActivity {
             ToastUtil.show(getApplicationContext(), "再按一次退出程序");
             mExitTime = System.currentTimeMillis();
         } else {
-            //清除忽略此版本的缓存数据
-            SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
-            sp.clear();
             finish();
         }
     }

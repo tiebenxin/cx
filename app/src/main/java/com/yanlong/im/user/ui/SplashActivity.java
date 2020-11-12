@@ -67,6 +67,9 @@ public class SplashActivity extends AppActivity {
         setContentView(R.layout.activity_start_page);
         initView();
         initEvent();
+        //清除忽略此版本的缓存数据
+        SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
+        sp.clear();
         showPage();
     }
 
