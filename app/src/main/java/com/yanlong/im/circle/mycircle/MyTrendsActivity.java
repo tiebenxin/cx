@@ -261,8 +261,8 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         // 设置了一条分割线，渐变的时候分割线先GONE掉，要不不好看
 //                        bindingView.layoutTop.getViewGrayLine().setVisibility(View.GONE);
                         // 从高度的一半开始算透明度，也就是说移动到头部Item的中部，透明度从0开始计算
-                        float alpha = (float) (scrollY - changeHeight) / changeHeight;
-                        bindingView.layoutTop.setAlpha(alpha);
+//                        float alpha = (float) (scrollY - changeHeight) / changeHeight;
+//                        bindingView.layoutTop.setAlpha(alpha);
                     }
                     // 其他的时候就设置都可见，透明度是1
                 } else {
