@@ -296,9 +296,11 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     // 小于头部高度一半隐藏标题栏
                     if (scrollY <= changeHeight) {
                         bindingView.layoutTop.setVisibility(View.GONE);
+                        setStateBarTextColor(false);
                     } else {
                         bindingView.layoutTop.setVisibility(View.VISIBLE);
                         bindingView.tvTitle.setText(adapter.getFriendNickName());
+                        setStateBarTextColor(true);
                         // 设置了一条分割线，渐变的时候分割线先GONE掉，要不不好看
 //                        bindingView.layoutTop.getViewGrayLine().setVisibility(View.GONE);
                         // 从高度的一半开始算透明度，也就是说移动到头部Item的中部，透明度从0开始计算
@@ -816,5 +818,20 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
         });
     }
 
+    /**
+     * 修改状态栏字体颜色
+     *
+     * @param dark
+     */
+    private void setStateBarTextColor(boolean dark) {
+        View decor = getWindow().getDecorView();
+        if (dark) {
+            //黑
+            decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
+            //白
+            decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        }
+    }
 
 }
