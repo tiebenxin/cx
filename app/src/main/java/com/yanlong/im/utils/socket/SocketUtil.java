@@ -47,6 +47,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLException;
+
 public class SocketUtil {
     private static final String TAG = "SocketUtil";
     private static SocketUtil socketUtil;
@@ -768,7 +770,7 @@ public class SocketUtil {
                         LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
                         LogUtil.writeLog("连接LOG--接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
                         stop(true);
-                        if (isStart) {
+                        if (isStart && !isStopByService(e)) {
                             startSocket();
                         }
                     }
@@ -943,6 +945,17 @@ public class SocketUtil {
         int CONNECTED = 2;//已连接
         int SSL = 3;//SSL握手成功
         int AUTH = 4;//已鉴权，token
+    }
+
+    //vivo，oppo 及部分小米机型接收被踢消息，解析异常
+    private boolean isStopByService(Exception e) {
+        if (e == null) {
+            return false;
+        }
+        if (e instanceof SSLException && e.getMessage().contains("java.io.EOFException: Read error")) {
+            return true;
+        }
+        return false;
     }
 
 }
