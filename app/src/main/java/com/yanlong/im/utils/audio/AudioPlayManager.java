@@ -300,7 +300,7 @@ public class AudioPlayManager implements SensorEventListener {
 //                    ToastUtil.show(context, "文件不存在或者已损坏");
                 }
 
-                this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
+                this._mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 this._mediaPlayer.prepare();
                 this._mediaPlayer.start();
                 isPlaying = true;
