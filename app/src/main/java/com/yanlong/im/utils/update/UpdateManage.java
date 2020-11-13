@@ -161,7 +161,7 @@ public class UpdateManage {
                                 RandomAccessFile randomAccessFile = null;
                                 BufferedInputStream bis = null;
 
-                                byte[] buff = new byte[2048];
+                                byte[] buff = new byte[20*1024];//TODO copy容量字节，解决下载速度慢的问题
                                 int len = 0;
                                 try {
                                     is = response.body().byteStream();
@@ -259,7 +259,7 @@ public class UpdateManage {
     public Call download(String url, final DownloadListener downloadListener, final long startsPoint, Callback callback) {
         Request request = new Request.Builder()
                 .url(url)
-                .header("RANGE", "bytes=" + startsPoint + "-")//断点续传
+//                .header("RANGE", "bytes=" + startsPoint + "-")//断点续传
                 .build();
 
         // 重写ResponseBody监听请求
