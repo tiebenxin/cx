@@ -107,7 +107,12 @@ public class UpdateManage {
      */
     public void uploadApp(String versions, final String content, final String url, boolean isEnforcement) {
         if (check(versions)) {
-            updateURL = url;
+            //强制转换路径，解决网速被限制的问题
+            if (url.contains("https")) {
+                updateURL = url.replaceFirst("https", "http");
+            } else {
+                updateURL = url;
+            }
             dialog = new UpdateAppDialog();
             newVersion = versions;
             dialog.init(activity, versions, content, new UpdateAppDialog.Event() {
@@ -130,7 +135,7 @@ public class UpdateManage {
                     //如果是wifi环境则直接下载
                     //如果下载过程中切换到数据流量则提示是否允许使用流量更新，允许则后续不再提示，恢复网络则继续下载
                     startsPoint = getFileStart() > 0 ? getFileStart() - 1 : getFileStart();
-                    download(url, downloadListener, startsPoint, new Callback() {
+                    download(updateURL, downloadListener, startsPoint, new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             downloadListener.fail(e.getMessage());
@@ -205,7 +210,7 @@ public class UpdateManage {
                                 activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        show4gNoticeDialog(url);
+                                        show4gNoticeDialog(updateURL);
                                     }
                                 });
                             }
@@ -259,7 +264,7 @@ public class UpdateManage {
     public Call download(String url, final DownloadListener downloadListener, final long startsPoint, Callback callback) {
         Request request = new Request.Builder()
                 .url(url)
-//                .header("RANGE", "bytes=" + startsPoint + "-")//断点续传
+                .header("RANGE", "bytes=" + startsPoint + "-")//断点续传
                 .build();
 
         // 重写ResponseBody监听请求
@@ -397,7 +402,7 @@ public class UpdateManage {
                                                 RandomAccessFile randomAccessFile = null;
                                                 BufferedInputStream bis = null;
 
-                                                byte[] buff = new byte[2048];
+                                                byte[] buff = new byte[20*1024];
                                                 int len = 0;
                                                 try {
                                                     is = response.body().byteStream();
@@ -509,7 +514,7 @@ public class UpdateManage {
                                 RandomAccessFile randomAccessFile = null;
                                 BufferedInputStream bis = null;
 
-                                byte[] buff = new byte[2048];
+                                byte[] buff = new byte[20*1024];
                                 int len = 0;
                                 try {
                                     is = response.body().byteStream();
