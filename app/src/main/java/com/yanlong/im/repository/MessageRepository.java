@@ -1311,9 +1311,10 @@ public class MessageRepository {
      *
      * @param wrapMessage
      * @param realm
+     * @param isOfflineMsg 是否是离线消息
      * @return
      */
-    public void handlerInteractMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerInteractMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm, boolean isOfflineMsg) {
         MsgBean.InteractMessage interactMessage = wrapMessage.getInteract();
         //需求->若操作类型是删除评论，直接修改本地消息记录
         if (interactMessage.getInteractTypeValue() == 5) {
@@ -1333,6 +1334,14 @@ public class MessageRepository {
             localMsg.setFromUid(wrapMessage.getFromUid());
             localMsg.setTimeStamp(wrapMessage.getTimestamp());
             if (localDataSource.saveInteractMessage(realm, localMsg)) {
+                // 是离线消息就延迟1秒在刷新数据，不然第一次进入APP会取不到未读数
+                if (isOfflineMsg) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+
+                    }
+                }
                 com.luck.picture.lib.event.EventFactory.CheckUnreadMsgEvent event = new com.luck.picture.lib.event.EventFactory.CheckUnreadMsgEvent();
                 event.data = localMsg;
                 EventBus.getDefault().post(event);

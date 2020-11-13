@@ -327,8 +327,12 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> impl
                 try {
                     if (checkSuccess(response.body())) {
                         try {
-                            LinkedTreeMap<String, Double> hashMap = (LinkedTreeMap<String, Double>) response.body().getData();
-                            mView.showRedDot(hashMap.get("redPoint").intValue());
+                            LinkedTreeMap<String, Integer> hashMap = (LinkedTreeMap<String, Integer>) response.body().getData();
+                            if (hashMap != null && hashMap.get("redPoint") != null) {
+                                mView.showRedDot(hashMap.get("redPoint"));
+                            } else {
+                                mView.showRedDot(0);
+                            }
                         } catch (Exception e) {
                             mView.showRedDot(0);
                         }

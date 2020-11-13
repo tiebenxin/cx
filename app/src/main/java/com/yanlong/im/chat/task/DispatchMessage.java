@@ -214,7 +214,7 @@ public abstract class DispatchMessage {
                 repository.handlerRecentFriends(wrapMessage, realm);
                 break;
             case INTERACT:// 朋友圈互动消息
-                repository.handlerInteractMsg(wrapMessage, realm);
+                repository.handlerInteractMsg(wrapMessage, realm,isOfflineMsg);
                 break;
         }
 
