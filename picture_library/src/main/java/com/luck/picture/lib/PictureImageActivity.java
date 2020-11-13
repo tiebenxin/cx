@@ -87,7 +87,7 @@ public class PictureImageActivity extends PictureBaseActivity implements View.On
     private ImageButton left_back;
     private TextView tv_title;
     private PreviewViewPager viewPager;
-    private List<LocalMedia> images = new ArrayList<>();
+    private List<LocalMedia> images;
     private int position = 0;
     private String directory_path;
     private SimpleFragmentAdapter adapter;
@@ -106,6 +106,9 @@ public class PictureImageActivity extends PictureBaseActivity implements View.On
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
         directory_path = getIntent().getStringExtra(PictureConfig.DIRECTORY_PATH);
         images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+        if (images == null) {
+            images = new ArrayList<>();
+        }
         left_back.setOnClickListener(this);
         initViewPageAdapterData();
     }

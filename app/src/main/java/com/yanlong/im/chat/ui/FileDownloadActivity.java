@@ -9,9 +9,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -52,10 +54,10 @@ public class FileDownloadActivity extends AppActivity {
     private TextView tvDownload;//更新下载进度
     private TextView tvFileSize;//文件大小
 
-    private String fileFormat ="";//文件类型
-    private String fileName ="";//文件名
-    private String fileUrl ="";//文件url
-    private String fileMsgId ="";//文件消息id
+    private String fileFormat = "";//文件类型
+    private String fileName = "";//文件名
+    private String fileUrl = "";//文件url
+    private String fileMsgId = "";//文件消息id
     private Activity activity;//当前活动实例
 
     private String msgString;//传过来msgAllBean转化的JSON字符串，方便传递
@@ -107,9 +109,10 @@ public class FileDownloadActivity extends AppActivity {
     }
 
     private void getExtra() {
-        if(getIntent()!=null){
-            msgString = getIntent().getExtras().getString("file_msg");
-            ifAutoDownload = getIntent().getExtras().getBoolean("auto_download");
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            msgString = bundle.getString("file_msg");
+            ifAutoDownload = bundle.getBoolean("auto_download");
         }
     }
 
@@ -135,16 +138,16 @@ public class FileDownloadActivity extends AppActivity {
 
             }
         });
-        if(!TextUtils.isEmpty(msgString)){
+        if (!TextUtils.isEmpty(msgString)) {
             msgAllBean = new Gson().fromJson(msgString, MsgAllBean.class);
-            if(msgAllBean!=null && msgAllBean.getSendFileMessage()!=null){
+            if (msgAllBean != null && msgAllBean.getSendFileMessage() != null) {
                 sendFileMessage = msgAllBean.getSendFileMessage();
             }
         }
 
-        if(sendFileMessage!=null){
+        if (sendFileMessage != null) {
             //显示文件名
-            if(!TextUtils.isEmpty(sendFileMessage.getFile_name())){
+            if (!TextUtils.isEmpty(sendFileMessage.getFile_name())) {
                 fileName = sendFileMessage.getFile_name();
                 //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
                 //若没有同名文件，则按默认新文件来保存
@@ -152,46 +155,46 @@ public class FileDownloadActivity extends AppActivity {
                 tvFileName.setText(fileName);
             }
             //根据文件类型，显示图标
-            if(!TextUtils.isEmpty(sendFileMessage.getFormat())){
+            if (!TextUtils.isEmpty(sendFileMessage.getFormat())) {
                 fileFormat = sendFileMessage.getFormat();
-                if(fileFormat.equals("txt")){
+                if (fileFormat.equals("txt")) {
                     ivFileImage.setImageResource(R.mipmap.ic_txt);
-                }else if(fileFormat.equals("xls") || fileFormat.equals("xlsx")){
+                } else if (fileFormat.equals("xls") || fileFormat.equals("xlsx")) {
                     ivFileImage.setImageResource(R.mipmap.ic_excel);
-                }else if(fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")){ //PDF暂用此图标
+                } else if (fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")) { //PDF暂用此图标
                     ivFileImage.setImageResource(R.mipmap.ic_ppt);
-                }else if(fileFormat.equals("doc") || fileFormat.equals("docx")){
+                } else if (fileFormat.equals("doc") || fileFormat.equals("docx")) {
                     ivFileImage.setImageResource(R.mipmap.ic_word);
-                }else if(fileFormat.equals("rar") || fileFormat.equals("zip")){
+                } else if (fileFormat.equals("rar") || fileFormat.equals("zip")) {
                     ivFileImage.setImageResource(R.mipmap.ic_zip);
-                }else if(fileFormat.equals("exe")){
+                } else if (fileFormat.equals("exe")) {
                     ivFileImage.setImageResource(R.mipmap.ic_exe);
-                }else {
+                } else {
                     ivFileImage.setImageResource(R.mipmap.ic_unknow);
                 }
             }
             //获取文件消息id
-            if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
+            if (!TextUtils.isEmpty(sendFileMessage.getMsgId())) {
                 fileMsgId = sendFileMessage.getMsgId();
             }
 
             //获取文件消息大小
-            if(sendFileMessage.getSize()!=0L){
-                tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
+            if (sendFileMessage.getSize() != 0L) {
+                tvFileSize.setText("文件大小 " + FileUtils.getFileSizeString(sendFileMessage.getSize()));
             }
         }
 
         tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(downloadStatus == 3){
+                if (downloadStatus == 3) {
                     startDownload();
-                }else if(downloadStatus == 1){
-                    openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
+                } else if (downloadStatus == 1) {
+                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileName);
                 }
             }
         });
-        if(ifAutoDownload){
+        if (ifAutoDownload) {
             startDownload();
         }
     }
@@ -200,7 +203,7 @@ public class FileDownloadActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         //说明还有文件正在下载
-        if(currentFileProgressValue !=0 && currentFileProgressValue !=100){
+        if (currentFileProgressValue != 0 && currentFileProgressValue != 100) {
             new Thread(runnable).start();
         }
     }
@@ -214,7 +217,7 @@ public class FileDownloadActivity extends AppActivity {
      * 选择已有程序打开文件
      *
      * @param filepath
-     * @备注  todo 暂时只有2个地方用到，后续如果用的地方较多，再抽取到工具类FileUtil
+     * @备注 todo 暂时只有2个地方用到，后续如果用的地方较多，再抽取到工具类FileUtil
      */
     public void openAndroidFile(String filepath) {
         try {
@@ -232,9 +235,9 @@ public class FileDownloadActivity extends AppActivity {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.setAction(Intent.ACTION_VIEW);//动作，查看
             // 7.0适配问题
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.N){
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                 intent.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file), net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
-            }else{
+            } else {
                 intent.setDataAndType(Uri.fromFile(file), net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
             }
             startActivity(intent);
@@ -247,9 +250,9 @@ public class FileDownloadActivity extends AppActivity {
     }
 
     //开始下载
-    private void startDownload(){
+    private void startDownload() {
         //获取url，自动开始下载文件，并打开
-        if(!TextUtils.isEmpty(sendFileMessage.getUrl())){
+        if (!TextUtils.isEmpty(sendFileMessage.getUrl())) {
             fileUrl = sendFileMessage.getUrl();
             //指定下载路径文件夹，若不存在则创建
             File fileDir = new File(FileConfig.PATH_DOWNLOAD);
@@ -261,7 +264,7 @@ public class FileDownloadActivity extends AppActivity {
                 DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
-                        ToastUtil.showLong(getContext(),"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
+                        ToastUtil.showLong(getContext(), "下载成功! \n文件已保存：" + FileConfig.PATH_DOWNLOAD + "目录下");
                         tvDownload.setText("打开文件");
                         downloadStatus = 1;
                         //下载成功后
@@ -276,15 +279,15 @@ public class FileDownloadActivity extends AppActivity {
                         EventBus.getDefault().post(eventFileRename);
                         currentFileProgressValue = 100;
                         //如果是自动下载，完成后需要自行打开
-                        if(ifAutoDownload){
-                            openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
+                        if (ifAutoDownload) {
+                            openAndroidFile(FileConfig.PATH_DOWNLOAD + fileName);
                         }
                     }
 
                     @Override
                     public void onDownloading(int progress) {
                         LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
-                        tvDownload.setText("下载中 "+progress+"%");
+                        tvDownload.setText("下载中 " + progress + "%");
                         downloadStatus = 0;
                         currentFileProgressValue = progress;
 

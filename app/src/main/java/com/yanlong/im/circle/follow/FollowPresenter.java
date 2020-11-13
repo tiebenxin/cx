@@ -129,6 +129,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                                     flowList.add(createFlowItemBean(messageInfoBean));
                                 }
                             }
+                            if (flowList == null) {
+                                flowList = new ArrayList<>();
+                            }
                             mView.onSuccess(flowList);
                         }
                     }

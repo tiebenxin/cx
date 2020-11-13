@@ -57,12 +57,14 @@ public class FacePreviewActivity extends BaseBindActivity<ActivityFacePreviewBin
 
     @Override
     protected void init(Bundle savedInstanceState) {
-        mFacePath = getIntent().getExtras().getString(Preferences.FACE_PATH, "");
-        mFaceName = getIntent().getExtras().getString(Preferences.FACE_NAME, "");
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            mFacePath = bundle.getString(Preferences.FACE_PATH, "");
+            mFaceName = bundle.getString(Preferences.FACE_NAME, "");
+        }
         if (!TextUtils.isEmpty(mFacePath)) {
             BitmapFactory.Options options = new BitmapFactory.Options();
             BitmapFactory.decodeFile(mFacePath, options);
-            Log.i("1212", "outWidth:" + options.outWidth + " outHeight:" + options.outHeight);
             if (options.outHeight > 400 || options.outHeight > 400) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -122,9 +124,9 @@ public class FacePreviewActivity extends BaseBindActivity<ActivityFacePreviewBin
         });
         bindingView.txtConfrim.setOnClickListener(o -> {
             if (!ViewUtils.isFastDoubleClick()) {
-                if(!TextUtils.isEmpty(mLocationPath)){
+                if (!TextUtils.isEmpty(mLocationPath)) {
                     uploadFile(mLocationPath);
-                }else{
+                } else {
                     uploadFile(mFacePath);
                 }
             }

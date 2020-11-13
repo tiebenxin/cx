@@ -96,7 +96,7 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
      */
     public void getRecommendMomentList(Long nextId, int pageSize, int serviceType) {
         int sex = 0;
-        if (UserAction.getMyId() != null) {
+        if (UserAction.getMyInfo() != null) {
             sex = UserAction.getMyInfo().getSex();
         }
         WeakHashMap<String, Object> params = new WeakHashMap<>();
@@ -108,44 +108,56 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onResponse(Call<ReturnBean<List<MessageInfoBean>>> call, Response<ReturnBean<List<MessageInfoBean>>> response) {
                 super.onResponse(call, response);
-                if (checkSuccess(response.body())) {
-                    List<MessageFlowItemBean> flowList = new ArrayList<>();
-                    if (response.body() != null && response.body().getData() != null) {
-                        for (MessageInfoBean messageInfoBean : response.body().getData()) {
-                            flowList.add(createFlowItemBean(messageInfoBean));
+                try {
+                    if (checkSuccess(response.body())) {
+                        List<MessageFlowItemBean> flowList = new ArrayList<>();
+                        if (response.body() != null && response.body().getData() != null) {
+                            for (MessageInfoBean messageInfoBean : response.body().getData()) {
+                                flowList.add(createFlowItemBean(messageInfoBean));
+                            }
+                        }
+                        if (flowList == null) {
+                            flowList = new ArrayList<>();
+                        }
+                        mView.onSuccess(flowList, serviceType);
+                        if (serviceType == 0) {// 添加缓存
+                            FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getRecommendMomentList",
+                                    new Gson().toJson(response.body().getData()));
+                        }
+                    } else {
+                        if (response.body() != null) {
+                            mView.onShowMessage(response.body().getMsg());
+                        } else {
+                            mView.onShowMessage("获取推荐列表失败");
                         }
                     }
-                    mView.onSuccess(flowList, serviceType);
-                    if (serviceType == 0) {// 添加缓存
-                        FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getRecommendMomentList",
-                                new Gson().toJson(response.body().getData()));
-                    }
-                } else {
-                    if (response.body() != null) {
-                        mView.onShowMessage(response.body().getMsg());
-                    } else {
-                        mView.onShowMessage("获取推荐列表失败");
-                    }
+                } catch (Exception e) {
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<MessageInfoBean>>> call, Throwable t) {
                 super.onFailure(call, t);
-                if (serviceType == 0) {
-                    String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getRecommendMomentList");
-                    if (!TextUtils.isEmpty(content)) {
-                        List<MessageInfoBean> infoList = new Gson().fromJson(content,
-                                new TypeToken<List<MessageInfoBean>>() {
-                                }.getType());
-                        List<MessageFlowItemBean> flowList = new ArrayList<>();
-                        for (MessageInfoBean messageInfoBean : infoList) {
-                            flowList.add(createFlowItemBean(messageInfoBean));
+                try {
+                    if (serviceType == 0) {
+                        String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getRecommendMomentList");
+                        if (!TextUtils.isEmpty(content)) {
+                            List<MessageInfoBean> infoList = new Gson().fromJson(content,
+                                    new TypeToken<List<MessageInfoBean>>() {
+                                    }.getType());
+                            List<MessageFlowItemBean> flowList = new ArrayList<>();
+                            for (MessageInfoBean messageInfoBean : infoList) {
+                                flowList.add(createFlowItemBean(messageInfoBean));
+                            }
+                            if (flowList == null) {
+                                flowList = new ArrayList<>();
+                            }
+                            mView.onSuccess(flowList, serviceType);
                         }
-                        mView.onSuccess(flowList, serviceType);
                     }
+                    mView.onShowMessage("刷新失败");
+                } catch (Exception e) {
                 }
-                mView.onShowMessage("刷新失败");
             }
         });
     }
@@ -287,7 +299,6 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
                 if (checkSuccess(response.body())) {
-//                    mView.addSeeSuccess(response.message());
                     filterData(forbidUid);
                 } else {
                     mView.onShowMessage(getFailMessage(response.body()));
@@ -399,7 +410,11 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
         }
     }
 
-    //过滤不看TA用户的数据
+    /**
+     * 过滤不看TA用户的数据
+     *
+     * @param uid
+     */
     @SuppressLint("CheckResult")
     private void filterData(long uid) {
         Observable.just(0)
