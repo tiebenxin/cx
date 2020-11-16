@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.yanlong.im.R;
-import com.yanlong.im.databinding.ActivityFreezeIdentifyBinding;
+import com.yanlong.im.databinding.ActivityUnfreezeIdentifyBinding;
 import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -27,7 +27,7 @@ import retrofit2.Response;
  */
 public class UnFreezeAccountIdentifyActivity extends AppActivity {
 
-    private ActivityFreezeIdentifyBinding ui;
+    private ActivityUnfreezeIdentifyBinding ui;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

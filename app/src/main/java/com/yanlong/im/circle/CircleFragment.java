@@ -384,15 +384,18 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     @Override
     public void scrollStop() {
-        if (floatModel == 1 && getActivity() != null && !getActivity().isFinishing()) {
-            bindingView.viewPager.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (getActivity() != null && !getActivity().isFinishing()) {
-                        switchFloatButton(0);
+        try {
+            if (floatModel == 1 && getActivity() != null && !getActivity().isFinishing()) {
+                bindingView.viewPager.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (getActivity() != null && !getActivity().isFinishing()) {
+                            switchFloatButton(0);
+                        }
                     }
-                }
-            }, 1000);
+                }, 1000);
+            }
+        } catch (Exception e) {
         }
     }
 
@@ -418,6 +421,9 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
 
     //切换悬浮按钮模式
     public void switchFloatButton(int model) {
+        if (bindingView.ivCreateCircle == null || getActivity().isFinishing()) {
+            return;
+        }
         floatModel = model;
         //默认创建
         if (model == 0) {
