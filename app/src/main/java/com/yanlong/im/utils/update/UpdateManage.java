@@ -207,12 +207,14 @@ public class UpdateManage {
                                 }
                             } else {
                                 //是否允许使用流量更新，如果允许，后续不再重复判断是否处于4G
-                                activity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        show4gNoticeDialog(updateURL);
-                                    }
-                                });
+                                if(activity!=null && !activity.isFinishing()){
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            show4gNoticeDialog(updateURL);
+                                        }
+                                    });
+                                }
                             }
                         }
                     });
@@ -444,14 +446,15 @@ public class UpdateManage {
                                                 }
                                             }else {
                                                 //是否允许使用流量更新，如果允许，后续不再重复判断是否处于4G
-                                                activity.runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        show4gNoticeDialog(updateURL);
-                                                    }
-                                                });
+                                                if(activity!=null && !activity.isFinishing()){
+                                                    activity.runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            show4gNoticeDialog(updateURL);
+                                                        }
+                                                    });
+                                                }
                                             }
-
                                         }
                                     });
                                 } else {

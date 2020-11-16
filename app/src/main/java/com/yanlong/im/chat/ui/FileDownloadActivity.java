@@ -9,15 +9,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
@@ -270,7 +269,9 @@ public class FileDownloadActivity extends AppActivity {
                         //下载成功后
                         //1 数据库本地保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便后续聊天界面直接打开重名文件
                         MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", fileMsgId);
-                        reMsg.getSendFileMessage().setRealFileRename(fileName);
+                        if(reMsg!=null && reMsg.getSendFileMessage()!=null){
+                            reMsg.getSendFileMessage().setRealFileRename(fileName);
+                        }
                         DaoUtil.update(reMsg);
                         //2 通知ChatActivity刷新该文件消息
                         EventFileRename eventFileRename = new EventFileRename();
