@@ -7,6 +7,7 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.RegisterDetailBean;
 import com.yanlong.im.databinding.FragmentRegisterFirstBinding;
 
 import java.util.Calendar;
@@ -93,10 +94,9 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
         pvTime.show();
     }
 
-    @Override
-    public void updateDetailUI() {
-        if (detailBean != null) {
 
-        }
+    @Override
+    public void updateDetailUI(RegisterDetailBean bean) {
+
     }
 }

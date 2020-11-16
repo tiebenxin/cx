@@ -23,7 +23,6 @@ public abstract class BaseRegisterFragment<SV extends ViewDataBinding> extends B
 
     public IRegisterListener listener;
     public SV mViewBinding;
-    public RegisterDetailBean detailBean;
 
     @Nullable
     @Override
@@ -44,11 +43,7 @@ public abstract class BaseRegisterFragment<SV extends ViewDataBinding> extends B
         void onNext();
     }
 
-    public void initDetail(RegisterDetailBean bean) {
-        detailBean = bean;
-    }
-    public abstract void updateDetailUI();
-
+    public abstract void updateDetailUI(RegisterDetailBean bean);
 
 
 }

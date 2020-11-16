@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui.register;
 import android.view.View;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.RegisterDetailBean;
 import com.yanlong.im.databinding.FragmentRegisterFourthBinding;
 
 /**
@@ -43,5 +44,8 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
         });
     }
 
+    @Override
+    public void updateDetailUI(RegisterDetailBean bean) {
 
+    }
 }

@@ -94,16 +94,14 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
     public void onBack() {
         currentStep = currentStep - 1;
         bindingView.viewPager.setCurrentItem(currentStep);
-        fragments[currentStep].initDetail(mDetailBean);
-        fragments[currentStep].updateDetailUI();
+        fragments[currentStep].updateDetailUI(mDetailBean);
     }
 
     @Override
     public void onNext() {
         currentStep = currentStep + 1;
         bindingView.viewPager.setCurrentItem(currentStep);
-        fragments[currentStep].initDetail(mDetailBean);
-        fragments[currentStep].updateDetailUI();
+        fragments[currentStep].updateDetailUI(mDetailBean);
     }
 
     @IntDef({EStepPosition.FIRST, EStepPosition.SECOND, EStepPosition.THIRD, EStepPosition.FOURTH, EStepPosition.FIFTH})
