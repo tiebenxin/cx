@@ -350,11 +350,15 @@ public class CirclePresenter extends BasePresenter<CircleModel, CircleView> impl
 
     @Override
     public void onScrollDown() {
-        mView.scrollDown();
+        if (mView != null) {
+            mView.scrollDown();
+        }
     }
 
     @Override
     public void onScrollStop() {
-        mView.scrollStop();
+        if (mView != null) {
+            mView.scrollStop();
+        }
     }
 }

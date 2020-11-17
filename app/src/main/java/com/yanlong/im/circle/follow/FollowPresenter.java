@@ -99,7 +99,7 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                                 flowList.add(createFlowItemBean(messageInfoBean));
                             }
                         }
-                        if (flowList != null) {
+                        if (flowList != null && mView != null) {
                             mView.onSuccess(flowList);
                             if (currentPage == 1) {// 添加缓存
                                 FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getFollowMomentList",
@@ -107,7 +107,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
                             }
                         }
                     } else {
-                        mView.onShowMessage(getFailMessage(response.body()));
+                        if (mView != null) {
+                            mView.onShowMessage(getFailMessage(response.body()));
+                        }
                     }
                 } catch (Exception e) {
                 }
@@ -117,6 +119,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             public void onFailure(Call<ReturnBean<List<MessageInfoBean>>> call, Throwable t) {
                 super.onFailure(call, t);
                 try {
+                    if (mView == null) {
+                        return;
+                    }
                     if (currentPage == 1) {
                         String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getFollowMomentList");
                         if (!TextUtils.isEmpty(content)) {
@@ -177,12 +182,14 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
                 try {
-                    if (checkSuccess(response.body())) {
-                        if (response.body() != null && response.body().getData() != null) {
-                            mView.onSuccess(position, createFlowItemBean(response.body().getData()));
+                    if (mView != null) {
+                        if (checkSuccess(response.body())) {
+                            if (response.body() != null && response.body().getData() != null) {
+                                mView.onSuccess(position, createFlowItemBean(response.body().getData()));
+                            }
+                        } else {
+                            mView.onShowMessage(getFailMessage(response.body()));
                         }
-                    } else {
-                        mView.onShowMessage(getFailMessage(response.body()));
                     }
                 } catch (Exception e) {
                     mView.onShowMessage("刷新失败");
@@ -192,6 +199,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -250,6 +260,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -288,6 +301,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -326,6 +342,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -364,6 +383,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("关注失败");
             }
         });
@@ -401,6 +423,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("取消关注失败");
             }
         });
@@ -438,6 +463,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("发送失败");
             }
         });
@@ -468,6 +496,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             public void onResponse(Call<ReturnBean<CircleCommentBean>> call, Response<ReturnBean<CircleCommentBean>> response) {
                 super.onResponse(call, response);
                 try {
+                    if (mView == null) {
+                        return;
+                    }
                     if (checkSuccess(response.body())) {
                         mView.onCommentSuccess(response.body().getData());
                     } else {
@@ -521,6 +552,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("删除失败");
             }
         });
@@ -575,6 +609,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("删除失败");
             }
         });
@@ -584,6 +621,9 @@ public class FollowPresenter extends BasePresenter<FollowModel, FollowView> {
      * 顶部未读消息悬浮
      */
     public void getUnreadMsg() {
+        if (mView == null) {
+            return;
+        }
         //是否有未读互动消息
         List<InteractMessage> list = msgDao.getUnreadMsgList();
         if (list != null && list.size() > 0) {

@@ -119,16 +119,20 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                         if (flowList == null) {
                             flowList = new ArrayList<>();
                         }
-                        mView.onSuccess(flowList, serviceType);
+                        if (mView != null) {
+                            mView.onSuccess(flowList, serviceType);
+                        }
                         if (serviceType == 0) {// 添加缓存
                             FileCacheUtil.putFirstPageCache(UserAction.getMyId() + "getRecommendMomentList",
                                     new Gson().toJson(response.body().getData()));
                         }
                     } else {
-                        if (response.body() != null) {
-                            mView.onShowMessage(response.body().getMsg());
-                        } else {
-                            mView.onShowMessage("获取推荐列表失败");
+                        if (mView != null) {
+                            if (response.body() != null) {
+                                mView.onShowMessage(response.body().getMsg());
+                            } else {
+                                mView.onShowMessage("获取推荐列表失败");
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -139,6 +143,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             public void onFailure(Call<ReturnBean<List<MessageInfoBean>>> call, Throwable t) {
                 super.onFailure(call, t);
                 try {
+                    if (mView == null) {
+                        return;
+                    }
                     if (serviceType == 0) {
                         String content = FileCacheUtil.getFirstPageCache(UserAction.getMyId() + "getRecommendMomentList");
                         if (!TextUtils.isEmpty(content)) {
@@ -191,6 +198,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -225,6 +235,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -253,6 +266,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("关注失败");
             }
         });
@@ -281,6 +297,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("取消关注失败");
             }
         });
@@ -308,6 +327,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("设置失败");
             }
         });
@@ -329,6 +351,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             public void onResponse(Call<ReturnBean<MessageInfoBean>> call, Response<ReturnBean<MessageInfoBean>> response) {
                 super.onResponse(call, response);
                 try {
+                    if (mView == null) {
+                        return;
+                    }
                     if (checkSuccess(response.body())) {
                         if (response.body() != null && response.body().getData() != null) {
                             mView.onSuccess(position, createFlowItemBean(response.body().getData()));
@@ -343,6 +368,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
             @Override
             public void onFailure(Call<ReturnBean<MessageInfoBean>> call, Throwable t) {
                 super.onFailure(call, t);
+                if (mView == null) {
+                    return;
+                }
                 mView.onShowMessage("刷新失败");
             }
         });
@@ -389,7 +417,7 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
      */
     public void getUnreadMsg() {
         try {
-            if (msgDao != null) {
+            if (msgDao != null && mView != null) {
                 List<InteractMessage> list = msgDao.getUnreadMsgList();
                 // 是否有未读互动消息
                 if (list != null && list.size() > 0) {
@@ -399,6 +427,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                         if (!TextUtils.isEmpty(list.get(0).getAvatar())) {
                             avatar = list.get(0).getAvatar();
                         }
+                    }
+                    if (TextUtils.isEmpty(avatar)) {
+                        avatar = "";
                     }
                     mView.showUnreadMsg(size, avatar);
                 } else {
@@ -439,6 +470,9 @@ public class RecommendPresenter extends BasePresenter<RecommendModel, RecommendV
                 .subscribe(new Consumer<List<MessageFlowItemBean>>() {
                     @Override
                     public void accept(List<MessageFlowItemBean> list) throws Exception {
+                        if (mView == null) {
+                            return;
+                        }
                         mView.onSuccess(list, -1);
                     }
                 });
