@@ -130,7 +130,7 @@ public class CoreEnum {
      */
     @IntDef({EClickType.CONTENT_DOWN, EClickType.CONTENT_DETAILS, EClickType.VOTE_CHAR, EClickType.VOTE_PICTURE
             , EClickType.COMMENT_REPLY, EClickType.COMMENT_HEAD, EClickType.COMMENT_LONG, EClickType.FOLLOW, EClickType.ADD_FRIEND,
-            EClickType.CHAT,EClickType.CLICK_VOICE})
+            EClickType.CHAT, EClickType.CLICK_VOICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EClickType {
         int CONTENT_DOWN = 0;// 展开、收起
@@ -153,4 +153,16 @@ public class CoreEnum {
         int DELETE = 2;// 删除
         int REPORT = 3;// 举报
     }
+
+    /*
+     * 性别
+     * */
+    @IntDef({ESexType.UNKOWN, ESexType.MAN, ESexType.WOMAN})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ESexType {
+        int UNKOWN = 0;//未知
+        int MAN = 1;//男
+        int WOMAN = 2;//女
+    }
+
 }

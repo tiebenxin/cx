@@ -6,9 +6,14 @@ import android.view.View;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.luck.picture.lib.utils.DateUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.RegisterDetailBean;
 import com.yanlong.im.databinding.FragmentRegisterFirstBinding;
+
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +33,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
 
     @Override
     public void init() {
-        mViewBinding.ivLeft.setVisibility(View.GONE);
+        mViewBinding.ivLeft.setVisibility(View.INVISIBLE);
         mViewBinding.ivRight.setVisibility(View.VISIBLE);
     }
 
@@ -37,6 +42,20 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
         mViewBinding.ivRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (getActivity() == null) {
+                    return;
+                }
+                RegisterDetailBean bean = ((RegisterDetailActivity) getActivity()).getDetailBean();
+                if (bean != null) {
+                    if (bean.getSex() <= 0) {
+                        ToastUtil.show("请选择性别");
+                        return;
+                    }
+                    if (bean.getBirthday() <= 0) {
+                        ToastUtil.show("请选择生日");
+                        return;
+                    }
+                }
                 if (listener != null) {
                     listener.onNext();
                 }
@@ -46,14 +65,30 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
         mViewBinding.llMan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (getActivity() == null || ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (mViewBinding.ivAvatarMan.isSelected()) {
+                    return;
+                } else {
+                    changeSexUI(true);
+                    ((RegisterDetailActivity) getActivity()).getDetailBean().setSex(CoreEnum.ESexType.MAN);
+                }
             }
         });
 
         mViewBinding.llWoman.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (getActivity() == null || ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (mViewBinding.ivAvatarWoman.isSelected()) {
+                    return;
+                } else {
+                    changeSexUI(false);
+                    ((RegisterDetailActivity) getActivity()).getDetailBean().setSex(CoreEnum.ESexType.WOMAN);
+                }
             }
         });
 
@@ -69,7 +104,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
     //时间选择器。选择生日
     private void initTimePicker() {
         Calendar defaultCalendar = Calendar.getInstance();
-        defaultCalendar.set(2000, 0, 1);//2019-1-1
+        defaultCalendar.set(1998, 0, 1);//2019-1-1
         Calendar start = Calendar.getInstance();
         start.set(1950, 0, 1);//2019-1-1
         Calendar end = Calendar.getInstance();
@@ -81,6 +116,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
                 ((RegisterDetailActivity) getActivity()).getDetailBean().setBirthday(calendar.getTimeInMillis());
+                mViewBinding.tvBirthday.setText(DateUtil.formatDate(date, DateUtil.DATE_PATTERN_YMD_STANDARD_CHINESE));
             }
         })
                 .setType(new boolean[]{true, true, true, false, false, false})
@@ -97,6 +133,31 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
 
     @Override
     public void updateDetailUI(RegisterDetailBean bean) {
+        if (bean == null) {
+            return;
+        }
+        if (bean.getSex() > 0) {
+            if (bean.getSex() == CoreEnum.ESexType.MAN) {
+                changeSexUI(true);
+            } else if (bean.getSex() == CoreEnum.ESexType.WOMAN) {
+                changeSexUI(false);
+            }
+        } else {
+            mViewBinding.ivAvatarMan.setSelected(false);
+            mViewBinding.ivAvatarWoman.setSelected(false);
+            mViewBinding.ivAvatarMan.setImageResource(R.mipmap.ic_man_avatar_dark);
+            mViewBinding.ivAvatarWoman.setImageResource(R.mipmap.ic_woman_avatar_dark);
+        }
 
+        if (bean.getBirthday() > 0) {
+            mViewBinding.tvBirthday.setText(DateUtil.formatDate(bean.getBirthday(), DateUtil.DATE_PATTERN_YMD_STANDARD_CHINESE));
+        }
+    }
+
+    public void changeSexUI(boolean isMan) {
+        mViewBinding.ivAvatarMan.setSelected(isMan);
+        mViewBinding.ivAvatarMan.setImageResource(isMan ? R.mipmap.ic_man_avatar_light : R.mipmap.ic_man_avatar_dark);
+        mViewBinding.ivAvatarWoman.setSelected(!isMan);
+        mViewBinding.ivAvatarWoman.setImageResource(isMan ? R.mipmap.ic_woman_avatar_dark : R.mipmap.ic_woman_avatar_light);
     }
 }

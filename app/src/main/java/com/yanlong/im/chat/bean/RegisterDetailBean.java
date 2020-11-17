@@ -3,6 +3,7 @@ package com.yanlong.im.chat.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.BaseBean;
 
 /**
@@ -11,7 +12,8 @@ import net.cb.cb.library.base.BaseBean;
  * Description 注册完善资料bean
  */
 public class RegisterDetailBean extends BaseBean implements Parcelable {
-    private int sex = -1;//默认值，-1表示未设置，0女，1男
+    @CoreEnum.ESexType
+    private int sex = 0;//默认值，0表示未知，1男，2女
     private long birthday = 0;
     private int height = 0;
     private String location;

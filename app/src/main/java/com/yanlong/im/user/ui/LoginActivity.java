@@ -29,6 +29,7 @@ import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.ui.baned.BanedAccountActivity;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.DialogUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
@@ -295,7 +296,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 startActivity(forgotPasswordIntent);
                 break;
             case R.id.tv_more:
-                initPopup();
+//                initPopup();
+                startActivity(new Intent(this, RegisterDetailActivity.class));
                 break;
         }
     }
@@ -563,9 +565,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         } else {
                             SharedPreferencesUtil ignoreVersion = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_THIS_VERSION);
                             String ignore = ignoreVersion.getString("IGNORE_THIS_VERSION");
-                            if(!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())){
+                            if (!TextUtils.isEmpty(ignore) && ignore.equals(bean.getVersion())) {
                                 //缓存拿是否忽略此版本
-                            }else {
+                            } else {
                                 updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                             }
                         }
