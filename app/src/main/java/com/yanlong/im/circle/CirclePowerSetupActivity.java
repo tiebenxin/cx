@@ -182,11 +182,7 @@ public class CirclePowerSetupActivity extends BaseBindActivity<ActivityCirclePow
                 circlePowerBean.setTitle("自己可见");
                 circlePowerBean.setNote("自己可见");
             }
-            if (mMomentId != null && mMomentId > 0) {
-                if (mVisible == i) {
-                    circlePowerBean.setCheck(true);
-                }
-            } else if (i == 0) {
+            if (mVisible == i) {
                 circlePowerBean.setCheck(true);
             }
             mList.add(circlePowerBean);
