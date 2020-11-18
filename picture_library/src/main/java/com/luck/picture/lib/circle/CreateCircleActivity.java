@@ -30,6 +30,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -184,7 +185,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
     private boolean isOpenSoft = false;// 是否打开软件盘
     private boolean isShowFace = true;// 是否显示表情
     private boolean isPlaying = false;// 是否在播放录音
-    private boolean isRecording, isExistVoice = false;// 是否在录音\是否存在录音
+    private boolean isRecording, isExistVoice = false;// 是否在录音
     private int mAudioState = 0;//0未录音 1在录音 2停止录音
     private final int MAX_SECOND = 90;// 录制最大90秒
     private AudioRecorder recorder;// 录音对象
@@ -324,6 +325,8 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             if (circleDraftBean != null) {
                 if (!TextUtils.isEmpty(circleDraftBean.getContent())) {
                     etContent.setText(getSpan(circleDraftBean.getContent()));
+                    etContent.setSelection(etContent.getText().toString().length());
+                    etContent.requestFocus();
                 }
                 tv_power.setText(getVisibilityText(circleDraftBean.getVisibility()));
                 // 位置
@@ -351,9 +354,11 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 // 语音
                 currentAudioFile = circleDraftBean.getAudioFile();
                 if (!TextUtils.isEmpty(currentAudioFile)) {
+                    isExistVoice = true;
                     time = circleDraftBean.getAudioDuration() * 1000;
                     layout_voice.setVisibility(View.VISIBLE);
                     tv_time.setText(getPlayTime(time));
+                    voiceOption();
                 }
                 // 图片或视频
                 if (circleDraftBean.getList() != null && circleDraftBean.getList().size() > 0) {
@@ -373,6 +378,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 }
                 // 投票
                 if (!TextUtils.isEmpty(circleDraftBean.getVote())) {
+                    voteOption();
                     if (circleDraftBean.getVoteList() != null && circleDraftBean.getVoteList().size() > 0) {
                         isVoteImageEditSuccess = true;
                         mVoteList = circleDraftBean.getVoteList();
@@ -414,6 +420,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
+//                setEditTextHeight(false);
                 isOpenSoft = true;
                 isRestHeight = true;
                 frame_content.setVisibility(View.VISIBLE);
@@ -428,6 +435,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     frame_content.setVisibility(View.GONE);
                 }
                 isRestHeight = true;
+//                setEditTextHeight(true);
                 setRecyclerViewHeight(mFuncHeight);
             }
 
@@ -472,14 +480,42 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         });
         etContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (mDetector != null) {
+            public boolean onTouch(View view, MotionEvent event) {
+                // 触摸的是EditText并且当前EditText可以滚动则将事件交给EditText处理；否则将事件交由其父类处理
+                if ((view.getId() == R.id.et_content && canVerticalScroll(etContent))) {
+                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        view.getParent().requestDisallowInterceptTouchEvent(false);
+                    }
+                } else if (mDetector != null && !etContent.hasNestedScrollingParent()) {
                     return mDetector.onTouchEvent(event);
-                } else {
-                    return false;
                 }
+                return false;
             }
         });
+    }
+
+    /**
+     * EditText竖直方向是否可以滚动
+     *
+     * @param editText 需要判断的EditText
+     * @return true：可以滚动   false：不可以滚动
+     */
+    private boolean canVerticalScroll(EditText editText) {
+        //滚动的距离
+        int scrollY = editText.getScrollY();
+        //控件内容的总高度
+        int scrollRange = editText.getLayout().getHeight();
+        //控件实际显示的高度
+        int scrollExtent = editText.getHeight() - editText.getCompoundPaddingTop() - editText.getCompoundPaddingBottom();
+        //控件内容总高度与实际显示高度的差值
+        int scrollDifference = scrollRange - scrollExtent;
+
+        if (scrollDifference == 0) {
+            return false;
+        }
+
+        return (scrollY > 0) || (scrollY < scrollDifference - 1);
     }
 
     private void setRecyclerViewHeight(int height) {
@@ -487,6 +523,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             if (height < mFuncHeight) {
                 height = mFuncHeight;
             }
+            Log.i("1212", "height:" + height);
             mKeyboardHeight = height;
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
             frame_content.setLayoutParams(layoutParams);
@@ -498,18 +535,18 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
      */
     private void initView(Bundle savedInstanceState) {
         cb_original = findViewById(R.id.cb_original);
-        rl_picture_title = (RelativeLayout) findViewById(R.id.rl_picture_title);
-        picture_left_back = (ImageView) findViewById(R.id.picture_left_back);
-        picture_title = (TextView) findViewById(R.id.picture_title);
-        picture_right = (TextView) findViewById(R.id.picture_right);
-        picture_tv_ok = (TextView) findViewById(R.id.picture_tv_ok);
-        picture_id_preview = (TextView) findViewById(R.id.picture_id_preview);
-        picture_tv_img_num = (TextView) findViewById(R.id.picture_tv_img_num);
-        picture_recycler = (RecyclerView) findViewById(R.id.picture_recycler);
+        rl_picture_title = findViewById(R.id.rl_picture_title);
+        picture_left_back = findViewById(R.id.picture_left_back);
+        picture_title = findViewById(R.id.picture_title);
+        picture_right = findViewById(R.id.picture_right);
+        picture_tv_ok = findViewById(R.id.picture_tv_ok);
+        picture_id_preview = findViewById(R.id.picture_id_preview);
+        picture_tv_img_num = findViewById(R.id.picture_tv_img_num);
+        picture_recycler = findViewById(R.id.picture_recycler);
         recycler_picture_prview = findViewById(R.id.recycler_picture_prview);
         layout_vote_content = findViewById(R.id.layout_vote_content);
-        id_ll_ok = (LinearLayout) findViewById(R.id.id_ll_ok);
-        tv_empty = (TextView) findViewById(R.id.tv_empty);
+        id_ll_ok = findViewById(R.id.id_ll_ok);
+        tv_empty = findViewById(R.id.tv_empty);
         etContent = findViewById(R.id.et_content);
         tv_location = findViewById(R.id.tv_location);
         tv_power = findViewById(R.id.tv_power);
@@ -1037,20 +1074,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 showTaost(getResources().getString(R.string.voice_message_wrong));
                 return;
             }
-            changeTrendModel(ETrendModel.VOICE);
-            if (isOpenSoft) {
-                isShowFace = false;
-                InputUtil.hideKeyboard(etContent);
-            }
-            frame_content.setVisibility(View.VISIBLE);
-            iv_picture.setImageLevel(0);
-            iv_vote.setImageLevel(0);
-            iv_voice.setImageLevel(1);
-            layout_audio.setVisibility(View.VISIBLE);
-            layout_vote.setVisibility(View.GONE);
-            picture_recycler.setVisibility(View.GONE);
-            circle_view_faceview.setVisibility(View.GONE);
-            delayMillis();
+            voiceOption();
         } else if (id == R.id.iv_picture) {// 图片
             if (isExistVoice || mVoteList.size() > 0) {
                 showTaost(getResources().getString(R.string.voice_message_wrong));
@@ -1077,21 +1101,7 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             iv_voice.setImageLevel(0);
             delayMillis();
         } else if (id == R.id.iv_vote) {// 投票
-            changeTrendModel(ETrendModel.VOTE);
-            if (isOpenSoft) {
-                isShowFace = true;
-                InputUtil.hideKeyboard(etContent);
-            }
-            frame_content.setVisibility(View.VISIBLE);
-            setRecyclerViewHeight(mFuncHeight);
-            layout_vote.setVisibility(View.VISIBLE);
-            layout_audio.setVisibility(View.GONE);
-            picture_recycler.setVisibility(View.GONE);
-            circle_view_faceview.setVisibility(View.GONE);
-            iv_picture.setImageLevel(0);
-            iv_vote.setImageLevel(1);
-            iv_voice.setImageLevel(0);
-            delayMillis();
+            voteOption();
         } else if (id == R.id.iv_delete_vote) {// 删除投票
             isVoteTextEditSuccess = false;
             isVoteImageEditSuccess = false;
@@ -1174,6 +1184,41 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                 onResult(images);
             }
         }
+    }
+
+    private void voiceOption() {
+        changeTrendModel(ETrendModel.VOICE);
+        if (isOpenSoft) {
+            isShowFace = false;
+            InputUtil.hideKeyboard(etContent);
+        }
+        frame_content.setVisibility(View.VISIBLE);
+        iv_picture.setImageLevel(0);
+        iv_vote.setImageLevel(0);
+        iv_voice.setImageLevel(1);
+        layout_audio.setVisibility(View.VISIBLE);
+        layout_vote.setVisibility(View.GONE);
+        picture_recycler.setVisibility(View.GONE);
+        circle_view_faceview.setVisibility(View.GONE);
+        delayMillis();
+    }
+
+    private void voteOption() {
+        changeTrendModel(ETrendModel.VOTE);
+        if (isOpenSoft) {
+            isShowFace = true;
+            InputUtil.hideKeyboard(etContent);
+        }
+        frame_content.setVisibility(View.VISIBLE);
+        setRecyclerViewHeight(mFuncHeight);
+        layout_vote.setVisibility(View.VISIBLE);
+        layout_audio.setVisibility(View.GONE);
+        picture_recycler.setVisibility(View.GONE);
+        circle_view_faceview.setVisibility(View.GONE);
+        iv_picture.setImageLevel(0);
+        iv_vote.setImageLevel(1);
+        iv_voice.setImageLevel(0);
+        delayMillis();
     }
 
     private void toVoice() {
