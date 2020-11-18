@@ -6,6 +6,8 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.hm.cxpay.global.PayEnvironment;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -47,8 +49,12 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import cn.jpush.android.api.JPushInterface;
@@ -58,6 +64,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -667,8 +675,8 @@ public class UserAction {
     /**
      * 设置用户个人资料
      */
-    public void myInfoSet(final String imid, final String avatar, final String nickname, final Integer gender, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.userInfoSet(imid, avatar, nickname, gender), new CallBack<ReturnBean>() {
+    public void myInfoSet(final String imid, final String avatar, final String nickname, final Integer gender, Long birthday, String location, Integer height, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userInfoSet(imid, avatar, nickname, gender, birthday, location, height), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 try {
@@ -698,8 +706,8 @@ public class UserAction {
     /**
      * 编辑模式->设置好友资料
      */
-    public void editUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender,final long robotId, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.userInfoSetEditMode(imid, avatar, nickname, gender,robotId), new CallBack<ReturnBean>() {
+    public void editUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender, final long robotId, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userInfoSetEditMode(imid, avatar, nickname, gender, robotId), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 try {
@@ -1330,5 +1338,79 @@ public class UserAction {
         });
 
 
+    }
+
+    private RequestBody getRequestBody(Map<String, Object> map) {
+        return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), mapToJSON(map));
+    }
+
+    private RequestBody getRequestBody(String content) {
+        return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), content);
+    }
+
+    /**
+     * 将Map转化为Json
+     */
+    private String mapToJSON(Map<String, Object> map) {
+        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+        return gson.toJson(map);
+    }
+
+
+    /**
+     * 设置用户自己个人资料
+     */
+    public void updateMyInfo(final String imid, final String avatar, final String nickname, final Integer gender, Long birthday, String location, Integer height, final CallBack<ReturnBean> callback) {
+        try {
+            JSONObject object = new JSONObject();
+            if (!TextUtils.isEmpty(imid)) {
+                object.put("imid", imid);
+            }
+            if (!TextUtils.isEmpty(avatar)) {
+                object.put("avatar", avatar);
+            }
+            if (!TextUtils.isEmpty(nickname)) {
+                object.put("nickname", nickname);
+            }
+            if (gender != null) {
+                object.put("gender", gender.intValue());
+            }
+            if (birthday != null) {
+                object.put("birthday", birthday.longValue());
+            }
+            if (!TextUtils.isEmpty(location)) {
+                object.put("location", location);
+            }
+            if (height != null) {
+                object.put("height", height.intValue());
+            }
+            NetUtil.getNet().exec(server.updateMyInfo(getRequestBody(object.toString())), new CallBack<ReturnBean>() {
+                @Override
+                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                    try {
+                        if (response.body() == null)
+                            return;
+                        if (response.body().isOk()) {
+                            myInfo = dao.findUserBean(getMyId());
+                            if (myInfo != null) {
+                                if (!TextUtils.isEmpty(imid))
+                                    myInfo.setImid(imid);
+                                if (!TextUtils.isEmpty(avatar))
+                                    myInfo.setHead(avatar);
+                                if (!TextUtils.isEmpty(nickname))
+                                    myInfo.setName(nickname);
+                                if (gender != null)
+                                    myInfo.setSex(gender);
+                                updateUser2DB(myInfo);
+                            }
+                        }
+                    } catch (Exception e) {
+                    }
+                    callback.onResponse(call, response);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

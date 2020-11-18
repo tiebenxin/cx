@@ -331,7 +331,7 @@ public class ImageHeadActivity extends AppActivity {
 
 
     private void taskUserInfoSet(String imid, final String avatar, String nickname, Integer gender) {
-        new UserAction().myInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
+        new UserAction().myInfoSet(imid, avatar, nickname, gender,null,null,null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

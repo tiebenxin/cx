@@ -2,7 +2,9 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.core.content.ContextCompat;
+
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -18,6 +20,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.NoticeActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -122,8 +125,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         ClickableSpan clickProtocol = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Intent intent = new Intent(RegisterActivity.this,WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL,"https://changxin.zhixun6.com/yhxy.html");
+                Intent intent = new Intent(RegisterActivity.this, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, "https://changxin.zhixun6.com/yhxy.html");
                 startActivity(intent);
             }
         };
@@ -134,8 +137,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         ClickableSpan clickPolicy = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Intent intent = new Intent(RegisterActivity.this,WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL,"https://changxin.zhixun6.com/yszc.html");
+                Intent intent = new Intent(RegisterActivity.this, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, "https://changxin.zhixun6.com/yszc.html");
                 startActivity(intent);
 
             }
@@ -155,7 +158,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             ToastUtil.show(RegisterActivity.this, "请填写手机号码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
+        if (!CheckUtil.isMobileNO(phone)) {
             ToastUtil.show(this, "手机号格式不正确");
             return;
         }
@@ -181,7 +184,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
+        if (!CheckUtil.isMobileNO(phone)) {
             ToastUtil.show(this, "手机号格式不正确");
             return;
         }
@@ -202,12 +205,13 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     }
 
     private void taskRegister(final String phone, final String captcha) {
-        LogUtil.getLog().i("youmeng","RegisterActivity------->getDevId");
+        LogUtil.getLog().i("youmeng", "RegisterActivity------->getDevId");
         new RunUtils(new RunUtils.Enent() {
             String devId;
+
             @Override
             public void onRun() {
-                devId= UserAction.getDevId(getContext());
+                devId = UserAction.getDevId(getContext());
             }
 
             @Override
@@ -215,7 +219,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                 userAction.register(phone, captcha, devId, new CallBack<ReturnBean<TokenBean>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                        LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onResponse");
+                        LogUtil.getLog().i("youmeng", "RegisterActivity------->taskRegister----->onResponse");
                         if (response.body() == null) {
                             return;
                         }
@@ -224,8 +228,10 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                             SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
                             preferencesUtil.save2Json(true);
 
-                            Intent intent = new Intent(getContext(), RegisterUserNameActivity.class);
+//                            Intent intent = new Intent(getContext(), RegisterUserNameActivity.class);
+                            Intent intent = new Intent(getContext(), RegisterDetailActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.putExtra("isFromRegister", true);
                             startActivity(intent);
                             finish();
                         }
@@ -234,7 +240,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                     @Override
                     public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                         super.onFailure(call, t);
-                        LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onFailure");
+                        LogUtil.getLog().i("youmeng", "RegisterActivity------->taskRegister----->onFailure");
                     }
                 });
 

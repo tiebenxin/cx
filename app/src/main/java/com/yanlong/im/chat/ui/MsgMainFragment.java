@@ -36,6 +36,7 @@ import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.MsgBean;
@@ -207,6 +208,7 @@ public class MsgMainFragment extends Fragment {
                 int x = DensityUtil.dip2px(getContext(), -92);
                 int y = DensityUtil.dip2px(getContext(), 5);
                 popView.getPopupWindow().showAsDropDown(actionBar.getBtnRight(), x, y);
+//                startActivity(new Intent(getActivity(), RegisterDetailActivity.class));
 
             }
         });

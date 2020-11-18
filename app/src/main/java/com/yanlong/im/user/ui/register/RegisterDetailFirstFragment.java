@@ -26,6 +26,8 @@ import java.util.Date;
  */
 public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRegisterFirstBinding> {
 
+    private Calendar defaultCalendar;
+
     @Override
     public int getLayoutId() {
         return R.layout.fragment_register_first;
@@ -35,6 +37,10 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
     public void init() {
         mViewBinding.ivLeft.setVisibility(View.INVISIBLE);
         mViewBinding.ivRight.setVisibility(View.VISIBLE);
+        defaultCalendar = Calendar.getInstance();
+        defaultCalendar.set(1998, 0, 1);//1998-1-1
+        ((RegisterDetailActivity) getActivity()).getDetailBean().setBirthday(defaultCalendar.getTimeInMillis());
+
     }
 
     @Override
@@ -103,8 +109,10 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
 
     //时间选择器。选择生日
     private void initTimePicker() {
-        Calendar defaultCalendar = Calendar.getInstance();
-        defaultCalendar.set(1998, 0, 1);//1998-1-1
+        if (defaultCalendar == null) {
+            Calendar defaultCalendar = Calendar.getInstance();
+            defaultCalendar.set(1998, 0, 1);//1998-1-1
+        }
         Calendar start = Calendar.getInstance();
         start.set(1920, 0, 1);//1920-1-1
         Calendar end = Calendar.getInstance();

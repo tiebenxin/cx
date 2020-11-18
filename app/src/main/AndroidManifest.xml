@@ -611,10 +611,11 @@
             android:name=".circle.VotePictrueActivity"
             android:screenOrientation="portrait" />
 
-        <!-- 注册完善详情-->
+        <!-- 完善注册详情-->
         <activity
             android:name=".user.ui.register.RegisterDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
 
     </application>
 

@@ -29,7 +29,6 @@ import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.ui.baned.BanedAccountActivity;
-import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.DialogUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;

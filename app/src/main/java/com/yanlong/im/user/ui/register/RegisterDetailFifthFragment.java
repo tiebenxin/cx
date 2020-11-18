@@ -2,7 +2,6 @@ package com.yanlong.im.user.ui.register;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -18,10 +17,12 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.RegisterDetailBean;
 import com.yanlong.im.databinding.FragmentRegisterFifthBinding;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.ui.ImageHeadActivity;
-import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.user.bean.UserBean;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -29,7 +30,8 @@ import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.PopupSelectView;
 
-import java.io.File;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -42,6 +44,7 @@ import static android.app.Activity.RESULT_OK;
 public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRegisterFifthBinding> {
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private String[] strings = {"拍照", "从手机相册中选择", "取消"};
+    private UserDao dao = new UserDao();
 
 
     @Override
@@ -74,7 +77,7 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                startActivity(new Intent(getActivity(), MainActivity.class));
+                uploadInfo();
             }
         });
 
@@ -86,44 +89,8 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
                     return;
                 }
                 initPopup();
-//                permission2Util.requestPermissions(getActivity(), new CheckPermission2Util.Event() {
-//                    @Override
-//                    public void onSuccess() {
-//                        PictureSelector.create(getActivity())
-//                                .openCamera(PictureMimeType.ofImage())
-//                                .compress(true)
-//                                .enableCrop(true)
-//                                .withAspectRatio(1, 1)
-//                                .freeStyleCropEnabled(false)
-//                                .rotateEnabled(false)
-//                                .forResult(PictureConfig.CHOOSE_REQUEST);
-//                    }
-//
-//                    @Override
-//                    public void onFail() {
-//
-//                    }
-//                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
             }
         });
-
-        //相册
-//        mViewBinding.tvGallery.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                PictureSelector.create(getActivity())
-//                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-//                        .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
-//                        .previewImage(false)// 是否可预览图片 true or false
-//                        .isCamera(false)// 是否显示拍照按钮 ture or false
-//                        .compress(true)// 是否压缩 true or false
-//                        .enableCrop(true)
-//                        .withAspectRatio(1, 1)
-//                        .freeStyleCropEnabled(false)
-//                        .rotateEnabled(false)
-//                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-//            }
-//        });
     }
 
 
@@ -134,6 +101,10 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
         }
         if (!TextUtils.isEmpty(bean.getAvatar())) {
             loadAvatar(bean.getAvatar());
+            updateGoUI(true);
+        } else {
+            updateGoUI(false);
+
         }
     }
 
@@ -163,14 +134,21 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
 
     //上传头像
     public void uploadAvatar(String file) {
+
         new UpFileAction().upFile(UserAction.getMyId() + "", UpFileAction.PATH.HEAD, getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
-                mViewBinding.tvGo.setEnabled(true);
-                mViewBinding.tvGo.setTextColor(AppConfig.getColor(R.color.white));
-                mViewBinding.tvGo.setBackgroundResource(R.drawable.bg_btn_green);
                 ((RegisterDetailActivity) getActivity()).getDetailBean().setAvatar(url);
-                loadAvatar(url);
+//                updateMyUserInfo(((RegisterDetailActivity) getActivity()).getDetailBean());
+
+                mViewBinding.ivTakePhoto.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadAvatar(url);
+                        updateGoUI(true);
+                    }
+                }, 100);
+
             }
 
             @Override
@@ -183,6 +161,15 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
 
             }
         }, file);
+    }
+
+    private void updateMyUserInfo(RegisterDetailBean bean) {
+        UserBean mUserInfo = dao.findUserBean(UserAction.getMyId());
+        if (mUserInfo != null) {
+            mUserInfo.setName(bean.getNick());
+            mUserInfo.setHead(bean.getAvatar());
+            dao.updateUserBean(mUserInfo);
+        }
     }
 
     private void initPopup() {
@@ -228,6 +215,40 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
                         break;
                 }
                 popupSelectView.dismiss();
+            }
+        });
+    }
+
+    public void updateGoUI(boolean isEnable) {
+        if (isEnable) {
+            mViewBinding.tvGo.setEnabled(true);
+            mViewBinding.tvGo.setTextColor(AppConfig.getColor(R.color.white));
+            mViewBinding.tvGo.setBackgroundResource(R.drawable.bg_btn_green);
+        } else {
+            mViewBinding.tvGo.setEnabled(false);
+            mViewBinding.tvGo.setTextColor(AppConfig.getColor(R.color.black));
+            mViewBinding.tvGo.setBackgroundResource(R.drawable.shape_birthday_bg);
+        }
+    }
+
+    private void uploadInfo() {
+        if (getActivity() == null) {
+            return;
+        }
+        RegisterDetailBean bean = ((RegisterDetailActivity) getActivity()).getDetailBean();
+        new UserAction().updateMyInfo(null, bean.getAvatar(), bean.getNick(), bean.getSex(), bean.getBirthday(), bean.getLocation(), bean.getHeight(), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    ToastUtil.show("注册成功");
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    getActivity().finish();
+                }
             }
         });
     }

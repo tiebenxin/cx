@@ -28,6 +28,8 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
     private int currentStep = EStepPosition.FIRST;
     private BaseRegisterFragment[] fragments;
     private RegisterDetailBean mDetailBean = new RegisterDetailBean();
+    private boolean isFromRegister;
+    private int infoStat;
 
     @Override
     protected int setView() {
@@ -36,7 +38,7 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
 
     @Override
     protected void init(Bundle savedInstanceState) {
-        fragments = new BaseRegisterFragment[]{initFirstFragment(), initSecondFragment(), initThirdFragment(), initFourthFragment(), initFifthFragment()};
+        fragments = new BaseRegisterFragment[]{initFirstFragment(), /*initSecondFragment(),*/ initThirdFragment(), initFourthFragment(), initFifthFragment()};
         bindingView.viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -57,11 +59,11 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
         return fragment;
     }
 
-    private RegisterDetailSecondFragment initSecondFragment() {
-        RegisterDetailSecondFragment fragment = new RegisterDetailSecondFragment();
-        fragment.setListener(this);
-        return fragment;
-    }
+//    private RegisterDetailSecondFragment initSecondFragment() {
+//        RegisterDetailSecondFragment fragment = new RegisterDetailSecondFragment();
+//        fragment.setListener(this);
+//        return fragment;
+//    }
 
     private RegisterDetailThirdFragment initThirdFragment() {
         RegisterDetailThirdFragment fragment = new RegisterDetailThirdFragment();
@@ -99,6 +101,9 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
 
     @Override
     protected void loadData() {
+        Intent intent = getIntent();
+        isFromRegister = intent.getBooleanExtra("isFromRegister",false);
+        infoStat = intent.getIntExtra("infoStat", 0);
 
     }
 
@@ -116,14 +121,15 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
         fragments[currentStep].updateDetailUI(mDetailBean);
     }
 
-    @IntDef({EStepPosition.FIRST, EStepPosition.SECOND, EStepPosition.THIRD, EStepPosition.FOURTH, EStepPosition.FIFTH})
+    //去除身高
+    @IntDef({EStepPosition.FIRST, EStepPosition.SECOND, EStepPosition.THIRD, EStepPosition.FOURTH/*, EStepPosition.FIFTH*/})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EStepPosition {
         int FIRST = 0; //第一步：性别，生日
         int SECOND = 1; //第二步：身高
         int THIRD = 2; //第三步：所在地
         int FOURTH = 3; //第四步：昵称
-        int FIFTH = 4; //第五步：头像
+//        int FIFTH = 4; //第五步：头像
     }
 
     public RegisterDetailBean getDetailBean() {

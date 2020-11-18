@@ -273,7 +273,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
     private void taskUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender) {
 
-        userAction.myInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
+        userAction.myInfoSet(imid, avatar, nickname, gender, null,null,null,new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

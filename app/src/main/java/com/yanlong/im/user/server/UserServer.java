@@ -20,6 +20,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import java.util.List;
 import java.util.WeakHashMap;
 
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
@@ -63,7 +64,7 @@ public interface UserServer {
 
     @POST("/user/get-user-info-by-uid")
     @FormUrlEncoded
-    Call<ReturnBean<UserInfo>> getUserInfoShowTrends(@Field("uid") Long uid,@Field("hasMoment") int hasMoment);
+    Call<ReturnBean<UserInfo>> getUserInfoShowTrends(@Field("uid") Long uid, @Field("hasMoment") int hasMoment);
 
     @POST("/user/get-user-info-by-uid")
     @FormUrlEncoded
@@ -117,15 +118,20 @@ public interface UserServer {
     @POST("/friends/get-all-friends")
     Call<ReturnBean<List<UserInfo>>> getAllFriendsGet();
 
+//    @POST("/user/set-user-info")
+//    @FormUrlEncoded
+//    Call<ReturnBean> userInfoSet(@Field("imid") String imid, @Field("avatar") String avatar,
+//                                 @Field("nickname") String nickname, @Field("gender") Integer gender);
+
     @POST("/user/set-user-info")
     @FormUrlEncoded
-    Call<ReturnBean> userInfoSet(@Field("imid") String imid, @Field("avatar") String avatar,
-                                 @Field("nickname") String nickname, @Field("gender") Integer gender);
+    Call<ReturnBean> userInfoSet(@Field("imid") String imid, @Field("avatar") String avatar, @Field("nickname") String nickname, @Field("gender") Integer gender,
+                                 @Field("birthday") Long birthday, @Field("location") String location, @Field("height") Integer height);
 
     @POST("/user/set-user-info")
     @FormUrlEncoded
     Call<ReturnBean> userInfoSetEditMode(@Field("imid") String imid, @Field("avatar") String avatar,
-                                 @Field("nickname") String nickname, @Field("gender") Integer gender,@Field("robotId") long robotId);
+                                         @Field("nickname") String nickname, @Field("gender") Integer gender, @Field("robotId") long robotId);
 
     @POST("user/set-user-mask")
     @FormUrlEncoded
@@ -269,4 +275,10 @@ public interface UserServer {
 
     @POST("/user/daily-report")
     Call<ReturnBean<DailyReportBean>> dailyReport();
+
+
+    @POST("/user/set-user-info")
+    Call<ReturnBean> updateMyInfo(@Body RequestBody body);
+
+
 }
