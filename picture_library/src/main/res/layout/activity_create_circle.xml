@@ -292,7 +292,8 @@
             <com.luck.picture.lib.face.FaceView
                 android:id="@+id/circle_view_faceview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="197dp"
+                android:layout_marginTop="10dp"
                 android:background="@null"
                 android:paddingTop="10dp"
                 android:visibility="gone" />

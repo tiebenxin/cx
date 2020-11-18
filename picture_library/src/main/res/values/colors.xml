@@ -47,4 +47,6 @@
     <color name="color_e1f">#e1f5d4</color>
     <!--按钮按下颜色-->
     <color name="gray_250">#B5B5B5</color>
+    <color name="gray_400">#63666a</color>
+    <color name="green_600">#31a156</color>
 </resources>
