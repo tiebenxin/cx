@@ -23,6 +23,7 @@ public abstract class BaseRegisterFragment<SV extends ViewDataBinding> extends B
 
     public IRegisterListener listener;
     public SV mViewBinding;
+    public int infoStat;
 
     @Nullable
     @Override
@@ -45,5 +46,7 @@ public abstract class BaseRegisterFragment<SV extends ViewDataBinding> extends B
 
     public abstract void updateDetailUI(RegisterDetailBean bean);
 
-
+    public void setInfoStat(int stat) {
+        infoStat = stat;
+    }
 }

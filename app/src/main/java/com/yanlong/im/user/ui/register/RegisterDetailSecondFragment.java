@@ -33,6 +33,11 @@ public class RegisterDetailSecondFragment extends BaseRegisterFragment<FragmentR
     public void init() {
         mViewBinding.ivLeft.setVisibility(View.VISIBLE);
         mViewBinding.ivRight.setVisibility(View.VISIBLE);
+        if (infoStat == 2){
+            mViewBinding.ivBack.setVisibility(View.VISIBLE);
+        }else {
+            mViewBinding.ivBack.setVisibility(View.GONE);
+        }
         count = end - start;
         optionItems = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -46,6 +51,14 @@ public class RegisterDetailSecondFragment extends BaseRegisterFragment<FragmentR
     @Override
     public void initListener() {
         mViewBinding.ivLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onBack();
+                }
+            }
+        });
+        mViewBinding.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {

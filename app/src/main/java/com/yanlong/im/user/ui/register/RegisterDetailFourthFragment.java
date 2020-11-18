@@ -26,11 +26,24 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
     public void init() {
         mViewBinding.ivLeft.setVisibility(View.VISIBLE);
         mViewBinding.ivRight.setVisibility(View.VISIBLE);
+        if (infoStat == 2){
+            mViewBinding.ivBack.setVisibility(View.VISIBLE);
+        }else {
+            mViewBinding.ivBack.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void initListener() {
         mViewBinding.ivLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onBack();
+                }
+            }
+        });
+        mViewBinding.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {

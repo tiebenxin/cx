@@ -32,7 +32,7 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
     private BaseRegisterFragment[] fragments;
     private RegisterDetailBean mDetailBean = new RegisterDetailBean();
     private boolean isFromRegister;
-    private int infoStat;
+    private int infoStat = 0;
 
     @Override
     protected int setView() {
@@ -41,6 +41,7 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
 
     @Override
     protected void init(Bundle savedInstanceState) {
+        initInfoStat();
         fragments = new BaseRegisterFragment[]{initFirstFragment(), /*initSecondFragment(),*/ initThirdFragment(), initFourthFragment(), initFifthFragment()};
         bindingView.viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -59,6 +60,7 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
     private RegisterDetailFirstFragment initFirstFragment() {
         RegisterDetailFirstFragment fragment = new RegisterDetailFirstFragment();
         fragment.setListener(this);
+        fragment.setInfoStat(infoStat);
         return fragment;
     }
 
@@ -71,18 +73,21 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
     private RegisterDetailThirdFragment initThirdFragment() {
         RegisterDetailThirdFragment fragment = new RegisterDetailThirdFragment();
         fragment.setListener(this);
+        fragment.setInfoStat(infoStat);
         return fragment;
     }
 
     private RegisterDetailFourthFragment initFourthFragment() {
         RegisterDetailFourthFragment fragment = new RegisterDetailFourthFragment();
         fragment.setListener(this);
+        fragment.setInfoStat(infoStat);
         return fragment;
     }
 
     private RegisterDetailFifthFragment initFifthFragment() {
         RegisterDetailFifthFragment fragment = new RegisterDetailFifthFragment();
         fragment.setListener(this);
+        fragment.setInfoStat(infoStat);
         return fragment;
     }
 
@@ -125,16 +130,25 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
                     fragments[currentStep].updateDetailUI(mDetailBean);
                 }
             }
-
         }
+    }
 
+    private void initInfoStat() {
+        UserBean myInfo = (UserBean) UserAction.getMyInfo();
+        if (myInfo != null) {
+            infoStat = myInfo.getInfoStat();
+        }
     }
 
     @Override
     public void onBack() {
-        currentStep = currentStep - 1;
-        bindingView.viewPager.setCurrentItem(currentStep);
-        fragments[currentStep].updateDetailUI(mDetailBean);
+        if (currentStep == 0) {
+            onBackPressed();
+        } else {
+            currentStep = currentStep - 1;
+            bindingView.viewPager.setCurrentItem(currentStep);
+            fragments[currentStep].updateDetailUI(mDetailBean);
+        }
     }
 
     @Override

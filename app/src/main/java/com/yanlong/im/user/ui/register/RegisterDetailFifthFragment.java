@@ -17,7 +17,6 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.RegisterDetailBean;
 import com.yanlong.im.databinding.FragmentRegisterFifthBinding;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.AppConfig;
@@ -57,6 +56,11 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
         mViewBinding.ivLeft.setVisibility(View.VISIBLE);
         mViewBinding.ivRight.setVisibility(View.INVISIBLE);
         mViewBinding.tvGo.setEnabled(false);
+        if (infoStat == 2){
+            mViewBinding.ivBack.setVisibility(View.VISIBLE);
+        }else {
+            mViewBinding.ivBack.setVisibility(View.GONE);
+        }
     }
 
     @Override

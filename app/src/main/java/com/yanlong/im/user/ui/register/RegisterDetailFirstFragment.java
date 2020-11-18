@@ -38,8 +38,19 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
     public void init() {
         mViewBinding.ivLeft.setVisibility(View.INVISIBLE);
         mViewBinding.ivRight.setVisibility(View.VISIBLE);
-        defaultCalendar = Calendar.getInstance();
-        defaultCalendar.set(1998, 0, 1);//1998-1-1
+        if (infoStat == 2) {
+            mViewBinding.ivBack.setVisibility(View.VISIBLE);
+        } else {
+            mViewBinding.ivBack.setVisibility(View.GONE);
+        }
+        RegisterDetailBean detailBean = ((RegisterDetailActivity) getActivity()).getDetailBean();
+        if (detailBean.getBirthday() > 0) {
+            defaultCalendar = Calendar.getInstance();
+            defaultCalendar.setTimeInMillis(detailBean.getBirthday());
+        } else {
+            defaultCalendar = Calendar.getInstance();
+            defaultCalendar.set(1998, 0, 1);//1998-1-1
+        }
         ((RegisterDetailActivity) getActivity()).getDetailBean().setBirthday(defaultCalendar.getTimeInMillis());
         if (mDetailBean != null) {
             updateDetailUI(mDetailBean);
@@ -68,6 +79,14 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
                 }
                 if (listener != null) {
                     listener.onNext();
+                }
+            }
+        });
+        mViewBinding.ivBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onBack();
                 }
             }
         });

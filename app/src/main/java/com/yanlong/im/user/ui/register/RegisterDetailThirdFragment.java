@@ -27,9 +27,11 @@ import java.util.Map;
  */
 public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRegisterThirdBinding> {
     List<String> provinceList = new ArrayList<>();
-    List<String> cityList;
+    List<String> cityList = new ArrayList<>();
     Map<String, List<String>> locationMap = new HashMap<>();
     String province = "";
+    private ArrayWheelAdapter provinceAdapter;
+    private ArrayWheelAdapter cityAdapter;
 
     @Override
     public int getLayoutId() {
@@ -40,6 +42,11 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
     public void init() {
         mViewBinding.ivLeft.setVisibility(View.VISIBLE);
         mViewBinding.ivRight.setVisibility(View.VISIBLE);
+        if (infoStat == 2) {
+            mViewBinding.ivBack.setVisibility(View.VISIBLE);
+        } else {
+            mViewBinding.ivBack.setVisibility(View.GONE);
+        }
         String cityJson = GsonUtils.getCityJson(getContext());
         if (!TextUtils.isEmpty(cityJson)) {
             Gson gson = new Gson();
@@ -54,20 +61,66 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
         }
         mViewBinding.wheelProvince.setCyclic(false);
         mViewBinding.wheelCity.setCyclic(false);
-        //省份数据
-        mViewBinding.wheelProvince.setAdapter(new ArrayWheelAdapter(provinceList));
-        mViewBinding.wheelProvince.setCurrentItem(0);
-        province = provinceList.get(0);
-        //地级市数据
-        cityList = locationMap.get(provinceList.get(0));
-        mViewBinding.wheelCity.setAdapter(new ArrayWheelAdapter(cityList));
-        mViewBinding.wheelCity.setCurrentItem(0);
-        updateCityData(province, cityList.get(0), false);
+        RegisterDetailBean detailBean = ((RegisterDetailActivity) getActivity()).getDetailBean();
+        if (!TextUtils.isEmpty(detailBean.getLocation())) {
+            if (provinceAdapter == null) {
+                provinceAdapter = new ArrayWheelAdapter(provinceList);
+            }
+            mViewBinding.wheelProvince.setAdapter(provinceAdapter);
+            String location = detailBean.getLocation();
+            String[] strings = location.split(",");
+            if (strings.length != 2) {
+                return;
+            }
+            String province = strings[0];
+            String city = strings[1];
+            int provinceIndex = provinceList.indexOf(province);
+            if (provinceIndex < 0) {
+                return;
+            }
+            mViewBinding.wheelProvince.setCurrentItem(provinceIndex);
+            cityList = locationMap.get(province);
+            if (cityList != null) {
+                if (cityAdapter == null) {
+                    cityAdapter = new ArrayWheelAdapter(cityList);
+                }
+                mViewBinding.wheelCity.setAdapter(cityAdapter);
+                int cityIndex = cityList.indexOf(city);
+                if (cityIndex < 0) {
+                    return;
+                }
+                mViewBinding.wheelCity.setCurrentItem(cityIndex);
+            }
+        } else {
+            //省份数据
+            if (provinceAdapter == null) {
+                provinceAdapter = new ArrayWheelAdapter(provinceList);
+            }
+            mViewBinding.wheelProvince.setAdapter(provinceAdapter);
+            mViewBinding.wheelProvince.setCurrentItem(0);
+            province = provinceList.get(0);
+            //地级市数据
+            cityList = locationMap.get(provinceList.get(0));
+            if (cityAdapter == null) {
+                cityAdapter = new ArrayWheelAdapter(cityList);
+            }
+            mViewBinding.wheelCity.setAdapter(cityAdapter);
+            mViewBinding.wheelCity.setCurrentItem(0);
+            updateCityData(province, cityList.get(0), false);
+        }
     }
 
     @Override
     public void initListener() {
         mViewBinding.ivLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onBack();
+                }
+            }
+        });
+        mViewBinding.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
@@ -125,6 +178,10 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
         if (bean == null || locationMap == null || provinceList == null || mViewBinding == null) {
             return;
         }
+        initAndSetCity(bean);
+    }
+
+    private void initAndSetCity(RegisterDetailBean bean) {
         try {
             String location = bean.getLocation();
             String[] strings = location.split(",");

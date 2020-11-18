@@ -39,6 +39,7 @@ import com.yanlong.im.databinding.ActivityMyCircleBinding;
 import com.yanlong.im.interf.IPlayVoiceListener;
 import com.yanlong.im.interf.IRefreshListenr;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketUtil;
 
@@ -122,7 +123,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
 
     @Override
     protected void loadData() {
-        adapter = new MyTrendsAdapter(MyTrendsActivity.this, mList, 1, 0,false);
+        adapter = new MyTrendsAdapter(MyTrendsActivity.this, mList, 1, 0, false);
         bindingView.recyclerView.setAdapter(adapter);
         bindingView.recyclerView.getItemAnimator().setChangeDuration(0);
         bindingView.recyclerView.setLayoutManager(new YLLinearLayoutManager(this));
@@ -160,20 +161,20 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                         }
                         if (attachmentBeans != null && attachmentBeans.size() > 0) {
                             AttachmentBean attachmentBean = attachmentBeans.get(0);
-                            if(!TextUtils.isEmpty(attachmentBean.getUrl())){
+                            if (!TextUtils.isEmpty(attachmentBean.getUrl())) {
                                 voiceUrl = attachmentBean.getUrl();
                                 //语音播放过程中置顶/取消置顶
-                                if(currentMessage!=null){
-                                    if(bean.getIsTop()==1){
+                                if (currentMessage != null) {
+                                    if (bean.getIsTop() == 1) {
                                         currentMessage.setIsTop(1);
-                                    }else {
+                                    } else {
                                         currentMessage.setIsTop(0);
                                     }
                                 }
                             }
                         }
                     }
-                }else {
+                } else {
                     voiceUrl = "";
                 }
                 page = 1;
@@ -203,6 +204,12 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
             AudioPlayUtil.stopAudioPlay();
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                 ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
+            //资料未完善
+            if (UserUtil.getInfoStat() > 0) {
+                Intent intent = new Intent(MyTrendsActivity.this, RegisterDetailActivity.class);
+                startActivity(intent);
                 return;
             }
             PictureSelector.create(MyTrendsActivity.this)
@@ -306,13 +313,13 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                     adapter.addMoreList(bean.getMomentList());
                                     adapter.setLoadState(adapter.LOADING_MORE);
                                 } else {
-                                    if(!TextUtils.isEmpty(voiceUrl)){
+                                    if (!TextUtils.isEmpty(voiceUrl)) {
                                         if (AudioPlayManager2.getInstance().isPlay(Uri.parse(voiceUrl))) {
                                             updatePositionList(adapter.getDataList());//如果超过一页，所以要把全部数据放进去查找
                                         }
                                     }
                                     //1-2 第一次加载，若超过3个显示加载更多
-                                    if (bean != null){
+                                    if (bean != null) {
                                         adapter.setTopData(bean);
                                     }
                                     mList.clear();
@@ -332,7 +339,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
                                 if (page > 1) {
                                     adapter.setLoadState(adapter.LOADING_END);
                                 } else {
-                                    if (bean != null){
+                                    if (bean != null) {
                                         adapter.setTopData(bean);
                                     }
                                     //2-2 第一次加载，没有数据则不显示尾部
@@ -638,7 +645,7 @@ public class MyTrendsActivity extends BaseBindActivity<ActivityMyCircleBinding> 
         msgTemp = list.get(index);
         msgTemp.setPlay(currentMessage.isPlay());
         msgTemp.setPlayProgress(currentMessage.getPlayProgress());
-        list.set(index,msgTemp);
+        list.set(index, msgTemp);
     }
 
 
