@@ -682,4 +682,5 @@
         <item name="android:background">@mipmap/bg_red_num_small</item>
         <item name="android:visibility">gone</item>
     </style>
+
 </resources>

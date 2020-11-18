@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * @author Liszt
  * @date 2020/11/16
- * Description
+ * Description 性别，生日
  */
 public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRegisterFirstBinding> {
 
@@ -104,10 +104,11 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
     //时间选择器。选择生日
     private void initTimePicker() {
         Calendar defaultCalendar = Calendar.getInstance();
-        defaultCalendar.set(1998, 0, 1);//2019-1-1
+        defaultCalendar.set(1998, 0, 1);//1998-1-1
         Calendar start = Calendar.getInstance();
-        start.set(1950, 0, 1);//2019-1-1
+        start.set(1920, 0, 1);//1920-1-1
         Calendar end = Calendar.getInstance();
+        end.set(2010, 11, 31);//2010-12-31
 
         //时间选择器
         TimePickerView pvTime = new TimePickerBuilder(getActivity(), new OnTimeSelectListener() {

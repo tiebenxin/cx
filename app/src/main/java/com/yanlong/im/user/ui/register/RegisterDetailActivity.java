@@ -1,9 +1,11 @@
 package com.yanlong.im.user.ui.register;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 
@@ -79,6 +81,16 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
         return fragment;
     }
 
+    @Override
+    public void onBackPressed() {
+        if (currentStep > EStepPosition.FIRST) {
+            currentStep = currentStep - 1;
+            bindingView.viewPager.setCurrentItem(currentStep);
+            fragments[currentStep].updateDetailUI(mDetailBean);
+        } else {
+            finish();
+        }
+    }
 
     @Override
     protected void initEvent() {
@@ -118,9 +130,11 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
         return mDetailBean;
     }
 
-//    public void updateDetailBean(RegisterDetailBean bean) {
-//        if (bean != null) {
-//            mDetailBean = bean;
-//        }
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (fragments != null) {
+            fragments[currentStep].onActivityResult(requestCode, resultCode, data);
+        }
+    }
 }

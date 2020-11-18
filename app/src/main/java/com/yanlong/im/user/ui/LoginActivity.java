@@ -296,8 +296,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 startActivity(forgotPasswordIntent);
                 break;
             case R.id.tv_more:
-//                initPopup();
-                startActivity(new Intent(this, RegisterDetailActivity.class));
+                initPopup();
                 break;
         }
     }

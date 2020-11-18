@@ -3,141 +3,100 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingDefaultResource">
 
-    <FrameLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/iv_background"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@mipmap/ic_profile_background" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="bottom"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:orientation="vertical">
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
 
-                <TextView
+                <ImageView
+                    android:id="@+id/iv_left"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="您的资料"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
+                    android:layout_gravity="center_vertical|left"
+                    android:layout_marginLeft="10dp"
+                    android:padding="15dp"
+                    android:src="@mipmap/ic_register_back"
+                    android:visibility="visible" />
+
 
                 <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="请输入您的昵称"
+                    android:textColor="@color/black"
+                    android:textSize="21sp" />
+
+
+                <ImageView
+                    android:id="@+id/iv_right"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:text="性别很重要，选择后不可修改哦"
-                    android:textColor="@color/black"
-                    android:textSize="14sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <net.cb.cb.library.view.CircleImageView
-                            android:id="@+id/iv_avatar_man"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginLeft="10dp"
-                            android:src="@mipmap/ic_info_head" />
-
-                        <ImageView
-                            android:id="@+id/iv_man_icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginLeft="10dp"
-                            android:src="@mipmap/ic_bank_zs" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <net.cb.cb.library.view.CircleImageView
-                            android:id="@+id/iv_avatar_woman"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginRight="10dp"
-                            android:src="@mipmap/ic_info_head" />
-
-                        <ImageView
-                            android:id="@+id/iv_woman_icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginRight="10dp"
-                            android:src="@mipmap/ic_bank_zs" />
-
-                    </LinearLayout>
-
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tv_birthday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:drawableRight="@mipmap/ic_right_arrow"
-                    android:drawablePadding="10dp"
-                    android:text="您的生日"
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
+                    android:layout_gravity="center_vertical|right"
+                    android:layout_marginRight="10dp"
+                    android:padding="15dp"
+                    android:src="@mipmap/ic_next"
+                    android:visibility="visible" />
 
             </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="起一个有吸引力的昵称吧"
+                android:textColor="@color/color_666"
+                android:textSize="14sp" />
+
+
+            <net.cb.cb.library.view.ClearEditText
+                android:id="@+id/et_nick"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="70dp"
+                android:layout_marginRight="50dp"
+                android:layout_marginBottom="100dp"
+                android:background="@drawable/shape_birthday_bg"
+                android:gravity="center"
+                android:hint="请输入昵称" />
 
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/iv_left"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|left"
-            android:layout_marginLeft="10dp"
-            android:padding="20dp"
-            android:src="@mipmap/ic_back"
-            android:visibility="gone" />
+
+    </LinearLayout>
 
 
-        <ImageView
-            android:id="@+id/iv_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|right"
-            android:layout_marginRight="10dp"
-            android:padding="20dp"
-            android:src="@mipmap/ic_right_arrow"
-            android:visibility="gone" />
-
-    </FrameLayout>
 </layout>

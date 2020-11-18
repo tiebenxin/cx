@@ -98,7 +98,7 @@
                         android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginLeft="10dp"
-                        android:src="@drawable/selector_man_avatar" />
+                        android:src="@mipmap/ic_man_avatar_dark" />
 
                     <ImageView
                         android:id="@+id/iv_man_icon"
@@ -124,7 +124,7 @@
                         android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/selector_woman_avatar" />
+                        android:src="@mipmap/ic_woman_avatar_dark" />
 
                     <ImageView
                         android:id="@+id/iv_woman_icon"
@@ -176,6 +176,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
                     android:src="@mipmap/ic_right_arrow" />
 
             </LinearLayout>
