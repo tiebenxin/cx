@@ -3,11 +3,9 @@ package com.luck.picture.lib.circle;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,15 +13,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -359,6 +355,8 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     layout_voice.setVisibility(View.VISIBLE);
                     tv_time.setText(getPlayTime(time));
                     voiceOption();
+                    iv_voice.setImageLevel(0);
+                    etContent.requestFocus();
                 }
                 // 图片或视频
                 if (circleDraftBean.getList() != null && circleDraftBean.getList().size() > 0) {
@@ -420,7 +418,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-//                setEditTextHeight(false);
                 isOpenSoft = true;
                 isRestHeight = true;
                 frame_content.setVisibility(View.VISIBLE);
@@ -435,7 +432,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
                     frame_content.setVisibility(View.GONE);
                 }
                 isRestHeight = true;
-//                setEditTextHeight(true);
                 setRecyclerViewHeight(mFuncHeight);
             }
 
@@ -523,7 +519,6 @@ public class CreateCircleActivity extends PictureBaseActivity implements View.On
             if (height < mFuncHeight) {
                 height = mFuncHeight;
             }
-            Log.i("1212", "height:" + height);
             mKeyboardHeight = height;
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
             frame_content.setLayoutParams(layoutParams);
