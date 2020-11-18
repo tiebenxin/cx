@@ -96,7 +96,7 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
 
     @Override
     public void updateDetailUI(RegisterDetailBean bean) {
-        if (bean == null || getActivity() == null) {
+        if (bean == null || getActivity() == null || mViewBinding == null) {
             return;
         }
         if (!TextUtils.isEmpty(bean.getAvatar())) {
@@ -163,14 +163,14 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
         }, file);
     }
 
-    private void updateMyUserInfo(RegisterDetailBean bean) {
-        UserBean mUserInfo = dao.findUserBean(UserAction.getMyId());
-        if (mUserInfo != null) {
-            mUserInfo.setName(bean.getNick());
-            mUserInfo.setHead(bean.getAvatar());
-            dao.updateUserBean(mUserInfo);
-        }
-    }
+//    private void updateMyUserInfo(RegisterDetailBean bean) {
+//        UserBean mUserInfo = dao.findUserBean(UserAction.getMyId());
+//        if (mUserInfo != null) {
+//            mUserInfo.setName(bean.getNick());
+//            mUserInfo.setHead(bean.getAvatar());
+//            dao.updateUserBean(mUserInfo);
+//        }
+//    }
 
     private void initPopup() {
         PopupSelectView popupSelectView = new PopupSelectView(getActivity(), strings);

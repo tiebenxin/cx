@@ -122,7 +122,7 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
 
     @Override
     public void updateDetailUI(RegisterDetailBean bean) {
-        if (bean == null || locationMap == null || provinceList == null) {
+        if (bean == null || locationMap == null || provinceList == null || mViewBinding == null) {
             return;
         }
         try {

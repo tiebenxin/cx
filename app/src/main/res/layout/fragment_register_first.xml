@@ -54,7 +54,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="您的资料"
+                    android:text="需要您完善个人资料\n您的资料"
                     android:textColor="@color/black"
                     android:textSize="21sp" />
 
@@ -75,6 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp"
                 android:text="性别很重要，选择后不可修改哦"
                 android:textColor="@color/color_666"
                 android:textSize="14sp" />

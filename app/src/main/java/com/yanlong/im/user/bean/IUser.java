@@ -91,4 +91,6 @@ public interface IUser {
     String getJoinTime();
 
     int getHistoryClear();
+
+    int getInfoStat();
 }

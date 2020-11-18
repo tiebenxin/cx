@@ -205,4 +205,22 @@ public class UserUtil {
                 return ChatEnum.EUserType.STRANGE;
         }
     }
+
+    /**
+     * 获取用户信息完善状态 0正常已完善 1新用户未完善，2 老用户未完善
+     *
+     * @return
+     */
+    public static int getInfoStat() {
+        int status = 0;
+        try {
+            if (UserAction.getMyInfo() != null) {
+                status =UserAction.getMyInfo().getInfoStat();
+            }
+        } catch (Exception e) {
+
+        } finally {
+            return status;
+        }
+    }
 }

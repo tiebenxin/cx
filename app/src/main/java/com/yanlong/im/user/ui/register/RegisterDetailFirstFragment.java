@@ -27,6 +27,7 @@ import java.util.Date;
 public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRegisterFirstBinding> {
 
     private Calendar defaultCalendar;
+    private RegisterDetailBean mDetailBean;
 
     @Override
     public int getLayoutId() {
@@ -40,6 +41,9 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
         defaultCalendar = Calendar.getInstance();
         defaultCalendar.set(1998, 0, 1);//1998-1-1
         ((RegisterDetailActivity) getActivity()).getDetailBean().setBirthday(defaultCalendar.getTimeInMillis());
+        if (mDetailBean != null) {
+            updateDetailUI(mDetailBean);
+        }
 
     }
 
@@ -143,6 +147,10 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
     @Override
     public void updateDetailUI(RegisterDetailBean bean) {
         if (bean == null) {
+            return;
+        }
+        if (mViewBinding == null) {
+            mDetailBean = bean;
             return;
         }
         if (bean.getSex() > 0) {

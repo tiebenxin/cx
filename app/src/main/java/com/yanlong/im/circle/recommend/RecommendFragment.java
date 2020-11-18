@@ -54,6 +54,7 @@ import com.yanlong.im.interf.ICircleClickListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.AutoPlayUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
@@ -378,6 +379,12 @@ public class RecommendFragment extends BaseCircleFragment<RecommendPresenter, Fr
                                         if (messageInfoBean.isFollow()) {
                                             showCancleFollowDialog(messageInfoBean.getUid(), position);
                                         } else {
+                                            //资料未完善
+                                            if (UserUtil.getInfoStat() > 0) {
+                                                Intent intent = new Intent(getActivity(), RegisterDetailActivity.class);
+                                                startActivity(intent);
+                                                return;
+                                            }
                                             mPresenter.followAdd(messageInfoBean.getUid(), position);
                                         }
                                     }

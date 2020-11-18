@@ -81,6 +81,7 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -279,6 +280,7 @@ public class MainActivity extends BaseTcpActivity {
             checkPermission();
             initLocation();
             FileManager.getInstance().clearLogDir();
+            checkInfoStat();
         }
         if (mMsgMainFragment != null && !SocketUtil.getSocketUtil().getOnlineState()) {
             mMsgMainFragment.doOnlineChange(false);
@@ -1535,6 +1537,19 @@ public class MainActivity extends BaseTcpActivity {
                     }
                 }
             });
+        }
+    }
+
+    //检测用户信息是否完善，新用户必须完善
+    private void checkInfoStat() {
+        if (UserAction.getMyInfo() == null) {
+            return;
+        }
+        int stat = UserAction.getMyInfo().getInfoStat();
+        //是否是新用户未设置
+        if (stat == 1) {
+            Intent intent = new Intent(this, RegisterDetailActivity.class);
+            startActivity(intent);
         }
     }
 }

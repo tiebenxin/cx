@@ -1,5 +1,6 @@
 package com.yanlong.im.circle;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -31,6 +32,7 @@ import com.yanlong.im.circle.bean.MessageInfoBean;
 import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.databinding.ActivityCircleBinding;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
@@ -232,6 +234,12 @@ public class CircleFragment extends BaseBindMvpFragment<CirclePresenter, Activit
                 //被封号处理
                 if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                     ToastUtil.show(getActivity().getString(R.string.user_disable_message));
+                    return;
+                }
+                //资料未完善
+                if (UserUtil.getInfoStat() > 0) {
+                    Intent intent = new Intent(getActivity(), RegisterDetailActivity.class);
+                    startActivity(intent);
                     return;
                 }
                 AudioPlayUtil.stopAudioPlay();

@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui.register;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -12,6 +13,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.RegisterDetailBean;
 import com.yanlong.im.databinding.ActivityRegisterDetailBinding;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserBean;
 
 import net.cb.cb.library.base.bind.BaseBindActivity;
 
@@ -90,7 +93,10 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
             bindingView.viewPager.setCurrentItem(currentStep);
             fragments[currentStep].updateDetailUI(mDetailBean);
         } else {
-            finish();
+            //不是新用户未设置
+            if (infoStat != 1) {
+                finish();
+            }
         }
     }
 
@@ -102,8 +108,25 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
     @Override
     protected void loadData() {
         Intent intent = getIntent();
-        isFromRegister = intent.getBooleanExtra("isFromRegister",false);
-        infoStat = intent.getIntExtra("infoStat", 0);
+        isFromRegister = intent.getBooleanExtra("isFromRegister", false);
+        if (!isFromRegister) {
+            UserBean myInfo = (UserBean) UserAction.getMyInfo();
+            if (myInfo != null) {
+                infoStat = myInfo.getInfoStat();
+                //老用户未设置
+                if (infoStat == 2) {
+                    if (!TextUtils.isEmpty(myInfo.getHead())) {
+                        mDetailBean.setAvatar(myInfo.getHead());
+                    }
+                    mDetailBean.setSex(myInfo.getSex());
+                    if (!TextUtils.isEmpty(myInfo.getName())) {
+                        mDetailBean.setNick(myInfo.getName());
+                    }
+                    fragments[currentStep].updateDetailUI(mDetailBean);
+                }
+            }
+
+        }
 
     }
 

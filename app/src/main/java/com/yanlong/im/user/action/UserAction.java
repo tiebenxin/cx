@@ -1401,6 +1401,7 @@ public class UserAction {
                                     myInfo.setName(nickname);
                                 if (gender != null)
                                     myInfo.setSex(gender);
+                                myInfo.setInfoStat(0);
                                 updateUser2DB(myInfo);
                             }
                         }

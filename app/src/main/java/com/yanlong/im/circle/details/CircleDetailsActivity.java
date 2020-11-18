@@ -73,6 +73,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.view.DeletPopWindow;
 
@@ -542,6 +543,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
                             if (isFollow || mMessageInfoBean.isFollow()) {
                                 showCancleFollowDialog(mMessageInfoBean.getUid(), 0);
                             } else {
+                                //资料未完善
+                                if (UserUtil.getInfoStat() > 0) {
+                                    Intent intent = new Intent(CircleDetailsActivity.this, RegisterDetailActivity.class);
+                                    startActivity(intent);
+                                    return;
+                                }
                                 mPresenter.followAdd(mMessageInfoBean.getUid(), 0);
                             }
                         }
@@ -746,6 +753,12 @@ public class CircleDetailsActivity extends BaseBindMvpActivity<FollowPresenter, 
         } else if (type == CoreEnum.EClickType.FOLLOW) {
             if (UserUtil.getUserStatus() == CoreEnum.EUserType.DISABLE) {// 封号
                 ToastUtil.show(getString(R.string.user_disable_message));
+                return;
+            }
+            //资料未完善
+            if (UserUtil.getInfoStat() > 0) {
+                Intent intent = new Intent(CircleDetailsActivity.this, RegisterDetailActivity.class);
+                startActivity(intent);
                 return;
             }
             mPresenter.followAdd(mMessageInfoBean.getUid(), position);

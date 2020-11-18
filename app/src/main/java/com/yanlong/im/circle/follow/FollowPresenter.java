@@ -2,6 +2,7 @@ package com.yanlong.im.circle.follow;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -19,6 +20,8 @@ import com.yanlong.im.circle.recommend.RecommendFragment;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.base.bind.BasePresenter;
 import net.cb.cb.library.bean.ReturnBean;

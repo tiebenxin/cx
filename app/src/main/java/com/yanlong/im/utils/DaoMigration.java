@@ -240,6 +240,10 @@ public class DaoMigration implements RealmMigration {
                 updateV55(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 55) {
+                updateV56(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -965,6 +969,12 @@ public class DaoMigration implements RealmMigration {
                 .addField("nickname", String.class)
                 .addField("fromUid", long.class)
                 .addField("timeStamp", long.class);
+    }
+
+    //增加能否双向清除
+    private final void updateV56(RealmSchema schema) {
+        schema.get("UserBean")
+                .addField("infoStat", int.class);
     }
 
     @Override

@@ -23,7 +23,9 @@ import com.yanlong.im.R;
 import com.yanlong.im.circle.bean.FriendUserBean;
 import com.yanlong.im.circle.mycircle.MyCircleAction;
 import com.yanlong.im.circle.mycircle.FriendTrendsActivity;
+import com.yanlong.im.circle.mycircle.MyTrendsActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.UserUtil;
 
@@ -82,12 +84,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<Integer> oldFollowList;//记录旧的关注状态
 
 
-    public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList,int type) {
+    public MyFollowAdapter(Activity activity, List<FriendUserBean> dataList, int type) {
         inflater = LayoutInflater.from(activity);
         this.activity = activity;
         this.type = type;
         this.dataList = new ArrayList<>();
-        if(dataList!=null && dataList.size()>0){
+        if (dataList != null && dataList.size() > 0) {
             this.dataList.addAll(dataList);
         }
         init();
@@ -122,12 +124,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //记录旧的关注状态
-    public void setOldFollowList(List<FriendUserBean> list,boolean whoSeeMe){
+    public void setOldFollowList(List<FriendUserBean> list, boolean whoSeeMe) {
         List<Integer> statusList = new ArrayList<>();
-        for(FriendUserBean bean : list){
-            if(whoSeeMe){
+        for (FriendUserBean bean : list) {
+            if (whoSeeMe) {
                 statusList.add(bean.getFollowStat());
-            }else {
+            } else {
                 statusList.add(bean.getStat());
             }
         }
@@ -136,12 +138,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     //加载更多记录旧的关注状态
-    public void addMoreOldFollowList(List<FriendUserBean> list,boolean whoSeeMe){
+    public void addMoreOldFollowList(List<FriendUserBean> list, boolean whoSeeMe) {
         List<Integer> statusList = new ArrayList<>();
-        for(FriendUserBean bean : list){
-            if(whoSeeMe){
+        for (FriendUserBean bean : list) {
+            if (whoSeeMe) {
                 statusList.add(bean.getFollowStat());
-            }else {
+            } else {
                 statusList.add(bean.getStat());
             }
         }
@@ -149,12 +151,11 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
 
-
     //更新某一条关注状态
-    public void updateOneItem(int position,int type){ //有些区别，传过来的type ,0 未关注 1 已关注 ，这里是1 已关注 2 未关注
-        if(type==0){
+    public void updateOneItem(int position, int type) { //有些区别，传过来的type ,0 未关注 1 已关注 ，这里是1 已关注 2 未关注
+        if (type == 0) {
             dataList.get(position).setStat(2);
-        }else if(type==1){
+        } else if (type == 1) {
             dataList.get(position).setStat(1);
         }
         notifyItemChanged(position);
@@ -197,23 +198,23 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //昵称
                     if (!TextUtils.isEmpty(userInfo.getNickname())) {
                         holder.tvName.setText(userInfo.getNickname());
-                    }else {
+                    } else {
                         holder.tvName.setText("该用户未设置昵称");
                     }
-                    if(type==0 || type==-1){
+                    if (type == 0 || type == -1) {
                         //最新一条说说
                         if (!TextUtils.isEmpty(userInfo.getContent())) {
                             holder.tvNote.setText(getSpan(userInfo.getContent()));
-                        }else {
+                        } else {
                             holder.tvNote.setText("暂无最新动态");
                         }
                         holder.tvNote.setVisibility(View.VISIBLE);
                     } else if (type == 3) {
                         holder.tvNote.setVisibility(View.GONE);
                     } else {
-                        if (userInfo.getLastTime()!=0) {
-                            holder.tvNote.setText("最近访问："+TimeToString.formatCircleDate(userInfo.getLastTime()));
-                        }else {
+                        if (userInfo.getLastTime() != 0) {
+                            holder.tvNote.setText("最近访问：" + TimeToString.formatCircleDate(userInfo.getLastTime()));
+                        } else {
                             holder.tvNote.setText("最近没有访问");
                         }
                         holder.tvNote.setVisibility(View.VISIBLE);
@@ -225,29 +226,29 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 .load(userInfo.getAvatar())
                                 .apply(mRequestOptions)
                                 .into(holder.ivHeader);
-                    }else {
+                    } else {
                         Glide.with(activity)
                                 .load(R.drawable.ic_info_head)
                                 .apply(mRequestOptions)
                                 .into(holder.ivHeader);
                     }
-                    if(type==1){
+                    if (type == 1) {
                         //显示删除访问记录
                         holder.tvFollow.setVisibility(View.GONE);
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.VISIBLE);
-                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(),position,1,null));
-                    }else if (type == 3) {
+                        holder.tvDeleteRecord.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position, 1, null));
+                    } else if (type == 3) {
                         holder.tvFollow.setVisibility(View.GONE);
                         holder.tvDeleteNotSee.setVisibility(View.VISIBLE);
                         holder.tvDeleteRecord.setVisibility(View.GONE);
-                        holder.tvDeleteNotSee.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position,2,null));
+                        holder.tvDeleteNotSee.setOnClickListener(v -> showDeleteDialog(userInfo.getUid(), position, 2, null));
                     } else {
                         holder.tvFollow.setVisibility(View.VISIBLE);
                         holder.tvDeleteNotSee.setVisibility(View.GONE);
                         holder.tvDeleteRecord.setVisibility(View.GONE);
                         //关注状态   刚进来全部是已关注，1 已关注 2 未关注 3 相互关注
-                        if(type==2){
+                        if (type == 2) {
                             if (userInfo.getFollowStat() == 3) {
                                 holder.tvFollow.setText("相互关注");
                                 holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_527ea2);
@@ -258,7 +259,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 holder.tvFollow.setText("关注TA");
                                 holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_32b053);
                             }
-                        }else {
+                        } else {
                             if (userInfo.getStat() == 3) {
                                 holder.tvFollow.setText("相互关注");
                                 holder.tvFollow.setBackgroundResource(com.yanlong.im.R.drawable.shape_5radius_solid_527ea2);
@@ -277,6 +278,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 return;
                             }
                             if (holder.tvFollow.getText().equals("关注TA")) {
+                                //资料未完善
+                                if (UserUtil.getInfoStat() > 0 && activity != null) {
+                                    Intent intent = new Intent(activity, RegisterDetailActivity.class);
+                                    activity.startActivity(intent);
+                                    return;
+                                }
                                 httpToFollow(userInfo.getUid(), position, holder.tvFollow);
                             } else {
                                 showDeleteDialog(userInfo.getUid(), position, 3, holder.tvFollow);
@@ -287,10 +294,10 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         //没注销的用户才允许跳朋友圈
                         if (!TextUtils.isEmpty(userInfo.getNickname()) || !TextUtils.isEmpty(userInfo.getAvatar())) {
                             Intent intent = new Intent(activity, FriendTrendsActivity.class);
-                            intent.putExtra("uid",userInfo.getUid());
-                            intent.putExtra(FriendTrendsActivity.POSITION,position);
+                            intent.putExtra("uid", userInfo.getUid());
+                            intent.putExtra(FriendTrendsActivity.POSITION, position);
                             activity.startActivity(intent);
-                        }else {
+                        } else {
                             ToastUtil.show("该用户已注销");
                         }
                     });
@@ -300,7 +307,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             activity.startActivity(new Intent(activity, UserInfoActivity.class)
                                     .putExtra(UserInfoActivity.ID, userInfo.getUid())
                                     .putExtra(UserInfoActivity.JION_TYPE_SHOW, 0));
-                        }else {
+                        } else {
                             ToastUtil.show("该用户已注销");
                         }
                     });
@@ -402,7 +409,7 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * 发请求->关注
      */
-    private void httpToFollow(long uid,int position, TextView tvFollow) {
+    private void httpToFollow(long uid, int position, TextView tvFollow) {
         action.httpToFollow(uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -410,26 +417,26 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("关注成功");
-                    if(type==2){
+                    if (type == 2) {
                         //若原来是已关注，取消后，点击仍然为已关注
-                        if(oldFollowList.get(position).intValue()==1 || oldFollowList.get(position).intValue()==2 || oldFollowList.get(position).intValue()==0){
+                        if (oldFollowList.get(position).intValue() == 1 || oldFollowList.get(position).intValue() == 2 || oldFollowList.get(position).intValue() == 0) {
                             dataList.get(position).setFollowStat(1);
-                        }else if(oldFollowList.get(position).intValue()==3){
+                        } else if (oldFollowList.get(position).intValue() == 3) {
                             dataList.get(position).setFollowStat(3);
                         }
-                    }else if(type==-1){
+                    } else if (type == -1) {
                         dataList.get(position).setStat(3);
-                    }else {
+                    } else {
                         //若原来是已关注，取消后，点击仍然为已关注
-                        if(oldFollowList.get(position).intValue()==1 || oldFollowList.get(position).intValue()==2){
+                        if (oldFollowList.get(position).intValue() == 1 || oldFollowList.get(position).intValue() == 2) {
                             dataList.get(position).setStat(1);
-                        }else if(oldFollowList.get(position).intValue()==3){
+                        } else if (oldFollowList.get(position).intValue() == 3) {
                             dataList.get(position).setStat(3);
                         }
                     }
-                    notifyItemChanged(position,tvFollow);
+                    notifyItemChanged(position, tvFollow);
                     //关注单个用户，回到关注列表需要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 1;
@@ -457,20 +464,20 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("取消关注成功");
-                    if(type==2){
+                    if (type == 2) {
                         dataList.get(position).setFollowStat(2);
-                    }else {
+                    } else {
                         dataList.get(position).setStat(2);
                     }
-                    notifyItemChanged(position,tvFollow);
+                    notifyItemChanged(position, tvFollow);
                     //取消关注单个用户，推荐/关注列表都要及时更新
                     EventFactory.UpdateFollowStateEvent event = new EventFactory.UpdateFollowStateEvent();
                     event.type = 0;
                     event.uid = uid;
                     EventBus.getDefault().post(event);
-                }else {
+                } else {
                     ToastUtil.show("取消关注失败");
                 }
             }
@@ -494,12 +501,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("删除成功");
                     dataList.remove(position);//删除数据源,移除集合中当前下标的数据
                     notifyItemRemoved(position);//刷新被删除的地方
-                    notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
-                }else {
+                    notifyItemRangeChanged(position, getItemCount()); //刷新被删除数据，以及其后面的数据
+                } else {
                     ToastUtil.show("删除失败");
                 }
             }
@@ -523,12 +530,12 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("移除成功");
                     dataList.remove(position);//删除数据源,移除集合中当前下标的数据
                     notifyItemRemoved(position);//刷新被删除的地方
-                    notifyItemRangeChanged(position,getItemCount()); //刷新被删除数据，以及其后面的数据
-                }else {
+                    notifyItemRangeChanged(position, getItemCount()); //刷新被删除数据，以及其后面的数据
+                } else {
                     ToastUtil.show("移除失败");
                 }
             }
@@ -544,17 +551,18 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     /**
      * 提示弹框
+     *
      * @param uid
      * @param position
-     * @param type 1是否删除访问记录 2是否取消不看TA 3是否取消关注
+     * @param type     1是否删除访问记录 2是否取消不看TA 3是否取消关注
      */
-    private void showDeleteDialog(long uid,int position,int type,TextView textView) {
+    private void showDeleteDialog(long uid, int position, int type, TextView textView) {
         String notice;
-        if(type==1){
+        if (type == 1) {
             notice = "是否确认删除?";
-        }else if(type==2){
+        } else if (type == 2) {
             notice = "是否确认移除?";
-        }else {
+        } else {
             notice = "是否取消关注?";
         }
         dialog = builder.setTitle(notice)
@@ -562,11 +570,11 @@ public class MyFollowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 .setRightText("确认")
                 .setLeftText("取消")
                 .setRightOnClickListener(v -> {
-                    if(type==1){
-                        httpDeleteVisitRecord(uid,position);
-                    }else if(type==2){
-                        httpDeleteNotSee(uid,position);
-                    }else {
+                    if (type == 1) {
+                        httpDeleteVisitRecord(uid, position);
+                    } else if (type == 2) {
+                        httpDeleteNotSee(uid, position);
+                    } else {
                         httpCancelFollow(uid, position, textView);
                     }
                     dialog.dismiss();

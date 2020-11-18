@@ -57,7 +57,7 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
 
     @Override
     public void updateDetailUI(RegisterDetailBean bean) {
-        if (bean == null) {
+        if (bean == null || mViewBinding == null) {
             return;
         }
         if (!TextUtils.isEmpty(bean.getNick())) {

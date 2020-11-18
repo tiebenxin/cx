@@ -42,6 +42,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
@@ -234,6 +235,12 @@ public class FriendTrendsActivity extends BaseBindActivity<ActivityMyCircleBindi
                     return;
                 }
                 if (bindingView.tvFollow.getText().toString().equals("关注")) {
+                    //资料未完善
+                    if (UserUtil.getInfoStat() > 0) {
+                        Intent intent = new Intent(FriendTrendsActivity.this, RegisterDetailActivity.class);
+                        startActivity(intent);
+                        return;
+                    }
                     httpToFollow(friendUid);
                 } else if (bindingView.tvFollow.getText().toString().equals("私聊")) {
                     startActivity(new Intent(getContext(), ChatActivity.class)

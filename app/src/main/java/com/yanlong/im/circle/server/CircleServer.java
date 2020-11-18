@@ -55,7 +55,6 @@ public interface CircleServer {
     Call<ReturnBean> cancelLike(@Body WeakHashMap<String, Object> params);
 
 
-
     @POST("follow/add")
     Call<ReturnBean> followAdd(@Body WeakHashMap<String, Object> params);
 

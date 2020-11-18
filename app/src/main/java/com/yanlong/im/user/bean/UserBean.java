@@ -77,6 +77,7 @@ public class UserBean extends RealmObject implements Comparable<UserBean>, IUser
     private int deactivateStat;//注销状态 0 正常 1 注销中 -1 已注销
     private int friendDeactivateStat;//好友注销状态 0 正常 1 注销中 -1 已注销
     private int historyClear;//能否双向清除，1 可以， 其他，否
+    private int infoStat;//用户资料完善状态。0 正常，已完善；1. 新用户未设置；2 老用户未设置
 
 
     public int getMasterRead() {
@@ -565,6 +566,15 @@ public class UserBean extends RealmObject implements Comparable<UserBean>, IUser
 
     public void setHistoryClear(int historyClear) {
         this.historyClear = historyClear;
+    }
+
+    @Override
+    public int getInfoStat() {
+        return infoStat;
+    }
+
+    public void setInfoStat(int infoStat) {
+        this.infoStat = infoStat;
     }
 
     @Override
