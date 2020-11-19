@@ -54,7 +54,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
             Calendar current = Calendar.getInstance();
             defaultCalendar.set(current.get(Calendar.YEAR) - 20, 0, 1);//默认20岁
         }
-        ((RegisterDetailActivity) getActivity()).getDetailBean().setBirthday(defaultCalendar.getTimeInMillis());
+//        ((RegisterDetailActivity) getActivity()).getDetailBean().setBirthday(defaultCalendar.getTimeInMillis());
         if (mDetailBean != null) {
             updateDetailUI(mDetailBean);
         }
@@ -192,7 +192,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
             mViewBinding.ivAvatarMan.setImageResource(R.mipmap.ic_man_avatar_dark);
             mViewBinding.ivAvatarWoman.setImageResource(R.mipmap.ic_woman_avatar_dark);
         }
-        if (bean.getBirthday() != 0) {
+        if (bean.getBirthday() != -1) {
             mViewBinding.tvBirthday.setText(DateUtil.formatDate(bean.getBirthday(), DateUtil.DATE_PATTERN_YMD_STANDARD_CHINESE));
         }
     }

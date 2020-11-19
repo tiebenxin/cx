@@ -14,7 +14,7 @@ import net.cb.cb.library.base.BaseBean;
 public class RegisterDetailBean extends BaseBean implements Parcelable {
     @CoreEnum.ESexType
     private int sex = 0;//默认值，0表示未知，1男，2女
-    private long birthday = 0;
+    private long birthday = -1;
     private int height = 0;
     private String location;
     private String nick;
