@@ -93,4 +93,8 @@ public interface IUser {
     int getHistoryClear();
 
     int getInfoStat();
+
+    long getBirthday();
+
+    String getLocation();
 }

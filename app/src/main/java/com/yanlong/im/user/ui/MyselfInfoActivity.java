@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -10,13 +11,18 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.listener.OnTimeSelectListener;
+import com.bigkoo.pickerview.view.TimePickerView;
 import com.bumptech.glide.Glide;
+import com.luck.picture.lib.utils.DateUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.ui.register.RegisterDetailActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
@@ -24,6 +30,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -31,6 +38,9 @@ import net.cb.cb.library.view.HeadView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -64,6 +74,10 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private String nickName;
     private String oldImid;
     private int authStat;
+    private View viewBirthday;
+    private TextView tvBirthday;
+    private View viewLocation;
+    private TextView tvLocation;
 
 
     @Override
@@ -104,6 +118,10 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         mTvIdentity = findViewById(R.id.tv_identity);
         mHeadView = findViewById(R.id.headView);
         mIvProductNumber = findViewById(R.id.iv_product_number);
+        viewBirthday = findViewById(R.id.view_birthday);
+        tvBirthday = findViewById(R.id.tv_birthday);
+        viewLocation = findViewById(R.id.view_location);
+        tvLocation = findViewById(R.id.tv_location);
     }
 
 
@@ -125,6 +143,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
             }
         });
+        viewBirthday.setOnClickListener(this);
+        viewLocation.setOnClickListener(this);
     }
 
     private void initData() {
@@ -172,6 +192,21 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 case 2:
                     mTvIdentity.setText("已认证");
                     break;
+            }
+            if (userInfo.getBirthday() != -1) {
+                tvBirthday.setText(DateUtil.formatDate(userInfo.getBirthday(), DateUtil.DATE_PATTERN_YMD_STANDARD_CHINESE));
+            } else {
+                tvBirthday.setText("未设置");
+            }
+            if (!TextUtils.isEmpty(userInfo.getLocation())) {
+                String[] location = userInfo.getLocation().split(",");
+                if (location != null && location.length == 2) {
+                    tvLocation.setText(location[1]);
+                } else {
+                    tvLocation.setText(userInfo.getLocation());
+                }
+            } else {
+                tvLocation.setText("未设置");
             }
         }
     }
@@ -230,7 +265,15 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 startActivityForResult(headIntent, IMAGE_HEAD);
                 break;
             case R.id.layout_change_phone_num:
-                startActivity(new Intent(MyselfInfoActivity.this,ChangePhoneNumActivity.class));
+                startActivity(new Intent(MyselfInfoActivity.this, ChangePhoneNumActivity.class));
+                break;
+            case R.id.view_birthday:
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                showBirthDayDialog();
+                break;
+            case R.id.view_location:
                 break;
         }
     }
@@ -243,7 +286,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case NICENAME:
-                    taskUserInfoSet(null, null, content, null);
+                    taskUserInfoSet(null, null, content, null, null, null);
                     break;
                 case SEX:
                     int contentSex;
@@ -252,10 +295,10 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                     } else {
                         contentSex = 2;
                     }
-                    taskUserInfoSet(null, null, null, contentSex);
+                    taskUserInfoSet(null, null, null, contentSex, null, null);
                     break;
                 case PRODUCT:
-                    taskUserInfoSet(content, null, null, null);
+                    taskUserInfoSet(content, null, null, null, null, null);
                     break;
                 case IMAGE_HEAD:
                     if (!TextUtils.isEmpty(content)) {
@@ -271,9 +314,9 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     }
 
 
-    private void taskUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender) {
+    private void taskUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender, Long birthday, String location) {
 
-        userAction.myInfoSet(imid, avatar, nickname, gender, null,null,null,new CallBack<ReturnBean>() {
+        userAction.myInfoSet(imid, avatar, nickname, gender, birthday, location, null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
@@ -327,12 +370,14 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
     /**
      * 更新用户信息
+     *
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshUser(EventRefreshUser event) {
         initData();
     }
+
     //是否是系统用户，系统用户不可修改用户信息
     private boolean isSystemUser() {
         if (userInfo == null) {
@@ -342,6 +387,45 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             return true;
         }
         return false;
+    }
+
+
+    //时间选择器。选择生日
+    private void showBirthDayDialog() {
+        if (userInfo != null) {
+            Calendar current = Calendar.getInstance();
+            Calendar defaultCalendar = Calendar.getInstance();
+            if (userInfo.getBirthday() == -1) {//未设置
+                defaultCalendar.set(current.get(Calendar.YEAR) - 20, 0, 1);//默认20岁
+            } else {
+                defaultCalendar.setTimeInMillis(userInfo.getBirthday());
+            }
+
+            Calendar start = Calendar.getInstance();
+            start.set(current.get(Calendar.YEAR) - 100, 0, 1);//1920-1-1
+            Calendar end = Calendar.getInstance();
+            end.set(current.get(Calendar.YEAR) - 10, 11, 31);//2010-12-31
+
+            //时间选择器
+            TimePickerView pvTime = new TimePickerBuilder(this, new OnTimeSelectListener() {
+                @Override
+                public void onTimeSelect(Date date, View v) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
+                    tvBirthday.setText(DateUtil.formatDate(calendar.getTimeInMillis(), DateUtil.DATE_PATTERN_YMD_STANDARD_CHINESE));
+                    taskUserInfoSet(null, null, null, null, calendar.getTimeInMillis(), null);
+                }
+            })
+                    .setType(new boolean[]{true, true, true, false, false, false})
+                    .setDate(defaultCalendar)
+                    .setRangDate(start, end)
+                    .setCancelText("取消")
+                    .setCancelColor(Color.parseColor("#878787"))
+                    .setSubmitText("确定")
+                    .setSubmitColor(Color.parseColor("#32b152"))
+                    .build();
+            pvTime.show();
+        }
     }
 
 

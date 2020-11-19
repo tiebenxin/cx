@@ -219,6 +219,16 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
         return 0;
     }
 
+    @Override
+    public long getBirthday() {
+        return 0;
+    }
+
+    @Override
+    public String getLocation() {
+        return "";
+    }
+
     public void setJoinTime(String joinTime) {
         this.joinTime = joinTime;
     }

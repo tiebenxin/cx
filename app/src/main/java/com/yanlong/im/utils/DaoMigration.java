@@ -244,6 +244,10 @@ public class DaoMigration implements RealmMigration {
                 updateV56(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 56) {
+                updateV57(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -971,10 +975,17 @@ public class DaoMigration implements RealmMigration {
                 .addField("timeStamp", long.class);
     }
 
-    //增加能否双向清除
+    //增加用户资料状态
     private final void updateV56(RealmSchema schema) {
         schema.get("UserBean")
                 .addField("infoStat", int.class);
+    }
+
+    //增加生日，位置
+    private final void updateV57(RealmSchema schema) {
+        schema.get("UserBean")
+                .addField("birthday", long.class)
+                .addField("location", String.class);
     }
 
     @Override

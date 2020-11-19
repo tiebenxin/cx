@@ -93,8 +93,10 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (!TextUtils.isEmpty(mViewBinding.etNick.getText().toString().trim())) {
-                    uploadInfo();
+                String nick = mViewBinding.etNick.getText().toString().trim();
+
+                if (!TextUtils.isEmpty(nick)) {
+                    uploadInfo(nick);
                 } else {
                     ToastUtil.show("请输入昵称");
                 }
@@ -113,11 +115,10 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
         }
     }
 
-    private void uploadInfo() {
+    private void uploadInfo(String nick) {
         if (getActivity() == null) {
             return;
         }
-        String nick = mViewBinding.etNick.getText().toString().trim();
         RegisterDetailBean bean = ((RegisterDetailActivity) getActivity()).getDetailBean();
         new UserAction().updateMyInfo(null, null, nick, bean.getSex(), bean.getBirthday(), bean.getLocation(), null, new CallBack<ReturnBean>() {
             @Override
