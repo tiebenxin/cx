@@ -57,6 +57,7 @@ public class AudioPlayManager implements SensorEventListener {
     private MsgAllBean currentDownBean;
     public String msg_id;// 当前播放的语音ID
     public boolean isPlaying = false;//正在播放语音
+    private String path = "";
 
     public AudioPlayManager() {
     }
@@ -93,17 +94,18 @@ public class AudioPlayManager implements SensorEventListener {
                             this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
                             this._mediaPlayer.setVolume(1.0F, 1.0F);
                             //   this._mediaPlayer.setDataSource(this.context, this._playingUri);
-                            String path = context.getExternalCacheDir().getAbsolutePath();
-                            File file = new File(path, getFileName(this._playingUri.toString()));
-                            if (file.exists()) {
-                                this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
-                            } else {
+                            String path = "";
+                            if (context != null && context.getExternalCacheDir() != null) {
+                                path = context.getExternalCacheDir().getAbsolutePath();
+                                File file = new File(path, getFileName(this._playingUri.toString()));
+                                if (file.exists()) {
+                                    this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+                                } else {
 //                            LogUtil.getLog().v(TAG, "在线播放--" + this._playingUri);
 //                            this._mediaPlayer.setDataSource(context, this._playingUri);
 //                            downloadAudio(context, this._playingUri.toString());
+                                }
                             }
-
-
                             this._mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                                 public void onPrepared(MediaPlayer mp) {
                                     mp.seekTo(positions);
@@ -290,14 +292,15 @@ public class AudioPlayManager implements SensorEventListener {
                         return true;
                     }
                 });
-
-                String path = context.getExternalCacheDir().getAbsolutePath();
-                File file = new File(path, getFileName(audioUri.toString()));
-                if (file.exists()) {
+                if (context != null && context.getExternalCacheDir() != null) {
+                    path = context.getExternalCacheDir().getAbsolutePath();
+                    File file = new File(path, getFileName(audioUri.toString()));
+                    if (file.exists()) {
 //                    LogUtil.getLog().v(TAG, "本地播放" + file.getPath());
-                    this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
-                } else {
+                        this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+                    } else {
 //                    ToastUtil.show(context, "文件不存在或者已损坏");
+                    }
                 }
 
                 this._mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -366,7 +369,9 @@ public class AudioPlayManager implements SensorEventListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String path = context.getExternalCacheDir().getAbsolutePath();
+                if (context != null && context.getExternalCacheDir() != null) {
+                    path = context.getExternalCacheDir().getAbsolutePath();
+                }
                 String url = bean.getVoiceMessage().getUrl();
                 DownloadUtil.get().download(url, path, getFileName(url), new DownloadUtil.OnDownloadListener() {
                     @Override
@@ -609,14 +614,15 @@ public class AudioPlayManager implements SensorEventListener {
                         return true;
                     }
                 });
-
-                String path = context.getExternalCacheDir().getAbsolutePath();
-                File file = new File(path, getFileName(audioUri.toString()));
-                if (file.exists()) {
+                if (context != null && context.getExternalCacheDir() != null) {
+                    path = context.getExternalCacheDir().getAbsolutePath();
+                    File file = new File(path, getFileName(audioUri.toString()));
+                    if (file.exists()) {
 //                    LogUtil.getLog().v(TAG, "本地播放" + file.getPath());
-                    this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
-                } else {
+                        this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+                    } else {
 //                    ToastUtil.show(context, "文件不存在或者已损坏");
+                    }
                 }
 
                 this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
@@ -645,7 +651,9 @@ public class AudioPlayManager implements SensorEventListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String path = context.getExternalCacheDir().getAbsolutePath();
+                if (context != null && context.getExternalCacheDir() != null) {
+                    path = context.getExternalCacheDir().getAbsolutePath();
+                }
                 String url = bean.getVoiceURL();
                 DownloadUtil.get().download(url, path, getFileName(url), new DownloadUtil.OnDownloadListener() {
                     @Override
@@ -677,7 +685,7 @@ public class AudioPlayManager implements SensorEventListener {
         return isPlaying;
     }
 
-    public MsgAllBean getCurrentMsg(){
+    public MsgAllBean getCurrentMsg() {
         return currentPlayingMsg;
     }
 
