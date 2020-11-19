@@ -47,18 +47,7 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
         } else {
             mViewBinding.ivBack.setVisibility(View.GONE);
         }
-        String cityJson = GsonUtils.getCityJson(getContext());
-        if (!TextUtils.isEmpty(cityJson)) {
-            Gson gson = new Gson();
-            Type type = new TypeToken<List<CityBean>>() {
-            }.getType();
-            List<CityBean> cityBeans = gson.fromJson(cityJson, type);
-            for (int i = 0; i < cityBeans.size(); i++) {
-                CityBean cityBean = cityBeans.get(i);
-                provinceList.add(cityBean.getProvince());
-                locationMap.put(cityBean.getProvince(), cityBean.getCityList());
-            }
-        }
+        initLocationData();
         mViewBinding.wheelProvince.setCyclic(false);
         mViewBinding.wheelCity.setCyclic(false);
         RegisterDetailBean detailBean = ((RegisterDetailActivity) getActivity()).getDetailBean();
@@ -107,6 +96,23 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
             mViewBinding.wheelCity.setAdapter(cityAdapter);
             mViewBinding.wheelCity.setCurrentItem(0);
             updateCityData(province, cityList.get(0), false);
+        }
+    }
+
+    private void initLocationData() {
+        if (provinceList.size() <= 0 || locationMap.size() == 0) {
+            String cityJson = GsonUtils.getCityJson(getContext());
+            if (!TextUtils.isEmpty(cityJson)) {
+                Gson gson = new Gson();
+                Type type = new TypeToken<List<CityBean>>() {
+                }.getType();
+                List<CityBean> cityBeans = gson.fromJson(cityJson, type);
+                for (int i = 0; i < cityBeans.size(); i++) {
+                    CityBean cityBean = cityBeans.get(i);
+                    provinceList.add(cityBean.getProvince());
+                    locationMap.put(cityBean.getProvince(), cityBean.getCityList());
+                }
+            }
         }
     }
 
