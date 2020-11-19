@@ -19,7 +19,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/ic_profile_background" />
+                android:src="@mipmap/ic_background_nick" />
 
             <ImageView
                 android:id="@+id/iv_back"
