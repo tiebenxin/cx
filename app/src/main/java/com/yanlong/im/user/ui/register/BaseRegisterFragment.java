@@ -42,6 +42,8 @@ public abstract class BaseRegisterFragment<SV extends ViewDataBinding> extends B
         void onBack();
 
         void onNext();
+
+        void  onExit();
     }
 
     public abstract void updateDetailUI(RegisterDetailBean bean);

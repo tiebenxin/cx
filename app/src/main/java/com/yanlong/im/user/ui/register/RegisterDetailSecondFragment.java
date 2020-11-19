@@ -62,7 +62,7 @@ public class RegisterDetailSecondFragment extends BaseRegisterFragment<FragmentR
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onBack();
+                    listener.onExit();
                 }
             }
         });

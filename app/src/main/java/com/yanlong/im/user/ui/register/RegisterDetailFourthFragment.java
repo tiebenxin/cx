@@ -1,14 +1,23 @@
 package com.yanlong.im.user.ui.register;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.RegisterDetailBean;
 import com.yanlong.im.databinding.FragmentRegisterFourthBinding;
+import com.yanlong.im.user.action.UserAction;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * @author Liszt
@@ -25,10 +34,10 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
     @Override
     public void init() {
         mViewBinding.ivLeft.setVisibility(View.VISIBLE);
-        mViewBinding.ivRight.setVisibility(View.VISIBLE);
-        if (infoStat == 2){
+        mViewBinding.ivRight.setVisibility(View.INVISIBLE);
+        if (infoStat == 2) {
             mViewBinding.ivBack.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             mViewBinding.ivBack.setVisibility(View.GONE);
         }
     }
@@ -38,6 +47,7 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
         mViewBinding.ivLeft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputUtil.hideKeyboard(mViewBinding.etNick);
                 if (listener != null) {
                     listener.onBack();
                 }
@@ -46,9 +56,17 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
         mViewBinding.ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputUtil.hideKeyboard(mViewBinding.etNick);
                 if (listener != null) {
-                    listener.onBack();
+                    listener.onExit();
                 }
+//                mViewBinding.etNick.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                    }
+//                }, 10);
+
             }
         });
         mViewBinding.ivRight.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +84,22 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
                 }
             }
         });
+
+
+        //进入常信
+        mViewBinding.tvGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (!TextUtils.isEmpty(mViewBinding.etNick.getText().toString())) {
+                    uploadInfo();
+                } else {
+                    ToastUtil.show("请输入昵称");
+                }
+            }
+        });
     }
 
     @Override
@@ -75,6 +109,29 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
         }
         if (!TextUtils.isEmpty(bean.getNick())) {
             mViewBinding.etNick.setText(bean.getNick());
+            mViewBinding.etNick.setSelection(bean.getNick().length());
         }
+    }
+
+    private void uploadInfo() {
+        if (getActivity() == null) {
+            return;
+        }
+        RegisterDetailBean bean = ((RegisterDetailActivity) getActivity()).getDetailBean();
+        new UserAction().updateMyInfo(null, null, bean.getNick(), bean.getSex(), bean.getBirthday(), bean.getLocation(), null, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    ToastUtil.show("注册成功");
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    getActivity().finish();
+                }
+            }
+        });
     }
 }

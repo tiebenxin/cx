@@ -95,6 +95,15 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
                 initPopup();
             }
         });
+
+        mViewBinding.ivBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onExit();
+                }
+            }
+        });
     }
 
 

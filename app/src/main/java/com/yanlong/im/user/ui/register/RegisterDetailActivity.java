@@ -42,7 +42,7 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
     @Override
     protected void init(Bundle savedInstanceState) {
         initInfoStat();
-        fragments = new BaseRegisterFragment[]{initFirstFragment(), /*initSecondFragment(),*/ initThirdFragment(), initFourthFragment(), initFifthFragment()};
+        fragments = new BaseRegisterFragment[]{initFirstFragment(), /*initSecondFragment(),*/ initThirdFragment(), initFourthFragment()/*, initFifthFragment()*/};
         bindingView.viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -84,12 +84,12 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
         return fragment;
     }
 
-    private RegisterDetailFifthFragment initFifthFragment() {
-        RegisterDetailFifthFragment fragment = new RegisterDetailFifthFragment();
-        fragment.setListener(this);
-        fragment.setInfoStat(infoStat);
-        return fragment;
-    }
+//    private RegisterDetailFifthFragment initFifthFragment() {
+//        RegisterDetailFifthFragment fragment = new RegisterDetailFifthFragment();
+//        fragment.setListener(this);
+//        fragment.setInfoStat(infoStat);
+//        return fragment;
+//    }
 
     @Override
     public void onBackPressed() {
@@ -158,14 +158,19 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
         fragments[currentStep].updateDetailUI(mDetailBean);
     }
 
+    @Override
+    public void onExit() {
+        finish();
+    }
+
     //去除身高
-    @IntDef({EStepPosition.FIRST, EStepPosition.SECOND, EStepPosition.THIRD, EStepPosition.FOURTH/*, EStepPosition.FIFTH*/})
+    @IntDef({EStepPosition.FIRST, EStepPosition.SECOND, EStepPosition.THIRD/*, EStepPosition.FOURTH, EStepPosition.FIFTH*/})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EStepPosition {
         int FIRST = 0; //第一步：性别，生日
         int SECOND = 1; //第二步：身高
         int THIRD = 2; //第三步：所在地
-        int FOURTH = 3; //第四步：昵称
+//        int FOURTH = 3; //第四步：昵称
 //        int FIFTH = 4; //第五步：头像
     }
 

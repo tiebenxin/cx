@@ -44,12 +44,13 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
             mViewBinding.ivBack.setVisibility(View.GONE);
         }
         RegisterDetailBean detailBean = ((RegisterDetailActivity) getActivity()).getDetailBean();
-        if (detailBean.getBirthday() > 0) {
+        if (detailBean.isBirthDayInit()) {
             defaultCalendar = Calendar.getInstance();
             defaultCalendar.setTimeInMillis(detailBean.getBirthday());
         } else {
             defaultCalendar = Calendar.getInstance();
-            defaultCalendar.set(1998, 0, 1);//1998-1-1
+            Calendar current = Calendar.getInstance();
+            defaultCalendar.set(current.get(Calendar.YEAR) - 20, 0, 1);//默认20岁
         }
         ((RegisterDetailActivity) getActivity()).getDetailBean().setBirthday(defaultCalendar.getTimeInMillis());
         if (mDetailBean != null) {
@@ -72,7 +73,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
                         ToastUtil.show("请选择性别");
                         return;
                     }
-                    if (bean.getBirthday() == 0) {
+                    if (!bean.isBirthDayInit()) {
                         ToastUtil.show("请选择生日");
                         return;
                     }
@@ -86,7 +87,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onBack();
+                    listener.onExit();
                 }
             }
         });
@@ -132,14 +133,19 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
 
     //时间选择器。选择生日
     private void initTimePicker() {
+        Calendar current = Calendar.getInstance();
         if (defaultCalendar == null) {
             Calendar defaultCalendar = Calendar.getInstance();
-            defaultCalendar.set(1998, 0, 1);//1998-1-1
+            defaultCalendar.set(current.get(Calendar.YEAR) - 20, 0, 1);//默认20岁
+        } else {
+            if (getActivity() != null && !((RegisterDetailActivity) getActivity()).getDetailBean().isBirthDayInit()) {
+                defaultCalendar.setTimeInMillis(((RegisterDetailActivity) getActivity()).getDetailBean().getBirthday());
+            }
         }
         Calendar start = Calendar.getInstance();
-        start.set(1920, 0, 1);//1920-1-1
+        start.set(current.get(Calendar.YEAR) - 100, 0, 1);//1920-1-1
         Calendar end = Calendar.getInstance();
-        end.set(2010, 11, 31);//2010-12-31
+        end.set(current.get(Calendar.YEAR) - 10, 11, 31);//2010-12-31
 
         //时间选择器
         TimePickerView pvTime = new TimePickerBuilder(getActivity(), new OnTimeSelectListener() {
@@ -184,7 +190,6 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
             mViewBinding.ivAvatarMan.setImageResource(R.mipmap.ic_man_avatar_dark);
             mViewBinding.ivAvatarWoman.setImageResource(R.mipmap.ic_woman_avatar_dark);
         }
-
         if (bean.getBirthday() != 0) {
             mViewBinding.tvBirthday.setText(DateUtil.formatDate(bean.getBirthday(), DateUtil.DATE_PATTERN_YMD_STANDARD_CHINESE));
         }

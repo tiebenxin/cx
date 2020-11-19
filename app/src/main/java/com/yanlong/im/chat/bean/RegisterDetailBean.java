@@ -19,10 +19,33 @@ public class RegisterDetailBean extends BaseBean implements Parcelable {
     private String location;
     private String nick;
     private String avatar;
+    private boolean isBirthDayInit = false;
 
     public RegisterDetailBean() {
 
     }
+
+    protected RegisterDetailBean(Parcel in) {
+        sex = in.readInt();
+        birthday = in.readLong();
+        height = in.readInt();
+        location = in.readString();
+        nick = in.readString();
+        avatar = in.readString();
+        isBirthDayInit = in.readByte() != 0;
+    }
+
+    public static final Creator<RegisterDetailBean> CREATOR = new Creator<RegisterDetailBean>() {
+        @Override
+        public RegisterDetailBean createFromParcel(Parcel in) {
+            return new RegisterDetailBean(in);
+        }
+
+        @Override
+        public RegisterDetailBean[] newArray(int size) {
+            return new RegisterDetailBean[size];
+        }
+    };
 
     public int getSex() {
         return sex;
@@ -37,6 +60,7 @@ public class RegisterDetailBean extends BaseBean implements Parcelable {
     }
 
     public void setBirthday(long birthday) {
+        isBirthDayInit = true;
         this.birthday = birthday;
     }
 
@@ -72,26 +96,14 @@ public class RegisterDetailBean extends BaseBean implements Parcelable {
         this.avatar = avatar;
     }
 
-    protected RegisterDetailBean(Parcel in) {
-        sex = in.readInt();
-        birthday = in.readLong();
-        height = in.readInt();
-        location = in.readString();
-        nick = in.readString();
-        avatar = in.readString();
+    public boolean isBirthDayInit() {
+        return isBirthDayInit;
     }
 
-    public static final Creator<RegisterDetailBean> CREATOR = new Creator<RegisterDetailBean>() {
-        @Override
-        public RegisterDetailBean createFromParcel(Parcel in) {
-            return new RegisterDetailBean(in);
-        }
+    public void setBirthDayInit(boolean birthDayInit) {
+        isBirthDayInit = birthDayInit;
+    }
 
-        @Override
-        public RegisterDetailBean[] newArray(int size) {
-            return new RegisterDetailBean[size];
-        }
-    };
 
     @Override
     public int describeContents() {
@@ -106,5 +118,6 @@ public class RegisterDetailBean extends BaseBean implements Parcelable {
         dest.writeString(location);
         dest.writeString(nick);
         dest.writeString(avatar);
+        dest.writeByte((byte) (isBirthDayInit ? 1 : 0));
     }
 }
