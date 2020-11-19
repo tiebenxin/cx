@@ -693,6 +693,10 @@ public class UserAction {
                                 myInfo.setName(nickname);
                             if (gender != null)
                                 myInfo.setSex(gender);
+                            if (birthday != null)
+                                myInfo.setBirthday(birthday.longValue());
+                            if (!TextUtils.isEmpty(location))
+                                myInfo.setLocation(location);
                             updateUser2DB(myInfo);
                         }
                     }
@@ -1401,6 +1405,11 @@ public class UserAction {
                                     myInfo.setName(nickname);
                                 if (gender != null)
                                     myInfo.setSex(gender);
+                                if (birthday != null)
+                                    myInfo.setBirthday(birthday.longValue());
+                                if (!TextUtils.isEmpty(location)) {
+                                    myInfo.setLocation(location);
+                                }
                                 myInfo.setInfoStat(0);
                                 updateUser2DB(myInfo);
                             }
