@@ -1,10 +1,12 @@
 package net.cb.cb.library.view;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -49,6 +51,14 @@ public class WebPageActivity extends AppActivity {
         actionbar = headView.getActionbar();
         webView = findViewById(R.id.webView);
         progressBar = findViewById(R.id.progressBar);
+
+        // TODO 解决#291424 java.lang.RuntimeException
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            String processName = getProcessName(this);
+            if (!"com.yanlong.im".equals(processName)) {// 判断不等于默认进程名称
+                WebView.setDataDirectorySuffix(processName);
+            }
+        }
         initEvent();
         initData();
     }
@@ -79,6 +89,17 @@ public class WebPageActivity extends AppActivity {
                 initContentWeb(webView, url);
         }
 
+    }
+
+    public String getProcessName(Context context) {
+        if (context == null) return null;
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+            if (processInfo.pid == android.os.Process.myPid()) {
+                return processInfo.processName;
+            }
+        }
+        return null;
     }
 
     private void initContentWeb(WebView webView, String url) {
