@@ -52,10 +52,7 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
         mViewBinding.wheelCity.setCyclic(false);
         RegisterDetailBean detailBean = ((RegisterDetailActivity) getActivity()).getDetailBean();
         if (!TextUtils.isEmpty(detailBean.getLocation())) {
-            if (provinceAdapter == null) {
-                provinceAdapter = new ArrayWheelAdapter(provinceList);
-            }
-            mViewBinding.wheelProvince.setAdapter(provinceAdapter);
+            mViewBinding.wheelProvince.setAdapter(new ArrayWheelAdapter(provinceList));
             String location = detailBean.getLocation();
             String[] strings = location.split(",");
             if (strings.length != 2) {
@@ -70,10 +67,7 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
             mViewBinding.wheelProvince.setCurrentItem(provinceIndex);
             cityList = locationMap.get(province);
             if (cityList != null) {
-                if (cityAdapter == null) {
-                    cityAdapter = new ArrayWheelAdapter(cityList);
-                }
-                mViewBinding.wheelCity.setAdapter(cityAdapter);
+                mViewBinding.wheelCity.setAdapter(new ArrayWheelAdapter(cityList));
                 int cityIndex = cityList.indexOf(city);
                 if (cityIndex < 0) {
                     return;
@@ -82,18 +76,12 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
             }
         } else {
             //省份数据
-            if (provinceAdapter == null) {
-                provinceAdapter = new ArrayWheelAdapter(provinceList);
-            }
-            mViewBinding.wheelProvince.setAdapter(provinceAdapter);
+            mViewBinding.wheelProvince.setAdapter(new ArrayWheelAdapter(provinceList));
             mViewBinding.wheelProvince.setCurrentItem(0);
             province = provinceList.get(0);
             //地级市数据
             cityList = locationMap.get(provinceList.get(0));
-            if (cityAdapter == null) {
-                cityAdapter = new ArrayWheelAdapter(cityList);
-            }
-            mViewBinding.wheelCity.setAdapter(cityAdapter);
+            mViewBinding.wheelCity.setAdapter(new ArrayWheelAdapter(cityList));
             mViewBinding.wheelCity.setCurrentItem(0);
             updateCityData(province, cityList.get(0), false);
         }
@@ -157,7 +145,7 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
             @Override
             public void onItemSelected(int index) {
                 try {
-                    updateCityData(province, cityList.get(index), true);
+                    updateCityData(province, cityList.get(index), false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

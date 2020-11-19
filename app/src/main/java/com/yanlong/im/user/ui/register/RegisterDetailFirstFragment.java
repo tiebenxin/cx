@@ -72,7 +72,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
                         ToastUtil.show("请选择性别");
                         return;
                     }
-                    if (bean.getBirthday() <= 0) {
+                    if (bean.getBirthday() == 0) {
                         ToastUtil.show("请选择生日");
                         return;
                     }
@@ -185,7 +185,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
             mViewBinding.ivAvatarWoman.setImageResource(R.mipmap.ic_woman_avatar_dark);
         }
 
-        if (bean.getBirthday() > 0) {
+        if (bean.getBirthday() != 0) {
             mViewBinding.tvBirthday.setText(DateUtil.formatDate(bean.getBirthday(), DateUtil.DATE_PATTERN_YMD_STANDARD_CHINESE));
         }
     }
