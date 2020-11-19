@@ -2,7 +2,10 @@ package net.cb.cb.library.dialog;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.bigkoo.pickerview.adapter.ArrayWheelAdapter;
@@ -53,6 +56,9 @@ public class DialogLocationSelector extends BaseDialog {
     @Override
     public void initView() {
         setContentView(R.layout.dialog_location_selector);
+        Window window = getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.gravity= Gravity.BOTTOM;
         wheelProvince = findViewById(R.id.wheel_province);
         wheelCity = findViewById(R.id.wheel_city);
         tvCancel = findViewById(R.id.tv_left);
