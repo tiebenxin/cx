@@ -30,8 +30,6 @@ public class RegisterDetailThirdFragment extends BaseRegisterFragment<FragmentRe
     List<String> cityList = new ArrayList<>();
     Map<String, List<String>> locationMap = new HashMap<>();
     String province = "";
-    private ArrayWheelAdapter provinceAdapter;
-    private ArrayWheelAdapter cityAdapter;
 
     @Override
     public int getLayoutId() {

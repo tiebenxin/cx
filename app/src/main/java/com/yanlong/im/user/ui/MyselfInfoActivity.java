@@ -28,6 +28,7 @@ import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.dialog.DialogLocationSelector;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -242,9 +243,9 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 startActivityForResult(productIntent, PRODUCT);
                 break;
             case R.id.view_sex:
-                Intent sexIntent = new Intent(MyselfInfoActivity.this, SelectSexActivity.class);
-                sexIntent.putExtra(SelectSexActivity.SEX, sex);
-                startActivityForResult(sexIntent, SEX);
+//                Intent sexIntent = new Intent(MyselfInfoActivity.this, SelectSexActivity.class);
+//                sexIntent.putExtra(SelectSexActivity.SEX, sex);
+//                startActivityForResult(sexIntent, SEX);
                 break;
             case R.id.view_identity:
 //                if (authStat == 0) {
@@ -271,9 +272,19 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+                if (isSystemUser()) {
+                    return;
+                }
                 showBirthDayDialog();
                 break;
             case R.id.view_location:
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (isSystemUser()) {
+                    return;
+                }
+                showLocationDialog();
                 break;
         }
     }
@@ -426,6 +437,27 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                     .build();
             pvTime.show();
         }
+    }
+
+    private void showLocationDialog() {
+        String province = "";
+        String city = "";
+        if (!TextUtils.isEmpty(userInfo.getLocation())) {
+            String[] location = userInfo.getLocation().split(",");
+            if (location != null && location.length == 2) {
+                province = location[0];
+                city = location[1];
+            }
+        }
+        DialogLocationSelector locationDialog = new DialogLocationSelector(this, province, city);
+        locationDialog.setListener(new DialogLocationSelector.ILocationListener() {
+            @Override
+            public void onSure(String province, String city) {
+                tvLocation.setText(city);
+                taskUserInfoSet(null, null, null, null, null, province + "," + city);
+            }
+        }).show();
+
     }
 
 
