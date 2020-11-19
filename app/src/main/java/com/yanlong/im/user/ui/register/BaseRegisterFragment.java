@@ -23,7 +23,7 @@ public abstract class BaseRegisterFragment<SV extends ViewDataBinding> extends B
 
     public IRegisterListener listener;
     public SV mViewBinding;
-    public int infoStat;
+    public int infoStat;//0 正常，1新用户未设置，2老用户未设置
 
     @Nullable
     @Override

@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * @author Liszt
  * @date 2020/11/16
- * Description 性别，生日
+ * Description 性别，生日（10-100，默认20）
  */
 public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRegisterFirstBinding> {
 
@@ -38,9 +38,11 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
     public void init() {
         mViewBinding.ivLeft.setVisibility(View.INVISIBLE);
         mViewBinding.ivRight.setVisibility(View.VISIBLE);
-        if (infoStat == 2) {
+        if (infoStat == 2) {//老用户
             mViewBinding.ivBack.setVisibility(View.VISIBLE);
-        } else {
+            mViewBinding.tvTitle.setText("需要您完善个人资料");
+        } else {//新用户
+            mViewBinding.tvTitle.setText("您的资料");
             mViewBinding.ivBack.setVisibility(View.GONE);
         }
         RegisterDetailBean detailBean = ((RegisterDetailActivity) getActivity()).getDetailBean();

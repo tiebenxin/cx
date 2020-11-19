@@ -93,7 +93,7 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (!TextUtils.isEmpty(mViewBinding.etNick.getText().toString())) {
+                if (!TextUtils.isEmpty(mViewBinding.etNick.getText().toString().trim())) {
                     uploadInfo();
                 } else {
                     ToastUtil.show("请输入昵称");
@@ -117,8 +117,9 @@ public class RegisterDetailFourthFragment extends BaseRegisterFragment<FragmentR
         if (getActivity() == null) {
             return;
         }
+        String nick = mViewBinding.etNick.getText().toString().trim();
         RegisterDetailBean bean = ((RegisterDetailActivity) getActivity()).getDetailBean();
-        new UserAction().updateMyInfo(null, null, bean.getNick(), bean.getSex(), bean.getBirthday(), bean.getLocation(), null, new CallBack<ReturnBean>() {
+        new UserAction().updateMyInfo(null, null, nick, bean.getSex(), bean.getBirthday(), bean.getLocation(), null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

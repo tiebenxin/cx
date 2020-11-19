@@ -59,12 +59,13 @@
 
 
                 <TextView
+                    android:id="@+id/tv_title"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="需要您完善个人资料\n您的资料"
+                    android:text=""
                     android:textColor="@color/black"
                     android:textSize="21sp" />
 
