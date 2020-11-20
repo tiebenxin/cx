@@ -256,7 +256,7 @@ public class RegisterDetailFifthFragment extends BaseRegisterFragment<FragmentRe
                     return;
                 }
                 if (response.body().isOk()) {
-                    ToastUtil.show("注册成功");
+//                    ToastUtil.show("注册成功");
                     Intent intent = new Intent(getContext(), MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
