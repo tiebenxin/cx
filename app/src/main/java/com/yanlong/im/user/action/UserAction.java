@@ -697,7 +697,12 @@ public class UserAction {
                                 myInfo.setBirthday(birthday.longValue());
                             if (!TextUtils.isEmpty(location))
                                 myInfo.setLocation(location);
+                            //判断生日，所在地是否初始化
+                            if (!TextUtils.isEmpty(myInfo.getLocation()) && myInfo.getBirthday() != -1 && myInfo.getSex() > 0) {
+                                myInfo.setInfoStat(0);
+                            }
                             updateUser2DB(myInfo);
+                            MessageManager.getInstance().notifyRefreshUser();
                         }
                     }
                 } catch (Exception e) {
