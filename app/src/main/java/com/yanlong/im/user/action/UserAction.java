@@ -254,6 +254,9 @@ public class UserAction {
      * 拉取服务器的自己的信息到数据库
      */
     public void getMyInfo4Web(Long usrid, String imid) {
+        if (usrid == null) {
+            return;
+        }
         getMyInfo4Web(usrid, imid, null);
     }
 
