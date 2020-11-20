@@ -280,11 +280,11 @@ public class MainActivity extends BaseTcpActivity {
             checkPermission();
             initLocation();
             FileManager.getInstance().clearLogDir();
-            checkInfoStat();
         }
         if (mMsgMainFragment != null && !SocketUtil.getSocketUtil().getOnlineState()) {
             mMsgMainFragment.doOnlineChange(false);
         }
+        checkInfoStat();
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
