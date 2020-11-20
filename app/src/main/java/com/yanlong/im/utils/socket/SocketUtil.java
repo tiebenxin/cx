@@ -637,7 +637,7 @@ public class SocketUtil {
             updateConnectStatus(EConnectionStatus.SSL);
             long endTime = System.currentTimeMillis();
             LogUtil.getLog().d(TAG + "--连接LOG", "\n>>>>SSL握手成功,总耗时=" + (endTime - time));
-            showConnectTime(endTime);
+//            showConnectTime(endTime);
             receive();
             //发送认证请求
             TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
