@@ -140,7 +140,7 @@ public class RegisterDetailFirstFragment extends BaseRegisterFragment<FragmentRe
             Calendar defaultCalendar = Calendar.getInstance();
             defaultCalendar.set(current.get(Calendar.YEAR) - 20, 0, 1);//默认20岁
         } else {
-            if (getActivity() != null && !((RegisterDetailActivity) getActivity()).getDetailBean().isBirthDayInit()) {
+            if (getActivity() != null && ((RegisterDetailActivity) getActivity()).getDetailBean().isBirthDayInit()) {
                 defaultCalendar.setTimeInMillis(((RegisterDetailActivity) getActivity()).getDetailBean().getBirthday());
             }
         }
