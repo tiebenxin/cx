@@ -47,6 +47,8 @@ public class DialogLocationSelector extends BaseDialog {
         this(context, R.style.MyDialogTheme);
         this.province = province;
         this.city = city;
+        setUI();
+
     }
 
     public DialogLocationSelector(Context context, int theme) {
@@ -58,7 +60,7 @@ public class DialogLocationSelector extends BaseDialog {
         setContentView(R.layout.dialog_location_selector);
         Window window = getWindow();
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.gravity= Gravity.BOTTOM;
+        lp.gravity = Gravity.BOTTOM;
         wheelProvince = findViewById(R.id.wheel_province);
         wheelCity = findViewById(R.id.wheel_city);
         tvCancel = findViewById(R.id.tv_left);
@@ -67,28 +69,7 @@ public class DialogLocationSelector extends BaseDialog {
         tvSure.setOnClickListener(this);
         initLocationData();
         //有默认值
-        int provinceIndex = 0;
-        int cityIndex = 0;
-        if (!TextUtils.isEmpty(province)) {
-            provinceIndex = provinceList.indexOf(province);
-            cityList = locationMap.get(provinceList);
-            if (cityList != null) {
-                cityIndex = cityList.indexOf(city);
-            }
-        } else {
-            province = provinceList.get(0);
-            cityList = locationMap.get(province);
-            city = cityList.get(0);
-        }
-        wheelProvince.setAdapter(new ArrayWheelAdapter(provinceList));
-        wheelProvince.setCyclic(false);
-        wheelProvince.setCurrentItem(provinceIndex);
-
-        wheelCity.setAdapter(new ArrayWheelAdapter(cityList));
-        wheelCity.setCyclic(false);
-        wheelCity.setCurrentItem(cityIndex);
-
-
+        setUI();
         wheelProvince.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(int index) {
@@ -112,6 +93,29 @@ public class DialogLocationSelector extends BaseDialog {
             }
         });
 
+    }
+
+    private void setUI() {
+        int provinceIndex = 0;
+        int cityIndex = 0;
+        if (!TextUtils.isEmpty(province)) {
+            provinceIndex = provinceList.indexOf(province);
+            cityList = locationMap.get(province);
+            if (cityList != null) {
+                cityIndex = cityList.indexOf(city);
+            }
+        } else {
+            province = provinceList.get(0);
+            cityList = locationMap.get(province);
+            city = cityList.get(0);
+        }
+        wheelProvince.setAdapter(new ArrayWheelAdapter(provinceList));
+        wheelProvince.setCyclic(false);
+        wheelProvince.setCurrentItem(provinceIndex);
+
+        wheelCity.setAdapter(new ArrayWheelAdapter(cityList));
+        wheelCity.setCyclic(false);
+        wheelCity.setCurrentItem(cityIndex);
     }
 
     @Override

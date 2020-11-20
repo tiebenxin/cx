@@ -127,6 +127,12 @@ public class RegisterDetailActivity extends BaseBindActivity<ActivityRegisterDet
                     if (!TextUtils.isEmpty(myInfo.getName())) {
                         mDetailBean.setNick(myInfo.getName());
                     }
+                    if (myInfo.getBirthday() != -1) {
+                        mDetailBean.setBirthday(myInfo.getBirthday());
+                    }
+                    if (!TextUtils.isEmpty(myInfo.getLocation())) {
+                        mDetailBean.setLocation(myInfo.getLocation());
+                    }
                     fragments[currentStep].updateDetailUI(mDetailBean);
                 }
             }
