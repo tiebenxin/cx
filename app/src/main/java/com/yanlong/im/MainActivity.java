@@ -56,6 +56,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.eventbus.EventReportGeo;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
@@ -280,11 +281,14 @@ public class MainActivity extends BaseTcpActivity {
             checkPermission();
             initLocation();
             FileManager.getInstance().clearLogDir();
+            userAction.getMyInfo4Web(UserAction.getMyId(), "");
+        } else {
+            checkInfoStat();
         }
         if (mMsgMainFragment != null && !SocketUtil.getSocketUtil().getOnlineState()) {
             mMsgMainFragment.doOnlineChange(false);
         }
-        checkInfoStat();
+
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
@@ -755,6 +759,11 @@ public class MainActivity extends BaseTcpActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventIdentifyUser(IdentifyUserEvent event) {
         httpGetUserInfo(PayEnvironment.getInstance().getUser().getUid());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshUser(EventRefreshUser event) {
+        checkInfoStat();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
